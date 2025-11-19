@@ -127,7 +127,7 @@ class Extension_ImageService_Plugin_Admin {
 			'author'           => 'BoldGrid',
 			'description'      => esc_html( $description ),
 			'author_uri'       => 'https://www.boldgrid.com/',
-			'extension_uri'    => 'https://www.boldgrid.com/w3-total-cache/',
+			'extension_uri'    => 'https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=extension_admin&utm_campaign=imageservice',
 			'extension_id'     => 'imageservice',
 			'settings_exists'  => false,
 			'version'          => '1.0',
@@ -617,7 +617,7 @@ class Extension_ImageService_Plugin_Admin {
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 							__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total-cache' ),
 							'<a target="_blank" href="' . esc_url(
-								'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
+								'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice#conversion-canceled'
 							) . '">',
 							'</a>'
 						),
@@ -735,7 +735,7 @@ class Extension_ImageService_Plugin_Admin {
 						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 						esc_html__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total-cache' ),
 						'<a target="_blank" href="' . esc_url(
-							'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
+							'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice#conversion-canceled'
 						) . '">',
 						'</a>'
 					);

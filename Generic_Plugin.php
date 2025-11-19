@@ -900,7 +900,7 @@ class Generic_Plugin {
 				$strings = array();
 
 				if ( ! $this->_config->get_boolean( 'common.tweeted' ) ) {
-					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/';
+					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=footer_comment&utm_campaign=free_plugin';
 					$strings[] = '';
 				}
 

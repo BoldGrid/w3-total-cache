@@ -31,8 +31,8 @@ return array(
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_page_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/page-cache/' ) . '" target="_blank">' . esc_html__( 'View all questions in Page Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/page-cache/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=page_cache_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in Page Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=page_cache_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 	'minify'         => array(
@@ -56,8 +56,8 @@ return array(
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_minify_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/minify/' ) . '" target="_blank">' . esc_html__( 'View all questions in Minify Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/minify/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=minify_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in Minify Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=minify_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 	'database_cache' => array(
@@ -83,8 +83,8 @@ return array(
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_database_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/database-cache/' ) . '" target="_blank">' . esc_html__( 'View all questions in Database Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/database-cache/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=database_cache_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in Database Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=database_cache_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 	'object_cache'   => array(
@@ -108,8 +108,8 @@ return array(
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_object_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/object-cache/' ) . '" target="_blank">' . esc_html__( 'View all questions in Object Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/object-cache/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=object_cache_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in Object Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=object_cache_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 	'browser_cache'  => array(
@@ -133,8 +133,8 @@ return array(
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_browser_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/browser-cache/' ) . '" target="_blank">' . esc_html__( 'View all questions in Browser Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/browser-cache/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=browser_cache_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in Browser Cache forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=browser_cache_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 	'cdn'            => array(
@@ -153,15 +153,15 @@ return array(
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to configure Cloudflare with W3 Total Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/#configure-w3-total-cache?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Full Site Delivery with Bunny CDN', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab#configure-w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Full Site Delivery with Bunny CDN', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_cdn">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
-				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/cdn/' ) . '" target="_blank">' . esc_html__( 'View all questions in the CDN forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a><p>
-				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
+				<p><a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/topic-tag/cdn/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=cdn_forum' ) . '" target="_blank">' . esc_html__( 'View all questions in the CDN forum', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a><p>
+				<p><a class="button button-secondary" href="' . esc_url( 'https://www.boldgrid.com/support/ask-a-question/?utm_source=w3tc&utm_medium=help_tab&utm_campaign=cdn_support' ) . '" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a> ' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p>',
 		),
 	),
 );
