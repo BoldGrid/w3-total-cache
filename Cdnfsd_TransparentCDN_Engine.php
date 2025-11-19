@@ -118,7 +118,7 @@ class Cdn_TransparentCDN_Api {
 	 *
 	 * @param array $files Array of file URLs to purge.
 	 *
-	 * @return bool True if content purge is successful, thorws exception otherwise.
+	 * @return bool True if content purge is successful, throws exception otherwise.
 	 *
 	 * @throws \Exception If there is an issue with the HTTP request.
 	 */
