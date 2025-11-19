@@ -357,7 +357,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
-					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=object_cache_methods' ); ?>"
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=dbcache_cache_methods' ); ?>"
 						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
 				</p>
