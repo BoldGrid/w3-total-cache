@@ -299,7 +299,7 @@ class Minify_Environment {
 					array(
 						'br' => array(),
 					)
-				),
+				)
 			);
 		}
 	}
