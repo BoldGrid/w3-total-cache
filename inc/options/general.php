@@ -357,7 +357,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
-					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=dbcache_cache_methods' ); ?>"
 						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
 				</p>
@@ -439,7 +439,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
-					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=object_cache_methods' ); ?>"
 						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
 				</p>
@@ -517,7 +517,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'Enabling this will schedule a WP-Cron event that will flush all enabled Caches via a single cron job. Each cache\'s advanced settings page features similar settings to this if you wish to schedule purges for specific caches only. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=schedule_purge' ) . '" target="_blank">',
 					'</a>'
 				),
 				array(
@@ -1139,7 +1139,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
 										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
 									'</a>'
 								)
 								: sprintf(
@@ -1154,7 +1154,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
 										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
 									'</a>'
 								),
 							$image_service_link
