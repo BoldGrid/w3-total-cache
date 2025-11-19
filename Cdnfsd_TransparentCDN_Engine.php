@@ -76,7 +76,7 @@ class Cdn_TransparentCDN_Api {
 	 *
 	 * @param array $urls Array of URLs to purge from the CDN.
 	 *
-	 * @return bool True if purge is successful, false otherwise.
+	 * @return bool True if purge is successful, throws exception otherwise.
 	 *
 	 * @throws \Exception If required configuration parameters are missing or if the purge fails.
 	 */
@@ -118,7 +118,7 @@ class Cdn_TransparentCDN_Api {
 	 *
 	 * @param array $files Array of file URLs to purge.
 	 *
-	 * @return bool True if content purge is successful, false otherwise.
+	 * @return bool True if content purge is successful, thorws exception otherwise.
 	 *
 	 * @throws \Exception If there is an issue with the HTTP request.
 	 */
@@ -313,27 +313,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		$api = new Cdn_TransparentCDN_Api( $this->config );
 
 		try {
-			$result = $api->purge( $urls );
-
-			if ( ! $result ) {
-				throw new \Exception(
-					wp_kses(
-						sprintf(
-							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Problem purging. If you need help, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
-							'</a>'
-						),
-						array(
-							'a' => array(
-								'href' => true,
-								'target' => true,
-								'rel' => true,
-							),
-						)
-					)
-				);
-			}
+			$api->purge( $urls );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(
@@ -371,21 +351,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		);
 
 		try {
-			$result = $api->purge( array( 'items' => $items ) );
-
-			if ( ! $result ) {
-				throw new \Exception(
-					wp_kses(
-						sprintf(
-							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Problem purging. If you need help, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
-							'</a>'
-						),
-						array( 'a' => array( 'href' => array() ) )
-					)
-				);
-			}
+			$api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(
