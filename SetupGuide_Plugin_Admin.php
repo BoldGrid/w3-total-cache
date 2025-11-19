@@ -1538,7 +1538,7 @@ class SetupGuide_Plugin_Admin {
 								'We\'re here to help you!  Visit our %1$sSupport Center%2$s for helpful information and to ask questions.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/' ) . '" target="_blank">',
+							'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=setup_guide&utm_campaign=support_center' ) . '" target="_blank">',
 							'</a>'
 						) . '</p>',
 				),
