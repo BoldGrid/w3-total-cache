@@ -331,7 +331,8 @@ class Cdnfsd_TransparentCDN_Engine {
 								'rel' => true,
 							),
 						)
-					);
+					)
+				);
 			}
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
@@ -383,6 +384,7 @@ class Cdnfsd_TransparentCDN_Engine {
 						),
 						array( 'a' => array( 'href' => array() ) )
 					)
+				);
 			}
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
