@@ -19,22 +19,21 @@ defined( 'W3TC' ) || die();
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
-		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
+		\esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
 		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		$allowed_html = array(
-			'a' => array(
-				'href' => array(),
-			),
-		);
-		// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-		echo wp_kses(
-			sprintf(
-				__( 'If the problem persists, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
-				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+		echo \wp_kses(
+			\sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				\__( 'If the problem persists, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 				'</a>'
 			),
-			$allowed_html
+			array(
+				'a' => array(
+					'href' => array(),
+				),
+			)
 		);
 		?>
 	</div>
@@ -42,22 +41,22 @@ defined( 'W3TC' ) || die();
 	<div class="metabox-holder">
 		<?php
 		Util_Ui::postbox_header(
-			esc_html__( 'Success', 'w3-total-cache' ) .
-			( isset( $delete_error_message ) ? esc_html__( ' (with an error)', 'w3-total-cache' ) : '' )
+			\esc_html__( 'Success', 'w3-total-cache' ) .
+			( isset( $delete_error_message ) ? \esc_html__( ' (with an error)', 'w3-total-cache' ) : '' )
 		);
 		?>
 
 		<div style="text-align: center">
-			<p><?php esc_html_e( 'The static asset CDN has been deauthorized', 'w3-total-cache' ); ?>.</p>
+			<p><?php \esc_html_e( 'The static asset CDN has been deauthorized', 'w3-total-cache' ); ?>.</p>
 		</div>
 		<?php if ( 'yes' === $delete_pull_zone && empty( $delete_error_message ) ) : ?>
 			<div style="text-align: center">
-				<p><?php esc_html_e( 'The pull zone has been deleted', 'w3-total-cache' ); ?>.</p>
+				<p><?php \esc_html_e( 'The pull zone has been deleted', 'w3-total-cache' ); ?>.</p>
 			</div>
 		<?php endif; ?>
 		<p class="submit">
 			<input type="button" class="w3tc_cdn_totalcdn_done w3tc-button-save button-primary"
-				value="<?php esc_html_e( 'Done', 'w3-total-cache' ); ?>" />
+				value="<?php \esc_html_e( 'Done', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>

@@ -815,25 +815,21 @@ class Generic_Plugin_Admin {
 						'Bunny CDN should only be enabled as either a CDN for static assets or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
 						'w3-total-cache'
 					),
-					'totalCdnWarning'  => \esc_html(
-						\sprintf(
-							// Translators: 1: W3 Total Cache name.
-							\__(
-								'%1$s cannot be enabled for both CDN and Full Site Delivery.',
-								'w3-total-cache'
-							),
+					'totalCdnWarning'  => \sprintf(
+						// Translators: 1: W3 Total Cache name.
+						\esc_html__(
+							'%1$s cannot be enabled for both CDN and Full Site Delivery.',
+							'w3-total-cache'
+						),
 							W3TC_CDN_NAME
-						)
 					),
-					'mixedCdnWarning'  => \esc_html(
-						\sprintf(
-							// Translators: 1: W3 Total Cache name.
-							\__(
-								'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time.',
-								'w3-total-cache'
-							),
-							W3TC_CDN_NAME
-						)
+					'mixedCdnWarning'  => \sprintf(
+						// Translators: 1: W3 Total Cache name.
+						\esc_html__(
+							'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time.',
+							'w3-total-cache'
+						),
+						W3TC_CDN_NAME
 					),
 				)
 			);
@@ -1368,25 +1364,21 @@ class Generic_Plugin_Admin {
 				)
 			),
 			'cdn_fsd_conflict_bunnycdn'               => \esc_html__( 'Bunny CDN cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.', 'w3-total-cache' ),
-			'cdn_fsd_conflict_totalcdn'               => \esc_html(
-				\sprintf(
-					// Translators: 1: W3 Total Cache name.
-					\__(
-						'%1$s cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.',
-						'w3-total-cache'
-					),
-					W3TC_CDN_NAME
-				)
+			'cdn_fsd_conflict_totalcdn'               => \sprintf(
+				// Translators: 1: W3 Total Cache name.
+				\esc_html__(
+					'%1$s cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.',
+					'w3-total-cache'
+				),
+				W3TC_CDN_NAME
 			),
-			'cdn_fsd_conflict_mixed'                  => \esc_html(
-				\sprintf(
-					// Translators: 1: W3 Total Cache name.
-					\__(
-						'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time. Please disable one and save again.',
-						'w3-total-cache'
-					),
-					W3TC_CDN_NAME
-				)
+			'cdn_fsd_conflict_mixed'                  => \sprintf(
+				// Translators: 1: W3 Total Cache name.
+				\esc_html__(
+					'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time. Please disable one and save again.',
+					'w3-total-cache'
+				),
+				W3TC_CDN_NAME
 			),
 			'flush_cdn_failed'                        => \wp_kses(
 				\sprintf(
