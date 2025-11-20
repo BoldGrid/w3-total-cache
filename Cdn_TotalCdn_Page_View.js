@@ -17,6 +17,87 @@ jQuery(function($) {
 		o.resize();
 	}
 
+	/**
+	 * Extracts a user-friendly error message from a potentially complex error response.
+	 *
+	 * @param string|object error_message The raw error message that may contain JSON or be an object.
+	 *
+	 * @return string A simplified, user-friendly error message.
+	 */
+	function extractUserFriendlyMessage( error_message ) {
+		if ( ! error_message ) {
+			return 'An error occurred while saving the custom hostname.';
+		}
+
+		var error_obj = null;
+
+		// If error_message is already an object, use it directly.
+		if ( typeof error_message === 'object' && error_message !== null ) {
+			error_obj = error_message;
+		} else if ( typeof error_message === 'string' ) {
+			// Remove "Response code XXX: " prefix if present.
+			var cleaned = error_message.replace( /^Response code \d+: /, '' ).trim();
+
+			// Try to find and parse JSON in the string.
+			var json_match = cleaned.match( /\{[\s\S]*\}/ );
+			if ( json_match ) {
+				try {
+					error_obj = JSON.parse( json_match[0] );
+				} catch ( e ) {
+					// If JSON parsing fails, try parsing the entire cleaned string.
+					if ( cleaned.indexOf( '{' ) === 0 ) {
+						try {
+							error_obj = JSON.parse( cleaned );
+						} catch ( e2 ) {
+							// If still fails, return the cleaned message.
+							return cleaned;
+						}
+					} else {
+						return cleaned;
+					}
+				}
+			} else if ( cleaned.indexOf( '{' ) === 0 ) {
+				// String starts with { but regex didn't match, try parsing directly.
+				try {
+					error_obj = JSON.parse( cleaned );
+				} catch ( e ) {
+					return cleaned;
+				}
+			} else {
+				// No JSON found, return the cleaned message.
+				return cleaned;
+			}
+		} else {
+			return 'An error occurred while saving the custom hostname.';
+		}
+
+		// Extract user-friendly message from the error object.
+		if ( error_obj && typeof error_obj === 'object' ) {
+			var parts = [];
+
+			// Extract the main error message.
+			if ( error_obj.Error && typeof error_obj.Error === 'string' ) {
+				parts.push( error_obj.Error );
+			}
+
+			// Extract the CDN provider response message if available.
+			if ( error_obj['CDN Provider Response'] && typeof error_obj['CDN Provider Response'] === 'object' ) {
+				if ( error_obj['CDN Provider Response'].Message && typeof error_obj['CDN Provider Response'].Message === 'string' ) {
+					parts.push( error_obj['CDN Provider Response'].Message );
+				}
+			} else if ( error_obj.Message && typeof error_obj.Message === 'string' ) {
+				parts.push( error_obj.Message );
+			}
+
+			if ( parts.length > 0 ) {
+				return parts.join( '. ' );
+			}
+		}
+
+		// Fallback: return a generic message.
+		return 'An error occurred while saving the custom hostname.';
+	}
+
 	// Add event handlers.
 	$('body')
 		// Load the authorization or subscription form.
@@ -165,9 +246,91 @@ jQuery(function($) {
 			W3tc_Lightbox.load_form(url, '.w3tc_cdn_totalcdn_form', w3tc_totalcdn_resize);
 		} )
 
+		.on( 'click', '.w3tc_cdn_totalcdn_remove_custom_hostname', function() {
+			if ( ! confirm( 'Are you sure you want to remove the custom hostname? This action cannot be undone.' ) ) {
+				return;
+			}
+
+			var $this = $(this);
+
+			// Disable the button and show a spinner.
+			$this
+				.prop('disabled', true)
+				.closest('td').addClass('lightbox-loader');
+
+			$.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: w3tc_nonce[0],
+					action: 'w3tc_ajax',
+					w3tc_action: 'cdn_totalcdn_remove_custom_hostname'
+				}
+			} ).then( function( response ) {
+				// Log the full JSON response for debugging.
+				console.log( 'Custom hostname remove response:', JSON.stringify( response, null, 2 ) );
+
+				if ( typeof response.success !== 'undefined' && response.success ) {
+					// Reload the page to show the updated configuration.
+					window.location = window.location + '&';
+				} else {
+					// Unsuccessful.
+					var error_message = '';
+					if ( typeof response.data !== 'undefined' && typeof response.data.error_message !== 'undefined' ) {
+						console.log( 'Raw error message:', response.data.error_message );
+						error_message = extractUserFriendlyMessage( response.data.error_message );
+						console.log( 'Extracted error message:', error_message );
+					} else {
+						error_message = 'Unable to remove the custom hostname. Please try again.';
+					}
+					alert( error_message );
+
+					$this
+						.prop('disabled', false)
+						.closest('td').removeClass('lightbox-loader');
+				}
+			} ).fail(function( response ) {
+				// Log the full JSON response for debugging.
+				var response_json = '';
+				if ( typeof response.responseJSON !== 'undefined' ) {
+					response_json = JSON.stringify( response.responseJSON, null, 2 );
+				} else {
+					response_json = JSON.stringify( response, null, 2 );
+				}
+				console.log( 'Custom hostname remove error response:', response_json );
+
+				// Failure; received a non-2xx/3xx HTTP status code.
+				var error_message = '';
+				if ( typeof response.responseJSON !== 'undefined' && 'data' in response.responseJSON && 'error_message' in response.responseJSON.data ) {
+					// An error message was passed in the response data.
+					console.log( 'Raw error message (fail):', response.responseJSON.data.error_message );
+					error_message = extractUserFriendlyMessage( response.responseJSON.data.error_message );
+					console.log( 'Extracted error message (fail):', error_message );
+				} else {
+					// Unknown error - use simple, user-friendly message.
+					error_message = 'Unable to remove the custom hostname. Please check your connection and try again.';
+				}
+				alert( error_message );
+
+				$this
+					.prop('disabled', false)
+					.closest('td').removeClass('lightbox-loader');
+			});
+		} )
+
 		.on( 'click', '.w3tc_cdn_totalcdn_save_custom_hostname', function() {
 			console.log('Saving custom hostname...');
-			var custom_hostname = $('#w3tc-custom-hostname' ).val();
+			var custom_hostname = $('#w3tc-custom-hostname' ).val(),
+				$messages = $('#w3tc-custom-hostname-messages'),
+				$this = $(this);
+
+			// Clear any existing error messages.
+			$messages.empty();
+
+			// Disable the button and show a spinner.
+			$this
+				.prop('disabled', true)
+				.closest('p').addClass('lightbox-loader');
 
 			$.ajax({
 				method: 'POST',
@@ -179,19 +342,73 @@ jQuery(function($) {
 					custom_hostname: custom_hostname
 				}
 			} ).then( function( response ) {
+				// Log the full JSON response for debugging.
+				console.log( 'Custom hostname save response:', JSON.stringify( response, null, 2 ) );
+
 				if ( typeof response.success !== 'undefined' ) {
 					if ( response.success ) {
 						// reload the page to show the new custom hostname.
 						window.location = window.location + '&';
 					} else {
-						console.log( 'Error', { response } );
+						// Unsuccessful.
+						var error_message = '';
+						if ( typeof response.data !== 'undefined' && typeof response.data.error_message !== 'undefined' ) {
+							console.log( 'Raw error message:', response.data.error_message );
+							error_message = extractUserFriendlyMessage( response.data.error_message );
+							console.log( 'Extracted error message:', error_message );
+						} else {
+							error_message = 'Unable to save the custom hostname. Please check the hostname format and try again.';
+						}
+						$('<div/>', {
+							class: 'error',
+							html: '<p>' + error_message + '</p>'
+						}).appendTo($messages);
+
+						$this
+							.prop('disabled', false)
+							.closest('p').removeClass('lightbox-loader');
 					}
 				} else {
-					console.log( 'Error', { response } );
+					// Unknown error.
+					$('<div/>', {
+						class: 'error',
+						html: '<p>An unexpected error occurred. Please try again.</p>'
+					}).appendTo($messages);
+
+					$this
+						.prop('disabled', false)
+						.closest('p').removeClass('lightbox-loader');
 				}
-			} ).fail(function( error ) {
-				console.log( 'Error', { error } );
-			  });
+			} ).fail(function( response ) {
+				// Log the full JSON response for debugging.
+				var response_json = '';
+				if ( typeof response.responseJSON !== 'undefined' ) {
+					response_json = JSON.stringify( response.responseJSON, null, 2 );
+				} else {
+					response_json = JSON.stringify( response, null, 2 );
+				}
+				console.log( 'Custom hostname save error response:', response_json );
+
+				// Failure; received a non-2xx/3xx HTTP status code.
+				var error_message = '';
+				if ( typeof response.responseJSON !== 'undefined' && 'data' in response.responseJSON && 'error_message' in response.responseJSON.data ) {
+					// An error message was passed in the response data.
+					console.log( 'Raw error message (fail):', response.responseJSON.data.error_message );
+					error_message = extractUserFriendlyMessage( response.responseJSON.data.error_message );
+					console.log( 'Extracted error message (fail):', error_message );
+				} else {
+					// Unknown error - use simple, user-friendly message.
+					error_message = 'Unable to save the custom hostname. Please check your connection and try again.';
+				}
+				$('<div/>', {
+					class: 'error',
+					html: '<p>' + error_message + '</p>'
+				}).appendTo($messages);
+
+				$this
+					.prop('disabled', false)
+					.closest('p').removeClass('lightbox-loader');
+			});
 		} )
 
 		// Deauthorize and optionally delete the pull zone.

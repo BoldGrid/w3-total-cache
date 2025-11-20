@@ -72,6 +72,11 @@ class Cdn_TotalCdn_Popup {
 			'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl',
 			array( $o, 'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl' )
 		);
+
+		\add_action(
+			'w3tc_ajax_cdn_totalcdn_remove_custom_hostname',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_remove_custom_hostname' )
+		);
 	}
 
 	/**
@@ -107,6 +112,7 @@ class Cdn_TotalCdn_Popup {
 		$custom_hostname     = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 		$custom_hostname_dns = dns_get_record( $custom_hostname, DNS_CNAME );
 
+		// If the custom hostname does not have a CNAME record set, show an error message.
 		if ( false === $custom_hostname_dns || empty( $custom_hostname_dns ) ) {
 			$message = sprintf(
 				// translators: 1: Custom hostname, 2: CDN hostname.
@@ -122,6 +128,7 @@ class Cdn_TotalCdn_Popup {
 			\wp_die();
 		}
 
+		// If the custom hostname does not point to the CDN hostname, show an error message.
 		if ( $cdn_hostname !== $custom_hostname_dns[0]['target'] ) {
 			$message = sprintf(
 				// translators: 1: Custom hostname, 2: CDN hostname.
@@ -197,8 +204,9 @@ class Cdn_TotalCdn_Popup {
 	 * This method validates the custom hostname and adds it to the pull zone
 	 */
 	public function w3tc_ajax_cdn_totalcdn_add_custom_hostname() {
-		$config       = Dispatcher::config();
-		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		$config          = Dispatcher::config();
+		$cdn_hostname    = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Add_Custom_Hostname.php';
 		\wp_die();
 	}
@@ -243,6 +251,51 @@ class Cdn_TotalCdn_Popup {
 
 		// Save the custom hostname.
 		$config->set( 'cdn.totalcdn.custom_hostname', $hostname );
+		$config->save();
+
+		\wp_send_json_success();
+	}
+
+	/**
+	 * Handles the AJAX request to remove a custom hostname from the pull zone.
+	 *
+	 * This method listens for the `w3tc_ajax_cdn_totalcdn_remove_custom_hostname` AJAX action and processes the request.
+	 * It calls the Total CDN API to remove the custom hostname and sends a JSON response indicating success or failure.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @return void
+	 */
+	public static function w3tc_ajax_cdn_totalcdn_remove_custom_hostname() {
+		$config          = Dispatcher::config();
+		$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+
+		if ( empty( $custom_hostname ) ) {
+			\wp_send_json_error(
+				array( 'error_message' => \esc_html__( 'No custom hostname configured to remove.', 'w3-total-cache' ) ),
+				400
+			);
+		}
+
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+
+		$api = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => $account_api_key,
+				'pull_zone_id'    => $pull_zone_id,
+			)
+		);
+
+		try {
+			$api->remove_custom_hostname( $custom_hostname );
+		} catch ( \Exception $ex ) {
+			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
+		}
+
+		// Remove the custom hostname from configuration.
+		$config->set( 'cdn.totalcdn.custom_hostname', null );
+		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', null );
 		$config->save();
 
 		\wp_send_json_success();
@@ -363,14 +416,13 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_configure_pull_zone() {
-		$config           = Dispatcher::config();
-		$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$pull_zone_id     = Util_Request::get_integer( 'pull_zone_id' );
-		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
-		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
-		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
-		$custom_hostnames = Util_Request::get_string( 'custom_hostnames' ); // Custom hostnames.
-		$custom_hostnames = \explode( ',', $custom_hostnames );
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = Util_Request::get_integer( 'pull_zone_id' );
+		$origin_url      = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
+		$name            = Util_Request::get_string( 'name' ); // Pull zone name.
+		$cdn_hostname    = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
+		$custom_hostname = Util_Request::get_string( 'custom_hostname' );
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
@@ -431,7 +483,7 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.name', $name );
 		$config->set( 'cdn.totalcdn.origin_url', $origin_url );
 		$config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
-		$config->set( 'cdn.totalcdn.custom_hostnames', $custom_hostnames );
+		$config->set( 'cdn.totalcdn.custom_hostname', $custom_hostname );
 		$config->save();
 
 		// Set the Vary Cache.
