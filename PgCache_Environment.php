@@ -482,8 +482,30 @@ class PgCache_Environment {
 		}
 
 		$new_config_data = $this->wp_config_remove_from_content( $config_data );
+
+		/*
+		 * Insert the WP_CACHE directive immediately after the opening PHP tag. When a
+		 * strict_types declaration follows the tag, insert after that declaration instead,
+		 * so the directive never displaces strict_types from being the first statement in
+		 * the file (which is a fatal error). Comments between the tag and the declaration,
+		 * and additional directives inside it (e.g. "declare(strict_types=1, ticks=1)"),
+		 * are all tolerated.
+		 */
 		$new_config_data = preg_replace(
-			'~<\?(php)?~',
+			'~
+				<\?(?:php)?                    # Opening PHP tag: "<?php" or "<?".
+				(?:                            # Optionally consume through a strict_types declare.
+					(?:                        # Whitespace and comments preceding the declare:
+						\s                     #   whitespace,
+						| /\*.*?\*/            #   a block comment,
+						| //[^\r\n]*           #   a line comment, or
+						| \#[^\r\n]*           #   a hash comment.
+					)*
+					declare\s*\(               # "declare("
+						[^)]*strict_types[^)]* #   a directive list containing "strict_types"
+					\)\s*;                     # ");"
+				)?
+			~six',
 			"\\0\r\n" . $this->wp_config_addon(),
 			$new_config_data,
 			1
