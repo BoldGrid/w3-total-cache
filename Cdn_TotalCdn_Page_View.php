@@ -133,10 +133,10 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 				<?php echo esc_html( $custom_hostname ); ?>
 				<br />
 			<?php else : ?>
-			<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
-				type="button"
-				value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
-			/>
+				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
+					type="button"
+					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
+				/>
 			<?php endif; ?>
 			<?php
 			if ( ! empty( $custom_hostname ) ) {
@@ -159,10 +159,10 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 					<?php
 				}
 				?>
-			<input class="w3tc_cdn_totalcdn_remove_custom_hostname button"
-				type="button"
-				value="<?php esc_attr_e( 'Remove Custom Hostname', 'w3-total-cache' ); ?>"
-			/>
+				<input class="w3tc_cdn_totalcdn_remove_custom_hostname button"
+					type="button"
+					value="<?php esc_attr_e( 'Remove Custom Hostname', 'w3-total-cache' ); ?>"
+				/>
 				<?php
 			}
 			?>
