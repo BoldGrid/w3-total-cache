@@ -128,6 +128,7 @@ class Cdn_TotalCdn_Page {
 					'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
 					'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
 					'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
+					'error_updating'  => \esc_html__( 'Error updating CDN configuration', 'w3-total-cache' ),
 				),
 			)
 		);

@@ -25,10 +25,8 @@ jQuery(function($) {
 	 * @return string A simplified, user-friendly error message.
 	 */
 	function extractUserFriendlyMessage( error_message ) {
-		const default_message = 'An error occurred while updating the CDN configuration.';
-
 		if ( ! error_message ) {
-			return default_message;
+			return W3TC_TotalCdn.lang.error_updating;
 		}
 
 		var error_obj = null;
@@ -70,7 +68,7 @@ jQuery(function($) {
 				return cleaned;
 			}
 		} else {
-			return default_message;
+			return W3TC_TotalCdn.lang.error_updating;
 		}
 
 		// Extract user-friendly message from the error object.
@@ -97,7 +95,7 @@ jQuery(function($) {
 		}
 
 		// Fallback: return a generic message.
-		return default_message;
+		return W3TC_TotalCdn.lang.error_updating;
 	}
 
 	// Add event handlers.
