@@ -25,8 +25,10 @@ jQuery(function($) {
 	 * @return string A simplified, user-friendly error message.
 	 */
 	function extractUserFriendlyMessage( error_message ) {
+		const default_message = 'An error occurred while updating the CDN configuration.';
+
 		if ( ! error_message ) {
-			return 'An error occurred while saving the custom hostname.';
+			return default_message;
 		}
 
 		var error_obj = null;
@@ -68,7 +70,7 @@ jQuery(function($) {
 				return cleaned;
 			}
 		} else {
-			return 'An error occurred while saving the custom hostname.';
+			return default_message;
 		}
 
 		// Extract user-friendly message from the error object.
@@ -95,7 +97,7 @@ jQuery(function($) {
 		}
 
 		// Fallback: return a generic message.
-		return 'An error occurred while saving the custom hostname.';
+		return default_message;
 	}
 
 	// Add event handlers.
