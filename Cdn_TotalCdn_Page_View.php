@@ -149,7 +149,7 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 						value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
 					/>
 					<?php
-				} elseif ( $ssl_cert_loaded ) {
+				} else {
 					// Show a notice that the custom hostname and ssl are properly configured.
 					?>
 					<br />

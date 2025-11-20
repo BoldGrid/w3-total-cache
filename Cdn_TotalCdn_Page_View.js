@@ -247,7 +247,7 @@ jQuery(function($) {
 		} )
 
 		.on( 'click', '.w3tc_cdn_totalcdn_remove_custom_hostname', function() {
-			if ( ! confirm( 'Are you sure you want to remove the custom hostname? This action cannot be undone.' ) ) {
+			if ( ! confirm( W3TC_TotalCdn.lang.remove_custom_hostname_confirmation ) ) {
 				return;
 			}
 
@@ -308,7 +308,7 @@ jQuery(function($) {
 					console.log( 'Extracted error message (fail):', error_message );
 				} else {
 					// Unknown error - use simple, user-friendly message.
-					error_message = 'Unable to remove the custom hostname. Please check your connection and try again.';
+					error_message = W3TC_TotalCdn.lang.error_removing_custom_hostname;
 				}
 				alert( error_message );
 
@@ -357,7 +357,7 @@ jQuery(function($) {
 							error_message = extractUserFriendlyMessage( response.data.error_message );
 							console.log( 'Extracted error message:', error_message );
 						} else {
-							error_message = 'Unable to save the custom hostname. Please check the hostname format and try again.';
+							error_message = W3TC_TotalCdn.lang.error_saving_custom_hostname;
 						}
 						$('<div/>', {
 							class: 'error',
@@ -372,7 +372,7 @@ jQuery(function($) {
 					// Unknown error.
 					$('<div/>', {
 						class: 'error',
-						html: '<p>An unexpected error occurred. Please try again.</p>'
+						html: '<p>' + W3TC_TotalCdn.lang.error_unexpected + '</p>'
 					}).appendTo($messages);
 
 					$this

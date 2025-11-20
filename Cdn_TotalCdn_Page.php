@@ -129,6 +129,10 @@ class Cdn_TotalCdn_Page {
 					'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
 					'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
 					'error_updating'  => \esc_html__( 'Error updating CDN configuration', 'w3-total-cache' ),
+					'error_saving_custom_hostname' => \esc_html__( 'Unable to save the custom hostname. Please check the hostname format and try again.', 'w3-total-cache' ),
+					'remove_custom_hostname_confirmation' => \esc_html__( 'Are you sure you want to remove the custom hostname? This action cannot be undone.', 'w3-total-cache' ),
+					'error_removing_custom_hostname' => \esc_html__( 'Unable to remove the custom hostname. Please try again.', 'w3-total-cache' ),
+					'error_unexpected' => \esc_html__( 'An unexpected error occurred. Please try again.', 'w3-total-cache' ),
 				),
 			)
 		);
