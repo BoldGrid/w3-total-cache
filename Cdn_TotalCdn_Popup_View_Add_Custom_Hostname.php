@@ -45,6 +45,7 @@ defined( 'W3TC' ) || die();
 				class="w3tc_cdn_totalcdn_save_custom_hostname w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Save Custom Hostname', 'w3-total-cache' ); ?>" />
 			</p>
+			<div id="w3tc-custom-hostname-messages"></div>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
