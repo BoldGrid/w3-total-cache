@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: dbcache.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 defined( 'W3TC' ) || die();
@@ -245,7 +251,7 @@ $dbcache_learn_more_output   = static function ( $anchor, $config_key = '' ) use
 					'label'          => Util_Ui::config_label( 'dbcache.wp_cron' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'disabled'       => ! $dbcache_enabled,	
+					'disabled'       => ! $dbcache_enabled,
 				)
 			);
 
