@@ -23,10 +23,14 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/page-caching/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to set up Page Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><span class="dashicons dashicons-video-alt3"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.youtube.com/watch?v=vdp0OrJ8hAg' ) . '" target="_blank">' . esc_html__( 'What is Page Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/page-caching/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to set up Page Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-page-caching-in-w3-total-cache-for-shared-hosting/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Shared hosting Page Cache guide', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-page-caching-faq/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Page Cache FAQ', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-video-alt3"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.youtube.com/watch?v=vdp0OrJ8hAg' ) . '" target="_blank">' . esc_html__( 'What is Page Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_page_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
@@ -50,8 +54,12 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Minify Cache Settings Guide', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Minify Cache Settings Guide', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Manual minify how-to', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Minify FAQ', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_minify_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
@@ -75,10 +83,12 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/database-caching/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to set up Database Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><span class="dashicons dashicons-video-alt3"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.youtube.com/watch?v=OWJckWamEvA' ) . '" target="_blank">' . esc_html__( 'What is Database Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/database-caching/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to set up Database Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-database-caching-method-in-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Choosing a database caching method', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-video-alt3"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.youtube.com/watch?v=OWJckWamEvA' ) . '" target="_blank">' . esc_html__( 'What is Database Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_database_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
@@ -102,9 +112,11 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Object Cache Settings Guide', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Object Cache Settings Guide', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/what-is-object-caching/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'What is Object Caching?', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_object_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
@@ -127,9 +139,11 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to configure Browser Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to configure Browser Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/understanding-header-configuration-in-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Header configuration reference', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_browser_cache">
 				<p style="width:fit-content"><span class="spinner is-active" style="margin: 0 0 0 5px"></span> Loading Forum Topics... </p>
 				</div>
@@ -150,11 +164,13 @@ return array(
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to configure Cloudflare with W3 Total Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/#configure-w3-total-cache?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Full Site Delivery with Bunny CDN', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
-				<p><span class="dashicons dashicons-text-page"></span>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'How to configure Cloudflare with W3 Total Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'CDN overview', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
+					<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/#configure-w3-total-cache?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Full Site Delivery with Bunny CDN', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+					<p><span class="dashicons dashicons-text-page"></span>
 				<a class="w3tc-control-after" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab' ) . '" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_cdn">

@@ -74,6 +74,8 @@ class PgCache_ConfigLabels {
 				'pgcache.accept.uri'                => __( 'Non-trailing slash pages:', 'w3-total-cache' ),
 				'pgcache.cache.headers'             => __( 'Specify page headers:', 'w3-total-cache' ),
 				'pgcache.cache.nginx_handle_xml'    => __( 'Handle <acronym title="Extensible Markup Language">XML</acronym> mime type', 'w3-total-cache' ),
+				'pgcache.mirrors.enabled'           => __( 'Cache alias hostnames:', 'w3-total-cache' ),
+				'pgcache.mirrors.home_urls'         => __( 'Additional home URLs:', 'w3-total-cache' ),
 			)
 		);
 	}

@@ -31,6 +31,11 @@ class DbCache_ConfigLabels {
 				'dbcache.reject.uri'    => __( 'Never cache the following pages:', 'w3-total-cache' ),
 				'dbcache.reject.sql'    => __( 'Ignored query stems:', 'w3-total-cache' ),
 				'dbcache.reject.words'  => __( 'Reject query words:', 'w3-total-cache' ),
+				'dbcache.reject.constants' => __( 'Reject constants:', 'w3-total-cache' ),
+				'dbcache.wpcli_disk'    => __( 'Enable for WP-CLI', 'w3-total-cache' ),
+				'dbcache.wp_cron'       => __( 'Enable WP-Cron Event', 'w3-total-cache' ),
+				'dbcache.wp_cron_time'  => __( 'Start Time', 'w3-total-cache' ),
+				'dbcache.wp_cron_interval' => __( 'Interval', 'w3-total-cache' ),
 			)
 		);
 	}
