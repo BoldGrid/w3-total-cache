@@ -15,8 +15,8 @@ $security_session_values = array(
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <?php
-$browsercache_doc_url         = 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/';
-$browsercache_learn_more_link = static function ( $anchor, $setting_label ) use ( $browsercache_doc_url ) {
+$browsercache_doc_url           = 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/';
+$browsercache_learn_more_link   = static function ( $anchor, $setting_label ) use ( $browsercache_doc_url ) {
 	if ( empty( $anchor ) || empty( $setting_label ) ) {
 		return '';
 	}
@@ -29,7 +29,7 @@ $browsercache_learn_more_link = static function ( $anchor, $setting_label ) use 
 
 	return ' <a target="_blank" href="' . esc_url( $browsercache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
 };
-$browsercache_anchor_allowed  = array(
+$browsercache_anchor_allowed    = array(
 	'a'    => array(
 		'class'  => array(),
 		'href'   => array(),
@@ -131,11 +131,11 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 						<input id="browsercache_last_modified" type="checkbox" name="expires"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 							value="1"<?php checked( $browsercache_last_modified, true ); ?> />
-						<?php esc_html_e( 'Set Last-Modified header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.last_modified' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'set-last-modified-header', '', __( 'Set Last-Modified header', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'set-last-modified-header', 'browsercache.cssjs.last_modified' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -144,22 +144,24 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 					<label>
 						<input id="browsercache_expires" type="checkbox" name="expires"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-							value="1"<?php checked( $browsercache_expires, true ); ?> /> <?php esc_html_e( 'Set expires header', 'w3-total-cache' ); ?>
+							value="1"<?php checked( $browsercache_expires, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.expires' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'set-expires-header', '', __( 'Set expires header', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'set-expires-header', 'browsercache.cssjs.expires' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_cache_control" type="checkbox"
-						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="cache_control" value="1"<?php checked( $browsercache_cache_control, true ); ?> /> <?php esc_html_e( 'Set cache control header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="cache_control" value="1"<?php checked( $browsercache_cache_control, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.cache.control' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'set-cache-control-header', '', __( 'Set cache control header', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'set-cache-control-header', 'browsercache.cssjs.cache.control' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -167,22 +169,24 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 				<th colspan="2">
 					<label><input id="browsercache_etag" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="etag" value="1"<?php checked( $browsercache_etag, true ); ?> /> <?php esc_html_e( 'Set entity tag (ETag)', 'w3-total-cache' ); ?>
+						name="etag" value="1"<?php checked( $browsercache_etag, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.etag' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'set-entity-tag-etag', '', __( 'Set entity tag (ETag)', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'set-entity-tag-etag', 'browsercache.cssjs.etag' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_w3tc" type="checkbox" name="w3tc"
-						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="1" <?php checked( $browsercache_w3tc, true ); ?> /> <?php esc_html_e( 'Set W3 Total Cache header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="1" <?php checked( $browsercache_w3tc, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.w3tc' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'set-w3-total-cache-header', '', __( 'Set W3 Total Cache header', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'set-w3-total-cache-header', 'browsercache.cssjs.w3tc' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -191,28 +195,11 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 					<label><input id="browsercache_compression" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="compression"<?php checked( $browsercache_compression, true ); ?> value="1" />
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-								__(
-									'Enable %1$sHTTP%2$s (gzip) compression',
-									'w3-total-cache'
-								),
-								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
-								'</acronym>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
-						);
-						?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'enablehttpgzip-compression', '', __( 'Enable HTTP (gzip) compression', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'enablehttpgzip-compression', 'browsercache.cssjs.compression' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -222,28 +209,11 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						<?php echo ! function_exists( 'brotli_compress' ) ? 'disabled="disabled"' : ''; ?>
 						name="compression"<?php checked( $browsercache_brotli, true ); ?> value="1" />
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-								__(
-									'Enable %1$sHTTP%2$s (brotli) compression',
-									'w3-total-cache'
-								),
-								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
-								'</acronym>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
-						);
-						?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'enablehttpbrotli-compression', '', __( 'Enable HTTP (brotli) compression', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'enablehttpbrotli-compression', 'browsercache.cssjs.brotli' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -251,11 +221,12 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 				<th colspan="2">
 					<label><input id="browsercache_replace" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="replace" value="1"<?php checked( $browsercache_replace, true ); ?> /> <?php esc_html_e( 'Prevent caching of objects after settings change', 'w3-total-cache' ); ?>
+						name="replace" value="1"<?php checked( $browsercache_replace, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.replace' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'prevent-caching-of-objects-after-settings-change', '', __( 'Prevent caching of objects after settings change', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'prevent-caching-of-objects-after-settings-change', 'browsercache.cssjs.replace' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -263,7 +234,8 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 				<th colspan="2">
 					<label><input id="browsercache_querystring" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="querystring" value="1"<?php checked( $browsercache_querystring, true ); ?> /> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?>
+						name="querystring" value="1"<?php checked( $browsercache_querystring, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.querystring' ); ?>
 					</label>
 					<p class="description">
 						<?php
@@ -284,7 +256,7 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources', '', __( 'Remove query strings from static resources', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources', 'browsercache.querystring' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -326,11 +298,12 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 					<label>
 						<input id="browsercache_nocookies" type="checkbox"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-							name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ); ?> /> <?php esc_html_e( "Don't set cookies for static files", 'w3-total-cache' ); ?>
+							name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.nocookies' ); ?>
 					</label>
 					<p class="description">
 						<?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'dont-set-cookies-for-static-files', '', __( "Don't set cookies for static files", 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'dont-set-cookies-for-static-files', 'browsercache.cssjs.nocookies' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -601,7 +574,7 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.querystring' ); ?> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?></label>
+					<?php $this->checkbox( 'browsercache.cssjs.querystring' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.querystring' ); ?></label>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -621,7 +594,7 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources-cssjs', '', __( 'Remove query strings from static resources', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources-cssjs', 'browsercache.cssjs.querystring' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -927,7 +900,7 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.other.querystring' ); ?> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?></label>
+					<?php $this->checkbox( 'browsercache.other.querystring' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.querystring' ); ?></label>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -947,7 +920,7 @@ $browsercache_learn_more_output = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources-media', '', __( 'Remove query strings from static resources', 'w3-total-cache' ) ), $browsercache_anchor_allowed ); ?>
+						<?php echo wp_kses( $browsercache_learn_more_output( 'remove-query-strings-from-static-resources-media', 'browsercache.other.querystring' ), $browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>

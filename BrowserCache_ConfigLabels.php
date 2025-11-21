@@ -24,6 +24,7 @@ class BrowserCache_ConfigLabels {
 			array(
 				'browsercache.enabled'                   => __( 'Browser Cache:', 'w3-total-cache' ),
 				'browsercache.replace.exceptions'        => __( 'Prevent caching exception list:', 'w3-total-cache' ),
+				'browsercache.querystring'               => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.no404wp'                   => __( 'Do not process 404 errors for static objects with WordPress', 'w3-total-cache' ),
 				'browsercache.no404wp.exceptions'        => __( '404 error exception list:', 'w3-total-cache' ),
 				'browsercache.rewrite'                   => __( 'Rewrite <acronym title="Universal Resource Locator">URL</acronym> structure of objects', 'w3-total-cache' ),
@@ -37,6 +38,7 @@ class BrowserCache_ConfigLabels {
 				'browsercache.cssjs.compression'         => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ),
 				'browsercache.cssjs.brotli'              => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ),
 				'browsercache.cssjs.replace'             => __( 'Prevent caching of objects after settings change', 'w3-total-cache' ),
+				'browsercache.cssjs.querystring'         => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.cssjs.nocookies'           => __( 'Disable cookies for static files', 'w3-total-cache' ),
 				'browsercache.html.last_modified'        => __( 'Set Last-Modified header', 'w3-total-cache' ),
 				'browsercache.html.expires'              => __( 'Set expires header', 'w3-total-cache' ),
@@ -57,6 +59,7 @@ class BrowserCache_ConfigLabels {
 				'browsercache.other.compression'         => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ),
 				'browsercache.other.brotli'              => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ),
 				'browsercache.other.replace'             => __( 'Prevent caching of objects after settings change', 'w3-total-cache' ),
+				'browsercache.other.querystring'         => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.other.nocookies'           => __( 'Disable cookies for static files', 'w3-total-cache' ),
 				'browsercache.security.session.cookie_httponly' => __( 'Access session cookies through the <acronym title="Hypertext Transfer Protocol">HTTP</acronym> only:', 'w3-total-cache' ),
 				'browsercache.security.session.cookie_secure' => __( 'Send session cookies only to secure connections:', 'w3-total-cache' ),
