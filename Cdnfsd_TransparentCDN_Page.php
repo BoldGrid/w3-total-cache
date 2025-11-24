@@ -35,7 +35,12 @@ class Cdnfsd_TransparentCDN_Page {
 			array(
 				'test_string'  => __( 'Test the API parameters offered for you site', 'w3-total-cache' ),
 				'test_success' => __( 'Ok. Correct parameters', 'w3-total-cache' ),
-				'test_failure' => __( 'Error. Check your parameters and try again or contact with support.', 'w3-total-cache' ),
+				'test_failure' => sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					__( 'Error. Check your parameters and try again or %1$scontact support%2$s.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
 			)
 		);
 

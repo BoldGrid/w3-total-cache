@@ -27,7 +27,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'dns-prefetch' ),
 			'label'         => esc_html__( 'DNS Prefetch Domains:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#dns-prefetch-domains' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#dns-prefetch-domains' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify domains whose DNS should be prefetched by browsers. Include one entry per line, e.g. (https://cdn.domain.com, https://fonts.googleapis.com, https://www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -36,7 +36,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preconnect' ),
 			'label'         => esc_html__( 'Preconnect Domains:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preconnect-domains' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preconnect-domains' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify domains that browsers should preconnect to. Include one entry per line, e.g. (https://cdn.domain.com, https://fonts.googleapis.com, https://www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -45,7 +45,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-css' ),
 			'label'         => esc_html__( 'Preload CSS:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key CSS URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.css, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -54,7 +54,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-js' ),
 			'label'         => esc_html__( 'Preload JavaScript:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key JavaScript URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.js, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -63,7 +63,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-fonts' ),
 			'label'         => esc_html__( 'Preload Fonts:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Font URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.woff, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -72,7 +72,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-images' ),
 			'label'         => esc_html__( 'Preload Images:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Image URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.png, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -82,7 +82,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-videos' ),
 			'label'         => esc_html__( 'Preload Videos:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Video URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.mp4, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -92,7 +92,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-audio' ),
 			'label'         => esc_html__( 'Preload Audio:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Audio URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.mp3, etc.)', 'w3-total-cache' ),
 		)
 	);
@@ -102,7 +102,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'           => array( 'user-experience-preload-requests', 'preload-documents' ),
 			'label'         => esc_html__( 'Preload Documents:', 'w3-total-cache' ),
 			'control'       => 'textarea',
-			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=preload_requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Document URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.pdf, etc.)', 'w3-total-cache' ),
 		)
 	);
