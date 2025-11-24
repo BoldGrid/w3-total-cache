@@ -20,6 +20,8 @@ jQuery(function($) {
 	/**
 	 * Extracts a user-friendly error message from a potentially complex error response.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param string|object error_message The raw error message that may contain JSON or be an object.
 	 *
 	 * @return string A simplified, user-friendly error message.

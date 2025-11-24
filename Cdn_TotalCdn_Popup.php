@@ -262,7 +262,7 @@ class Cdn_TotalCdn_Popup {
 	 * This method listens for the `w3tc_ajax_cdn_totalcdn_remove_custom_hostname` AJAX action and processes the request.
 	 * It calls the Total CDN API to remove the custom hostname and sends a JSON response indicating success or failure.
 	 *
-	 * @since 2.6.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
