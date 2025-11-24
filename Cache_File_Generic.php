@@ -224,6 +224,10 @@ class Cache_File_Generic extends Cache_File {
 			return array( $data, $has_old_data );
 		}
 
+		if ( ! $this->_use_expired_data ) {
+			return array( null, $has_old_data );
+		}
+
 		$path_old     = $path . '_old';
 		$too_old_time = time() - 30;
 
@@ -322,6 +326,10 @@ class Cache_File_Generic extends Cache_File {
 		$dir = dirname( $path );
 		if ( file_exists( $dir . DIRECTORY_SEPARATOR . '.htaccess' ) ) {
 			@unlink( $dir . DIRECTORY_SEPARATOR . '.htaccess' );
+		}
+
+		if ( ! $this->_use_expired_data ) {
+			return @unlink( $path );
 		}
 
 		$old_entry_path = $path . '_old';
