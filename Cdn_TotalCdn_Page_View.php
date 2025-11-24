@@ -18,8 +18,8 @@ $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 $cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 $cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
 $cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
-$is_authorized   = ! empty( $account_api_key ) && $cdn_zone_id;
-$is_fsd          = $is_authorized && $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine;
+$is_authorized   = Cdn_TotalCdn_Util::is_totalcdn_authorized();
+$is_fsd          = $is_authorized && Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled();
 $custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded' );
 
