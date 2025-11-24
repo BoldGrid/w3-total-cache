@@ -16,7 +16,6 @@ defined( 'W3TC' ) || die();
 
 $account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunnycdn.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Bunny CDN.
 
 ?>
 <table class="form-table">
@@ -29,16 +28,24 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.b
 		<td>
 			<?php if ( $is_authorized ) : ?>
 				<input class="w3tc_cdn_bunnycdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
+				<p class="description">
+					<?php
+					esc_html_e(
+						'Deauthorizing will disconnect your site from Bunny CDN and stop delivery of assets via the CDN.',
+						'w3-total-cache'
+					);
+					?>
+				</p>
 			<?php else : ?>
-				<input class="w3tc_cdn_bunnycdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
-				<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
-				<?php if ( $is_unavailable ) : ?>
-					<div class="notice notice-info">
-						<p>
-							<?php esc_html_e( 'CDN for static assets cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
-						</p>
-					</div>
-				<?php endif; ?>
+				<input class="w3tc_cdn_bunnycdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>" />
+				<p class="description">
+					<?php
+					esc_html_e(
+						'Authorize your site to use Bunny CDN for static asset delivery.',
+						'w3-total-cache'
+					);
+					?>
+				</p>
 			<?php endif; ?>
 		</td>
 	</tr>
@@ -48,6 +55,14 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.b
 		<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.bunnycdn.name' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'The pull zone identifies the Bunny CDN endpoint serving your files. Each pull zone has its own caching rules and hostname. ',
+					'w3-total-cache'
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -76,6 +91,14 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.b
 		</th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.bunnycdn.origin_url' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'This is the origin server that Bunny CDN requests when it needs to pull fresh copies of your assets.',
+					'w3-total-cache'
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>

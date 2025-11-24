@@ -29,6 +29,18 @@ Util_Ui::postbox_header(
 			<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'This pull zone routes every request for your site through %1$s\'s edge network.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
 			</td>
 		</tr>
 		<tr>
@@ -57,6 +69,18 @@ Util_Ui::postbox_header(
 			</th>
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'This is the origin server that %1$s requests when it needs to pull fresh copies of your site\'s content.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
 			</td>
 		</tr>
 		<tr>
@@ -90,7 +114,7 @@ Util_Ui::postbox_header(
 						sprintf(
 							// translators: 1: Opening HTML acronym tag, 2: Opening HTML acronym tag, 3: Closing HTML acronym tag.
 							esc_html__(
-								'The website domain %1$sCNAME%3$s must point to the %2$sCDN%3$s hostname.',
+								'Point your domain\'s %1$sCNAME%3$s record to this %2$sCDN%3$s hostname so visitors route through Total CDN.',
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',

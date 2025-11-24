@@ -34,6 +34,18 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 		<td>
 			<?php if ( $is_authorized ) : ?>
 				<input class="w3tc_cdn_totalcdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'Deauthorizing will disconnect your site from %1$s and stop delivery of assets via the CDN.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
 			<?php else : ?>
 				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button"
 					value="
@@ -47,6 +59,18 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 					?>
 					"
 					<?php echo ( $is_fsd_unavailable ? 'disabled' : '' ); ?> />
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'Authorize your site to use %s for static asset delivery.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
 				<?php if ( $is_fsd_unavailable ) : ?>
 					<div class="notice notice-info">
 						<p>
@@ -63,6 +87,14 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 		<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'The pull zone identifies the Total CDN endpoint serving your files. Each pull zone has its own caching rules and hostname.',
+					'w3-total-cache'
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -91,6 +123,18 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 		</th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
+			<p class="description">
+				<?php
+				printf(
+					// translators: %s: CDN name.
+					esc_html__(
+						'This is the origin server that %1$s requests when it needs to pull fresh copies of your assets.',
+						'w3-total-cache'
+					),
+					esc_html( W3TC_CDN_NAME )
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -117,8 +161,14 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<p class="description">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.cdn_hostname' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'Assets requested by visitors will use this Total CDN hostname unless you map a custom domain to it.',
+					'w3-total-cache'
+				);
+				?>
 			</p>
 		</td>
 	</tr>
@@ -140,6 +190,18 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 					type="button"
 					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'A custom hostname allows you to use a different domain for static asset delivery instead of the default %1$s hostname.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
 				<?php
 			} elseif ( ! $ssl_cert_loaded ) {
 				// If the SSL certificate is not loaded, show the button to load it.
@@ -148,6 +210,14 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 					type="button"
 					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
 				/>
+				<p class="description">
+					<?php
+					esc_html_e(
+						'After creating the DNS CNAME, load a free SSL certificate so HTTPS requests to your custom hostname remain secure.',
+						'w3-total-cache'
+					);
+					?>
+				</p>
 				<?php
 			} elseif ( $ssl_cert_loaded && ! empty( $custom_hostname ) ) {
 				// Show a notice that the custom hostname and ssl are properly configured.
