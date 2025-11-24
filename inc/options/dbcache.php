@@ -202,7 +202,7 @@ $dbcache_learn_more_output   = static function ( $anchor, $config_key = '' ) use
 					'control'        => 'checkbox',
 					'disabled'       => ! $dbcache_enabled,
 					'description'    => esc_html__( 'Allow WP-CLI operations to utilize the configured database cache engine when disk caching is enabled.', 'w3-total-cache' ) .
-						wp_kses( $dbcache_learn_more_output( 'advanced', 'dbcache.wpcli_disk' ), $dbcache_anchor_allowed_tags ),
+						wp_kses( $dbcache_learn_more_output( 'allow-wpcli-disk-cache', 'dbcache.wpcli_disk' ), $dbcache_anchor_allowed_tags ),
 				)
 			);
 			?>
