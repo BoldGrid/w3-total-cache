@@ -201,7 +201,7 @@ $dbcache_learn_more_output   = static function ( $anchor, $config_key = '' ) use
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $dbcache_enabled,
-					'description'    => esc_html__( 'Allow WP-CLI operations to utilize the configured database cache engine when disk caching is enabled.', 'w3-total-cache' ) .
+					'description'    => esc_html__( 'WP-CLI already uses Memcached, Redis, and other persistent engines. Enable this only if your database cache engine is Disk and you want WP-CLI to use it.', 'w3-total-cache' ) .
 						wp_kses( $dbcache_learn_more_output( 'allow-wpcli-disk-cache', 'dbcache.wpcli_disk' ), $dbcache_anchor_allowed_tags ),
 				)
 			);

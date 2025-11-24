@@ -176,7 +176,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $objectcache_enabled,
-					'description'    => esc_html__( 'Allow WP-CLI operations to use the configured object cache engine when disk caching is active.', 'w3-total-cache' ) .
+					'description'    => esc_html__( 'WP-CLI already uses Memcached, Redis, and other persistent engines. Enable this only if your object cache engine is Disk and you want WP-CLI to use it.', 'w3-total-cache' ) .
 						wp_kses( $objectcache_learn_more_output( 'advanced', 'objectcache.wpcli_disk' ), $objectcache_anchor_tags ),
 				)
 			);
