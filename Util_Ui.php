@@ -1395,6 +1395,15 @@ class Util_Ui {
 					'</p>'
 				),
 				array(
+					'a'       => array(
+						'href'   => array(),
+						'title'  => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'span'    => array(
+						'class' => array(),
+					),
 					'p'       => array(
 						'class' => array(),
 					),

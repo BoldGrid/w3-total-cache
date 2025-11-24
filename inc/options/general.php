@@ -24,6 +24,43 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'general'
 		);
 		?>
+		<?php
+		$minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
+		$minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $minify_doc_url ) {
+			if ( empty( $anchor ) || empty( $setting_label ) ) {
+				return '';
+			}
+
+			$title = sprintf(
+				/* translators: %s: Minify setting name. */
+				__( 'Learn more about %s', 'w3-total-cache' ),
+				$setting_label
+			);
+
+			return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+		};
+		$minify_anchor_allowed_tags = array(
+			'a'    => array(
+				'class'  => array(),
+				'href'   => array(),
+				'title'  => array(),
+				'target' => array(),
+			),
+			'span' => array(
+				'class' => array(),
+			),
+		);
+		$minify_learn_more_output   = static function ( $anchor, $setting_label ) use ( $minify_learn_more_link, $minify_anchor_allowed_tags ) {
+			$link = $minify_learn_more_link( $anchor, $setting_label );
+
+			if ( empty( $link ) ) {
+				return '';
+			}
+
+			return wp_kses( $link, $minify_anchor_allowed_tags );
+		};
+		?>
+
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
@@ -228,10 +265,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								'title' => array(),
 							),
 						)
-					),
-					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq' ) . '" title="' .
-						esc_attr__( 'Minify frequently asked questions', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
-						'<span class="dashicons dashicons-external"></span></a>',
+					) . $minify_learn_more_output( 'general-settings', __( 'Minify', 'w3-total-cache' ) ),
 				)
 			);
 
