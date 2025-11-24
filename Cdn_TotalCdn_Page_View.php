@@ -125,37 +125,47 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 	<tr>
 		<th>
 			<label>
-				<?php
-				echo esc_html__(
-					'Custom Hostname: ',
-					'w3-total-cache'
-				);
-				echo esc_html( $custom_hostname );
-				?>
+				<?php esc_html_e( 'Custom Hostname:', 'w3-total-cache' ); ?>
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<?php if ( empty( $custom_hostname ) ) { ?>
+			<?php if ( ! empty( $custom_hostname ) ) : ?>
+				<?php echo esc_html( $custom_hostname ); ?>
+				<br />
+			<?php else : ?>
 				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
-				<?php
-			} elseif ( ! $ssl_cert_loaded ) {
-				// If the SSL certificate is not loaded, show the button to load it.
+			<?php endif; ?>
+			<?php
+			if ( ! empty( $custom_hostname ) ) {
+				if ( ! $ssl_cert_loaded ) {
+					// If the SSL certificate is not loaded, show the button to load it.
+					?>
+					<br />
+					<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
+						type="button"
+						value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
+					/>
+					<?php
+				} else {
+					// Show a notice that the custom hostname and ssl are properly configured.
+					?>
+					<br />
+					<p class="notice notice-success">
+						<?php esc_html_e( 'Custom hostname and SSL certificate are properly configured.', 'w3-total-cache' ); ?>
+					</p>
+					<?php
+				}
 				?>
-				<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
+				<input class="w3tc_cdn_totalcdn_remove_custom_hostname button"
 					type="button"
-					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
+					value="<?php esc_attr_e( 'Remove Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
 				<?php
-			} elseif ( $ssl_cert_loaded && ! empty( $custom_hostname ) ) {
-				// Show a notice that the custom hostname and ssl are properly configured.
-				?>
-				<p class="notice notice-success">
-					<?php esc_html_e( 'Custom hostname and SSL certificate are properly configured.', 'w3-total-cache' ); ?>
-				</p>
-				<?php } ?>
+			}
+			?>
 		</td>
 	</tr>
 	<?php endif; ?>
