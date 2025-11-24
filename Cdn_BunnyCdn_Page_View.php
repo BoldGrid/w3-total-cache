@@ -58,7 +58,7 @@ $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunn
 			<p class="description">
 				<?php
 				esc_html_e(
-					'The pull zone identifies the Bunny CDN endpoint serving your files. Each pull zone has its own caching rules and hostname. ',
+					'The pull zone identifies the Bunny CDN endpoint serving your files. Each pull zone has its own caching rules and hostname.',
 					'w3-total-cache'
 				);
 				?>
