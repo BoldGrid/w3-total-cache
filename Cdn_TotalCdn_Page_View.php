@@ -54,17 +54,19 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 				<?php endif; ?>
 			<?php else : ?>
 				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button"
-					value="
+					value=
 					<?php
+					echo '"';
 					if ( $account_api_key ) {
 						echo esc_attr__( 'Authorize', 'w3-total-cache' );
 					} else {
 						// translators: %s: CDN name.
 						printf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
 					}
+					echo '"';
+					echo ( $is_fsd ? 'disabled' : '' );
 					?>
-					"
-					<?php echo ( $is_fsd_unavailable ? 'disabled' : '' ); ?> />
+					/>
 				<p class="description">
 					<?php
 					printf(
@@ -77,7 +79,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 					);
 					?>
 				</p>
-				<?php if ( $is_fsd_unavailable ) : ?>
+				<?php if ( $is_fsd ) : ?>
 					<div class="notice notice-info">
 						<p>
 							<?php esc_html_e( 'CDN for static assets cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
