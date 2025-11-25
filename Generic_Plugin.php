@@ -73,7 +73,7 @@ class Generic_Plugin {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 150 );
 		add_action( 'admin_bar_init', array( $this, 'admin_bar_init' ) );
 
-		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && '' !== W3TC_DYNAMIC_SECURITY ) {
+		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && ! empty( W3TC_DYNAMIC_SECURITY ) ) {
 			add_filter( 'rest_post_dispatch', array( $this, 'sanitize_rest_response_dynamic_tags' ), 10, 3 );
 			add_filter( 'the_content_feed', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
 			add_filter( 'the_excerpt_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
@@ -210,27 +210,24 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	private function strip_dynamic_fragment_tags_from_string( $value ) {
+		// Early return if the value is not a string or the W3TC_DYNAMIC_SECURITY constant is not defined or empty.
 		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) ) {
 			return $value;
 		}
 
-		$original = $value;
-		$token    = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
-		$pattern  = array(
-			'~<!--\s*mfunc\s*' . $token . '(.*)-->(.*)<!--\s*/mfunc\s*' . $token . '\s*-->~Uis',
-			'~<!--\s*mclude\s*' . $token . '(.*)-->(.*)<!--\s*/mclude\s*' . $token . '\s*-->~Uis',
+		// Remove dynamic fragment tags from the value.
+		$pattern = array(
+			'~<!--\s*mfunc\s+([^\s]+)\s*-->(.*?)<!--\s*/mfunc\s+\1\s*-->~Uis',
+			'~<!--\s*mclude\s+([^\s]+)\s*-->(.*?)<!--\s*/mclude\s+\1\s*-->~Uis',
 		);
-		$value    = preg_replace( $pattern, '', $value );
+		$value   = preg_replace( $pattern, '', $value );
 
-		if ( null === $value ) {
-			$value = $original;
-		}
-
-		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean, so don't strip "1"s.
 		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return $value;
 		}
 
+		// Remove the dynamic security token from the value.
 		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
@@ -321,7 +318,7 @@ class Generic_Plugin {
 	public function init() {
 		// Load W3TC textdomain for translations.
 		$this->reset_l10n();
-		
+
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
