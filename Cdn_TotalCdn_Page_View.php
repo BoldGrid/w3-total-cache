@@ -64,7 +64,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 						printf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
 					}
 					echo '"';
-					echo ( $is_fsd ? 'disabled' : '' );
+					echo ( $is_fsd ? ' disabled' : '' );
 					?>
 					/>
 				<p class="description">
