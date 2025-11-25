@@ -505,12 +505,20 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_deauthorization() {
-		$config       = Dispatcher::config();
-		$origin_url   = $config->get_string( 'cdn.totalcdn.origin_url' ); // Origin URL or IP.
-		$name         = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
-		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
-		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
-		$is_pro       = Util_Environment::is_w3tc_pro( $config );
+		$config        = Dispatcher::config();
+		$origin_url    = $config->get_string( 'cdn.totalcdn.origin_url' ); // Origin URL or IP.
+		$name          = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
+		$cdn_hostname  = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
+		$pull_zone_id  = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
+		$is_pro        = Util_Environment::is_w3tc_pro( $config );
+		$is_enabled    = Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled();
+		$is_authorized = Cdn_TotalCdn_Util::is_totalcdn_authorized();
+
+		// If FSD is active with TotalCDN, block deauthorization.
+		if ( $is_enabled && $is_authorized ) {
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Fsd_Blocked.php';
+			\wp_die();
+		}
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Deauthorize.php';
@@ -532,6 +540,14 @@ class Cdn_TotalCdn_Popup {
 		$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 		$delete_pull_zone = Util_Request::get_string( 'delete_pull_zone' );
+		$is_enabled       = Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled();
+		$is_authorized    = Cdn_TotalCdn_Util::is_totalcdn_authorized();
+
+		// If FSD is active with TotalCDN, block deauthorization.
+		if ( $is_enabled && $is_authorized ) {
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Fsd_Blocked.php';
+			\wp_die();
+		}
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
