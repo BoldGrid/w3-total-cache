@@ -299,14 +299,12 @@ class UserExperience_LazyLoad_Mutator {
 		preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
 		$v = preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
 
-		$raw_url = isset( $url_match[2] ) ? trim( $url_match[2] ) : '';
-		if ( ! empty( $raw_url ) && stripos( $raw_url, 'url(' ) !== 0 ) {
-			// Elementor expects url(...) when restoring background images.
-			$inner_quote = ( '"' === $quote ) ? '\'' : '"';
-			$raw_url     = 'url(' . $inner_quote . $raw_url . $inner_quote . ')';
+		$raw_url = '';
+		if ( isset( $url_match[2] ) ) {
+			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, get_bloginfo( 'charset' ) ) );
 		}
 
-		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . $raw_url . $quote;
+		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . esc_attr( $raw_url ) . $quote;
 	}
 
 	/**
