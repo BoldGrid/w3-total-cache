@@ -226,7 +226,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 			} else {
 				?>
 				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary" type="button"
-					value="<?php esc_attr__( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
+					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
 				<?php
 			}
