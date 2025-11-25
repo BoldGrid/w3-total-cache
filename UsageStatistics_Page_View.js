@@ -53,13 +53,32 @@ jQuery(document).ready(function($) {
 		//aspectRatio: 4,
 		maintainAspectRatio: false,
 		animation: false,
-		legend: false,
+		plugins: {
+			legend: {
+				display: true,
+				position: 'top'
+			},
+			tooltip: {
+				enabled: true
+			}
+		},
 		scales: {
-			yAxes: [{
+			x: {
+				display: true,
+				title: {
+					display: true,
+					text: 'Time'
+				}
+			},
+			y: {
+				display: true,
+				title: {
+					display: false
+				},
 				ticks: {
 					beginAtZero: true
 				}
-			}]
+			}
 		}
 	};
 
@@ -90,6 +109,9 @@ jQuery(document).ready(function($) {
 
 		for (var i = 0; i < processors.length; i++) {
 			for (var id in processors[i].chartDatasets) {
+				if (!charts[id]) {
+					continue;
+				}
 				var datasets = [];
 				for (var i2 = 0; i2 < processors[i].chartDatasets[id].length; i2++) {
 					var datasetTemplate = processors[i].chartDatasets[id][i2];
@@ -100,7 +122,12 @@ jQuery(document).ready(function($) {
 						dataColumnString = datasetTemplate.dataColumn;
 					}
 
-					chartGraphValues[dataColumnString] = [];
+					// Clear existing data array or create new one
+					if (!chartGraphValues[dataColumnString]) {
+						chartGraphValues[dataColumnString] = [];
+					} else {
+						chartGraphValues[dataColumnString].length = 0;
+					}
 					columnsToCollect.push({
 						target: dataColumnString,
 						column: datasetTemplate.dataColumn
@@ -112,6 +139,7 @@ jQuery(document).ready(function($) {
 					});
 				}
 
+				// Set datasets - Chart.js v4 requires this to be done before data collection
 				charts[id].data.datasets = datasets;
 			}
 		}
@@ -119,15 +147,40 @@ jQuery(document).ready(function($) {
 		// collect data for charts
 		var history = data.history;
 		chartDateLabels.length = 0;
+		var validDataPoints = [];
+
+		// First pass: collect valid data points with timestamps
 		for (var i = 0; i < history.length; i++) {
 			var historyItem = history[i];
 			var dateFormatted = '';
+			var hasValidTimestamp = false;
+
 			if (history[i].timestamp_start) {
-				var d = new Date(parseInt(history[i].timestamp_start) * 1000);
-				dateFormatted = dateFormat(d);
+				var timestamp = parseInt(history[i].timestamp_start, 10);
+				if (!isNaN(timestamp) && timestamp > 0) {
+					var d = new Date(timestamp * 1000);
+					if (!isNaN(d.getTime())) {
+						dateFormatted = dateFormat(d);
+						if (dateFormatted && dateFormatted.length > 0) {
+							hasValidTimestamp = true;
+						}
+					}
+				}
 			}
 
-			chartDateLabels.push(dateFormatted);
+			// Only include entries with valid timestamps
+			if (hasValidTimestamp) {
+				validDataPoints.push({
+					item: historyItem,
+					label: dateFormatted
+				});
+			}
+		}
+
+		// Second pass: process valid data points
+		for (var i = 0; i < validDataPoints.length; i++) {
+			var historyItem = validDataPoints[i].item;
+			chartDateLabels.push(validDataPoints[i].label);
 
 			// custom preprocess history row
 			for (var i2 = 0; i2 < processors.length; i2++) {
@@ -141,20 +194,39 @@ jQuery(document).ready(function($) {
 				var c = columnsToCollect[i2];
 				var v;
 				if (Array.isArray(c.column)) {
-					if (v = historyItem[c.column[0]]) {
+					// Handle nested properties like ['access_log', 'dynamic_count']
+					if (historyItem[c.column[0]] && typeof historyItem[c.column[0]] === 'object') {
 						v = historyItem[c.column[0]][c.column[1]];
+					} else {
+						v = undefined;
 					}
 				} else {
+					// Handle direct properties
 					v = historyItem[c.column];
+				}
+
+				// Convert to number if possible, otherwise use 0
+				if (v === null || v === undefined || v === '') {
+					v = 0;
+				} else if (typeof v === 'string') {
+					v = parseFloat(v) || 0;
+				} else if (typeof v === 'number') {
+					v = isNaN(v) ? 0 : v;
+				} else {
+					v = 0;
 				}
 
 				chartGraphValues[c.target].push(v);
 			}
 		}
 
-		// visualize
+		// visualize - update labels and data for all charts
 		for (var c in charts) {
-			charts[c].update();
+			if (!charts[c]) {
+				continue;
+			}
+			charts[c].data.labels = chartDateLabels.slice();
+			charts[c].update('none');
 		}
 	}
 
@@ -171,11 +243,16 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsPageCache() {
 		if (!charts['pagecache']) {
-			var ctx = $('#w3tcus_pagecache_chart');
+			var canvas = $('#w3tcus_pagecache_chart')[0];
+			if (!canvas) {
+				return { chartDatasets: {} };
+			}
+			var ctx = canvas.getContext('2d');
 			charts['pagecache'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
 			        labels: chartDateLabels,
+			        datasets: []
 			    },
 			    options: chartOptions
 			});
@@ -192,10 +269,10 @@ jQuery(document).ready(function($) {
 				]
 			},
 			preprocess: function(historyItem) {
-				v = 0;
+				var v = 0;
 				if (historyItem.pagecache_requests_time_10ms && historyItem.php_requests) {
-					v = ((historyItem.pagecache_requests_time_10ms * 10) /
-					 	historyItem.php_requests).toFixed(0);
+					v = Math.round((historyItem.pagecache_requests_time_10ms * 10) /
+					 	historyItem.php_requests);
 				}
 				historyItem.pagecache_requests_time_ms = v;
 			}
@@ -209,7 +286,11 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsDb() {
 		if (!charts['db']) {
-			var ctx = $('#w3tcus_dbcache_chart');
+			var canvas = $('#w3tcus_dbcache_chart')[0];
+			if (!canvas) {
+				return { chartDatasets: {} };
+			}
+			var ctx = canvas.getContext('2d');
 			charts['db'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -218,14 +299,17 @@ jQuery(document).ready(function($) {
 			    options: chartOptions
 			});
 
-			var ctx = $('#w3tcus_dbcache_time_chart');
-			charts['db_time'] = new Chart(ctx, {
-			    type: 'bar',
-			    data: {
-			        labels: chartDateLabels,
-			    },
-			    options: chartOptions
-			});
+			var canvas2 = $('#w3tcus_dbcache_time_chart')[0];
+			if (canvas2) {
+				var ctx2 = canvas2.getContext('2d');
+				charts['db_time'] = new Chart(ctx2, {
+				    type: 'bar',
+				    data: {
+				        labels: chartDateLabels,
+				    },
+				    options: chartOptions
+				});
+			}
 		}
 
 
@@ -258,7 +342,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsOc(data) {
 		if (!charts['oc']) {
-			var ctx = $('#w3tcus_objectcache_chart');
+			var ctx = $('#w3tcus_objectcache_chart')[0].getContext('2d');
 			charts['oc'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -267,7 +351,7 @@ jQuery(document).ready(function($) {
 			    options: chartOptions
 			});
 
-			var ctx = $('#w3tcus_objectcache_time_chart');
+			var ctx = $('#w3tcus_objectcache_time_chart')[0].getContext('2d');
 			charts['oc_time'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -310,7 +394,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsPhp(data) {
 		if (!charts['phpMemory']) {
-			var ctx = $('#w3tcus_php_memory_chart');
+			var ctx = $('#w3tcus_php_memory_chart')[0].getContext('2d');
 			charts['phpMemory'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -320,7 +404,7 @@ jQuery(document).ready(function($) {
 			});
 		}
 		if (!charts['phpRequests']) {
-			var ctx = $('#w3tcus_php_requests_chart');
+			var ctx = $('#w3tcus_php_requests_chart')[0].getContext('2d');
 			charts['phpRequests'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -379,7 +463,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsCpu(data) {
 		if (!charts['cpu']) {
-			var ctx = $('#w3tcus_cpu_chart');
+			var ctx = $('#w3tcus_cpu_chart')[0].getContext('2d');
 			charts['cpu'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -408,7 +492,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsWpdb(data) {
 		if (!charts['wpdb']) {
-			var ctx = $('#w3tcus_wpdb_chart');
+			var ctx = $('#w3tcus_wpdb_chart')[0].getContext('2d');
 			charts['wpdb'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -436,7 +520,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsAccessLog(data) {
 		if (!charts['accessLogRequests']) {
-			var ctx = $('#w3tcus_access_log_chart_requests');
+			var ctx = $('#w3tcus_access_log_chart_requests')[0].getContext('2d');
 			charts['accessLogRequests'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -446,7 +530,7 @@ jQuery(document).ready(function($) {
 			});
 		}
 		if (!charts['accessLogTiming']) {
-			var ctx = $('#w3tcus_access_log_chart_timing');
+			var ctx = $('#w3tcus_access_log_chart_timing')[0].getContext('2d');
 			charts['accessLogTiming'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -507,7 +591,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsMemcached(data) {
 		if (!charts['memcachedSize']) {
-			var ctx = $('#w3tcus_memcached_size_chart');
+			var ctx = $('#w3tcus_memcached_size_chart')[0].getContext('2d');
 			charts['memcachedSize'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -518,7 +602,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if (!charts['memcachedHit']) {
-			var ctx = $('#w3tcus_memcached_hit_chart');
+			var ctx = $('#w3tcus_memcached_hit_chart')[0].getContext('2d');
 			charts['memcachedHit'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -582,7 +666,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsRedis(data) {
 		if (!charts['redisSize']) {
-			var ctx = $('#w3tcus_redis_size_chart');
+			var ctx = $('#w3tcus_redis_size_chart')[0].getContext('2d');
 			charts['redisSize'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -593,7 +677,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if (!charts['redisHit']) {
-			var ctx = $('#w3tcus_redis_hit_chart');
+			var ctx = $('#w3tcus_redis_hit_chart')[0].getContext('2d');
 			charts['redisHit'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -657,7 +741,7 @@ jQuery(document).ready(function($) {
 	//
 	function setChartsApc(data) {
 		if (!charts['apcSize']) {
-			var ctx = $('#w3tcus_apc_size_chart');
+			var ctx = $('#w3tcus_apc_size_chart')[0].getContext('2d');
 			charts['apcSize'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -668,7 +752,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if (!charts['apcHit']) {
-			var ctx = $('#w3tcus_apc_hit_chart');
+			var ctx = $('#w3tcus_apc_hit_chart')[0].getContext('2d');
 			charts['apcHit'] = new Chart(ctx, {
 			    type: 'bar',
 			    data: {
@@ -737,8 +821,16 @@ jQuery(document).ready(function($) {
 
 
 	function dateFormat(d) {
-		return ("0" + d.getUTCHours()).slice(-2) + ":" +
-			("0" + d.getUTCMinutes()).slice(-2);
+		if (!d || isNaN(d.getTime())) {
+			return '';
+		}
+		var hours = d.getUTCHours();
+		var minutes = d.getUTCMinutes();
+		if (isNaN(hours) || isNaN(minutes)) {
+			return '';
+		}
+		return ("0" + hours).slice(-2) + ":" +
+			("0" + minutes).slice(-2);
 	}
 
 
