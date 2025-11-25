@@ -217,10 +217,16 @@ class Generic_Plugin {
 
 		// Remove dynamic fragment tags from the value.
 		$pattern = array(
-			'~<!--\s*mfunc\s+([^\s]+)\s*-->(.*?)<!--\s*/mfunc\s+\1\s*-->~Uis',
-			'~<!--\s*mclude\s+([^\s]+)\s*-->(.*?)<!--\s*/mclude\s+\1\s*-->~Uis',
+			'~<!--\s*mfunc\s+[^\s]+.*?-->(.*?)<!--\s*/mfunc\s+[^\s]+.*?\s*-->~Uis',
+			'~<!--\s*mclude\s+[^\s]+.*?-->(.*?)<!--\s*/mclude\s+[^\s]+.*?\s*-->~Uis',
 		);
-		$value   = preg_replace( $pattern, '', $value );
+		$value   = preg_replace_callback(
+			$pattern,
+			function ( $matches ) {
+				return $matches[1]; // Keep only the captured content between the tags.
+			},
+			$value
+		);
 
 		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean, so don't strip "1"s.
 		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
