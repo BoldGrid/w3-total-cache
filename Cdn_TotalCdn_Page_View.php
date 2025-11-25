@@ -54,17 +54,38 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 				<?php endif; ?>
 			<?php else : ?>
 				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button"
-					value="
+					value=
 					<?php
+					echo '"';
 					if ( $account_api_key ) {
 						echo esc_attr__( 'Authorize', 'w3-total-cache' );
 					} else {
 						// translators: %s: CDN name.
 						printf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
 					}
+					echo '"';
+					echo ( $is_fsd ? ' disabled' : '' );
 					?>
-					"
-					<?php echo ( $is_fsd ? 'disabled' : '' ); ?> />
+					/>
+				<p class="description">
+					<?php
+					printf(
+						// translators: %s: CDN name.
+						esc_html__(
+							'Authorize your site to use %s for static asset delivery.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					);
+					?>
+				</p>
+				<?php if ( $is_fsd ) : ?>
+					<div class="notice notice-info">
+						<p>
+							<?php esc_html_e( 'CDN for static assets cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
+						</p>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
 		</td>
 	</tr>
@@ -74,6 +95,14 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 		<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'The pull zone identifies the Total CDN endpoint serving your files. Each pull zone has its own caching rules and hostname.',
+					'w3-total-cache'
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -102,6 +131,18 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 		</th>
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
+			<p class="description">
+				<?php
+				printf(
+					// translators: %s: CDN name.
+					esc_html__(
+						'This is the origin server that %1$s requests when it needs to pull fresh copies of your assets.',
+						'w3-total-cache'
+					),
+					esc_html( W3TC_CDN_NAME )
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -128,8 +169,14 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<p class="description">
 			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.cdn_hostname' ) ); ?>
+			<p class="description">
+				<?php
+				esc_html_e(
+					'Assets requested by visitors will use this Total CDN hostname unless you map a custom domain to it.',
+					'w3-total-cache'
+				);
+				?>
 			</p>
 		</td>
 	</tr>
@@ -140,17 +187,12 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<?php if ( ! empty( $custom_hostname ) ) : ?>
-				<?php echo esc_html( $custom_hostname ); ?>
-				<br />
-			<?php else : ?>
-				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
-					type="button"
-					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
-				/>
-			<?php endif; ?>
 			<?php
 			if ( ! empty( $custom_hostname ) ) {
+				echo esc_html( $custom_hostname );
+				?>
+				<br />
+				<?php
 				if ( ! $ssl_cert_loaded ) {
 					// If the SSL certificate is not loaded, show the button to load it.
 					?>
@@ -174,9 +216,35 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 					type="button"
 					value="<?php esc_attr_e( 'Remove Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
+				<p class="description">
+					<?php
+					esc_html_e(
+						'After creating the DNS CNAME, load a free SSL certificate so HTTPS requests to your custom hostname remain secure.',
+						'w3-total-cache'
+					);
+					?>
+				</p>
+				<?php
+			} else {
+				?>
+				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary" type="button"
+					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
+				/>
 				<?php
 			}
 			?>
+			<p class="description">
+				<?php
+				printf(
+					// translators: %s: CDN name.
+					esc_html__(
+						'A custom hostname allows you to use a different domain for static asset delivery instead of the default %1$s hostname.',
+						'w3-total-cache'
+					),
+					esc_html( W3TC_CDN_NAME )
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<?php endif; ?>
