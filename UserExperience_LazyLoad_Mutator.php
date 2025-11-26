@@ -304,7 +304,9 @@ class UserExperience_LazyLoad_Mutator {
 
 		$raw_url = '';
 		if ( isset( $url_match[2] ) ) {
-			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, get_bloginfo( 'charset' ) ) );
+			$charset = get_bloginfo( 'charset' );
+			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
+			$raw_url = trim( $raw_url, '\'"' );
 		}
 
 		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . esc_attr( $raw_url ) . $quote;
