@@ -5,7 +5,6 @@ jQuery(document).ready(function($) {
 	 * Loads usage statistics data via AJAX.
 	 */
 	function load() {
-		var topObject = $('.ustats_top');
 		$('.ustats_loading').removeClass('w3tc_hidden');
 		$('.ustats_content').addClass('w3tc_hidden');
 		$('.ustats_error').addClass('w3tc_none');
@@ -18,7 +17,6 @@ jQuery(document).ready(function($) {
 
 				// Show sections with data.
 				for (var p in data) {
-					var v = data[p];
 					jQuery('.ustats_' + p).css('display', 'flex');
 				}
 
