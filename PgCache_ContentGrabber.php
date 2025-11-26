@@ -944,7 +944,8 @@ class PgCache_ContentGrabber {
 		}
 
 		if ( empty( $caches[ $group ] ) ) {
-			$engine = $this->_config->get_string( 'pgcache.engine' );
+			$engine           = $this->_config->get_string( 'pgcache.engine' );
+			$use_expired_data = true;
 
 			switch ( $engine ) {
 				case 'memcached':
@@ -983,6 +984,10 @@ class PgCache_ContentGrabber {
 					break;
 
 				case 'file_generic':
+					// Elementor deletes dependent assets when its cache flushes. Serving *_old HTML here keeps
+					// pointing visitors to missing CSS/JS, so disable stale reads when Elementor is detected.
+					$use_expired_data = ! Util_Environment::is_elementor();
+
 					if ( '*' !== $group ) {
 						$engine = 'file';
 
@@ -1018,7 +1023,7 @@ class PgCache_ContentGrabber {
 					$engine_config = array();
 			}
 
-			$engine_config['use_expired_data'] = true;
+			$engine_config['use_expired_data'] = $use_expired_data;
 			$engine_config['module']           = 'pgcache';
 			$engine_config['host']             = '';
 			$engine_config['instance_id']      = Util_Environment::instance_id();
