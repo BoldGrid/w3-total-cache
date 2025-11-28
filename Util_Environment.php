@@ -369,21 +369,31 @@ class Util_Environment {
 	/**
 	 * Check whether Elementor is enabled.
 	 *
+	 * @since 2.8.11
+	 *
 	 * @static
 	 *
 	 * @return bool
 	 */
 	public static function is_elementor() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// If WordPress functions are available, use the standard plugin check.
+		if ( function_exists( 'get_option' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-		if ( is_plugin_active( 'Elementor\Plugin' ) ) {
-			return true;
-		} elseif ( is_plugin_active( 'elementor/elementor.php' ) ) {
-			// For backward compatibility with older versions of Elementor.
-			return true;
-		} else {
-			return false;
+			if ( is_plugin_active( 'Elementor\Plugin' ) || is_plugin_active( 'elementor/elementor.php' ) ) {
+				return true;
+			}
 		}
+
+		/**
+		 * Fallback: Check if Elementor class is loaded (works during early page cache processing).
+		 * If Elementor is active, WordPress would have loaded its main class.
+		 */
+		if ( class_exists( '\Elementor\Plugin' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
