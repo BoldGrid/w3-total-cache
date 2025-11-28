@@ -330,7 +330,19 @@ class Minify_Plugin_Admin {
 				$v['size_compression_css'] = Util_UsageStatistics::percent( $stats['css']['original_length'] - $stats['css']['output_length'], $stats['css']['original_length'] );
 				$v['size_compression_js']  = Util_UsageStatistics::percent( $stats['js']['original_length'] - $stats['js']['output_length'], $stats['js']['original_length'] );
 
-				set_transient( 'w3tc_ustats_pagecache_size', $v, 120 );
+				set_transient( 'w3tc_ustats_minify_size', $v, 120 );
+			} elseif ( isset( $v['size_used'] ) && '...counting' === $v['size_used'] ) {
+				// If still counting, try to get a fresh count.
+				$h     = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+				$stats = $h->get_stats_size( $summary['timeout_time'] );
+
+				// build stats to show.
+				$v['size_used']            = Util_UsageStatistics::bytes_to_size( $stats['css']['output_length'] + $stats['js']['output_length'] );
+				$v['size_items']           = Util_UsageStatistics::integer( $stats['css']['items'] + $stats['js']['items'] );
+				$v['size_compression_css'] = Util_UsageStatistics::percent( $stats['css']['original_length'] - $stats['css']['output_length'], $stats['css']['original_length'] );
+				$v['size_compression_js']  = Util_UsageStatistics::percent( $stats['js']['original_length'] - $stats['js']['output_length'], $stats['js']['original_length'] );
+
+				set_transient( 'w3tc_ustats_minify_size', $v, 120 );
 			}
 
 			if ( isset( $v['size_used'] ) ) {
