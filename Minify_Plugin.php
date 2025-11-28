@@ -1259,7 +1259,7 @@ class _W3_MinifyHelpers {
 					$script                = "<script>function w3tc_load_js(u){var d=document,p=d.getElementsByTagName('HEAD')[0],c=d.createElement('script');c.src=u;p.appendChild(c);}</script>";
 				}
 
-				$script .= "<script>w3tc_load_js('" . $url . "');</script>";
+				$script .= "<script>w3tc_load_js('" . esc_js( $url ) . "');</script>";
 				break;
 
 			case 'nb-async':
