@@ -24,6 +24,43 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'general'
 		);
 		?>
+		<?php
+		$minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
+		$minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $minify_doc_url ) {
+			if ( empty( $anchor ) || empty( $setting_label ) ) {
+				return '';
+			}
+
+			$title = sprintf(
+				/* translators: %s: Minify setting name. */
+				__( 'Learn more about %s', 'w3-total-cache' ),
+				$setting_label
+			);
+
+			return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+		};
+		$minify_anchor_allowed_tags = array(
+			'a'    => array(
+				'class'  => array(),
+				'href'   => array(),
+				'title'  => array(),
+				'target' => array(),
+			),
+			'span' => array(
+				'class' => array(),
+			),
+		);
+		$minify_learn_more_output   = static function ( $anchor, $setting_label ) use ( $minify_learn_more_link, $minify_anchor_allowed_tags ) {
+			$link = $minify_learn_more_link( $anchor, $setting_label );
+
+			if ( empty( $link ) ) {
+				return '';
+			}
+
+			return wp_kses( $link, $minify_anchor_allowed_tags );
+		};
+		?>
+
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
@@ -228,10 +265,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								'title' => array(),
 							),
 						)
-					),
-					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq' ) . '" title="' .
-						esc_attr__( 'Minify frequently asked questions', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
-						'<span class="dashicons dashicons-external"></span></a>',
+					) . $minify_learn_more_output( 'general-settings', __( 'Minify', 'w3-total-cache' ) ),
 				)
 			);
 
@@ -357,7 +391,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
-					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=dbcache_cache_methods' ); ?>"
 						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
 				</p>
@@ -439,7 +473,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
-					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/?utm_source=w3tc&utm_medium=general_settings&utm_campaign=object_cache_methods' ); ?>"
 						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
 				</p>
@@ -517,7 +551,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'Enabling this will schedule a WP-Cron event that will flush all enabled Caches via a single cron job. Each cache\'s advanced settings page features similar settings to this if you wish to schedule purges for specific caches only. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=schedule_purge' ) . '" target="_blank">',
 					'</a>'
 				),
 				array(
@@ -1139,7 +1173,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
 										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
 									'</a>'
 								)
 								: sprintf(
@@ -1154,7 +1188,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
 										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
 									'</a>'
 								),
 							$image_service_link

@@ -6,6 +6,44 @@ defined( 'W3TC' ) || die();
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
+<?php
+$objectcache_doc_url         = 'https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/';
+$objectcache_learn_more_link = static function ( $anchor, $setting_label ) use ( $objectcache_doc_url ) {
+	if ( empty( $anchor ) || empty( $setting_label ) ) {
+		return '';
+	}
+
+	$title = sprintf(
+		/* translators: %s: Object Cache setting name. */
+		__( 'Learn more about %s', 'w3-total-cache' ),
+		$setting_label
+	);
+
+	return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $objectcache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+};
+$objectcache_anchor_tags     = array(
+	'a'    => array(
+		'class'  => array(),
+		'href'   => array(),
+		'title'  => array(),
+		'target' => array(),
+	),
+	'span' => array(
+		'class' => array(),
+	),
+);
+$objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) use ( $objectcache_learn_more_link ) {
+	if ( empty( $anchor ) ) {
+		return '';
+	}
+
+	$label = $config_key ? Util_Ui::config_label( $config_key ) : '';
+	$label = $label ? wp_strip_all_tags( $label ) : $anchor;
+
+	return $objectcache_learn_more_link( $anchor, $label );
+};
+?>
+
 <p>
 	<?php
 	echo wp_kses(
@@ -47,7 +85,10 @@ defined( 'W3TC' ) || die();
 				<td>
 					<input id="objectcache_lifetime" type="text"
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__lifetime" value="<?php echo esc_attr( $this->_config->get_integer( 'objectcache.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
-					<p class="description"><?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'default-lifetime-of-cache-objects', 'objectcache.lifetime' ), $objectcache_anchor_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -55,7 +96,10 @@ defined( 'W3TC' ) || die();
 				<td>
 					<input id="objectcache_file_gc" type="text"
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__file__gc" value="<?php echo esc_attr( $this->_config->get_integer( 'objectcache.file.gc' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
-					<p class="description"><?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'garbage-collection-interval', 'objectcache.file.gc' ), $objectcache_anchor_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -63,7 +107,10 @@ defined( 'W3TC' ) || die();
 				<td>
 					<textarea id="objectcache_groups_global"
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__groups__global" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.groups.global' ) ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'Groups shared amongst sites in network mode.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Groups shared amongst sites in network mode.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'global-groups', 'objectcache.groups.global' ), $objectcache_anchor_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -71,20 +118,29 @@ defined( 'W3TC' ) || die();
 				<td>
 					<textarea id="objectcache_groups_nonpersistent"
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__groups__nonpersistent" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.groups.nonpersistent' ) ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'Groups that should not be cached.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Groups that should not be cached.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'non-persistent-groups', 'objectcache.groups.nonpersistent' ), $objectcache_anchor_tags ); ?>
+					</p>
 				</td>
 			</tr>
 
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ); ?><?php esc_html_e( 'Enable caching for wp-admin requests', 'w3-total-cache' ); ?></label>
-					<p class="description"><?php esc_html_e( 'Enabling this option will increase wp-admin performance, but may cause side-effects', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Enabling this option will increase wp-admin performance, but may cause side-effects', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'enable-caching-for-wp-admin-requests', __( 'Enable caching for wp-admin requests', 'w3-total-cache' ) ), $objectcache_anchor_tags ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'objectcache.fallback_transients' ); ?><?php esc_html_e( 'Store transients in database', 'w3-total-cache' ); ?></label>
-					<p class="description"><?php esc_html_e( 'Store transients in database even when external cache is used, which allows transient values to survive object cache cleaning/expiration', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Store transients in database even when external cache is used, which allows transient values to survive object cache cleaning/expiration', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $objectcache_learn_more_output( 'store-transients-in-database', __( 'Store transients in database', 'w3-total-cache' ) ), $objectcache_anchor_tags ); ?>
+					</p>
 				</th>
 			</tr>
 			<?php if ( $this->_config->get_boolean( 'cluster.messagebus.enabled' ) ) : ?>
@@ -116,10 +172,12 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'            => 'objectcache.wpcli_disk',
-					'label'          => esc_html__( 'Enable for WP-CLI', 'w3-total-cache' ),
+					'label'          => Util_Ui::config_label( 'objectcache.wpcli_disk' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $objectcache_enabled,
+					'description'    => esc_html__( 'WP-CLI already uses Memcached, Redis, and other persistent engines. Enable this only if your object cache engine is Disk and you want WP-CLI to use it.', 'w3-total-cache' ) .
+						wp_kses( $objectcache_learn_more_output( 'allow-objectcache-wpcli-disk', 'objectcache.wpcli_disk' ), $objectcache_anchor_tags ),
 				)
 			);
 			?>
@@ -130,25 +188,11 @@ defined( 'W3TC' ) || die();
 		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'objectcache_wp_cron' ); ?>
 		<table class="form-table">
 			<p>
-				<?php
-				echo wp_kses(
-					sprintf(
-						// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
-						__(
-							'Enabling this will schedule a WP-Cron event that will flush the Object Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush object". Visit %1$shere%2$s for more information.',
-							'w3-total-cache'
-						),
-						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
-						'</a>'
-					),
-					array(
-						'a' => array(
-							'href'   => array(),
-							'target' => array(),
-						),
-					)
-				);
-				?>
+				<?php esc_html_e( 'Enabling this will schedule a WP-Cron event that will flush the Object Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush object".', 'w3-total-cache' ); ?>
+				<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=object_cache_wp_cron' ); ?>" title="<?php esc_attr_e( 'Scheduling cache purges', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?>
+					<span class="dashicons dashicons-external"></span>
+				</a>
 			</p>
 			<?php
 
@@ -178,7 +222,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'            => 'objectcache.wp_cron',
-					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'label'          => Util_Ui::config_label( 'objectcache.wp_cron' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $objectcache_enabled,
@@ -200,7 +244,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'              => 'objectcache.wp_cron_time',
-					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'label'            => Util_Ui::config_label( 'objectcache.wp_cron_time' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
@@ -211,7 +255,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'              => 'objectcache.wp_cron_interval',
-					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'label'            => Util_Ui::config_label( 'objectcache.wp_cron_interval' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),

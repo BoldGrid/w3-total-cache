@@ -21,8 +21,10 @@ class Cdn_Plugin_Admin {
 		$config_labels = new Cdn_ConfigLabels();
 		\add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
-		$c          = Dispatcher::config();
-		$cdn_engine = $c->get_string( 'cdn.engine' );
+		$c             = Dispatcher::config();
+		$cdn_engine    = $c->get_string( 'cdn.engine' );
+		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+		$is_cdn_page   = 'w3tc_cdn' === Util_Request::get_string( 'page' );
 
 		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$admin_notes = new Cdn_AdminNotes();
@@ -60,12 +62,22 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
-				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+				if ( $is_cdn_page && $c->get_boolean( 'cdn.enabled' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
 				break;
 
 			default:
 				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
+				break;
+		}
+
+		switch ( $cdnfsd_engine ) {
+			case 'bunnycdn':
+				if ( $is_cdn_page && $c->get_boolean( 'cdnfsd.enabled' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
 				break;
 		}
 
