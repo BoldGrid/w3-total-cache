@@ -675,7 +675,7 @@ class Minify_MinifiedFileRequestHandler {
 			);
 		}
 
-		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $url ) : false;
+		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $url, $type ) : false;
 	}
 
 	/**
@@ -683,18 +683,55 @@ class Minify_MinifiedFileRequestHandler {
 	 *
 	 * @param string $file_path The file path to the cached file.
 	 * @param string $url       The original URL of the file.
+	 * @param string $type      Resource type (css/js).
 	 *
 	 * @return \W3TCL\Minify\Minify_Source The minify source object.
 	 */
-	public function _get_minify_source( $file_path, $url ) {
-		return new \W3TCL\Minify\Minify_Source(
-			array(
-				'filepath'      => $file_path,
-				'minifyOptions' => array(
-					'prependRelativePath' => $url,
-				),
-			)
+	public function _get_minify_source( $file_path, $url, $type ) {
+		$spec = array(
+			'filepath'      => $file_path,
+			'minifyOptions' => array(
+				'prependRelativePath' => $url,
+			),
 		);
+
+		if ( $this->is_already_minified_resource( $url, $type ) ) {
+			// Remote vendor files already minified should only be combined, never re-minified, to avoid syntax issues.
+			if ( 'js' === $type ) {
+				$spec['minifier'] = '';
+			} elseif ( 'css' === $type ) {
+				$spec['minifyOptions']['compress'] = false;
+			}
+		}
+
+		return new \W3TCL\Minify\Minify_Source( $spec );
+	}
+
+	/**
+	 * Determines whether the resource already appears minified.
+	 *
+	 * @param string $target URL or path.
+	 * @param string $type   Resource type.
+	 *
+	 * @return bool
+	 */
+	private function is_already_minified_resource( $target, $type ) {
+		if ( empty( $target ) || empty( $type ) ) {
+			return false;
+		}
+
+		$normalized = strtolower( Util_Environment::remove_query_all( $target ) );
+		$filename   = basename( $normalized );
+
+		switch ( $type ) {
+			case 'js':
+				return (bool) preg_match( '/\.min\.js$/', $filename );
+
+			case 'css':
+				return (bool) preg_match( '/\.min\.css$/', $filename );
+		}
+
+		return false;
 	}
 
 	/**
