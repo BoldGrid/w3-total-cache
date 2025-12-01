@@ -95,7 +95,7 @@ class Licensing_Core {
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 		// $license_data->license will be either "deactivated" or "failed"
-		return 'deactivated' === $license_data->license;
+		return ! empty( $license_data->license ) && 'deactivated' === $license_data->license;
 	}
 
 	/**
