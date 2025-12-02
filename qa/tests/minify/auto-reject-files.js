@@ -69,6 +69,11 @@ describe('', function() {
 			if (url.indexOf('/qa/minify-auto-js3.js')) {
 				rejectedFound = true;
 			} else {
+				// WordPress script modules are intentionally excluded from minification
+				if (url.indexOf('wp-includes/js/dist/script-modules/') >= 0) {
+					log.log('skipping WordPress script module: ' + url);
+					continue;
+				}
 				log.log('Minify presence expected in ' + url);
 				expect(url).contains('cache/minify');
 			}
