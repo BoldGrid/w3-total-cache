@@ -346,7 +346,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 							),
 						),
 						'description'      => esc_html__( 'Choose how JavaScript files should be combined or minified when using automatic mode.', 'w3-total-cache' ) . $minify_learn_more_output( 'minify-method', 'minify.js.method' ),
-					),
+					)
 				);
 			endif;
 			?>
