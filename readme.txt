@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.8
-Stable tag: 2.8.14
+Tested up to: 6.9
+Stable tag: 2.8.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -364,6 +364,20 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.15 =
+* Fix: Elementor: Carousel lazy load
+* Fix: Elementor: Cache clearing issues
+* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
+* Fix: Better validation for file directory cleanup
+* Fix: Bunny CDN: Settings page purge URL section
+* Fix: Minify: Auto JS: Handle async and defer attributes with values
+* Fix: Google PageSpeed: Lighthouse changes
+* Fix: Cloudflare: Undefined array warning
+* Fix: Rackspace API: Reponse code handling
+* Fix: License deactivation messages
+* Update: ChartJS updated to v4.4.1
+* Enhancement: Added support links
 
 = 2.8.14 =
 * Fix: Better logic for mfunc/mclude processing
