@@ -219,18 +219,6 @@ function toggleStepComplete( stepId, complete ) {
 }
 
 /**
- * Determine if a cache engine selection should mark the step complete.
- *
- * @since 2.0.0
- *
- * @param string value The selected value.
- * @return bool
- */
-function isNonDefaultEngine( value ) {
-	return !! value && 'none' !== value;
-}
-
-/**
  * Mark a step as viewed when its slide is shown.
  *
  * @since 2.0.0
@@ -1533,7 +1521,7 @@ function w3tc_wizard_actions( $slide ) {
 			$nextButton.prop( 'disabled', 'disabled' );
 			markViewedBySlide( slideId );
 
-			// Update the Image Service enable chackbox from saved config.
+			// Update the Image Service enable checkbox from saved config.
 			getImageserviceSettings()
 				.then( function() {
 					$container.find( 'input#imageservice-enable' ).prop( 'checked', imageserviceSettings.enabled );
@@ -1562,7 +1550,7 @@ function w3tc_wizard_actions( $slide ) {
 			$nextButton.prop( 'disabled', 'disabled' );
 			markViewedBySlide( slideId );
 
-			// Update the lazy load enable chackbox from saved config.
+			// Update the lazy load enable checkbox from saved config.
 			getLazyloadSettings()
 				.then( function() {
 					$container.find( 'input#lazyload-enable' ).prop( 'checked', lazyloadSettings.enabled );
@@ -1579,10 +1567,8 @@ function w3tc_wizard_actions( $slide ) {
 				pgcacheDiffPercent = $container.find( '#test-results' )
 					.data( 'pgcacheDiffPercent-' + pgcacheEngine ),
 				$dbcacheSelection = $container.find( 'input:checked[name="dbcache_engine"]' ),
-				dbcacheEngine = $dbcacheSelection.val(),
 				dbcacheEngineLabel = $dbcacheSelection.closest('td').next('td').text() || W3TC_SetupGuide.none,
 				$objcacheSelection = $container.find( 'input:checked[name="objcache_engine"]' ),
-				objcacheEngine = $objcacheSelection.val(),
 				objcacheEngineLabel = $objcacheSelection.closest('td').next('td').text() || W3TC_SetupGuide.none,
 				$browsercacheSelection = $container.find( 'input:checked[name="browsercache_enable"]' ),
 				browsercacheEnabled = $browsercacheSelection.length ? $browsercacheSelection.val() : '',
@@ -1621,8 +1607,7 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '#w3tc-objcache-engine' ).html( objcacheEngineLabel );
 
 			$container.find( '#w3tc-browsercache-setting' ).html(
-				'1' === browsercacheEnabled || 1 === browsercacheEnabled ?
-					W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+				1 === browsercacheEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
 			);
 
 			$container.find( '#w3tc-imageservice-setting' ).html(
