@@ -1170,7 +1170,7 @@ class SetupGuide_Plugin_Admin {
 				),
 				array(
 					'id'   => 'imageservice',
-					'text' => __( 'Image Optimization', 'w3-total-cache' ),
+					'text' => __( 'Image Converter', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'lazyload',

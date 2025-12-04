@@ -77,6 +77,7 @@ ul#w3tc-options-menu {
     margin: 0;
     border: 1px solid #ddd;
     border-bottom: 0;
+    cursor: pointer;
 }
 
 #w3tc-options-menu li:last-of-type {
@@ -86,11 +87,14 @@ ul#w3tc-options-menu {
 
 /* Active step */
 
+#w3tc-options-menu li:hover {
+    background-color: #f0f0f1;
+}
+
 #w3tc-options-menu li.is-active {
     background-color: #0073aa;
     color: #fff;
 }
-
 
 /* Wizard content */
 
