@@ -140,9 +140,10 @@
 	});
 
 	$container.find( '#w3tc-options-menu' ).on( 'click', 'li', function() {
-		var stepId = jQuery( this ).attr( 'id' ).replace( 'w3tc-wizard-step-', '' ),
-			slideId = stepToSlideMap[ stepId ],
-			$targetSlide = slideId ? $container.find( '#w3tc-wizard-slide-' + slideId ) : jQuery();
+		var rawId = jQuery( this ).attr( 'id' );
+		var stepId = rawId.replace( /^w3tc-wizard-step-/, '' ).replace( /-text$/, '' );
+		var slideId = stepToSlideMap[ stepId ];
+		var $targetSlide = slideId ? $container.find( '#w3tc-wizard-slide-' + slideId ) : jQuery();
 
 		showSlide( $targetSlide );
 	});
