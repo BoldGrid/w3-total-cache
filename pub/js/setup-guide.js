@@ -8,7 +8,12 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
-var w3tc_enable_ga;
+var w3tc_enable_ga,
+	w3tcTestHistory = {
+		pgcache: {},
+		dbcache: {},
+		objcache: {}
+	};
 
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
@@ -113,6 +118,84 @@ jQuery(function() {
 
 jQuery( '#w3tc-wizard-step-welcome' )
 	.addClass( 'is-active' );
+
+/**
+ * Record a test result for later averaging.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Engine slug.
+ * @param number value  Result value in seconds.
+ */
+function w3tcRecordTestResult( type, engine, value ) {
+	if ( ! w3tcTestHistory[ type ] ) {
+		w3tcTestHistory[ type ] = {};
+	}
+
+	if ( ! w3tcTestHistory[ type ][ engine ] ) {
+		w3tcTestHistory[ type ][ engine ] = [];
+	}
+
+	w3tcTestHistory[ type ][ engine ].push( value );
+}
+
+/**
+ * Get an average result (seconds) for a cache engine.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Engine slug.
+ * @return float|null
+ */
+function w3tcGetAverageResult( type, engine ) {
+	var history = w3tcTestHistory[ type ] ? w3tcTestHistory[ type ][ engine ] : null;
+
+	if ( ! history || ! history.length ) {
+		return null;
+	}
+
+	return history.reduce( function( total, value ) {
+		return total + value;
+	}, 0 ) / history.length;
+}
+
+/**
+ * Calculate the percent change using averaged results.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Cache engine slug.
+ * @return string|null
+ */
+function w3tcGetAveragePercentChange( type, engine ) {
+	var average = w3tcGetAverageResult( type, engine ),
+		baseline = w3tcGetAverageResult( type, 'none' );
+
+	if ( null === average || null === baseline || 0 === baseline || 'none' === engine ) {
+		return null;
+	}
+
+	return ( ( average - baseline ) / baseline * 100 ).toFixed( 2 );
+}
+
+/**
+ * Format a seconds value as milliseconds.
+ *
+ * @since 2.8.8
+ *
+ * @param float|null seconds Value in seconds.
+ * @return string|null
+ */
+function w3tcFormatMs( seconds ) {
+	if ( null === seconds ) {
+		return null;
+	}
+
+	return ( seconds * 1000 ).toFixed( 2 );
+}
 
 /**
  * Toggle the completion checkmark for a step.
@@ -603,11 +686,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! pgcacheSettings.enabled && 'none' === engine ) ||
 							( pgcacheSettings.enabled && pgcacheSettings.engine === engine );
 
@@ -646,18 +730,33 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
-						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'pgcache-none' ).ttfb;
-							percentChange = ( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+						w3tcRecordTestResult( 'pgcache', engine, testResponse.data.ttfb );
 
-							$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, percentChange );
-							results += ' ' + changeLabel;
+						averageSeconds = w3tcGetAverageResult( 'pgcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
+
+						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
+						results += '</td><td>';
+
+						if ( null !== averageMs ) {
+							results += averageMs;
+
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'pgcache', engine );
+
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+									$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, percentChange );
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -690,7 +789,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -819,11 +918,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! dbcacheSettings.enabled && 'none' === engine ) ||
 							( dbcacheSettings.enabled && dbcacheSettings.engine === engine );
 
@@ -858,18 +958,31 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
+						w3tcRecordTestResult( 'dbcache', engine, testResponse.data.elapsed );
+
+						averageSeconds = w3tcGetAverageResult( 'dbcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
 
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'dbc-none' ).elapsed;
-							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">'+ percentChange + '%</span>';
+						results += '</td><td>';
 
-							results += ' ' + changeLabel;
+						if ( null !== averageMs ) {
+							results += averageMs;
+
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'dbcache', engine );
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">'+ percentChange + '%</span>';
+
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -902,7 +1015,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -1045,11 +1158,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! objcacheSettings.enabled && 'none' === engine ) ||
 							( objcacheSettings.enabled && objcacheSettings.engine === engine );
 
@@ -1084,17 +1198,30 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
-						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'oc-none' ).elapsed;
-							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+						w3tcRecordTestResult( 'objcache', engine, testResponse.data.elapsed );
 
-							results += ' ' + changeLabel;
+						averageSeconds = w3tcGetAverageResult( 'objcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
+						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+
+						results += '</td><td>';
+
+						if ( null !== averageMs ) {
+							results += averageMs;
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'objcache', engine );
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -1127,7 +1254,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -1346,7 +1473,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse );
 						});
 					} else {
-						addResultRow( [ success => false ] );
+						addResultRow( { success: false } );
 					}
 				}
 
