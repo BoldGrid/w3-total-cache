@@ -136,18 +136,6 @@ function toggleStepComplete( stepId, complete ) {
 }
 
 /**
- * Determine if a cache engine selection should mark the step complete.
- *
- * @since 2.0.0
- *
- * @param string value The selected value.
- * @return bool
- */
-function isNonDefaultEngine( value ) {
-	return !! value && 'none' !== value;
-}
-
-/**
  * Mark a step as viewed when its slide is shown.
  *
  * @since 2.0.0
