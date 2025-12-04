@@ -115,21 +115,26 @@ class Template {
 
 			<ul id="w3tc-options-menu">
 			<?php
+			$is_first_step = true;
 			foreach ( $this->config['steps'] as $number => $step ) {
 				$number++;
 				$element_id = 'w3tc-wizard-step-' . ( isset( $step['id'] ) ? $step['id'] : $number );
+				$active_class = $is_first_step ? ' class="is-active"' : '';
+
 				if ( isset( $this->config['steps_location'] ) && 'left' === $this->config['steps_location'] ) {
 					?>
-					<li id="<?php echo esc_attr( $element_id ); ?>">
+					<li id="<?php echo esc_attr( $element_id ); ?>"<?php echo $active_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 						<?php echo esc_html( $step['text'] ); ?>
-				</li>
+					</li>
 					<?php
 				} else {
 					?>
-					<li id="<?php echo esc_attr( $element_id ); ?>"><?php echo esc_html( $number ); ?></li>
-					<li id="<?php echo esc_attr( $element_id ); ?>-text"><?php echo esc_html( $step['text'] ); ?></li>
+					<li id="<?php echo esc_attr( $element_id ); ?>"<?php echo $active_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $number ); ?></li>
+					<li id="<?php echo esc_attr( $element_id ); ?>-text"<?php echo $active_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $step['text'] ); ?></li>
 					<?php
 				}
+
+				$is_first_step = false;
 			}
 			?>
 			</ul>
