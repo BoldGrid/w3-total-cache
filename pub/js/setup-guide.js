@@ -8,12 +8,31 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
+<<<<<<< HEAD
 var w3tc_enable_ga,
 	w3tcTestHistory = {
 		pgcache: {},
 		dbcache: {},
 		objcache: {}
 	};
+=======
+var w3tc_enable_ga;
+var w3tcWizardSlideStepMap = {
+	'w3tc-wizard-slide-pc1': 'pgcache',
+	'w3tc-wizard-slide-dbc1': 'dbcache',
+	'w3tc-wizard-slide-oc1': 'objectcache',
+	'w3tc-wizard-slide-bc1': 'browsercache',
+	'w3tc-wizard-slide-io1': 'imageservice',
+	'w3tc-wizard-slide-ll1': 'lazyload',
+	'w3tc-wizard-slide-complete': 'more'
+};
+var w3tcWizardSlidesWithTests = [
+	'w3tc-wizard-slide-pc1',
+	'w3tc-wizard-slide-dbc1',
+	'w3tc-wizard-slide-oc1',
+	'w3tc-wizard-slide-bc1'
+];
+>>>>>>> b8ef84e6dacd6a3a4577a8f2654c56b02b0b0d8b
 
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
@@ -150,7 +169,7 @@ function w3tcRecordTestResult( type, engine, value ) {
  * @return float|null
  */
 function w3tcGetAverageResult( type, engine ) {
-	var history = w3tcTestHistory[ type ] ? w3tcTestHistory[ type ][ engine ] : null;
+	var history = w3tcTestHistory[ type ] && w3tcTestHistory[ type ][ engine ] ? w3tcTestHistory[ type ][ engine ] : null;
 
 	if ( ! history || ! history.length ) {
 		return null;
@@ -219,26 +238,36 @@ function toggleStepComplete( stepId, complete ) {
 }
 
 /**
- * Mark a step as viewed when its slide is shown.
+ * Flag a slide as having completed its tests.
  *
- * @since 2.0.0
+ * @since 2.10.0
  *
  * @param string slideId The current slide ID.
  */
-function markViewedBySlide( slideId ) {
-	var map = {
-		'w3tc-wizard-slide-pc1': 'pgcache',
-		'w3tc-wizard-slide-dbc1': 'dbcache',
-		'w3tc-wizard-slide-oc1': 'objectcache',
-		'w3tc-wizard-slide-bc1': 'browsercache',
-		'w3tc-wizard-slide-io1': 'imageservice',
-		'w3tc-wizard-slide-ll1': 'lazyload',
-		'w3tc-wizard-slide-complete': 'more'
-	};
+function w3tc_mark_slide_tests_complete( slideId ) {
+	jQuery( '#' + slideId ).data( 'testsComplete', true );
+}
 
-	if ( map[ slideId ] ) {
-		toggleStepComplete( map[ slideId ], true );
+/**
+ * Mark a step complete when navigating away from a slide.
+ *
+ * @since 2.10.0
+ *
+ * @param string slideId The slide being left.
+ */
+function w3tc_mark_step_complete_on_leave( slideId ) {
+	var stepId = w3tcWizardSlideStepMap[ slideId ],
+		requiresTests = -1 !== w3tcWizardSlidesWithTests.indexOf( slideId );
+
+	if ( ! stepId ) {
+		return;
 	}
+
+	if ( requiresTests && ! jQuery( '#' + slideId ).data( 'testsComplete' ) ) {
+		return;
+	}
+
+	toggleStepComplete( stepId, true );
 }
 
 /**
@@ -641,16 +670,12 @@ function w3tc_wizard_actions( $slide ) {
 		case 'w3tc-wizard-slide-welcome':
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-welcome' ).addClass( 'is-active' );
-			markViewedBySlide( slideId );
-
 			break;
 
 		case 'w3tc-wizard-slide-pc1':
 			// Test Page Cache.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-pgcache' ).addClass( 'is-active' );
-
-			markViewedBySlide( slideId );
 
 			$slide.find( '#w3tc-test-pgcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
@@ -844,6 +869,10 @@ function w3tc_wizard_actions( $slide ) {
 						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
+					.then( function() {
+						w3tc_mark_slide_tests_complete( slideId );
+						return true;
+					} )
 					// Restore the original database cache settings.
 					.then( function() {
 						return configPgcache( ( pgcacheSettings.enabled ? 1 : 0 ), pgcacheSettings.engine );
@@ -876,8 +905,6 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Database Cache slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
-
-			markViewedBySlide( slideId );
 
 			$slide.find( '#w3tc-test-dbcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
@@ -1086,6 +1113,10 @@ function w3tc_wizard_actions( $slide ) {
 						return true;
 					})
 					.then( function() {
+						w3tc_mark_slide_tests_complete( slideId );
+						return true;
+					} )
+					.then( function() {
 						// Restore the original database cache settings.
 						return configDbcache( ( dbcacheSettings.enabled ? 1 : 0 ), dbcacheSettings.engine );
 					},
@@ -1117,8 +1148,6 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Object Cache slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
-
-			markViewedBySlide( slideId );
 
 			$slide.find( '#w3tc-test-objcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
@@ -1319,6 +1348,10 @@ function w3tc_wizard_actions( $slide ) {
 
 						return true;
 					})
+					.then( function() {
+						w3tc_mark_slide_tests_complete( slideId );
+						return true;
+					} )
 					// Restore the original object cache settings.
 					.then( function() {
 						return configObjcache( ( objcacheSettings.enabled ? 1 : 0 ), objcacheSettings.engine );
@@ -1351,8 +1384,6 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Browser Cache slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
-
-			markViewedBySlide( slideId );
 
 			$slide.find( '#w3tc-test-browsercache' ).off('click').on('click', function () {
 				var bcEnabled,
@@ -1484,6 +1515,10 @@ function w3tc_wizard_actions( $slide ) {
 						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
+					.then( function() {
+						w3tc_mark_slide_tests_complete( slideId );
+						return true;
+					} )
 					// Restore the original browser cache settings.
 					.then( function() {
 						return configBrowsercache( ( browsercacheSettings.enabled ? 1 : 0 ) );
@@ -1519,8 +1554,6 @@ function w3tc_wizard_actions( $slide ) {
 			$dashboardButton.closest( 'span' ).hide();
 			$nextButton.closest( 'span' ).show();
 			$nextButton.prop( 'disabled', 'disabled' );
-			markViewedBySlide( slideId );
-
 			// Update the Image Service enable checkbox from saved config.
 			getImageserviceSettings()
 				.then( function() {
@@ -1548,8 +1581,6 @@ function w3tc_wizard_actions( $slide ) {
 			$dashboardButton.closest( 'span' ).hide();
 			$nextButton.closest( 'span' ).show();
 			$nextButton.prop( 'disabled', 'disabled' );
-			markViewedBySlide( slideId );
-
 			// Update the lazy load enable checkbox from saved config.
 			getLazyloadSettings()
 				.then( function() {
@@ -1591,8 +1622,6 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Setup Complete slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-options-menu li' ).last().addClass( 'is-active' );
-			markViewedBySlide( slideId );
-
 			html = pgcacheDiffPercent !== undefined ?
 				( pgcacheDiffPercent > 0 ? '+' : '' ) +
 				parseFloat( pgcacheDiffPercent ).toFixed( 2 ) +

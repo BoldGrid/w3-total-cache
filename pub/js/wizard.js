@@ -51,7 +51,13 @@
 			return;
 		}
 
-		$container.find( '.w3tc-wizard-slides:visible' ).hide();
+		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' );
+
+		if ( $currentSlide.length && 'function' === typeof w3tc_mark_step_complete_on_leave ) {
+			w3tc_mark_step_complete_on_leave( $currentSlide.prop( 'id' ) );
+		}
+
+		$currentSlide.hide();
 		$targetSlide.show();
 
 		var hasPrevious = !! $targetSlide.prev( '.w3tc-wizard-slides' ).length,
