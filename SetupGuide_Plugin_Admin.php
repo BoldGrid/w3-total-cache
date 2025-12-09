@@ -663,12 +663,13 @@ class SetupGuide_Plugin_Admin {
 			$header_missing = esc_html__( 'Not present', 'w3-total-cache' );
 
 			foreach ( $urls as $url ) {
-				$headers = Util_Http::get_headers( $url );
+				$headers       = Util_Http::get_headers( $url );
+				$headers_lower = is_array( $headers ) ? array_change_key_case( $headers, CASE_LOWER ) : array();
 
 				$results[] = array(
 					'url'      => $url,
 					'filename' => basename( $url ),
-					'header'   => empty( $headers['cache-control'] ) ? $header_missing : $headers['cache-control'],
+					'header'   => empty( $headers_lower['cache-control'] ) ? $header_missing : $headers_lower['cache-control'],
 					'headers'  => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
 				);
 			}
