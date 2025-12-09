@@ -745,8 +745,7 @@ function w3tc_wizard_actions( $slide ) {
 						averageMs = w3tcFormatMs( averageSeconds );
 
 						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
-
-					results += '</td><td>';
+						results += '</td><td>';
 
 						if ( null !== averageMs ) {
 							results += averageMs;
