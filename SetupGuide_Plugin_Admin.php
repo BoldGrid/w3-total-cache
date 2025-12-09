@@ -942,9 +942,18 @@ class SetupGuide_Plugin_Admin {
 
 		$config               = new Config();
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+		$is_pro               = Util_Environment::is_w3tc_pro( $config );
 		$page                 = Util_Request::get_string( 'page' );
 		$state                = Dispatcher::config_state();
 		$force_master_config  = $config->get_boolean( 'common.force_master' );
+		$image_service_limits = array(
+			'free_hourly'  => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
+			'free_monthly' => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
+			'pro_hourly'   => number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+			'pro_monthly'  => empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT ) ?
+				esc_html__( 'Unlimited', 'w3-total-cache' ) :
+				number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+		);
 
 		if ( 'w3tc_extensions' === $page ) {
 			$page = 'extensions/' . Util_Request::get_string( 'extension' );
@@ -974,7 +983,7 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_install_date' => get_option( 'w3tc_install_date' ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
-							'w3tc_pro'          => Util_Environment::is_w3tc_pro( $config ),
+							'w3tc_pro'          => $is_pro,
 							'w3tc_has_key'      => $config->get_string( 'plugin.license_key' ),
 							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
 							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
@@ -1385,14 +1394,66 @@ class SetupGuide_Plugin_Admin {
 				array( // Image Service.
 					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
 					'id'       => 'io1',
-					'markup'   => '<p>' .
-						esc_html__(
-							'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
-							'w3-total-cache'
-						) . '</p>
-						<p>
-						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
-						esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label></p>',
+					'markup'   => '<div class="w3tc-io-description"><p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Adds the ability to convert images in the Media Library to the modern WebP format for better performance. %1$sLearn more%2$s',
+								'w3-total-cache'
+							),
+							'<a id="w3tc-io-learn-more" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
+							'</a>'
+						) . '</p></div>
+						<p class="w3tc-io-toggle">
+							<input type="checkbox" id="imageservice-enable" value="1" />
+							<label for="imageservice-enable">' . esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label>
+						</p>
+						<div class="w3tc-io-rate-grid">
+							<div class="w3tc-io-rate-card' . ( $is_pro ? '' : ' w3tc-io-rate-current' ) . '">
+								' . ( $is_pro ? '' : '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' ) . '
+								<span class="w3tc-io-rate-label">' . esc_html__( 'Free', 'w3-total-cache' ) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
+									$image_service_limits['free_hourly']
+								) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									esc_html__( '%s conversions per month', 'w3-total-cache' ),
+									$image_service_limits['free_monthly']
+								) . '</span>
+							</div>
+							<div class="w3tc-io-rate-card w3tc-io-rate-pro' . ( $is_pro ? ' w3tc-io-rate-current' : '' ) . '">
+								' . ( $is_pro ? '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' : '' ) . '
+								<span class="w3tc-io-rate-label">' . esc_html__( 'Pro', 'w3-total-cache' ) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
+									$image_service_limits['pro_hourly']
+								) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									esc_html__( '%s conversions per month', 'w3-total-cache' ),
+									$image_service_limits['pro_monthly']
+								) . '</span>
+							</div>
+						</div>' .
+						( $is_pro ? '' : '<div class="w3tc-gopro-manual-wrap">
+							<div class="w3tc-io-upsell w3tc-gopro">
+								<div class="w3tc-gopro-ribbon"><span>★ PRO</span></div>
+								<div class="w3tc-gopro-content">
+									<p><strong>' . esc_html__( 'Need higher limits?', 'w3-total-cache' ) . '</strong> ' .
+										sprintf(
+											esc_html__(
+												'Upgrade to Pro for up to %1$s conversions per hour and %2$s per month.',
+												'w3-total-cache'
+											),
+											$image_service_limits['pro_hourly'],
+											$image_service_limits['pro_monthly']
+										) . '</p>
+								</div>
+								<div class="w3tc-gopro-action">
+									<input type="button" class="button-primary btn button-buy-plugin" value="' . esc_attr__( 'Upgrade to W3 Total Cache Pro', 'w3-total-cache' ) . '">
+								</div>
+							</div>
+						</div>'
+					),
 				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
