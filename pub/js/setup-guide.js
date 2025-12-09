@@ -8,15 +8,12 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
-<<<<<<< HEAD
-var w3tc_enable_ga,
-	w3tcTestHistory = {
-		pgcache: {},
-		dbcache: {},
-		objcache: {}
-	};
-=======
 var w3tc_enable_ga;
+var w3tcTestHistory = {
+	pgcache: {},
+	dbcache: {},
+	objcache: {}
+};
 var w3tcWizardSlideStepMap = {
 	'w3tc-wizard-slide-pc1': 'pgcache',
 	'w3tc-wizard-slide-dbc1': 'dbcache',
@@ -32,7 +29,6 @@ var w3tcWizardSlidesWithTests = [
 	'w3tc-wizard-slide-oc1',
 	'w3tc-wizard-slide-bc1'
 ];
->>>>>>> b8ef84e6dacd6a3a4577a8f2654c56b02b0b0d8b
 
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
