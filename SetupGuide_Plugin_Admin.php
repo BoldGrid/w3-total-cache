@@ -180,13 +180,28 @@ class SetupGuide_Plugin_Admin {
 				'nocache'  => $nocache,
 				'url'      => $url,
 				'urlshort' => $this->abbreviate_url( $url ),
+				'ttfb'     => null,
 			);
 
-			if ( ! $nocache ) {
+			if ( $nocache ) {
+				$ttfb = Util_Http::ttfb( $url, true );
+				if ( false !== $ttfb ) {
+					$results['ttfb'] = $ttfb;
+				}
+			} else {
+				// Warm the cache once before the timed request.
 				Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
-			}
 
-			$results['ttfb'] = Util_Http::ttfb( $url, $nocache );
+				$ttfb = Util_Http::ttfb( $url, false );
+				if ( false !== $ttfb ) {
+					$results['ttfb'] = $ttfb;
+				}
+
+				$ttfb_uncached = Util_Http::ttfb( $url, true );
+				if ( false !== $ttfb_uncached && null === $results['ttfb'] ) {
+					$results['ttfb'] = $ttfb_uncached;
+				}
+			}
 
 			wp_send_json_success( $results );
 		} else {
@@ -326,56 +341,56 @@ class SetupGuide_Plugin_Admin {
 
 			global $wpdb;
 
-			$wpdb->flush();
+			// Ensure db.php drop-in is present before testing.
+			$env = new DbCache_Environment();
+			$env->fix_on_wpadmin_request( $config, true );
 
-			$start_time = microtime( true );
-			$wpdb->timer_start();
+			// Temporarily mimic a front-end request so dbcache isn't rejected by admin context.
+			$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null;
+			$original_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
 
-			// Test insert, get, and delete 200 records.
-			$table  = $wpdb->prefix . 'options';
-			$option = 'w3tc_test_dbcache_';
+			$_SERVER['HTTP_REFERER'] = site_url( '/' );
+			$_SERVER['REQUEST_URI']  = '/';
 
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery
-
-			for ( $x = 0; $x < 200; $x++ ) {
-				$wpdb->insert(
-					$table,
-					array(
-						'option_name'  => $option . $x,
-						'option_value' => 'blah',
-					)
-				);
-
-				/*
-				 * @see https://developer.wordpress.org/reference/classes/wpdb/prepare/
-				 * I had to use %1$s as the method does not encapsulate the value with quotes,
-				 * which would be a syntax error.
-				 */
-				$select = $wpdb->prepare(
-					'SELECT `option_value` FROM `%1$s` WHERE `option_name` = %s AND `option_name` NOT LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
-					$table,
-					$option . $x,
-					'NotAnOption'
-				);
-
-				$wpdb->get_var( $select ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-				$wpdb->get_var( $select ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-				$wpdb->update(
-					$table,
-					array( 'option_name' => $option . $x ),
-					array( 'option_value' => 'This is a dummy test.' )
-				);
-
-				$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
+			$removed_cookies = array();
+			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
+				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
+					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ];
+					unset( $_COOKIE[ $cookie_name ] );
+				}
 			}
 
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery
+			$queries    = $this->get_dbcache_test_queries( $wpdb );
+		
+			// Use more iterations to reduce timing noise and amplify cache benefit.
+			$iterations = 30;
 
-			$results['wpdb_time'] = $wpdb->timer_stop();
-			$results['exec_time'] = microtime( true ) - $start_time;
-			$results['elapsed']   = $results['wpdb_time'];
+			// Reduce cross-test interference from runtime caches.
+			$this->reset_runtime_caches();
+
+			// Always flush dbcache between engine tests to avoid warm carry-over.
+			$flusher = Dispatcher::component( 'CacheFlush' );
+			$flusher->dbcache_flush();
+
+			// Run the workload once to capture a single timing per engine.
+			$results['elapsed'] = $this->run_dbcache_benchmark( $wpdb, $queries, $iterations );
+
+			// Restore request context.
+			if ( null === $original_referer ) {
+				unset( $_SERVER['HTTP_REFERER'] );
+			} else {
+				$_SERVER['HTTP_REFERER'] = $original_referer;
+			}
+
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+
+			foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
+				$_COOKIE[ $cookie_name ] = $cookie_value;
+			}
 
 			wp_send_json_success( $results );
 		} else {
@@ -458,8 +473,12 @@ class SetupGuide_Plugin_Admin {
 						$f = Dispatcher::component( 'CacheFlush' );
 						$f->dbcache_flush();
 
-						// Fix environment on event.
+						// Fix environment on event. Only instates cron if needed.
 						Util_Admin::fix_on_event( $config, 'setupguide_dbcache' );
+
+						// Ensure db.php drop-in is updated immediately for the next request.
+						$env = new DbCache_Environment();
+						$env->fix_on_wpadmin_request( $config, true );
 					}
 
 					if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
@@ -503,6 +522,8 @@ class SetupGuide_Plugin_Admin {
 	 */
 	public function test_objcache() {
 		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			global $wp_object_cache;
+
 			$config  = new Config();
 			$results = array(
 				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
@@ -510,19 +531,71 @@ class SetupGuide_Plugin_Admin {
 				'elapsed' => null,
 			);
 
-			$start_time = microtime( true );
+			// Ensure object-cache.php drop-in is present before testing.
+			$oc_env = new ObjectCache_Environment();
+			$oc_env->fix_on_wpadmin_request( $config, true );
 
-			$posts = get_posts(
-				array(
-					'post_type' => array(
-						'page',
-						'post',
-					),
-				)
+			// Temporarily mimic a front-end request and allow writes in admin-ajax.
+			$original_enabled_for_admin = $config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
+			$config->set( 'objectcache.enabled_for_wp_admin', true );
+			$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+			$_SERVER['REQUEST_URI'] = '/';
+
+			$removed_cookies = array();
+			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
+				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
+					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ];
+					unset( $_COOKIE[ $cookie_name ] );
+				}
+			}
+
+			if ( function_exists( 'wp_suspend_cache_addition' ) ) {
+				wp_suspend_cache_addition( false );
+			}
+
+			$post_ids      = $this->get_objcache_sample_post_ids();
+			$payload_key   = 'w3tc_objcache_setupguide_payload';
+			$payload_value = array(
+				'time'     => time(),
+				'post_ids' => $post_ids,
 			);
 
-			$results['elapsed'] = microtime( true ) - $start_time;
-			$results['post_ct'] = count( $posts );
+			// Start with a clean runtime cache for consistent runs.
+			$this->flush_object_cache_runtime();
+
+			wp_cache_set( $payload_key, $payload_value, 'w3tc_setupguide', 300 );
+
+			// Warm persistent cache.
+			$this->run_objcache_scenario( $post_ids, $payload_key );
+
+			// Flush runtime cache only if a runtime-only flush is available; avoid full persistent flush.
+			$this->flush_object_cache_runtime();
+
+			// Reinitialize the runtime cache instance to better simulate a new request hitting the persistent store.
+			if ( function_exists( 'wp_cache_init' ) ) {
+				wp_cache_init();
+			}
+
+			$results['elapsed']   = $this->run_objcache_scenario( $post_ids, $payload_key );
+			$results['post_ct']   = count( $post_ids );
+			$results['cache_hit'] = ( false !== wp_cache_get( $payload_key, 'w3tc_setupguide' ) );
+
+			// Restore context.
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+
+			foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
+				$_COOKIE[ $cookie_name ] = $cookie_value;
+			}
+
+			if ( function_exists( 'wp_suspend_cache_addition' ) ) {
+				wp_suspend_cache_addition( true );
+			}
+
+			$config->set( 'objectcache.enabled_for_wp_admin', $original_enabled_for_admin );
 
 			wp_send_json_success( $results );
 		} else {
@@ -605,14 +678,23 @@ class SetupGuide_Plugin_Admin {
 						$f = Dispatcher::component( 'CacheFlush' );
 						$f->objectcache_flush();
 
-						// Fix environment on event.
+						// Fix environment on event. Only instates cron if needed.
 						Util_Admin::fix_on_event( $config, 'setupguide_objectcache' );
+
+						// Ensure object-cache.php drop-in is updated immediately for the next request.
+						$oc_env = new ObjectCache_Environment();
+						$oc_env->fix_on_wpadmin_request( $config, true );
 					}
 
-					if ( $config->getf_boolean( 'objectcache.enabled' ) === $enable &&
-						( ! $enable || $config->get_string( 'objectcache.engine' ) === $engine ) ) {
-							$success = true;
-							$message = __( 'Settings updated', 'w3-total-cache' );
+					if (
+						$config->getf_boolean( 'objectcache.enabled' ) === $enable
+						&& (
+							! $enable
+							|| $config->get_string( 'objectcache.engine' ) === $engine
+						)
+					) {
+						$success = true;
+						$message = __( 'Settings updated', 'w3-total-cache' );
 					} else {
 						$message = __( 'Settings not updated', 'w3-total-cache' );
 					}
@@ -916,6 +998,186 @@ class SetupGuide_Plugin_Admin {
 		$terms = Licensing_Core::get_tos_choice();
 
 		return 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms;
+	}
+
+	/**
+	 * Build the SQL statements used for database cache benchmarking.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param \wpdb $wpdb WordPress database object.
+	 *
+	 * @return array
+	 */
+	private function get_dbcache_test_queries( $wpdb ) {
+		return array(
+			"SELECT ID, post_title, post_date, post_author, post_type FROM {$wpdb->posts} WHERE post_status IN ('publish','private') ORDER BY post_date DESC LIMIT 60",
+			"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish'",
+			"SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'theme_mods_%' ORDER BY option_id DESC LIMIT 50",
+			"SELECT pm.post_id, pm.meta_key, pm.meta_value FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID WHERE p.post_status = 'publish' ORDER BY pm.meta_id DESC LIMIT 80",
+			"SELECT tr.object_id, tt.taxonomy, t.name FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id ORDER BY tr.object_id DESC LIMIT 80",
+			"SELECT c.comment_post_ID, c.comment_date_gmt, c.user_id, c.comment_approved FROM {$wpdb->comments} c WHERE c.comment_approved IN ('0','1') ORDER BY c.comment_date_gmt DESC LIMIT 60",
+		);
+	}
+
+	/**
+	 * Execute a repeatable set of read-heavy queries to measure cache performance.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param \wpdb  $wpdb       WordPress database object.
+	 * @param array  $queries    List of SQL queries to execute.
+	 * @param int    $iterations How many times to repeat the full set.
+	 *
+	 * @return float Seconds elapsed.
+	 */
+	private function run_dbcache_benchmark( $wpdb, array $queries, $iterations ) {
+		$start_time = microtime( true );
+
+		for ( $i = 0; $i < $iterations; $i++ ) {
+			foreach ( $queries as $sql ) {
+				$wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			}
+		}
+
+		return microtime( true ) - $start_time;
+	}
+
+	/**
+	 * Clear runtime caches to reduce contamination between timed runs.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function reset_runtime_caches() {
+		if ( function_exists( 'wp_cache_flush_runtime' ) ) {
+			wp_cache_flush_runtime();
+		} elseif ( function_exists( 'wp_cache_flush' ) ) {
+			wp_cache_flush();
+		}
+	}
+
+	/**
+	 * Clear dbcache reject state for the current request so tests can evaluate with fresh context.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function reset_dbcache_reject_state() {
+		global $wpdb;
+
+		if ( isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'get_processors' ) ) {
+			$processors = $wpdb->get_processors();
+
+			foreach ( $processors as $processor ) {
+				if ( $processor instanceof DbCache_WpdbInjection_QueryCaching ) {
+					$processor->reset_reject_state();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Collect a set of post IDs to be used when benchmarking the object cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	private function get_objcache_sample_post_ids() {
+		$query = new \WP_Query(
+			array(
+				'post_type'              => array( 'post', 'page' ),
+				'post_status'            => array( 'publish', 'private', 'inherit' ),
+				'posts_per_page'         => 25,
+				'orderby'                => 'date',
+				'order'                  => 'DESC',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'cache_results'          => false,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$post_ids = $query->posts;
+
+		if ( empty( $post_ids ) ) {
+			$post_ids = array( 0 );
+		}
+
+		return $post_ids;
+	}
+
+	/**
+	 * Run a representative workload that should benefit from a persistent object cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $post_ids    IDs to request in the query.
+	 * @param string $payload_key Cache key used to check persistence.
+	 * @param int    $iterations  How many times to repeat the workload.
+	 *
+	 * @return float Seconds elapsed.
+	 */
+	private function run_objcache_scenario( array $post_ids, $payload_key, $iterations = 1 ) {
+		$posts_per_page = max( 1, count( $post_ids ) );
+		$start_time     = microtime( true );
+
+		for ( $i = 0; $i < $iterations; $i++ ) {
+			$query = new \WP_Query(
+				array(
+					'post__in'               => $post_ids,
+					'post_type'              => array( 'post', 'page' ),
+					'post_status'            => array( 'publish', 'private', 'inherit' ),
+					'orderby'                => 'post__in',
+					'posts_per_page'         => $posts_per_page,
+					'no_found_rows'          => true,
+					'cache_results'          => true,
+					'update_post_meta_cache' => true,
+					'update_post_term_cache' => true,
+					'ignore_sticky_posts'    => true,
+				)
+			);
+
+			foreach ( $query->posts as $post ) {
+				get_post_meta( $post->ID );
+				wp_get_object_terms( $post->ID, 'category' );
+			}
+
+			get_option( 'blogname' );
+			get_option( 'siteurl' );
+			get_option( 'permalink_structure' );
+			wp_cache_get( 'alloptions', 'options' );
+			wp_cache_get( $payload_key, 'w3tc_setupguide' );
+
+			wp_reset_postdata();
+		}
+
+		return microtime( true ) - $start_time;
+	}
+
+	/**
+	 * Clear runtime object cache data while preserving persistent stores when possible.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string Which flush method was used.
+	 */
+	private function flush_object_cache_runtime() {
+		if ( function_exists( 'wp_cache_flush_runtime' ) ) {
+			wp_cache_flush_runtime();
+			return 'runtime';
+		}
+
+		if ( function_exists( 'wp_cache_flush' ) ) {
+			wp_cache_flush();
+			return 'full';
+		}
+
+		return 'none';
 	}
 
 	/**
@@ -1285,6 +1547,11 @@ class SetupGuide_Plugin_Admin {
 							'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.  Database Cache serves query results directly from a storage engine.',
 							'w3-total-cache'
 						) . '</p>
+						<p>' .
+						esc_html__(
+							'Individual test runs can vary. Run the test a few times and use the Average column to choose the best option for your site.',
+							'w3-total-cache'
+						) . '</p>
 						<p>
 						<input id="w3tc-test-dbcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Database Cache', 'w3-total-cache' ) . '">
@@ -1292,11 +1559,6 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
-						<p>' .
-						esc_html__(
-							'Run the test multiple times to smooth out variability and rely on the Average column when choosing your setting.',
-							'w3-total-cache'
-						) . '</p>
 						<table id="w3tc-dbc-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
@@ -1327,7 +1589,12 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
-						'</p>' .
+						'</p>
+						<p>' .
+						esc_html__(
+							'Individual test runs can vary. Run the test a few times and use the Average column to choose the best option for your site.',
+							'w3-total-cache'
+						) . '</p>' .
 						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
 						( ! has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p>
 							<input id="w3tc-test-objcache" class="button-primary" type="button" value="' . esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
@@ -1335,12 +1602,7 @@ class SetupGuide_Plugin_Admin {
 								' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
 							</span>
 						</p>' : '' ) .
-						'<p>' .
-						esc_html__(
-							'Test several times to account for variability and pick the setting with the best average.',
-							'w3-total-cache'
-						) . '</p>
-						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
+						'<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>

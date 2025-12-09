@@ -424,6 +424,127 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
+	 * Retrieves multiple cached values in a single request.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $keys  Cache keys.
+	 * @param string $group Cache group.
+	 *
+	 * @return array Map of cache key => raw cached payload (serialized array or null).
+	 */
+	public function get_multi( array $keys, $group = '' ) {
+		if ( empty( $keys ) ) {
+			return array();
+		}
+
+		$results        = array();
+		$server_buckets = array();
+		$servers_count  = count( $this->_servers );
+
+		foreach ( $keys as $key ) {
+			$storage_key = $this->get_item_key( $key );
+			$index       = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
+
+			$server_buckets[ $index ]['storage_keys'][] = $storage_key;
+			$server_buckets[ $index ]['orig_keys'][]    = $key;
+		}
+
+		foreach ( $server_buckets as $index => $bucket ) {
+			$storage_keys = $bucket['storage_keys'];
+			$orig_keys    = $bucket['orig_keys'];
+
+			$accessor = $this->_get_accessor( $storage_keys[0] );
+			if ( is_null( $accessor ) ) {
+				foreach ( $orig_keys as $orig_key ) {
+					$results[ $orig_key ] = null;
+				}
+				continue;
+			}
+
+			$values = $accessor->mget( $storage_keys );
+
+			foreach ( $orig_keys as $i => $orig_key ) {
+				if ( isset( $values[ $i ] ) ) {
+					$results[ $orig_key ] = @unserialize( $values[ $i ] );
+				} else {
+					$results[ $orig_key ] = null;
+				}
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Stores multiple values in a single request.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $items  Map of cache key => payload.
+	 * @param string $group  Cache group.
+	 * @param int    $expire Expiration.
+	 *
+	 * @return array Map of cache key => success boolean.
+	 */
+	public function set_multi( array $items, $group = '', $expire = 0 ) {
+		if ( empty( $items ) ) {
+			return array();
+		}
+
+		$key_version    = $this->_get_key_version( $group );
+		$results        = array();
+		$server_buckets = array();
+		$servers_count  = count( $this->_servers );
+
+		foreach ( $items as $key => $value ) {
+			if ( ! isset( $value['key_version'] ) ) {
+				$value['key_version'] = $key_version;
+			}
+
+			$storage_key = $this->get_item_key( $key );
+			$index       = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
+
+			$server_buckets[ $index ]['storage'][ $storage_key ] = serialize( $value );
+			$server_buckets[ $index ]['orig_keys'][]             = $key;
+		}
+
+		foreach ( $server_buckets as $index => $bucket ) {
+			$storage_map = $bucket['storage'];
+			$orig_keys   = $bucket['orig_keys'];
+
+			$accessor = $this->_get_accessor( array_key_first( $storage_map ) );
+			if ( is_null( $accessor ) ) {
+				foreach ( $orig_keys as $orig_key ) {
+					$results[ $orig_key ] = false;
+				}
+				continue;
+			}
+
+			if ( ! $expire ) {
+				$ok = $accessor->mset( $storage_map );
+				foreach ( $orig_keys as $orig_key ) {
+					$results[ $orig_key ] = (bool) $ok;
+				}
+			} else {
+				$pipe = $accessor->multi( \Redis::PIPELINE );
+
+				foreach ( $storage_map as $storage_key => $payload ) {
+					$pipe->setex( $storage_key, $expire, $payload );
+				}
+
+				$exec_results = $pipe->exec();
+
+				foreach ( $orig_keys as $idx => $orig_key ) {
+					$results[ $orig_key ] = (bool) ( $exec_results[ $idx ] ?? false );
+				}
+			}
+		}
+
+		return $results;
+	}
+
+	/**
 	 * Use key as a counter and add integet value to it.
 	 *
 	 * @param string $key   Key.
