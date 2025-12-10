@@ -230,7 +230,14 @@ function w3tc_wizard_actions( $slide ) {
 			enabled: null
 		},
 		imageserviceSettings = {
-			enabled: null
+			enabled: null,
+			settings: {
+				webp: true,
+				avif: true,
+				compression: 'lossy',
+				auto: 'enabled',
+				visibility: 'never'
+			}
 		},
 		lazyloadSettings = {
 			enabled: null
@@ -448,10 +455,11 @@ function w3tc_wizard_actions( $slide ) {
 	 *
 	 * @since 2.3.4
 	 *
-	 * @param int enable Enable browser cache.
+	 * @param int enable Enable image converter.
+	 * @param object settings Settings payload.
 	 * @return jqXHR
 	 */
-	function configImageservice( enable ) {
+	function configImageservice( enable, settings = {} ) {
 		configSuccess = null;
 
 		return jQuery.ajax({
@@ -460,12 +468,30 @@ function w3tc_wizard_actions( $slide ) {
 			data: {
 				_wpnonce: nonce,
 				action: 'w3tc_config_imageservice',
-				enable: enable
+				enable: enable,
+				settings: settings
 			}
 		})
 		.done(function( response ) {
 			configSuccess = response.data.success;
 		});
+	}
+
+	/**
+	 * Gather Image Service form settings with defaults.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return object
+	 */
+	function getImageserviceFormSettings() {
+		return {
+			compression: 'lossy',
+			auto: 'enabled',
+			visibility: 'never',
+			webp: $container.find( '#imageservice-webp' ).is( ':checked' ) ? 1 : 0,
+			avif: $container.find( '#imageservice-avif' ).is( ':checked' ) ? 1 : 0
+		};
 	}
 
 	/**
@@ -486,6 +512,17 @@ function w3tc_wizard_actions( $slide ) {
 		})
 		.done(function( response ) {
 			imageserviceSettings = response.data;
+			imageserviceSettings.settings = jQuery.extend(
+				{},
+				{
+					webp: true,
+					avif: true,
+					compression: 'lossy',
+					auto: 'enabled',
+					visibility: 'never'
+				},
+				imageserviceSettings.settings || {}
+			);
 		});
 	}
 
@@ -1423,10 +1460,36 @@ function w3tc_wizard_actions( $slide ) {
 			$dashboardButton.closest( 'span' ).hide();
 			$nextButton.closest( 'span' ).show();
 			$nextButton.prop( 'disabled', 'disabled' );
+			var defaultImageserviceSettings = {
+					webp: true,
+					avif: true,
+					compression: 'lossy',
+					auto: 'enabled',
+					visibility: 'never'
+				},
+				$imageserviceEnable = $container.find( 'input#imageservice-enable' ),
+				$imageserviceOptions = $container.find( '#imageservice-options' );
+
+			function toggleImageserviceOptions() {
+				var enabled = $imageserviceEnable.is( ':checked' );
+				$imageserviceOptions.toggleClass( 'hidden', ! enabled );
+				$imageserviceOptions.find( 'input[type="checkbox"]' ).prop( 'disabled', ! enabled );
+			}
+
+			$imageserviceEnable.off( 'change' ).on( 'change', toggleImageserviceOptions );
 			// Update the Image Service enable checkbox from saved config.
 			getImageserviceSettings()
 				.then( function() {
-					$container.find( 'input#imageservice-enable' ).prop( 'checked', imageserviceSettings.enabled );
+					var settings = jQuery.extend(
+						{},
+						defaultImageserviceSettings,
+						imageserviceSettings.settings || {}
+					);
+
+					$imageserviceEnable.prop( 'checked', imageserviceSettings.enabled );
+					$container.find( '#imageservice-webp' ).prop( 'checked', !! settings.webp );
+					$container.find( '#imageservice-avif' ).prop( 'checked', !! settings.avif );
+					toggleImageserviceOptions();
 					$nextButton.prop( 'disabled', false );
 				}, configFailed );
 
@@ -1434,8 +1497,9 @@ function w3tc_wizard_actions( $slide ) {
 
 		case 'w3tc-wizard-slide-ll1':
 			// Save the image service setting from the previous slide.
-			var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val();
-			configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ) )
+			var imageserviceEnabled = $container.find( 'input#imageservice-enable' ).is( ':checked' ),
+				imageServiceSettings = getImageserviceFormSettings();
+			configImageservice( ( imageserviceEnabled ? 1 : 0 ), imageServiceSettings )
 				.fail( function() {
 					$slide.append(
 						'<div class="notice notice-error"><p><strong>' +
