@@ -99,7 +99,23 @@ class Extension_ImageService_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_add( $config, $exs ) {
+		// Remove existing rules first to ensure correct positioning on re-add.
+		// This is necessary because add_rules replaces in place when rules exist.
+		Util_Rule::remove_rules(
+			$exs,
+			Util_Rule::get_browsercache_rules_cache_path(),
+			W3TC_MARKER_BEGIN_AVIF,
+			W3TC_MARKER_END_AVIF
+		);
+		Util_Rule::remove_rules(
+			$exs,
+			Util_Rule::get_browsercache_rules_cache_path(),
+			W3TC_MARKER_BEGIN_WEBP,
+			W3TC_MARKER_END_WEBP
+		);
+
 		// Add AVIF rules first (higher priority).
+		// Position before Page Cache so image requests are handled before Page Cache location blocks.
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_browsercache_rules_cache_path(),
@@ -107,12 +123,15 @@ class Extension_ImageService_Environment {
 			W3TC_MARKER_BEGIN_AVIF,
 			W3TC_MARKER_END_AVIF,
 			array(
+				W3TC_MARKER_BEGIN_PGCACHE_CACHE      => 0,
+				W3TC_MARKER_BEGIN_PGCACHE_CORE       => 0,
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS          => 0,
 			)
 		);
 
 		// Add WebP rules (lower priority than AVIF).
+		// Position before Page Cache so image requests are handled before Page Cache location blocks.
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_browsercache_rules_cache_path(),
@@ -120,6 +139,8 @@ class Extension_ImageService_Environment {
 			W3TC_MARKER_BEGIN_WEBP,
 			W3TC_MARKER_END_WEBP,
 			array(
+				W3TC_MARKER_BEGIN_PGCACHE_CACHE      => 0,
+				W3TC_MARKER_BEGIN_PGCACHE_CORE       => 0,
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS          => 0,
 			)
@@ -179,14 +200,52 @@ class Extension_ImageService_Environment {
 					return '
 # BEGIN W3TC AVIF
 location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
-    if ( $http_accept !~* "avif|\*/\*" ) {
-        break;
-    }
-
     ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
 
     add_header Vary Accept;
-    try_files ${path}.avif $uri ' . $fallback . ';
+
+    # Initialize variables.
+    set $avif_ok 0;
+    set $webp_ok 0;
+    set $want_avif 0;
+    set $want_webp 0;
+    set $serve_avif 0;
+    set $serve_webp 0;
+
+    # Check file existence.
+    if ( -f $document_root${path}.avif ) {
+        set $avif_ok 1;
+    }
+    if ( -f $document_root${path}.webp ) {
+        set $webp_ok 1;
+    }
+
+    # Check Accept header.
+    if ( $http_accept ~* "image/avif" ) {
+        set $want_avif 1;
+    }
+    if ( $http_accept ~* "image/webp" ) {
+        set $want_webp 1;
+    }
+
+    # Combine conditions: serve AVIF if both accepted and file exists.
+    if ( $want_avif = 1 ) {
+        set $serve_avif $avif_ok;
+    }
+    if ( $serve_avif = 1 ) {
+        rewrite ^ ${path}.avif last;
+    }
+
+    # Serve WEBP if accepted and file exists (only if AVIF wasn\'t served).
+    if ( $want_webp = 1 ) {
+        set $serve_webp $webp_ok;
+    }
+    if ( $serve_webp = 1 ) {
+        rewrite ^ ${path}.webp last;
+    }
+
+    # Default: serve original file.
+    try_files $uri ' . $fallback . ';
 }
 
 location ~* \.(avif|avifs)$ {
@@ -256,15 +315,8 @@ location ~* \.(avif|avifs)$ {
 
 					return '
 # BEGIN W3TC WEBP
-location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
-    if ( $http_accept !~* "webp|\*/\*" ) {
-        break;
-    }
-
-    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
-
-    add_header Vary Accept;
-    try_files ${path}.webp $uri ' . $fallback . ';
+location ~* \.webp$ {
+    default_type image/webp;
 }
 # END W3TC WEBP
 
