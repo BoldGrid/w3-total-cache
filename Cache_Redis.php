@@ -465,7 +465,7 @@ class Cache_Redis extends Cache_Base {
 			$values = $accessor->mget( $storage_keys );
 
 			foreach ( $orig_keys as $i => $orig_key ) {
-				if ( isset( $values[ $i ] ) ) {
+				if ( isset( $values[ $i ] ) && false !== $values[ $i ] ) {
 					$results[ $orig_key ] = @unserialize( $values[ $i ] );
 				} else {
 					$results[ $orig_key ] = null;
@@ -513,7 +513,11 @@ class Cache_Redis extends Cache_Base {
 			$storage_map = $bucket['storage'];
 			$orig_keys   = $bucket['orig_keys'];
 
-			$accessor = $this->_get_accessor( array_key_first( $storage_map ) );
+			$first_storage_key = function_exists( 'array_key_first' )
+				? array_key_first( $storage_map )
+				: reset( $storage_keys = array_keys( $storage_map ) );
+
+			$accessor = $this->_get_accessor( $first_storage_key );
 			if ( is_null( $accessor ) ) {
 				foreach ( $orig_keys as $orig_key ) {
 					$results[ $orig_key ] = false;
@@ -545,7 +549,7 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
-	 * Use key as a counter and add integet value to it.
+	 * Use key as a counter and add integer value to it.
 	 *
 	 * @param string $key   Key.
 	 * @param int    $value Value.

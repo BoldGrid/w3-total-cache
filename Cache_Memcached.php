@@ -265,11 +265,14 @@ class Cache_Memcached extends Cache_Base {
 
 		$results = array();
 		foreach ( $keys as $i => $key ) {
-			if ( $preserve_order ) {
-				$storage_key     = $storage_keys[ $i ];
-				$results[ $key ] = ( isset( $values[ $storage_key ] ) ? $values[ $storage_key ] : null );
+			$storage_key = $storage_keys[ $i ];
+
+			if ( isset( $values[ $storage_key ] ) ) {
+				$results[ $key ] = $values[ $storage_key ];
+			} elseif ( $preserve_order && isset( $values[ $i ] ) ) {
+				$results[ $key ] = $values[ $i ];
 			} else {
-				$results[ $key ] = ( isset( $values[ $i ] ) ? $values[ $i ] : null );
+				$results[ $key ] = null;
 			}
 		}
 
