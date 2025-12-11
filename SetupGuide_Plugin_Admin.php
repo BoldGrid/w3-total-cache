@@ -1520,7 +1520,7 @@ class SetupGuide_Plugin_Admin {
 							),
 							'<strong>',
 							'</strong>',
-						'<span id="w3tc-browsercache-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+							'<span id="w3tc-browsercache-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
