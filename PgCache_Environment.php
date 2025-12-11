@@ -1290,6 +1290,20 @@ class PgCache_Environment {
 		$memcached_servers = $config->get_array( 'pgcache.memcached.servers' );
 		$memcached_pass    = ! empty( $memcached_servers ) ? array_values( $memcached_servers )[0] : 'localhost:11211';
 
+		list( $memcached_host, $memcached_port ) = Util_Content::endpoint_to_host_port( $memcached_pass );
+
+		if ( 0 === $memcached_port ) {
+			$memcached_host = preg_replace( '#^unix:(/*)#', '/', $memcached_host );
+
+			if ( '/' !== substr( $memcached_host, 0, 1 ) ) {
+				$memcached_host = '/' . $memcached_host;
+			}
+
+			$memcached_pass = 'unix:' . $memcached_host;
+		} else {
+			$memcached_pass = $memcached_host . ':' . $memcached_port;
+		}
+
 		$rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
 		$rules .= '    memcached_pass ' . $memcached_pass . ';' . "\n";
 		$rules .= "  }\n";
