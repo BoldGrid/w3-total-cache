@@ -1414,11 +1414,11 @@ class SetupGuide_Plugin_Admin {
 								<span class="w3tc-io-rate-label">' . esc_html__( 'Free', 'w3-total-cache' ) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
-									$image_service_limits['free_hourly']
+									esc_html( $image_service_limits['free_hourly'] )
 								) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									esc_html__( '%s conversions per month', 'w3-total-cache' ),
-									$image_service_limits['free_monthly']
+									esc_html( $image_service_limits['free_monthly'] )
 								) . '</span>
 							</div>
 							<div class="w3tc-io-rate-card w3tc-io-rate-pro' . ( $is_pro ? ' w3tc-io-rate-current' : '' ) . '">
@@ -1426,11 +1426,11 @@ class SetupGuide_Plugin_Admin {
 								<span class="w3tc-io-rate-label">' . esc_html__( 'Pro', 'w3-total-cache' ) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
-									$image_service_limits['pro_hourly']
+									esc_html( $image_service_limits['pro_hourly'] )
 								) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									esc_html__( '%s conversions per month', 'w3-total-cache' ),
-									$image_service_limits['pro_monthly']
+									esc_html( $image_service_limits['pro_monthly'] )
 								) . '</span>
 							</div>
 						</div>' .
@@ -1444,8 +1444,8 @@ class SetupGuide_Plugin_Admin {
 												'Upgrade to Pro for up to %1$s conversions per hour and %2$s per month.',
 												'w3-total-cache'
 											),
-											$image_service_limits['pro_hourly'],
-											$image_service_limits['pro_monthly']
+											esc_html( $image_service_limits['pro_hourly'] ),
+											esc_html( $image_service_limits['pro_monthly'] )
 										) . '</p>
 								</div>
 								<div class="w3tc-gopro-action">
