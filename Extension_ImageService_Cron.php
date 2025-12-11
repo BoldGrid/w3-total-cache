@@ -88,120 +88,206 @@ class Extension_ImageService_Cron {
 			$status   = isset( $postmeta['status'] ) ? $postmeta['status'] : null;
 
 			// Handle items with the "processing" status.
-			if ( 'processing' === $status && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+			if ( 'processing' === $status ) {
 				// Get the Image Service API object (singlton).
 				$api = Extension_ImageService_Plugin::get_api();
 
-				// Check the status of the request.
-				$response = $api->get_status( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
+				// Handle new format with multiple jobs (processing_jobs) or old format (processing).
+				$processing_jobs = isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ?
+					$postmeta['processing_jobs'] : array();
 
-				// Save the status response.
-				Extension_ImageService_Plugin_Admin::update_postmeta(
-					$post_id,
-					array( 'job_status' => $response )
-				);
-
-				// Check if image is ready for pickup/download.
-				if ( isset( $response['status'] ) && 'pickup' === $response['status'] ) {
-					// Download image.
-					$response   = $api->download( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
-					$headers    = wp_remote_retrieve_headers( $response );
-					$is_error   = isset( $response['error'] );
-					$is_reduced = ! $is_error && isset( $headers['x-filesize-reduced'] ) &&
-						rtrim( $headers['x-filesize-reduced'], '%' ) > 0;
-
-					switch ( true ) {
-						case $is_error:
-							$status = 'error';
-							break;
-						case $is_reduced:
-							$status = 'converted';
-							break;
-						default:
-							$status = 'notconverted';
-							break;
-					}
-
-					// Save the download headers or error.
-					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post_id,
-						array(
-							'download' => $is_error ? $response['error'] : (array) $headers,
-							'status'   => $status,
-						)
+				// Backward compatibility: convert old format to new format.
+				if ( empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+					$processing_jobs = array(
+						'webp' => array(
+							'job_id'    => $postmeta['processing']['job_id'],
+							'signature' => $postmeta['processing']['signature'],
+							'mime_type' => 'image/webp',
+						),
 					);
+				}
 
-					// Skip error responses or if converted image is larger.
-					if ( $is_error || ! $is_reduced ) {
+				// Process each job separately.
+				$all_jobs_ready = true;
+				$has_error      = false;
+				$jobs_status    = isset( $postmeta['jobs_status'] ) ? $postmeta['jobs_status'] : array();
+
+				// Initialize arrays for storing multiple formats before processing jobs.
+				$post_children = isset( $postmeta['post_children'] ) ? $postmeta['post_children'] : array();
+				$downloads     = isset( $postmeta['downloads'] ) ? $postmeta['downloads'] : array();
+
+				foreach ( $processing_jobs as $format_key => $job ) {
+					if ( ! isset( $job['job_id'] ) || ! isset( $job['signature'] ) ) {
 						continue;
 					}
 
-					// If an converted file already exists, then delete it before saving the new file.
-					if ( isset( $postmeta['post_child'] ) ) {
-						wp_delete_attachment( $postmeta['post_child'], true );
-					}
+					// Check the status of this job.
+					$response = $api->get_status( $job['job_id'], $job['signature'] );
 
-					// Save the file.
-					$original_filepath = get_attached_file( $post_id );
-					$original_size     = wp_getimagesize( $original_filepath );
-					$original_filename = basename( get_attached_file( $post_id ) );
-					$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
-					$extension         = isset( $headers['X-Mime-Type-Out'] ) ?
-						str_replace( 'image/', '', $headers['X-Mime-Type-Out'] ) : 'webp';
-					$new_filename      = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
-					$new_filepath      = $original_filedir . '/' . $new_filename;
+					// Store status for this job.
+					$jobs_status[ $format_key ] = $response;
 
-					if ( is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
-						$wp_filesystem->put_contents( $new_filepath, wp_remote_retrieve_body( $response ) );
+					// Check if this job is ready for pickup/download.
+					if ( isset( $response['status'] ) && 'pickup' === $response['status'] ) {
+						// Get mime_type from job or response.
+						$mime_type = isset( $job['mime_type'] ) ? $job['mime_type'] : ( isset( $response['mime_type'] ) ? $response['mime_type'] : 'image/webp' );
+
+						// Delete existing converted file for this format if it exists.
+						if ( isset( $post_children[ $format_key ] ) ) {
+							wp_delete_attachment( $post_children[ $format_key ], true );
+							unset( $post_children[ $format_key ] );
+						}
+
+						// Download image for this format using this job's job_id and signature.
+						// No need to pass mime_type since each job is for a specific format.
+						$download_response = $api->download( $job['job_id'], $job['signature'] );
+						$download_headers  = wp_remote_retrieve_headers( $download_response );
+						$is_error          = isset( $download_response['error'] );
+
+						// Convert headers to array and normalize keys to lowercase for consistent access.
+						$headers_array = array();
+						if ( ! $is_error && $download_headers ) {
+							if ( is_object( $download_headers ) && method_exists( $download_headers, 'getAll' ) ) {
+								// Requests_Utility_CaseInsensitiveDictionary - get all headers.
+								$all_headers = $download_headers->getAll();
+								foreach ( $all_headers as $key => $value ) {
+									$headers_array[ strtolower( $key ) ] = $value;
+								}
+							} else {
+								// Already an array or other structure.
+								$temp_headers = (array) $download_headers;
+								foreach ( $temp_headers as $key => $value ) {
+									// Skip special WordPress array keys.
+									if ( "\0" !== substr( $key, 0, 1 ) ) {
+										$headers_array[ strtolower( $key ) ] = $value;
+									}
+								}
+								// Also check for the special data structure.
+								if ( isset( $temp_headers["\0*\0data"] ) ) {
+									foreach ( $temp_headers["\0*\0data"] as $key => $value ) {
+										$headers_array[ strtolower( $key ) ] = $value;
+									}
+								}
+							}
+						}
+
+						// Determine if file size was reduced by comparing input and output sizes.
+						$filesize_in  = isset( $headers_array['x-filesize-in'] ) ? (int) $headers_array['x-filesize-in'] : 0;
+						$filesize_out = isset( $headers_array['x-filesize-out'] ) ? (int) $headers_array['x-filesize-out'] : 0;
+						$is_reduced   = ! $is_error && $filesize_in > 0 && $filesize_out > 0 && $filesize_out < $filesize_in;
+
+						// Store download information for this format (store normalized headers).
+						// Always store download info, even if there's an error or no size reduction.
+						$downloads[ $format_key ] = $is_error ? $download_response['error'] : $headers_array;
+
+						// Skip saving file if error or if converted image is larger, but continue to next job.
+						if ( $is_error ) {
+							$has_error      = true;
+							$all_jobs_ready = false;
+							continue;
+						}
+
+						if ( ! $is_reduced ) {
+							// Image wasn't reduced (output is same size or larger), skip saving but continue to next job.
+							$all_jobs_ready = false;
+							continue;
+						}
+
+						// Get original file info for saving.
+						$original_filepath = get_attached_file( $post_id );
+						$original_size     = wp_getimagesize( $original_filepath );
+						$original_filename = basename( get_attached_file( $post_id ) );
+						$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
+
+						// Save the file.
+						$extension    = $format_key;
+						$new_filename = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
+						$new_filepath = $original_filedir . '/' . $new_filename;
+
+						if ( is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
+							$wp_filesystem->put_contents( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+						} else {
+							Util_File::file_put_contents_atomic( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+						}
+
+						// Insert as attachment post.
+						$attachment_id = wp_insert_attachment(
+							array(
+								'guid'           => $new_filepath,
+								'post_mime_type' => $mime_type,
+								'post_title'     => preg_replace( '/\.[^.]+$/', '', $new_filename ),
+								'post_content'   => '',
+								'post_status'    => 'inherit',
+								'post_parent'    => $post_id,
+								'comment_status' => 'closed',
+							),
+							$new_filepath,
+							$post_id,
+							false,
+							false
+						);
+
+						// Copy postmeta data to the new attachment.
+						Extension_ImageService_Plugin_Admin::copy_postmeta( $post_id, $attachment_id );
+
+						// Store the attachment ID for this format.
+						$post_children[ $format_key ] = $attachment_id;
+
+						// Mark the downloaded file as the converted one.
+						Extension_ImageService_Plugin_Admin::update_postmeta(
+							$attachment_id,
+							array( 'is_converted_file' => true )
+						);
+
+						// In order to filter/hide converted files in the media list, add a meta key.
+						update_post_meta( $attachment_id, 'w3tc_imageservice_file', $extension );
+
+						// Generate the metadata for the attachment, and update the database record.
+						$attach_data           = wp_generate_attachment_metadata( $attachment_id, $new_filepath );
+						$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
+						$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
+						wp_update_attachment_metadata( $attachment_id, $attach_data );
+					} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
+						// Job completed but no pickup - mark as error for this format.
+						$has_error      = true;
+						$all_jobs_ready = false;
 					} else {
-						Util_File::file_put_contents_atomic( $new_filepath, wp_remote_retrieve_body( $response ) );
+						// Job still processing.
+						$all_jobs_ready = false;
 					}
+				}
 
-					// Insert as attachment post.
-					$attachment_id = wp_insert_attachment(
-						array(
-							'guid'           => $new_filepath,
-							'post_mime_type' => $headers['x-mime-type-out'],
-							'post_title'     => preg_replace( '/\.[^.]+$/', '', $new_filename ),
-							'post_content'   => '',
-							'post_status'    => 'inherit',
-							'post_parent'    => $post_id,
-							'comment_status' => 'closed',
-						),
-						$new_filepath,
-						$post_id,
-						false,
-						false
-					);
+				// Save jobs status.
+				Extension_ImageService_Plugin_Admin::update_postmeta(
+					$post_id,
+					array( 'jobs_status' => $jobs_status )
+				);
 
-					// Copy postmeta data to the new attachment.
-					Extension_ImageService_Plugin_Admin::copy_postmeta( $post_id, $attachment_id );
+				// Determine overall status based on all jobs.
+				$has_converted = ! empty( $post_children );
+				$status        = 'notconverted'; // Default status if no conversions were successful.
+				if ( $has_converted ) {
+					$status = 'converted';
+				} elseif ( $has_error ) {
+					$status = 'error';
+				}
 
-					// Save the new post id.
+				// Save the download information and status.
+				Extension_ImageService_Plugin_Admin::update_postmeta(
+					$post_id,
+					array(
+						'post_children' => $post_children,
+						'downloads'     => $downloads,
+						'status'        => $status,
+					)
+				);
+
+				// For backward compatibility, also set post_child to the first converted format.
+				if ( ! empty( $post_children ) ) {
+					$first_format = reset( $post_children );
 					Extension_ImageService_Plugin_Admin::update_postmeta(
 						$post_id,
-						array( 'post_child' => $attachment_id )
-					);
-
-					// Mark the downloaded file as the converted one.
-					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$attachment_id,
-						array( 'is_converted_file' => true )
-					);
-
-					// In order to filter/hide converted files in the media list, add a meta key.
-					update_post_meta( $attachment_id, 'w3tc_imageservice_file', $extension );
-
-					// Generate the metadata for the attachment, and update the database record.
-					$attach_data           = wp_generate_attachment_metadata( $attachment_id, $new_filepath );
-					$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
-					$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
-					wp_update_attachment_metadata( $attachment_id, $attach_data );
-				} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
-					// Update the status to "error".
-					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post_id,
-						array( 'status' => 'error' )
+						array( 'post_child' => $first_format )
 					);
 				}
 			}

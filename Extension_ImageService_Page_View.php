@@ -100,6 +100,42 @@ Util_Ui::config_item(
 		'disabled'         => false,
 	)
 );
+
+$settings = $c->get_array( 'imageservice' );
+// Default to true for webp if not set (backward compatibility).
+$webp_enabled = isset( $settings['webp'] ) ? (bool) $settings['webp'] : true;
+// Default to false for avif if not set.
+$avif_enabled = isset( $settings['avif'] ) ? (bool) $settings['avif'] : true;
+
+Util_Ui::config_item(
+	array(
+		'key'            => array(
+			'imageservice',
+			'webp',
+		),
+		'label'          => esc_html__( 'Output formats:', 'w3-total-cache' ),
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'WebP', 'w3-total-cache' ),
+		'value'          => $webp_enabled,
+		'description'    => esc_html__( 'Convert images to WebP format.', 'w3-total-cache' ),
+		'disabled'       => false,
+	)
+);
+
+Util_Ui::config_item(
+	array(
+		'key'            => array(
+			'imageservice',
+			'avif',
+		),
+		'label'          => ' ',
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
+		'value'          => $avif_enabled,
+		'description'    => esc_html__( 'Convert images to AVIF format.', 'w3-total-cache' ),
+		'disabled'       => false,
+	)
+);
 ?>
 	</table>
 

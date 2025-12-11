@@ -496,6 +496,12 @@ class Extension_ImageService_Plugin_Admin {
 				$settings['visibility'] = $imageservice_visibility_val;
 			}
 
+			$imageservice_webp_val = Util_Request::get_string( 'imageservice___webp' );
+			$settings['webp']      = ! empty( $imageservice_webp_val );
+
+			$imageservice_avif_val = Util_Request::get_string( 'imageservice___avif' );
+			$settings['avif']      = ! empty( $imageservice_avif_val );
+
 			$c->set( 'imageservice', $settings );
 			$c->save();
 
@@ -691,11 +697,32 @@ class Extension_ImageService_Plugin_Admin {
 				$filepath = get_attached_file( $post_id );
 				$status   = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
 
-				// Check if image still has the converted file.  It could have been deleted.
-				if ( 'converted' === $status && isset( $imageservice_data['post_child'] ) ) {
-					$child_data = get_post_meta( $imageservice_data['post_child'], 'w3tc_imageservice', true );
+				// Check if image still has the converted file(s).  It could have been deleted.
+				if ( 'converted' === $status ) {
+					$has_valid_conversion = false;
 
-					if ( empty( $child_data['is_converted_file'] ) ) {
+					// Check new structure (multiple formats).
+					if ( isset( $imageservice_data['post_children'] ) && is_array( $imageservice_data['post_children'] ) ) {
+						foreach ( $imageservice_data['post_children'] as $format_key => $child_id ) {
+							if ( $child_id ) {
+								$child_data = get_post_meta( $child_id, 'w3tc_imageservice', true );
+								if ( ! empty( $child_data['is_converted_file'] ) ) {
+									$has_valid_conversion = true;
+									break;
+								}
+							}
+						}
+					}
+
+					// Check old structure (backward compatibility).
+					if ( ! $has_valid_conversion && isset( $imageservice_data['post_child'] ) ) {
+						$child_data = get_post_meta( $imageservice_data['post_child'], 'w3tc_imageservice', true );
+						if ( ! empty( $child_data['is_converted_file'] ) ) {
+							$has_valid_conversion = true;
+						}
+					}
+
+					if ( ! $has_valid_conversion ) {
 						$status = null;
 						$this->remove_optimizations( $post_id );
 					}
@@ -703,29 +730,118 @@ class Extension_ImageService_Plugin_Admin {
 
 				// If processed, then show information.
 				if ( 'converted' === $status ) {
-					$converted_percent = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
-						$imageservice_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
-					$reduced_percent   = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
-						$imageservice_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
-					$filesize_in       = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
-						$imageservice_data['download']["\0*\0data"]['x-filesize-in'] : null;
-					$filesize_out      = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out'] ) ?
-						$imageservice_data['download']["\0*\0data"]['x-filesize-out'] : null;
+					// Handle multiple formats (new structure).
+					if ( isset( $imageservice_data['downloads'] ) && is_array( $imageservice_data['downloads'] ) ) {
+						// Show all formats that have download info, not just those with post_children.
+						// This includes formats that failed or didn't reduce size.
+						foreach ( $imageservice_data['downloads'] as $format_key => $download_data ) {
+							// Skip if download_data is an error string and we don't have a post_child for it.
+							if ( is_string( $download_data ) && ( ! isset( $imageservice_data['post_children'][ $format_key ] ) || ! $imageservice_data['post_children'][ $format_key ] ) ) {
+								// Show error message for failed formats.
+								?>
+								<div class="w3tc-converted-error">
+								<?php
+								printf(
+									'%1$s: %2$s',
+									esc_html( strtoupper( $format_key ) ),
+									esc_html( $download_data )
+								);
+								?>
+								</div>
+								<?php
+								continue;
+							}
 
-					if ( $converted_percent ) {
-						$converted_class = rtrim( $converted_percent, '%' ) > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
-						?>
-						<div class="<?php echo esc_attr( $converted_class ); ?>">
-						<?php
-						printf(
-							'%1$s &#8594; %2$s (%3$s)',
-							esc_html( size_format( $filesize_in ) ),
-							esc_html( size_format( $filesize_out ) ),
-							esc_html( $reduced_percent )
-						);
-						?>
-						</div>
-						<?php
+							if ( ! is_array( $download_data ) ) {
+								continue;
+							}
+							if ( is_array( $download_data ) ) {
+								// Headers are now stored normalized (lowercase keys) from cron.
+								// Handle both new normalized format and old format for backward compatibility.
+								$download_headers = $download_data;
+
+								// If old format with special structure, extract it.
+								if ( isset( $download_data["\0*\0data"] ) ) {
+									$download_headers = $download_data["\0*\0data"];
+								}
+
+								// Normalize keys to lowercase for case-insensitive access.
+								$normalized_headers = array();
+								foreach ( $download_headers as $key => $value ) {
+									// Skip special WordPress array keys.
+									if ( "\0" !== substr( $key, 0, 1 ) ) {
+										$normalized_headers[ strtolower( $key ) ] = $value;
+									}
+								}
+
+								$reduced_percent = isset( $normalized_headers['x-filesize-reduced'] ) ?
+									$normalized_headers['x-filesize-reduced'] : null;
+								$filesize_in     = isset( $normalized_headers['x-filesize-in'] ) ?
+									$normalized_headers['x-filesize-in'] : null;
+								$filesize_out    = isset( $normalized_headers['x-filesize-out'] ) ?
+									$normalized_headers['x-filesize-out'] : null;
+
+								// Display if we have the necessary data.
+								if ( $filesize_in && $filesize_out && $reduced_percent ) {
+									$reduced_numeric = rtrim( $reduced_percent, '%' );
+									$converted_class = (float) $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+									?>
+									<div class="<?php echo esc_attr( $converted_class ); ?>">
+									<?php
+									printf(
+										'%1$s: %2$s &#8594; %3$s (%4$s)',
+										esc_html( strtoupper( $format_key ) ),
+										esc_html( size_format( $filesize_in ) ),
+										esc_html( size_format( $filesize_out ) ),
+										esc_html( $reduced_percent )
+									);
+									?>
+									</div>
+									<?php
+								}
+							}
+						}
+					} else {
+						// Handle single format (backward compatibility).
+						$download_data = isset( $imageservice_data['download'] ) ? $imageservice_data['download'] : null;
+						if ( is_array( $download_data ) ) {
+							// Headers may be in special WordPress structure.
+							$download_headers = isset( $download_data["\0*\0data"] ) ? $download_data["\0*\0data"] : $download_data;
+
+							// Normalize keys to lowercase for case-insensitive access.
+							$normalized_headers = array();
+							foreach ( $download_headers as $key => $value ) {
+								// Skip special WordPress array keys.
+								if ( "\0" !== substr( $key, 0, 1 ) ) {
+									$normalized_headers[ strtolower( $key ) ] = $value;
+								}
+							}
+
+							$reduced_percent = isset( $normalized_headers['x-filesize-reduced'] ) ?
+								$normalized_headers['x-filesize-reduced'] : null;
+							$filesize_in     = isset( $normalized_headers['x-filesize-in'] ) ?
+								$normalized_headers['x-filesize-in'] : null;
+							$filesize_out    = isset( $normalized_headers['x-filesize-out'] ) ?
+								$normalized_headers['x-filesize-out'] : null;
+
+							// Display if we have the necessary data.
+							if ( $filesize_in && $filesize_out && $reduced_percent ) {
+								$reduced_numeric = rtrim( $reduced_percent, '%' );
+								$converted_class = (float) $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+								?>
+								<div class="<?php echo esc_attr( $converted_class ); ?>">
+								<?php
+								printf(
+									'%1$s &#8594; %2$s (%3$s)',
+									esc_html( size_format( $filesize_in ) ),
+									esc_html( size_format( $filesize_out ) ),
+									esc_html( $reduced_percent )
+								);
+								?>
+								</div>
+								<?php
+							}
+						}
 					}
 				} elseif ( 'notconverted' === $status ) {
 					?>
@@ -1047,7 +1163,29 @@ class Extension_ImageService_Plugin_Admin {
 				continue;
 			}
 
-			if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+			// Handle new API2 response format with jobs array.
+			$jobs = isset( $response['jobs'] ) && is_array( $response['jobs'] ) ? $response['jobs'] : array();
+
+			// Backward compatibility: if no jobs array, check for single job_id/signature.
+			if ( empty( $jobs ) ) {
+				if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+					++$stats['invalid'];
+					continue;
+				}
+				// Convert old format to new format for consistency.
+				$jobs = array(
+					array(
+						'job_id'       => $response['job_id'],
+						'signature'    => $response['signature'],
+						'mime_type'    => 'image/webp', // Default for old format.
+						'status'       => isset( $response['status'] ) ? $response['status'] : 'queued',
+						'status_url'   => isset( $response['status_url'] ) ? $response['status_url'] : '',
+						'download_url' => isset( $response['download_url'] ) ? $response['download_url'] : '',
+					),
+				);
+			}
+
+			if ( empty( $jobs ) ) {
 				++$stats['invalid'];
 				continue;
 			}
@@ -1055,12 +1193,41 @@ class Extension_ImageService_Plugin_Admin {
 			// Remove old optimizations.
 			$this->remove_optimizations( $post_id );
 
-			// Save the job info.
+			// Get requested formats from settings to store in postmeta.
+			$settings          = $this->config->get_array( 'imageservice' );
+			$requested_formats = array();
+			// Check webp setting - handle both boolean and string values, default to true if not set.
+			$webp_enabled = ! isset( $settings['webp'] ) || ( true === $settings['webp'] || '1' === $settings['webp'] || 1 === $settings['webp'] );
+			if ( $webp_enabled ) {
+				$requested_formats[] = 'image/webp';
+			}
+			// Check avif setting - handle both boolean and string values, default to true if not set.
+			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
+			if ( $avif_enabled ) {
+				$requested_formats[] = 'image/avif';
+			}
+			// If no formats are selected, default to WebP for backward compatibility.
+			if ( empty( $requested_formats ) ) {
+				$requested_formats[] = 'image/webp';
+			}
+
+			// Store jobs by format for easy lookup.
+			$jobs_by_format = array();
+			foreach ( $jobs as $job ) {
+				if ( isset( $job['mime_type'] ) && isset( $job['job_id'] ) && isset( $job['signature'] ) ) {
+					$format_key = str_replace( 'image/', '', $job['mime_type'] );
+					$jobs_by_format[ $format_key ] = $job;
+				}
+			}
+
+			// Save the job info and requested formats.
 			self::update_postmeta(
 				$post_id,
 				array(
-					'status'     => 'processing',
-					'processing' => $response,
+					'status'            => 'processing',
+					'processing'        => $response, // Store full response for backward compatibility.
+					'processing_jobs'   => $jobs_by_format, // Store jobs by format.
+					'requested_formats' => $requested_formats,
 				)
 			);
 
@@ -1124,8 +1291,10 @@ class Extension_ImageService_Plugin_Admin {
 	public static function copy_postmeta( $post_id_1, $post_id_2 ) {
 		$postmeta = (array) get_post_meta( $post_id_1, 'w3tc_imageservice', true );
 
-		// Do not copy "post_child".
+		// Do not copy "post_child" or "post_children".
 		unset( $postmeta['post_child'] );
+		unset( $postmeta['post_children'] );
+		unset( $postmeta['downloads'] );
 
 		return update_post_meta( $post_id_2, 'w3tc_imageservice', $postmeta );
 	}
@@ -1138,24 +1307,41 @@ class Extension_ImageService_Plugin_Admin {
 	 * @link https://developer.wordpress.org/reference/functions/wp_delete_attachment/
 	 *
 	 * @param int $post_id Parent post id.
-	 * @return WP_Post|false|null Post data on success, false or null on failure.
+	 * @return bool|WP_Post|false|null True if optimizations were removed, false or null on failure, or WP_Post for backward compatibility.
 	 */
 	public function remove_optimizations( $post_id ) {
-		$result = null;
+		$result            = null;
+		$has_optimizations = false;
 
-		// Get child post id.
+		// Get child post ids.
 		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
-		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
 
+		// Handle multiple formats (new structure).
+		if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) ) {
+			foreach ( $postmeta['post_children'] as $format_key => $child_id ) {
+				if ( $child_id ) {
+					// Delete optimization.
+					wp_delete_attachment( $child_id, true );
+					$has_optimizations = true;
+				}
+			}
+		}
+
+		// Handle single format (backward compatibility).
+		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
 		if ( $child_id ) {
 			// Delete optimization.
 			$result = wp_delete_attachment( $child_id, true );
+			$has_optimizations = true;
 		}
 
-		// Delete postmeta.
-		delete_post_meta( $post_id, 'w3tc_imageservice' );
+		// Delete postmeta if there were any optimizations.
+		if ( $has_optimizations || ! empty( $postmeta ) ) {
+			delete_post_meta( $post_id, 'w3tc_imageservice' );
+		}
 
-		return $result;
+		// Return true if optimizations were removed, or the result for backward compatibility.
+		return $has_optimizations ? ( false !== $result ? true : $result ) : $result;
 	}
 
 	/**
@@ -1270,8 +1456,33 @@ class Extension_ImageService_Plugin_Admin {
 			);
 		}
 
-		// Check for valid response data.
-		if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+		// Handle new API2 response format with jobs array.
+		$jobs = isset( $response['jobs'] ) && is_array( $response['jobs'] ) ? $response['jobs'] : array();
+
+		// Backward compatibility: if no jobs array, check for single job_id/signature.
+		if ( empty( $jobs ) ) {
+			if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'Invalid API response.', 'w3-total-cache' ),
+					),
+					417
+				);
+			}
+			// Convert old format to new format for consistency.
+			$jobs = array(
+				array(
+					'job_id'       => $response['job_id'],
+					'signature'    => $response['signature'],
+					'mime_type'    => 'image/webp', // Default for old format.
+					'status'       => isset( $response['status'] ) ? $response['status'] : 'queued',
+					'status_url'   => isset( $response['status_url'] ) ? $response['status_url'] : '',
+					'download_url' => isset( $response['download_url'] ) ? $response['download_url'] : '',
+				),
+			);
+		}
+
+		if ( empty( $jobs ) ) {
 			wp_send_json_error(
 				array(
 					'error' => __( 'Invalid API response.', 'w3-total-cache' ),
@@ -1283,12 +1494,41 @@ class Extension_ImageService_Plugin_Admin {
 		// Remove old optimizations.
 		$this->remove_optimizations( $post_id );
 
-		// Save the job info.
+		// Get requested formats from settings to store in postmeta.
+		$settings          = $this->config->get_array( 'imageservice' );
+		$requested_formats = array();
+		// Check webp setting - handle both boolean and string values, default to true if not set.
+		$webp_enabled = ! isset( $settings['webp'] ) || ( true === $settings['webp'] || '1' === $settings['webp'] || 1 === $settings['webp'] );
+		if ( $webp_enabled ) {
+			$requested_formats[] = 'image/webp';
+		}
+		// Check avif setting - handle both boolean and string values, default to true if not set.
+		$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
+		if ( $avif_enabled ) {
+			$requested_formats[] = 'image/avif';
+		}
+		// If no formats are selected, default to WebP for backward compatibility.
+		if ( empty( $requested_formats ) ) {
+			$requested_formats[] = 'image/webp';
+		}
+
+		// Store jobs by format for easy lookup.
+		$jobs_by_format = array();
+		foreach ( $jobs as $job ) {
+			if ( isset( $job['mime_type'] ) && isset( $job['job_id'] ) && isset( $job['signature'] ) ) {
+				$format_key = str_replace( 'image/', '', $job['mime_type'] );
+				$jobs_by_format[ $format_key ] = $job;
+			}
+		}
+
+		// Save the job info and requested formats.
 		self::update_postmeta(
 			$post_id,
 			array(
-				'status'     => 'processing',
-				'processing' => $response,
+				'status'            => 'processing',
+				'processing'        => $response, // Store full response for backward compatibility.
+				'processing_jobs'   => $jobs_by_format, // Store jobs by format.
+				'requested_formats' => $requested_formats,
 			)
 		);
 
@@ -1334,18 +1574,30 @@ class Extension_ImageService_Plugin_Admin {
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
-			$result = $this->remove_optimizations( $post_id );
+			// Check if there are any optimizations to revert.
+			$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
+			$has_optimizations = false;
 
-			if ( $result ) {
-				wp_send_json_success( $result );
-			} else {
+			if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) && ! empty( $postmeta['post_children'] ) ) {
+				$has_optimizations = true;
+			} elseif ( isset( $postmeta['post_child'] ) && $postmeta['post_child'] ) {
+				$has_optimizations = true;
+			}
+
+			if ( ! $has_optimizations ) {
 				wp_send_json_error(
 					array(
-						'error' => __( 'Missing converted attachment id.', 'w3-total-cache' ),
+						'error' => __( 'No converted images found to revert.', 'w3-total-cache' ),
 					),
-					410
+					404
 				);
+				return;
 			}
+
+			$this->remove_optimizations( $post_id );
+
+			// Always return success if we had optimizations to remove.
+			wp_send_json_success( array( 'removed' => true ) );
 		} else {
 			wp_send_json_error(
 				array(

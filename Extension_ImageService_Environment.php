@@ -83,7 +83,7 @@ class Extension_ImageService_Environment {
 		return array(
 			array(
 				'filename' => Util_Rule::get_browsercache_rules_cache_path(),
-				'content'  => $this->rules_generate(),
+				'content'  => $this->rules_generate_avif() . $this->rules_generate_webp(),
 			),
 		);
 	}
@@ -99,10 +99,24 @@ class Extension_ImageService_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_add( $config, $exs ) {
+		// Add AVIF rules first (higher priority).
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_browsercache_rules_cache_path(),
-			$this->rules_generate(),
+			$this->rules_generate_avif(),
+			W3TC_MARKER_BEGIN_AVIF,
+			W3TC_MARKER_END_AVIF,
+			array(
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
+				W3TC_MARKER_BEGIN_WORDPRESS          => 0,
+			)
+		);
+
+		// Add WebP rules (lower priority than AVIF).
+		Util_Rule::add_rules(
+			$exs,
+			Util_Rule::get_browsercache_rules_cache_path(),
+			$this->rules_generate_webp(),
 			W3TC_MARKER_BEGIN_WEBP,
 			W3TC_MARKER_END_WEBP,
 			array(
@@ -113,20 +127,101 @@ class Extension_ImageService_Environment {
 	}
 
 	/**
-	 * Generate rewrite rules.
+	 * Generate AVIF rewrite rules (higher priority).
 	 *
-	 * @since 2.2.0
+	 * @since X.X.X
 	 *
 	 * @see Dispatcher::nginx_rules_for_browsercache_section()
 	 *
 	 * @return string
 	 */
-	private function rules_generate() {
+	private function rules_generate_avif() {
+		switch ( true ) {
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return '
+# BEGIN W3TC AVIF
+<IfModule mod_mime.c>
+    AddType image/avif .avif
+</IfModule>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_ACCEPT} image/avif
+    RewriteCond %{REQUEST_FILENAME} (.+)\.(jpe?g|png|gif)$
+    RewriteCond %1\.avif -f
+    RewriteCond %{QUERY_STRING} !type=original
+    RewriteRule (.+)\.(jpe?g|png|gif)$ $1.avif [NC,T=image/avif,E=avif,L]
+</IfModule>
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpe?g|png|gif|avif)$">
+        Header append Vary Accept
+    </FilesMatch>
+</IfModule>
+# END W3TC AVIF
+
+';
+
+			case Util_Environment::is_nginx():
+				$config = Dispatcher::config();
+
+				/*
+				 * Add Nginx rules only if Browser Cache is disabled.
+				 * Otherwise, the rules are added in "BrowserCache_Environment_Nginx.php".
+				 * @see BrowserCache_Environment_Nginx::generate_section()
+				 */
+				if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
+					if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
+						$fallback = '=404';
+					} else {
+						$fallback = '/index.php$is_args$args';
+					}
+
+					return '
+# BEGIN W3TC AVIF
+location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
+    if ( $http_accept !~* "avif|\*/\*" ) {
+        break;
+    }
+
+    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
+
+    add_header Vary Accept;
+    try_files ${path}.avif $uri ' . $fallback . ';
+}
+
+location ~* \.(avif|avifs)$ {
+    default_type image/avif;
+}
+# END W3TC AVIF
+
+';
+				} else {
+					return '';
+				}
+
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * Generate WebP rewrite rules (lower priority than AVIF).
+	 *
+	 * @since X.X.X
+	 *
+	 * @see Dispatcher::nginx_rules_for_browsercache_section()
+	 *
+	 * @return string
+	 */
+	private function rules_generate_webp() {
 		switch ( true ) {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
 				return '
 # BEGIN W3TC WEBP
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+</IfModule>
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{HTTP_ACCEPT} image/webp
@@ -136,11 +231,10 @@ class Extension_ImageService_Environment {
     RewriteRule (.+)\.(jpe?g|png|gif)$ $1.webp [NC,T=image/webp,E=webp,L]
 </IfModule>
 <IfModule mod_headers.c>
-    <FilesMatch "\.(jpe?g|png|gif)$">
+    <FilesMatch "\.(jpe?g|png|gif|webp)$">
         Header append Vary Accept
     </FilesMatch>
 </IfModule>
-AddType image/webp .webp
 # END W3TC WEBP
 
 ';
@@ -194,6 +288,15 @@ location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
 	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_remove( $exs ) {
+		// Remove AVIF rules.
+		Util_Rule::remove_rules(
+			$exs,
+			Util_Rule::get_pgcache_rules_core_path(),
+			W3TC_MARKER_BEGIN_AVIF,
+			W3TC_MARKER_END_AVIF
+		);
+
+		// Remove WebP rules.
 		Util_Rule::remove_rules(
 			$exs,
 			Util_Rule::get_pgcache_rules_core_path(),

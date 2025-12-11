@@ -131,10 +131,40 @@ class Extension_ImageService_Api {
 			$post_fields['pro_c'] = 1;
 		}
 
+		// Add mimeTypeOut parameter(s) based on settings.
+		$mime_types_out = array();
+
+		// Check webp setting.
+		$webp_enabled = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
+		if ( $webp_enabled ) {
+			$mime_types_out[] = 'image/webp';
+		}
+
+		// Check avif setting.
+		$avif_enabled = isset( $settings['avif'] ) && ! empty( $settings['avif'] );
+		if ( $avif_enabled ) {
+			$mime_types_out[] = 'image/avif';
+		}
+
+		// If no formats are selected, default to WebP for backward compatibility.
+		if ( empty( $mime_types_out ) ) {
+			$mime_types_out[] = 'image/webp';
+		}
+
 		foreach ( $post_fields as $k => $v ) {
 			$body .= '--' . $boundary . "\r\n";
 			$body .= 'Content-Disposition: form-data; name="' . $k . '"' . "\r\n\r\n";
 			$body .= $v . "\r\n";
+		}
+
+		/**
+		 * Add mimeTypeOut fields (API2 expects multiple fields with the same name).
+		 * Send each format as a separate field with array notation to ensure all values are received.
+		 */
+		foreach ( $mime_types_out as $mime_type ) {
+			$body .= '--' . $boundary . "\r\n";
+			$body .= 'Content-Disposition: form-data; name="mimeTypeOut[]"' . "\r\n\r\n";
+			$body .= $mime_type . "\r\n";
 		}
 
 		$body .= '--' . $boundary . "\r\n";
@@ -279,13 +309,21 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
-	 * @param int    $job_id    Job id.
-	 * @param string $signature Signature.
+	 * @param int    $job_id      Job id.
+	 * @param string $signature   Signature.
+	 * @param string $mime_type_out Optional. MIME type of the output format (e.g., 'image/webp', 'image/avif').
 	 * @return array WP response array.
 	 */
-	public function download( $job_id, $signature ) {
+	public function download( $job_id, $signature, $mime_type_out = null ) {
+		$url = Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature;
+
+		// Add mimeTypeOut as query parameter if provided.
+		if ( ! empty( $mime_type_out ) ) {
+			$url .= '?mimeTypeOut=' . rawurlencode( $mime_type_out );
+		}
+
 		$response = wp_remote_request(
-			Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
+			$url,
 			array(
 				'method'    => $this->endpoints['download']['method'],
 				'sslverify' => false,
@@ -299,14 +337,32 @@ class Extension_ImageService_Api {
 			);
 		}
 
+		// Check for HTTP error status codes.
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			$body = wp_remote_retrieve_body( $response );
+			$json = json_decode( $body, true );
+
+			$error_message = isset( $json['error'] ) ? $json['error'] :
+				sprintf(
+					// translators: 1: HTTP status code.
+					__( 'HTTP Error: Received status code %1$d', 'w3-total-cache' ),
+					$response_code
+				);
+
+			return array(
+				'error' => $error_message,
+			);
+		}
+
 		// Get the response body.
 		$body = wp_remote_retrieve_body( $response );
 
 		// Convert response body to an array.  A successful image results in a JSON decode false return.
 		$json = json_decode( $body, true );
 
-		// Pass error message.
-		if ( isset( $json['error'] ) ) {
+		// Pass error message if JSON decode succeeded and contains an error.
+		if ( is_array( $json ) && isset( $json['error'] ) ) {
 			return array(
 				'error' => $json['error'],
 			);

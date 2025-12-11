@@ -121,29 +121,92 @@
 				}
 			})
 				.done( function( response ) {
-					var infoClass;
+					var infoClass, downloadData, downloadHeaders, reducedPercent, filesizeIn, filesizeOut, formatKey;
 
 					// Remove any previous optimization information and the revert link.
 					$itemTd.find(
-						'.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert'
+						'.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert, .w3tc-converted-error'
 					).remove();
 
-					// Add optimization information.
-					if ( 'notconverted' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
-						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
-							'w3tc-converted-increased' : 'w3tc-converted-reduced';
+					// Handle multiple formats (new structure).
+					if ( 'notconverted' !== response.data.status && response.data.downloads && typeof response.data.downloads === 'object' ) {
+						// Iterate through all formats in downloads.
+						for ( formatKey in response.data.downloads ) {
+							if ( ! response.data.downloads.hasOwnProperty( formatKey ) ) {
+								continue;
+							}
 
-						$itemTd.prepend(
-							'<div class="' +
-							infoClass +
-							'">' +
-							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-in'] ) +
-							' &#8594; ' +
-							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-out'] ) +
-							' (' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-							')</div>'
-						);
+							downloadData = response.data.downloads[ formatKey ];
+
+							// Skip if it's an error string.
+							if ( typeof downloadData === 'string' ) {
+								// Show error message for failed formats.
+								$itemTd.prepend(
+									'<div class="w3tc-converted-error">' +
+									formatKey.toUpperCase() + ': ' + downloadData +
+									'</div>'
+								);
+								continue;
+							}
+
+							if ( typeof downloadData !== 'object' || ! downloadData ) {
+								continue;
+							}
+
+							// Extract headers - handle both normalized format and old format.
+							downloadHeaders = downloadData;
+							if ( downloadData["\u0000*\u0000data"] ) {
+								downloadHeaders = downloadData["\u0000*\u0000data"];
+							}
+
+							// Normalize header keys to lowercase for case-insensitive access.
+							var normalizedHeaders = {};
+							for ( var key in downloadHeaders ) {
+								if ( downloadHeaders.hasOwnProperty( key ) && key.charAt( 0 ) !== '\u0000' ) {
+									normalizedHeaders[ key.toLowerCase() ] = downloadHeaders[ key ];
+								}
+							}
+
+							reducedPercent = normalizedHeaders['x-filesize-reduced'] || null;
+							filesizeIn     = normalizedHeaders['x-filesize-in'] || null;
+							filesizeOut    = normalizedHeaders['x-filesize-out'] || null;
+
+							// Display if we have the necessary data.
+							if ( filesizeIn && filesizeOut && reducedPercent ) {
+								var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
+								infoClass = reducedNumeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+
+								$itemTd.prepend(
+									'<div class="' + infoClass + '">' +
+									formatKey.toUpperCase() + ': ' +
+									sizeFormat( filesizeIn ) +
+									' &#8594; ' +
+									sizeFormat( filesizeOut ) +
+									' (' + reducedPercent + ')' +
+									'</div>'
+								);
+							}
+						}
+					} else if ( 'notconverted' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
+						// Handle single format (backward compatibility).
+						downloadHeaders = response.data.download["\u0000*\u0000data"];
+						reducedPercent  = downloadHeaders['x-filesize-reduced'] || null;
+						filesizeIn      = downloadHeaders['x-filesize-in'] || null;
+						filesizeOut     = downloadHeaders['x-filesize-out'] || null;
+
+						if ( filesizeIn && filesizeOut && reducedPercent ) {
+							var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
+							infoClass = reducedNumeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+
+							$itemTd.prepend(
+								'<div class="' + infoClass + '">' +
+								sizeFormat( filesizeIn ) +
+								' &#8594; ' +
+								sizeFormat( filesizeOut ) +
+								' (' + reducedPercent + ')' +
+								'</div>'
+							);
+						}
 					}
 
 					if ( 'converted' === response.data.status ) {
