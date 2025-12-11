@@ -140,9 +140,9 @@ class Extension_ImageService_Api {
 			$mime_types_out[] = 'image/webp';
 		}
 
-		// Check avif setting.
+		// Check avif setting - only allow for Pro license holders.
 		$avif_enabled = isset( $settings['avif'] ) && ! empty( $settings['avif'] );
-		if ( $avif_enabled ) {
+		if ( $avif_enabled && Util_Environment::is_w3tc_pro( $config ) ) {
 			$mime_types_out[] = 'image/avif';
 		}
 

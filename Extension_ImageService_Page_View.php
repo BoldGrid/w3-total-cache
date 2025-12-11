@@ -122,7 +122,7 @@ Util_Ui::config_item(
 	)
 );
 
-Util_Ui::config_item(
+Util_Ui::config_item_pro(
 	array(
 		'key'            => array(
 			'imageservice',
@@ -132,8 +132,12 @@ Util_Ui::config_item(
 		'control'        => 'checkbox',
 		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
 		'value'          => $avif_enabled,
-		'description'    => esc_html__( 'Convert images to AVIF format.', 'w3-total-cache' ),
-		'disabled'       => false,
+		'disabled'       => ! $is_pro,
+		'excerpt'        => esc_html__( 'Convert images to AVIF format for even better compression and performance.', 'w3-total-cache' ),
+		'description'    => array(
+			esc_html__( 'AVIF (AV1 Image File Format) is a modern image format that provides superior compression compared to WebP and traditional formats like JPEG and PNG. With AVIF conversion, you can achieve significantly smaller file sizes while maintaining high image quality, resulting in faster page load times and improved user experience.', 'w3-total-cache' ),
+		),
+		'wrap_separate'  => true,
 	)
 );
 ?>

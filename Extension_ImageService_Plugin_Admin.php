@@ -500,7 +500,12 @@ class Extension_ImageService_Plugin_Admin {
 			$settings['webp']      = ! empty( $imageservice_webp_val );
 
 			$imageservice_avif_val = Util_Request::get_string( 'imageservice___avif' );
-			$settings['avif']      = ! empty( $imageservice_avif_val );
+			// Only allow AVIF for Pro license holders.
+			if ( Util_Environment::is_w3tc_pro( $c ) ) {
+				$settings['avif'] = ! empty( $imageservice_avif_val );
+			} else {
+				$settings['avif'] = false;
+			}
 
 			$c->set( 'imageservice', $settings );
 			$c->save();
@@ -1202,8 +1207,9 @@ class Extension_ImageService_Plugin_Admin {
 				$requested_formats[] = 'image/webp';
 			}
 			// Check avif setting - handle both boolean and string values, default to true if not set.
+			// Only allow AVIF for Pro license holders.
 			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-			if ( $avif_enabled ) {
+			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
 				$requested_formats[] = 'image/avif';
 			}
 			// If no formats are selected, default to WebP for backward compatibility.
@@ -1503,8 +1509,9 @@ class Extension_ImageService_Plugin_Admin {
 			$requested_formats[] = 'image/webp';
 		}
 		// Check avif setting - handle both boolean and string values, default to true if not set.
+		// Only allow AVIF for Pro license holders.
 		$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-		if ( $avif_enabled ) {
+		if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
 			$requested_formats[] = 'image/avif';
 		}
 		// If no formats are selected, default to WebP for backward compatibility.
