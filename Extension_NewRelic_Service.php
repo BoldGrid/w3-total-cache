@@ -14,6 +14,7 @@ namespace W3TC;
  * deprecated
  *
  * @see NewRelicAPI
+ * @link https://docs.newrelic.com/docs/apis/rest-api-v2/get-started/introduction-new-relic-rest-api-v2/
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
@@ -376,7 +377,7 @@ class Extension_NewRelic_Service {
 	 */
 	public function get_subscription() {
 		$account = $this->get_account();
-		if ( $account ) {
+		if ( $account && isset( $account['subscription'] ) ) {
 			return $account['subscription'];
 		}
 		return null;
@@ -389,6 +390,10 @@ class Extension_NewRelic_Service {
 	 */
 	public function can_get_metrics() {
 		$subscription = $this->get_subscription();
+		if ( ! is_array( $subscription ) || ! isset( $subscription['product-name'] ) ) {
+			return true;
+		}
+
 		return 'Lite' !== $subscription['product-name'];
 	}
 

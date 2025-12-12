@@ -74,11 +74,14 @@ class Extension_NewRelic_Popup {
 		}
 
 		$service = new Extension_NewRelic_Service( $api_key );
-
+Util_Debug::debug('service', $service);
 		try {
 			$api                             = new Extension_NewRelic_Api( $api_key );
+Util_Debug::debug('api', $api);
 			$details['apm_applications']     = $service->get_applications();
+			Util_Debug::debug('applications', $details['apm_applications']);
 			$details['browser_applications'] = $api->get_browser_applications();
+			Util_Debug::debug('bapplications', $details['browser_applications']);
 		} catch ( \Exception $ex ) {
 			$details = array(
 				'api_key'       => $api_key,
