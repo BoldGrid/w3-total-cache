@@ -26,7 +26,7 @@ $usage  = Extension_ImageService_Plugin::get_api()->get_usage();
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
 <p>
-	Total Cache WebP Converter is currently
+	Total Cache Image Converter is currently
 <?php
 if ( $c->is_extension_active( 'imageservice' ) ) {
 	?>
@@ -176,7 +176,7 @@ if ( ! $is_pro ) {
 			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'+9',
 			__( 'Points', 'w3-total-cache' ),
-			__( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			__( 'In one recent test, converting images to modern formats like WebP or AVIF added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
 			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof'
 		);
 		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
@@ -267,7 +267,7 @@ Util_Ui::postbox_header(
 			</td>
 		</tr>
 		<tr>
-			<th><?php esc_html_e( 'WebP Converter API usage:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Image Converter API usage:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-usage">
 					<tr>

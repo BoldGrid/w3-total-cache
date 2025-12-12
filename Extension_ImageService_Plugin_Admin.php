@@ -101,7 +101,7 @@ class Extension_ImageService_Plugin_Admin {
 		global $wp_version;
 
 		$description = __(
-			'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
+			'Adds the ability to convert images in the Media Library to modern formats (like WebP or AVIF) for better performance.',
 			'w3-total-cache'
 		);
 
@@ -123,7 +123,7 @@ class Extension_ImageService_Plugin_Admin {
 		$library_url  = esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) );
 
 		$extensions['imageservice'] = array(
-			'name'             => 'WebP Converter',
+			'name'             => 'Image Converter',
 			'author'           => 'BoldGrid',
 			'description'      => esc_html( $description ),
 			'author_uri'       => 'https://www.boldgrid.com/',
@@ -138,7 +138,7 @@ class Extension_ImageService_Plugin_Admin {
 			'notice'           => sprintf(
 				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag, 3: HTML anchor open tag, 4: HTML anchor open tag.
 				__(
-					'Total Cache WebP Converter has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s.',
+					'Total Cache Image Converter has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to modern formats like WebP or AVIF.  %4$sLearn more%2$s.',
 					'w3-total-cache'
 				),
 				'<a class="edit" href="' . $settings_url . '">',
@@ -211,7 +211,7 @@ class Extension_ImageService_Plugin_Admin {
 		add_action( 'admin_notices', array( $o, 'display_notices' ) );
 
 		/**
-		 * Ensure all network sites include WebP support.
+		 * Ensure all network sites include support for modern image formats (e.g., WebP/AVIF).
 		 *
 		 * @link https://make.wordpress.org/core/2021/06/07/wordpress-5-8-adds-webp-support/
 		 */
@@ -547,8 +547,8 @@ class Extension_ImageService_Plugin_Admin {
 		// Add settings submenu to Media top-level menu.
 		add_submenu_page(
 			'upload.php',
-			esc_html__( 'Total Cache WebP Converter', 'w3-total-cache' ),
-			esc_html__( 'Total Cache WebP Converter', 'w3-total-cache' ),
+			esc_html__( 'Total Cache Image Converter', 'w3-total-cache' ),
+			esc_html__( 'Total Cache Image Converter', 'w3-total-cache' ),
 			'edit_posts',
 			'w3tc_extension_page_imageservice',
 			array( $this, 'settings_page' )
@@ -668,7 +668,7 @@ class Extension_ImageService_Plugin_Admin {
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
 
-		$posts_columns['imageservice'] = '<span class="w3tc-convert"></span> ' . esc_html__( 'WebP Converter', 'w3-total-cache' );
+		$posts_columns['imageservice'] = '<span class="w3tc-convert"></span> ' . esc_html__( 'Image Converter', 'w3-total-cache' );
 
 		return $posts_columns;
 	}
@@ -789,7 +789,7 @@ class Extension_ImageService_Plugin_Admin {
 								// Display if we have the necessary data.
 								if ( $filesize_in && $filesize_out && $reduced_percent ) {
 									$reduced_numeric = rtrim( $reduced_percent, '%' );
-									$converted_class = (float) $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+									$converted_class = (float) $reduced_numeric < 100 ? 'w3tc-converted-reduced' : 'w3tc-converted-increased';
 									?>
 									<div class="<?php echo esc_attr( $converted_class ); ?>">
 									<?php
@@ -1033,7 +1033,7 @@ class Extension_ImageService_Plugin_Admin {
 			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
 
 			<div class="updated notice notice-success is-dismissible">
-				<p>Total Cache WebP Converter</p>
+				<p>Total Cache Image Converter</p>
 				<p>
 			<?php
 
@@ -1078,7 +1078,7 @@ class Extension_ImageService_Plugin_Admin {
 			?>
 			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
 
-			<div class="updated notice notice-success is-dismissible"><p>Total Cache WebP Converter</p>
+			<div class="updated notice notice-success is-dismissible"><p>Total Cache Image Converter</p>
 				<p><?php esc_html_e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
 			<?php
@@ -1090,11 +1090,11 @@ class Extension_ImageService_Plugin_Admin {
 			// If not in list mode, then print a notice to switch to it.
 			if ( 'list' !== $mode ) {
 				?>
-				<div class="notice notice-warning is-dismissible"><p>Total Cache WebP Converter -
+				<div class="notice notice-warning is-dismissible"><p>Total Cache Image Converter -
 				<?php
 						printf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							esc_html__( 'Switch to %1$slist mode%2$s for WebP conversions.', 'w3-total-cache' ),
+							esc_html__( 'Switch to %1$slist mode%2$s for image format conversions.', 'w3-total-cache' ),
 							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 							'</a>'
 						);
@@ -1715,7 +1715,7 @@ class Extension_ImageService_Plugin_Admin {
 					<?php
 					printf(
 						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-						esc_html__( 'WP Cron is not working as expected, which is required for %1$s WebP conversions.  %2$sLearn more%3$s.', 'w3-total-cache' ),
+						esc_html__( 'WP Cron is not working as expected, which is required for image format conversions.  %2$sLearn more%3$s.', 'w3-total-cache' ),
 						'W3 Total Cache',
 						'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/enable-wp-cron/?utm_source=w3tc&utm_medium=wp_cron&utm_campaign=imageservice' ) . '">',
 						'</a>'
