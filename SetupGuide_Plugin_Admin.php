@@ -1559,6 +1559,11 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
+						<p>' .
+						esc_html__(
+							'Run the test multiple times to smooth out variability and rely on the Average column when choosing your setting.',
+							'w3-total-cache'
+						) . '</p>
 						<table id="w3tc-dbc-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
@@ -1602,7 +1607,12 @@ class SetupGuide_Plugin_Admin {
 								' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
 							</span>
 						</p>' : '' ) .
-						'<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
+						'<p>' .
+						esc_html__(
+							'Test several times to account for variability and pick the setting with the best average.',
+							'w3-total-cache'
+						) . '</p>
+						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
@@ -1668,12 +1678,12 @@ class SetupGuide_Plugin_Admin {
 					'id'       => 'io1',
 					'markup'   => '<p>' .
 						esc_html__(
-							'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
+							'Adds the ability to convert images in the Media Library to modern formats (like WebP or AVIF) for better performance.',
 							'w3-total-cache'
 						) . '</p>
 						<p>
 						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
-						esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label></p>',
+						esc_html__( 'Enable Image Converter', 'w3-total-cache' ) . '</label></p>',
 				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
