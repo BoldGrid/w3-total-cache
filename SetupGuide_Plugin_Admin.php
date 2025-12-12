@@ -1170,7 +1170,7 @@ class SetupGuide_Plugin_Admin {
 				),
 				array(
 					'id'   => 'imageservice',
-					'text' => __( 'Image Optimization', 'w3-total-cache' ),
+					'text' => __( 'Image Converter', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'lazyload',
@@ -1250,6 +1250,11 @@ class SetupGuide_Plugin_Admin {
 						'We\'ll test your homepage with Page Cache disabled and then with several storage engines.  You should review the test results and choose the best for your website.',
 						'w3-total-cache'
 					) . '</p>
+					<p>' .
+					esc_html__(
+						'Individual test runs can vary. Run the test a few times and use the Average column to choose the best option for your site.',
+						'w3-total-cache'
+					) . '</p>
 					<p>
 						<input id="w3tc-test-pgcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
@@ -1265,7 +1270,8 @@ class SetupGuide_Plugin_Admin {
 							<tr>
 								<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
 								<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Latest (ms)', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Average (ms)', 'w3-total-cache' ) . '</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -1286,12 +1292,18 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
+						<p>' .
+						esc_html__(
+							'Run the test multiple times to smooth out variability and rely on the Average column when choosing your setting.',
+							'w3-total-cache'
+						) . '</p>
 						<table id="w3tc-dbc-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
 									<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
-									<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Latest (ms)', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Average (ms)', 'w3-total-cache' ) . '</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -1323,17 +1335,24 @@ class SetupGuide_Plugin_Admin {
 								' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
 							</span>
 						</p>' : '' ) .
-						'<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
+						'<p>' .
+						esc_html__(
+							'Test several times to account for variability and pick the setting with the best average.',
+							'w3-total-cache'
+						) . '</p>
+						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
 									<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
-									<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Latest (ms)', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Average (ms)', 'w3-total-cache' ) . '</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
 						</table>',
 				),
+
 				array( // Browser Cache.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
 					'id'       => 'bc1',

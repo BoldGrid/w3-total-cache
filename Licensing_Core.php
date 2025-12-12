@@ -61,10 +61,10 @@ class Licensing_Core {
 	 *
 	 * @param string $license License key to be deactivated.
 	 *
-	 * @return object|false Decoded license data object on success, false on failure.
+	 * @return object|false Decoded license data on success, false on failure.
 	 */
 	public static function deactivate_license( $license ) {
-		// data to send in our API request.
+		// Data to send in our API request.
 		$api_params = array(
 			'edd_action'  => 'deactivate_license',
 			'license'     => $license,   // legacy.
@@ -86,14 +86,15 @@ class Licensing_Core {
 			)
 		);
 
-		// make sure the response came back okay.
+		// Make sure the response came back okay.
 		if ( is_wp_error( $response ) ) {
 			return false;
 		}
 
-		// decode the license data.
+		// Decode the license data.
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
+		// $license_data->license will be either "deactivated" or "failed"
 		return $license_data;
 	}
 

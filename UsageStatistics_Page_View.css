@@ -23,6 +23,38 @@
 	margin-bottom: 10px;
 
 }
+/* Reduce bottom margin for Object Cache and Database Cache */
+.ustats_block.ustats_objectcache,
+.ustats_block.ustats_dbcache {
+	margin-bottom: 0;
+	height: auto !important;
+	min-height: 0;
+	overflow: hidden;
+}
+/* Reduce padding-bottom for these sections */
+.ustats_block.ustats_objectcache .ustats_block_data,
+.ustats_block.ustats_dbcache .ustats_block_data {
+	padding-bottom: 0;
+}
+/* Ensure chart containers don't add extra space */
+.ustats_block.ustats_objectcache .ustats_block_chart,
+.ustats_block.ustats_dbcache .ustats_block_chart {
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+/* Increase bottom margin for Database and PHP Memory sections */
+.ustats_block.ustats_wpdb {
+	margin-bottom: 25px;
+}
+/* Increase bottom margin for PHP Memory section (in System Info metabox) */
+/* The PHP Memory section is in a metabox-holder that comes after Database metabox */
+.metabox-holder ~ .metabox-holder .ustats_block.ustats_php {
+	margin-bottom: 25px;
+}
+/* Increase bottom margin for PHP Requests section (in Web Requests metabox) */
+.ustats_block.ustats_php {
+	margin-bottom: 25px;
+}
 .ustats_block_data {
 	width: 30%;
 	padding-bottom: 10px;
