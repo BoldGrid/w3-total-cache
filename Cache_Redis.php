@@ -515,7 +515,7 @@ class Cache_Redis extends Cache_Base {
 
 			$first_storage_key = function_exists( 'array_key_first' )
 				? array_key_first( $storage_map )
-				: reset( $storage_keys = array_keys( $storage_map ) );
+				: reset( array_keys( $storage_map ) );
 
 			$accessor = $this->_get_accessor( $first_storage_key );
 			if ( is_null( $accessor ) ) {

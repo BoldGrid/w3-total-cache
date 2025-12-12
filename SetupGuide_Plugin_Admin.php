@@ -361,7 +361,7 @@ class SetupGuide_Plugin_Admin {
 			}
 
 			$queries = $this->get_dbcache_test_queries( $wpdb );
-		
+
 			// Use more iterations to reduce timing noise and amplify cache benefit.
 			$iterations = 30;
 

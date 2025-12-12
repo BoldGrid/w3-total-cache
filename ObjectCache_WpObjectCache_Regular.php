@@ -507,24 +507,24 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $data   An associative array of data to cache, indexed by cache key.
+	 * @param array  $items  An associative array of data to cache, indexed by cache key.
 	 * @param string $group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return array An associative array of cache set results, indexed by cache key.
 	 */
-	public function set_multiple( array $data, $group = '', $expire = 0 ) {
+	public function set_multiple( array $items, $group = '', $expire = 0 ) {
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		if ( empty( $data ) ) {
+		if ( empty( $items ) ) {
 			return array();
 		}
 
 		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
 		if ( $this->is_wpcli_disk() ) {
-			return array_fill_keys( array_keys( $data ), false );
+			return array_fill_keys( array_keys( $items ), false );
 		}
 
 		$results            = array();
@@ -539,7 +539,7 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->_check_can_cache_runtime( $group )
 		);
 
-		foreach ( $data as $id => $value ) {
+		foreach ( $items as $id => $value ) {
 			$cache_key = $this->_get_cache_key( $id, $group );
 			$stored    = $value;
 
@@ -584,7 +584,7 @@ class ObjectCache_WpObjectCache_Regular {
 
 		if ( $this->_is_transient_group( $group ) &&
 			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
-			foreach ( $data as $id => $value ) {
+			foreach ( $items as $id => $value ) {
 				$this->_transient_fallback_set( $id, $value, $group, $expire );
 			}
 		}
