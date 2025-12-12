@@ -789,7 +789,7 @@ class Extension_ImageService_Plugin_Admin {
 								// Display if we have the necessary data.
 								if ( $filesize_in && $filesize_out && $reduced_percent ) {
 									$reduced_numeric = rtrim( $reduced_percent, '%' );
-									$converted_class = (float) $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+									$converted_class = (float) $reduced_numeric < 100 ? 'w3tc-converted-reduced' : 'w3tc-converted-increased';
 									?>
 									<div class="<?php echo esc_attr( $converted_class ); ?>">
 									<?php
