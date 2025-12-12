@@ -326,7 +326,6 @@ class Extension_ImageService_Api {
 			$url,
 			array(
 				'method'    => $this->endpoints['download']['method'],
-				'sslverify' => false,
 				'timeout'   => 10,
 			)
 		);
