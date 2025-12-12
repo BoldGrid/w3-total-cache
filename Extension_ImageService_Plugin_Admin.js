@@ -174,7 +174,7 @@
 							// Display if we have the necessary data.
 							if ( filesizeIn && filesizeOut && reducedPercent ) {
 								var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
-								infoClass = reducedNumeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+								infoClass = reducedNumeric >= 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
 
 								$itemTd.prepend(
 									'<div class="' + infoClass + '">' +
