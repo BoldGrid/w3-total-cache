@@ -1292,7 +1292,12 @@ class PgCache_Environment {
 
 		list( $memcached_host, $memcached_port ) = Util_Content::endpoint_to_host_port( $memcached_pass );
 
-		if ( 0 === $memcached_port ) {
+		$is_unix_socket = (
+			0 === $memcached_port &&
+			( 0 === strpos( $memcached_host, 'unix:' ) || false !== strpos( $memcached_host, '/' ) )
+		);
+
+		if ( $is_unix_socket ) {
 			$memcached_host = preg_replace( '#^unix:(/*)#', '/', $memcached_host );
 
 			if ( '/' !== substr( $memcached_host, 0, 1 ) ) {
@@ -1300,8 +1305,10 @@ class PgCache_Environment {
 			}
 
 			$memcached_pass = 'unix:' . $memcached_host;
-		} else {
+		} elseif ( $memcached_port ) {
 			$memcached_pass = $memcached_host . ':' . $memcached_port;
+		} else {
+			$memcached_pass = $memcached_host;
 		}
 
 		$rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
