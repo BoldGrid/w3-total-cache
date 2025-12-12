@@ -104,7 +104,7 @@ Util_Ui::config_item(
 $settings = $c->get_array( 'imageservice' );
 // Default to true for webp if not set (backward compatibility).
 $webp_enabled = isset( $settings['webp'] ) ? (bool) $settings['webp'] : true;
-// Default to false for avif if not set.
+// Default to true for avif if not set.  We need to make sure this is true for the Pro version.
 $avif_enabled = isset( $settings['avif'] ) ? (bool) $settings['avif'] : true;
 
 Util_Ui::config_item(
