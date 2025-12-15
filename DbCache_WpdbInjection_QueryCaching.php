@@ -102,9 +102,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Reject constants flag.
 	 *
-	 * @var bool
+	 * @var array
 	 */
-	private $reject_constants = false;
+	private $reject_constants = array();
 
 	/**
 	 * Use filters flag.
@@ -954,17 +954,17 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Logs a query line to the log file.
 	 *
-	 * @param string $line The query line to log.
+	 * @param array $fields The query info to log.
 	 *
 	 * @return void
 	 */
-	private function log_query( $line ) {
+	private function log_query( $fields ) {
 		if ( ! $this->log_filehandle ) {
 			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
 			$this->log_filehandle = fopen( $filename, 'a' );
 		}
 
-		fputcsv( $this->log_filehandle, $line, "\t" );
+		fputcsv( $this->log_filehandle, $fields, "\t" );
 	}
 
 	/**
