@@ -360,6 +360,9 @@ class SetupGuide_Plugin_Admin {
 				}
 			}
 
+			// Clear any request-wide dbcache reject state from earlier bootstrap queries.
+			$this->reset_dbcache_reject_state();
+
 			$queries = $this->get_dbcache_test_queries( $wpdb );
 
 			// Use more iterations to reduce timing noise and amplify cache benefit.
