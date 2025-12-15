@@ -725,7 +725,6 @@ class Extension_NewRelic_Service {
 				$config->save();
 			}
 
-			error_log( '[newrelic-api] Resolved and saved account_id=' . $account_id );
 			return $account_id;
 		}
 

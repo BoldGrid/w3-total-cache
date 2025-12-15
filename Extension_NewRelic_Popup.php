@@ -89,21 +89,21 @@ class Extension_NewRelic_Popup {
 			$details['browser_applications'] = array_values(
 				array_filter(
 					$api->get_browser_applications(),
-					static function ( $app ) use ( $apm_names_lower ) {
+					function ( $app ) use ( $apm_names_lower ) {
 						if ( ! is_array( $app ) ) {
 							return false;
 						}
 
-						$name    = isset( $app['name'] ) ? trim( (string) $app['name'] ) : '';
-						$has_id  = isset( $app['id'] ) && '' !== (string) $app['id'];
-						$hasName = '' !== $name && 'null' !== strtolower( $name );
-						$has_key = isset( $app['browser_monitoring_key'] ) && '' !== trim( (string) $app['browser_monitoring_key'] );
+						$name     = isset( $app['name'] ) ? trim( (string) $app['name'] ) : '';
+						$has_id   = isset( $app['id'] ) && '' !== (string) $app['id'];
+						$has_name = '' !== $name && 'null' !== strtolower( $name );
+						$has_key  = isset( $app['browser_monitoring_key'] ) && '' !== trim( (string) $app['browser_monitoring_key'] );
 
 						// Only treat real Browser apps (they expose a browser monitoring key).
 						// If an APM app shares the same name and no separate Browser app exists, skip it.
 						$is_duplicate_apm = in_array( strtolower( $name ), $apm_names_lower, true );
 
-						return $has_id && $hasName && $has_key && ! $is_duplicate_apm;
+						return $has_id && $has_name && $has_key && ! $is_duplicate_apm;
 					}
 				)
 			);
@@ -125,8 +125,6 @@ class Extension_NewRelic_Popup {
 		} elseif ( 'apm' !== $monitoring_type && 'browser' !== $monitoring_type ) {
 			$details['monitoring_type'] = '';
 		}
-		// Do not preselect a monitoring type by default.
-		$details['monitoring_type'] = '';
 
 		$details['browser_disabled'] = ! Util_Environment::is_w3tc_pro( $c );
 

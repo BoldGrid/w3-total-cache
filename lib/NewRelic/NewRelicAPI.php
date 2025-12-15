@@ -172,7 +172,7 @@ class NewRelicAPI {
                     $applications[ (int) $application['id'] ] = $application['name'];
                 }
 
-                if ( isset( $application['account_id'] ) && ! isset( $this->account_id_cache ) ) {
+                if ( isset( $application['account_id'] ) && null === $this->account_id_cache ) {
                     $this->account_id_cache = (int) $application['account_id'];
                 }
             }
