@@ -69,19 +69,44 @@ class Extension_NewRelic_Popup {
 			'browser.application_id' => $c->get_string( array( 'newrelic', 'browser.application_id' ) ),
 		);
 
-		if ( 'browser' !== $details['monitoring_type'] ) {
-			$details['monitoring_type'] = 'apm';
-		}
-
 		$service = new Extension_NewRelic_Service( $api_key );
-Util_Debug::debug('service', $service);
 		try {
 			$api                             = new Extension_NewRelic_Api( $api_key );
-Util_Debug::debug('api', $api);
-			$details['apm_applications']     = $service->get_applications();
-			Util_Debug::debug('applications', $details['apm_applications']);
-			$details['browser_applications'] = $api->get_browser_applications();
-			Util_Debug::debug('bapplications', $details['browser_applications']);
+			$details['apm_applications']     = array_values(
+				array_filter(
+					$service->get_applications(),
+					static function ( $name ) {
+						if ( ! is_string( $name ) ) {
+							return false;
+						}
+
+						$trimmed = trim( $name );
+						return '' !== $trimmed && 'null' !== strtolower( $trimmed );
+					}
+				)
+			);
+			$apm_names_lower = array_map( 'strtolower', $details['apm_applications'] );
+			$details['browser_applications'] = array_values(
+				array_filter(
+					$api->get_browser_applications(),
+					static function ( $app ) use ( $apm_names_lower ) {
+						if ( ! is_array( $app ) ) {
+							return false;
+						}
+
+						$name    = isset( $app['name'] ) ? trim( (string) $app['name'] ) : '';
+						$has_id  = isset( $app['id'] ) && '' !== (string) $app['id'];
+						$hasName = '' !== $name && 'null' !== strtolower( $name );
+						$has_key = isset( $app['browser_monitoring_key'] ) && '' !== trim( (string) $app['browser_monitoring_key'] );
+
+						// Only treat real Browser apps (they expose a browser monitoring key).
+						// If an APM app shares the same name and no separate Browser app exists, skip it.
+						$is_duplicate_apm = in_array( strtolower( $name ), $apm_names_lower, true );
+
+						return $has_id && $hasName && $has_key && ! $is_duplicate_apm;
+					}
+				)
+			);
 		} catch ( \Exception $ex ) {
 			$details = array(
 				'api_key'       => $api_key,
@@ -90,6 +115,18 @@ Util_Debug::debug('api', $api);
 			$this->render_intro( $details );
 			return;
 		}
+
+		// Clear selection if the stored monitoring type has no available apps.
+		$monitoring_type = $details['monitoring_type'];
+		if ( 'apm' === $monitoring_type && empty( $details['apm_applications'] ) ) {
+			$details['monitoring_type'] = '';
+		} elseif ( 'browser' === $monitoring_type && empty( $details['browser_applications'] ) ) {
+			$details['monitoring_type'] = '';
+		} elseif ( 'apm' !== $monitoring_type && 'browser' !== $monitoring_type ) {
+			$details['monitoring_type'] = '';
+		}
+		// Do not preselect a monitoring type by default.
+		$details['monitoring_type'] = '';
 
 		$details['browser_disabled'] = ! Util_Environment::is_w3tc_pro( $c );
 
@@ -118,6 +155,16 @@ Util_Debug::debug('api', $api);
 			$c->set( array( 'newrelic', 'browser.application_id' ), $browser_application_id );
 		}
 
+		// Resolve and persist account id when available.
+		try {
+			$service    = new Extension_NewRelic_Service( $api_key );
+			$account_id = $service->get_account_id();
+			if ( $account_id ) {
+				$c->set( array( 'newrelic', 'account_id' ), $account_id );
+			}
+		} catch ( \Exception $ignored ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		}
+
 		$c->save();
 
 		// flush cached values on api key change to allow to reset it from ui if something goes wrong.
@@ -131,6 +178,6 @@ Util_Debug::debug('api', $api);
 			)
 		);
 
-		echo esc_url( 'Location admin.php?page=w3tc_general&' . $postfix );
+		echo 'Location ' . esc_url( 'admin.php?page=w3tc_general&' . $postfix );
 	}
 }

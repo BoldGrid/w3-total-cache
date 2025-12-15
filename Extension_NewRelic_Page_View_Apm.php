@@ -258,7 +258,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<th>
 					<label for="newrelic_include_rum">
 						<?php
-						wp_kses(
+						echo wp_kses(
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
