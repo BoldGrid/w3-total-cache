@@ -182,10 +182,7 @@ class Util_Http {
 				'Pragma: no-cache',
 			);
 
-			$qs_arr = explode( '&', wp_parse_url( $url, PHP_URL_QUERY ) );
-			array_push( $qs_arr, 'time=' . microtime( true ) );
-
-			$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
+			$opts[ CURLOPT_URL ] = add_query_arg( 'time', microtime( true ), $url );
 		}
 
 		if ( $ch ) {
