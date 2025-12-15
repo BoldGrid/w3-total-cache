@@ -821,6 +821,19 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
+	 * Clears request-wide dbcache reject state so subsequent queries can be reconsidered.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function reset_reject_state() {
+		$this->cache_reject_reason               = null;
+		$this->cache_reject_request_wide         = false;
+		$this->can_cache_once_per_request_result = null;
+	}
+
+	/**
 	 * Retrieves the reject reason message for the database cache.
 	 *
 	 * @return string The reject reason message, or an empty string if no reason is set.
