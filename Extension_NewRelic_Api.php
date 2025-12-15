@@ -45,16 +45,6 @@ class Extension_NewRelic_Api {
 	}
 
 	/**
-	 * Debug helper with fallback when Util_Debug isn't loaded yet.
-	 *
-	 * @param string $message Message to log.
-	 * @return void
-	 */
-	private function log_debug( $message ) {
-		// no-op (debug logging disabled).
-	}
-
-	/**
 	 * Sends a GET request to the specified API endpoint.
 	 *
 	 * @param string $api_call_url The API URL to call.
@@ -75,16 +65,12 @@ class Extension_NewRelic_Api {
 		$url      = self::$url . $api_call_url;
 
 		$start    = microtime( true );
-		$this->log_debug( sprintf( 'GET %s start', $url ) );
-
 		$response = wp_remote_get( $url, $defaults );
 		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
-			$this->log_debug( sprintf( 'GET %s error (%d ms): %s', $url, $elapsed, $response->get_error_message() ) );
 			throw new \Exception( 'Could not get data' );
 		} elseif ( 200 === $response['response']['code'] ) {
-			$this->log_debug( sprintf( 'GET %s success (%d ms)', $url, $elapsed ) );
 			$return = $response['body'];
 		} else {
 			switch ( $response['response']['code'] ) {
@@ -95,7 +81,6 @@ class Extension_NewRelic_Api {
 					$message = $response['response']['message'];
 			}
 
-			$this->log_debug( sprintf( 'GET %s failed (%d ms): %s %s', $url, $elapsed, $response['response']['code'], $message ) );
 			throw new \Exception(
 				\esc_html( $message ),
 				\esc_html( $response['response']['code'] )
@@ -125,19 +110,14 @@ class Extension_NewRelic_Api {
 		);
 		$url      = self::$url . $api_call_url;
 		$start    = microtime( true );
-		$this->log_debug( sprintf( 'PUT %s start', $url ) );
-
 		$response = wp_remote_request( $url, $defaults );
 		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
-			$this->log_debug( sprintf( 'PUT %s error (%d ms): %s', $url, $elapsed, $response->get_error_message() ) );
 			throw new \Exception( 'Could not put data' );
 		} elseif ( 200 === $response['response']['code'] ) {
-			$this->log_debug( sprintf( 'PUT %s success (%d ms)', $url, $elapsed ) );
 			$return = true;
 		} else {
-			$this->log_debug( sprintf( 'PUT %s failed (%d ms): %s %s', $url, $elapsed, $response['response']['code'], $response['response']['message'] ) );
 			throw new \Exception(
 				\esc_html( $response['response']['message'] ),
 				\esc_html( $response['response']['code'] )
