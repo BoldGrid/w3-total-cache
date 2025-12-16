@@ -87,25 +87,26 @@ class Extension_ImageService_Cron {
 			$postmeta = empty( $post_id ) ? null : get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$status   = isset( $postmeta['status'] ) ? $postmeta['status'] : null;
 
-			// Handle items with the "processing" status.
-			if ( 'processing' === $status ) {
+			// Handle new format with multiple jobs (processing_jobs) or old format (processing).
+			$processing_jobs = isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ?
+				$postmeta['processing_jobs'] : array();
+
+			// Backward compatibility: convert old format to new format.
+			if ( empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+				$processing_jobs = array(
+					'webp' => array(
+						'job_id'    => $postmeta['processing']['job_id'],
+						'signature' => $postmeta['processing']['signature'],
+						'mime_type' => 'image/webp',
+					),
+				);
+			}
+
+			// Process items that have jobs to check, regardless of overall status.
+			// This ensures we continue processing even if some jobs complete and status changes.
+			if ( ! empty( $processing_jobs ) ) {
 				// Get the Image Service API object (singlton).
 				$api = Extension_ImageService_Plugin::get_api();
-
-				// Handle new format with multiple jobs (processing_jobs) or old format (processing).
-				$processing_jobs = isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ?
-					$postmeta['processing_jobs'] : array();
-
-				// Backward compatibility: convert old format to new format.
-				if ( empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
-					$processing_jobs = array(
-						'webp' => array(
-							'job_id'    => $postmeta['processing']['job_id'],
-							'signature' => $postmeta['processing']['signature'],
-							'mime_type' => 'image/webp',
-						),
-					);
-				}
 
 				// Process each job separately.
 				$all_jobs_ready = true;
@@ -115,6 +116,9 @@ class Extension_ImageService_Cron {
 				// Initialize arrays for storing multiple formats before processing jobs.
 				$post_children = isset( $postmeta['post_children'] ) ? $postmeta['post_children'] : array();
 				$downloads     = isset( $postmeta['downloads'] ) ? $postmeta['downloads'] : array();
+
+				// Track which jobs are complete and should be removed from processing_jobs.
+				$completed_jobs = array();
 
 				foreach ( $processing_jobs as $format_key => $job ) {
 					if ( ! isset( $job['job_id'] ) || ! isset( $job['signature'] ) ) {
@@ -184,12 +188,16 @@ class Extension_ImageService_Cron {
 						if ( $is_error ) {
 							$has_error      = true;
 							$all_jobs_ready = false;
+							// Job completed (with error) - remove from processing_jobs.
+							$completed_jobs[] = $format_key;
 							continue;
 						}
 
 						if ( ! $is_reduced ) {
 							// Image wasn't reduced (output is same size or larger), skip saving but continue to next job.
 							$all_jobs_ready = false;
+							// Job completed (no size reduction) - remove from processing_jobs.
+							$completed_jobs[] = $format_key;
 							continue;
 						}
 
@@ -247,14 +255,24 @@ class Extension_ImageService_Cron {
 						$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
 						$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
 						wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+						// Job successfully completed - remove from processing_jobs.
+						$completed_jobs[] = $format_key;
 					} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
 						// Job completed but no pickup - mark as error for this format.
 						$has_error      = true;
 						$all_jobs_ready = false;
+						// Job completed (even with error) - remove from processing_jobs.
+						$completed_jobs[] = $format_key;
 					} else {
-						// Job still processing.
+						// Job still processing - keep in processing_jobs.
 						$all_jobs_ready = false;
 					}
+				}
+
+				// Remove completed jobs from processing_jobs.
+				foreach ( $completed_jobs as $format_key ) {
+					unset( $processing_jobs[ $format_key ] );
 				}
 
 				// Save jobs status.
@@ -272,13 +290,19 @@ class Extension_ImageService_Cron {
 					$status = 'error';
 				}
 
-				// Save the download information and status.
+				// If there are still jobs processing, keep status as 'processing'.
+				if ( ! empty( $processing_jobs ) ) {
+					$status = 'processing';
+				}
+
+				// Save the download information, status, and remaining processing_jobs.
 				Extension_ImageService_Plugin_Admin::update_postmeta(
 					$post_id,
 					array(
-						'post_children' => $post_children,
-						'downloads'     => $downloads,
-						'status'        => $status,
+						'post_children'   => $post_children,
+						'downloads'       => $downloads,
+						'status'          => $status,
+						'processing_jobs' => $processing_jobs,
 					)
 				);
 
