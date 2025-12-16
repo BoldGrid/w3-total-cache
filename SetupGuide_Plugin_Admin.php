@@ -299,7 +299,7 @@ class SetupGuide_Plugin_Admin {
 				} else {
 					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 				}
-			} elseif ( ! $is_allowed_engine ) {
+			} else {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
@@ -346,8 +346,8 @@ class SetupGuide_Plugin_Admin {
 			$env->fix_on_wpadmin_request( $config, true );
 
 			// Temporarily mimic a front-end request so dbcache isn't rejected by admin context.
-			$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null;
-			$original_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+			$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$original_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
 			$_SERVER['HTTP_REFERER'] = site_url( '/' );
 			$_SERVER['REQUEST_URI']  = '/';
@@ -355,7 +355,7 @@ class SetupGuide_Plugin_Admin {
 			$removed_cookies = array();
 			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
-					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ];
+					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
 					unset( $_COOKIE[ $cookie_name ] );
 				}
 			}
@@ -494,7 +494,7 @@ class SetupGuide_Plugin_Admin {
 				} else {
 					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 				}
-			} elseif ( ! $is_allowed_engine ) {
+			} else {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
@@ -541,13 +541,14 @@ class SetupGuide_Plugin_Admin {
 			// Temporarily mimic a front-end request and allow writes in admin-ajax.
 			$original_enabled_for_admin = $config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
 			$config->set( 'objectcache.enabled_for_wp_admin', true );
-			$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+			$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+
 			$_SERVER['REQUEST_URI'] = '/';
 
 			$removed_cookies = array();
 			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
-					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ];
+					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
 					unset( $_COOKIE[ $cookie_name ] );
 				}
 			}
@@ -704,7 +705,7 @@ class SetupGuide_Plugin_Admin {
 				} else {
 					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 				}
-			} elseif ( ! $is_allowed_engine ) {
+			} else {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
@@ -909,9 +910,9 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param \wpdb  $wpdb       WordPress database object.
-	 * @param array  $queries    List of SQL queries to execute.
-	 * @param int    $iterations How many times to repeat the full set.
+	 * @param \wpdb $wpdb       WordPress database object.
+	 * @param array $queries    List of SQL queries to execute.
+	 * @param int   $iterations How many times to repeat the full set.
 	 *
 	 * @return float Seconds elapsed.
 	 */
@@ -952,8 +953,20 @@ class SetupGuide_Plugin_Admin {
 	private function reset_dbcache_reject_state() {
 		global $wpdb;
 
-		if ( isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'get_processors' ) ) {
-			$processors = $wpdb->get_processors();
+		/**
+		 * DbCache wpdb wrapper instance, when available.
+		 *
+		 * @var DbCache_WpdbNew|DbCache_WpdbLegacy|null
+		 */
+		$dbcache_wpdb = null;
+		if ( $wpdb instanceof DbCache_WpdbNew || $wpdb instanceof DbCache_WpdbLegacy ) {
+			$dbcache_wpdb = $wpdb;
+		} elseif ( class_exists( '\W3TC\DbCache_Wpdb' ) ) {
+			$dbcache_wpdb = DbCache_Wpdb::instance();
+		}
+
+		if ( $dbcache_wpdb instanceof DbCache_WpdbNew || $dbcache_wpdb instanceof DbCache_WpdbLegacy ) {
+			$processors = $dbcache_wpdb->get_processors();
 
 			foreach ( $processors as $processor ) {
 				if ( $processor instanceof DbCache_WpdbInjection_QueryCaching ) {
@@ -1086,10 +1099,20 @@ class SetupGuide_Plugin_Admin {
 	private function get_config() {
 		global $wp_version, $wpdb;
 
-		$config              = new Config();
-		$page                = Util_Request::get_string( 'page' );
-		$state               = Dispatcher::config_state();
-		$force_master_config = $config->get_boolean( 'common.force_master' );
+		$config               = new Config();
+		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+		$is_pro               = Util_Environment::is_w3tc_pro( $config );
+		$page                 = Util_Request::get_string( 'page' );
+		$state                = Dispatcher::config_state();
+		$force_master_config  = $config->get_boolean( 'common.force_master' );
+		$image_service_limits = array(
+			'free_hourly'  => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
+			'free_monthly' => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
+			'pro_hourly'   => number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+			'pro_monthly'  => empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT ) ?
+				esc_html__( 'Unlimited', 'w3-total-cache' ) :
+				number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+		);
 
 		if ( 'w3tc_extensions' === $page ) {
 			$page = 'extensions/' . Util_Request::get_string( 'extension' );
@@ -1119,7 +1142,7 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_install_date' => get_option( 'w3tc_install_date' ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
-							'w3tc_pro'          => Util_Environment::is_w3tc_pro( $config ),
+							'w3tc_pro'          => $is_pro,
 							'w3tc_has_key'      => $config->get_string( 'plugin.license_key' ),
 							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
 							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
@@ -1485,14 +1508,71 @@ class SetupGuide_Plugin_Admin {
 				array( // Image Service.
 					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
 					'id'       => 'io1',
-					'markup'   => '<p>' .
-						esc_html__(
-							'Adds the ability to convert images in the Media Library to modern formats (like WebP or AVIF) for better performance.',
-							'w3-total-cache'
-						) . '</p>
-						<p>
-						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
-						esc_html__( 'Enable Image Converter', 'w3-total-cache' ) . '</label></p>',
+					'markup'   => '<div class="w3tc-io-description"><p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Adds the ability to convert images in the Media Library to the modern WebP format for better performance. %1$sLearn more%2$s',
+								'w3-total-cache'
+							),
+							'<a id="w3tc-io-learn-more" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
+							'</a>'
+						) . '</p></div>
+						<p class="w3tc-io-toggle">
+							<input type="checkbox" id="imageservice-enable" value="1" />
+							<label for="imageservice-enable">' . esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label>
+						</p>
+						<div class="w3tc-io-rate-grid">
+							<div class="w3tc-io-rate-card' . ( $is_pro ? '' : ' w3tc-io-rate-current' ) . '">
+								' . ( $is_pro ? '' : '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' ) . '
+								<span class="w3tc-io-rate-label">' . esc_html__( 'Free', 'w3-total-cache' ) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									// translators: 1: Number of conversions per hour.
+									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
+									esc_html( $image_service_limits['free_hourly'] )
+								) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									// translators: 1: Number of conversions per month.
+									esc_html__( '%s conversions per month', 'w3-total-cache' ),
+									esc_html( $image_service_limits['free_monthly'] )
+								) . '</span>
+							</div>
+							<div class="w3tc-io-rate-card w3tc-io-rate-pro' . ( $is_pro ? ' w3tc-io-rate-current' : '' ) . '">
+								' . ( $is_pro ? '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' : '' ) . '
+								<span class="w3tc-io-rate-label">' . esc_html__( 'Pro', 'w3-total-cache' ) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									// translators: 1: Number of conversions per hour.
+									esc_html__( '%s conversions per hour', 'w3-total-cache' ),
+									esc_html( $image_service_limits['pro_hourly'] )
+								) . '</span>
+								<span class="w3tc-io-rate">' . sprintf(
+									// translators: 1: Number of conversions per month.
+									esc_html__( '%s conversions per month', 'w3-total-cache' ),
+									esc_html( $image_service_limits['pro_monthly'] )
+								) . '</span>
+							</div>
+						</div>' .
+						( $is_pro ? '' : '<div class="w3tc-gopro-manual-wrap">
+							<div class="w3tc-io-upsell w3tc-gopro">
+								<div class="w3tc-gopro-ribbon"><span>★ PRO</span></div>
+								<div class="w3tc-gopro-content">
+									<p><strong>' . esc_html__( 'Need higher limits?', 'w3-total-cache' ) . '</strong> ' .
+										sprintf(
+											// translators: 1: Number of conversions per hour, 2: Number of conversions per month.
+											esc_html__(
+												'Upgrade to Pro for up to %1$s conversions per hour and %2$s per month.',
+												'w3-total-cache'
+											),
+											esc_html( $image_service_limits['pro_hourly'] ),
+											esc_html( $image_service_limits['pro_monthly'] )
+										) . '</p>
+								</div>
+								<div class="w3tc-gopro-action">
+									<input type="button" class="button-primary btn button-buy-plugin" value="' . esc_attr__( 'Upgrade to W3 Total Cache Pro', 'w3-total-cache' ) . '">
+								</div>
+							</div>
+						</div>'
+					),
 				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
