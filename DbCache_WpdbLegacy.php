@@ -248,6 +248,17 @@ class DbCache_WpdbLegacy extends DbCache_WpdbBase {
 	}
 
 	/**
+	 * Returns the array of dbcache processors attached to this wpdb wrapper.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public function get_processors() {
+		return $this->processors;
+	}
+
+	/**
 	 * Replaces data in a database table.
 	 *
 	 * @param string     $table  The table to replace data in.

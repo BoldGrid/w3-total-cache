@@ -219,7 +219,7 @@ class FeatureShowcase_Plugin_Admin {
 		global $wp_version;
 
 		$imageservice_description = __(
-			'Adds the ability to convert images into the modern WebP format for better performance using our remote API service.',
+			'Adds the ability to convert images into the modern formats (like WebP or AVIF) for better performance using our remote API service.',
 			'w3-total-cache'
 		);
 
@@ -415,7 +415,7 @@ class FeatureShowcase_Plugin_Admin {
 					'is_new'     => false,
 				),
 				'imageservice'        => array(
-					'title'      => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'title'      => esc_html__( 'Image Converter', 'w3-total-cache' ),
 					'icon'       => 'dashicons-embed-photo',
 					'text'       => esc_html( $imageservice_description ),
 					'button'     => empty( $imageservice_button_text ) ? '' :

@@ -56,6 +56,8 @@ class Template {
 		$allowed_html = array(
 			'a'      => array(
 				'href'   => array(),
+				'class'  => array(),
+				'data-src' => array(),
 				'id'     => array(),
 				'target' => array(),
 			),
