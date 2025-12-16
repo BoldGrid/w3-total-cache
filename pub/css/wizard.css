@@ -104,7 +104,7 @@ ul#w3tc-options-menu {
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, bottom right;
     background-size: auto, auto 60%;
-    min-height: 545px;
+    min-height: 575px;
     padding-right: 160px;
     position: relative;
 }
@@ -149,7 +149,19 @@ ul#w3tc-options-menu {
 
 #w3tc-wizard-next:enabled,
 #w3tc-wizard-dashboard {
-    background-color: #825772;
+    background-color: #2271b1;
+    color: #fff;
+    text-shadow: none;
+}
+
+#w3tc-wizard-next:enabled:hover,
+#w3tc-wizard-dashboard:hover {
+    background-color: #135e96;
+    color: #fff;
+}
+
+#w3tc-wizard-next:disabled {
+    background-color: #72aee6;
     color: #fff;
 }
 
