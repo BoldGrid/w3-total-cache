@@ -1126,9 +1126,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php
 		Util_Ui::postbox_header_tabs(
-			esc_html__( 'WebP Converter', 'w3-total-cache' ),
+			esc_html__( 'Image Converter', 'w3-total-cache' ),
 			esc_html__(
-				'The WebP Converter tool can be used to generate WebP versions of media library images which offer superior lossless and lossy compression.',
+				'The Image Converter tool can be used to generate modern-format versions (e.g., WebP or AVIF) of media library images which offer superior lossless and lossy compression.',
 				'w3-total-cache'
 			),
 			'',
@@ -1143,7 +1143,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$image_service_link = $this->_config->is_extension_active( 'imageservice' )
 				? sprintf(
 					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
-					__( 'The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page.', 'w3-total-cache' ),
+					__( 'The tool and its settings can be found on the %1$s %2$sImage Converter%3$s page.', 'w3-total-cache' ),
 					'Total Cache',
 					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
 					'</a>'
@@ -1151,14 +1151,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_pro(
 				array(
 					'key'               => 'extension.imageservice',
-					'label'             => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'label'             => esc_html__( 'Image Converter', 'w3-total-cache' ),
 					'control'           => 'checkbox',
-					'checkbox_label'    => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
+					'checkbox_label'    => __( 'Enable Image Converter Extension', 'w3-total-cache' ),
 					'excerpt'           => wp_kses(
 						sprintf(
 							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
-								'This extension allows for optimizing media library images to WebP format.%1$s%2$s%1$s%3$s',
+								'This extension allows for optimizing media library images to modern formats like WebP or AVIF.%1$s%2$s%1$s%3$s',
 								'w3-total-cache'
 							),
 							'<br/><br/>',
@@ -1207,7 +1207,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'score'             => '+9',
 					'score_label'       => __( 'Points', 'w3-total-cache' ),
-					'score_description' => __( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+					'score_description' => __( 'In one recent test, converting images to modern formats like WebP added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
 					'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof',
 				)
 			);
