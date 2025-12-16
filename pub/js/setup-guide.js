@@ -973,7 +973,7 @@ function w3tc_wizard_actions( $slide ) {
 
 						averageSeconds = w3tcGetAverageResult( 'dbcache', engine );
 						averageMs = w3tcFormatMs( averageSeconds );
-						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+						results += w3tcFormatMs( testResponse.data.elapsed );
 
 						results += '</td><td>';
 
