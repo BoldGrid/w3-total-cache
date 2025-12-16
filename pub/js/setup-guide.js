@@ -9,11 +9,15 @@
  */
 
 var w3tc_enable_ga;
+var w3tcTestHistory = {
+	pgcache: {},
+	dbcache: {},
+	objcache: {}
+};
 var w3tcWizardSlideStepMap = {
 	'w3tc-wizard-slide-pc1': 'pgcache',
 	'w3tc-wizard-slide-dbc1': 'dbcache',
 	'w3tc-wizard-slide-oc1': 'objectcache',
-	'w3tc-wizard-slide-bc1': 'browsercache',
 	'w3tc-wizard-slide-io1': 'imageservice',
 	'w3tc-wizard-slide-ll1': 'lazyload',
 	'w3tc-wizard-slide-complete': 'more'
@@ -21,8 +25,7 @@ var w3tcWizardSlideStepMap = {
 var w3tcWizardSlidesWithTests = [
 	'w3tc-wizard-slide-pc1',
 	'w3tc-wizard-slide-dbc1',
-	'w3tc-wizard-slide-oc1',
-	'w3tc-wizard-slide-bc1'
+	'w3tc-wizard-slide-oc1'
 ];
 
 jQuery(function() {
@@ -130,6 +133,84 @@ jQuery( '#w3tc-wizard-step-welcome' )
 	.addClass( 'is-active' );
 
 /**
+ * Record a test result for later averaging.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Engine slug.
+ * @param number value  Result value in seconds.
+ */
+function w3tcRecordTestResult( type, engine, value ) {
+	if ( ! w3tcTestHistory[ type ] ) {
+		w3tcTestHistory[ type ] = {};
+	}
+
+	if ( ! w3tcTestHistory[ type ][ engine ] ) {
+		w3tcTestHistory[ type ][ engine ] = [];
+	}
+
+	w3tcTestHistory[ type ][ engine ].push( value );
+}
+
+/**
+ * Get an average result (seconds) for a cache engine.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Engine slug.
+ * @return float|null
+ */
+function w3tcGetAverageResult( type, engine ) {
+	var history = w3tcTestHistory[ type ] && w3tcTestHistory[ type ][ engine ] ? w3tcTestHistory[ type ][ engine ] : null;
+
+	if ( ! history || ! history.length ) {
+		return null;
+	}
+
+	return history.reduce( function( total, value ) {
+		return total + value;
+	}, 0 ) / history.length;
+}
+
+/**
+ * Calculate the percent change using averaged results.
+ *
+ * @since 2.8.8
+ *
+ * @param string type   Cache type key.
+ * @param string engine Cache engine slug.
+ * @return string|null
+ */
+function w3tcGetAveragePercentChange( type, engine ) {
+	var average = w3tcGetAverageResult( type, engine ),
+		baseline = w3tcGetAverageResult( type, 'none' );
+
+	if ( null === average || null === baseline || 0 === baseline || 'none' === engine ) {
+		return null;
+	}
+
+	return ( ( average - baseline ) / baseline * 100 ).toFixed( 2 );
+}
+
+/**
+ * Format a seconds value as milliseconds.
+ *
+ * @since 2.8.8
+ *
+ * @param float|null seconds Value in seconds.
+ * @return string|null
+ */
+function w3tcFormatMs( seconds ) {
+	if ( null === seconds ) {
+		return null;
+	}
+
+	return ( seconds * 1000 ).toFixed( 2 );
+}
+
+/**
  * Toggle the completion checkmark for a step.
  *
  * @since 2.0.0
@@ -225,9 +306,6 @@ function w3tc_wizard_actions( $slide ) {
 		objcacheSettings = {
 			enabled: null,
 			engine: null
-		},
-		browsercacheSettings = {
-			enabled: null
 		},
 		imageserviceSettings = {
 			enabled: null
@@ -398,57 +476,11 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
-	 * Configure Browser Cache.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param int enable Enable browser cache.
-	 * @return jqXHR
-	 */
-	function configBrowsercache( enable ) {
-		configSuccess = null;
-
-		return jQuery.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: nonce,
-				action: 'w3tc_config_browsercache',
-				enable: enable
-			}
-		})
-		.done(function( response ) {
-			configSuccess = response.data.success;
-		});
-	}
-
-	/**
-	 * Get Browser Cache settings.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return jqXHR
-	 */
-	function getBrowsercacheSettings() {
-		return jQuery.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: nonce,
-				action: 'w3tc_get_browsercache_settings'
-			}
-		})
-		.done(function( response ) {
-			browsercacheSettings = response.data;
-		});
-	}
-
-	/**
 	 * Configure Image Service.
 	 *
 	 * @since 2.3.4
 	 *
-	 * @param int enable Enable browser cache.
+	 * @param int enable Enable Image Service.
 	 * @return jqXHR
 	 */
 	function configImageservice( enable ) {
@@ -612,11 +644,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! pgcacheSettings.enabled && 'none' === engine ) ||
 							( pgcacheSettings.enabled && pgcacheSettings.engine === engine );
 
@@ -655,18 +688,33 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
-						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'pgcache-none' ).ttfb;
-							percentChange = ( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+						w3tcRecordTestResult( 'pgcache', engine, testResponse.data.ttfb );
 
-							$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, percentChange );
-							results += ' ' + changeLabel;
+						averageSeconds = w3tcGetAverageResult( 'pgcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
+
+						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
+						results += '</td><td>';
+
+						if ( null !== averageMs ) {
+							results += averageMs;
+
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'pgcache', engine );
+
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+									$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, percentChange );
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -699,7 +747,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -830,11 +878,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! dbcacheSettings.enabled && 'none' === engine ) ||
 							( dbcacheSettings.enabled && dbcacheSettings.engine === engine );
 
@@ -869,18 +918,31 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
-						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+						w3tcRecordTestResult( 'dbcache', engine, testResponse.data.elapsed );
 
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'dbc-none' ).elapsed;
-							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">'+ percentChange + '%</span>';
+						averageSeconds = w3tcGetAverageResult( 'dbcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
+						results += w3tcFormatMs( testResponse.data.elapsed );
 
-							results += ' ' + changeLabel;
+						results += '</td><td>';
+
+						if ( null !== averageMs ) {
+							results += averageMs;
+
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'dbcache', engine );
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">'+ percentChange + '%</span>';
+
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -913,7 +975,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -1058,11 +1120,12 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var baseline,
-						results = '<tr',
+					var results = '<tr',
 						percentChange,
 						changeLabelType,
 						changeLabel,
+						averageSeconds,
+						averageMs,
 						isCurrentSetting = ( ! objcacheSettings.enabled && 'none' === engine ) ||
 							( objcacheSettings.enabled && objcacheSettings.engine === engine );
 
@@ -1097,17 +1160,30 @@ function w3tc_wizard_actions( $slide ) {
 						'</label></td><td>';
 
 					if ( testResponse.success ) {
-						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
-						if ( 'none' !== engine ) {
-							baseline = $container.find( '#test-results' ).data( 'oc-none' ).elapsed;
-							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
-							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
-							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+						w3tcRecordTestResult( 'objcache', engine, testResponse.data.elapsed );
 
-							results += ' ' + changeLabel;
+						averageSeconds = w3tcGetAverageResult( 'objcache', engine );
+						averageMs = w3tcFormatMs( averageSeconds );
+						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+
+						results += '</td><td>';
+
+						if ( null !== averageMs ) {
+							results += averageMs;
+							if ( 'none' !== engine ) {
+								percentChange = w3tcGetAveragePercentChange( 'objcache', engine );
+								if ( null !== percentChange ) {
+									changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+									changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+									results += ' ' + changeLabel;
+								}
+							}
+						} else {
+							results += W3TC_SetupGuide.unavailable_text;
 						}
 					} else {
-						results += W3TC_SetupGuide.unavailable_text;
+						results += W3TC_SetupGuide.unavailable_text + '</td><td>' + W3TC_SetupGuide.unavailable_text;
 					}
 
 					results += '</td></tr>';
@@ -1140,7 +1216,7 @@ function w3tc_wizard_actions( $slide ) {
 							addResultRow( testResponse, engine, label );
 						});
 					} else {
-						addResultRow( [ success => false ], engine, label );
+						addResultRow( { success: false }, engine, label );
 					}
 				}
 
@@ -1233,7 +1309,7 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-bc1':
+		case 'w3tc-wizard-slide-io1':
 			// Save the object cache engine setting from the previous slide.
 			var $objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ),
 				objcacheEngine;
@@ -1241,173 +1317,6 @@ function w3tc_wizard_actions( $slide ) {
 			if ( $objcacheEngine.length ) {
 				objcacheEngine = $objcacheEngine.val();
 				configObjcache( ( 'none' === objcacheEngine ? 0 : 1 ), 'none' === objcacheEngine ? '' : objcacheEngine )
-					.fail( function() {
-						$slide.append(
-							'<div class="notice notice-error"><p><strong>' +
-							W3TC_SetupGuide.config_error_msg +
-							'</strong></p></div>'
-						);
-					});
-			}
-
-			// Present the Browser Cache slide.
-			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
-			$container.find( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
-
-			$slide.find( '#w3tc-test-browsercache' ).off('click').on('click', function () {
-				var bcEnabled,
-					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
-					$this = jQuery( this );
-
-				$this.prop( 'disabled', 'disabled' );
-				$slide.find( '.notice-error' ).remove();
-				$container.find( '#w3tc-browsercache-table tbody' ).empty();
-				$prevButton.prop( 'disabled', 'disabled' );
-				$nextButton.prop( 'disabled', 'disabled' );
-
-				$spinnerParent.show();
-
-				/**
-				 * Add a Browser Cache test result table row.
-				 *
-				 * @since 2.0.0
-				 *
-				 * @param object testResponse An object (success, data) containing a data array of objects
-				 * 	                          (url, filename, header, headers).
-				 */
-				function addResultRow( testResponse ) {
-					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled,
-						results = '<tr',
-						isCurrentSetting = bcEnabled == browsercacheSettings.enabled;
-
-					if ( ! configSuccess ) {
-						results += ' class="w3tc-option-disabled"';
-					}
-
-					results += '><td><input type="radio" id="browsercache-enable-' +
-						label +
-						'" name="browsercache_enable" value="' +
-						bcEnabled +
-						'"';
-
-					if ( ! configSuccess ) {
-						results += ' disabled="disabled"';
-					}
-
-					if ( isCurrentSetting ) {
-						results += ' checked';
-					}
-
-					results += '> <label for="browsercache-enable-' +
-						label +
-						'">' +
-						label +
-						'</label>';
-
-					if ( isCurrentSetting ) {
-						results += ' <span class="dashicons dashicons-admin-settings" title="Original Setting"></span>';
-					}
-
-					results += '</td>';
-
-					if ( testResponse.success ) {
-						results += '<td>';
-
-						testResponse.data.forEach( function( item, index ) {
-							results += '<a href="' +
-							item.url +
-							'">' +
-							item.filename +
-							'</a></td><td>' +
-							item.header +
-							'</td></tr>';
-
-							// If not the last entry, then start the next row.
-							if ( index !== ( testResponse.data.length - 1 ) ) {
-								results += '<tr><td></td><td>';
-							}
-						} );
-					} else {
-						results = '<td colspan="2">' +
-							W3TC_SetupGuide.test_error_msg +
-							'</td></tr>';
-					}
-
-					$container.find( '#w3tc-browsercache-table > tbody' ).append( results );
-					$container.find( '#w3tc-browsercache-table' ).show();
-				}
-
-				/**
-				 * Test browser cache.
-				 *
-				 * @since 2.0.0
-				 *
-				 * @return jqXHR
-				 */
-				function testBrowsercache() {
-					if ( configSuccess ) {
-						return jQuery.ajax({
-							method: 'POST',
-							url: ajaxurl,
-							data: {
-								_wpnonce: nonce,
-								action: 'w3tc_test_browsercache'
-							}
-						})
-						.done(function( testResponse ) {
-							var enabled = bcEnabled ? 'on' : 'off';
-
-							$container.find( '#test-results' ).data( 'bc-' + enabled, testResponse.data );
-							addResultRow( testResponse );
-						});
-					} else {
-						addResultRow( [ success => false ] );
-					}
-				}
-
-				// Run config and tests.
-				getBrowsercacheSettings()
-					.then( function() {
-						bcEnabled = 0;
-						return configBrowsercache( bcEnabled );
-					}, configFailed )
-					.then( testBrowsercache, configFailed )
-					.then( function() {
-						bcEnabled = 1;
-						return configBrowsercache( bcEnabled );
-					} , testFailed )
-					.then( testBrowsercache, configFailed )
-					.then(function() {
-						$spinnerParent.hide();
-						$this.prop( 'disabled', false );
-						$prevButton.prop( 'disabled', false );
-						$nextButton.prop( 'disabled', false );
-						return true;
-					}, testFailed )
-					.then( function() {
-						w3tc_mark_slide_tests_complete( slideId );
-						return true;
-					} )
-					// Restore the original browser cache settings.
-					.then( function() {
-						return configBrowsercache( ( browsercacheSettings.enabled ? 1 : 0 ) );
-					},
-					function() {
-						$spinnerParent.hide();
-						return configFailed();
-					});
-			});
-
-			break;
-
-		case 'w3tc-wizard-slide-io1':
-			// Save the browser cache setting from the previous slide.
-			var $browsercacheSelection = $container.find( 'input:checked[name="browsercache_enable"]' ),
-				browsercacheEnabled;
-
-			if ( $browsercacheSelection.length ) {
-				browsercacheEnabled = $browsercacheSelection.val();
-				configBrowsercache( ( '1' === browsercacheEnabled ? 1 : 0 ) )
 					.fail( function() {
 						$slide.append(
 							'<div class="notice notice-error"><p><strong>' +
@@ -1470,8 +1379,6 @@ function w3tc_wizard_actions( $slide ) {
 				dbcacheEngineLabel = $dbcacheSelection.closest('td').next('td').text() || W3TC_SetupGuide.none,
 				$objcacheSelection = $container.find( 'input:checked[name="objcache_engine"]' ),
 				objcacheEngineLabel = $objcacheSelection.closest('td').next('td').text() || W3TC_SetupGuide.none,
-				$browsercacheSelection = $container.find( 'input:checked[name="browsercache_enable"]' ),
-				browsercacheEnabled = $browsercacheSelection.length ? $browsercacheSelection.val() : '',
 				imageserviceEnabled = $container.find( 'input#imageservice-enable' ).is( ':checked' ),
 				lazyloadEnabled = $container.find( 'input#lazyload-enable' ).is( ':checked' );
 
@@ -1503,10 +1410,6 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '#w3tc-dbcache-engine' ).html( dbcacheEngineLabel );
 
 			$container.find( '#w3tc-objcache-engine' ).html( objcacheEngineLabel );
-
-			$container.find( '#w3tc-browsercache-setting' ).html(
-				1 === browsercacheEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
-			);
 
 			$container.find( '#w3tc-imageservice-setting' ).html(
 				imageserviceEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled

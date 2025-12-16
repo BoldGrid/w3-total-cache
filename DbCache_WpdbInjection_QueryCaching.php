@@ -102,9 +102,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Reject constants flag.
 	 *
-	 * @var bool
+	 * @var array
 	 */
-	private $reject_constants = false;
+	private $reject_constants = array();
 
 	/**
 	 * Use filters flag.
@@ -821,6 +821,19 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
+	 * Clears request-wide dbcache reject state so subsequent queries can be reconsidered.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function reset_reject_state() {
+		$this->cache_reject_reason               = null;
+		$this->cache_reject_request_wide         = false;
+		$this->can_cache_once_per_request_result = null;
+	}
+
+	/**
 	 * Retrieves the reject reason message for the database cache.
 	 *
 	 * @return string The reject reason message, or an empty string if no reason is set.
@@ -941,17 +954,17 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Logs a query line to the log file.
 	 *
-	 * @param string $line The query line to log.
+	 * @param array $fields The query info to log.
 	 *
 	 * @return void
 	 */
-	private function log_query( $line ) {
+	private function log_query( $fields ) {
 		if ( ! $this->log_filehandle ) {
 			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
 			$this->log_filehandle = fopen( $filename, 'a' );
 		}
 
-		fputcsv( $this->log_filehandle, $line, "\t" );
+		fputcsv( $this->log_filehandle, $fields, "\t" );
 	}
 
 	/**
