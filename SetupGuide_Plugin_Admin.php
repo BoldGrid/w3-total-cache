@@ -1374,10 +1374,6 @@ class SetupGuide_Plugin_Admin {
 					'text' => __( 'Object Cache', 'w3-total-cache' ),
 				),
 				array(
-					'id'   => 'browsercache',
-					'text' => __( 'Browser Cache', 'w3-total-cache' ),
-				),
-				array(
 					'id'   => 'imageservice',
 					'text' => __( 'Image Converter', 'w3-total-cache' ),
 				),
@@ -1571,33 +1567,6 @@ class SetupGuide_Plugin_Admin {
 							<tbody></tbody>
 						</table>',
 				),
-
-				array( // Browser Cache.
-					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
-					'id'       => 'bc1',
-					'markup'   => '<p>' .
-						esc_html__(
-							'To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn\'t have to download them again.',
-							'w3-total-cache'
-						) . '</p>
-						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
-						esc_html__(
-							'can help ensure browsers are properly caching your assets.',
-							'w3-total-cache'
-						) . '</p>
-						<p>' . sprintf(
-							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-							esc_html__(
-								'The %1$sCache-Control%2$s header tells your browser how it should cache specific files.  The %1$smax-age%2$s setting tells your browser how long, in seconds, it should use its cached version of a file before requesting an updated one.',
-								'w3-total-cache'
-							),
-							'<em>',
-							'</em>'
-						) . '</p>
-						<p>
-						<input type="checkbox" id="browsercache-enable" value="1" checked="checked" /> <label for="browsercache-enable">' .
-						esc_html__( 'Enable Browser Cache', 'w3-total-cache' ) . '</label></p>',
-				),
 				array( // Image Service.
 					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
 					'id'       => 'io1',
@@ -1684,17 +1653,6 @@ class SetupGuide_Plugin_Admin {
 								)
 							) .
 						'</p>
-						<p>' .
-						sprintf(
-							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-							esc_html__(
-								'%1$sBrowser Cache%2$s headers set for JavaScript, CSS, and images? %1$s%3$s%2$s',
-								'w3-total-cache'
-							),
-							'<strong>',
-							'</strong>',
-							'<span id="w3tc-browsercache-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
-						) . '</p>
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
