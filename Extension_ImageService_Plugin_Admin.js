@@ -121,7 +121,8 @@
 				}
 			})
 				.done( function( response ) {
-					var infoClass, downloadData, downloadHeaders, reducedPercent, filesizeIn, filesizeOut, formatKey;
+					var infoClass, downloadData, downloadHeaders, reducedPercent, filesizeIn, filesizeOut, formatKey,
+						postChildren = response.data.post_children || {};
 
 					// Remove any previous optimization information and the revert link.
 					$itemTd.find(
@@ -137,6 +138,7 @@
 							}
 
 							downloadData = response.data.downloads[ formatKey ];
+							var hasConvertedChild = postChildren.hasOwnProperty( formatKey ) && postChildren[ formatKey ];
 
 							// Skip if it's an error string.
 							if ( typeof downloadData === 'string' ) {
@@ -172,7 +174,7 @@
 							filesizeOut    = normalizedHeaders['x-filesize-out'] || null;
 
 							// Display if we have the necessary data.
-							if ( filesizeIn && filesizeOut && reducedPercent ) {
+							if ( hasConvertedChild && filesizeIn && filesizeOut && reducedPercent ) {
 								var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
 								infoClass = reducedNumeric >= 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
 
@@ -183,6 +185,13 @@
 									' &#8594; ' +
 									sizeFormat( filesizeOut ) +
 									' (' + reducedPercent + ')' +
+									'</div>'
+								);
+							} else if ( ! hasConvertedChild ) {
+								$itemTd.prepend(
+									'<div class="w3tc-notconverted">' +
+									formatKey.toUpperCase() + ': ' +
+									w3tcData.lang.notConvertedDesc +
 									'</div>'
 								);
 							}

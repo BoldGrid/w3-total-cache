@@ -740,6 +740,9 @@ class Extension_ImageService_Plugin_Admin {
 						// Show all formats that have download info, not just those with post_children.
 						// This includes formats that failed or didn't reduce size.
 						foreach ( $imageservice_data['downloads'] as $format_key => $download_data ) {
+							$has_converted_child = isset( $imageservice_data['post_children'][ $format_key ] ) &&
+								$imageservice_data['post_children'][ $format_key ];
+
 							// Skip if download_data is an error string and we don't have a post_child for it.
 							if ( is_string( $download_data ) && ( ! isset( $imageservice_data['post_children'][ $format_key ] ) || ! $imageservice_data['post_children'][ $format_key ] ) ) {
 								// Show error message for failed formats.
@@ -787,7 +790,7 @@ class Extension_ImageService_Plugin_Admin {
 									$normalized_headers['x-filesize-out'] : null;
 
 								// Display if we have the necessary data.
-								if ( $filesize_in && $filesize_out && $reduced_percent ) {
+								if ( $has_converted_child && $filesize_in && $filesize_out && $reduced_percent ) {
 									$reduced_numeric = rtrim( $reduced_percent, '%' );
 									$converted_class = (float) $reduced_numeric < 100 ? 'w3tc-converted-reduced' : 'w3tc-converted-increased';
 									?>
@@ -799,6 +802,24 @@ class Extension_ImageService_Plugin_Admin {
 										esc_html( size_format( $filesize_in ) ),
 										esc_html( size_format( $filesize_out ) ),
 										esc_html( $reduced_percent )
+									);
+									?>
+									</div>
+									<?php
+								} elseif ( ! $has_converted_child ) {
+									?>
+									<div class="w3tc-notconverted">
+									<?php
+									printf(
+										'%1$s: %2$s',
+										esc_html( strtoupper( $format_key ) ),
+										sprintf(
+											esc_html__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total-cache' ),
+											'<a target="_blank" href="' . esc_url(
+												'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice#conversion-canceled'
+											) . '">',
+											'</a>'
+										)
 									);
 									?>
 									</div>
