@@ -351,7 +351,7 @@ class NewRelicAPI {
         if ( isset( $data['applications'][0] ) ) {
             $application   = $data['applications'][0];
             $account_cache = array(
-                'id'           => isset( $application['account_id'] ) ? (int) $application['account_id'] : ( $this->account_id_cache ?? null ),
+                'id'           => isset( $application['account_id'] ) ? (int) $application['account_id'] : $this->account_id_cache,
                 'subscription' => array(
                     'product-name' => 'Standard',
                 ),
