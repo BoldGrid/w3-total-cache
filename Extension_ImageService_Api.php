@@ -131,25 +131,30 @@ class Extension_ImageService_Api {
 			$post_fields['pro_c'] = 1;
 		}
 
-		// Add mimeTypeOut parameter(s) based on settings.
+		// Add mimeTypeOut parameter(s) based on settings or options.
 		$mime_types_out = array();
 
-		// Check webp setting.
-		$webp_enabled = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
-		if ( $webp_enabled ) {
-			$mime_types_out[] = 'image/webp';
-		}
+		// If formats are specified in options, use those instead of settings.
+		if ( isset( $options['formats'] ) && is_array( $options['formats'] ) && ! empty( $options['formats'] ) ) {
+			$mime_types_out = $options['formats'];
+		} else {
+			// Check webp setting.
+			$webp_enabled = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
+			if ( $webp_enabled ) {
+				$mime_types_out[] = 'image/webp';
+			}
 
-		// Check avif setting - handle both boolean and string values, default to true if not set.
-		// Only allow AVIF for Pro license holders.
-		$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-		if ( $avif_enabled && Util_Environment::is_w3tc_pro( $config ) ) {
-			$mime_types_out[] = 'image/avif';
-		}
+			// Check avif setting - handle both boolean and string values, default to true if not set.
+			// Only allow AVIF for Pro license holders.
+			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
+			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $config ) ) {
+				$mime_types_out[] = 'image/avif';
+			}
 
-		// If no formats are selected, default to WebP for backward compatibility.
-		if ( empty( $mime_types_out ) ) {
-			$mime_types_out[] = 'image/webp';
+			// If no formats are selected, default to WebP for backward compatibility.
+			if ( empty( $mime_types_out ) ) {
+				$mime_types_out[] = 'image/webp';
+			}
 		}
 
 		foreach ( $post_fields as $k => $v ) {
@@ -159,8 +164,10 @@ class Extension_ImageService_Api {
 		}
 
 		/**
-		 * Add mimeTypeOut fields (API2 expects multiple fields with the same name).
-		 * Send each format as a separate field with array notation to ensure all values are received.
+		 * Add mimeTypeOut fields.
+		 *
+		 * `BoldGrid/w3tc-api2` expects `mimeTypeOut` as an array.
+		 * For multipart, that means sending `mimeTypeOut[]` fields.
 		 */
 		foreach ( $mime_types_out as $mime_type ) {
 			$body .= '--' . $boundary . "\r\n";

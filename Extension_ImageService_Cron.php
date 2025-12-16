@@ -136,15 +136,9 @@ class Extension_ImageService_Cron {
 						// Get mime_type from job or response.
 						$mime_type = isset( $job['mime_type'] ) ? $job['mime_type'] : ( isset( $response['mime_type'] ) ? $response['mime_type'] : 'image/webp' );
 
-						// Delete existing converted file for this format if it exists.
-						if ( isset( $post_children[ $format_key ] ) ) {
-							wp_delete_attachment( $post_children[ $format_key ], true );
-							unset( $post_children[ $format_key ] );
-						}
-
 						// Download image for this format using this job's job_id and signature.
-						// No need to pass mime_type since each job is for a specific format.
-						$download_response = $api->download( $job['job_id'], $job['signature'] );
+						// Pass mime_type_out to ensure API returns the correct format (e.g. AVIF vs WEBP).
+						$download_response = $api->download( $job['job_id'], $job['signature'], $mime_type );
 						$download_headers  = wp_remote_retrieve_headers( $download_response );
 						$is_error          = isset( $download_response['error'] );
 
@@ -180,9 +174,26 @@ class Extension_ImageService_Cron {
 						$filesize_out = isset( $headers_array['x-filesize-out'] ) ? (int) $headers_array['x-filesize-out'] : 0;
 						$is_reduced   = ! $is_error && $filesize_in > 0 && $filesize_out > 0 && $filesize_out < $filesize_in;
 
+						// Determine actual output mime type/format from headers (API may return a different output than requested).
+						$mime_type_out = isset( $headers_array['x-mime-type-out'] ) ? $headers_array['x-mime-type-out'] :
+							( isset( $headers_array['content-type'] ) ? $headers_array['content-type'] : $mime_type );
+						$format_key_out = strtolower( str_replace( 'image/', '', $mime_type_out ) );
+
+						// Delete existing converted file for the actual output format if it exists.
+						if ( isset( $post_children[ $format_key_out ] ) ) {
+							wp_delete_attachment( $post_children[ $format_key_out ], true );
+							unset( $post_children[ $format_key_out ] );
+						}
+
 						// Store download information for this format (store normalized headers).
 						// Always store download info, even if there's an error or no size reduction.
-						$downloads[ $format_key ] = $is_error ? $download_response['error'] : $headers_array;
+						$downloads[ $format_key_out ] = $is_error ? $download_response['error'] : $headers_array;
+
+						// If the job key doesn't match the actual output, remove any stale entry keyed by the job key.
+						if ( $format_key_out !== $format_key ) {
+							unset( $downloads[ $format_key ] );
+							unset( $post_children[ $format_key ] );
+						}
 
 						// Skip saving file if error or if converted image is larger, but continue to next job.
 						if ( $is_error ) {
@@ -208,7 +219,7 @@ class Extension_ImageService_Cron {
 						$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
 
 						// Save the file.
-						$extension    = $format_key;
+						$extension    = $format_key_out;
 						$new_filename = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
 						$new_filepath = $original_filedir . '/' . $new_filename;
 
@@ -222,7 +233,7 @@ class Extension_ImageService_Cron {
 						$attachment_id = wp_insert_attachment(
 							array(
 								'guid'           => $new_filepath,
-								'post_mime_type' => $mime_type,
+								'post_mime_type' => $mime_type_out,
 								'post_title'     => preg_replace( '/\.[^.]+$/', '', $new_filename ),
 								'post_content'   => '',
 								'post_status'    => 'inherit',
@@ -239,7 +250,7 @@ class Extension_ImageService_Cron {
 						Extension_ImageService_Plugin_Admin::copy_postmeta( $post_id, $attachment_id );
 
 						// Store the attachment ID for this format.
-						$post_children[ $format_key ] = $attachment_id;
+						$post_children[ $format_key_out ] = $attachment_id;
 
 						// Mark the downloaded file as the converted one.
 						Extension_ImageService_Plugin_Admin::update_postmeta(
