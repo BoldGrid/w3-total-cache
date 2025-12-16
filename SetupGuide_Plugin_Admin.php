@@ -816,7 +816,8 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'enabled' => $config->is_extension_active( 'imageservice' ),
+					'enabled'  => $config->is_extension_active( 'imageservice' ),
+					'settings' => $this->get_imageservice_settings_with_defaults( $config ),
 				)
 			);
 		} else {
@@ -825,7 +826,7 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Admin-Ajax: Configure image optimization.
+	 * Admin-Ajax: Configure image converter.
 	 *
 	 * @since 2.3.4
 	 *
@@ -843,6 +844,20 @@ class SetupGuide_Plugin_Admin {
 			$enable = ! empty( Util_Request::get_string( 'enable' ) );
 			$config = new Config();
 
+			// Merge stored values with defaults so new settings are always present.
+			$settings = $this->get_imageservice_settings_with_defaults( $config );
+
+			// Update settings from the request, defaulting to current values if absent.
+			$request_settings        = Util_Request::get_array( 'settings', array() );
+			$settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $settings['compression'];
+			$settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $settings['auto'];
+			$settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $settings['visibility'];
+			$settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $settings['webp'];
+			$settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $settings['avif'];
+
+			$config->set( 'imageservice', $settings );
+			$config->save();
+
 			if ( ! empty( $enable ) ) {
 				Extensions_Util::activate_extension( 'imageservice', $config );
 			} else {
@@ -853,14 +868,35 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'success'              => $is_enabled === $enable,
-					'enable'               => $enable,
-					'imageservice_enabled' => $is_enabled,
+					'success'               => $is_enabled === $enable,
+					'enable'                => $enable,
+					'imageservice_enabled'  => $is_enabled,
+					'imageservice_settings' => $settings,
 				)
 			);
 		} else {
 			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
+	}
+
+	/**
+	 * Provide Image Service settings merged with defaults.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param Config $config Configuration object.
+	 * @return array
+	 */
+	private function get_imageservice_settings_with_defaults( Config $config ) {
+		$defaults = array(
+			'compression' => 'lossy',
+			'auto'        => 'enabled',
+			'visibility'  => 'never',
+			'webp'        => true,
+			'avif'        => true,
+		);
+
+		return array_merge( $defaults, (array) $config->get_array( 'imageservice' ) );
 	}
 
 	/**
@@ -1506,7 +1542,7 @@ class SetupGuide_Plugin_Admin {
 						</table>',
 				),
 				array( // Image Service.
-					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
+					'headline' => __( 'Image Converter', 'w3-total-cache' ),
 					'id'       => 'io1',
 					'markup'   => '<div class="w3tc-io-description"><p>' .
 						sprintf(
@@ -1522,6 +1558,13 @@ class SetupGuide_Plugin_Admin {
 							<input type="checkbox" id="imageservice-enable" value="1" />
 							<label for="imageservice-enable">' . esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label>
 						</p>
+						<div id="imageservice-options" class="hidden">
+							<p><strong>' . esc_html__( 'Conversion types', 'w3-total-cache' ) . '</strong></p>
+							<p class="w3tc-imageservice-formats">
+								<label><input type="checkbox" id="imageservice-webp" value="1" /> ' . esc_html__( 'WebP format', 'w3-total-cache' ) . '</label><br />
+								<label><input type="checkbox" id="imageservice-avif" value="1" /> ' . esc_html__( 'AVIF format', 'w3-total-cache' ) . '</label>
+							</p>
+						</div>
 						<div class="w3tc-io-rate-grid">
 							<div class="w3tc-io-rate-card' . ( $is_pro ? '' : ' w3tc-io-rate-current' ) . '">
 								' . ( $is_pro ? '' : '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' ) . '
@@ -1651,7 +1694,7 @@ class SetupGuide_Plugin_Admin {
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
-								'%1$sImage Optimization%2$s enabled? %1$s%3$s%2$s',
+								'%1$sImage Converter%2$s enabled? %1$s%3$s%2$s',
 								'w3-total-cache'
 							),
 							'<strong>',
