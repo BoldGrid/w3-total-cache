@@ -726,46 +726,6 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Admin-Ajax: Test URL addreses for Browser Cache header.
-	 *
-	 * @since  2.0.0
-	 *
-	 * @see \W3TC\CacheFlush::browsercache_flush()
-	 * @see \W3TC\Util_Http::get_headers()
-	 */
-	public function test_browsercache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$results = array();
-			$urls    = array(
-				trailingslashit( site_url() ),
-				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
-				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
-			);
-
-			$f = Dispatcher::component( 'CacheFlush' );
-			$f->browsercache_flush();
-
-			$header_missing = esc_html__( 'Not present', 'w3-total-cache' );
-
-			foreach ( $urls as $url ) {
-				$headers       = Util_Http::get_headers( $url );
-				$headers_lower = is_array( $headers ) ? array_change_key_case( $headers, CASE_LOWER ) : array();
-
-				$results[] = array(
-					'url'      => $url,
-					'filename' => basename( $url ),
-					'header'   => empty( $headers_lower['cache-control'] ) ? $header_missing : $headers_lower['cache-control'],
-					'headers'  => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
-				);
-			}
-
-			wp_send_json_success( $results );
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
-	}
-
-	/**
 	 * Admin-Ajax: Get the browser cache settings.
 	 *
 	 * @since  2.0.0
@@ -777,17 +737,7 @@ class SetupGuide_Plugin_Admin {
 		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
-			wp_send_json_success(
-				array(
-					'enabled'             => $config->get_boolean( 'browsercache.enabled' ),
-					'cssjs.cache.control' => $config->get_boolean( 'browsercache.cssjs.cache.control' ),
-					'cssjs.cache.policy'  => $config->get_string( 'browsercache.cssjs.cache.policy' ),
-					'html.cache.control'  => $config->get_boolean( 'browsercache.html.cache.control' ),
-					'html.cache.policy'   => $config->get_string( 'browsercache.html.cache.policy' ),
-					'other.cache.control' => $config->get_boolean( 'browsercache.other.cache.control' ),
-					'other.cache.policy'  => $config->get_string( 'browsercache.other.cache.policy' ),
-				)
-			);
+			wp_send_json_success( array( 'enabled' => $config->get_boolean( 'browsercache.enabled' ) ) );
 		} else {
 			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -1370,13 +1320,6 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
-					'tag'      => 'wp_ajax_w3tc_test_browsercache',
-					'function' => array(
-						$this,
-						'test_browsercache',
-					),
-				),
-				array(
 					'tag'      => 'wp_ajax_w3tc_config_browsercache',
 					'function' => array(
 						$this,
@@ -1651,31 +1594,9 @@ class SetupGuide_Plugin_Admin {
 							'<em>',
 							'</em>'
 						) . '</p>
-						<p>' . sprintf(
-							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-							esc_html__(
-								'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s.',
-								'w3-total-cache'
-							),
-							'<em>',
-							'</em>'
-						) . '</p>
-						<input id="w3tc-test-browsercache" class="button-primary" type="button" value="' .
-						esc_html__( 'Test Browser Cache', 'w3-total-cache' ) . '">
-						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
-						</span>
-						</p>
-						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table widefat striped hidden">
-						<thead>
-						<tr>
-							<th>' . esc_html__( 'Setting', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'Cache-Control Header', 'w3-total-cache' ) . '</th>
-						</tr>
-						</thead>
-						<tbody></tbody>
-						</table>',
+						<p>
+						<input type="checkbox" id="browsercache-enable" value="1" checked="checked" /> <label for="browsercache-enable">' .
+						esc_html__( 'Enable Browser Cache', 'w3-total-cache' ) . '</label></p>',
 				),
 				array( // Image Service.
 					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
