@@ -212,6 +212,12 @@ class Util_Http {
 	 * @return array|\WP_Error Returns an array of headers or a WP_Error object on failure.
 	 */
 	public static function get_headers( $url ) {
+		/**
+		 * Add cache-busting query parameter to all URLs to ensure fresh response on every test.
+		 * This prevents cached responses from affecting test results.
+		 */
+		$url = add_query_arg( 'time', microtime( true ), $url );
+
 		$ch      = curl_init( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		$pass    = (bool) $ch;
 		$headers = array();
@@ -248,8 +254,17 @@ class Util_Http {
 					$headers['protocol']  = $http_code_arr[0];
 					$headers['status']    = $http_code_arr[1];
 				} elseif ( ! empty( $line ) && false !== strpos( $line, ':' ) ) {
-					list ( $key, $value ) = explode( ': ', $line );
-					$headers[ $key ]      = $value;
+					// Split on first colon followed by optional space to handle header values containing colons.
+					$colon_pos = strpos( $line, ':' );
+					if ( false !== $colon_pos ) {
+						$key   = substr( $line, 0, $colon_pos );
+						$value = substr( $line, $colon_pos + 1 );
+						// Trim leading space if present.
+						if ( 0 === strpos( $value, ' ' ) ) {
+							$value = substr( $value, 1 );
+						}
+						$headers[ $key ] = $value;
+					}
 				}
 			}
 		}
