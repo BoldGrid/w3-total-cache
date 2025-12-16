@@ -1086,11 +1086,10 @@ class SetupGuide_Plugin_Admin {
 	private function get_config() {
 		global $wp_version, $wpdb;
 
-		$config               = new Config();
-		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
-		$page                 = Util_Request::get_string( 'page' );
-		$state                = Dispatcher::config_state();
-		$force_master_config  = $config->get_boolean( 'common.force_master' );
+		$config              = new Config();
+		$page                = Util_Request::get_string( 'page' );
+		$state               = Dispatcher::config_state();
+		$force_master_config = $config->get_boolean( 'common.force_master' );
 
 		if ( 'w3tc_extensions' === $page ) {
 			$page = 'extensions/' . Util_Request::get_string( 'extension' );
@@ -1240,20 +1239,6 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'config_objcache',
-					),
-				),
-				array(
-					'tag'      => 'wp_ajax_w3tc_get_browsercache_settings',
-					'function' => array(
-						$this,
-						'get_browsercache_settings',
-					),
-				),
-				array(
-					'tag'      => 'wp_ajax_w3tc_config_browsercache',
-					'function' => array(
-						$this,
-						'config_browsercache',
 					),
 				),
 				array(
