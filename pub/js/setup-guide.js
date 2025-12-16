@@ -307,9 +307,6 @@ function w3tc_wizard_actions( $slide ) {
 			enabled: null,
 			engine: null
 		},
-		browsercacheSettings = {
-			enabled: null
-		},
 		imageserviceSettings = {
 			enabled: null
 		},
@@ -479,57 +476,11 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
-	 * Configure Browser Cache.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param int enable Enable browser cache.
-	 * @return jqXHR
-	 */
-	function configBrowsercache( enable ) {
-		configSuccess = null;
-
-		return jQuery.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: nonce,
-				action: 'w3tc_config_browsercache',
-				enable: enable
-			}
-		})
-		.done(function( response ) {
-			configSuccess = response.data.success;
-		});
-	}
-
-	/**
-	 * Get Browser Cache settings.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return jqXHR
-	 */
-	function getBrowsercacheSettings() {
-		return jQuery.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: nonce,
-				action: 'w3tc_get_browsercache_settings'
-			}
-		})
-		.done(function( response ) {
-			browsercacheSettings = response.data;
-		});
-	}
-
-	/**
 	 * Configure Image Service.
 	 *
 	 * @since 2.3.4
 	 *
-	 * @param int enable Enable browser cache.
+	 * @param int enable Enable Image Service.
 	 * @return jqXHR
 	 */
 	function configImageservice( enable ) {
