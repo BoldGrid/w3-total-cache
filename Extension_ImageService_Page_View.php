@@ -100,6 +100,46 @@ Util_Ui::config_item(
 		'disabled'         => false,
 	)
 );
+
+$settings = $c->get_array( 'imageservice' );
+// Default to true for webp if not set (backward compatibility).
+$webp_enabled = isset( $settings['webp'] ) ? (bool) $settings['webp'] : true;
+// Default to true for avif if not set.  We need to make sure this is true for the Pro version.
+$avif_enabled = isset( $settings['avif'] ) ? (bool) $settings['avif'] : true;
+
+Util_Ui::config_item(
+	array(
+		'key'            => array(
+			'imageservice',
+			'webp',
+		),
+		'label'          => esc_html__( 'Output formats:', 'w3-total-cache' ),
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'WebP', 'w3-total-cache' ),
+		'value'          => $webp_enabled,
+		'description'    => esc_html__( 'Convert images to WebP format.', 'w3-total-cache' ),
+		'disabled'       => false,
+	)
+);
+
+Util_Ui::config_item_pro(
+	array(
+		'key'            => array(
+			'imageservice',
+			'avif',
+		),
+		'label'          => ' ',
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
+		'value'          => $avif_enabled,
+		'disabled'       => ! $is_pro,
+		'excerpt'        => esc_html__( 'Convert images to AVIF format for even better compression and performance.', 'w3-total-cache' ),
+		'description'    => array(
+			esc_html__( 'AVIF (AV1 Image File Format) is a modern image format that provides superior compression compared to WebP and traditional formats like JPEG and PNG. With AVIF conversion, you can achieve significantly smaller file sizes while maintaining high image quality, resulting in faster page load times and improved user experience.', 'w3-total-cache' ),
+		),
+		'wrap_separate'  => true,
+	)
+);
 ?>
 	</table>
 

@@ -114,6 +114,17 @@ class Cache_Memcached extends Cache_Base {
 
 		foreach ( (array) $config['servers'] as $server ) {
 			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
+
+			// For unix sockets, php-memcached expects the socket path as host and port 0.
+			// Users may configure servers like "unix:/var/run/memcached/memcached.sock".
+			if ( 0 === (int) $port && ( 0 === strpos( $ip, 'unix:' ) || false !== strpos( $ip, '/' ) ) ) {
+				$ip = preg_replace( '#^unix:(/*)#', '/', $ip );
+				if ( '/' !== substr( $ip, 0, 1 ) ) {
+					$ip = '/' . $ip;
+				}
+				$port = 0;
+			}
+
 			$this->_memcache->addServer( $ip, $port );
 		}
 
