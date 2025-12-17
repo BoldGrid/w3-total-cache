@@ -240,6 +240,17 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	}
 
 	/**
+	 * Returns the array of dbcache processors attached to this wpdb wrapper.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public function get_processors() {
+		return $this->processors;
+	}
+
+	/**
 	 * Replaces data in a specified table.
 	 *
 	 * @param string     $table  The table name to replace data in.

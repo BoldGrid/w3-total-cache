@@ -140,13 +140,22 @@ class DbCache_Plugin {
 
 		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
 			$interval                        = $c->get_integer( 'dbcache.file.gc' );
+			$display                         = \sprintf(
+				'[W3TC] Database Cache file GC (every %d seconds)',
+				$interval
+			);
+
+			if ( \function_exists( 'did_action' ) && \did_action( 'init' ) ) {
+				$display = \sprintf(
+					// translators: 1 interval in seconds.
+					\__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
+				);
+			}
+
 			$schedules['w3_dbcache_cleanup'] = array(
 				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
+				'display'  => $display,
 			);
 		}
 
@@ -256,12 +265,16 @@ class DbCache_Plugin {
 	 * @return array Modified admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
+		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 		$menu_items['20310.dbcache'] = array(
 			'id'     => 'w3tc_flush_dbcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Database', 'w3-total-cache' ),
 			'href'   => wp_nonce_url(
-				admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_dbcache' ),
+				admin_url(
+					'admin.php?page=' . $current_page . '&amp;w3tc_flush_dbcache'
+				),
 				'w3tc'
 			),
 		);

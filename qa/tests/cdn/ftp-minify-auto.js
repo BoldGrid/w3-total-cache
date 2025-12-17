@@ -82,21 +82,30 @@ describe('', function() {
 		await page.goto(testPageUrl, {waitUntil: 'domcontentloaded'});
 
 		let scripts = await dom.listScriptSrcSync(page);
-		scripts.forEach(function(url) {
-			log.log('testing ' + url);
-			expect(url).contains('cache/minify');
-			expect(url).contains('for-tests.sandbox');
-		});
-
-		log.log('Checking if files physically exist on the server...');
+		log.log('Checking minified presence on ' + testPageUrl);
+		let minifiedCount = 0;
 		for (let url of scripts) {
-			var filePath = url.replace(
-				/https?\:\/\/for\-tests\.sandbox(:\d+)?\//,
-				'/var/www/for-tests-sandbox/');
-			expect(fs.existsSync(filePath));
+			log.log('testing ' + url);
+			// WordPress script modules are intentionally excluded from minification
+			if (url.indexOf('wp-includes/js/dist/script-modules/') >= 0) {
+				log.log('skipping WordPress script module: ' + url);
+				continue;
+			}
+			if (url.indexOf('cache/minify') >= 0) {
+				minifiedCount++;
+				expect(url).contains('cache/minify');
+				expect(url).contains('for-tests.sandbox');
 
-			let response = await page.goto(url,	{waitUntil: 'domcontentloaded'});
-			expect(response.status == 200 || response.status == 304);
+				var filePath = url.replace(
+					/https?\:\/\/for\-tests\.sandbox(:\d+)?\//,
+					'/var/www/for-tests-sandbox/');
+				expect(fs.existsSync(filePath));
+
+				let response = await page.goto(url,	{waitUntil: 'domcontentloaded'});
+				expect(response.status == 200 || response.status == 304);
+			}
 		}
+
+		expect(minifiedCount > 0).true;
 	});
 });

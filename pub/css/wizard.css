@@ -77,6 +77,7 @@ ul#w3tc-options-menu {
     margin: 0;
     border: 1px solid #ddd;
     border-bottom: 0;
+    cursor: pointer;
 }
 
 #w3tc-options-menu li:last-of-type {
@@ -86,11 +87,14 @@ ul#w3tc-options-menu {
 
 /* Active step */
 
+#w3tc-options-menu li:hover {
+    background-color: #f0f0f1;
+}
+
 #w3tc-options-menu li.is-active {
     background-color: #0073aa;
     color: #fff;
 }
-
 
 /* Wizard content */
 
@@ -100,7 +104,7 @@ ul#w3tc-options-menu {
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, bottom right;
     background-size: auto, auto 60%;
-    min-height: 545px;
+    min-height: 575px;
     padding-right: 160px;
     position: relative;
 }
@@ -145,7 +149,19 @@ ul#w3tc-options-menu {
 
 #w3tc-wizard-next:enabled,
 #w3tc-wizard-dashboard {
-    background-color: #825772;
+    background-color: #2271b1;
+    color: #fff;
+    text-shadow: none;
+}
+
+#w3tc-wizard-next:enabled:hover,
+#w3tc-wizard-dashboard:hover {
+    background-color: #135e96;
+    color: #fff;
+}
+
+#w3tc-wizard-next:disabled {
+    background-color: #72aee6;
     color: #fff;
 }
 
@@ -196,4 +212,78 @@ ul#w3tc-options-menu {
 .widefat thead th,
 .widefat td {
     line-height: 1em;
+}
+
+/* Image optimization slide */
+
+.w3tc-io-description {
+    margin-bottom: 10px;
+}
+
+#w3tc-io-learn-more {
+    font-weight: 600;
+}
+
+.w3tc-io-rate-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 35px 0 12px;
+}
+
+.w3tc-io-rate-card {
+    flex: 1 1 200px;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    background: #f7f7f7;
+    padding: 12px;
+    position: relative;
+}
+
+.w3tc-io-rate-pro {
+    background: #f0f8ff;
+    border-color: #0073aa;
+}
+
+.w3tc-io-rate-current {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.1);
+}
+
+.w3tc-io-rate-badge {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: #2271b1;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.w3tc-io-rate-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.w3tc-io-rate {
+    display: block;
+    color: #1d2327;
+    font-size: 13px;
+}
+
+.w3tc-io-upsell {
+    margin: 12px 0;
+    padding: 12px 12px 12px 60px;
+}
+
+.w3tc-gopro-manual-wrap .w3tc-gopro {
+    padding-right: 170px !important;
+}
+
+.w3tc-gopro-manual-wrap .w3tc-gopro::after {
+    width: 203px !important;
+    height: 110px !important;
 }

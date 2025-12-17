@@ -173,7 +173,7 @@ class Licensing_Plugin_Admin {
 			$messages = array();
 
 			// If the old key was deactivated, add a message.
-			if ( isset( $deactivate_result ) ) {
+			if ( isset( $deactivate_result ) && ! empty( $deactivate_result->license_status ) ) {
 				$status = $deactivate_result->license_status;
 
 				switch ( true ) {
@@ -200,7 +200,12 @@ class Licensing_Plugin_Admin {
 
 					case ( strpos( $status, 'invalid' ) === 0 ):
 						$messages[] = array(
-							'message' => __( 'Your previous W3 Total Cache Pro license key is invalid and cannot be deactivated.', 'w3-total-cache' ),
+							'message' => sprintf(
+								// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+								__( 'Your previous W3 Total Cache Pro license key is invalid and cannot be deactivated. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+								'</a>'
+							),
 							'type'    => 'error',
 						);
 						break;
@@ -364,7 +369,12 @@ class Licensing_Plugin_Admin {
 				break;
 
 			default:
-				$message = __( 'The W3 Total Cache license key cannot be verified.', 'w3-total-cache' );
+				$message = sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					__( 'The W3 Total Cache license key cannot be verified. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				);
 				break;
 		}
 

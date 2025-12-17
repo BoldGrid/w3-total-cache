@@ -92,9 +92,13 @@ describe('', function() {
 
 	it('check css postfixes - excluded by *.css mask', async() => {
 		let linkHrefs = await dom.listLinkCssHref(page);
-		linkHrefs.forEach(function(url) {
-			log.log('testing ' + url);
-			expect(url).not.contains(bcVersion);
-		});
+		if (linkHrefs.length > 0) {
+			linkHrefs.forEach(function(url) {
+				log.log('testing ' + url);
+				expect(url).not.contains(bcVersion);
+			});
+		} else {
+			log.log('no CSS files found on page - skipping CSS postfix check');
+		}
 	});
 });

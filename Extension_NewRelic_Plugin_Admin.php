@@ -101,7 +101,7 @@ class Extension_NewRelic_Plugin_Admin {
 	public function w3tc_admin_menu( $menu ) {
 		$c               = Dispatcher::config();
 		$monitoring_type = $c->get_string( array( 'newrelic', 'monitoring_type' ) );
-		if ( 'amp' === $monitoring_type ) {
+		if ( 'apm' === $monitoring_type ) {
 			$menu['w3tc_monitoring'] = array(
 				'page_title'     => __( 'Monitoring', 'w3-total-cache' ),
 				'menu_text'      => __( 'Monitoring', 'w3-total-cache' ),
@@ -135,7 +135,7 @@ class Extension_NewRelic_Plugin_Admin {
 	public function w3tc_extension_plugin_links( $links ) {
 		$links   = array();
 		$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) .
-			'">' . __( 'Settings' ) . '</a>';
+			'">' . __( 'Settings', 'w3-total-cache' ) . '</a>';
 
 		return $links;
 	}

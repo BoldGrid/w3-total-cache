@@ -32,7 +32,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<option value="activate-selected"><?php esc_html_e( 'Activate', 'w3-total-cache' ); ?></option>
 				<option value="deactivate-selected"><?php esc_html_e( 'Deactivate', 'w3-total-cache' ); ?></option>
 			</select>
-			<input type="submit" name="" id="doaction" class="w3tc-button-save button action" value="<?php esc_attr_e( 'Apply' ); ?>">
+			<input type="submit" name="" id="doaction" class="w3tc-button-save button action" value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>">
 		</div>
 	<?php endif ?>
 
@@ -45,7 +45,8 @@ if ( ! defined( 'W3TC' ) ) {
 						// translators: 1 count of extensions.
 						_n_noop(
 							'%s extension',
-							'%s extensions'
+							'%s extensions',
+							'w3-total-cache'
 						),
 						count( $extensions ),
 						'w3-total-cache'
@@ -129,7 +130,7 @@ if ( ! defined( 'W3TC' ) ) {
 								<?php echo $links ? ' | ' : ''; ?>
 								<span class="deactivate">
 									<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=deactivate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Deactivate this extension', 'w3-total-cache' ); ?> ">
-										<?php esc_html_e( 'Deactivate' ); ?>
+										<?php esc_html_e( 'Deactivate', 'w3-total-cache' ); ?>
 									</a>
 								</span>
 							<?php endif ?>
@@ -138,7 +139,7 @@ if ( ! defined( 'W3TC' ) ) {
 								<?php if ( $meta['enabled'] ) : ?>
 									<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
 										<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=activate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Activate this extension', 'w3-total-cache' ); ?> ">
-											<?php esc_html_e( 'Activate' ); ?>
+											<?php esc_html_e( 'Activate', 'w3-total-cache' ); ?>
 										</a>
 									<?php endif ?>
 								<?php else : ?>
@@ -250,7 +251,8 @@ if ( ! defined( 'W3TC' ) ) {
 						// translators: 1 count of extensions.
 						_n_noop(
 							'%s extension',
-							'%s extensions'
+							'%s extensions',
+							'w3-total-cache'
 						),
 						count( $extensions ),
 						'w3-total-cache'

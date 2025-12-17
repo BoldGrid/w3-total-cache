@@ -1533,6 +1533,15 @@ class Util_Ui {
 					'</p>'
 				),
 				array(
+					'a'       => array(
+						'href'   => array(),
+						'title'  => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'span'    => array(
+						'class' => array(),
+					),
 					'p'       => array(
 						'class' => array(),
 					),
@@ -2248,7 +2257,7 @@ class Util_Ui {
 						),
 						array(
 							'id'   => 'image_service',
-							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+							'text' => esc_html__( 'Image Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',
