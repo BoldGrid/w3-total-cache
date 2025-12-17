@@ -690,8 +690,9 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 				break;
 
 			case 'w3tc-wizard-slide-io1':
-				var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val();
-				configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ) )
+				var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val(),
+					imageserviceSettings = getImageserviceFormSettings();
+				configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ), imageserviceSettings )
 					.fail( function() {
 						$slide.append(
 							'<div class="notice notice-error"><p><strong>' +
