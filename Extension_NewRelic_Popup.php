@@ -176,6 +176,7 @@ class Extension_NewRelic_Popup {
 			)
 		);
 
-		echo 'Location ' . esc_url( 'admin.php?page=w3tc_general&' . $postfix );
+		wp_redirect( esc_url( 'admin.php?page=w3tc_general&' . $postfix ) );
+		exit;
 	}
 }
