@@ -24,9 +24,33 @@ if ( ! defined( 'W3TC' ) ) {
 		$has_apps    = $has_apm || $has_browser;
 
 		$selected_type = $details['monitoring_type'];
-		$apm_selected  = ( 'apm' === $selected_type && ! empty( $details['apm.application_name'] ) );
-		$br_selected   = ( 'browser' === $selected_type && ! empty( $details['browser.application_id'] ) );
-		$can_apply     = $has_apps && ( $apm_selected || $br_selected );
+
+		// If nothing is selected yet (fresh setup), default to the only available type.
+		if ( empty( $selected_type ) ) {
+			if ( $has_apm && ! $has_browser ) {
+				$selected_type = 'apm';
+			} elseif ( $has_browser && ! $has_apm ) {
+				$selected_type = 'browser';
+			}
+		}
+
+		// If a type is selected but no specific app is saved yet, default to the first available option.
+		$apm_application_name = $details['apm.application_name'];
+		if ( 'apm' === $selected_type && empty( $apm_application_name ) && $has_apm ) {
+			$apm_application_name = (string) reset( $details['apm_applications'] );
+		}
+
+		$browser_application_id = $details['browser.application_id'];
+		if ( 'browser' === $selected_type && empty( $browser_application_id ) && $has_browser ) {
+			$first = reset( $details['browser_applications'] );
+			if ( is_array( $first ) && isset( $first['id'] ) ) {
+				$browser_application_id = (string) $first['id'];
+			}
+		}
+
+		$apm_selected = ( 'apm' === $selected_type && ! empty( $apm_application_name ) );
+		$br_selected  = ( 'browser' === $selected_type && ! empty( $browser_application_id ) );
+		$can_apply    = $has_apps && ( $apm_selected || $br_selected );
 		?>
 		<table class="form-table">
 			<?php if ( ! empty( $details['apm_applications'] ) ) : ?>
@@ -34,14 +58,14 @@ if ( ! defined( 'W3TC' ) ) {
 				<td>
 					<label>
 						<input name="monitoring_type" type="radio" value="apm"
-							<?php checked( $details['monitoring_type'], 'apm' ); ?> />
+							<?php checked( $selected_type, 'apm' ); ?> />
 						APM application (uses NewRelic PHP module)
 					</label><br />
 					<select name="apm_application_name" class="w3tcnr_apm">
 						<?php
 						foreach ( $details['apm_applications'] as $a ) {
 							echo '<option ';
-							selected( $a, $details['apm.application_name'] );
+							selected( $a, $apm_application_name );
 							echo '>' . esc_html( $a ) . '</option>';
 						}
 						?>
@@ -65,7 +89,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<td>
 					<label>
 						<input name="monitoring_type" type="radio" value="browser"
-							<?php checked( $details['monitoring_type'], 'browser' ); ?>
+							<?php checked( $selected_type, 'browser' ); ?>
 							<?php disabled( $details['browser_disabled'] ); ?> />
 						Standalone Browser
 						<?php
@@ -78,7 +102,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<?php
 						foreach ( $details['browser_applications'] as $a ) {
 							echo '<option value="' . esc_attr( $a['id'] ) . '" ';
-							selected( $a['id'], $details['browser.application_id'] );
+							selected( $a['id'], $browser_application_id );
 							echo '>' . esc_html( $a['name'] ) . '</option>';
 						}
 						?>
