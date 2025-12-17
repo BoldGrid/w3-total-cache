@@ -207,8 +207,8 @@ class ObjectCache_WpObjectCache_Regular {
 			$value = $this->cache[ $key ];
 		} elseif (
 			$this->_caching
-				&& ! in_array( $group, $this->nonpersistent_groups, true )
-				&& $this->_check_can_cache_runtime( $group )
+			&& ! in_array( $group, $this->nonpersistent_groups, true )
+			&& $this->_check_can_cache_runtime( $group )
 		) {
 			$cache = $this->_get_cache( null, $group );
 			$v     = $cache->get( $key, $group );
@@ -320,13 +320,84 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return array An associative array of cached objects, indexed by cache key.
 	 */
 	public function get_multiple( $ids, $group = 'default', $force = false ) {
-		$found_cache = array();
-
-		foreach ( $ids as $id ) {
-			$found_cache[ $id ] = $this->get( $id, $group, $force );
+		if ( empty( $ids ) ) {
+			return array();
 		}
 
-		return $found_cache;
+		if ( empty( $group ) ) {
+			$group = 'default';
+		}
+
+		$results          = array();
+		$runtime_misses   = array();
+		$cache_total_inc  = 0;
+		$cache_hits_inc   = 0;
+		$time_start_debug = ( $this->_debug || $this->stats_enabled ) ? Util_Debug::microtime() : 0;
+
+		// First satisfy anything already in the in-request cache unless $force is true.
+		foreach ( $ids as $id ) {
+			$key = $this->_get_cache_key( $id, $group );
+			if ( ! $force && isset( $this->cache[ $key ] ) ) {
+				$results[ $id ] = $this->cache[ $key ];
+				$cache_hits_inc++;
+				continue;
+			}
+			$runtime_misses[ $id ] = $key;
+		}
+
+		// Attempt a batched persistent fetch for the remaining keys when allowed.
+		if (
+			! empty( $runtime_misses ) &&
+			$this->_caching &&
+			! in_array( $group, $this->nonpersistent_groups, true ) &&
+			$this->_check_can_cache_runtime( $group )
+		) {
+			$cache      = $this->_get_cache( null, $group );
+			$storageMap = $runtime_misses;
+			$raw_values = array();
+
+			if ( method_exists( $cache, 'get_multi' ) ) {
+				$raw_values = $cache->get_multi( array_values( $storageMap ), $group );
+			} else {
+				foreach ( $storageMap as $storage_key ) {
+					$raw_values[ $storage_key ] = $cache->get( $storage_key, $group );
+				}
+			}
+
+			foreach ( $runtime_misses as $id => $storage_key ) {
+				$cache_total_inc++;
+				$v = isset( $raw_values[ $storage_key ] ) ? $raw_values[ $storage_key ] : null;
+
+				if (
+					is_array( $v ) &&
+					isset( $v['content'] ) &&
+					isset( $v['key_version_all'] ) &&
+					intval( $v['key_version_all'] ) >= $this->key_version_all_get()
+				) {
+					$results[ $id ]           = $v['content'];
+					$this->cache[ $storage_key ] = $v['content'];
+					$cache_hits_inc++;
+				} else {
+					$results[ $id ] = false;
+				}
+			}
+		} else {
+			// Not eligible for persistent fetch; fall back to per-key get() honoring $force.
+			foreach ( $runtime_misses as $id => $unused_key ) {
+				$results[ $id ] = $this->get( $id, $group, $force );
+			}
+		}
+
+		// Add debug info.
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start_debug;
+
+			$this->cache_total += $cache_total_inc;
+			$this->cache_hits  += $cache_hits_inc;
+			$this->time_total  += $time;
+		}
+
+		return $results;
 	}
 
 	/**
@@ -436,18 +507,95 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $data   An associative array of data to cache, indexed by cache key.
+	 * @param array  $items  An associative array of data to cache, indexed by cache key.
 	 * @param string $group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return array An associative array of cache set results, indexed by cache key.
 	 */
-	public function set_multiple( array $data, $group = '', $expire = 0 ) {
-		$values = array();
-		foreach ( $data as $key => $value ) {
-			$values[ $key ] = $this->set( $key, $value, $group, $expire );
+	public function set_multiple( array $items, $group = '', $expire = 0 ) {
+		if ( empty( $group ) ) {
+			$group = 'default';
 		}
-		return $values;
+
+		if ( empty( $items ) ) {
+			return array();
+		}
+
+		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
+		if ( $this->is_wpcli_disk() ) {
+			return array_fill_keys( array_keys( $items ), false );
+		}
+
+		$results            = array();
+		$payload            = array();
+		$cache_key_to_id    = array();
+		$cache_sets_inc     = 0;
+		$time_start_debug   = ( $this->_debug || $this->stats_enabled ) ? Util_Debug::microtime() : 0;
+		$key_version_all    = $this->key_version_all_get();
+		$persistent_allowed = (
+			$this->_caching &&
+			! in_array( $group, $this->nonpersistent_groups, true ) &&
+			$this->_check_can_cache_runtime( $group )
+		);
+
+		foreach ( $items as $id => $value ) {
+			$cache_key = $this->_get_cache_key( $id, $group );
+			$stored    = $value;
+
+			$cache_key_to_id[ $cache_key ] = $id;
+			if ( is_object( $stored ) ) {
+				$stored = clone $stored;
+			}
+
+			$this->cache[ $cache_key ] = $stored;
+			$results[ $id ]            = true;
+
+			if ( $persistent_allowed ) {
+				$stored_content = $stored;
+
+				if ( 'alloptions' === $id && 'options' === $group ) {
+					foreach ( $stored_content as $k => $v ) {
+						if ( is_object( $v ) ) {
+							$stored_content[ $k ] = serialize( $v ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						}
+					}
+				}
+
+				$payload[ $cache_key ] = array(
+					'content'         => $stored_content,
+					'key_version_all' => $key_version_all,
+				);
+			}
+		}
+
+		if ( $persistent_allowed && ! empty( $payload ) ) {
+			$cache   = $this->_get_cache( null, $group );
+			$results = $this->set_multiple_to_cache(
+				$cache,
+				$payload,
+				$results,
+				$cache_key_to_id,
+				$group,
+				( $expire ? $expire : $this->_lifetime )
+			);
+			$cache_sets_inc = count( $payload );
+		}
+
+		if ( $this->_is_transient_group( $group ) &&
+			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
+			foreach ( $items as $id => $value ) {
+				$this->_transient_fallback_set( $id, $value, $group, $expire );
+			}
+		}
+
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start_debug;
+			$this->cache_sets += $cache_sets_inc;
+			$this->time_total += $time;
+		}
+
+		return $results;
 	}
 
 	/**
@@ -1044,6 +1192,38 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
+	 * Persist multiple cache entries using the most efficient method available.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $cache           Cache engine instance.
+	 * @param array  $payload         Map of cache_key => structured payload.
+	 * @param array  $results         Current result map keyed by original IDs.
+	 * @param array  $cache_key_to_id Map of cache_key => original ID.
+	 * @param string $group           Cache group.
+	 * @param int    $expire          Expiration.
+	 *
+	 * @return array Updated result map keyed by original IDs.
+	 */
+	private function set_multiple_to_cache( $cache, array $payload, array $results, array $cache_key_to_id, $group, $expire ) {
+		if ( method_exists( $cache, 'set_multi' ) ) {
+			$response = $cache->set_multi( $payload, $group, $expire );
+
+			foreach ( $payload as $cache_key => $_ ) {
+				$id             = isset( $cache_key_to_id[ $cache_key ] ) ? $cache_key_to_id[ $cache_key ] : $cache_key;
+				$results[ $id ] = is_array( $response ) ? (bool) ( $response[ $cache_key ] ?? false ) : (bool) $response;
+			}
+		} else {
+			foreach ( $payload as $cache_key => $value ) {
+				$id             = isset( $cache_key_to_id[ $cache_key ] ) ? $cache_key_to_id[ $cache_key ] : $cache_key;
+				$results[ $id ] = $cache->set( $cache_key, $value, $expire, $group );
+			}
+		}
+
+		return $results;
+	}
+
+	/**
 	 * Retrieves the cache configuration for usage statistics.
 	 *
 	 * @return array The cache configuration.
@@ -1266,7 +1446,6 @@ class ObjectCache_WpObjectCache_Regular {
 		$storage->counter_add( 'objectcache_flushes', $this->cache_flushes );
 		$storage->counter_add( 'objectcache_time_ms', (int) ( $this->time_total * 1000 ) );
 	}
-
 
 	/**
 	 * Retrieves the reason why the cache is being rejected.
