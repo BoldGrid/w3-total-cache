@@ -182,10 +182,7 @@ class Util_Http {
 				'Pragma: no-cache',
 			);
 
-			$qs_arr = explode( '&', wp_parse_url( $url, PHP_URL_QUERY ) );
-			array_push( $qs_arr, 'time=' . microtime( true ) );
-
-			$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
+			$opts[ CURLOPT_URL ] = add_query_arg( 'time', microtime( true ), $url );
 		}
 
 		if ( $ch ) {
@@ -205,63 +202,6 @@ class Util_Http {
 		}
 
 		return $ttfb;
-	}
-
-	/**
-	 * Get headers from a URL.
-	 *
-	 * @param string $url URL to fetch headers from.
-	 *
-	 * @return array|\WP_Error Returns an array of headers or a WP_Error object on failure.
-	 */
-	public static function get_headers( $url ) {
-		$ch      = curl_init( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-		$pass    = (bool) $ch;
-		$headers = array();
-		$opts    = array(
-			CURLOPT_FORBID_REUSE   => 1,
-			CURLOPT_FRESH_CONNECT  => 1,
-			CURLOPT_HEADER         => 1,
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_FOLLOWLOCATION => 1,
-			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
-			CURLOPT_HTTPHEADER     => array(
-				'Cache-Control: no-cache',
-				'Pragma: no-cache',
-			),
-		);
-
-		if ( $pass ) {
-			$pass = curl_setopt_array( $ch, $opts ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-		}
-
-		if ( $pass ) {
-			$response = curl_exec( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-		}
-
-		if ( $response ) {
-			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-			$header      = substr( $response, 0, $header_size );
-
-			foreach ( explode( "\r\n", $header ) as $index => $line ) {
-				if ( 0 === $index ) {
-					$headers['http_code'] = $line;
-					$http_code_arr        = explode( ' ', $line );
-					$headers['protocol']  = $http_code_arr[0];
-					$headers['status']    = $http_code_arr[1];
-				} elseif ( ! empty( $line ) && false !== strpos( $line, ':' ) ) {
-					list ( $key, $value ) = explode( ': ', $line );
-					$headers[ $key ]      = $value;
-				}
-			}
-		}
-
-		if ( $ch ) {
-			curl_close( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-		}
-
-		return $headers;
 	}
 
 	/**

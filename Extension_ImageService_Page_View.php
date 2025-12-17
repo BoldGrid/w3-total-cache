@@ -26,7 +26,7 @@ $usage  = Extension_ImageService_Plugin::get_api()->get_usage();
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
 <p>
-	Total Cache WebP Converter is currently
+	Total Cache Image Converter is currently
 <?php
 if ( $c->is_extension_active( 'imageservice' ) ) {
 	?>
@@ -100,6 +100,46 @@ Util_Ui::config_item(
 		'disabled'         => false,
 	)
 );
+
+$settings = $c->get_array( 'imageservice' );
+// Default to true for webp if not set (backward compatibility).
+$webp_enabled = isset( $settings['webp'] ) ? (bool) $settings['webp'] : true;
+// Default to true for avif if not set.  We need to make sure this is true for the Pro version.
+$avif_enabled = isset( $settings['avif'] ) ? (bool) $settings['avif'] : true;
+
+Util_Ui::config_item(
+	array(
+		'key'            => array(
+			'imageservice',
+			'webp',
+		),
+		'label'          => esc_html__( 'Output formats:', 'w3-total-cache' ),
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'WebP', 'w3-total-cache' ),
+		'value'          => $webp_enabled,
+		'description'    => esc_html__( 'Convert images to WebP format.', 'w3-total-cache' ),
+		'disabled'       => false,
+	)
+);
+
+Util_Ui::config_item_pro(
+	array(
+		'key'            => array(
+			'imageservice',
+			'avif',
+		),
+		'label'          => ' ',
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
+		'value'          => $avif_enabled,
+		'disabled'       => ! $is_pro,
+		'excerpt'        => esc_html__( 'Convert images to AVIF format for even better compression and performance.', 'w3-total-cache' ),
+		'description'    => array(
+			esc_html__( 'AVIF (AV1 Image File Format) is a modern image format that provides superior compression compared to WebP and traditional formats like JPEG and PNG. With AVIF conversion, you can achieve significantly smaller file sizes while maintaining high image quality, resulting in faster page load times and improved user experience.', 'w3-total-cache' ),
+		),
+		'wrap_separate'  => true,
+	)
+);
 ?>
 	</table>
 
@@ -136,7 +176,7 @@ if ( ! $is_pro ) {
 			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'+9',
 			__( 'Points', 'w3-total-cache' ),
-			__( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			__( 'In one recent test, converting images to modern formats like WebP or AVIF added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
 			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof'
 		);
 		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
@@ -227,7 +267,7 @@ Util_Ui::postbox_header(
 			</td>
 		</tr>
 		<tr>
-			<th><?php esc_html_e( 'WebP Converter API usage:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Image Converter API usage:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-usage">
 					<tr>
