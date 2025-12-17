@@ -10,7 +10,7 @@
 
 (function( $ ) {
 	var isCheckingItems = false,
-		$convertLinks = $( 'a.w3tc-convert' ),
+		$convertLinks = $( 'a.w3tc-convert, a.w3tc-convert-format' ),
 		$unconvertLinks = $( '.w3tc-revert > a' ),
 		$convertAllButton = $( 'th.w3tc-imageservice-all' ).parent().find( 'td button' ),
 		$revertAllButton = $( 'th.w3tc-imageservice-revertall' ).parent().find( 'td button' ),
@@ -121,35 +121,176 @@
 				}
 			})
 				.done( function( response ) {
-					var infoClass;
+					var infoClass, downloadData, downloadHeaders, reducedPercent, filesizeIn, filesizeOut, formatKey, i;
 
 					// Remove any previous optimization information and the revert link.
 					$itemTd.find(
-						'.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert'
+						'.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert, .w3tc-converted-error'
 					).remove();
 
-					// Add optimization information.
-					if ( 'notconverted' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
-						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
-							'w3tc-converted-increased' : 'w3tc-converted-reduced';
+					// Handle multiple formats (new structure).
+					if ( 'notconverted' !== response.data.status && response.data.downloads && typeof response.data.downloads === 'object' ) {
+						// Sort formats to maintain order: WEBP first, then AVIF.
+						var sortedFormats = Object.keys( response.data.downloads ).sort( function( a, b ) {
+							var order = { 'webp': 1, 'avif': 2 };
+							var aOrder = order[ a ] || 99;
+							var bOrder = order[ b ] || 99;
+							return aOrder - bOrder;
+						});
 
-						$itemTd.prepend(
-							'<div class="' +
-							infoClass +
-							'">' +
-							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-in'] ) +
-							' &#8594; ' +
-							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-out'] ) +
-							' (' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-							')</div>'
-						);
+						// Iterate through all formats in reverse order since prepend() adds to the beginning.
+						// This ensures WEBP appears first, then AVIF.
+						for ( i = sortedFormats.length - 1; i >= 0; i-- ) {
+							formatKey = sortedFormats[ i ];
+							downloadData = response.data.downloads[ formatKey ];
+
+							// Skip if it's an error string.
+							if ( typeof downloadData === 'string' ) {
+								// Show error message for failed formats.
+								$itemTd.prepend(
+									'<div class="w3tc-converted-error">' +
+									formatKey.toUpperCase() + ': ' + downloadData +
+									'</div>'
+								);
+								continue;
+							}
+
+							if ( typeof downloadData !== 'object' || ! downloadData ) {
+								continue;
+							}
+
+							// Extract headers - handle both normalized format and old format.
+							downloadHeaders = downloadData;
+							if ( downloadData["\u0000*\u0000data"] ) {
+								downloadHeaders = downloadData["\u0000*\u0000data"];
+							}
+
+							// Normalize header keys to lowercase for case-insensitive access.
+							var normalizedHeaders = {};
+							for ( var key in downloadHeaders ) {
+								if ( downloadHeaders.hasOwnProperty( key ) && key.charAt( 0 ) !== '\u0000' ) {
+									normalizedHeaders[ key.toLowerCase() ] = downloadHeaders[ key ];
+								}
+							}
+
+							reducedPercent = normalizedHeaders['x-filesize-reduced'] || null;
+							filesizeIn     = normalizedHeaders['x-filesize-in'] || null;
+							filesizeOut    = normalizedHeaders['x-filesize-out'] || null;
+
+							// Check if this format was actually converted (exists in post_children).
+							var postChildren = response.data.post_children || {};
+							var wasConverted = postChildren[ formatKey ] && postChildren[ formatKey ] !== null && postChildren[ formatKey ] !== '';
+
+							// If not converted, show "not converted" message instead of statistics.
+							if ( ! wasConverted ) {
+								$itemTd.prepend(
+									'<div class="w3tc-notconverted">' +
+									formatKey.toUpperCase() + ': ' +
+									w3tcData.lang.notConverted +
+									'</div>'
+								);
+								continue;
+							}
+
+							// Display if we have the necessary data and the format was converted.
+							if ( filesizeIn && filesizeOut && reducedPercent ) {
+								var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
+								infoClass = reducedNumeric >= 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+
+								$itemTd.prepend(
+									'<div class="' + infoClass + '">' +
+									formatKey.toUpperCase() + ': ' +
+									sizeFormat( filesizeIn ) +
+									' &#8594; ' +
+									sizeFormat( filesizeOut ) +
+									' (' + reducedPercent + ')' +
+									'</div>'
+								);
+							}
+						}
+					} else if ( 'notconverted' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
+						// Handle single format (backward compatibility).
+						downloadHeaders = response.data.download["\u0000*\u0000data"];
+						reducedPercent  = downloadHeaders['x-filesize-reduced'] || null;
+						filesizeIn      = downloadHeaders['x-filesize-in'] || null;
+						filesizeOut     = downloadHeaders['x-filesize-out'] || null;
+
+						if ( filesizeIn && filesizeOut && reducedPercent ) {
+							var reducedNumeric = parseFloat( reducedPercent.toString().replace( '%', '' ) );
+							infoClass = reducedNumeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+
+							$itemTd.prepend(
+								'<div class="' + infoClass + '">' +
+								sizeFormat( filesizeIn ) +
+								' &#8594; ' +
+								sizeFormat( filesizeOut ) +
+								' (' + reducedPercent + ')' +
+								'</div>'
+							);
+						}
 					}
 
 					if ( 'converted' === response.data.status ) {
-						$this
-							.text( w3tcData.lang.converted )
-							.data( 'status', 'converted' );
+						var clickedFormat = $this.data( 'format' );
+						var $primaryLink = $itemTd.find( 'a.w3tc-convert' ).not( '[data-format]' ).first();
+
+						// Determine which format(s) were converted.
+						var convertedFormats = [];
+						var postChildren = response.data.post_children || {};
+
+						// Check new format (post_children).
+						for ( var formatKey in postChildren ) {
+							if ( postChildren.hasOwnProperty( formatKey ) && postChildren[ formatKey ] ) {
+								convertedFormats.push( formatKey.toUpperCase() );
+							}
+						}
+
+						// Check old format (post_child).
+						if ( convertedFormats.length === 0 && response.data.post_child ) {
+							// For old format, we can't determine the format from the response,
+							// but typically it's WEBP. We'll show "Converted" as fallback.
+							convertedFormats.push( 'WEBP' );
+						}
+
+						// Display format(s) or default to "Converted".
+						var convertedText = convertedFormats.length > 0 ?
+							convertedFormats.join( '/' ) + ' ' + w3tcData.lang.converted :
+							w3tcData.lang.converted;
+
+						// Always update the primary status link text.
+						if ( $primaryLink.length ) {
+							$primaryLink
+								.text( convertedText )
+								.data( 'status', 'converted' );
+						} else {
+							// Fallback: update whatever link is being checked.
+							$this
+								.text( convertedText )
+								.data( 'status', 'converted' );
+						}
+
+						// If this was a secondary action link (Convert to AVIF/WebP), don't turn it into a status link.
+						// Either remove it (if the requested format now exists) or restore its label.
+						if ( clickedFormat ) {
+							var requestedKey = clickedFormat.toString().toLowerCase();
+							var hasRequested = postChildren[ requestedKey ] && postChildren[ requestedKey ] !== null && postChildren[ requestedKey ] !== '';
+
+							if ( hasRequested ) {
+								// Remove the secondary action link wrapper.
+								$this.closest( 'span' ).remove();
+							} else {
+								// Restore the action label and clear processing state.
+								if ( 'avif' === requestedKey ) {
+									$this.text( w3tcData.lang.convertToAvif );
+								} else if ( 'webp' === requestedKey ) {
+									$this.text( w3tcData.lang.convertToWebp );
+								} else {
+									$this.text( w3tcData.lang.convert );
+								}
+								$this.data( 'status', 'converted' ).prop( 'aria-disabled', 'false' );
+								$this.closest( 'span' ).removeClass( 'w3tc-disabled' );
+							}
+						}
 
 						// Add revert link, if not already present.
 						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
@@ -364,41 +505,56 @@
 	 * @param event e Event object.
 	 */
 	 function convertItem() {
-		var $this = $( this ),
-			$itemTd = $this.closest( 'td' );
+		var $clicked = $( this ),
+			$itemTd = $clicked.closest( 'td' ),
+			$primaryLink = $itemTd.find( 'a.w3tc-convert' ).first();
+
+		// Fallback: if no primary link found, use clicked link.
+		if ( ! $primaryLink.length ) {
+			$primaryLink = $clicked;
+		}
 
 		// If the conversion was canceled and the compression setting is "lossless", then go to the settings page.
-		if ( 'notconverted' === $this.data( 'status' ) && 'lossless' === w3tcData.settings.compression ) {
+		if ( 'notconverted' === $primaryLink.data( 'status' ) && 'lossless' === w3tcData.settings.compression ) {
 			window.location.href = w3tcData.settingsUrl;
 			return;
 		}
 
-		$this
+		$primaryLink
 			.text( w3tcData.lang.sending )
 			.prop( 'aria-disabled' , 'true')
 			.closest( 'span' ).addClass( 'w3tc-disabled' );
 
 		// Remove any previous optimization information, revert link, and error notices.
-		$itemTd.find( '.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-revert, .w3tc-imageservice-error' ).remove();
+		$itemTd.find( '.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert, .w3tc-imageservice-error, .w3tc-converted-error, .w3tc-convert-avif, .w3tc-convert-webp' ).remove();
+
+		// Get format from data-format attribute if specified (for "Convert to AVIF" or "Convert to WebP" links).
+		var format = $clicked.data( 'format' );
+		var ajaxData = {
+			_wpnonce: w3tcData.nonces.submit,
+			action: 'w3tc_imageservice_submit',
+			post_id: $primaryLink.data( 'post-id' )
+		};
+
+		// Add format parameter if specified.
+		if ( format ) {
+			ajaxData.format = format;
+		}
 
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
-			data: {
-				_wpnonce: w3tcData.nonces.submit,
-				action: 'w3tc_imageservice_submit',
-				post_id: $this.data( 'post-id' )
-			}
+			data: ajaxData
 		})
 			.done( function( response ) {
 				if ( response.success ) {
-					$this
+					$primaryLink
 						.text( w3tcData.lang.processing )
 						.data( 'status', 'processing' );
 
 					startCheckItems();
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
-					$this
+					$primaryLink
 						.text( w3tcData.lang.error )
 						.data( 'status', 'error' );
 
@@ -408,7 +564,7 @@
 						'</div>'
 					);
 				} else {
-					$this
+					$primaryLink
 						.text( w3tcData.lang.error )
 						.data( 'status', 'error' );
 
@@ -424,8 +580,8 @@
 					rebindBuyClick = false,
 					$wrap = $( '.wrap' );
 
-				$this
-					.val( w3tcData.lang.error )
+				$primaryLink
+					.text( w3tcData.lang.error )
 					.data( 'status', 'error' );
 
 				if (
@@ -513,6 +669,7 @@
 				if ( response.success ) {
 					$this.closest( 'span' ).remove(); // Remove the revert link.
 					$itemTd.find( 'div' ).remove(); // Remove optimization info.
+					$itemTd.find( '.w3tc-convert-avif, .w3tc-convert-webp' ).remove(); // Remove secondary convert links.
 
 					$convertLink
 						.text( w3tcData.lang.convert )
