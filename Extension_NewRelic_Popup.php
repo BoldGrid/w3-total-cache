@@ -176,6 +176,8 @@ class Extension_NewRelic_Popup {
 			)
 		);
 
-		echo 'Location ' . esc_url( 'admin.php?page=w3tc_general&' . $postfix );
+		// Note: this response is parsed by JS (see `pub/js/lightbox.js`) and assigned to `window.location`.
+		// Do NOT use `esc_url()` here (it HTML-entity encodes `&` into `&#038;`, which becomes a broken fragment).
+		echo 'Location ' . \esc_url_raw( 'admin.php?page=w3tc_general&' . $postfix );
 	}
 }
