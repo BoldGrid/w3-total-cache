@@ -70,7 +70,7 @@
 		$nextButton.closest( 'span' ).toggle( hasNext );
 
 		if ( 'function' === typeof w3tc_wizard_actions ) {
-			w3tc_wizard_actions( $targetSlide );
+			w3tc_wizard_actions( $targetSlide, $currentSlide );
 		}
 	}
 

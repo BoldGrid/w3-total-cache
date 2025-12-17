@@ -1556,7 +1556,7 @@ class SetupGuide_Plugin_Admin {
 						) . '</p></div>
 						<p class="w3tc-io-toggle">
 							<input type="checkbox" id="imageservice-enable" value="1" />
-							<label for="imageservice-enable">' . esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label>
+							<label for="imageservice-enable">' . esc_html__( 'Enable Image Converter', 'w3-total-cache' ) . '</label>
 						</p>
 						<div id="imageservice-options" class="hidden">
 							<p><strong>' . esc_html__( 'Conversion types', 'w3-total-cache' ) . '</strong></p>

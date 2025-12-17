@@ -291,9 +291,10 @@ function w3tc_disk_warning( show = true ) {
   *
   * @since 2.0.0
   *
-  * @param object $slide The div of the slide displayed.
+  * @param object $slide          The div of the slide displayed.
+  * @param object $previousSlide  The slide being left before showing the new one.
   */
-function w3tc_wizard_actions( $slide ) {
+function w3tc_wizard_actions( $slide, $previousSlide ) {
 	var configSuccess = false,
 		pgcacheSettings = {
 			enabled: null,
@@ -321,6 +322,7 @@ function w3tc_wizard_actions( $slide ) {
 			enabled: null
 		},
 		slideId = $slide.prop( 'id' ),
+		previousSlideId = $previousSlide && $previousSlide.length ? $previousSlide.prop( 'id' ) : null,
 		$container = jQuery( '#w3tc-wizard-container' ),
 		nonce = $container.find( '[name="_wpnonce"]' ).val(),
 		$nextButton = $container.find( '#w3tc-wizard-next' ),
@@ -605,6 +607,121 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
+	 * Persist settings when leaving a slide.
+	 *
+	 * @since 2.10.0
+	 */
+	function savePreviousSlideSettings() {
+		if ( ! previousSlideId ) {
+			return;
+		}
+
+		switch ( previousSlideId ) {
+			case 'w3tc-wizard-slide-pc1':
+				var $pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ),
+					pgcacheEngine;
+
+				if ( $pgcacheEngine.length ) {
+					pgcacheEngine = $pgcacheEngine.val();
+					configPgcache( ( 'none' === pgcacheEngine ? 0 : 1 ), 'none' === pgcacheEngine ? '' : pgcacheEngine )
+						.fail( function() {
+							$slide.append(
+								'<div class="notice notice-error"><p><strong>' +
+								W3TC_SetupGuide.config_error_msg +
+								'</strong></p></div>'
+							);
+						});
+				}
+
+				break;
+
+			case 'w3tc-wizard-slide-dbc1':
+				var $dbcEngine = $container.find( 'input:checked[name="dbcache_engine"]' ),
+					dbcEngine;
+
+				if ( $dbcEngine.length ) {
+					dbcEngine = $dbcEngine.val();
+					configDbcache( ( 'none' === dbcEngine ? 0 : 1 ), 'none' === dbcEngine ? '' : dbcEngine )
+						.fail( function() {
+							$slide.append(
+								'<div class="notice notice-error"><p><strong>' +
+								W3TC_SetupGuide.config_error_msg +
+								'</strong></p></div>'
+							);
+						});
+				}
+
+				break;
+
+			case 'w3tc-wizard-slide-oc1':
+				var $objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ),
+					objcacheEngine;
+
+				if ( $objcacheEngine.length ) {
+					objcacheEngine = $objcacheEngine.val();
+					configObjcache( ( 'none' === objcacheEngine ? 0 : 1 ), 'none' === objcacheEngine ? '' : objcacheEngine )
+						.fail( function() {
+							$slide.append(
+								'<div class="notice notice-error"><p><strong>' +
+								W3TC_SetupGuide.config_error_msg +
+								'</strong></p></div>'
+							);
+						});
+				}
+
+				break;
+
+			case 'w3tc-wizard-slide-bc1':
+				var $browsercacheSelection = $container.find( 'input:checked[name="browsercache_enable"]' ),
+					browsercacheEnabled;
+
+				if ( $browsercacheSelection.length ) {
+					browsercacheEnabled = $browsercacheSelection.val();
+					configBrowsercache( ( '1' === browsercacheEnabled ? 1 : 0 ) )
+						.fail( function() {
+							$slide.append(
+								'<div class="notice notice-error"><p><strong>' +
+								W3TC_SetupGuide.config_error_msg +
+								'</strong></p></div>'
+							);
+						});
+				}
+
+				break;
+
+			case 'w3tc-wizard-slide-io1':
+				var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val(),
+					imageserviceSettings = getImageserviceFormSettings();
+				configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ), imageserviceSettings )
+					.fail( function() {
+						$slide.append(
+							'<div class="notice notice-error"><p><strong>' +
+							W3TC_SetupGuide.config_error_msg +
+							'</strong></p></div>'
+						);
+					});
+
+				break;
+
+			case 'w3tc-wizard-slide-ll1':
+				var lazyloadEnabled = $container.find( 'input#lazyload-enable' ).is( ':checked' );
+				configLazyload( lazyloadEnabled ? 1 : 0 )
+					.fail( function() {
+						$slide.append(
+							'<div class="notice notice-error"><p><strong>' +
+							W3TC_SetupGuide.config_error_msg +
+							'</strong></p></div>'
+						);
+					});
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/**
 	 * Configuration failed.
 	 *
 	 * @since 2.0.0
@@ -635,6 +752,9 @@ function w3tc_wizard_actions( $slide ) {
 		$prevButton.closest( 'span' ).hide();
 		$skipButton.closest( 'span' ).show();
 	}
+
+	// Save selections when navigating away from the previous slide.
+	savePreviousSlideSettings();
 
 	// GA.
 	if ( w3tc_enable_ga ) {
@@ -868,22 +988,6 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-dbc1':
-			// Save the page cache engine setting from the previous slide.
-			var $pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ),
-				pgcacheEngine;
-
-			if ( $pgcacheEngine.length ) {
-				pgcacheEngine = $pgcacheEngine.val();
-				configPgcache( ( 'none' === pgcacheEngine ? 0 : 1 ), 'none' === pgcacheEngine ? '' : pgcacheEngine )
-					.fail( function() {
-						$slide.append(
-							'<div class="notice notice-error"><p><strong>' +
-							W3TC_SetupGuide.config_error_msg +
-							'</strong></p></div>'
-						);
-					});
-			}
-
 			// Present the Database Cache slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
@@ -1111,22 +1215,6 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-oc1':
-			// Save the database cache engine setting from the previous slide.
-			var $dbcEngine = $container.find( 'input:checked[name="dbcache_engine"]' ),
-				dbcEngine;
-
-			if ( $dbcEngine.length ) {
-				dbcEngine = $dbcEngine.val();
-				configDbcache( ( 'none' === dbcEngine ? 0 : 1 ), 'none' === dbcEngine ? '' : dbcEngine )
-					.fail( function() {
-						$slide.append(
-							'<div class="notice notice-error"><p><strong>' +
-							W3TC_SetupGuide.config_error_msg +
-							'</strong></p></div>'
-						);
-					});
-			}
-
 			// Present the Object Cache slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
@@ -1346,6 +1434,157 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
+		case 'w3tc-wizard-slide-bc1':
+			// Present the Browser Cache slide.
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
+
+			$slide.find( '#w3tc-test-browsercache' ).off('click').on('click', function () {
+				var bcEnabled,
+					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
+					$this = jQuery( this );
+
+				$this.prop( 'disabled', 'disabled' );
+				$slide.find( '.notice-error' ).remove();
+				$container.find( '#w3tc-browsercache-table tbody' ).empty();
+				$prevButton.prop( 'disabled', 'disabled' );
+				$nextButton.prop( 'disabled', 'disabled' );
+
+				$spinnerParent.show();
+
+				/**
+				 * Add a Browser Cache test result table row.
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param object testResponse An object (success, data) containing a data array of objects
+				 * 	                          (url, filename, header, headers).
+				 */
+				function addResultRow( testResponse ) {
+					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled,
+						results = '<tr',
+						isCurrentSetting = bcEnabled == browsercacheSettings.enabled;
+
+					if ( ! configSuccess ) {
+						results += ' class="w3tc-option-disabled"';
+					}
+
+					results += '><td><input type="radio" id="browsercache-enable-' +
+						label +
+						'" name="browsercache_enable" value="' +
+						bcEnabled +
+						'"';
+
+					if ( ! configSuccess ) {
+						results += ' disabled="disabled"';
+					}
+
+					if ( isCurrentSetting ) {
+						results += ' checked';
+					}
+
+					results += '> <label for="browsercache-enable-' +
+						label +
+						'">' +
+						label +
+						'</label>';
+
+					if ( isCurrentSetting ) {
+						results += ' <span class="dashicons dashicons-admin-settings" title="Original Setting"></span>';
+					}
+
+					results += '</td>';
+
+					if ( testResponse.success ) {
+						results += '<td>';
+
+						testResponse.data.forEach( function( item, index ) {
+							results += '<a href="' +
+							item.url +
+							'">' +
+							item.filename +
+							'</a></td><td>' +
+							item.header +
+							'</td></tr>';
+
+							// If not the last entry, then start the next row.
+							if ( index !== ( testResponse.data.length - 1 ) ) {
+								results += '<tr><td></td><td>';
+							}
+						} );
+					} else {
+						results = '<td colspan="2">' +
+							W3TC_SetupGuide.test_error_msg +
+							'</td></tr>';
+					}
+
+					$container.find( '#w3tc-browsercache-table > tbody' ).append( results );
+					$container.find( '#w3tc-browsercache-table' ).show();
+				}
+
+				/**
+				 * Test browser cache.
+				 *
+				 * @since 2.0.0
+				 *
+				 * @return jqXHR
+				 */
+				function testBrowsercache() {
+					if ( configSuccess ) {
+						return jQuery.ajax({
+							method: 'POST',
+							url: ajaxurl,
+							data: {
+								_wpnonce: nonce,
+								action: 'w3tc_test_browsercache'
+							}
+						})
+						.done(function( testResponse ) {
+							var enabled = bcEnabled ? 'on' : 'off';
+
+							$container.find( '#test-results' ).data( 'bc-' + enabled, testResponse.data );
+							addResultRow( testResponse );
+						});
+					} else {
+						addResultRow( { success: false } );
+					}
+				}
+
+				// Run config and tests.
+				getBrowsercacheSettings()
+					.then( function() {
+						bcEnabled = 0;
+						return configBrowsercache( bcEnabled );
+					}, configFailed )
+					.then( testBrowsercache, configFailed )
+					.then( function() {
+						bcEnabled = 1;
+						return configBrowsercache( bcEnabled );
+					} , testFailed )
+					.then( testBrowsercache, configFailed )
+					.then(function() {
+						$spinnerParent.hide();
+						$this.prop( 'disabled', false );
+						$prevButton.prop( 'disabled', false );
+						$nextButton.prop( 'disabled', false );
+						return true;
+					}, testFailed )
+					.then( function() {
+						w3tc_mark_slide_tests_complete( slideId );
+						return true;
+					} )
+					// Restore the original browser cache settings.
+					.then( function() {
+						return configBrowsercache( ( browsercacheSettings.enabled ? 1 : 0 ) );
+					},
+					function() {
+						$spinnerParent.hide();
+						return configFailed();
+					});
+			});
+
+			break;
+
 		case 'w3tc-wizard-slide-io1':
 			// Save the object cache engine setting from the previous slide.
 			var $objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ),
@@ -1445,16 +1684,6 @@ function w3tc_wizard_actions( $slide ) {
 				objcacheEngineLabel = $objcacheSelection.closest('td').next('td').text() || W3TC_SetupGuide.none,
 				imageserviceEnabled = $container.find( 'input#imageservice-enable' ).is( ':checked' ),
 				lazyloadEnabled = $container.find( 'input#lazyload-enable' ).is( ':checked' );
-
-			// Save the lazy load setting from the previous slide.
-			configLazyload( lazyloadEnabled ? 1 : 0 )
-			.fail( function() {
-				$slide.append(
-					'<div class="notice notice-error"><p><strong>' +
-					W3TC_SetupGuide.config_error_msg +
-					'</strong></p></div>'
-				);
-			});
 
 			// Prevent leave page alert.
 			jQuery( window ).off( 'beforeunload' );
