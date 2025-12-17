@@ -382,13 +382,14 @@ if ( ! defined( 'W3TC' ) ) {
 									'w3-total-cache'
 								),
 								'<em>',
-								'<a href="https://newrelic.com/docs/php/the-php-api">',
+								'<a target="_blank" href="https://docs.newrelic.com/docs/apm/agents/php-agent/php-agent-api/guide-using-php-agent-api/">',
 								'</a>',
 								'</em>'
 							),
 							array(
 								'a'  => array(
-									'href' => array(),
+									'href'   => array(),
+									'target' => array(),
 								),
 								'em' => array(),
 							)
