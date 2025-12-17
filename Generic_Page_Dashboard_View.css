@@ -180,14 +180,14 @@
 #w3tc_database_cache #database_cache_chart_subenable {
 	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-database-cache.png");
 }
-  
+
 #w3tc_page_cache .postbox-header,
 #w3tc_object_cache .postbox-header,
 #w3tc_database_cache .postbox-header,
 #w3tc_imageservice .postbox-header {
 	flex: 0 0 auto;
 }
-  
+
 #w3tc_page_cache .inside,
 #w3tc_object_cache .inside,
 #w3tc_database_cache .inside,
@@ -230,7 +230,7 @@ div.google-visualization-tooltip { pointer-events: none }
 }
 
 #w3tc_imageservice .w3tc-webp-widget-stats-inactive {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-webp-converter.png");
+	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-image-converter.png");
 }
 
 #w3tc_partners #partner-list li {
@@ -244,7 +244,7 @@ div.google-visualization-tooltip { pointer-events: none }
 	display: flex;
 	align-items: center;
 }
-  
+
 #w3tc_partners #partner-list li .partner-logo img {
 	display: block;
 	height: auto;

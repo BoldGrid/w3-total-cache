@@ -2119,7 +2119,7 @@ class Util_Ui {
 						),
 						array(
 							'id'   => 'image_service',
-							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+							'text' => esc_html__( 'Image Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',
