@@ -1,6 +1,4 @@
 <?php
-namespace W3TCL\Minify;
-
 /**
  * JSMin.php - modified PHP implementation of Douglas Crockford's JSMin.
  *
@@ -53,7 +51,16 @@ namespace W3TCL\Minify;
  * @copyright 2002 Douglas Crockford <douglas@crockford.com> (jsmin.c)
  * @copyright 2008 Ryan Grove <ryan@wonko.com> (PHP port)
  * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @version 2.4.3
+ * @link https://github.com/mrclay/jsmin-php/blob/2.4.3/src/JSMin/JSMin.php
  * @link http://code.google.com/p/jsmin-php/
+ */
+namespace W3TCL\Minify;
+
+/**
+ * Minifies JavaScript using the JSMin 2.4.3 port (namespaced for W3TC).
+ *
+ * @package W3TCL\Minify
  */
 class JSMin {
     const ACTION_KEEP_A     = 1;

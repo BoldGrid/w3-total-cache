@@ -65,14 +65,27 @@ describe('', function() {
 
 	it('add user agent group', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
+		await adminPage.waitForSelector('#mobile_add');
 		adminPage._overwriteSystemDialogPrompt = true;
-		adminPage.once('dialog', async dialog => {
-  			log.log('fill prompt');
-  			await dialog.accept('test1');
-			adminPage._overwriteSystemDialogPrompt = false;
+
+		const dialogPromise = new Promise((resolve, reject) => {
+			const timeout = setTimeout(() => {
+				reject(new Error('Dialog did not appear within timeout'));
+			}, 10000);
+
+			adminPage.once('dialog', async dialog => {
+				clearTimeout(timeout);
+				log.log('fill prompt');
+				await dialog.accept('test1');
+				adminPage._overwriteSystemDialogPrompt = false;
+				resolve();
+			});
 		});
 
-		await adminPage.click('#mobile_add');
+		await Promise.all([
+			adminPage.click('#mobile_add'),
+			dialogPromise
+		]);
 
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#mobile_groups_test1_redirect');

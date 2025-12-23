@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || die;
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.8.14' );
+define( 'W3TC_VERSION', '2.8.15' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -146,6 +146,7 @@ define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
 define( 'W3TC_MARKER_BEGIN_CDN', '# BEGIN W3TC CDN' );
 define( 'W3TC_MARKER_BEGIN_WEBP', '# BEGIN W3TC WEBP' );
+define( 'W3TC_MARKER_BEGIN_AVIF', '# BEGIN W3TC AVIF' );
 
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
 define( 'W3TC_MARKER_END_PGCACHE_CORE', '# END W3TC Page Cache core' );
@@ -159,6 +160,7 @@ define( 'W3TC_MARKER_END_MINIFY_LEGACY', '# END W3TC Minify' );
 define( 'W3TC_MARKER_END_CDN', '# END W3TC CDN' );
 define( 'W3TC_MARKER_END_NEW_RELIC_CORE', '# END W3TC New Relic core' );
 define( 'W3TC_MARKER_END_WEBP', '# END W3TC WEBP' );
+define( 'W3TC_MARKER_END_AVIF', '# END W3TC AVIF' );
 
 if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
 	define( 'W3TC_EXTENSION_DIR', ( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) );

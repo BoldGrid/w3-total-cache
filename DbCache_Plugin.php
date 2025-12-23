@@ -140,13 +140,22 @@ class DbCache_Plugin {
 
 		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
 			$interval                        = $c->get_integer( 'dbcache.file.gc' );
+			$display                         = \sprintf(
+				'[W3TC] Database Cache file GC (every %d seconds)',
+				$interval
+			);
+
+			if ( \function_exists( 'did_action' ) && \did_action( 'init' ) ) {
+				$display = \sprintf(
+					// translators: 1 interval in seconds.
+					\__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
+				);
+			}
+
 			$schedules['w3_dbcache_cleanup'] = array(
 				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
+				'display'  => $display,
 			);
 		}
 

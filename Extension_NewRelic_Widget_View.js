@@ -29,11 +29,6 @@ jQuery(document).ready(function($) {
             '&w3tc_action=' + action,
             function(data) {
                 $(selector).html(data.content);
-
-                // resize outer window to newly grown widget
-                jQuery('#normal-sortables').masonry({
-                    itemSelector: '.postbox'
-                });
             }
         ).fail(function() {
             $(selector).html('<div class="w3tcnr_topfive_message">Request failed</div>');

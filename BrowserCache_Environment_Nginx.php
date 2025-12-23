@@ -408,36 +408,130 @@ class BrowserCache_Environment_Nginx {
 				$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
 			}
 
-			$rules .= 'location ~ \\.(' . implode( '|', $extensions ) . ')$ {' . "\n";
-
-			$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
-			$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
-
 			// Add rules for the Image Service extension, if active.
+			// These must be at the same level as the parent location block, not nested.
 			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
-				$rules .= "\n" . '    location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
-					'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
-					'            break;' . "\n" .
-					'        }' . "\n\n" .
-					'        ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
-					'        add_header Vary Accept;' . "\n";
+				// Exclude image extensions from the parent location block.
+				$image_extensions = array( 'avif', 'avifs', 'webp', 'jpg', 'jpeg', 'jpe', 'png', 'gif' );
+				$extensions       = array_filter(
+					$extensions,
+					function ( $ext ) use ( $image_extensions ) {
+						// Check if extension is a single value or pipe-delimited.
+						$ext_parts = explode( '|', $ext );
+						// Return false if any part matches an image extension (exclude it).
+						foreach ( $ext_parts as $part ) {
+							if ( in_array( $part, $image_extensions, true ) ) {
+								return false;
+							}
+						}
+						return true;
+					}
+				);
+				// Reindex array to ensure sequential numeric keys.
+				$extensions = array_values( $extensions );
+
+				// Direct AVIF / AVIFS location block (same level, not nested).
+				$rules .= '# Direct AVIF / AVIFS.' . "\n" .
+					'location ~* \.(avif|avifs)$ {' . "\n" .
+					'    default_type image/avif;' . "\n" .
+					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n\n" .
+					'    add_header Vary Accept;' . "\n\n";
 
 				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
-					$rules .= '        try_files ${path}.webp $uri =404;';
+					$rules .= '    try_files $uri =404;' . "\n";
 				} else {
-					$rules .= '        try_files ${path}.webp $uri /index.php?$args;';
+					$rules .= '    try_files $uri /index.php$is_args$args;' . "\n";
 				}
 
-				$rules .= "\n" . '    }' . "\n\n";
+				$rules .= '}' . "\n\n" .
+					'# Direct WEBP.' . "\n" .
+					'location ~* \.webp$ {' . "\n" .
+					'    default_type image/webp;' . "\n" .
+					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n\n" .
+					'    add_header Vary Accept;' . "\n\n";
+
+				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$rules .= '    try_files $uri =404;' . "\n";
+				} else {
+					$rules .= '    try_files $uri /index.php$is_args$args;' . "\n";
+				}
+
+				$rules .= '}' . "\n\n" .
+					'# Negotiation for original JPEG/PNG/GIF.' . "\n" .
+					'location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
+					'    add_header Vary Accept;' . "\n\n";
+
+				// Add location-level directives (expires, etag, if_modified_since, etc.) and headers.
+				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true );
+				$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n\n";
+
+				// Initialize all variables.
+				$rules .= '    set $avif_ok 0;' . "\n";
+				$rules .= '    set $webp_ok 0;' . "\n";
+				$rules .= '    set $want_avif 0;' . "\n";
+				$rules .= '    set $want_webp 0;' . "\n";
+				$rules .= '    set $serve_avif 0;' . "\n";
+				$rules .= '    set $serve_webp 0;' . "\n\n";
+
+				// Check file existence.
+				$rules .= '    if ( -f $document_root${path}.avif ) {' . "\n";
+				$rules .= '        set $avif_ok 1;' . "\n";
+				$rules .= '    }' . "\n";
+				$rules .= '    if ( -f $document_root${path}.webp ) {' . "\n";
+				$rules .= '        set $webp_ok 1;' . "\n";
+				$rules .= '    }' . "\n\n";
+
+				// Check Accept header.
+				$rules .= '    if ( $http_accept ~* "avif" ) {' . "\n";
+				$rules .= '        set $want_avif 1;' . "\n";
+				$rules .= '    }' . "\n";
+				$rules .= '    if ( $http_accept ~* "webp" ) {' . "\n";
+				$rules .= '        set $want_webp 1;' . "\n";
+				$rules .= '    }' . "\n\n";
+
+				// Combine conditions: serve AVIF if both accepted and file exists.
+				$rules .= '    if ( $want_avif = 1 ) {' . "\n";
+				$rules .= '        set $serve_avif $avif_ok;' . "\n";
+				$rules .= '    }' . "\n";
+				$rules .= '    if ( $serve_avif = 1 ) {' . "\n";
+				$rules .= '        rewrite ^ ${path}.avif last;' . "\n";
+				$rules .= '    }' . "\n\n";
+
+				// Serve WEBP if accepted and file exists (only if AVIF wasn't served).
+				$rules .= '    if ( $want_webp = 1 ) {' . "\n";
+				$rules .= '        set $serve_webp $webp_ok;' . "\n";
+				$rules .= '    }' . "\n";
+				$rules .= '    if ( $serve_webp = 1 ) {' . "\n";
+				$rules .= '        rewrite ^ ${path}.webp last;' . "\n";
+				$rules .= '    }' . "\n\n";
+
+				// Default: serve original file.
+				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$rules .= '    try_files $uri =404;' . "\n";
+				} else {
+					$wp_uri = network_home_url( '', 'relative' );
+					$wp_uri = rtrim( $wp_uri, '/' );
+					$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
+				}
+
+				$rules .= '}' . "\n\n";
 			}
 
-			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
-				$wp_uri = network_home_url( '', 'relative' );
-				$wp_uri = rtrim( $wp_uri, '/' );
-				$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
-			}
+			// Parent location block for all other extensions (excluding image extensions if Image Service is active).
+			if ( ! empty( $extensions ) ) {
+				$rules .= 'location ~ \\.(' . implode( '|', $extensions ) . ')$ {' . "\n";
 
-			$rules .= '}' . "\n";
+				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
+				$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
+
+				if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$wp_uri = network_home_url( '', 'relative' );
+					$wp_uri = rtrim( $wp_uri, '/' );
+					$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
+				}
+
+				$rules .= '}' . "\n\n";
+			}
 		}
 	}
 

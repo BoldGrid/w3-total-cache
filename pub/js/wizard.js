@@ -11,7 +11,17 @@
 		$skipLink = $container.find( '#w3tc-wizard-skip-link '),
 		$skipButton = $container.find( '#w3tc-wizard-skip '),
 		$nextButton = $container.find( '#w3tc-wizard-next '),
-		$previousButton = $container.find( '#w3tc-wizard-previous ');
+		$previousButton = $container.find( '#w3tc-wizard-previous '),
+		stepToSlideMap = {
+			welcome: 'welcome',
+			pgcache: 'pc1',
+			dbcache: 'dbc1',
+			objectcache: 'oc1',
+			browsercache: 'bc1',
+			imageservice: 'io1',
+			lazyload: 'll1',
+			more: 'complete'
+		};
 
 	$skipLink.on( 'click', skipFunction );
 	$skipButton.on( 'click', skipFunction );
@@ -28,6 +38,41 @@
 		jQuery( window ).off( 'beforeunload' );
 		document.location = W3TC_SetupGuide.dashboardUrl;
 	});
+
+	/**
+	 * Show the requested slide and adjust navigation state.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param object $targetSlide Slide to display.
+	 */
+	function showSlide( $targetSlide ) {
+		if ( ! $targetSlide.length ) {
+			return;
+		}
+
+		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' );
+
+		if ( $currentSlide.length && 'function' === typeof w3tc_mark_step_complete_on_leave ) {
+			w3tc_mark_step_complete_on_leave( $currentSlide.prop( 'id' ) );
+		}
+
+		$currentSlide.hide();
+		$targetSlide.show();
+
+		var hasPrevious = !! $targetSlide.prev( '.w3tc-wizard-slides' ).length,
+			hasNext = !! $targetSlide.next( '.w3tc-wizard-slides' ).length;
+
+		$previousButton.closest( 'span' ).toggle( hasPrevious );
+		$skipButton.closest( 'span' ).toggle( ! hasPrevious );
+
+		$container.find( '#w3tc-wizard-dashboard-span' ).toggle( ! hasNext );
+		$nextButton.closest( 'span' ).toggle( hasNext );
+
+		if ( 'function' === typeof w3tc_wizard_actions ) {
+			w3tc_wizard_actions( $targetSlide, $currentSlide );
+		}
+	}
 
 	/**
 	 * Process the skip action.
@@ -90,40 +135,22 @@
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
 			$previousSlide = $currentSlide.prev( '.w3tc-wizard-slides' );
 
-		if ( $previousSlide.length ) {
-			$currentSlide.hide();
-			$previousSlide.show();
-			$nextButton.prop( 'disabled', false );
-		}
-
-		// Hide the previous button and show the skip button on the first slide.
-		if ( 0 === $previousSlide.prev( '.w3tc-wizard-slides' ).length ) {
-			$previousButton.closest( 'span' ).hide();
-			$skipButton.closest( 'span' ).show();
-		}
-
-		w3tc_wizard_actions( $previousSlide );
+		showSlide( $previousSlide );
 	});
 
 	$nextButton.on( 'click', function() {
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
 			$nextSlide = $currentSlide.next( '.w3tc-wizard-slides' );
 
-		if ( $skipButton.is( ':visible' ) ) {
-			$skipButton.closest( 'span' ).hide();
-			$previousButton.closest( 'span' ).show();
-		}
+		showSlide( $nextSlide );
+	});
 
-		if ( $nextSlide.length ) {
-			$currentSlide.hide();
-			$nextSlide.show();
-		}
+	$container.find( '#w3tc-options-menu' ).on( 'click', 'li', function() {
+		var rawId = jQuery( this ).attr( 'id' );
+		var stepId = rawId.replace( /^w3tc-wizard-step-/, '' ).replace( /-text$/, '' );
+		var slideId = stepToSlideMap[ stepId ];
+		var $targetSlide = slideId ? $container.find( '#w3tc-wizard-slide-' + slideId ) : jQuery();
 
-		// Disable the next button on the last slide.
-		if ( 0 === $nextSlide.next( '.w3tc-wizard-slides' ).length ) {
-			jQuery( this ).prop( 'disabled', 'disabled' );
-		}
-
-		w3tc_wizard_actions( $nextSlide );
+		showSlide( $targetSlide );
 	});
 });

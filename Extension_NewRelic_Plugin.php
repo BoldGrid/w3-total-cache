@@ -78,8 +78,8 @@ class Extension_NewRelic_Plugin {
 	public function w3tc_config_default_values( $default_values ) {
 		$default_values['newrelic'] = array(
 			'monitoring_type'     => 'apm',
-			'accept.logged_roles' => true,
-			'accept.roles'        => array( 'contributor' ),
+			'accept.logged_roles' => false,
+			'accept.roles'        => array(),
 			'use_php_function'    => true,
 			'cache_time'          => 5,
 			'include_rum'         => true,

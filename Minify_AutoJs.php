@@ -186,6 +186,22 @@ class Minify_AutoJs {
 			return;
 		}
 
+		// Skip scripts with special types that should not be minified.
+		$script_attributes = $this->extract_script_tag_attributes( $script_tag );
+		if (
+			isset( $script_attributes['type'] ) &&
+			in_array( $script_attributes['type'], array( 'importmap', 'application/json' ), true )
+		) {
+			// WordPress 6.9+ import maps and JSON scripts must stay untouched.
+			if ( $this->debug ) {
+				Minify_Core::log( 'skipping ' . $script_attributes['type'] . ' script' );
+			}
+
+			$this->flush_collected( 'sync', $script_tag );
+
+			return;
+		}
+
 		$match = null;
 		if ( ! preg_match( '~<script\s+[^<>]*src=["\']?([^"\'> ]+)["\'> ]~is', $script_tag, $match ) ) {
 			$match = null;
@@ -286,7 +302,10 @@ class Minify_AutoJs {
 			$sync_type = strtolower( $m[1] );
 		}
 
-		$script_attributes = $this->extract_script_tag_attributes( $script_tag );
+		// Extract attributes if not already extracted (for scripts with src).
+		if ( ! isset( $script_attributes ) ) {
+			$script_attributes = $this->extract_script_tag_attributes( $script_tag );
+		}
 
 		if ( isset( $script_attributes['type'] ) && 'module' === $script_attributes['type'] ) {
 			// Elementor and core WP ship ES modules that must stay untouched; bail so the original tag is preserved.
@@ -439,6 +458,12 @@ class Minify_AutoJs {
 			$type = strtolower( trim( $match[2] ) );
 			if ( 'module' === $type ) {
 				$attributes['type'] = 'module';
+			} elseif ( 'importmap' === $type ) {
+				// WordPress 6.9+ import maps must stay untouched.
+				$attributes['type'] = 'importmap';
+			} elseif ( 'application/json' === $type ) {
+				// JSON scripts must stay untouched.
+				$attributes['type'] = 'application/json';
 			}
 		}
 
