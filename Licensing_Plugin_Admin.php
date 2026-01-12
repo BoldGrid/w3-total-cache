@@ -44,7 +44,7 @@ class Licensing_Plugin_Admin {
 
 	/**
 	 * Time in seconds after which a dismissed notice can reappear if conditions persist.
-	 * Set to 6 days (slightly longer than the 5-day license check interval).
+	 * Set to 6 days (automatic license check interval is 5 days).
 	 *
 	 * @since X.X.X
 	 *
@@ -309,9 +309,64 @@ class Licensing_Plugin_Admin {
 
 				if ( Util_Admin::is_w3tc_admin_page() ) {
 					add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
+				} else {
+					// Enqueue lightbox assets on non-W3TC pages if license notices may be shown.
+					$this->maybe_enqueue_lightbox_assets();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Enqueues lightbox assets if license-related notices may need them.
+	 *
+	 * This is called on non-W3TC admin pages where the lightbox isn't already loaded.
+	 * Only enqueues if there's a license status that would display a notice.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function maybe_enqueue_lightbox_assets() {
+		$state          = Dispatcher::config_state();
+		$license_status = $state->get_string( 'license.status' );
+		$license_key    = $this->get_license_key();
+
+		// Check if we have a license notice to display.
+		$license_message = $this->get_license_notice( $license_status, $license_key );
+
+		if ( $license_message ) {
+			$sanitized_status = $this->sanitize_status_for_id( $license_status );
+
+			// Only enqueue if the notice isn't dismissed.
+			if ( ! $this->is_notice_dismissed( 'license-status-' . $sanitized_status ) ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_lightbox_assets' ) );
+			}
+		}
+	}
+
+	/**
+	 * Enqueues lightbox JavaScript and CSS assets.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function enqueue_lightbox_assets() {
+		wp_enqueue_script(
+			'w3tc-lightbox',
+			plugins_url( 'pub/js/lightbox.js', W3TC_FILE ),
+			array( 'jquery' ),
+			W3TC_VERSION,
+			false
+		);
+
+		wp_enqueue_style(
+			'w3tc-lightbox',
+			plugins_url( 'pub/css/lightbox.css', W3TC_FILE ),
+			array(),
+			W3TC_VERSION
+		);
 	}
 
 	/**
@@ -329,10 +384,28 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
-	 * Displays admin notices related to licensing.
+	 * Sanitizes a license status string for use in HTML IDs.
 	 *
-	 * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
-	 * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	 * Ensures the status only contains valid characters for HTML IDs
+	 * (lowercase letters, numbers, hyphens, underscores) and replaces
+	 * dots with hyphens for readability.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $status The license status to sanitize.
+	 *
+	 * @return string The sanitized status safe for use in HTML IDs.
+	 */
+	private function sanitize_status_for_id( $status ) {
+		// Replace dots with hyphens for readability (e.g., "active.dunning" -> "active-dunning").
+		$status = str_replace( '.', '-', $status );
+
+		// Use WordPress sanitize_html_class which only allows a-z, A-Z, 0-9, _, -.
+		return sanitize_html_class( $status, 'unknown' );
+	}
+
+	/**
+	 * Displays admin notices related to licensing.
 	 *
 	 * @return void
 	 */
@@ -373,14 +446,14 @@ class Licensing_Plugin_Admin {
 
 		$license_message = $this->get_license_notice( $license_status, $license_key );
 
-		if ( $license_message && ! $this->is_notice_dismissed( 'license-status-' . $license_status ) ) {
-			if ( ! Util_Admin::is_w3tc_admin_page() ) {
-				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
-				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
-			}
+		if ( $license_message ) {
+			// Sanitize status for use in HTML ID (only allows a-z, 0-9, -, _).
+			$sanitized_status = $this->sanitize_status_for_id( $license_status );
 
-			Util_Ui::error_box( '<p>' . $license_message . '</p>', 'w3tc-license-status-' . esc_attr( $license_status ), true );
-			$has_notices = true;
+			if ( ! $this->is_notice_dismissed( 'license-status-' . $sanitized_status ) ) {
+				Util_Ui::error_box( '<p>' . $license_message . '</p>', 'w3tc-license-status-' . $sanitized_status, true );
+				$has_notices = true;
+			}
 		}
 
 		$license_update_messages = get_option( 'license_update_messages' );
@@ -561,7 +634,8 @@ class Licensing_Plugin_Admin {
 	 *
 	 * @param string $license_key The license key used to generate the billing URL.
 	 *
-	 * @return string The billing URL associated with the provided license key.
+	 * @return string The billing URL associated with the provided license key, or
+	 *                an empty string if the request fails or the response is invalid.
 	 */
 	private function get_billing_url( $license_key ) {
 		$api_params = array(
@@ -705,8 +779,11 @@ class Licensing_Plugin_Admin {
 				}
 
 				// Check for PayPal billing update requirement.
-				if ( isset( $license->paypal_billing_update_required ) && $license->paypal_billing_update_required ) {
-					$paypal_billing_update_required = true;
+				if ( isset( $license->paypal_billing_update_required ) ) {
+					$paypal_billing_update_required = filter_var(
+						$license->paypal_billing_update_required,
+						FILTER_VALIDATE_BOOLEAN
+					);
 				}
 			}
 
@@ -733,9 +810,9 @@ class Licensing_Plugin_Admin {
 			$this->clear_dismissed_notice_for_all_users( 'paypal-billing-update-required' );
 		}
 
-		if ( $old_status !== $status && ! empty( $old_status ) ) {
+		if ( $old_status !== $status && ! empty( $old_status ) && ! empty( $status ) ) {
 			// License status changed, clear the old status dismissal for all users.
-			$this->clear_dismissed_notice_for_all_users( 'license-status-' . $old_status );
+			$this->clear_dismissed_notice_for_all_users( 'license-status-' . $this->sanitize_status_for_id( $old_status ) );
 		}
 
 		$state->set( 'license.status', $status );
@@ -842,6 +919,8 @@ class Licensing_Plugin_Admin {
 	 * Clears a specific dismissed notice for all users.
 	 *
 	 * This should be called when the condition that triggered the notice is resolved.
+	 * Uses a targeted query to only retrieve users who have the specific notice dismissed,
+	 * rather than all users with any dismissed notices.
 	 *
 	 * @since X.X.X
 	 *
@@ -852,11 +931,14 @@ class Licensing_Plugin_Admin {
 	private function clear_dismissed_notice_for_all_users( $notice_id ) {
 		global $wpdb;
 
-		// Get all users who have this meta key.
+		// Only get users who have this specific notice dismissed.
+		// The meta_value is a serialized array, so we search for the notice_id within it.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$user_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s",
-				self::NOTICE_DISMISSED_META_KEY
+				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value LIKE %s",
+				self::NOTICE_DISMISSED_META_KEY,
+				'%' . $wpdb->esc_like( $notice_id ) . '%'
 			)
 		);
 
