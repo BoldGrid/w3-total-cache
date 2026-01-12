@@ -34,8 +34,13 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
-        "optimize-autoloader": true,
+        "audit": {
+            "ignore": {
+              "PKSA-dxyf-6n16-t87m": "Pinned AWS SDK <3.368.0 to keep PHP 7.2 support; revisit when dropping PHP 7.2."
+            }
+        },
         "COMPOSER_MIRROR_PATH_REPOS": true,
+        "optimize-autoloader": true,
         "platform": {
             "php": "7.2.5"
         }
