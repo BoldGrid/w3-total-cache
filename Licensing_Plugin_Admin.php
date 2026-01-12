@@ -53,13 +53,16 @@ class Licensing_Plugin_Admin {
 	const NOTICE_DISMISSAL_RESET_TIME = 518400;
 
 	/**
-	 * Cache duration for the billing URL transient (1 hour).
+	 * Cache duration for the billing URL transient (19 minutes).
+	 *
+	 * The HLT (Hosted Login Token) in the billing URL is only valid for 19 minutes,
+	 * so we cache for 19 minutes to ensure users always get a valid token with some buffer.
 	 *
 	 * @since X.X.X
 	 *
 	 * @var int
 	 */
-	const BILLING_URL_CACHE_DURATION = 3600;
+	const BILLING_URL_CACHE_DURATION = 1140;
 
 	/**
 	 * Registers hooks for the plugin's admin functionality.
@@ -78,6 +81,9 @@ class Licensing_Plugin_Admin {
 
 		// AJAX handler for dismissing license notices.
 		add_action( 'wp_ajax_w3tc_dismiss_license_notice', array( $this, 'ajax_dismiss_license_notice' ) );
+
+		// AJAX handler for rechecking license status.
+		add_action( 'wp_ajax_w3tc_recheck_license', array( $this, 'ajax_recheck_license' ) );
 
 		// Register scripts for license notice dismissal.
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_notice_scripts' ) );
@@ -432,23 +438,27 @@ class Licensing_Plugin_Admin {
 			$billing_url = $this->get_billing_url( $license_key );
 			if ( $billing_url ) {
 				$billing_message = sprintf(
-					// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
+					// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag, 4 opening HTML a tag for recheck, 5 closing HTML a tag.
 					__(
-						'Your %1$s Pro subscription requires a billing agreement update. Please %2$supdate your billing information%3$s to ensure uninterrupted service. If you have already updated your billing information, please ignore and dismiss this message.',
+						'Your %1$s Pro subscription requires a PayPal billing agreement update. Please %2$sUpdate your billing agreement%3$s to ensure uninterrupted service. Already updated? %4$sRecheck your license status%5$s or dismiss this notice.',
 						'w3-total-cache'
 					),
 					W3TC_POWERED_BY,
-					'<a href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
+					'<a class="button" href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
+					'</a>',
+					'<a class="button w3tc-recheck-license" href="#">',
 					'</a>'
 				);
 			} else {
 				$billing_message = sprintf(
-					// Translators: 1 Product name.
+					// Translators: 1 Product name, 2 opening HTML a tag for recheck, 3 closing HTML a tag.
 					__(
-						'Your %1$s Pro subscription requires a billing agreement update. Please update your billing information or contact support to ensure uninterrupted service.',
+						'Your %1$s Pro subscription requires a PayPal billing agreement update. Please contact support to ensure uninterrupted service. Already updated? %2$sRecheck your license status%3$s or dismiss this notice.',
 						'w3-total-cache'
 					),
-					W3TC_POWERED_BY
+					W3TC_POWERED_BY,
+					'<a class="button w3tc-recheck-license" href="#">',
+					'</a>'
 				);
 			}
 
@@ -508,8 +518,9 @@ class Licensing_Plugin_Admin {
 		);
 
 		// Add the inline script.
-		$nonce  = wp_create_nonce( 'w3tc' );
-		$script = "
+		$nonce           = wp_create_nonce( 'w3tc' );
+		$rechecking_text = __( 'Rechecking...', 'w3-total-cache' );
+		$script          = "
 			jQuery(function($) {
 				// Use event delegation with a namespace to prevent duplicate handlers.
 				$(document).off('click.w3tcLicenseNotice').on('click.w3tcLicenseNotice', '.notice.is-dismissible[id^=\"w3tc-\"] .notice-dismiss', function() {
@@ -526,6 +537,20 @@ class Licensing_Plugin_Admin {
 							_wpnonce: '" . esc_js( $nonce ) . "'
 						});
 					}
+				});
+
+				// Handle recheck license link.
+				$(document).off('click.w3tcRecheckLicense').on('click.w3tcRecheckLicense', '.w3tc-recheck-license', function(e) {
+					e.preventDefault();
+					var \$link = $(this);
+					\$link.text('" . esc_js( $rechecking_text ) . "').css('pointer-events', 'none');
+
+					$.post(ajaxurl, {
+						action: 'w3tc_recheck_license',
+						_wpnonce: '" . esc_js( $nonce ) . "'
+					}).always(function() {
+						location.reload();
+					});
 				});
 			});
 		";
@@ -549,24 +574,28 @@ class Licensing_Plugin_Admin {
 				$billing_url = $this->get_billing_url( $license_key );
 				if ( $billing_url ) {
 					return sprintf(
-						// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
+						// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag, 4 opening HTML a tag for recheck, 5 closing HTML a tag.
 						__(
-							'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
+							'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption. Already updated? %4$sRecheck your license status%5$s.',
 							'w3-total-cache'
 						),
 						W3TC_POWERED_BY,
-						'<a href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
+						'<a class="button" href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
+						'</a>',
+						'<a class="button w3tc-recheck-license" href="#">',
 						'</a>'
 					);
 				}
 
 				return sprintf(
-					// Translators: 1 Product name.
+					// Translators: 1 Product name, 2 opening HTML a tag for recheck, 3 closing HTML a tag.
 					__(
-						'Your %1$s Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption',
+						'Your %1$s Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption. Already updated? %2$sRecheck your license status%3$s.',
 						'w3-total-cache'
 					),
-					W3TC_POWERED_BY
+					W3TC_POWERED_BY,
+					'<a class="button w3tc-recheck-license" href="#">',
+					'</a>'
 				);
 
 			case $this->_status_is( $status, 'inactive.expired' ):
@@ -939,6 +968,38 @@ class Licensing_Plugin_Admin {
 		update_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, $dismissed_notices );
 
 		wp_send_json_success( array( 'message' => 'Notice dismissed' ) );
+	}
+
+	/**
+	 * AJAX handler for rechecking license status.
+	 *
+	 * Forces an immediate license check and clears cached billing URL.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function ajax_recheck_license() {
+		check_ajax_referer( 'w3tc', '_wpnonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+		}
+
+		// Force next check to happen immediately.
+		$state = Dispatcher::config_state();
+		$state->set( 'license.next_check', 0 );
+		$state->save();
+
+		// Clear cached billing URL so a fresh one is fetched.
+		$license_key   = $this->get_license_key();
+		$transient_key = 'w3tc_billing_url_' . md5( $license_key );
+		delete_transient( $transient_key );
+
+		// Perform the license check now.
+		$this->maybe_update_license_status();
+
+		wp_send_json_success( array( 'message' => 'License status rechecked' ) );
 	}
 
 	/**
