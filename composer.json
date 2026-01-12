@@ -6,7 +6,7 @@
     "license": "GPL-2.0-or-later",
     "require": {
         "php": ">=7.2.5 <8.4",
-        "aws/aws-sdk-php": "^3.308",
+        "aws/aws-sdk-php": ">=3.308,<3.368.0",
         "aws/aws-php-sns-message-validator": "^1.9",
         "symfony/deprecation-contracts": "^2.5",
         "sebastian/comparator": "^3.0.5",
