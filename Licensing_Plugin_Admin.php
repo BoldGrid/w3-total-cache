@@ -34,6 +34,25 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
+	 * Usermeta key for storing dismissed license notices.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const NOTICE_DISMISSED_META_KEY = 'w3tc_license_notice_dismissed';
+
+	/**
+	 * Time in seconds after which a dismissed notice can reappear if conditions persist.
+	 * Set to 6 days (slightly longer than the 5-day license check interval).
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const NOTICE_DISMISSAL_RESET_TIME = 518400;
+
+	/**
 	 * Registers hooks for the plugin's admin functionality.
 	 *
 	 * Adds actions and filters for admin initialization, AJAX, UI updates, and admin bar menu.
@@ -47,6 +66,9 @@ class Licensing_Plugin_Admin {
 		add_action( 'w3tc_message_action_licensing_upgrade', array( $this, 'w3tc_message_action_licensing_upgrade' ) );
 
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
+
+		// AJAX handler for dismissing license notices.
+		add_action( 'wp_ajax_w3tc_dismiss_license_notice', array( $this, 'ajax_dismiss_license_notice' ) );
 	}
 
 	/**
@@ -179,21 +201,42 @@ class Licensing_Plugin_Admin {
 				switch ( true ) {
 					case ( strpos( $status, 'inactive.expired.' ) === 0 ):
 						$messages[] = array(
-							'message' => __( 'Your previous W3 Total Cache Pro license key is expired and will remain registered to this domain.', 'w3-total-cache' ),
+							'message' => sprintf(
+								// Translators: 1 Product name.
+								__(
+									'Your previous %1$s Pro license key is expired and will remain registered to this domain.',
+									'w3-total-cache'
+								),
+								W3TC_POWERED_BY
+							),
 							'type'    => 'error',
 						);
 						break;
 
 					case ( strpos( $status, 'inactive.not_present' ) === 0 ):
 						$messages[] = array(
-							'message' => __( 'Your previous W3 Total Cache Pro license key was not found and cannot be deactivated.', 'w3-total-cache' ),
+							'message' => sprintf(
+								// Translators: 1 Product name.
+								__(
+									'Your previous %1$s Pro license key was not found and cannot be deactivated.',
+									'w3-total-cache'
+								),
+								W3TC_POWERED_BY
+							),
 							'type'    => 'info',
 						);
 						break;
 
 					case ( strpos( $status, 'inactive' ) === 0 ):
 						$messages[] = array(
-							'message' => __( 'Your previous W3 Total Cache Pro license key has been deactivated.', 'w3-total-cache' ),
+							'message' => sprintf(
+								// Translators: 1 Product name.
+								__(
+									'Your previous %1$s Pro license key has been deactivated.',
+									'w3-total-cache'
+								),
+								W3TC_POWERED_BY
+							),
 							'type'    => 'info',
 						);
 						break;
@@ -201,8 +244,12 @@ class Licensing_Plugin_Admin {
 					case ( strpos( $status, 'invalid' ) === 0 ):
 						$messages[] = array(
 							'message' => sprintf(
-								// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-								__( 'Your previous W3 Total Cache Pro license key is invalid and cannot be deactivated. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+								// translators: 1 Product name, 2 HTML anchor open tag, 3 HTML anchor close tag.
+								__(
+									'Your previous %1$s Pro license key is invalid and cannot be deactivated. Please %2$scontact support%3$s for assistance.',
+									'w3-total-cache'
+								),
+								W3TC_POWERED_BY,
 								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 								'</a>'
 							),
@@ -219,7 +266,14 @@ class Licensing_Plugin_Admin {
 				switch ( true ) {
 					case ( strpos( $status, 'active' ) === 0 ):
 						$messages[] = array(
-							'message' => __( 'The W3 Total Cache Pro license key you provided is valid and has been applied.', 'w3-total-cache' ),
+							'message' => sprintf(
+								// Translators: 1 Product name.
+								__(
+									'The %1$s Pro license key you provided is valid and has been applied.',
+									'w3-total-cache'
+								),
+								W3TC_POWERED_BY
+							),
 							'type'    => 'info',
 						);
 						break;
@@ -286,38 +340,47 @@ class Licensing_Plugin_Admin {
 		$state           = Dispatcher::config_state();
 		$license_status  = $state->get_string( 'license.status' );
 		$license_key     = $this->get_license_key();
+		$has_notices     = false;
 
 		// Check for PayPal billing update requirement (shows on all admin pages).
-		if ( $state->get_boolean( 'license.paypal_billing_update_required' ) ) {
+		if ( $state->get_boolean( 'license.paypal_billing_update_required' ) && ! $this->is_notice_dismissed( 'paypal-billing-update-required' ) ) {
 			$billing_url = $this->get_billing_url( $license_key );
 			if ( $billing_url ) {
 				$billing_message = sprintf(
-					// Translators: 1 opening HTML a tag to billing portal, 2 closing HTML a tag.
+					// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
 					__(
-						'Your W3 Total Cache Pro subscription requires a billing agreement update. Please %1$supdate your billing information%2$s to ensure uninterrupted service. If you have already updated your billing information, please ignore and dismiss this message.',
+						'Your %1$s Pro subscription requires a billing agreement update. Please %2$supdate your billing information%3$s to ensure uninterrupted service. If you have already updated your billing information, please ignore and dismiss this message.',
 						'w3-total-cache'
 					),
+					W3TC_POWERED_BY,
 					'<a href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
 					'</a>'
 				);
 			} else {
-				$billing_message = __( 'Your W3 Total Cache Pro subscription requires a billing agreement update. Please update your billing information or contact support to ensure uninterrupted service.', 'w3-total-cache' );
+				$billing_message = sprintf(
+					// Translators: 1 Product name.
+					__(
+						'Your %1$s Pro subscription requires a billing agreement update. Please update your billing information or contact support to ensure uninterrupted service.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
 			}
 
-			Util_Ui::error_box( '<p>' . $billing_message . '</p>', 'paypal-billing-update-required', true );
+			Util_Ui::error_box( '<p>' . $billing_message . '</p>', 'w3tc-paypal-billing-update-required', true );
+			$has_notices = true;
 		}
 
 		$license_message = $this->get_license_notice( $license_status, $license_key );
 
-		if ( $license_message ) {
+		if ( $license_message && ! $this->is_notice_dismissed( 'license-status-' . $license_status ) ) {
 			if ( ! Util_Admin::is_w3tc_admin_page() ) {
 				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
 				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
 			}
-		}
 
-		if ( $license_message ) {
-			Util_Ui::error_box( '<p>' . $license_message . '</p>', 'license-message' );
+			Util_Ui::error_box( '<p>' . $license_message . '</p>', 'w3tc-license-status-' . esc_attr( $license_status ), true );
+			$has_notices = true;
 		}
 
 		$license_update_messages = get_option( 'license_update_messages' );
@@ -325,17 +388,57 @@ class Licensing_Plugin_Admin {
 		if ( $license_update_messages ) {
 			foreach ( $license_update_messages as $message_data ) {
 				if ( 'error' === $message_data['type'] ) {
-					Util_Ui::error_box( '<p>' . $message_data['message'] . '</p>', 'license-update-message' );
+					Util_Ui::error_box( '<p>' . $message_data['message'] . '</p>', 'w3tc-license-update-message', true );
 				} elseif ( 'info' === $message_data['type'] ) {
-					Util_Ui::e_notification_box( '<p>' . $message_data['message'] . '</p>', 'license-update-message', true );
+					Util_Ui::e_notification_box( '<p>' . $message_data['message'] . '</p>', 'w3tc-license-update-message', true );
 				}
 			}
 			delete_option( 'license_update_messages' );
+			$has_notices = true;
+		}
+
+		// Output JavaScript for persistent dismissal if there are notices.
+		if ( $has_notices ) {
+			$this->output_dismissal_script();
 		}
 	}
 
 	/**
+	 * Outputs JavaScript for handling persistent notice dismissals via AJAX.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function output_dismissal_script() {
+		$nonce = wp_create_nonce( 'w3tc' );
+		?>
+		<script type="text/javascript">
+		jQuery(function($) {
+			$(document).on('click', '.notice.is-dismissible[id^="w3tc-"] .notice-dismiss', function() {
+				var $notice = $(this).closest('.notice');
+				var noticeId = $notice.attr('id');
+
+				if (noticeId && noticeId.indexOf('w3tc-') === 0) {
+					// Remove the 'w3tc-' prefix for storage.
+					var cleanId = noticeId.replace('w3tc-', '');
+
+					$.post(ajaxurl, {
+						action: 'w3tc_dismiss_license_notice',
+						notice_id: cleanId,
+						_wpnonce: '<?php echo esc_js( $nonce ); ?>'
+					});
+				}
+			});
+		});
+		</script>
+		<?php
+	}
+
+	/**
 	 * Generates a license notice based on the provided license status and key.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param string $status The current status of the license (e.g., 'active', 'expired').
 	 * @param string $license_key The license key associated with the plugin.
@@ -348,26 +451,34 @@ class Licensing_Plugin_Admin {
 				$billing_url = $this->get_billing_url( $license_key );
 				if ( $billing_url ) {
 					return sprintf(
-						// Translators: 1 Total CDN tradmark, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
+						// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
 						__(
 							'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
 							'w3-total-cache'
 						),
-						'Total Cache',
+						W3TC_POWERED_BY,
 						'<a href="' . esc_url( $billing_url ) . '" target="_blank">',
 						'</a>'
 					);
 				}
 
-				return __( 'Your Total Cache Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption', 'w3-total-cache' );
+				return sprintf(
+					// Translators: 1 Product name.
+					__(
+						'Your %1$s Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
 
 			case $this->_status_is( $status, 'inactive.expired' ):
 				return sprintf(
-					// Translators: 1 HTML input to renew subscription.
+					// Translators: 1 Product name, 2 HTML input to renew subscription.
 					__(
-						'Your W3 Total Cache Pro license key has expired. %1$s to continue using the Pro features',
+						'Your %1$s Pro license key has expired. %2$s to continue using the Pro features',
 						'w3-total-cache'
 					),
+					W3TC_POWERED_BY,
 					'<input type="button" class="button button-renew-plugin" data-nonce="' .
 						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $license_key ) .
 						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
@@ -381,31 +492,47 @@ class Licensing_Plugin_Admin {
 					)
 				);
 				return sprintf(
-					// Translators: 1 opening HTML a tag to reset license URIs, 2 closing HTML a tag.
+					// Translators: 1 Product name, 2 opening HTML a tag to reset license URIs, 3 closing HTML a tag.
 					__(
-						'Your W3 Total Cache license key is not active for this site. You can switch your license to this website following %1$sthis link%2$s',
+						'Your %1$s license key is not active for this site. You can switch your license to this website following %2$sthis link%3$s',
 						'w3-total-cache'
 					),
+					W3TC_POWERED_BY,
 					'<a class="w3tc_licensing_reset_rooturi" href="' . esc_url( $reset_url ) . '">',
 					'</a>'
 				);
 
 			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
-				return __( 'Your W3 Total Cache license key is not active and cannot be activated due to the license activation limit being reached.', 'w3-total-cache' );
+				return sprintf(
+					// Translators: 1 Product name.
+					__(
+						'Your %1$s license key is not active and cannot be activated due to the license activation limit being reached.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
 
 			case $this->_status_is( $status, 'inactive' ):
-				return __( 'The W3 Total Cache license key is not active.', 'w3-total-cache' );
+				return sprintf(
+					// Translators: 1 Product name.
+					__(
+						'The %1$s license key is not active.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
 
 			case $this->_status_is( $status, 'invalid' ):
 				$url = is_network_admin()
 					? network_admin_url( 'admin.php?page=w3tc_general#licensing' )
 					: admin_url( 'admin.php?page=w3tc_general#licensing' );
 				return sprintf(
-					// Translators: 1 opening HTML a tag to license setting, 2 closing HTML a tag.
+					// Translators: 1 Product name, 2 opening HTML a tag to license setting, 3 closing HTML a tag.
 					__(
-						'Your current W3 Total Cache Pro license key is not valid. %1$sPlease confirm it%2$s.',
+						'Your current %1$s Pro license key is not valid. %2$sPlease confirm it%3$s.',
 						'w3-total-cache'
 					),
+					W3TC_POWERED_BY,
 					'<a href="' . esc_url( $url ) . '">',
 					'</a>'
 				);
@@ -415,8 +542,12 @@ class Licensing_Plugin_Admin {
 
 			default:
 				return sprintf(
-					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-					__( 'The W3 Total Cache license key cannot be verified. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					// translators: 1: Product name, 2: HTML anchor open tag, 3: HTML anchor close tag.
+					__(
+						'The %1$s license key cannot be verified. Please %2$scontact support%3$s for assistance.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY,
 					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 					'</a>'
 				);
@@ -425,6 +556,8 @@ class Licensing_Plugin_Admin {
 
 	/**
 	 * Generates the billing URL for a given license key.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param string $license_key The license key used to generate the billing URL.
 	 *
@@ -446,6 +579,11 @@ class Licensing_Plugin_Admin {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
 			return '';
 		}
 
@@ -511,11 +649,12 @@ class Licensing_Plugin_Admin {
 				) . $buttons;
 			} else {
 				$notes['licensing_terms'] = sprintf(
-					// translators: 1: HTML break tag, 2: Anchor/link open tag, 3: Anchor/link close tag.
+					// translators: 1: Product name, 2: HTML break tag, 3: Anchor/link open tag, 4: Anchor/link close tag.
 					esc_html__(
-						'By allowing us to collect data about how W3 Total Cache is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.%1$sFeel free to review our %2$sterms of use and privacy policy%3$s.',
+						'By allowing us to collect data about how %1$s is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.%2$sFeel free to review our %3$sterms of use and privacy policy%4$s.',
 						'w3-total-cache'
 					),
+					W3TC_POWERED_BY,
 					'<br />',
 					'<a target="_blank" href="' . esc_url( W3TC_TERMS_URL ) . '">',
 					'</a>'
@@ -546,8 +685,10 @@ class Licensing_Plugin_Admin {
 		$paypal_billing_update_required = false;
 		$license_key                    = $this->get_license_key();
 
-		$old_plugin_type = $this->_config->get_string( 'plugin.type' );
-		$plugin_type     = '';
+		$old_plugin_type                    = $this->_config->get_string( 'plugin.type' );
+		$old_status                         = $state->get_string( 'license.status' );
+		$old_paypal_billing_update_required = $state->get_boolean( 'license.paypal_billing_update_required' );
+		$plugin_type                        = '';
 
 		if ( ! empty( $license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
 			$license = Licensing_Core::check_license( $license_key, W3TC_VERSION );
@@ -586,6 +727,17 @@ class Licensing_Plugin_Admin {
 			$check_timeout = 60;
 		}
 
+		// Clear dismissed notices when conditions change.
+		if ( $old_paypal_billing_update_required && ! $paypal_billing_update_required ) {
+			// PayPal billing update is no longer required, clear the dismissal for all users.
+			$this->clear_dismissed_notice_for_all_users( 'paypal-billing-update-required' );
+		}
+
+		if ( $old_status !== $status && ! empty( $old_status ) ) {
+			// License status changed, clear the old status dismissal for all users.
+			$this->clear_dismissed_notice_for_all_users( 'license-status-' . $old_status );
+		}
+
 		$state->set( 'license.status', $status );
 		$state->set( 'license.next_check', time() + $check_timeout );
 		$state->set( 'license.terms', $terms );
@@ -614,5 +766,112 @@ class Licensing_Plugin_Admin {
 			$license_key = ini_get( 'w3tc.license_key' );
 		}
 		return $license_key;
+	}
+
+	/**
+	 * AJAX handler for dismissing license notices.
+	 *
+	 * Saves the dismissal timestamp in usermeta for persistent per-user dismissal.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function ajax_dismiss_license_notice() {
+		check_ajax_referer( 'w3tc', '_wpnonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+		}
+
+		$notice_id = isset( $_POST['notice_id'] ) ? sanitize_key( $_POST['notice_id'] ) : '';
+
+		if ( empty( $notice_id ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid notice ID' ) );
+		}
+
+		$user_id            = get_current_user_id();
+		$dismissed_notices  = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
+
+		if ( ! is_array( $dismissed_notices ) ) {
+			$dismissed_notices = array();
+		}
+
+		$dismissed_notices[ $notice_id ] = time();
+
+		update_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, $dismissed_notices );
+
+		wp_send_json_success( array( 'message' => 'Notice dismissed' ) );
+	}
+
+	/**
+	 * Checks if a specific license notice has been dismissed by the current user.
+	 *
+	 * Returns true if the notice was dismissed and the reset time has not elapsed.
+	 * If the reset time has elapsed and the condition still persists, the dismissal
+	 * is cleared and the notice will show again.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $notice_id The unique identifier for the notice.
+	 *
+	 * @return bool True if the notice is dismissed and should not be shown.
+	 */
+	private function is_notice_dismissed( $notice_id ) {
+		$user_id           = get_current_user_id();
+		$dismissed_notices = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
+
+		if ( ! is_array( $dismissed_notices ) || ! isset( $dismissed_notices[ $notice_id ] ) ) {
+			return false;
+		}
+
+		$dismissed_time = (int) $dismissed_notices[ $notice_id ];
+		$time_elapsed   = time() - $dismissed_time;
+
+		// If enough time has passed, clear the dismissal so the notice can show again.
+		if ( $time_elapsed > self::NOTICE_DISMISSAL_RESET_TIME ) {
+			unset( $dismissed_notices[ $notice_id ] );
+			update_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, $dismissed_notices );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Clears a specific dismissed notice for all users.
+	 *
+	 * This should be called when the condition that triggered the notice is resolved.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $notice_id The unique identifier for the notice to clear.
+	 *
+	 * @return void
+	 */
+	private function clear_dismissed_notice_for_all_users( $notice_id ) {
+		global $wpdb;
+
+		// Get all users who have this meta key.
+		$user_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s",
+				self::NOTICE_DISMISSED_META_KEY
+			)
+		);
+
+		foreach ( $user_ids as $user_id ) {
+			$dismissed_notices = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
+
+			if ( is_array( $dismissed_notices ) && isset( $dismissed_notices[ $notice_id ] ) ) {
+				unset( $dismissed_notices[ $notice_id ] );
+
+				if ( empty( $dismissed_notices ) ) {
+					delete_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY );
+				} else {
+					update_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, $dismissed_notices );
+				}
+			}
+		}
 	}
 }

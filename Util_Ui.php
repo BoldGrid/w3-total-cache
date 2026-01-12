@@ -592,12 +592,10 @@ class Util_Ui {
 			$logo = '';
 		}
 
-		$dismissable_class = $dismissable ? 'is-dismissible' : '';
-
 		return sprintf(
 			'<div %s class="notice notice-info updated inline %s">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$dismissable_class,
+			$dismissable ? esc_attr( 'is-dismissible' ) : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 	}
@@ -640,12 +638,10 @@ class Util_Ui {
 			$logo = '';
 		}
 
-		$dismissable_class = $dismissable ? 'is-dismissible' : '';
-
 		$v = sprintf(
 			'<div %s class="notice notice-error error inline %s">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$dismissable_class,
+			$dismissable ? esc_attr( 'is-dismissible' ) : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 
