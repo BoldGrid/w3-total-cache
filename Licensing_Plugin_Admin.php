@@ -53,6 +53,15 @@ class Licensing_Plugin_Admin {
 	const NOTICE_DISMISSAL_RESET_TIME = 518400;
 
 	/**
+	 * Cache duration for the billing URL transient (1 hour).
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const BILLING_URL_CACHE_DURATION = 3600;
+
+	/**
 	 * Registers hooks for the plugin's admin functionality.
 	 *
 	 * Adds actions and filters for admin initialization, AJAX, UI updates, and admin bar menu.
@@ -69,6 +78,9 @@ class Licensing_Plugin_Admin {
 
 		// AJAX handler for dismissing license notices.
 		add_action( 'wp_ajax_w3tc_dismiss_license_notice', array( $this, 'ajax_dismiss_license_notice' ) );
+
+		// Register scripts for license notice dismissal.
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_notice_scripts' ) );
 	}
 
 	/**
@@ -470,42 +482,55 @@ class Licensing_Plugin_Admin {
 			$has_notices = true;
 		}
 
-		// Output JavaScript for persistent dismissal if there are notices.
+		// Enqueue dismissal script if there are notices.
 		if ( $has_notices ) {
-			$this->output_dismissal_script();
+			wp_enqueue_script( 'w3tc-license-notice-dismiss' );
 		}
 	}
 
 	/**
-	 * Outputs JavaScript for handling persistent notice dismissals via AJAX.
+	 * Registers the license notice dismissal script.
+	 *
+	 * Called on admin_enqueue_scripts to register the script early,
+	 * which can then be enqueued later when notices are displayed.
 	 *
 	 * @since X.X.X
 	 *
 	 * @return void
 	 */
-	private function output_dismissal_script() {
-		$nonce = wp_create_nonce( 'w3tc' );
-		?>
-		<script type="text/javascript">
-		jQuery(function($) {
-			$(document).on('click', '.notice.is-dismissible[id^="w3tc-"] .notice-dismiss', function() {
-				var $notice = $(this).closest('.notice');
-				var noticeId = $notice.attr('id');
+	public function register_notice_scripts() {
+		wp_register_script(
+			'w3tc-license-notice-dismiss',
+			false, // No external file, inline script only.
+			array( 'jquery' ),
+			W3TC_VERSION,
+			true // Load in footer.
+		);
 
-				if (noticeId && noticeId.indexOf('w3tc-') === 0) {
-					// Remove the 'w3tc-' prefix for storage.
-					var cleanId = noticeId.replace('w3tc-', '');
+		// Add the inline script.
+		$nonce  = wp_create_nonce( 'w3tc' );
+		$script = "
+			jQuery(function($) {
+				// Use event delegation with a namespace to prevent duplicate handlers.
+				$(document).off('click.w3tcLicenseNotice').on('click.w3tcLicenseNotice', '.notice.is-dismissible[id^=\"w3tc-\"] .notice-dismiss', function() {
+					var \$notice = $(this).closest('.notice');
+					var noticeId = \$notice.attr('id');
 
-					$.post(ajaxurl, {
-						action: 'w3tc_dismiss_license_notice',
-						notice_id: cleanId,
-						_wpnonce: '<?php echo esc_js( $nonce ); ?>'
-					});
-				}
+					if (noticeId && noticeId.indexOf('w3tc-') === 0) {
+						// Remove the 'w3tc-' prefix for storage.
+						var cleanId = noticeId.replace('w3tc-', '');
+
+						$.post(ajaxurl, {
+							action: 'w3tc_dismiss_license_notice',
+							notice_id: cleanId,
+							_wpnonce: '" . esc_js( $nonce ) . "'
+						});
+					}
+				});
 			});
-		});
-		</script>
-		<?php
+		";
+
+		wp_add_inline_script( 'w3tc-license-notice-dismiss', $script );
 	}
 
 	/**
@@ -530,7 +555,7 @@ class Licensing_Plugin_Admin {
 							'w3-total-cache'
 						),
 						W3TC_POWERED_BY,
-						'<a href="' . esc_url( $billing_url ) . '" target="_blank">',
+						'<a href="' . esc_url( $billing_url ) . '" target="_blank" rel="noopener noreferrer">',
 						'</a>'
 					);
 				}
@@ -630,6 +655,9 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Generates the billing URL for a given license key.
 	 *
+	 * Uses transient caching to avoid making HTTP requests on every page load.
+	 * The URL is cached for 1 hour to balance freshness with performance.
+	 *
 	 * @since X.X.X
 	 *
 	 * @param string $license_key The license key used to generate the billing URL.
@@ -638,6 +666,38 @@ class Licensing_Plugin_Admin {
 	 *                an empty string if the request fails or the response is invalid.
 	 */
 	private function get_billing_url( $license_key ) {
+		if ( empty( $license_key ) ) {
+			return '';
+		}
+
+		// Generate a unique transient key based on the license key.
+		$transient_key = 'w3tc_billing_url_' . md5( $license_key );
+
+		// Check for cached URL.
+		$cached_url = get_transient( $transient_key );
+		if ( false !== $cached_url ) {
+			// Return cached value (empty string is a valid cached "no URL" result).
+			return $cached_url;
+		}
+
+		$billing_url = $this->fetch_billing_url_from_api( $license_key );
+
+		// Cache the result (including empty string for failed requests to avoid repeated failures).
+		set_transient( $transient_key, $billing_url, self::BILLING_URL_CACHE_DURATION );
+
+		return $billing_url;
+	}
+
+	/**
+	 * Fetches the billing URL from the API.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $license_key The license key used to generate the billing URL.
+	 *
+	 * @return string The billing URL or empty string on failure.
+	 */
+	private function fetch_billing_url_from_api( $license_key ) {
 		$api_params = array(
 			'edd_action'  => 'get_recurly_hlt_link',
 			'license'     => $license_key,
@@ -931,20 +991,26 @@ class Licensing_Plugin_Admin {
 	private function clear_dismissed_notice_for_all_users( $notice_id ) {
 		global $wpdb;
 
-		// Only get users who have this specific notice dismissed.
-		// The meta_value is a serialized array, so we search for the notice_id within it.
+		/*
+		 * Two-step approach for performance:
+		 * 1. Use LIKE query to narrow down candidate users (faster than loading all users).
+		 *    Search for '"notice_id"' (with quotes) to match serialized array key format
+		 *    and reduce false positives from partial matches.
+		 * 2. Validate with isset() to confirm exact key match, handling any edge cases.
+		 */
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$user_ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value LIKE %s",
 				self::NOTICE_DISMISSED_META_KEY,
-				'%' . $wpdb->esc_like( $notice_id ) . '%'
+				'%"' . $wpdb->esc_like( $notice_id ) . '"%'
 			)
 		);
 
 		foreach ( $user_ids as $user_id ) {
 			$dismissed_notices = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
 
+			// Verify exact key match to handle any edge cases from LIKE query.
 			if ( is_array( $dismissed_notices ) && isset( $dismissed_notices[ $notice_id ] ) ) {
 				unset( $dismissed_notices[ $notice_id ] );
 

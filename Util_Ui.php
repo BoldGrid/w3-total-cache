@@ -585,7 +585,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
+				'<img src="%$1s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) ) . ''
 			);
 		} else {
@@ -593,7 +593,7 @@ class Util_Ui {
 		}
 
 		return sprintf(
-			'<div %s class="notice notice-info updated inline %s">%s</div>',
+			'<div %1$s class="notice notice-info updated inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$dismissible ? 'is-dismissible' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
@@ -631,7 +631,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
+				'<img src="%$1s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) . '' )
 			);
 		} else {
@@ -639,7 +639,7 @@ class Util_Ui {
 		}
 
 		$v = sprintf(
-			'<div %s class="notice notice-error error inline %s">%s</div>',
+			'<div %1$s class="notice notice-error error inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$dismissible ? 'is-dismissible' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
