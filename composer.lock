@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f8dcab8622ed20ee6aa7edeb85a4d45f",
+    "content-hash": "2690880af3aa78f8a922716df0a5a5b0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -706,16 +706,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.19.4",
+            "version": "v4.19.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "715f4d25e225bc47b293a8b997fe6ce99bf987d2"
+                "reference": "51bd93cc741b7fc3d63d20b6bdcd99fdaa359837"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/715f4d25e225bc47b293a8b997fe6ce99bf987d2",
-                "reference": "715f4d25e225bc47b293a8b997fe6ce99bf987d2",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/51bd93cc741b7fc3d63d20b6bdcd99fdaa359837",
+                "reference": "51bd93cc741b7fc3d63d20b6bdcd99fdaa359837",
                 "shasum": ""
             },
             "require": {
@@ -730,11 +730,6 @@
                 "bin/php-parse"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.9-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "PhpParser\\": "lib/PhpParser"
@@ -756,9 +751,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.19.4"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v4.19.5"
             },
-            "time": "2024-09-29T15:01:53+00:00"
+            "time": "2025-12-06T11:45:25+00:00"
         },
         {
             "name": "psr/http-client",
@@ -1777,16 +1772,16 @@
         },
         {
             "name": "phpcsstandards/phpcsutils",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSUtils.git",
-                "reference": "d71128c702c180ca3b27c761b6773f883394f162"
+                "reference": "c216317e96c8b3f5932808f9b0f1f7a14e3bbf55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/d71128c702c180ca3b27c761b6773f883394f162",
-                "reference": "d71128c702c180ca3b27c761b6773f883394f162",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/c216317e96c8b3f5932808f9b0f1f7a14e3bbf55",
+                "reference": "c216317e96c8b3f5932808f9b0f1f7a14e3bbf55",
                 "shasum": ""
             },
             "require": {
@@ -1866,7 +1861,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-11-17T12:58:33+00:00"
+            "time": "2025-12-08T14:27:58+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2167,16 +2162,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "8.5.49",
+            "version": "8.5.50",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2605ccb4744dbcc20e00a12b7082c86ab3431071"
+                "reference": "b0a92d13eaf276a963c3307744a266d8c907179c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2605ccb4744dbcc20e00a12b7082c86ab3431071",
-                "reference": "2605ccb4744dbcc20e00a12b7082c86ab3431071",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b0a92d13eaf276a963c3307744a266d8c907179c",
+                "reference": "b0a92d13eaf276a963c3307744a266d8c907179c",
                 "shasum": ""
             },
             "require": {
@@ -2245,7 +2240,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/8.5.49"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/8.5.50"
             },
             "funding": [
                 {
@@ -2269,7 +2264,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-01T07:15:02+00:00"
+            "time": "2025-12-06T07:39:47+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
