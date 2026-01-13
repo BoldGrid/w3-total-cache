@@ -175,6 +175,12 @@ class Licensing_Plugin_Admin {
 		$old_key     = $old_config->get_string( 'plugin.license_key' );
 		$old_key_set = ! empty( $old_key );
 
+		// Clear billing URL transient if license key is changing.
+		if ( $old_key_set && $old_key !== $new_key ) {
+			$old_transient_key = 'w3tc_billing_url_' . md5( $old_key );
+			delete_transient( $old_transient_key );
+		}
+
 		switch ( true ) {
 			// No new key or old key. Do nothing.
 			case ( ! $new_key_set && ! $old_key_set ):
@@ -206,6 +212,38 @@ class Licensing_Plugin_Admin {
 		if ( $changed ) {
 			$state = Dispatcher::config_state();
 			$state->set( 'license.next_check', 0 );
+
+			// If license key was removed, immediately clear the status.
+			if ( ! $new_key_set && $old_key_set ) {
+				$state->set( 'license.status', 'no_key' );
+				$state->set( 'license.paypal_billing_update_required', false );
+				// Clear dismissed notices for billing update since license is removed.
+				$this->clear_dismissed_notice_for_all_users( 'paypal-billing-update-required' );
+			}
+
+			// Clear billing URL transient for the new key to force fresh fetch.
+			if ( $new_key_set ) {
+				$new_transient_key = 'w3tc_billing_url_' . md5( $new_key );
+				delete_transient( $new_transient_key );
+			}
+
+			// Process activation result to update paypal_billing_update_required immediately.
+			if ( isset( $activate_result ) && $activate_result ) {
+				// Update license status from activation result.
+				if ( isset( $activate_result->license_status ) ) {
+					$state->set( 'license.status', $activate_result->license_status );
+				}
+
+				// Update paypal_billing_update_required if present in activation result.
+				if ( isset( $activate_result->paypal_billing_update_required ) ) {
+					$paypal_billing_update_required = filter_var(
+						$activate_result->paypal_billing_update_required,
+						FILTER_VALIDATE_BOOLEAN
+					);
+					$state->set( 'license.paypal_billing_update_required', $paypal_billing_update_required );
+				}
+			}
+
 			$state->save();
 
 			delete_transient( 'w3tc_imageservice_limited' );
@@ -300,6 +338,13 @@ class Licensing_Plugin_Admin {
 
 			// Store messages for processing.
 			update_option( 'license_update_messages', $messages );
+
+			// Only force license check if we didn't just activate a license.
+			// If we activated, we already have the status from the activation result.
+			if ( ! isset( $activate_result ) || ! $activate_result ) {
+				// Force immediate license check to get latest status including billing requirements.
+				$this->maybe_update_license_status();
+			}
 		}
 	}
 
@@ -433,8 +478,12 @@ class Licensing_Plugin_Admin {
 		$license_key     = $this->get_license_key();
 		$has_notices     = false;
 
+		$paypal_billing_update_required = $state->get_boolean( 'license.paypal_billing_update_required' );
+		$is_dismissed                   = $this->is_notice_dismissed( 'paypal-billing-update-required' );
+
 		// Check for PayPal billing update requirement (shows on all admin pages).
-		if ( $state->get_boolean( 'license.paypal_billing_update_required' ) && ! $this->is_notice_dismissed( 'paypal-billing-update-required' ) ) {
+		// Only show if there's a license key and the status is not 'no_key'.
+		if ( $paypal_billing_update_required && ! $is_dismissed && ! empty( $license_key ) && 'no_key' !== $license_status ) {
 			$billing_url = $this->get_billing_url( $license_key );
 			if ( $billing_url ) {
 				$billing_message = sprintf(
@@ -612,6 +661,10 @@ class Licensing_Plugin_Admin {
 				);
 
 			case $this->_status_is( $status, 'inactive.by_rooturi' ) || $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ):
+				// Only show this notice if there's actually a license key.
+				if ( empty( $license_key ) ) {
+					return '';
+				}
 				$reset_url = Util_Ui::url(
 					array(
 						'page'                         => 'w3tc_general',
