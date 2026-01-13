@@ -585,7 +585,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%$1s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
+				'<img src="%1s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) ) . ''
 			);
 		} else {
@@ -631,7 +631,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%$1s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
+				'<img src="%1$s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) . '' )
 			);
 		} else {
