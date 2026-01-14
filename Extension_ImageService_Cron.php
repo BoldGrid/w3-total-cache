@@ -117,6 +117,29 @@ class Extension_ImageService_Cron {
 				$post_children = isset( $postmeta['post_children'] ) ? $postmeta['post_children'] : array();
 				$downloads     = isset( $postmeta['downloads'] ) ? $postmeta['downloads'] : array();
 
+				// Migrate legacy single-format data to multi-format storage when present.
+				$legacy_child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+				$legacy_format   = 'webp';
+				if ( $legacy_child_id ) {
+					$legacy_post = get_post( $legacy_child_id );
+					if ( $legacy_post && isset( $legacy_post->post_mime_type ) ) {
+						$legacy_format = strtolower( str_replace( 'image/', '', $legacy_post->post_mime_type ) );
+					}
+
+					// Preserve legacy converted attachment reference.
+					if ( empty( $post_children[ $legacy_format ] ) ) {
+						$legacy_child_meta = get_post_meta( $legacy_child_id, 'w3tc_imageservice', true );
+						if ( ! empty( $legacy_child_meta['is_converted_file'] ) ) {
+							$post_children[ $legacy_format ] = $legacy_child_id;
+						}
+					}
+				}
+
+				// Preserve legacy download headers for stats display.
+				if ( ! empty( $postmeta['download'] ) && empty( $downloads[ $legacy_format ] ) ) {
+					$downloads[ $legacy_format ] = $postmeta['download'];
+				}
+
 				// Track which jobs are complete and should be removed from processing_jobs.
 				$completed_jobs = array();
 
@@ -175,7 +198,7 @@ class Extension_ImageService_Cron {
 						$is_reduced   = ! $is_error && $filesize_in > 0 && $filesize_out > 0 && $filesize_out < $filesize_in;
 
 						// Determine actual output mime type/format from headers (API may return a different output than requested).
-						$mime_type_out = isset( $headers_array['x-mime-type-out'] ) ? $headers_array['x-mime-type-out'] :
+						$mime_type_out  = isset( $headers_array['x-mime-type-out'] ) ? $headers_array['x-mime-type-out'] :
 							( isset( $headers_array['content-type'] ) ? $headers_array['content-type'] : $mime_type );
 						$format_key_out = strtolower( str_replace( 'image/', '', $mime_type_out ) );
 
