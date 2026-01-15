@@ -219,6 +219,12 @@ class Licensing_Plugin_Admin {
 				$state->set( 'license.paypal_billing_update_required', false );
 				// Clear dismissed notices for billing update since license is removed.
 				$this->clear_dismissed_notice_for_all_users( 'paypal-billing-update-required' );
+				try {
+					$config->set( 'plugin.type', '' );
+					$config->save();
+				} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// missing exception handle?
+				}
 			}
 
 			// Clear billing URL transient for the new key to force fresh fetch.
@@ -341,7 +347,7 @@ class Licensing_Plugin_Admin {
 
 			// Only force license check if we didn't just activate a license.
 			// If we activated, we already have the status from the activation result.
-			if ( ! isset( $activate_result ) || ! $activate_result ) {
+			if ( $new_key_set && ( ! isset( $activate_result ) || ! $activate_result ) ) {
 				// Force immediate license check to get latest status including billing requirements.
 				$this->maybe_update_license_status();
 			}
