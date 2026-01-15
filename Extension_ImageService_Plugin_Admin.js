@@ -490,15 +490,20 @@
 	 * @return string
 	 */
 	function sizeFormat( size, decimals = 0 ) {
-		var units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+		var bytes = parseFloat( size ),
+			units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
 			i = 0;
 
-		while ( size >= 1024 ) {
-			size /= 1024;
+		if ( isNaN( bytes ) ) {
+			return '0 B';
+		}
+
+		while ( bytes >= 1024 ) {
+			bytes /= 1024;
 			++i;
 		}
 
-		return size.toFixed( decimals ) + ' ' + units[ i ];
+		return bytes.toFixed( decimals ) + ' ' + units[ i ];
 	}
 
 	/* Event callback functions */
