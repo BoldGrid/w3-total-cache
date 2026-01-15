@@ -320,6 +320,12 @@
 						} else {
 							$this.text( w3tcData.lang.notConverted );
 						}
+					} else if ( 'notfound' === response.data.status ) {
+						$this
+							.text( w3tcData.lang.convert )
+							.data( 'status', 'notfound' )
+							.prop( 'aria-disabled', 'false' )
+							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 					}
 				})
 				.fail( function() {
