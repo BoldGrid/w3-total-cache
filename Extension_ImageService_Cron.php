@@ -92,7 +92,8 @@ class Extension_ImageService_Cron {
 				$postmeta['processing_jobs'] : array();
 
 			// Backward compatibility: convert old format to new format.
-			if ( empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+			// Only do this for items still marked as processing to avoid re-checking completed jobs.
+			if ( 'processing' === $status && empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
 				$processing_jobs = array(
 					'webp' => array(
 						'job_id'    => $postmeta['processing']['job_id'],
