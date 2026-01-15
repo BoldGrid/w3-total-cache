@@ -299,17 +299,37 @@ class Extension_ImageService_Api {
 			);
 		}
 
-		// Convert response body to an array.
-		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		// Pass error message.
-		if ( isset( $response['error'] ) ) {
+		if ( 404 === $response_code || ( isset( $response_body['error']['code'] ) && 404 === (int) $response_body['error']['code'] ) ) {
 			return array(
-				'error' => $response['error'],
+				'code'   => 404,
+				'status' => 'notfound',
+				'error'  => isset( $response_body['error'] ) ? $response_body['error'] : __( 'Error: Job not found (404).', 'w3-total-cache' ),
 			);
 		}
 
-		return $response;
+		if ( 200 !== $response_code ) {
+			return array(
+				'code'   => $response_code,
+				'status' => 'error',
+				'error'  => sprintf(
+					// translators: 1: HTTP status code.
+					__( 'Error: Received a non-200 response code: %1$d', 'w3-total-cache' ),
+					$response_code
+				),
+			);
+		}
+
+		// Pass error message.
+		if ( isset( $response_body['error'] ) ) {
+			return array(
+				'error' => $response_body['error'],
+			);
+		}
+
+		return $response_body;
 	}
 
 	/**

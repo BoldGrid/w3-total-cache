@@ -638,6 +638,7 @@ class Extension_ImageService_Plugin_Admin {
 					'tos_choice'  => Licensing_Core::get_tos_choice(),
 					'track_usage' => $this->config->get_boolean( 'common.track_usage' ),
 					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
+					'isPro'       => Util_Environment::is_w3tc_pro( $this->config ),
 					'settings'    => $this->config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
@@ -1081,6 +1082,7 @@ class Extension_ImageService_Plugin_Admin {
 						}
 						break;
 					case 'notconverted':
+					case 'notfound':
 						if ( isset( $settings['compression'] ) && 'lossless' === $settings['compression'] ) {
 							esc_html_e( 'Settings', 'w3-total-cache' );
 						} else {
@@ -1124,25 +1126,25 @@ class Extension_ImageService_Plugin_Admin {
 						}
 					}
 
-					// Only show additional convert links if Pro license exists and not all formats are converted.
-					if ( Util_Environment::is_w3tc_pro( $this->config ) ) {
-						// If WEBP exists but AVIF doesn't, show "Convert to AVIF" link.
-						if ( $has_webp && ! $has_avif ) {
-							?>
-							<span class="w3tc-convert-avif"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-								data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="false"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
-							<?php
-						} elseif ( ! $has_webp ) {
-							// If WEBP doesn't exist, show "Convert to WebP" link (for old format conversions that aren't WEBP).
-							$has_old_format = isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) &&
-								( ! isset( $imageservice_data['post_children'] ) || empty( $imageservice_data['post_children'] ) );
-							if ( $has_old_format ) {
-								?>
-								<span class="w3tc-convert-webp"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-									data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="false"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
-								<?php
-							}
-						}
+					$settings      = isset( $settings ) ? $settings : $this->config->get_array( 'imageservice' );
+					$webp_enabled  = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
+					$avif_enabled  = ! isset( $settings['avif'] ) || true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'];
+					$has_pro       = Util_Environment::is_w3tc_pro( $this->config );
+					$avif_enabled  = $avif_enabled && $has_pro;
+
+					// Show additional convert links only when the format is enabled.
+					if ( $has_webp && ! $has_avif && $avif_enabled ) {
+						?>
+						<span class="w3tc-convert-avif"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="false"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
+						<?php
+					}
+
+					if ( $has_avif && ! $has_webp && $webp_enabled ) {
+						?>
+						<span class="w3tc-convert-webp"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="false"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
+						<?php
 					}
 				}
 			} elseif ( isset( $imageservice_data['is_converted_file'] ) && $imageservice_data['is_converted_file'] ) {
@@ -1513,13 +1515,18 @@ class Extension_ImageService_Plugin_Admin {
 				continue;
 			}
 
-			// Remove old optimizations unless we are only adding AVIF to an existing WEBP conversion.
-			$avif_only = isset( $convert_options['formats'] ) && array( 'image/avif' ) === $convert_options['formats'];
-			if ( ! ( $avif_only && $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->config ) ) ) {
-				$this->remove_optimizations( $post_id );
+			// Remove old optimizations unless we are only converting a single format.
+			$requested_format = null;
+			if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {
+				$requested_format = reset( $convert_options['formats'] );
+			}
+
+			if ( $requested_format ) {
+				$format_key = str_replace( 'image/', '', strtolower( $requested_format ) );
+				// Only remove the requested format so other formats remain intact.
+				$this->remove_optimization_format( $post_id, $format_key );
 			} else {
-				// Only remove the AVIF variant (if any) so we keep the existing WEBP conversion.
-				$this->remove_optimization_format( $post_id, 'avif' );
+				$this->remove_optimizations( $post_id );
 			}
 
 			// Get requested formats from convert options or settings to store in postmeta.
@@ -1870,13 +1877,18 @@ class Extension_ImageService_Plugin_Admin {
 			);
 		}
 
-		// Remove old optimizations unless we are only adding AVIF to an existing WEBP conversion.
-		$avif_only = isset( $convert_options['formats'] ) && array( 'image/avif' ) === $convert_options['formats'];
-		if ( ! ( $avif_only && $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->config ) ) ) {
-			$this->remove_optimizations( $post_id );
+		// Remove old optimizations unless we are only converting a single format.
+		$requested_format = null;
+		if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {
+			$requested_format = reset( $convert_options['formats'] );
+		}
+
+		if ( $requested_format ) {
+			$format_key = str_replace( 'image/', '', strtolower( $requested_format ) );
+			// Only remove the requested format so other formats remain intact.
+			$this->remove_optimization_format( $post_id, $format_key );
 		} else {
-			// Only remove the AVIF variant (if any) so we keep the existing WEBP conversion.
-			$this->remove_optimization_format( $post_id, 'avif' );
+			$this->remove_optimizations( $post_id );
 		}
 
 		// Get requested formats from convert options or settings to store in postmeta.

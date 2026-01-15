@@ -92,7 +92,8 @@ class Extension_ImageService_Cron {
 				$postmeta['processing_jobs'] : array();
 
 			// Backward compatibility: convert old format to new format.
-			if ( empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+			// Only do this for items still marked as processing to avoid re-checking completed jobs.
+			if ( 'processing' === $status && empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
 				$processing_jobs = array(
 					'webp' => array(
 						'job_id'    => $postmeta['processing']['job_id'],
@@ -111,6 +112,7 @@ class Extension_ImageService_Cron {
 				// Process each job separately.
 				$all_jobs_ready = true;
 				$has_error      = false;
+				$has_notfound   = false;
 				$jobs_status    = isset( $postmeta['jobs_status'] ) ? $postmeta['jobs_status'] : array();
 
 				// Initialize arrays for storing multiple formats before processing jobs.
@@ -153,6 +155,14 @@ class Extension_ImageService_Cron {
 
 					// Store status for this job.
 					$jobs_status[ $format_key ] = $response;
+
+					// Stop checking jobs that are no longer found.
+					if ( ( isset( $response['code'] ) && 404 === (int) $response['code'] ) || ( isset( $response['status'] ) && 'notfound' === $response['status'] ) ) {
+						$has_notfound     = true;
+						$all_jobs_ready   = false;
+						$completed_jobs[] = $format_key;
+						continue;
+					}
 
 					// Check if this job is ready for pickup/download.
 					if ( isset( $response['status'] ) && 'pickup' === $response['status'] ) {
@@ -322,6 +332,9 @@ class Extension_ImageService_Cron {
 					$status = 'converted';
 				} elseif ( $has_error ) {
 					$status = 'error';
+				}
+				if ( ! $has_converted && ! $has_error && $has_notfound && empty( $processing_jobs ) ) {
+					$status = 'notfound';
 				}
 
 				// If there are still jobs processing, keep status as 'processing'.

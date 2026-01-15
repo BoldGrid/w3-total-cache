@@ -48,6 +48,54 @@
 	/* Functions. */
 
 	/**
+	 * Check if a format is enabled in settings.
+	 *
+	 * @since 2.9.1
+	 *
+	 * @param string formatKey Format key (webp or avif).
+	 * @return bool
+	 */
+	function isFormatEnabled( formatKey ) {
+		var settings = w3tcData.settings || {};
+
+		if ( 'webp' === formatKey ) {
+			return typeof settings.webp === 'undefined' || true === settings.webp || '1' === settings.webp || 1 === settings.webp;
+		}
+
+		if ( 'avif' === formatKey ) {
+			return ( typeof settings.avif === 'undefined' || true === settings.avif || '1' === settings.avif || 1 === settings.avif ) && w3tcData.isPro;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Ensure a convert link exists for a format.
+	 *
+	 * @since 2.9.1
+	 *
+	 * @param jQuery $itemTd Row cell.
+	 * @param string formatKey Format key (webp or avif).
+	 * @param string postId Attachment ID.
+	 */
+	function ensureConvertLink( $itemTd, formatKey, postId ) {
+		var linkClass = 'avif' === formatKey ? 'w3tc-convert-avif' : 'w3tc-convert-webp',
+			linkText = 'avif' === formatKey ? w3tcData.lang.convertToAvif : w3tcData.lang.convertToWebp;
+
+		if ( $itemTd.find( '.' + linkClass + ' a' ).length ) {
+			return;
+		}
+
+		$itemTd.append(
+			'<span class="' + linkClass + '"> | <a class="w3tc-convert-format" data-post-id="' +
+			postId + '" data-status="converted" data-format="' + formatKey + '" aria-disabled="false">' +
+			linkText + '</a></span>'
+		);
+
+		$itemTd.find( 'a.w3tc-convert-format' ).off( 'click' ).on( 'click', convertItem );
+	}
+
+	/**
 	 * Toggle buttons based on eligibility.
 	 *
 	 * @since 2.2.0
@@ -152,6 +200,9 @@
 									formatKey.toUpperCase() + ': ' + downloadData +
 									'</div>'
 								);
+								if ( isFormatEnabled( formatKey ) ) {
+									ensureConvertLink( $itemTd, formatKey, $this.data( 'post-id' ) );
+								}
 								continue;
 							}
 
@@ -320,6 +371,12 @@
 						} else {
 							$this.text( w3tcData.lang.notConverted );
 						}
+					} else if ( 'notfound' === response.data.status ) {
+						$this
+							.text( w3tcData.lang.convert )
+							.data( 'status', 'notfound' )
+							.prop( 'aria-disabled', 'false' )
+							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 					}
 				})
 				.fail( function() {
@@ -484,15 +541,20 @@
 	 * @return string
 	 */
 	function sizeFormat( size, decimals = 0 ) {
-		var units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+		var bytes = parseFloat( size ),
+			units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
 			i = 0;
 
-		while ( size >= 1024 ) {
-			size /= 1024;
+		if ( isNaN( bytes ) ) {
+			return '0 B';
+		}
+
+		while ( bytes >= 1024 ) {
+			bytes /= 1024;
 			++i;
 		}
 
-		return size.toFixed( decimals ) + ' ' + units[ i ];
+		return bytes.toFixed( decimals ) + ' ' + units[ i ];
 	}
 
 	/* Event callback functions */
