@@ -39,15 +39,37 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 	public function __construct( $config = array() ) {
 		$config = array_merge(
 			array(
-				'key'    => '',
-				'secret' => '',
-				'bucket' => '',
-				'cname'  => array(),
+				'key'          => '',
+				'secret'       => '',
+				'bucket'       => '',
+				'cname'        => array(),
+				'ssl'          => 'auto',
+				'storage_type' => 'auto',
 			),
 			$config
 		);
 
-		$this->_s3 = new \S3Compatible( $config['key'], $config['secret'], false, $config['api_host'] );
+		// Determine SSL usage from config
+		$useSSL = false;
+		if ( isset( $config['ssl'] ) ) {
+			if ( $config['ssl'] === 'enabled' ) {
+				$useSSL = true;
+			} elseif ( $config['ssl'] === 'auto' ) {
+				// Auto-detect: use SSL if endpoint contains port 443
+				$api_host = isset( $config['api_host'] ) ? $config['api_host'] : '';
+				$useSSL = ( strpos( $api_host, ':443' ) !== false );
+			}
+		}
+
+		// Extract hostname and port from api_host
+		$api_host = isset( $config['api_host'] ) ? $config['api_host'] : '';
+		// Pass full endpoint with port - S3Compatible will extract port for Host header
+		$endpoint = $api_host;
+
+		// Pass storage_type to S3Compatible for URL format determination
+		$storage_type = isset( $config['storage_type'] ) ? $config['storage_type'] : 'auto';
+
+		$this->_s3 = new \S3Compatible( $config['key'], $config['secret'], $useSSL, $endpoint, '', $storage_type );
 		$this->_s3->setSignatureVersion( 'v2' );
 
 		parent::__construct( $config );

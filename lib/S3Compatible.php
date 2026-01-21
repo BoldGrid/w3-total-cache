@@ -74,6 +74,24 @@ class S3Compatible
 	public static $endpoint = 's3.amazonaws.com';
 
 	/**
+	 * Endpoint port (if specified)
+	 *
+	 * @var string
+	 * @access public
+	 * @static
+	 */
+	public static $endpointPort = '';
+
+	/**
+	 * Storage type: 'auto', 'aws', or 'minio'
+	 *
+	 * @var string
+	 * @access public
+	 * @static
+	 */
+	public static $storageType = 'auto';
+
+	/**
 	 * AWS Region
 	 *
 	 * @var string
@@ -195,15 +213,28 @@ class S3Compatible
 	* @param string $secretKey Secret key
 	* @param boolean $useSSL Enable SSL
 	* @param string $endpoint Amazon URI
+	* @param string $region AWS region
+	* @param string $storageType Storage type: 'auto', 'aws', or 'minio'
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 's3.amazonaws.com', $region = '')
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 's3.amazonaws.com', $region = '', $storageType = 'auto')
 	{
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
 		self::$useSSL = $useSSL;
-		self::$endpoint = $endpoint;
+		
+		// Extract port from endpoint if present
+		if (strpos($endpoint, ':') !== false) {
+			$parts = explode(':', $endpoint, 2);
+			self::$endpoint = $parts[0];
+			self::$endpointPort = ':' . $parts[1];
+		} else {
+			self::$endpoint = $endpoint;
+			self::$endpointPort = '';
+		}
+		
 		self::$region = $region;
+		self::$storageType = $storageType;
 	}
 
 
@@ -215,7 +246,26 @@ class S3Compatible
 	*/
 	public function setEndpoint($host)
 	{
-		self::$endpoint = $host;
+		// Extract port from endpoint if present
+		if (strpos($host, ':') !== false) {
+			$parts = explode(':', $host, 2);
+			self::$endpoint = $parts[0];
+			self::$endpointPort = ':' . $parts[1];
+		} else {
+			self::$endpoint = $host;
+			self::$endpointPort = '';
+		}
+	}
+
+	/**
+	* Set the storage type
+	*
+	* @param string $type Storage type: 'auto', 'aws', or 'minio'
+	* @return void
+	*/
+	public static function setStorageType($type)
+	{
+		self::$storageType = $type;
 	}
 
 
@@ -866,15 +916,33 @@ final class S3Request
 		$this->bucket = $bucket;
 		$this->uri = $uri !== '' ? '/'.str_replace('%2F', '/', rawurlencode($uri)) : '/';
 
+		// Determine URL style based on storage_type setting
+		$useVirtualHostedStyle = false;
+		$storageType = isset(\S3Compatible::$storageType) ? \S3Compatible::$storageType : 'auto';
+		if ($storageType === 'aws') {
+			// Explicitly set to AWS - use virtual-hosted-style if bucket name is valid
+			$useVirtualHostedStyle = $this->dnsBucketName($this->bucket);
+		} elseif ($storageType === 'minio') {
+			// Explicitly set to MinIO - always use path-style
+			$useVirtualHostedStyle = false;
+		} else {
+			// Auto-detect: determine if this is an AWS endpoint
+			$isAWS = (strpos($endpoint, 'amazonaws.com') !== false || strpos($endpoint, 's3.') === 0);
+			$useVirtualHostedStyle = ($isAWS && $this->dnsBucketName($this->bucket));
+		}
+
 		if ($this->bucket !== '')
 		{
-			if ($this->dnsBucketName($this->bucket))
+			// Use virtual-hosted-style for AWS if enabled and bucket name is DNS-compatible
+			// Use path-style for MinIO or invalid bucket names
+			if ($useVirtualHostedStyle)
 			{
 				$this->headers['Host'] = $this->bucket.'.'.$this->endpoint;
 				$this->resource = '/'.$this->bucket.$this->uri;
 			}
 			else
 			{
+				// Path-style: bucket in URI path
 				$this->headers['Host'] = $this->endpoint;
 				if ($this->bucket !== '') $this->uri = '/'.$this->bucket.$this->uri;
 				$this->bucket = '';
@@ -959,7 +1027,14 @@ final class S3Request
 			array_key_exists('logging', $this->parameters))
 				$this->resource .= $query;
 		}
-		$url = (S3Compatible::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
+		// Build URL with port if specified
+		$host = ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint);
+		$port = isset(\S3Compatible::$endpointPort) ? \S3Compatible::$endpointPort : '';
+		// Don't add port to URL if host already contains port (for virtual-hosted-style)
+		if (strpos($host, ':') !== false) {
+			$port = '';
+		}
+		$url = (S3Compatible::$useSSL ? 'https://' : 'http://') . $host . $port . $this->uri;
 
 		// Basic setup
 		$curl = curl_init();

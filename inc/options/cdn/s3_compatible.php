@@ -14,6 +14,25 @@ Util_Ui::config_item(
 		'description'  => esc_html__( 'Host of API endpoint, comptabile with Amazon S3 API', 'w3-total-cache' ),
 	)
 );
+?>
+<tr>
+	<th>
+		<label for="cdn_s3_compatible_storage_type">
+			<?php esc_html_e( 'Storage type:', 'w3-total-cache' ); ?>
+		</label>
+	</th>
+	<td>
+		<select id="cdn_s3_compatible_storage_type" name="cdn__s3_compatible__storage_type" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?>>
+			<option value="auto"<?php selected( $this->_config->get_string( 'cdn.s3_compatible.storage_type' ), 'auto' ); ?>><?php esc_html_e( 'Auto (detect from endpoint)', 'w3-total-cache' ); ?></option>
+			<option value="aws"<?php selected( $this->_config->get_string( 'cdn.s3_compatible.storage_type' ), 'aws' ); ?>><?php esc_html_e( 'AWS S3 compatible (virtual-hosted-style)', 'w3-total-cache' ); ?></option>
+			<option value="minio"<?php selected( $this->_config->get_string( 'cdn.s3_compatible.storage_type' ), 'minio' ); ?>><?php esc_html_e( 'MinIO (path-style)', 'w3-total-cache' ); ?></option>
+		</select>
+		<p class="description">
+			<?php esc_html_e( 'Select storage type to use appropriate URL format. AWS S3 uses virtual-hosted-style URLs (bucket.host), MinIO uses path-style URLs (host/bucket/path).', 'w3-total-cache' ); ?>
+		</p>
+	</td>
+</tr>
+<?php
 Util_Ui::config_item(
 	array(
 		'key'          => 'cdn.s3.key',
