@@ -2094,8 +2094,10 @@ class PgCache_ContentGrabber {
 			return $buffer;
 		}
 
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
 		$buffer = preg_replace_callback(
-			'~<!--\s*mfunc\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mfunc\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mfunc\s+' . $security . '(.*)-->(.*)<!--\s*/mfunc\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mfunc',
@@ -2104,7 +2106,7 @@ class PgCache_ContentGrabber {
 		);
 
 		$buffer = preg_replace_callback(
-			'~<!--\s*mclude\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mclude\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mclude\s+' . $security . '(.*)-->(.*)<!--\s*/mclude\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mclude',
@@ -2195,7 +2197,7 @@ class PgCache_ContentGrabber {
 		}
 
 		return preg_match(
-			'~<!--\s*m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*m(func|clude)\s+' . preg_quote( W3TC_DYNAMIC_SECURITY, '~' ) . '(.*)-->(.*)<!--\s*/m(func|clude)\s+' . preg_quote( W3TC_DYNAMIC_SECURITY, '~' ) . '\s*-->~Uis',
 			$buffer
 		);
 	}
