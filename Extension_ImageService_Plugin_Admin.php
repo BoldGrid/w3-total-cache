@@ -1192,6 +1192,14 @@ class Extension_ImageService_Plugin_Admin {
 		// Remove custom query args.
 		$location = remove_query_arg( array( 'w3tc_imageservice_submitted', 'w3tc_imageservice_reverted' ), $location );
 
+		// Filter to only attachment IDs the current user is allowed to edit.
+		$post_ids = array_filter(
+			$post_ids,
+			function ( $post_id ) {
+				return current_user_can( 'edit_post', $post_id );
+			}
+		);
+
 		switch ( $doaction ) {
 			case 'w3tc_imageservice_convert':
 				$stats = $this->submit_images( $post_ids );
@@ -1766,18 +1774,6 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		// Check WP_Filesystem credentials.
-		Util_WpFile::ajax_check_credentials(
-			sprintf(
-				// translators: 1: HTML achor open tag, 2: HTML anchor close tag.
-				__( '%1$sLearn more%2$s.', 'w3-total-cache' ),
-				'<a target="_blank" href="' . esc_url(
-					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_error&utm_campaign=imageservice#unable-to-connect-to-the-filesystem-error'
-				) . '">',
-				'</a>'
-			)
-		);
-
 		// Check for post id.
 		$post_id_val = Util_Request::get_integer( 'post_id' );
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
@@ -1799,6 +1795,18 @@ class Extension_ImageService_Plugin_Admin {
 				403
 			);
 		}
+
+		// Check WP_Filesystem credentials.
+		Util_WpFile::ajax_check_credentials(
+			sprintf(
+				// translators: 1: HTML achor open tag, 2: HTML anchor close tag.
+				__( '%1$sLearn more%2$s.', 'w3-total-cache' ),
+				'<a target="_blank" href="' . esc_url(
+					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_error&utm_campaign=imageservice#unable-to-connect-to-the-filesystem-error'
+				) . '">',
+				'</a>'
+			)
+		);
 
 		global $wp_filesystem;
 
