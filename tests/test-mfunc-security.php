@@ -356,7 +356,7 @@ assert_true(
 
 echo "\n=== RESULTS ===\n\n";
 
-$width = max( array_map( fn( $c ) => strlen( $c[1] ), $cases ) ) + 2;
+$width = max( array_map( function( $c ) { return strlen( $c[1] ); }, $cases ) ) + 2;
 
 foreach ( $cases as $c ) {
 	$status = $c[0];

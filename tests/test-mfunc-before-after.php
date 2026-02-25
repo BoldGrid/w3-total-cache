@@ -87,7 +87,7 @@ function run_sanitize( string $value, array $patterns ): string {
 	$original = $value;
 	$value    = preg_replace_callback(
 		$patterns,
-		fn( array $m ) => $m[1],
+		function( array $m ) { return $m[1]; },
 		$value
 	);
 	if ( null === $value ) {
