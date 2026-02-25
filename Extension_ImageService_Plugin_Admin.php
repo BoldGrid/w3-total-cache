@@ -1791,6 +1791,15 @@ class Extension_ImageService_Plugin_Admin {
 			);
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to convert this image.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		global $wp_filesystem;
 
 		// Verify the image file exists.
@@ -1981,6 +1990,16 @@ class Extension_ImageService_Plugin_Admin {
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'You do not have permission to access this image.', 'w3-total-cache' ),
+					),
+					403
+				);
+				return;
+			}
+
 			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_imageservice', true ) );
 		} else {
 			wp_send_json_error(
@@ -2006,6 +2025,16 @@ class Extension_ImageService_Plugin_Admin {
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'You do not have permission to revert this image.', 'w3-total-cache' ),
+					),
+					403
+				);
+				return;
+			}
+
 			// Check if there are any optimizations to revert.
 			$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$has_optimizations = false;
@@ -2051,6 +2080,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_convert_all() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to perform bulk conversions.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		$results = $this->get_eligible_attachments();
 
 		$post_ids = array();
@@ -2079,6 +2117,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_revert_all() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to perform bulk reverts.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		$results = $this->get_imageservice_attachments();
 
 		$revert_count = 0;
@@ -2106,6 +2153,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_get_counts() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to view image counts.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		wp_send_json_success( $this->get_counts() );
 	}
 
@@ -2119,6 +2175,15 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function ajax_get_usage() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to view API usage.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
 
 		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage( true ) );
 	}
