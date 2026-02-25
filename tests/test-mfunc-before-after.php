@@ -18,6 +18,13 @@
  * @since   X.X.X
  */
 
+// Only run when invoked directly (php tests/test-mfunc-before-after.php).
+// When PHPUnit includes this file during test discovery, return immediately
+// so that the top-level echo/exit calls do not break the suite.
+if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
+	return;
+}
+
 // Use the same token as the Patchstack report.
 const SECURITY_TOKEN = 'test';
 
@@ -147,9 +154,10 @@ function print_row( string $era, string $label, bool $condition, string $expect,
 	}
 
 	printf(
-		"  %-7s  %-58s  %s%s\n",
+		"  %-7s  %-58s  %-17s  %s%s\n",
 		"[$era]",
 		$label,
+		"[expect:$expect]",
 		$status,
 		$detail ? "  ($detail)" : ''
 	);

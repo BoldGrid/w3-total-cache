@@ -13,6 +13,13 @@
  * @since   X.X.X
  */
 
+// Only run when invoked directly (php tests/test-mfunc-security.php).
+// When PHPUnit includes this file during test discovery, return immediately
+// so that the top-level echo/exit calls do not break the suite.
+if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
+	return;
+}
+
 define( 'W3TC_DYNAMIC_SECURITY', 'test' );
 
 // ---------------------------------------------------------------------------
