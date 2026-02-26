@@ -105,7 +105,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Page key extension
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private $_page_key_extension;
 
@@ -447,7 +447,7 @@ class PgCache_ContentGrabber {
 			return true;
 		}
 
-		$this->caching             = false;
+		$this->_caching            = false;
 		$this->cache_reject_reason = 'w3tc_page_extract_key filter result forced not to cache';
 
 		return false;
@@ -586,18 +586,14 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		// We can't capture output in ob_callback so we use shutdown function.
 		if ( $has_dynamic ) {
-			$this->_shutdown_buffer = $buffer;
+			$compression = $this->_page_key_extension['compression'];
+			if ( defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' ) ) {
+				$compression = false;
+			}
 
-			$buffer = '';
-
-			register_shutdown_function(
-				array(
-					$this,
-					'shutdown',
-				)
-			);
+			$buffer = $this->_parse_dynamic( $buffer );
+			$buffer = $this->_compress( $buffer, $compression );
 		}
 
 		return $buffer;
@@ -2356,7 +2352,7 @@ class PgCache_ContentGrabber {
 			$compressions_to_store = array( false );
 		}
 
-		// Right now dont return compressed buffer if we are dynamic that will happen on shutdown after processing dynamic stuff.
+		// For dynamic pages, return the unprocessed buffer so ob_callback can parse and compress it directly.
 		$compression_of_returned_content = ( $has_dynamic ? false : $compression_header );
 
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );
