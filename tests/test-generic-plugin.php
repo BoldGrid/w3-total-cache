@@ -60,6 +60,38 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Confirms that the no-space bypass variant is stripped from comments.
+	 *
+	 * The attack crafts a tag name where removing the security token via str_replace
+	 * would morph it into a valid mfunc tag, e.g. with token "unit-test-token":
+	 *   <!-- mfuncXunit-test-tokenX --> ... <!-- /mfuncXunit-test-tokenX -->
+	 * becomes <!-- mfuncXX --> after str_replace, which (with the old \s* pattern)
+	 * could then match and be eval()'d. The fix requires \s+ so no-space tags never
+	 * execute, and \s*\S+ in sanitization so they are stripped before storage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_strip_dynamic_fragment_tags_no_space_bypass_is_stripped() {
+		// Craft a tag where the security token is embedded in the keyword so that
+		// str_replace(token, '', ...) would otherwise produce a valid mfunc tag.
+		$token   = W3TC_DYNAMIC_SECURITY;
+		$crafted = '<!-- mfuncA' . $token . 'A -->phpinfo();<!-- /mfuncA' . $token . 'A -->';
+		$comment = array( 'comment_content' => 'Safe text. ' . $crafted );
+
+		$result = $this->plugin->strip_dynamic_fragment_tags_from_comment( $comment );
+
+		$this->assertArrayHasKey( 'comment_content', $result );
+		// The mfunc wrapper itself must be gone.
+		$this->assertStringNotContainsString( 'mfunc', $result['comment_content'] );
+		// The security token must not appear in any form.
+		$this->assertStringNotContainsString( $token, $result['comment_content'] );
+		// Safe surrounding text should be preserved.
+		$this->assertStringContainsString( 'Safe text.', $result['comment_content'] );
+	}
+
+	/**
 	 * Ensures feed filtering removes fragment directives.
 	 *
 	 * @since X.X.X

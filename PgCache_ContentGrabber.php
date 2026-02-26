@@ -2094,8 +2094,10 @@ class PgCache_ContentGrabber {
 			return $buffer;
 		}
 
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
 		$buffer = preg_replace_callback(
-			'~<!--\s*mfunc\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mfunc\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mfunc\s+' . $security . '(.*)-->(.*)<!--\s*/mfunc\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mfunc',
@@ -2104,7 +2106,7 @@ class PgCache_ContentGrabber {
 		);
 
 		$buffer = preg_replace_callback(
-			'~<!--\s*mclude\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mclude\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mclude\s+' . $security . '(.*)-->(.*)<!--\s*/mclude\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mclude',
@@ -2190,12 +2192,14 @@ class PgCache_ContentGrabber {
 	 * @return bool True if dynamic tags are present, false otherwise.
 	 */
 	public function _has_dynamic( $buffer ) {
-		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) ) {
+		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) || 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return false;
 		}
 
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
 		return preg_match(
-			'~<!--\s*m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*m(func|clude)\s+' . $security . '(.*)-->(.*)<!--\s*/m(func|clude)\s+' . $security . '\s*-->~Uis',
 			$buffer
 		);
 	}
