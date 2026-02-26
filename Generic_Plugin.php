@@ -262,9 +262,13 @@ class Generic_Plugin {
 		$original_value = $value;
 
 		// Remove dynamic fragment tags from the value.
+		// Use \s*\S+ (zero-or-more whitespace, then one-or-more non-whitespace) so that
+		// tags with no space between the keyword and token (e.g. <!-- mfuncTOKEN -->) are
+		// also caught and not passed through to the str_replace step below where a crafted
+		// token-containing name could otherwise be morphed into a valid mfunc tag.
 		$pattern = array(
-			'~<!--\s*mfunc\s+[^\s]+.*?-->(.*?)<!--\s*/mfunc\s+[^\s]+.*?\s*-->~Uis',
-			'~<!--\s*mclude\s+[^\s]+.*?-->(.*?)<!--\s*/mclude\s+[^\s]+.*?\s*-->~Uis',
+			'~<!--\s*mfunc\s*\S+.*?-->(.*?)<!--\s*/mfunc\s*\S+.*?\s*-->~Uis',
+			'~<!--\s*mclude\s*\S+.*?-->(.*?)<!--\s*/mclude\s*\S+.*?\s*-->~Uis',
 		);
 
 		$value   = preg_replace_callback(
