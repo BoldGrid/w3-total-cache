@@ -8,6 +8,7 @@
  */
 
 use W3TC\Generic_Plugin;
+use W3TC\Util_Bus;
 
 /**
  * Class Generic_Plugin_DynamicFragments_Test.
@@ -25,6 +26,24 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	protected $plugin;
 
 	/**
+	 * Original output-buffer callbacks.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var array
+	 */
+	protected $original_ob_callbacks = array();
+
+	/**
+	 * Output buffer level before each test.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	protected $initial_ob_level = 0;
+
+	/**
 	 * Sets up test fixtures.
 	 *
 	 * @since X.X.X
@@ -39,6 +58,25 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		}
 
 		$this->plugin = new Generic_Plugin();
+		$this->initial_ob_level    = ob_get_level();
+		$this->original_ob_callbacks = isset( $GLOBALS['_w3tc_ob_callbacks'] ) ? $GLOBALS['_w3tc_ob_callbacks'] : array();
+	}
+
+	/**
+	 * Cleans up globals and output buffers after each test.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function tear_down() {
+		$GLOBALS['_w3tc_ob_callbacks'] = $this->original_ob_callbacks;
+
+		while ( ob_get_level() > $this->initial_ob_level ) {
+			ob_end_clean();
+		}
+
+		parent::tear_down();
 	}
 
 	/**
@@ -155,5 +193,87 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $response, $sanitized );
 		$this->assertStringContainsString( W3TC_DYNAMIC_SECURITY, $sanitized->get_data()['rendered'] );
+	}
+
+	/**
+	 * Ensures shutdown processing handles dynamic fragments safely.
+	 *
+	 * Exercises the new no-callback ob_start() + ob_shutdown() flow and verifies
+	 * callbacks can still open nested output buffers while transforming content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_ob_shutdown_processes_dynamic_buffer_with_nested_ob_start() {
+		Util_Bus::add_ob_callback( 'pagecache', array( $this, 'replace_mfunc_fragments_for_test' ) );
+
+		ob_start();
+		ob_start();
+		$this->set_private_property( '_ob_level', ob_get_level() );
+
+		echo 'Before <!-- mfunc ' . W3TC_DYNAMIC_SECURITY . ' -->echo "unsafe";<!-- /mfunc ' . W3TC_DYNAMIC_SECURITY . ' --> After'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		$this->plugin->ob_shutdown();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Before dynamic-fragment-output After', $output );
+		$this->assertStringNotContainsString( '<!-- mfunc', $output );
+
+		ob_start();
+		$this->plugin->ob_shutdown();
+		$second_output = ob_get_clean();
+
+		$this->assertSame( '', $second_output );
+	}
+
+	/**
+	 * Replaces mfunc blocks while simulating nested output buffering.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $buffer Buffer content.
+	 *
+	 * @return string
+	 */
+	public function replace_mfunc_fragments_for_test( $buffer ) {
+		$pattern = '~<!--\s*mfunc\s+' . preg_quote( W3TC_DYNAMIC_SECURITY, '~' ) . '\s*-->.*?<!--\s*/mfunc\s+' . preg_quote( W3TC_DYNAMIC_SECURITY, '~' ) . '\s*-->~is';
+
+		return (string) preg_replace_callback(
+			$pattern,
+			array( $this, 'simulate_dynamic_fragment_parsing' ),
+			$buffer
+		);
+	}
+
+	/**
+	 * Simulates dynamic mfunc rendering with nested ob_start().
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public function simulate_dynamic_fragment_parsing( $matches ) {
+		unset( $matches );
+		ob_start();
+		echo 'dynamic-fragment-output'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Sets a private property on the plugin instance.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $property_name Property name.
+	 * @param mixed  $value         Property value.
+	 *
+	 * @return void
+	 */
+	private function set_private_property( $property_name, $value ) {
+		$reflection = new ReflectionClass( Generic_Plugin::class );
+		$property   = $reflection->getProperty( $property_name );
+		$property->setAccessible( true );
+		$property->setValue( $this->plugin, $value );
 	}
 }
