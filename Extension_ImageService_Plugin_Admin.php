@@ -1009,6 +1009,7 @@ class Extension_ImageService_Plugin_Admin {
 
 				// Determine classes.
 				$link_classes = 'w3tc-convert';
+				$can_edit     = current_user_can( 'edit_post', $post_id );
 
 				switch ( $status ) {
 					case 'processing':
@@ -1021,16 +1022,24 @@ class Extension_ImageService_Plugin_Admin {
 						$aria_attr      = 'true';
 						break;
 					default:
-						$disabled_class = '';
-						$aria_attr      = 'false';
+						if ( $can_edit ) {
+							$disabled_class = '';
+							$aria_attr      = 'false';
+						} else {
+							$disabled_class = 'w3tc-disabled';
+							$aria_attr      = 'true';
+						}
 						break;
 				}
+
+				// Prevent JS from polling status for images the current user cannot edit.
+				$data_status = ( ! $can_edit && 'processing' === $status ) ? '' : $status;
 
 				// Print action links.
 				?>
 				<span class="<?php echo esc_attr( $disabled_class ); ?>">
 					<a class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-						data-status="<?php echo esc_attr( $status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
+						data-status="<?php echo esc_attr( $data_status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
 				<?php
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 				switch ( $status ) {
@@ -1101,8 +1110,10 @@ class Extension_ImageService_Plugin_Admin {
 
 				// If converted, then show revert link.
 				if ( 'converted' === $status ) {
+					$revert_span_class    = $can_edit ? 'w3tc-revert' : 'w3tc-revert w3tc-disabled';
+					$revert_aria_disabled = $can_edit ? 'false' : 'true';
 					?>
-					<span class="w3tc-revert"> | <a><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
+					<span class="<?php echo esc_attr( $revert_span_class ); ?>"> | <a aria-disabled="<?php echo esc_attr( $revert_aria_disabled ); ?>"><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
 					<?php
 					// Check if WEBP and AVIF already exist.
 					$has_webp = false;
@@ -1134,16 +1145,20 @@ class Extension_ImageService_Plugin_Admin {
 
 					// Show additional convert links only when the format is enabled.
 					if ( $has_webp && ! $has_avif && $avif_enabled ) {
+						$avif_span_class    = $can_edit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
+						$avif_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
-						<span class="w3tc-convert-avif"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="false"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
+						<span class="<?php echo esc_attr( $avif_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="<?php echo esc_attr( $avif_aria_disabled ); ?>"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
 						<?php
 					}
 
 					if ( $has_avif && ! $has_webp && $webp_enabled ) {
+						$webp_span_class    = $can_edit ? 'w3tc-convert-webp' : 'w3tc-convert-webp w3tc-disabled';
+						$webp_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
-						<span class="w3tc-convert-webp"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="false"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
+						<span class="<?php echo esc_attr( $webp_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="<?php echo esc_attr( $webp_aria_disabled ); ?>"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
 						<?php
 					}
 				}
