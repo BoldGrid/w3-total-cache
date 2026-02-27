@@ -110,13 +110,6 @@ class PgCache_ContentGrabber {
 	private $_page_key_extension;
 
 	/**
-	 * Shutdown buffer
-	 *
-	 * @var string
-	 */
-	private $_shutdown_buffer = '';
-
-	/**
 	 * Cache reject reason
 	 *
 	 * @var string
@@ -597,23 +590,6 @@ class PgCache_ContentGrabber {
 		}
 
 		return $buffer;
-	}
-
-	/**
-	 * Handles the shutdown process for compressing and outputting the page buffer.
-	 *
-	 * @return void
-	 */
-	public function shutdown() {
-		$compression = $this->_page_key_extension['compression'];
-
-		// Parse dynamic content.
-		$buffer = $this->_parse_dynamic( $this->_shutdown_buffer );
-
-		// Compress page according to headers already set.
-		$compressed_buffer = $this->_compress( $buffer, $compression );
-
-		echo $compressed_buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
