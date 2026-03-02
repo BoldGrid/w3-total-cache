@@ -1039,7 +1039,7 @@ class Extension_ImageService_Plugin_Admin {
 				?>
 				<span class="<?php echo esc_attr( $disabled_class ); ?>">
 					<a class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-						data-status="<?php echo esc_attr( $data_status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
+						data-status="<?php echo esc_attr( $data_status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>" role="button" tabindex="0">
 				<?php
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 				switch ( $status ) {
@@ -1113,7 +1113,7 @@ class Extension_ImageService_Plugin_Admin {
 					$revert_span_class    = $can_edit ? 'w3tc-revert' : 'w3tc-revert w3tc-disabled';
 					$revert_aria_disabled = $can_edit ? 'false' : 'true';
 					?>
-					<span class="<?php echo esc_attr( $revert_span_class ); ?>"> | <a aria-disabled="<?php echo esc_attr( $revert_aria_disabled ); ?>"><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
+					<span class="<?php echo esc_attr( $revert_span_class ); ?>"> | <a aria-disabled="<?php echo esc_attr( $revert_aria_disabled ); ?>" role="button" tabindex="0"><?php esc_html_e( 'Revert', 'w3-total-cache' ); ?></a></span>
 					<?php
 					// Check if WEBP and AVIF already exist.
 					$has_webp = false;
