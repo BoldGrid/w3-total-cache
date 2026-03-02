@@ -1009,6 +1009,7 @@ class Extension_ImageService_Plugin_Admin {
 
 				// Determine classes.
 				$link_classes = 'w3tc-convert';
+				$can_edit     = current_user_can( 'edit_post', $post_id );
 
 				switch ( $status ) {
 					case 'processing':
@@ -1021,16 +1022,24 @@ class Extension_ImageService_Plugin_Admin {
 						$aria_attr      = 'true';
 						break;
 					default:
-						$disabled_class = '';
-						$aria_attr      = 'false';
+						if ( $can_edit ) {
+							$disabled_class = '';
+							$aria_attr      = 'false';
+						} else {
+							$disabled_class = 'w3tc-disabled';
+							$aria_attr      = 'true';
+						}
 						break;
 				}
+
+				// Prevent JS from polling status for images the current user cannot edit.
+				$data_status = ( ! $can_edit && 'processing' === $status ) ? '' : $status;
 
 				// Print action links.
 				?>
 				<span class="<?php echo esc_attr( $disabled_class ); ?>">
 					<a class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-						data-status="<?php echo esc_attr( $status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
+						data-status="<?php echo esc_attr( $data_status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>" role="button" tabindex="0">
 				<?php
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 				switch ( $status ) {
@@ -1101,8 +1110,10 @@ class Extension_ImageService_Plugin_Admin {
 
 				// If converted, then show revert link.
 				if ( 'converted' === $status ) {
+					$revert_span_class    = $can_edit ? 'w3tc-revert' : 'w3tc-revert w3tc-disabled';
+					$revert_aria_disabled = $can_edit ? 'false' : 'true';
 					?>
-					<span class="w3tc-revert"> | <a><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
+					<span class="<?php echo esc_attr( $revert_span_class ); ?>"> | <a aria-disabled="<?php echo esc_attr( $revert_aria_disabled ); ?>" role="button" tabindex="0"><?php esc_html_e( 'Revert', 'w3-total-cache' ); ?></a></span>
 					<?php
 					// Check if WEBP and AVIF already exist.
 					$has_webp = false;
@@ -1134,16 +1145,20 @@ class Extension_ImageService_Plugin_Admin {
 
 					// Show additional convert links only when the format is enabled.
 					if ( $has_webp && ! $has_avif && $avif_enabled ) {
+						$avif_span_class    = $can_edit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
+						$avif_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
-						<span class="w3tc-convert-avif"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="false"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
+						<span class="<?php echo esc_attr( $avif_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="<?php echo esc_attr( $avif_aria_disabled ); ?>"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
 						<?php
 					}
 
 					if ( $has_avif && ! $has_webp && $webp_enabled ) {
+						$webp_span_class    = $can_edit ? 'w3tc-convert-webp' : 'w3tc-convert-webp w3tc-disabled';
+						$webp_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
-						<span class="w3tc-convert-webp"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
-							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="false"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
+						<span class="<?php echo esc_attr( $webp_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="<?php echo esc_attr( $webp_aria_disabled ); ?>"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
 						<?php
 					}
 				}
@@ -1191,6 +1206,14 @@ class Extension_ImageService_Plugin_Admin {
 	public function handle_bulk_actions( $location, $doaction, array $post_ids ) {
 		// Remove custom query args.
 		$location = remove_query_arg( array( 'w3tc_imageservice_submitted', 'w3tc_imageservice_reverted' ), $location );
+
+		// Filter to only attachment IDs the current user is allowed to edit.
+		$post_ids = array_filter(
+			$post_ids,
+			function ( $post_id ) {
+				return current_user_can( 'edit_post', $post_id );
+			}
+		);
 
 		switch ( $doaction ) {
 			case 'w3tc_imageservice_convert':
@@ -1439,7 +1462,7 @@ class Extension_ImageService_Plugin_Admin {
 		// Check WP_Filesystem credentials.
 		Util_WpFile::ajax_check_credentials(
 			sprintf(
-				// translators: 1: HTML achor open tag, 2: HTML anchor close tag.
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 				__( '%1$sLearn more%2$s.', 'w3-total-cache' ),
 				'<a target="_blank" href="' . esc_url(
 					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_error&utm_campaign=imageservice#unable-to-connect-to-the-filesystem-error'
@@ -1766,18 +1789,6 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		// Check WP_Filesystem credentials.
-		Util_WpFile::ajax_check_credentials(
-			sprintf(
-				// translators: 1: HTML achor open tag, 2: HTML anchor close tag.
-				__( '%1$sLearn more%2$s.', 'w3-total-cache' ),
-				'<a target="_blank" href="' . esc_url(
-					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_error&utm_campaign=imageservice#unable-to-connect-to-the-filesystem-error'
-				) . '">',
-				'</a>'
-			)
-		);
-
 		// Check for post id.
 		$post_id_val = Util_Request::get_integer( 'post_id' );
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
@@ -1790,6 +1801,27 @@ class Extension_ImageService_Plugin_Admin {
 				400
 			);
 		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to convert this image.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
+		// Check WP_Filesystem credentials.
+		Util_WpFile::ajax_check_credentials(
+			sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( '%1$sLearn more%2$s.', 'w3-total-cache' ),
+				'<a target="_blank" href="' . esc_url(
+					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=conversion_error&utm_campaign=imageservice#unable-to-connect-to-the-filesystem-error'
+				) . '">',
+				'</a>'
+			)
+		);
 
 		global $wp_filesystem;
 
@@ -1981,6 +2013,16 @@ class Extension_ImageService_Plugin_Admin {
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'You do not have permission to access this image.', 'w3-total-cache' ),
+					),
+					403
+				);
+				return;
+			}
+
 			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_imageservice', true ) );
 		} else {
 			wp_send_json_error(
@@ -2006,6 +2048,16 @@ class Extension_ImageService_Plugin_Admin {
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'You do not have permission to revert this image.', 'w3-total-cache' ),
+					),
+					403
+				);
+				return;
+			}
+
 			// Check if there are any optimizations to revert.
 			$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$has_optimizations = false;
@@ -2051,6 +2103,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_convert_all() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to perform bulk conversions.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		$results = $this->get_eligible_attachments();
 
 		$post_ids = array();
@@ -2079,6 +2140,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_revert_all() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to perform bulk reverts.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		$results = $this->get_imageservice_attachments();
 
 		$revert_count = 0;
@@ -2106,6 +2176,15 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_get_counts() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to view image counts.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		wp_send_json_success( $this->get_counts() );
 	}
 
@@ -2119,6 +2198,15 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function ajax_get_usage() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'You do not have permission to view API usage.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
 
 		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage( true ) );
 	}

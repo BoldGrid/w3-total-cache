@@ -379,14 +379,26 @@
 							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 					}
 				})
-				.fail( function() {
+				.fail( function( response ) {
+					var message;
+
+					if (
+						response && response.hasOwnProperty( 'responseJSON' ) &&
+						response.responseJSON && response.responseJSON.hasOwnProperty( 'data' ) &&
+						response.responseJSON.data.hasOwnProperty( 'error' )
+					) {
+						message = response.responseJSON.data.error;
+					} else {
+						message = w3tcData.lang.ajaxFail;
+					}
+
 					$this
 						.text( w3tcData.lang.error )
 						.data( 'status', null );
 					$itemTd.find( '.w3tc-imageservice-error' ).remove();
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-imageservice-error">' +
-						w3tcData.lang.ajaxFail +
+						message +
 						'</div>'
 					);
 				});
@@ -648,6 +660,12 @@
 
 				if (
 					response && response.hasOwnProperty( 'responseJSON' ) &&
+					response.responseJSON && response.responseJSON.hasOwnProperty( 'data' ) &&
+					response.responseJSON.data.hasOwnProperty( 'error' )
+				) {
+					message = response.responseJSON.data.error;
+				} else if (
+					response && response.hasOwnProperty( 'responseJSON' ) &&
 					response.responseJSON.hasOwnProperty( 'data' ) &&
 					response.responseJSON.data.hasOwnProperty( 'message' )
 				) {
@@ -760,14 +778,26 @@
 					);
 				}
 			})
-			.fail( function() {
+			.fail( function( response ) {
+				var message;
+
 				$this
 					.text( w3tcData.lang.error )
 					.data( 'status', 'error' );
 
+				if (
+					response && response.hasOwnProperty( 'responseJSON' ) &&
+					response.responseJSON && response.responseJSON.hasOwnProperty( 'data' ) &&
+					response.responseJSON.data.hasOwnProperty( 'error' )
+				) {
+					message = response.responseJSON.data.error;
+				} else {
+					message = w3tcData.lang.ajaxFail;
+				}
+
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-imageservice-error">' +
-					w3tcData.lang.ajaxFail +
+					message +
 					'</div>'
 				);
 			});
