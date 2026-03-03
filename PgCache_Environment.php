@@ -374,7 +374,7 @@ class PgCache_Environment {
 
 		$new_config_data = $this->wp_config_remove_from_content( $config_data );
 		$new_config_data = preg_replace(
-			'~<\?(php)?~',
+			'~<\?(php)?(?:\s*declare\s*\(\s*strict_types\s*=\s*1\s*\)\s*;)?~i',
 			"\\0\r\n" . $this->wp_config_addon(),
 			$new_config_data,
 			1
