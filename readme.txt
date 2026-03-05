@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.9
-Stable tag: 2.9.1
+Stable tag: 2.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -364,6 +364,11 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
 
 = 2.9.1 =
 * Fix: Image Converter: Reset request when status is 404
