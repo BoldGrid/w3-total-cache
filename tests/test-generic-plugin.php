@@ -511,25 +511,38 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_ob_shutdown_removes_wp_ob_end_flush_all_from_shutdown() {
-		// Ensure the action is present (WordPress registers it during bootstrap).
-		add_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
-		$this->assertNotFalse(
-			has_action( 'shutdown', 'wp_ob_end_flush_all' ),
-			'wp_ob_end_flush_all must be registered on shutdown before ob_shutdown() runs.'
-		);
+		// Capture the original shutdown hook priority so we can restore it after the test.
+		$original_priority = has_action( 'shutdown', 'wp_ob_end_flush_all' );
 
-		ob_start();
-		$this->set_private_property( '_ob_level', ob_get_level() );
-		echo 'content'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		try {
+			// Ensure the action is present (WordPress registers it during bootstrap).
+			add_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+			$this->assertNotFalse(
+				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
+				'wp_ob_end_flush_all must be registered on shutdown before ob_shutdown() runs.'
+			);
 
-		$this->plugin->ob_shutdown();
+			ob_start();
+			$this->set_private_property( '_ob_level', ob_get_level() );
+			echo 'content'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		$this->assertFalse(
-			has_action( 'shutdown', 'wp_ob_end_flush_all' ),
-			'ob_shutdown() must remove wp_ob_end_flush_all from the shutdown action.'
-		);
+			$this->plugin->ob_shutdown();
 
-		ob_get_clean(); // Consume re-buffered output.
+			$this->assertFalse(
+				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
+				'ob_shutdown() must remove wp_ob_end_flush_all from the shutdown action.'
+			);
+		} finally {
+			// Consume re-buffered output if the buffer is still active.
+			if ( ob_get_level() > 0 ) {
+				ob_get_clean();
+			}
+			// Restore the shutdown hook registry to its original state.
+			remove_action( 'shutdown', 'wp_ob_end_flush_all' );
+			if ( false !== $original_priority ) {
+				add_action( 'shutdown', 'wp_ob_end_flush_all', $original_priority );
+			}
+		}
 	}
 
 	/**
@@ -550,7 +563,9 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 		echo 'content'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$this->plugin->ob_shutdown(); // First call — processes buffer.
-		$level_after_first = ob_get_level();
+		$level_after_first          = ob_get_level();
+		$callback_state_after_first = $this->plugin->ob_callback_called;
+		$buffer_after_first         = ob_get_contents();
 
 		$this->plugin->ob_shutdown(); // Second call — must be a no-op.
 
@@ -559,9 +574,15 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 			ob_get_level(),
 			'Second ob_shutdown() call must not alter the OB stack.'
 		);
-		$this->assertFalse(
-			$this->plugin->ob_callback_called === false && ob_get_level() === 0,
-			'Guard must prevent re-processing on second call.'
+		$this->assertSame(
+			$callback_state_after_first,
+			$this->plugin->ob_callback_called,
+			'Second ob_shutdown() call must not invoke ob_callback() again or change its tracking state.'
+		);
+		$this->assertSame(
+			$buffer_after_first,
+			ob_get_contents(),
+			'Second ob_shutdown() call must not modify the output buffer contents.'
 		);
 
 		ob_get_clean(); // Consume re-buffered output.

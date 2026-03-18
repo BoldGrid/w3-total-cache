@@ -1137,9 +1137,11 @@ class Generic_Plugin {
 
 		/*
 		 * Only run the W3TC processing pipeline (minification, CDN rewriting,
-		 * page caching, etc.) for HTML responses. Non-HTML responses (JSON, XML
-		 * REST, etc.) must be returned verbatim; passing them through ob_callback
-		 * would corrupt the payload (e.g. page-cache HTML prepended to JSON).
+		 * page caching, etc.) for HTML responses (including certain HTML-like
+		 * XML content-types treated as HTML by _is_html_response()). Non-HTML
+		 * responses such as JSON must be returned verbatim; passing them through
+		 * ob_callback would corrupt the payload (e.g. page-cache HTML prepended
+		 * to JSON).
 		 */
 		if ( $is_html ) {
 			$buffer = $this->ob_callback( $buffer );
