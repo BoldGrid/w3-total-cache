@@ -124,6 +124,8 @@ class Generic_Plugin {
 		}
 
 		if ( $this->can_ob() ) {
+			add_filter( 'wp_die_ajax_handler', array( $this, 'wp_die_handler' ) );
+			add_filter( 'wp_die_json_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
 
@@ -138,10 +140,11 @@ class Generic_Plugin {
 
 			/*
 			 * Hook into WordPress 'shutdown' at priority 0 so ob_shutdown runs
-			 * before wp_ob_end_flush_all (priority 1). wp_ob_end_flush_all calls
-			 * ob_end_flush(), which would send the raw unprocessed buffer.
-			 * By processing and echoing the buffer here first we ensure the
-			 * processed output reaches the client.
+			 * before wp_ob_end_flush_all (priority 1). ob_shutdown processes the
+			 * buffer, places the result in a fresh ob_start() buffer, and removes
+			 * wp_ob_end_flush_all so it cannot flush that buffer prematurely.
+			 * PHP auto-flushes all open buffers at true end-of-script, after every
+			 * register_shutdown_function callback has run.
 			 * The PHP shutdown function below is a fallback for abnormal
 			 * termination paths where the WordPress 'shutdown' action may not fire.
 			 */
@@ -1065,9 +1068,9 @@ class Generic_Plugin {
 	/**
 	 * Processes and outputs the W3TC output buffer at shutdown time.
 	 *
-	 * Registered both as a WordPress 'shutdown' action (priority 0, before
-	 * wp_ob_end_flush_all at priority 1) and as a PHP shutdown function
-	 * (fallback). The flag $_ob_shutdown_done prevents double-invocation.
+	 * Registered both as a WordPress 'shutdown' action (priority 0) and as a
+	 * PHP shutdown function (fallback for abnormal termination). The flag
+	 * $_ob_shutdown_done prevents double-invocation.
 	 *
 	 * ob_callback() is invoked explicitly here rather than as a PHP display
 	 * handler, because display handlers (callbacks invoked during ob_end_clean,
@@ -1076,6 +1079,13 @@ class Generic_Plugin {
 	 * requires ob_start() to capture eval() output, so it must not run inside
 	 * a display handler. The ob_start() in run() is registered with no callback
 	 * to ensure no display handler is ever registered for our buffer.
+	 *
+	 * After processing the buffer, output is placed into a fresh ob_start()
+	 * buffer rather than echoed directly. wp_ob_end_flush_all (priority 1) is
+	 * removed so it cannot flush that buffer early. PHP then auto-flushes all
+	 * open output buffers after every shutdown function has run, which keeps
+	 * response headers open for any remaining shutdown handlers (e.g. late
+	 * setcookie() or header() calls from other plugins or session libraries).
 	 *
 	 * @since X.X.X
 	 *
@@ -1089,11 +1099,27 @@ class Generic_Plugin {
 		$this->_ob_shutdown_done = true;
 
 		/*
-		 * Flush any nested output buffers (added by WordPress or other plugins)
-		 * down into ours so their content is included.
+		 * For non-HTML response types (e.g. application/json from AJAX plugins like
+		 * FacetWP that do not define DOING_AJAX), discard nested output buffer
+		 * contents rather than flushing them down into ours. Nested OBs opened by
+		 * themes or plugins during the request may contain partial page HTML that
+		 * must not be prepended to a JSON response body.
+		 *
+		 * For standard HTML responses, flush nested OBs so their content reaches
+		 * W3TC's buffer and is processed (minified, CDN-rewritten, cached, etc.).
+		 */
+		$is_html = $this->_is_html_response();
+
+		/*
+		 * Flush (or discard) any nested output buffers added by WordPress or other
+		 * plugins, so their content is included in (or excluded from) ours.
 		 */
 		while ( ob_get_level() > $this->_ob_level ) {
-			ob_end_flush();
+			if ( $is_html ) {
+				ob_end_flush();
+			} else {
+				ob_end_clean();
+			}
 		}
 
 		if ( ob_get_level() < $this->_ob_level ) {
@@ -1109,9 +1135,81 @@ class Generic_Plugin {
 		 */
 		$buffer = (string) ob_get_clean();
 
-		$buffer = $this->ob_callback( $buffer );
+		/*
+		 * Only run the W3TC processing pipeline (minification, CDN rewriting,
+		 * page caching, etc.) for HTML responses. Non-HTML responses (JSON, XML
+		 * REST, etc.) must be returned verbatim; passing them through ob_callback
+		 * would corrupt the payload (e.g. page-cache HTML prepended to JSON).
+		 */
+		if ( $is_html ) {
+			$buffer = $this->ob_callback( $buffer );
+		}
 
+		/*
+		 * Place the processed output into a new, callback-free buffer instead of
+		 * echoing it directly. This keeps response headers open so that any
+		 * remaining shutdown handlers at higher priorities — or registered PHP
+		 * shutdown functions — can still call setcookie() / header() without
+		 * triggering a "headers already sent" warning.
+		 *
+		 * Removing wp_ob_end_flush_all (shutdown priority 1) prevents a premature
+		 * flush of this buffer during the WordPress shutdown action. PHP
+		 * automatically flushes all open output buffers at true end-of-script,
+		 * after every register_shutdown_function callback has completed.
+		 */
+		ob_start();
 		echo $buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+	}
+
+	/**
+	 * Determines whether the current HTTP response is an HTML (or XML) content type.
+	 *
+	 * Used by ob_shutdown() to decide whether to flush or discard nested output
+	 * buffers. For HTML responses, nested OB content (from themes/plugins) should
+	 * be included in W3TC's buffer. For non-HTML responses (e.g. application/json
+	 * from AJAX plugins), nested OB content should be discarded so it cannot
+	 * contaminate the response.
+	 *
+	 * When no Content-Type header has been sent yet the response defaults to HTML,
+	 * so true is returned.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool True if the response is HTML/XML, false otherwise.
+	 */
+	protected function _is_html_response() {
+		$html_types = array(
+			'text/html',
+			'text/xml',
+			'text/xsl',
+			'application/xhtml+xml',
+			'application/rss+xml',
+			'application/atom+xml',
+			'application/rdf+xml',
+			'application/xml',
+		);
+
+		foreach ( headers_list() as $header ) {
+			$header = strtolower( $header );
+			if ( strpos( $header, 'content-type:' ) === false ) {
+				continue;
+			}
+
+			foreach ( $html_types as $type ) {
+				if ( strpos( $header, $type ) !== false ) {
+					return true;
+				}
+			}
+
+			// A Content-Type header is present but it is not one of the HTML/XML
+			// types above (e.g. application/json, text/plain). Treat as non-HTML.
+			return false;
+		}
+
+		// No Content-Type header sent yet — default to treating as HTML so that
+		// standard WordPress page requests continue to work correctly.
+		return true;
 	}
 
 	/**
