@@ -1086,6 +1086,8 @@ class Generic_Plugin {
 	 * open output buffers after every shutdown function has run, which keeps
 	 * response headers open for any remaining shutdown handlers (e.g. late
 	 * setcookie() or header() calls from other plugins or session libraries).
+	 * The same removal runs on the early-return path when our buffer was
+	 * already closed, so Core does not flush at priority 1 before those hooks.
 	 *
 	 * @since X.X.X
 	 *
@@ -1123,7 +1125,15 @@ class Generic_Plugin {
 		}
 
 		if ( ob_get_level() < $this->_ob_level ) {
-			// Our buffer was already closed (e.g. by a redirect or wp_die).
+			/*
+			 * Our buffer was already closed (e.g. by a redirect or wp_die). Still
+			 * remove wp_ob_end_flush_all so shutdown priority 1 does not flush
+			 * remaining buffers before later hooks (e.g. setcookie at priority 999).
+			 * When headers are already committed, late header() calls still fail
+			 * harmlessly; when output remains buffered elsewhere, this preserves
+			 * compatibility with session/cookie finalization on shutdown.
+			 */
+			remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
 			return;
 		}
 

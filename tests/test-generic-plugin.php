@@ -546,6 +546,43 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * When the W3TC buffer was already closed, ob_shutdown() must still remove
+	 * wp_ob_end_flush_all so Core does not flush at shutdown priority 1 before
+	 * late handlers (e.g. setcookie at priority 999).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_ob_shutdown_early_return_still_removes_wp_ob_end_flush_all() {
+		$original_priority = has_action( 'shutdown', 'wp_ob_end_flush_all' );
+
+		try {
+			add_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+			$this->assertNotFalse(
+				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
+				'wp_ob_end_flush_all must be registered on shutdown before ob_shutdown() runs.'
+			);
+
+			ob_start();
+			$this->set_private_property( '_ob_level', ob_get_level() );
+			ob_end_clean();
+
+			$this->plugin->ob_shutdown();
+
+			$this->assertFalse(
+				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
+				'ob_shutdown() must remove wp_ob_end_flush_all even when its buffer was already closed.'
+			);
+		} finally {
+			remove_action( 'shutdown', 'wp_ob_end_flush_all' );
+			if ( false !== $original_priority ) {
+				add_action( 'shutdown', 'wp_ob_end_flush_all', $original_priority );
+			}
+		}
+	}
+
+	/**
 	 * Second call to ob_shutdown() is a no-op (double-invocation guard).
 	 *
 	 * ob_shutdown() is registered both as a WP shutdown action and as a PHP
