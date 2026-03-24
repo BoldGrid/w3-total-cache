@@ -206,17 +206,37 @@ class UserExperience_LazyLoad_Plugin {
 
 		$on_initialized_javascript = apply_filters( 'w3tc_lazyload_on_initialized_javascript', '' );
 
+		/*
+		 * vanilla-lazyload v13+ removed its built-in MutationObserver support.
+		 * Add a debounced observer so that images injected by AJAX plugins
+		 * (e.g. FacetWP, infinite-scroll) are picked up automatically without
+		 * requiring per-plugin integration code.
+		 *
+		 * The observer is wired up via a named helper so all three embed methods
+		 * share the same snippet. For async_head the helper is called from inside
+		 * the LazyLoad::Initialized handler (where the instance is available);
+		 * for the synchronous methods it is called immediately after init.
+		 */
+		$observe_js =
+			'function w3tc_ll_observe(ll){' .
+				'if(!ll||!ll.update)return;' .
+				'var t;' .
+				'new MutationObserver(function(){' .
+					'clearTimeout(t);' .
+					't=setTimeout(function(){ll.update();},200);' .
+				'}).observe(document.documentElement,{childList:true,subtree:true});' .
+			'}';
+
 		if ( 'async_head' === $method ) {
-			$on_initialized_javascript_wrapped = '';
-			if ( ! empty( $on_initialized_javascript ) ) {
-				// LazyLoad::Initialized fired just before making LazyLoad global so next execution cycle have it.
-				$on_initialized_javascript_wrapped =
-					'window.addEventListener("LazyLoad::Initialized", function(){' .
-						'setTimeout(function() {' .
-							$on_initialized_javascript .
-						'}, 1);' .
-					'});';
-			}
+			// LazyLoad::Initialized fired just before making LazyLoad global so next execution cycle have it.
+			$on_initialized_javascript_wrapped =
+				'window.addEventListener("LazyLoad::Initialized",function(e){' .
+					'setTimeout(function(){' .
+						'window.w3tc_lazyload=e.detail.instance;' .
+						'w3tc_ll_observe(window.w3tc_lazyload);' .
+						$on_initialized_javascript .
+					'},1);' .
+				'});';
 
 			$embed_script =
 				'<style>img.lazy{min-height:1px}</style>' .
@@ -232,6 +252,7 @@ class UserExperience_LazyLoad_Plugin {
 			// load lazyload in footer to make sure DOM is ready at the moment of initialization.
 			$footer_script =
 				'<script>' .
+					$observe_js .
 					$on_initialized_javascript_wrapped .
 					'window.w3tc_lazyload=1,' .
 					'window.lazyLoadOptions=' . $config .
@@ -250,7 +271,9 @@ class UserExperience_LazyLoad_Plugin {
 				'<style>img.lazy{min-height:1px}</style>' .
 				'<script>' .
 				file_get_contents( W3TC_DIR . '/pub/js/lazyload.min.js' ) .
+				$observe_js .
 				'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+				'w3tc_ll_observe(window.w3tc_lazyload);' .
 				$on_initialized_javascript .
 				'</script>';
 
@@ -274,7 +297,9 @@ class UserExperience_LazyLoad_Plugin {
 
 			$footer_script =
 				'<script>' .
+					$observe_js .
 					'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+					'w3tc_ll_observe(window.w3tc_lazyload);' .
 					$on_initialized_javascript .
 				'</script>';
 

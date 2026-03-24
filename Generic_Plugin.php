@@ -1146,14 +1146,19 @@ class Generic_Plugin {
 		$buffer = (string) ob_get_clean();
 
 		/*
-		 * Only run the W3TC processing pipeline (minification, CDN rewriting,
-		 * page caching, etc.) for HTML responses (including certain HTML-like
-		 * XML content-types treated as HTML by _is_html_response()). Non-HTML
-		 * responses such as JSON must be returned verbatim; passing them through
-		 * ob_callback would corrupt the payload (e.g. page-cache HTML prepended
-		 * to JSON).
+		 * Run the W3TC processing pipeline for HTML responses and for WordPress
+		 * REST API requests (where REST_REQUEST is defined). For other non-HTML
+		 * responses (e.g. FacetWP or other AJAX endpoints that return JSON
+		 * containing HTML snippets), skip ob_callback() entirely to avoid
+		 * running lazy load or other HTML processors over the payload.
+		 *
+		 * REST API responses need ob_callback() so the pagecache callback can
+		 * write them to cache when pgcache.rest is set to 'cache'. Other
+		 * ob_callback() processors (minify, CDN, lazyload, etc.) are safe for
+		 * REST JSON because can_print_comment() / is_html_xml() return false,
+		 * preventing HTML-only modifications from being applied.
 		 */
-		if ( $is_html ) {
+		if ( $is_html || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			$buffer = $this->ob_callback( $buffer );
 		}
 
