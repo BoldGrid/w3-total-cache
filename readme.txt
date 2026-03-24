@@ -368,6 +368,8 @@ Please reach out to all of these people and support their projects if you're so 
 = 2.9.3 =
 * Fix: Output buffering: discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
 * Fix: Output buffering: add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: add debounced MutationObserver so images injected by AJAX plugins (e.g. FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
 
 = 2.9.2 =
 * Fix: Patch broken access control for Image Service AJAX operations
