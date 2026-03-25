@@ -583,6 +583,110 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * When an external flush closes the W3TC buffer before ob_shutdown runs,
+	 * output must reach the parent buffer and ob_shutdown must exit cleanly.
+	 *
+	 * If an external mechanism (e.g. an early ob_end_flush() call) closes the
+	 * W3TC output buffer before ob_shutdown executes, ob_shutdown must detect
+	 * the already-closed buffer via the early-return path, remove
+	 * wp_ob_end_flush_all, and return without opening a new ob_start() or
+	 * calling ob_callback(). The flushed content lands in the parent buffer
+	 * (e.g. PHP's output_buffering layer), keeping response headers open for
+	 * any remaining shutdown handlers (e.g. setcookie at a higher priority).
+	 *
+	 * @since 2.9.3
+	 *
+	 * @return void
+	 */
+	public function test_ob_shutdown_output_reaches_parent_buffer_when_wp_ob_end_flush_all_runs_first() {
+		$this->plugin->html_response = true;
+
+		/*
+		 * Open a parent buffer to simulate PHP's output_buffering layer (or the
+		 * web server's implicit buffer). This acts as the container into which
+		 * wp_ob_end_flush_all flushes W3TC's buffer in production.
+		 */
+		ob_start();
+		$parent_level = ob_get_level();
+
+		// Open W3TC's buffer and record the level, exactly as run() does.
+		ob_start();
+		$w3tc_level = ob_get_level();
+		$this->set_private_property( '_ob_level', $w3tc_level );
+		echo '<html>page content</html>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		// Ensure wp_ob_end_flush_all is registered so ob_shutdown can remove it.
+		$original_priority = has_action( 'shutdown', 'wp_ob_end_flush_all' );
+		add_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+
+		try {
+			/*
+			 * Simulate wp_ob_end_flush_all() running first at priority 1.
+			 * wp_ob_end_flush_all() calls ob_end_flush() for every open level,
+			 * flushing each buffer into its parent. Here we replicate that behaviour
+			 * only down to $parent_level so we do not disturb PHPUnit's own buffers.
+			 */
+			for ( $i = ob_get_level(); $i > $parent_level; $i-- ) {
+				ob_end_flush();
+			}
+
+			// W3TC's buffer is now closed; ob_get_level() dropped below _ob_level.
+			$this->assertLessThan(
+				$w3tc_level,
+				ob_get_level(),
+				'wp_ob_end_flush_all must have closed the W3TC buffer before ob_shutdown runs.'
+			);
+
+			/*
+			 * ob_shutdown runs second at priority 1. It must detect the
+			 * already-closed buffer, remove wp_ob_end_flush_all, and return
+			 * early without opening a new ob_start() or calling ob_callback().
+			 */
+			$this->plugin->ob_shutdown();
+
+			// ob_callback must NOT have run — the buffer was already closed.
+			$this->assertFalse(
+				$this->plugin->ob_callback_called,
+				'ob_callback() must not run when the W3TC buffer was already closed by wp_ob_end_flush_all.'
+			);
+
+			// wp_ob_end_flush_all must have been removed from the shutdown action.
+			$this->assertFalse(
+				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
+				'ob_shutdown() must remove wp_ob_end_flush_all on the early-return path.'
+			);
+
+			// OB stack must remain at $parent_level: ob_shutdown must not open a
+			// new buffer on the early-return path.
+			$this->assertSame(
+				$parent_level,
+				ob_get_level(),
+				'ob_shutdown() must not alter the OB level on the early-return path.'
+			);
+
+			// Page content must be present in the parent buffer, confirming that
+			// output is still held in a buffer (not sent to the client), so late
+			// shutdown handlers can still call setcookie() / header().
+			$output = ob_get_clean();
+			$this->assertStringContainsString(
+				'page content',
+				$output,
+				'Page content must reach the parent buffer rather than being sent directly to the client.'
+			);
+		} finally {
+			// Restore the shutdown hook registry to its pre-test state.
+			remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+			if ( false !== $original_priority ) {
+				add_action( 'shutdown', 'wp_ob_end_flush_all', $original_priority );
+			}
+			// Clean up any leftover buffers.
+			while ( ob_get_level() > $this->initial_ob_level ) {
+				ob_end_clean();
+			}
+		}
+	}
+
+	/**
 	 * Second call to ob_shutdown() is a no-op (double-invocation guard).
 	 *
 	 * ob_shutdown() is registered both as a WP shutdown action and as a PHP
