@@ -38,7 +38,7 @@ class Generic_Plugin {
 	/**
 	 * Frontend notice payload when redirecting back from admin actions.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @var ?array
 	 */
@@ -49,7 +49,7 @@ class Generic_Plugin {
 	 *
 	 * Used by ob_shutdown() to identify which buffer level belongs to W3TC.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.2
 	 *
 	 * @var int
 	 */
@@ -63,7 +63,7 @@ class Generic_Plugin {
 	 * a PHP shutdown function (fallback for abnormal termination). This flag
 	 * ensures the second invocation is a no-op.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.2
 	 *
 	 * @var bool
 	 */
@@ -161,7 +161,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from comment content before storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param array $comment_data Comment data being processed.
 	 *
@@ -178,7 +178,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from RSS/feed content.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $content Content to sanitize.
 	 *
@@ -191,7 +191,7 @@ class Generic_Plugin {
 	/**
 	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param \WP_REST_Response|mixed $result  Response data.
 	 * @param \WP_REST_Server         $server  REST server instance.
@@ -217,7 +217,7 @@ class Generic_Plugin {
 	/**
 	 * Recursively removes dynamic fragment tags from REST data structures.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param mixed $data Response data.
 	 *
@@ -250,7 +250,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from a text string.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $value Raw content to sanitize.
 	 *
@@ -760,7 +760,7 @@ class Generic_Plugin {
 	/**
 	 * Loads a pending frontend message triggered during an admin redirect.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @return void
 	 */
@@ -1089,7 +1089,7 @@ class Generic_Plugin {
 	 * The same removal runs on the early-return path when our buffer was
 	 * already closed, so Core does not flush at priority 1 before those hooks.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.2
 	 *
 	 * @return void
 	 */
@@ -1146,14 +1146,19 @@ class Generic_Plugin {
 		$buffer = (string) ob_get_clean();
 
 		/*
-		 * Only run the W3TC processing pipeline (minification, CDN rewriting,
-		 * page caching, etc.) for HTML responses (including certain HTML-like
-		 * XML content-types treated as HTML by _is_html_response()). Non-HTML
-		 * responses such as JSON must be returned verbatim; passing them through
-		 * ob_callback would corrupt the payload (e.g. page-cache HTML prepended
-		 * to JSON).
+		 * Run the W3TC processing pipeline for HTML responses and for WordPress
+		 * REST API requests (where REST_REQUEST is defined). For other non-HTML
+		 * responses (e.g. FacetWP or other AJAX endpoints that return JSON
+		 * containing HTML snippets), skip ob_callback() entirely to avoid
+		 * running lazy load or other HTML processors over the payload.
+		 *
+		 * REST API responses need ob_callback() so the pagecache callback can
+		 * write them to cache when pgcache.rest is set to 'cache'. Other
+		 * ob_callback() processors (minify, CDN, lazyload, etc.) are safe for
+		 * REST JSON because can_print_comment() / is_html_xml() return false,
+		 * preventing HTML-only modifications from being applied.
 		 */
-		if ( $is_html ) {
+		if ( $is_html || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			$buffer = $this->ob_callback( $buffer );
 		}
 
@@ -1186,7 +1191,7 @@ class Generic_Plugin {
 	 * When no Content-Type header has been sent yet the response defaults to HTML,
 	 * so true is returned.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.3
 	 *
 	 * @return bool True if the response is HTML/XML, false otherwise.
 	 */
@@ -1403,7 +1408,7 @@ class Generic_Plugin {
 	/**
 	 * Registers Plugin Check filters so they run in all contexts.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L160
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L180
