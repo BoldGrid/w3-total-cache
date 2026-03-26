@@ -476,7 +476,7 @@ class Extension_CloudFlare_Api {
 
 		$headers = array();
 
-		if ( 40 === strlen( $this->_key ) ) { // CF API Token.
+		if ( 53 === strlen( $this->_key ) ) { // CF API Token.
 			$headers = array(
 				'Content-Type'  => 'application/json',
 				'Authorization' => 'Bearer ' . $this->_key,
