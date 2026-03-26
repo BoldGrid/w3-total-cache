@@ -5700,7 +5700,7 @@ msgstr ""
 
 #: Extension_ImageService_Page_View.php:139
 #: inc/options/general.php:1176
-msgid "In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!"
+msgid "In one recent test, converting images to modern formats like WebP or AVIF added over 9 points to the Google PageSpeed score!"
 msgstr ""
 
 #: Extension_ImageService_Page_View.php:154
@@ -5767,7 +5767,7 @@ msgid "Refresh"
 msgstr ""
 
 #: Extension_ImageService_Page_View.php:230
-msgid "WebP Converter API usage:"
+msgid "Image Converter API usage:"
 msgstr ""
 
 #: Extension_ImageService_Page_View.php:234
@@ -5788,7 +5788,7 @@ msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:103
 #: SetupGuide_Plugin_Admin.php:1389
-msgid "Adds the ability to convert images in the Media Library to the modern WebP format for better performance."
+msgid "Adds the ability to convert images in the Media Library to modern formats (like WebP or AVIF) for better performance."
 msgstr ""
 
 #. translators: 1: HTML break, 2: WordPress version string, 3: HTML archor open tag, 4: HTML archor close tag.
@@ -5800,7 +5800,7 @@ msgstr ""
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag, 3: HTML anchor open tag, 4: HTML anchor open tag.
 #: Extension_ImageService_Plugin_Admin.php:140
 #, php-format
-msgid "Total Cache WebP Converter has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s."
+msgid "Total Cache Image Converter has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to modern formats like WebP or AVIF.  %4$sLearn more%2$s."
 msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:157
@@ -5813,7 +5813,7 @@ msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:539
 #: Extension_ImageService_Plugin_Admin.php:540
-msgid "Total Cache WebP Converter"
+msgid "Total Cache Image Converter"
 msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:595
@@ -5894,7 +5894,7 @@ msgstr ""
 #: inc/options/general.php:1120
 #: Util_PageUrls.php:1066
 #: Util_Ui.php:2113
-msgid "WebP Converter"
+msgid "Image Converter"
 msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:808
@@ -5922,7 +5922,7 @@ msgstr ""
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 #: Extension_ImageService_Plugin_Admin.php:976
 #, php-format
-msgid "Switch to %1$slist mode%2$s for WebP conversions."
+msgid "Switch to %1$slist mode%2$s for image format conversions."
 msgstr ""
 
 #. translators: 1: HTML achor open tag, 2: HTML anchor close tag.
@@ -5955,7 +5955,7 @@ msgstr ""
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 #: Extension_ImageService_Plugin_Admin.php:1459
 #, php-format
-msgid "WP Cron is not working as expected, which is required for %1$s WebP conversions.  %2$sLearn more%3$s."
+msgid "WP Cron is not working as expected, which is required for image format conversions.  %2$sLearn more%3$s."
 msgstr ""
 
 #: Extension_ImageService_Widget.php:106
@@ -5982,7 +5982,7 @@ msgstr ""
 
 #: Extension_ImageService_Widget_View.php:39
 #: SetupGuide_Plugin_Admin.php:1395
-msgid "Enable WebP Converter"
+msgid "Enable Image Converter"
 msgstr ""
 
 #: Extension_NewRelic_AdminNotes.php:31
@@ -6464,7 +6464,7 @@ msgid "Activate"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:221
-msgid "Adds the ability to convert images into the modern WebP format for better performance using our remote API service."
+msgid "Adds the ability to convert images into the modern formats (like WebP or AVIF) for better performance using our remote API service."
 msgstr ""
 
 #. translators: 1: HTML p open tag, 2: WordPress version string, 3: HTML anchor open tag, 4: HTML anchor close tag, 5: HTML p close tag.
@@ -9989,23 +9989,23 @@ msgid "Sometimes, you'll encounter a complex issue involving your cache being pu
 msgstr ""
 
 #: inc/options/general.php:1096
-msgid "The WebP Converter tool can be used to generate WebP versions of media library images which offer superior lossless and lossy compression."
+msgid "The Image Converter tool can be used to generate modern-format versions (e.g., WebP or AVIF) of media library images which offer superior lossless and lossy compression."
 msgstr ""
 
 #. Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
 #: inc/options/general.php:1112
 #, php-format
-msgid "The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page."
+msgid "The tool and its settings can be found on the %1$s %2$sImage Converter%3$s page."
 msgstr ""
 
 #: inc/options/general.php:1122
-msgid "Enable WebP Converter Extension"
+msgid "Enable Image Converter Extension"
 msgstr ""
 
 #. translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 #: inc/options/general.php:1126
 #, php-format
-msgid "This extension allows for optimizing media library images to WebP format.%1$s%2$s%1$s%3$s"
+msgid "This extension allows for optimizing media library images to modern formats like WebP or AVIF.%1$s%2$s%1$s%3$s"
 msgstr ""
 
 #. translators: 4 closing HTML a tag.
@@ -12103,7 +12103,7 @@ msgstr ""
 #: PageSpeed_Instructions.php:152
 #: PageSpeed_Instructions.php:218
 #, php-format
-msgid "Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP."
+msgid "Use %1$s %2$sImage Converter%3$s to convert media library images to modern formats like WebP or AVIF."
 msgstr ""
 
 #: PageSpeed_Instructions.php:144
@@ -12232,7 +12232,7 @@ msgstr ""
 #. translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
 #: PageSpeed_Instructions.php:289
 #, php-format
-msgid "Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use WebP conversion via the %1$s %2$sWebP Converter%3$s extension."
+msgid "Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use modern format conversion (e.g., WebP or AVIF) via the %1$s %2$sImage Converter%3$s extension."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
@@ -12507,7 +12507,7 @@ msgid "Use default values for best results"
 msgstr ""
 
 #: PageSpeed_Instructions.php:510
-msgid "Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loading, and WebP conversion can impact this metric as well."
+msgid "Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loading, and modern format conversion (e.g., WebP or AVIF) can impact this metric as well."
 msgstr ""
 
 #: PageSpeed_Instructions.php:514

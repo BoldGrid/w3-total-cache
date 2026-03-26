@@ -53,14 +53,14 @@ do_action( 'w3tc-dashboard-footer' );
 		</div>
 		<div class="w3tc-footer-column-1">
 			<h2><?php esc_html_e( 'Documentation', 'w3-total-cache' ); ?></h2>
-			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Support Center', 'w3-total-cache' ); ?>">
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=support_center' ); ?>" alt="<?php esc_attr_e( 'Support Center', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Support Center', 'w3-total-cache' ); ?>
 			</a>
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://github.com/BoldGrid/w3-total-cache' ); ?>" alt="<?php esc_attr_e( 'GitHub', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'GitHub', 'w3-total-cache' ); ?>
 			</a>
 			<h2><?php esc_html_e( 'Support', 'w3-total-cache' ); ?></h2>
-			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/forum/w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Forums', 'w3-total-cache' ); ?>">
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/forum/w3-total-cache/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=forums' ); ?>" alt="<?php esc_attr_e( 'Forums', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Forums', 'w3-total-cache' ); ?>
 			</a>
 			<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>" alt="<?php esc_attr_e( 'Premium Support Services', 'w3-total-cache' ); ?>">
@@ -70,39 +70,39 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<h2><?php esc_html_e( 'Pro Features', 'w3-total-cache' ); ?></h2>
 			<div class="w3tc-footer-inner-column-50">
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn/full-site-delivery/' ); ?>" alt="<?php esc_attr_e( 'Full Site Delivery', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn/full-site-delivery/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=full_site_delivery' ); ?>" alt="<?php esc_attr_e( 'Full Site Delivery', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Full Site Delivery', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/what-is-fragment-caching-and-why-do-i-need-it/' ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/what-is-fragment-caching-and-why-do-i-need-it/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=fragment_cache' ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/page-cache/rest-api/' ); ?>" alt="<?php esc_attr_e( 'Rest API Caching', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/page-cache/rest-api/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=rest_api_caching' ); ?>" alt="<?php esc_attr_e( 'Rest API Caching', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Rest API Caching', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/render-blocking-css/' ); ?>" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/render-blocking-css/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=render_blocking_css' ); ?>" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/delay-scripts-tool/' ); ?>" alt="<?php esc_attr_e( 'Delay Scripts', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/delay-scripts-tool/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=delay_scripts' ); ?>" alt="<?php esc_attr_e( 'Delay Scripts', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/' ); ?>" alt="<?php esc_attr_e( 'Preload Requests', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=preload_requests' ); ?>" alt="<?php esc_attr_e( 'Preload Requests', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Preload Requests', 'w3-total-cache' ); ?>
 				</a>
 			</div>
 			<div class="w3tc-footer-inner-column-50">
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/remove-cssjs/' ); ?>" alt="<?php esc_attr_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/remove-cssjs/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=remove_css_js' ); ?>" alt="<?php esc_attr_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=lazy_load_maps' ); ?>" alt="<?php esc_attr_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/wpml/' ); ?>" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/wpml/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=wpml_extension' ); ?>" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'WPML Extension', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-statistics-to-give-detailed-information-about-your-cache/' ); ?>" alt="<?php esc_attr_e( 'Caching Statistics', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-statistics-to-give-detailed-information-about-your-cache/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=caching_statistics' ); ?>" alt="<?php esc_attr_e( 'Caching Statistics', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Caching Statistics', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/purge-cache-log/' ); ?>" alt="<?php esc_attr_e( 'Purge Logs', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/purge-cache-log/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=purge_logs' ); ?>" alt="<?php esc_attr_e( 'Purge Logs', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Purge Logs', 'w3-total-cache' ); ?>
 				</a>
 			</div>
@@ -110,7 +110,7 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<div class="w3tc-footer-inner-column-50">
 				<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=newsletter_signup' ); ?>">
 				<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">

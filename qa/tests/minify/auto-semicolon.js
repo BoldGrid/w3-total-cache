@@ -58,6 +58,11 @@ describe('', function() {
 		await page.goto(testPageUrl);
 		let scripts = await dom.listScriptSrcSync(page);
 		for (let url of scripts) {
+			// WordPress script modules are intentionally excluded from minification
+			if (url.indexOf('wp-includes/js/dist/script-modules/') >= 0) {
+				log.log('skipping WordPress script module: ' + url);
+				continue;
+			}
 			log.log('Minify presence expected in ' + url);
 			expect(url).contains('cache/minify');
 		}

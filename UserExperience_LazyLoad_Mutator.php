@@ -295,11 +295,21 @@ class UserExperience_LazyLoad_Mutator {
 	 */
 	public function style_offload_background( $matches ) {
 		list( $match, $v1, $v2, $v, $quote ) = $matches;
-		$url_match                           = null;
+
+		$url_match = null;
+
 		preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
+
 		$v = preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
 
-		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . ( isset( $url_match[2] ) ? $url_match[2] : '' ) . $quote;
+		$raw_url = '';
+		if ( isset( $url_match[2] ) ) {
+			$charset = get_bloginfo( 'charset' );
+			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
+			$raw_url = trim( $raw_url, '\'"' );
+		}
+
+		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . esc_attr( $raw_url ) . $quote;
 	}
 
 	/**

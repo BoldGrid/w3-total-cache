@@ -100,6 +100,32 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test rmdir handles malformed paths without warnings.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_rmdir_with_malformed_path() {
+		$path   = W3TC_DIR . '//test-dir-' . \gmdate( 'c' );
+		$errors = array();
+
+		\set_error_handler(
+			function ( $errno, $errstr ) use ( &$errors ) {
+				$errors[] = $errstr;
+				return true;
+			}
+		);
+
+		try {
+			$this->assertNull( \W3TC\Util_File::rmdir( $path ) );
+		} finally {
+			\restore_error_handler();
+		}
+
+		$this->assertEmpty( $errors );
+		$this->assertFalse( \file_exists( \W3TC\Util_Environment::realpath( $path ) ) );
+	}
+
+	/**
 	 * Test emptydir.
 	 *
 	 * @since 2.3.1

@@ -215,18 +215,25 @@ def generate_box_descriptors(image_name)
 		#		'php56' # wp6.6 requires php>=7.0
 		#	]
 		#},
-		'wp67' => {
-			'WP_VERSION' => '6.7',
-			'_except_name_contains' => [
-				'litespeed',
-				'php56' # wp6.7 requires php>=7.0
-			]
-		},
+		#'wp67' => {
+		#	'WP_VERSION' => '6.7',
+		#	'_except_name_contains' => [
+		#		'litespeed',
+		#		'php56' # wp6.7 requires php>=7.0
+		#	]
+		#},
 		'wp68' => {
 			'WP_VERSION' => '6.8',
 			'_except_name_contains' => [
 				'litespeed',
 				'php56' # wp6.8 requires php>=7.2
+			]
+		},
+		'wp69' => {
+			'WP_VERSION' => '6.9',
+			'_except_name_contains' => [
+				'litespeed',
+				'php56' # wp6.9 requires php>=7.2
 			]
 		}
 	}, image_name)

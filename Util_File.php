@@ -155,38 +155,56 @@ class Util_File {
 	 * @return void
 	 */
 	public static function rmdir( $path, $exclude = array(), $remove = true ) {
-		$dir = file_exists( $path ) ? opendir( $path ) : false;
+		if ( ! \is_string( $path ) || '' === $path ) {
+			return;
+		}
+
+		// Normalize first to avoid duplicate separators and malformed input.
+		$path = Util_Environment::realpath( $path );
+
+		if ( '' === $path ) {
+			return;
+		}
+
+		// Refresh cached stats before checking the filesystem.
+		\clearstatcache();
+
+		if ( ! @\is_dir( $path ) ) {
+			return;
+		}
+
+		$dir = @\opendir( $path );
 
 		if ( $dir ) {
-			$entry = @readdir( $dir );
+			$entry = @\readdir( $dir );
 			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+					$entry = @\readdir( $dir );
 					continue;
 				}
 
 				foreach ( $exclude as $mask ) {
-					if ( fnmatch( $mask, basename( $entry ) ) ) {
-						$entry = @readdir( $dir );
+					if ( \fnmatch( $mask, \basename( $entry ) ) ) {
+						$entry = @\readdir( $dir );
 						continue 2;
 					}
 				}
 
 				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
 
-				if ( @is_dir( $full_path ) ) {
+				if ( @\is_dir( $full_path ) ) {
 					self::rmdir( $full_path, $exclude );
 				} else {
-					@unlink( $full_path );
+					@\unlink( $full_path );
 				}
 
-				$entry = @readdir( $dir );
+				$entry = @\readdir( $dir );
 			}
 
-			@closedir( $dir );
+			@\closedir( $dir );
 
 			if ( $remove ) {
-				@rmdir( $path );
+				@\rmdir( $path );
 			}
 		}
 	}

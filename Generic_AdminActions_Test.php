@@ -227,7 +227,7 @@ class Generic_AdminActions_Test {
 			$memcached->set( $test_string, $test_value, 60 );
 			$test_value = $memcached->get( $test_string );
 
-			if ( $test_value['content'] !== $test_string ) {
+			if ( empty( $test_value['content'] ) || $test_value['content'] !== $test_string ) {
 				return false;
 			}
 		}

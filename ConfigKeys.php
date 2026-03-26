@@ -2500,6 +2500,8 @@ $keys = array(
 			'compression' => 'lossy',
 			'auto'        => 'enabled',
 			'visibility'  => 'never',
+			'webp'        => true,
+			'avif'        => true,
 		),
 	),
 	'imageservice.configuration_overloaded'                => array(

@@ -14,6 +14,7 @@ namespace W3TC;
  * deprecated
  *
  * @see NewRelicAPI
+ * @link https://docs.newrelic.com/docs/apis/rest-api-v2/get-started/introduction-new-relic-rest-api-v2/
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
@@ -217,11 +218,14 @@ class Extension_NewRelic_Service {
 				$error['agent_enabled'] = __( 'PHP agent is not enabled.', 'w3-total-cache' );
 			}
 
-			if ( ! $this->get_account_id() ) {
+			$account_id = $this->get_account_id();
+			$app_id     = $this->get_effective_application_id();
+
+			if ( ! $account_id && 0 === $app_id ) {
 				$error['account_id'] = __( 'Account ID is not configured.', 'w3-total-cache' );
 			}
 
-			if ( 0 === $this->get_effective_application_id() ) {
+			if ( 0 === $app_id ) {
 				$error['application_id'] = __( 'Application ID is not configured. Enter/Select application name.', 'w3-total-cache' );
 			}
 
@@ -320,7 +324,8 @@ class Extension_NewRelic_Service {
 			return array();
 		}
 
-		return $this->getAPI()->get_applications( $this->get_account_id() );
+		// Account ID is not needed for v2 app listing.
+		return $this->getAPI()->get_applications( 0 );
 	}
 
 	/**
@@ -376,7 +381,7 @@ class Extension_NewRelic_Service {
 	 */
 	public function get_subscription() {
 		$account = $this->get_account();
-		if ( $account ) {
+		if ( $account && isset( $account['subscription'] ) ) {
 			return $account['subscription'];
 		}
 		return null;
@@ -389,6 +394,10 @@ class Extension_NewRelic_Service {
 	 */
 	public function can_get_metrics() {
 		$subscription = $this->get_subscription();
+		if ( ! is_array( $subscription ) || ! isset( $subscription['product-name'] ) ) {
+			return true;
+		}
+
 		return 'Lite' !== $subscription['product-name'];
 	}
 
@@ -527,7 +536,7 @@ class Extension_NewRelic_Service {
 	 * @return array An array of formatted dashboard metric data.
 	 */
 	public function get_dashboard_metrics() {
-		$metrics = array( 'Database/all', 'WebTransaction', 'EndUser' );
+		$metrics = array( 'Datastore/all', 'WebTransaction', 'EndUser' );
 		$field   = 'average_response_time';
 		return $this->get_metric_data( $metrics, $field, 1, true );
 	}
@@ -584,20 +593,43 @@ class Extension_NewRelic_Service {
 	 * @return array An associative array of the slowest database transactions by name and response time.
 	 */
 	public function get_slowest_database() {
-		$metric_names      = $this->get_metric_names( '^Database/' );
-		$metric_names_keys = array_keys( $metric_names );
-		$metric_names_keys = array_slice( $metric_names_keys, 7 );
-		$metric_data       = $this->get_metric_data( $metric_names_keys, 'average_response_time', 1, true, false );
-		$slowest           = array();
-		if ( $metric_data ) {
-			$transactions = $metric_data['Database'];
-			foreach ( $transactions as $transaction ) {
-				$key             = str_replace( 'Database', '', $transaction->name );
-				$slowest[ $key ] = $transaction->average_response_time;
-			}
-			$slowest = $this->_sort_and_slice( $slowest, 5 );
+		// Prefer Datastore metrics (v2); fall back to Database if empty.
+		$metric_names      = $this->get_metric_names( '^Datastore/' );
+		$metric_group_key  = 'Datastore';
+		if ( empty( $metric_names ) ) {
+			$metric_names     = $this->get_metric_names( '^Database/' );
+			$metric_group_key = 'Database';
 		}
-		return $slowest;
+
+		$metric_names_keys = array_keys( $metric_names );
+		if ( empty( $metric_names_keys ) ) {
+			return array();
+		}
+
+		// Limit to top 25 metric names to avoid huge query strings.
+		$metric_names_keys = array_slice( $metric_names_keys, 0, 25 );
+
+		$metric_data = $this->get_metric_data( $metric_names_keys, 'average_response_time', 1, true, false );
+		if ( empty( $metric_data ) || empty( $metric_data[ $metric_group_key ] ) ) {
+			// Try fallback field if response time is absent.
+			$metric_data = $this->get_metric_data( $metric_names_keys, 'average_value', 1, true, false );
+			if ( empty( $metric_data ) || empty( $metric_data[ $metric_group_key ] ) ) {
+				return array();
+			}
+		}
+
+		$slowest     = array();
+		$transactions = $metric_data[ $metric_group_key ];
+		foreach ( $transactions as $transaction ) {
+			$key   = str_replace( $metric_group_key, '', $transaction->name );
+			$value = isset( $transaction->average_response_time ) ? $transaction->average_response_time : ( $transaction->average_value ?? null );
+			if ( null === $value ) {
+				continue;
+			}
+			$slowest[ $key ] = $value;
+		}
+
+		return $this->_sort_and_slice( $slowest, 5 );
 	}
 
 	/**
@@ -634,7 +666,7 @@ class Extension_NewRelic_Service {
 	 * @return string The application name, or an empty string if not found.
 	 */
 	public function get_application_name( $application_id ) {
-		$apps = $this->get_applications( $this->get_account_id() );
+		$apps = $this->get_applications();
 		return isset( $apps[ $application_id ] ) ? $apps[ $application_id ] : '';
 	}
 
@@ -654,25 +686,49 @@ class Extension_NewRelic_Service {
 			$ids = array();
 		}
 
-		if ( isset( $ids[ $this->_api_key ] ) ) {
+		if ( isset( $ids[ $this->_api_key ] ) && $ids[ $this->_api_key ] > 0 ) {
 			return $ids[ $this->_api_key ];
 		}
 
-		$ids[ $this->_api_key ] = 0;
+		$account_id = 0;
 
 		try {
 			$account = $this->getAPI()->get_account();
-
-			if ( $account ) {
-				$ids[ $this->_api_key ] = (int) $account['id'];
+			if ( $account && ! empty( $account['id'] ) ) {
+				$account_id = (int) $account['id'];
 			}
-		} catch ( \Exception $ex ) {
-			return 0;
+		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}
 
-		update_option( 'w3tc_nr_account_id', wp_json_encode( $ids ) );
+		// Fallback: derive from the selected application details (safe, no recursion).
+		if ( 0 === $account_id ) {
+			$app_id = $this->get_effective_application_id();
+			if ( $app_id ) {
+				try {
+					$app_details = $this->getAPI()->get_application( $app_id );
+					if ( isset( $app_details['account_id'] ) ) {
+						$account_id = (int) $app_details['account_id'];
+					}
+				} catch ( \Exception $app_ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				}
+			}
+		}
 
-		return $ids[ $this->_api_key ];
+		if ( $account_id > 0 ) {
+			$ids[ $this->_api_key ] = $account_id;
+			update_option( 'w3tc_nr_account_id', wp_json_encode( $ids ) );
+
+			// Persist to config for visibility/use elsewhere.
+			$config = Dispatcher::config();
+			if ( $config->get_integer( array( 'newrelic', 'account_id' ) ) !== $account_id ) {
+				$config->set( array( 'newrelic', 'account_id' ), $account_id );
+				$config->save();
+			}
+
+			return $account_id;
+		}
+
+		return 0;
 	}
 
 	/**

@@ -26,6 +26,7 @@ namespace W3TC;
  *   license.next_check - time of next check
  *   license.terms - accepted/declined/''
  *   license.community_terms - accepted/declined/'' (master)
+ *   license.paypal_billing_update_required - whether PayPal billing update is needed
  *   minify.error.file
  *   minify.error.last
  *   minify.error.notification.last

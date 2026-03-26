@@ -1,10 +1,57 @@
 <?php
+/**
+ * File: dbcache.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 defined( 'W3TC' ) || die();
 
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
+
+<?php
+$dbcache_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/database-caching/';
+$dbcache_learn_more_link     = static function ( $anchor, $setting_label ) use ( $dbcache_doc_url ) {
+	if ( empty( $anchor ) || empty( $setting_label ) ) {
+		return '';
+	}
+
+	$title = sprintf(
+		/* translators: %s: Database Cache setting name. */
+		__( 'Learn more about %s', 'w3-total-cache' ),
+		$setting_label
+	);
+
+	return ' <a target="_blank" href="' . esc_url( $dbcache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+};
+$dbcache_anchor_allowed_tags = array(
+	'a'    => array(
+		'class'  => array(),
+		'href'   => array(),
+		'title'  => array(),
+		'target' => array(),
+	),
+	'span' => array(
+		'class' => array(),
+	),
+);
+$dbcache_learn_more_output   = static function ( $anchor, $config_key = '' ) use ( $dbcache_learn_more_link ) {
+	if ( empty( $anchor ) ) {
+		return '';
+	}
+
+	$label = $config_key ? Util_Ui::config_label( $config_key ) : '';
+
+	if ( empty( $label ) ) {
+		$label = $anchor;
+	}
+
+	return $dbcache_learn_more_link( $anchor, wp_strip_all_tags( $label ) );
+};
+?>
 
 <p>
 	<?php
@@ -35,7 +82,10 @@ defined( 'W3TC' ) || die();
 			<tr>
 				<th>
 					<?php $this->checkbox( 'dbcache.reject.logged' ); ?> <?php Util_Ui::e_config_label( 'dbcache.reject.logged' ); ?></label>
-					<p class="description"><?php esc_html_e( 'Enabling this option is recommended to maintain default WordPress behavior.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Enabling this option is recommended to maintain default WordPress behavior.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'dont-cache-queries-for-logged-in-users', 'dbcache.reject.logged' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</th>
 			</tr>
 		</table>
@@ -59,7 +109,10 @@ defined( 'W3TC' ) || die();
 					<input id="dbcache_lifetime" type="text" name="dbcache__lifetime"
 						<?php Util_Ui::sealing_disabled( 'dbcache.' ); ?>
 						value="<?php echo esc_attr( $this->_config->get_integer( 'dbcache.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
-					<p class="description"><?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'maximum-lifetime-of-cache-objects', 'dbcache.lifetime' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -67,7 +120,10 @@ defined( 'W3TC' ) || die();
 				<td>
 					<input id="dbcache_file_gc" type="text" name="dbcache__file__gc"
 					<?php Util_Ui::sealing_disabled( 'dbcache.' ); ?> value="<?php echo esc_attr( $this->_config->get_integer( 'dbcache.file.gc' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
-					<p class="description"><?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'garbage-collection-interval', 'dbcache.file.gc' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -100,6 +156,7 @@ defined( 'W3TC' ) || die();
 								)
 							);
 							?>
+							<?php echo wp_kses( $dbcache_learn_more_output( 'never-cache-the-following-pages', 'dbcache.reject.uri' ), $dbcache_anchor_allowed_tags ); ?>
 						</p>
 				</td>
 			</tr>
@@ -108,7 +165,10 @@ defined( 'W3TC' ) || die();
 				<td>
 					<textarea id="dbcache_reject_sql" name="dbcache__reject__sql"
 						<?php Util_Ui::sealing_disabled( 'dbcache.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'dbcache.reject.sql' ) ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'Do not cache queries that contain these terms. Any entered prefix (set in wp-config.php) will be replaced with current database prefix (default: wp_). Query stems can be identified using debug mode.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Do not cache queries that contain these terms. Any entered prefix (set in wp-config.php) will be replaced with current database prefix (default: wp_). Query stems can be identified using debug mode.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'ignored-query-stems', 'dbcache.reject.sql' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -116,25 +176,33 @@ defined( 'W3TC' ) || die();
 				<td>
 					<textarea id="dbcache_reject_words" name="dbcache__reject__words"
 						<?php Util_Ui::sealing_disabled( 'dbcache.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'dbcache.reject.words' ) ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'Do not cache queries that contain these words or regular expressions.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Do not cache queries that contain these words or regular expressions.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'reject-query-words', 'dbcache.reject.words' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
-				<th><label for="dbcache_reject_constants"><?php esc_html_e( 'Reject constants:', 'w3-total-cache' ); ?></label></th>
+				<th><label for="dbcache_reject_constants"><?php Util_Ui::e_config_label( 'dbcache.reject.constants' ); ?></label></th>
 				<td>
 					<textarea id="dbcache_reject_constants" name="dbcache__reject__constants"
 						<?php Util_Ui::sealing_disabled( 'dbcache.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'dbcache.reject.constants' ) ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'Disable caching once specified constants defined.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Disable caching once specified constants defined.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $dbcache_learn_more_output( 'reject-constants', 'dbcache.reject.constants' ), $dbcache_anchor_allowed_tags ); ?>
+					</p>
 				</td>
 			</tr>
 			<?php
 			Util_Ui::config_item(
 				array(
 					'key'            => 'dbcache.wpcli_disk',
-					'label'          => esc_html__( 'Enable for WP-CLI', 'w3-total-cache' ),
+					'label'          => Util_Ui::config_label( 'dbcache.wpcli_disk' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $dbcache_enabled,
+					'description'    => esc_html__( 'WP-CLI already uses Memcached, Redis, and other persistent engines. Enable this only if your database cache engine is Disk and you want WP-CLI to use it.', 'w3-total-cache' ) .
+						wp_kses( $dbcache_learn_more_output( 'allow-wpcli-disk-cache', 'dbcache.wpcli_disk' ), $dbcache_anchor_allowed_tags ),
 				)
 			);
 			?>
@@ -145,25 +213,11 @@ defined( 'W3TC' ) || die();
 		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'dbcache_wp_cron' ); ?>
 		<table class="form-table">
 			<p>
-				<?php
-				echo wp_kses(
-					sprintf(
-						// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
-						__(
-							'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db". Visit %1$shere%2$s for more information.',
-							'w3-total-cache'
-						),
-						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
-						'</a>'
-					),
-					array(
-						'a' => array(
-							'href'   => array(),
-							'target' => array(),
-						),
-					)
-				);
-				?>
+				<?php esc_html_e( 'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db".', 'w3-total-cache' ); ?>
+				<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ); ?>" title="<?php esc_attr_e( 'Scheduling Page Cache purges', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?>
+					<span class="dashicons dashicons-external"></span>
+				</a>
 			</p>
 			<?php
 			$wp_disabled = ! $this->_config->get_boolean( 'dbcache.wp_cron' );
@@ -194,7 +248,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'            => 'dbcache.wp_cron',
-					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'label'          => Util_Ui::config_label( 'dbcache.wp_cron' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'disabled'       => ! $dbcache_enabled,
@@ -214,7 +268,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'              => 'dbcache.wp_cron_time',
-					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'label'            => Util_Ui::config_label( 'dbcache.wp_cron_time' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
@@ -225,7 +279,7 @@ defined( 'W3TC' ) || die();
 			Util_Ui::config_item(
 				array(
 					'key'              => 'dbcache.wp_cron_interval',
-					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'label'            => Util_Ui::config_label( 'dbcache.wp_cron_interval' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),

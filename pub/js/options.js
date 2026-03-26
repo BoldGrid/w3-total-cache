@@ -1914,8 +1914,13 @@ jQuery(function() {
 				nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
 				options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
 				form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+			var target_id = hash.substring(1);
+			var target_el = document.getElementById(target_id);
+			if (!target_el) {
+				return;
+			}
 			jQuery('html, body').animate({
-					scrollTop: jQuery(hash.replace(/\./g, '\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+					scrollTop: jQuery(target_el).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
 				},
 				600
 			);
@@ -1924,8 +1929,8 @@ jQuery(function() {
 
 	var hash = window.location.hash;
 	if (hash) {
-		var $element = jQuery('#' + hash.substring(1));
-        if ($element.length) {
+		var target_el = document.getElementById(hash.substring(1));
+        if (target_el) {
 			// Start at top of page rather than instantly loading at the anchor point.
 			window.scrollTo(0, 0);
 			var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
@@ -1936,7 +1941,7 @@ jQuery(function() {
 			setTimeout(
 				function() {
 					jQuery('html, body').animate({
-							scrollTop: $element.offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+							scrollTop: jQuery(target_el).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
 						},
 						600
 					);

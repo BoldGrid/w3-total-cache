@@ -105,16 +105,9 @@ class PgCache_ContentGrabber {
 	/**
 	 * Page key extension
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private $_page_key_extension;
-
-	/**
-	 * Shutdown buffer
-	 *
-	 * @var string
-	 */
-	private $_shutdown_buffer = '';
 
 	/**
 	 * Cache reject reason
@@ -447,7 +440,7 @@ class PgCache_ContentGrabber {
 			return true;
 		}
 
-		$this->caching             = false;
+		$this->_caching            = false;
 		$this->cache_reject_reason = 'w3tc_page_extract_key filter result forced not to cache';
 
 		return false;
@@ -586,38 +579,17 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		// We can't capture output in ob_callback so we use shutdown function.
 		if ( $has_dynamic ) {
-			$this->_shutdown_buffer = $buffer;
+			$compression = $this->_page_key_extension['compression'];
+			if ( defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' ) ) {
+				$compression = false;
+			}
 
-			$buffer = '';
-
-			register_shutdown_function(
-				array(
-					$this,
-					'shutdown',
-				)
-			);
+			$buffer = $this->_parse_dynamic( $buffer );
+			$buffer = $this->_compress( $buffer, $compression );
 		}
 
 		return $buffer;
-	}
-
-	/**
-	 * Handles the shutdown process for compressing and outputting the page buffer.
-	 *
-	 * @return void
-	 */
-	public function shutdown() {
-		$compression = $this->_page_key_extension['compression'];
-
-		// Parse dynamic content.
-		$buffer = $this->_parse_dynamic( $this->_shutdown_buffer );
-
-		// Compress page according to headers already set.
-		$compressed_buffer = $this->_compress( $buffer, $compression );
-
-		echo $compressed_buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -944,7 +916,8 @@ class PgCache_ContentGrabber {
 		}
 
 		if ( empty( $caches[ $group ] ) ) {
-			$engine = $this->_config->get_string( 'pgcache.engine' );
+			$engine           = $this->_config->get_string( 'pgcache.engine' );
+			$use_expired_data = true;
 
 			switch ( $engine ) {
 				case 'memcached':
@@ -983,6 +956,10 @@ class PgCache_ContentGrabber {
 					break;
 
 				case 'file_generic':
+					// Elementor deletes dependent assets when its cache flushes. Serving *_old HTML here keeps
+					// pointing visitors to missing CSS/JS, so disable stale reads when Elementor is detected.
+					$use_expired_data = ! Util_Environment::is_elementor();
+
 					if ( '*' !== $group ) {
 						$engine = 'file';
 
@@ -1018,7 +995,7 @@ class PgCache_ContentGrabber {
 					$engine_config = array();
 			}
 
-			$engine_config['use_expired_data'] = true;
+			$engine_config['use_expired_data'] = $use_expired_data;
 			$engine_config['module']           = 'pgcache';
 			$engine_config['host']             = '';
 			$engine_config['instance_id']      = Util_Environment::instance_id();
@@ -2089,8 +2066,10 @@ class PgCache_ContentGrabber {
 			return $buffer;
 		}
 
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
 		$buffer = preg_replace_callback(
-			'~<!--\s*mfunc\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mfunc\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mfunc\s+' . $security . '(.*)-->(.*)<!--\s*/mfunc\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mfunc',
@@ -2099,7 +2078,7 @@ class PgCache_ContentGrabber {
 		);
 
 		$buffer = preg_replace_callback(
-			'~<!--\s*mclude\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/mclude\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*mclude\s+' . $security . '(.*)-->(.*)<!--\s*/mclude\s+' . $security . '\s*-->~Uis',
 			array(
 				$this,
 				'_parse_dynamic_mclude',
@@ -2185,12 +2164,14 @@ class PgCache_ContentGrabber {
 	 * @return bool True if dynamic tags are present, false otherwise.
 	 */
 	public function _has_dynamic( $buffer ) {
-		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) ) {
+		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) || 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return false;
 		}
 
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
 		return preg_match(
-			'~<!--\s*m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '(.*)-->(.*)<!--\s*/m(func|clude)\s*' . W3TC_DYNAMIC_SECURITY . '\s*-->~Uis',
+			'~<!--\s*m(func|clude)\s+' . $security . '(.*)-->(.*)<!--\s*/m(func|clude)\s+' . $security . '\s*-->~Uis',
 			$buffer
 		);
 	}
@@ -2351,7 +2332,7 @@ class PgCache_ContentGrabber {
 			$compressions_to_store = array( false );
 		}
 
-		// Right now dont return compressed buffer if we are dynamic that will happen on shutdown after processing dynamic stuff.
+		// For dynamic pages, return the unprocessed buffer so ob_callback can parse and compress it directly.
 		$compression_of_returned_content = ( $has_dynamic ? false : $compression_header );
 
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );

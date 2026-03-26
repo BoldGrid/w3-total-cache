@@ -576,23 +576,26 @@ class Util_Ui {
 	 *
 	 * @param string $message Message.
 	 * @param string $id      Adds an id to the notification box.
+	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return string
 	 */
-	public static function get_notification_box( $message, $id = '' ) {
+	public static function get_notification_box( $message, $id = '', $dismissible = false ) {
 		$page_val = Util_Request::get_string( 'page' );
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
+				'<img src="%1$s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) ) . ''
 			);
 		} else {
 			$logo = '';
 		}
+
 		return sprintf(
-			'<div %s class="updated inline">%s</div>',
+			'<div %1$s class="notice notice-info updated inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
+			$dismissible ? 'is-dismissible' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 	}
@@ -602,11 +605,12 @@ class Util_Ui {
 	 *
 	 * @param string $message Message.
 	 * @param string $id      adds an id to the notification box.
+	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return void
 	 */
-	public static function e_notification_box( $message, $id = '' ) {
-		$notification_box = self::get_notification_box( $message, $id );
+	public static function e_notification_box( $message, $id = '', $dismissible = false ) {
+		$notification_box = self::get_notification_box( $message, $id, $dismissible );
 		echo wp_kses(
 			$notification_box,
 			self::get_allowed_html_for_wp_kses_from_content( $notification_box )
@@ -618,15 +622,16 @@ class Util_Ui {
 	 *
 	 * @param string $message Message.
 	 * @param string $id      Id.
+	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return void
 	 */
-	public static function error_box( $message, $id = '' ) {
+	public static function error_box( $message, $id = '', $dismissible = false ) {
 		$page_val = Util_Request::get_string( 'page' );
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
+				'<img src="%1$s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) . '' )
 			);
 		} else {
@@ -634,8 +639,9 @@ class Util_Ui {
 		}
 
 		$v = sprintf(
-			'<div %s class="error inline">%s</div>',
+			'<div %1$s class="notice notice-error error inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
+			$dismissible ? 'is-dismissible' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 
@@ -1395,6 +1401,15 @@ class Util_Ui {
 					'</p>'
 				),
 				array(
+					'a'       => array(
+						'href'   => array(),
+						'title'  => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'span'    => array(
+						'class' => array(),
+					),
 					'p'       => array(
 						'class' => array(),
 					),
@@ -2110,7 +2125,7 @@ class Util_Ui {
 						),
 						array(
 							'id'   => 'image_service',
-							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+							'text' => esc_html__( 'Image Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',

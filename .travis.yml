@@ -36,7 +36,7 @@ matrix:
 
 install:
   - composer self-update
-  - yarn run upgrade:deps
+  - yarn run install:deps
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
 
 script:
@@ -47,7 +47,7 @@ script:
   # JavaScript lint.
   #- yarn run js-lint
   # Remove dev dependencies.
-  - composer install --no-dev -o
+  - composer install --no-dev --no-interaction --prefer-dist -o
   # PHP lint.
   - find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 

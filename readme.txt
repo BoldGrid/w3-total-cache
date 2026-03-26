@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.8
-Stable tag: 2.8.14
+Tested up to: 6.9
+Stable tag: 2.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,7 +57,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
-* WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
+* Image Converter extension provides modern image format conversion (e.g., WebP, AVIF) from common image formats (on upload and on demand)
 
 <h3>W3 Total Cache Pro Features</h3>
 
@@ -124,9 +124,9 @@ This feature caches API responses, reducing server load and speeding up API inte
 * Reduced the Average Server Load by 24% under during a major traffic spike (Before: 34.55 / After: 26.19)
 * [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/)
 
-<h4>WebP Images</h4>
+<h4>Modern Image Formats</h4>
 
-Converts images to the WebP format, which is more efficient and faster to load.
+Converts images to modern formats like WebP or AVIF, which are more efficient and faster to load.
 
 * Added over 9 points to the Google PageSpeed score (Before: 84.67 / After: 93.83)
 * [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/)
@@ -298,11 +298,11 @@ Typically, you should tell your web host about the permission issue and they sho
 
 You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.php to circumvent the file and folder checks.
 
-= Does the WebP Converter extension use a lot of resources to convert images to WebP? =
+= Does the Image Converter extension use a lot of resources to convert images to modern formats like WebP or AVIF? =
 
-No.  The WebP Converter extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
+No.  The Image Converter extension converts common image file formats to modern formats like WebP or AVIF using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
 
-= Is image data retained by the Total Cache WebP Converter API? =
+= Is image data retained by the Total Cache Image Converter API? =
 
 Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
@@ -321,6 +321,9 @@ You will be able to see the results instantly on each page load, but for tangibl
 Yes! Please [reach out to us](https://www.w3-edge.com/contact/) and we'll get you acclimated so you can "set it and forget it."
 
 Install the plugin to read the full FAQ on the plugins FAQ tab.
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the W3 Total Cache plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/d5047161-3e39-4462-9250-1b04385021dd). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
 
 == Installation ==
 
@@ -362,6 +365,46 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.9.3 =
+* Fix: Output buffering: discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
+* Fix: Output buffering: add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: add debounced MutationObserver so images injected by AJAX plugins (e.g. FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
+
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
+
+= 2.9.1 =
+* Fix: Image Converter: Reset request when status is 404
+* Fix: Image Converter: Better handling of separate format requests
+* Fix: Image Converter: UI/JS changes
+* Fix: Config caching/saving issue
+
+= 2.9.0 =
+* Feature: Next-Gen AVIF image conversion (Pro)
+* Feature: Added notices for some billing issues
+* Fix: Bunny CDN purge section
+* Fix: New Relic API
+* Fix: Nginx + Memcached Unix socket compatability
+* Update: Setup Guide Wizard and test improvements
+* Update: WebP Converter renamed to Image Converter
+
+= 2.8.15 =
+* Fix: Elementor: Carousel lazy load
+* Fix: Elementor: Cache clearing issues
+* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
+* Fix: Better validation for file directory cleanup
+* Fix: Bunny CDN: Settings page purge URL section
+* Fix: Minify: Auto JS: Handle async and defer attributes with values
+* Fix: Google PageSpeed: Lighthouse changes
+* Fix: Cloudflare: Undefined array warning
+* Fix: Rackspace API: Reponse code handling
+* Fix: License deactivation messages
+* Update: ChartJS updated to v4.4.1
+* Enhancement: Added support links
+
 = 2.8.14 =
 * Fix: Better logic for mfunc/mclude processing
 * Enhancement: More consistent purge notices
@@ -372,7 +415,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Discard simplexml errors
 * Fix: Missing text domains
 * Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: WebP Converter: WP_Query optimizations
+* Enhancement: Image Converter: WP_Query optimizations
 
 = 2.8.12 =
 * Fix: Lazy load background-image style handing
@@ -449,7 +492,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added "immutable" options for cache-control headers
 * Update: Added WP-CLI command descriptions
 * Update: CDN widget notices for BunnyCDN
-* Update: WebP Converter widget notice
+* Update: Image Converter widget notice
 
 = 2.8.2 =
 * Fix: Added additional user capability checks

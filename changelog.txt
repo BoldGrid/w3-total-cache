@@ -10,7 +10,7 @@
 * Fix: Discard simplexml errors
 * Fix: Missing text domains
 * Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: WebP Converter: WP_Query optimizations
+* Enhancement: Image Converter: WP_Query optimizations
 
 = 2.8.12 =
 * Fix: Lazy load background-image style handing
@@ -87,7 +87,7 @@
 * Update: Added "immutable" options for cache-control headers
 * Update: Added WP-CLI command descriptions
 * Update: CDN widget notices for BunnyCDN
-* Update: WebP Converter widget notice
+* Update: Image Converter widget notice
 
 = 2.8.2 =
 * Fix: Added additional user capability checks
@@ -210,7 +210,7 @@
 * Update: Added "Learn more" links
 
 = 2.6.1 =
-* Fix: WebP Converter extension activation
+* Fix: Image Converter extension activation
 * Fix: Media Library upload may fail when using Bunny CDN
 * Fix: Cloudflare API error when updating certain settings
 * Fix: Lazy Loading issue with the Delay Scripts feature enabled
@@ -235,8 +235,8 @@
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
 * Fix: Cache Groups delete button not working for added groups
-* Update: Renamed Image Service feature to WebP Converter
-* Update: Added WebP Converter block to General Settings page along with link to navigation bar
+* Update: Renamed Image Service feature to Image Converter
+* Update: Added Image Converter block to General Settings page along with link to navigation bar
 * Update: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
 
 = 2.4.1 =

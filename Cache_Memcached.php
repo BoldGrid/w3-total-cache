@@ -114,6 +114,17 @@ class Cache_Memcached extends Cache_Base {
 
 		foreach ( (array) $config['servers'] as $server ) {
 			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
+
+			// For unix sockets, php-memcached expects the socket path as host and port 0.
+			// Users may configure servers like "unix:/var/run/memcached/memcached.sock".
+			if ( 0 === (int) $port && ( 0 === strpos( $ip, 'unix:' ) || false !== strpos( $ip, '/' ) ) ) {
+				$ip = preg_replace( '#^unix:(/*)#', '/', $ip );
+				if ( '/' !== substr( $ip, 0, 1 ) ) {
+					$ip = '/' . $ip;
+				}
+				$port = 0;
+			}
+
 			$this->_memcache->addServer( $ip, $port );
 		}
 
@@ -228,6 +239,92 @@ class Cache_Memcached extends Cache_Base {
 	 */
 	public function replace( $key, &$value, $expire = 0, $group = '' ) {
 		return $this->set( $key, $value, $expire, $group );
+	}
+
+	/**
+	 * Retrieves multiple cached values in a single request.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $keys  Cache keys.
+	 * @param string $group Cache group.
+	 *
+	 * @return array Map of cache key => cached payload (or null).
+	 */
+	public function get_multi( array $keys, $group = '' ) {
+		if ( empty( $keys ) ) {
+			return array();
+		}
+
+		$storage_keys = array();
+		foreach ( $keys as $key ) {
+			$storage_keys[] = $this->get_item_key( $key );
+		}
+
+		$values         = null;
+		$preserve_order = false;
+
+		if ( defined( '\Memcached::GET_PRESERVE_ORDER' ) ) {
+			$values         = @$this->_memcache->getMulti( $storage_keys, \Memcached::GET_PRESERVE_ORDER );
+			$preserve_order = true;
+		}
+
+		if ( ! is_array( $values ) ) {
+			$values         = @$this->_memcache->getMulti( $storage_keys );
+			$preserve_order = false;
+		}
+
+		$results = array();
+		foreach ( $keys as $i => $key ) {
+			$storage_key = $storage_keys[ $i ];
+
+			if ( isset( $values[ $storage_key ] ) ) {
+				$results[ $key ] = $values[ $storage_key ];
+			} elseif ( $preserve_order && isset( $values[ $i ] ) ) {
+				$results[ $key ] = $values[ $i ];
+			} else {
+				$results[ $key ] = null;
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Stores multiple values in a single request.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $items  Map of cache key => payload.
+	 * @param string $group  Cache group.
+	 * @param int    $expire Expiration.
+	 *
+	 * @return array Map of cache key => success boolean.
+	 */
+	public function set_multi( array $items, $group = '', $expire = 0 ) {
+		if ( empty( $items ) ) {
+			return array();
+		}
+
+		$key_version = $this->_get_key_version( $group );
+		$payload     = array();
+
+		foreach ( $items as $key => $value ) {
+			if ( ! isset( $value['key_version'] ) ) {
+				$value['key_version'] = $key_version;
+			}
+
+			$payload[ $this->get_item_key( $key ) ] = $value;
+		}
+
+		$ok      = @$this->_memcache->setMulti( $payload, $expire );
+		$results = array();
+
+		foreach ( $items as $key => $_ ) {
+			$results[ $key ] = (bool) $ok;
+		}
+
+		return $results;
 	}
 
 	/**

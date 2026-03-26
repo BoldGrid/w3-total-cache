@@ -62,4 +62,8 @@ add_action( 'wp_enqueue_scripts', function() {
 
 	wp_enqueue_script( 'minify-js2', $url2 );
 	wp_enqueue_script( 'minify-js3', get_template_directory_uri() . '/qa/minify-auto-js3.js' );
+
+	// Enqueue CSS files for minify headers test.
+	wp_enqueue_style( 'minify-css1', get_template_directory_uri() . '/qa/minify-css1.css',
+		array(), W3TC_VERSION, false );
 } );

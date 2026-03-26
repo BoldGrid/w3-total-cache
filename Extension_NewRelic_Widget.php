@@ -164,9 +164,9 @@ class Extension_NewRelic_Widget {
 			$can_use_metrics = $service->can_get_metrics();
 			if ( $can_use_metrics ) {
 				$dashboard_metrics = $service->get_dashboard_metrics();
-				$this->_fill_avg( $response, 'enduser', $dashboard_metrics, 'EndUser' );
-				$this->_fill_avg( $response, 'webtransaction', $dashboard_metrics, 'WebTransaction' );
-				$this->_fill_avg( $response, 'database', $dashboard_metrics, 'Database' );
+				$this->_fill_avg( $response, 'enduser', $dashboard_metrics, array( 'EndUser' ) );
+				$this->_fill_avg( $response, 'webtransaction', $dashboard_metrics, array( 'WebTransaction' ) );
+				$this->_fill_avg( $response, 'database', $dashboard_metrics, array( 'Datastore', 'Database' ) );
 			}
 
 			// load data for notification here too.
@@ -303,16 +303,37 @@ class Extension_NewRelic_Widget {
 	 * @param array  $response    The response array to be populated.
 	 * @param string $response_key The key for the response data.
 	 * @param array  $metrics     The metrics data array.
-	 * @param string $metric_key  The key for the metric data.
+	 * @param string|array $metric_key  The key(s) for the metric data.
 	 *
 	 * @return void
 	 */
 	private function _fill_avg( &$response, $response_key, $metrics, $metric_key ) {
-		if ( ! isset( $metrics[ $metric_key ] ) ) {
+		$keys = (array) $metric_key;
+		$data = null;
+
+		foreach ( $keys as $k ) {
+			if ( isset( $metrics[ $k ] ) ) {
+				$data = $metrics[ $k ];
+				break;
+			}
+		}
+
+		if ( empty( $data ) || ! isset( $data[0][0] ) ) {
 			return;
 		}
 
-		$data                      = $metrics[ $metric_key ];
-		$response[ $response_key ] = Util_Ui::secs_to_time( array_shift( $data[0] )->average_response_time );
+		$first = $data[0][0];
+		$value = null;
+		if ( isset( $first->average_response_time ) ) {
+			$value = $first->average_response_time;
+		} elseif ( isset( $first->average_value ) ) {
+			$value = $first->average_value;
+		}
+
+		if ( null === $value ) {
+			return;
+		}
+
+		$response[ $response_key ] = Util_Ui::secs_to_time( $value );
 	}
 }

@@ -123,18 +123,22 @@ class Minify_AutoJs {
 		$script_tags = apply_filters( 'w3tc_minify_js_script_tags', $script_tags );
 
 		// pass scripts.
+		// Keep per-queue attribute data so we can preserve async/defer/type hints when rebuilding tags.
 		$this->files_to_minify = array(
 			'sync'  => array(
-				'embed_pos' => 0,
-				'files'     => array(),
+				'embed_pos'  => 0,
+				'files'      => array(),
+				'attributes' => array(),
 			),
 			'async' => array(
-				'embed_pos' => 0,
-				'files'     => array(),
+				'embed_pos'  => 0,
+				'files'      => array(),
+				'attributes' => array(),
 			),
 			'defer' => array(
-				'embed_pos' => 0,
-				'files'     => array(),
+				'embed_pos'  => 0,
+				'files'      => array(),
+				'attributes' => array(),
 			),
 		);
 
@@ -178,6 +182,22 @@ class Minify_AutoJs {
 			if ( $this->debug ) {
 				Minify_Core::log( 'script not found:' . $script_tag );
 			}
+
+			return;
+		}
+
+		// Skip scripts with special types that should not be minified.
+		$script_attributes = $this->extract_script_tag_attributes( $script_tag );
+		if (
+			isset( $script_attributes['type'] ) &&
+			in_array( $script_attributes['type'], array( 'importmap', 'application/json' ), true )
+		) {
+			// WordPress 6.9+ import maps and JSON scripts must stay untouched.
+			if ( $this->debug ) {
+				Minify_Core::log( 'skipping ' . $script_attributes['type'] . ' script' );
+			}
+
+			$this->flush_collected( 'sync', $script_tag );
 
 			return;
 		}
@@ -275,6 +295,29 @@ class Minify_AutoJs {
 			return;
 		}
 
+		$m = null;
+		if ( ! preg_match( '~\s+(async|defer)[>=\s]~is', $script_tag, $m ) ) {
+			$sync_type = 'sync';
+		} else {
+			$sync_type = strtolower( $m[1] );
+		}
+
+		// Extract attributes if not already extracted (for scripts with src).
+		if ( ! isset( $script_attributes ) ) {
+			$script_attributes = $this->extract_script_tag_attributes( $script_tag );
+		}
+
+		if ( isset( $script_attributes['type'] ) && 'module' === $script_attributes['type'] ) {
+			// Elementor and core WP ship ES modules that must stay untouched; bail so the original tag is preserved.
+			if ( $this->debug ) {
+				Minify_Core::log( 'skipping module script ' . $script_src );
+			}
+
+			$this->flush_collected( $sync_type, $script_tag );
+
+			return;
+		}
+
 		$this->debug_minified_urls[] = $file;
 		$this->buffer                = substr_replace(
 			$this->buffer,
@@ -283,10 +326,7 @@ class Minify_AutoJs {
 			strlen( $script_tag )
 		);
 
-		$m = null;
-		if ( ! preg_match( '~\s+(async|defer)[> ]~is', $script_tag, $m ) ) {
-			$sync_type = 'sync';
-
+		if ( 'sync' === $sync_type ) {
 			// for head group - put minified file at the place of first script
 			// for body - put at the place of last script, to make as more DOM
 			// objects available as possible.
@@ -297,10 +337,10 @@ class Minify_AutoJs {
 				$this->files_to_minify[ $sync_type ]['embed_pos'] = $tag_pos;
 			}
 		} else {
-			$sync_type                                        = strtolower( $m[1] );
 			$this->files_to_minify[ $sync_type ]['embed_pos'] = $tag_pos;
 		}
 
+		$this->apply_script_attributes_to_queue( $sync_type, $script_attributes );
 		$this->files_to_minify[ $sync_type ]['files'][] = $file;
 
 		if ( 'minify' === $this->config->get_string( 'minify.js.method' ) ) {
@@ -326,6 +366,12 @@ class Minify_AutoJs {
 			return;
 		}
 
+		// Preserve original script attributes (async/defer/type/etc) when rebuilding the tag.
+		$script_attributes = array();
+		if ( isset( $this->files_to_minify[ $sync_type ]['attributes'] ) ) {
+			$script_attributes = $this->files_to_minify[ $sync_type ]['attributes'];
+		}
+
 		// build minified script tag.
 		if ( 'sync' === $sync_type ) {
 			$embed_type = $this->embed_type[ $this->group_type ];
@@ -340,6 +386,7 @@ class Minify_AutoJs {
 			'embed_pos'       => $this->files_to_minify[ $sync_type ]['embed_pos'],
 			'embed_type'      => $embed_type,
 			'buffer'          => $this->buffer,
+			'script_attributes' => $script_attributes,
 		);
 
 		$data         = apply_filters( 'w3tc_minify_js_step', $data );
@@ -350,7 +397,20 @@ class Minify_AutoJs {
 
 			$script = '';
 			if ( ! is_null( $url ) ) {
-				$script .= $this->minify_helpers->generate_script_tag( $url, $data['embed_type'] );
+				if ( ! isset( $data['script_attributes'] ) || ! is_array( $data['script_attributes'] ) ) {
+					$data['script_attributes'] = array();
+				}
+
+				if (
+					isset( $data['script_attributes']['type'] ) &&
+					'module' === $data['script_attributes']['type'] &&
+					'nb-js' === $data['embed_type']
+				) {
+					// Modules can't be lazy-loaded via the nb-js inline loader (syntax errors), so keep them blocking.
+					$data['embed_type'] = 'blocking';
+				}
+
+				$script .= $this->minify_helpers->generate_script_tag( $url, $data['embed_type'], $data['script_attributes'] );
 			}
 
 			$data['script_to_embed_url']  = $url;
@@ -378,8 +438,62 @@ class Minify_AutoJs {
 		}
 
 		$this->files_to_minify[ $sync_type ] = array(
-			'embed_pos' => 0,
-			'files'     => array(),
+			'embed_pos'  => 0,
+			'files'      => array(),
+			'attributes' => array(),
 		);
+	}
+
+	/**
+	 * Extracts key script attributes that should be preserved.
+	 *
+	 * @param string $script_tag Script markup.
+	 *
+	 * @return array
+	 */
+	private function extract_script_tag_attributes( $script_tag ) {
+		$attributes = array();
+
+		if ( preg_match( '~\stype=(["\'])([^"\']+)\1~i', $script_tag, $match ) ) {
+			$type = strtolower( trim( $match[2] ) );
+			if ( 'module' === $type ) {
+				$attributes['type'] = 'module';
+			} elseif ( 'importmap' === $type ) {
+				// WordPress 6.9+ import maps must stay untouched.
+				$attributes['type'] = 'importmap';
+			} elseif ( 'application/json' === $type ) {
+				// JSON scripts must stay untouched.
+				$attributes['type'] = 'application/json';
+			}
+		}
+
+		if ( preg_match( '~\snomodule(?:\s|>|/>)~i', $script_tag ) ) {
+			$attributes['nomodule'] = true;
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Applies attributes to the queue, flushing if they differ from current state.
+	 *
+	 * @param string $sync_type  Queue key.
+	 * @param array  $attributes Attributes detected from the script tag.
+	 *
+	 * @return void
+	 */
+	private function apply_script_attributes_to_queue( $sync_type, $attributes ) {
+		if ( ! isset( $this->files_to_minify[ $sync_type ]['attributes'] ) ) {
+			$this->files_to_minify[ $sync_type ]['attributes'] = array();
+		}
+
+		if (
+			count( $this->files_to_minify[ $sync_type ]['files'] ) > 0 &&
+			$this->files_to_minify[ $sync_type ]['attributes'] !== $attributes
+		) {
+			$this->flush_collected( $sync_type, '' );
+		}
+
+		$this->files_to_minify[ $sync_type ]['attributes'] = $attributes;
 	}
 }

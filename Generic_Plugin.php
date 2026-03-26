@@ -38,11 +38,36 @@ class Generic_Plugin {
 	/**
 	 * Frontend notice payload when redirecting back from admin actions.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @var ?array
 	 */
 	private $frontend_notice;
+
+	/**
+	 * Output buffer nesting level recorded at ob_start() time.
+	 *
+	 * Used by ob_shutdown() to identify which buffer level belongs to W3TC.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @var int
+	 */
+	private $_ob_level = 0;
+
+	/**
+	 * Guards against ob_shutdown() being invoked twice.
+	 *
+	 * Function `ob_shutdown()` is registered both as a WordPress 'shutdown' action
+	 * (priority 0, so it runs before wp_ob_end_flush_all at priority 1) and as
+	 * a PHP shutdown function (fallback for abnormal termination). This flag
+	 * ensures the second invocation is a no-op.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @var bool
+	 */
+	private $_ob_shutdown_done = false;
 
 	/**
 	 * Constructor
@@ -73,7 +98,7 @@ class Generic_Plugin {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 150 );
 		add_action( 'admin_bar_init', array( $this, 'admin_bar_init' ) );
 
-		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && '' !== W3TC_DYNAMIC_SECURITY ) {
+		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && ! empty( W3TC_DYNAMIC_SECURITY ) ) {
 			add_filter( 'rest_post_dispatch', array( $this, 'sanitize_rest_response_dynamic_tags' ), 10, 3 );
 			add_filter( 'the_content_feed', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
 			add_filter( 'the_excerpt_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
@@ -99,10 +124,32 @@ class Generic_Plugin {
 		}
 
 		if ( $this->can_ob() ) {
+			add_filter( 'wp_die_ajax_handler', array( $this, 'wp_die_handler' ) );
+			add_filter( 'wp_die_json_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
 
-			ob_start( array( $this, 'ob_callback' ) );
+			/*
+			 * Register with no callback so no display-handler restriction applies.
+			 * ob_callback() is invoked explicitly in ob_shutdown() instead.
+			 * PHP's display-handler restriction (ob_start() forbidden inside a
+			 * callback) made every ob flush mechanism unsafe for mfunc processing.
+			 */
+			ob_start();
+			$this->_ob_level = ob_get_level();
+
+			/*
+			 * Hook into WordPress 'shutdown' at priority 0 so ob_shutdown runs
+			 * before wp_ob_end_flush_all (priority 1). ob_shutdown processes the
+			 * buffer, places the result in a fresh ob_start() buffer, and removes
+			 * wp_ob_end_flush_all so it cannot flush that buffer prematurely.
+			 * PHP auto-flushes all open buffers at true end-of-script, after every
+			 * register_shutdown_function callback has run.
+			 * The PHP shutdown function below is a fallback for abnormal
+			 * termination paths where the WordPress 'shutdown' action may not fire.
+			 */
+			add_action( 'shutdown', array( $this, 'ob_shutdown' ), 0 );
+			register_shutdown_function( array( $this, 'ob_shutdown' ) );
 		}
 
 		$this->register_plugin_check_filters();
@@ -114,7 +161,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from comment content before storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param array $comment_data Comment data being processed.
 	 *
@@ -131,7 +178,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from RSS/feed content.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $content Content to sanitize.
 	 *
@@ -144,7 +191,7 @@ class Generic_Plugin {
 	/**
 	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param \WP_REST_Response|mixed $result  Response data.
 	 * @param \WP_REST_Server         $server  REST server instance.
@@ -170,7 +217,7 @@ class Generic_Plugin {
 	/**
 	 * Recursively removes dynamic fragment tags from REST data structures.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param mixed $data Response data.
 	 *
@@ -203,34 +250,49 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from a text string.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $value Raw content to sanitize.
 	 *
 	 * @return string
 	 */
 	private function strip_dynamic_fragment_tags_from_string( $value ) {
+		// Early return if the value is not a string or the W3TC_DYNAMIC_SECURITY constant is not defined or empty.
 		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) ) {
 			return $value;
 		}
 
-		$original = $value;
-		$token    = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
-		$pattern  = array(
-			'~<!--\s*mfunc\s*' . $token . '(.*)-->(.*)<!--\s*/mfunc\s*' . $token . '\s*-->~Uis',
-			'~<!--\s*mclude\s*' . $token . '(.*)-->(.*)<!--\s*/mclude\s*' . $token . '\s*-->~Uis',
-		);
-		$value    = preg_replace( $pattern, '', $value );
+		$original_value = $value;
 
+		// Remove dynamic fragment tags from the value.
+		// Use \s*\S+ (zero-or-more whitespace, then one-or-more non-whitespace) so that
+		// tags with no space between the keyword and token (e.g. <!-- mfuncTOKEN -->) are
+		// also caught and not passed through to the str_replace step below where a crafted
+		// token-containing name could otherwise be morphed into a valid mfunc tag.
+		$pattern = array(
+			'~<!--\s*mfunc\s*\S+.*?-->(.*?)<!--\s*/mfunc\s*\S+.*?\s*-->~Uis',
+			'~<!--\s*mclude\s*\S+.*?-->(.*?)<!--\s*/mclude\s*\S+.*?\s*-->~Uis',
+		);
+
+		$value   = preg_replace_callback(
+			$pattern,
+			function ( $matches ) {
+				return $matches[1]; // Keep only the captured content between the tags.
+			},
+			$value
+		);
+
+		// If the value is null (preg_replace error), return the original value.
 		if ( null === $value ) {
-			$value = $original;
+			return $original_value;
 		}
 
-		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean, so don't strip "1"s.
 		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return $value;
 		}
 
+		// Remove the dynamic security token from the value.
 		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
@@ -321,7 +383,7 @@ class Generic_Plugin {
 	public function init() {
 		// Load W3TC textdomain for translations.
 		$this->reset_l10n();
-		
+
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
@@ -698,7 +760,7 @@ class Generic_Plugin {
 	/**
 	 * Loads a pending frontend message triggered during an admin redirect.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @return void
 	 */
@@ -900,7 +962,7 @@ class Generic_Plugin {
 				$strings = array();
 
 				if ( ! $this->_config->get_boolean( 'common.tweeted' ) ) {
-					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/';
+					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=footer_comment&utm_campaign=free_plugin';
 					$strings[] = '';
 				}
 
@@ -1000,6 +1062,170 @@ class Generic_Plugin {
 			return false;
 		}
 
+		return true;
+	}
+
+	/**
+	 * Processes and outputs the W3TC output buffer at shutdown time.
+	 *
+	 * Registered both as a WordPress 'shutdown' action (priority 0) and as a
+	 * PHP shutdown function (fallback for abnormal termination). The flag
+	 * $_ob_shutdown_done prevents double-invocation.
+	 *
+	 * ob_callback() is invoked explicitly here rather than as a PHP display
+	 * handler, because display handlers (callbacks invoked during ob_end_clean,
+	 * ob_end_flush, or PHP's own buffer cleanup) set PHP's internal ob_lock
+	 * flag, which forbids any nested ob_start() call. _parse_dynamic_mfunc()
+	 * requires ob_start() to capture eval() output, so it must not run inside
+	 * a display handler. The ob_start() in run() is registered with no callback
+	 * to ensure no display handler is ever registered for our buffer.
+	 *
+	 * After processing the buffer, output is placed into a fresh ob_start()
+	 * buffer rather than echoed directly. wp_ob_end_flush_all (priority 1) is
+	 * removed so it cannot flush that buffer early. PHP then auto-flushes all
+	 * open output buffers after every shutdown function has run, which keeps
+	 * response headers open for any remaining shutdown handlers (e.g. late
+	 * setcookie() or header() calls from other plugins or session libraries).
+	 * The same removal runs on the early-return path when our buffer was
+	 * already closed, so Core does not flush at priority 1 before those hooks.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @return void
+	 */
+	public function ob_shutdown() {
+		if ( $this->_ob_shutdown_done ) {
+			return;
+		}
+
+		$this->_ob_shutdown_done = true;
+
+		/*
+		 * For non-HTML response types (e.g. application/json from AJAX plugins like
+		 * FacetWP that do not define DOING_AJAX), discard nested output buffer
+		 * contents rather than flushing them down into ours. Nested OBs opened by
+		 * themes or plugins during the request may contain partial page HTML that
+		 * must not be prepended to a JSON response body.
+		 *
+		 * For standard HTML responses, flush nested OBs so their content reaches
+		 * W3TC's buffer and is processed (minified, CDN-rewritten, cached, etc.).
+		 */
+		$is_html = $this->_is_html_response();
+
+		/*
+		 * Flush (or discard) any nested output buffers added by WordPress or other
+		 * plugins, so their content is included in (or excluded from) ours.
+		 */
+		while ( ob_get_level() > $this->_ob_level ) {
+			if ( $is_html ) {
+				ob_end_flush();
+			} else {
+				ob_end_clean();
+			}
+		}
+
+		if ( ob_get_level() < $this->_ob_level ) {
+			/*
+			 * Our buffer was already closed (e.g. by a redirect or wp_die). Still
+			 * remove wp_ob_end_flush_all so shutdown priority 1 does not flush
+			 * remaining buffers before later hooks (e.g. setcookie at priority 999).
+			 * When headers are already committed, late header() calls still fail
+			 * harmlessly; when output remains buffered elsewhere, this preserves
+			 * compatibility with session/cookie finalization on shutdown.
+			 */
+			remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+			return;
+		}
+
+		/*
+		 * Read the buffer and close it. Because ob_start() was registered with
+		 * no callback, ob_get_clean() never triggers a display handler, so
+		 * ob_start() calls inside ob_callback() (e.g. _parse_dynamic_mfunc)
+		 * are permitted.
+		 */
+		$buffer = (string) ob_get_clean();
+
+		/*
+		 * Run the W3TC processing pipeline for HTML responses and for WordPress
+		 * REST API requests (where REST_REQUEST is defined). For other non-HTML
+		 * responses (e.g. FacetWP or other AJAX endpoints that return JSON
+		 * containing HTML snippets), skip ob_callback() entirely to avoid
+		 * running lazy load or other HTML processors over the payload.
+		 *
+		 * REST API responses need ob_callback() so the pagecache callback can
+		 * write them to cache when pgcache.rest is set to 'cache'. Other
+		 * ob_callback() processors (minify, CDN, lazyload, etc.) are safe for
+		 * REST JSON because can_print_comment() / is_html_xml() return false,
+		 * preventing HTML-only modifications from being applied.
+		 */
+		if ( $is_html || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			$buffer = $this->ob_callback( $buffer );
+		}
+
+		/*
+		 * Place the processed output into a new, callback-free buffer instead of
+		 * echoing it directly. This keeps response headers open so that any
+		 * remaining shutdown handlers at higher priorities — or registered PHP
+		 * shutdown functions — can still call setcookie() / header() without
+		 * triggering a "headers already sent" warning.
+		 *
+		 * Removing wp_ob_end_flush_all (shutdown priority 1) prevents a premature
+		 * flush of this buffer during the WordPress shutdown action. PHP
+		 * automatically flushes all open output buffers at true end-of-script,
+		 * after every register_shutdown_function callback has completed.
+		 */
+		ob_start();
+		echo $buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
+	}
+
+	/**
+	 * Determines whether the current HTTP response is an HTML (or XML) content type.
+	 *
+	 * Used by ob_shutdown() to decide whether to flush or discard nested output
+	 * buffers. For HTML responses, nested OB content (from themes/plugins) should
+	 * be included in W3TC's buffer. For non-HTML responses (e.g. application/json
+	 * from AJAX plugins), nested OB content should be discarded so it cannot
+	 * contaminate the response.
+	 *
+	 * When no Content-Type header has been sent yet the response defaults to HTML,
+	 * so true is returned.
+	 *
+	 * @since 2.9.3
+	 *
+	 * @return bool True if the response is HTML/XML, false otherwise.
+	 */
+	protected function _is_html_response() {
+		$html_types = array(
+			'text/html',
+			'text/xml',
+			'text/xsl',
+			'application/xhtml+xml',
+			'application/rss+xml',
+			'application/atom+xml',
+			'application/rdf+xml',
+			'application/xml',
+		);
+
+		foreach ( headers_list() as $header ) {
+			$header = strtolower( $header );
+			if ( strpos( $header, 'content-type:' ) === false ) {
+				continue;
+			}
+
+			foreach ( $html_types as $type ) {
+				if ( strpos( $header, $type ) !== false ) {
+					return true;
+				}
+			}
+
+			// A Content-Type header is present but it is not one of the HTML/XML
+			// types above (e.g. application/json, text/plain). Treat as non-HTML.
+			return false;
+		}
+
+		// No Content-Type header sent yet — default to treating as HTML so that
+		// standard WordPress page requests continue to work correctly.
 		return true;
 	}
 
@@ -1182,7 +1408,7 @@ class Generic_Plugin {
 	/**
 	 * Registers Plugin Check filters so they run in all contexts.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L160
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L180

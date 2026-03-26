@@ -36,7 +36,7 @@ if ( $config->is_extension_active( 'imageservice' ) ) {
 		<?php
 		echo wp_kses(
 			Util_Ui::button_link(
-				__( 'Enable WebP Converter', 'w3-total-cache' ),
+				__( 'Enable Image Converter', 'w3-total-cache' ),
 				Util_Ui::admin_url( 'admin.php?page=w3tc_general&w3tc_message=65b942a33d66c#image_service' ),
 				false,
 				'button-primary'

@@ -28,34 +28,220 @@ class Minify_ConfigLabels {
 				'minify.engine'                                        => __( 'Minify Cache Method:', 'w3-total-cache' ),
 				'minify.enabled'                                       => __( 'Minify:', 'w3-total-cache' ),
 				'minify.debug'                                         => __( 'Minify', 'w3-total-cache' ),
-				'minify.html.engine'                                   => __( '<acronym title="Hypertext Markup Language">HTML</acronym> minifier:', 'w3-total-cache' ),
-				'minify.js.engine'                                     => __( '<acronym title="JavaScript">JS</acronym> minifier:', 'w3-total-cache' ),
-				'minify.css.engine'                                    => __( '<acronym title="Cascading Style Sheets">CSS</acronym> minifier:', 'w3-total-cache' ),
+				'minify.html.engine'                                   => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTML, 2: closing acronym tag.
+						__(
+							'%1$sHTML%2$s minifier:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'minify.js.engine'                                     => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for JS, 2: closing acronym tag.
+						__(
+							'%1$sJS%2$s minifier:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'minify.css.engine'                                    => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CSS, 2: closing acronym tag.
+						__(
+							'%1$sCSS%2$s minifier:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Cascading Style Sheets', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.auto'                                          => __( 'Minify mode:', 'w3-total-cache' ),
-				'minify.rewrite'                                       => __( 'Rewrite <acronym title="Uniform Resource Locator">URL</acronym> structure', 'w3-total-cache' ),
+				'minify.rewrite'                                       => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for URL, 2: closing acronym tag.
+						__(
+							'Rewrite %1$sURL%2$s structure',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.reject.logged'                                 => __( 'Disable minify for logged in users', 'w3-total-cache' ),
 				'minify.error.notification'                            => __( 'Minify error notification:', 'w3-total-cache' ),
 				'minify.html.enable'                                   => __( 'Enable', 'w3-total-cache' ),
-				'minify.html.inline.css'                               => __( 'Inline <acronym title="Cascading Style Sheet">CSS</acronym> minification', 'w3-total-cache' ),
-				'minify.html.inline.js'                                => __( 'Inline <acronym title="JavaScript">JS</acronym> minification', 'w3-total-cache' ),
+				'minify.html.inline.css'                               => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CSS, 2: closing acronym tag.
+						__(
+							'Inline %1$sCSS%2$s minification',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Cascading Style Sheets', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'minify.html.inline.js'                                => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for JS, 2: closing acronym tag.
+						__(
+							'Inline %1$sJS%2$s minification',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.html.reject.feed'                              => __( 'Don\'t minify feeds', 'w3-total-cache' ),
 				'minify.html.comments.ignore'                          => __( 'Ignored comment stems:', 'w3-total-cache' ),
 				'minify.js.enable'                                     => __( 'Enable', 'w3-total-cache' ),
+				'minify.js.method'                                     => __( 'Minify method:', 'w3-total-cache' ),
 				'minify.js.header.embed_type'                          => __( 'Embed type:', 'w3-total-cache' ),
 				'minify.js.combine.header'                             => __( 'Combine only', 'w3-total-cache' ),
-				'minify.js.body.embed_type'                            => __( 'After <span class="html-tag">&lt;body&gt;</span>', 'w3-total-cache' ),
+				'minify.js.body.embed_type'                            => wp_kses(
+					sprintf(
+						// translators: 1: span tag for <body>.
+						__(
+							'After %1$s',
+							'w3-total-cache'
+						),
+						'<span class="html-tag">&lt;body&gt;</span>'
+					),
+					array(
+						'span' => array(
+							'class' => array(),
+						),
+					)
+				),
 				'minify.js.combine.body'                               => __( 'Combine only', 'w3-total-cache' ),
-				'minify.js.footer.embed_type'                          => __( 'Before <span class="html-tag">&lt;/body&gt;</span>', 'w3-total-cache' ),
+				'minify.js.footer.embed_type'                          => wp_kses(
+					sprintf(
+						// translators: 1: span tag for </body>.
+						__(
+							'Before %1$s',
+							'w3-total-cache'
+						),
+						'<span class="html-tag">&lt;/body&gt;</span>'
+					),
+					array(
+						'span' => array(
+							'class' => array(),
+						),
+					)
+				),
 				'minify.js.combine.footer'                             => __( 'Combine only', 'w3-total-cache' ),
+				'minify.js.http2push'                                  => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'%1$sHTTP%2$s/2 push',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.css.enable'                                    => __( 'Enable', 'w3-total-cache' ),
+				'minify.css.method'                                    => __( 'Minify method:', 'w3-total-cache' ),
 				'minify.css.imports'                                   => __( '@import handling:', 'w3-total-cache' ),
+				'minify.css.http2push'                                 => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'%1$sHTTP%2$s/2 push',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.lifetime'                                      => __( 'Update external files every:', 'w3-total-cache' ),
 				'minify.file.gc'                                       => __( 'Garbage collection interval:', 'w3-total-cache' ),
 				'minify.reject.uri'                                    => __( 'Never minify the following pages:', 'w3-total-cache' ),
-				'minify.reject.files.js'                               => __( 'Never minify the following <acronym title="JavaScript">JS</acronym> files:', 'w3-total-cache' ),
-				'minify.reject.files.css'                              => __( 'Never minify the following <acronym title="Cascading Style Sheet">CSS</acronym> files:', 'w3-total-cache' ),
+				'minify.reject.files.js'                               => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for JS, 2: closing acronym tag.
+						__(
+							'Never minify the following %1$sJS%2$s files:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'minify.reject.files.css'                              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CSS, 2: closing acronym tag.
+						__(
+							'Never minify the following %1$sCSS%2$s files:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Cascading Style Sheets', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'minify.reject.ua'                                     => __( 'Rejected user agents:', 'w3-total-cache' ),
 				'minify.cache.files'                                   => __( 'Include external files/libraries:', 'w3-total-cache' ),
+				'minify.cache.files_regexp'                            => __( 'Use regular expressions for file name matching', 'w3-total-cache' ),
+				'minify.wp_cron'                                       => __( 'Enable WP-Cron Event', 'w3-total-cache' ),
+				'minify.wp_cron_time'                                  => __( 'Start Time', 'w3-total-cache' ),
+				'minify.wp_cron_interval'                              => __( 'Interval', 'w3-total-cache' ),
 				// options->minify->ccjs.
 				'minify.ccjs.options.formatting'                       => __( 'Pretty print', 'w3-total-cache' ),
 				// options->minify->ccjs2.

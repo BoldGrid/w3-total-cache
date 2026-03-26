@@ -22,7 +22,7 @@ class Cache_Memcache extends Cache_Base {
 	/**
 	 * Memcache object
 	 *
-	 * @var Memcache
+	 * @var \Memcache
 	 */
 	private $_memcache = null;
 
@@ -49,13 +49,22 @@ class Cache_Memcache extends Cache_Base {
 	public function __construct( $config ) {
 		parent::__construct( $config );
 
-		$this->_memcache = new \Memcache();
+		$memcache_class  = '\Memcache';
+		$this->_memcache = new $memcache_class();
 
 		if ( ! empty( $config['servers'] ) ) {
 			$persistent = isset( $config['persistent'] ) ? (bool) $config['persistent'] : false;
 
 			foreach ( (array) $config['servers'] as $server ) {
 				list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
+				// For unix sockets, the memcache extension expects the socket path as host and port 0.
+				if ( 0 === (int) $port && ( 0 === strpos( $ip, 'unix:' ) || false !== strpos( $ip, '/' ) ) ) {
+					$ip = preg_replace( '#^unix:(/*)#', '/', $ip );
+					if ( '/' !== substr( $ip, 0, 1 ) ) {
+						$ip = '/' . $ip;
+					}
+					$port = 0;
+				}
 				$this->_memcache->addServer( $ip, $port, $persistent );
 			}
 		} else {
@@ -271,7 +280,7 @@ class Cache_Memcache extends Cache_Base {
 	 * @return bool True if Memcache is available, false otherwise.
 	 */
 	public function available() {
-		return class_exists( 'Memcache' );
+		return class_exists( '\Memcache' );
 	}
 
 	/**

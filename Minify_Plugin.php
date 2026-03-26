@@ -1225,44 +1225,118 @@ class _W3_MinifyHelpers {
 	 *
 	 * @param string $url        URL of the script.
 	 * @param string $embed_type Type of embed (e.g., 'blocking', 'nb-js', 'nb-async').
+	 * @param array  $attributes Additional attributes to preserve.
 	 *
 	 * @return string The generated script tag.
 	 */
-	public function generate_script_tag( $url, $embed_type = 'blocking' ) {
+	public function generate_script_tag( $url, $embed_type = 'blocking', $attributes = array() ) {
 		static $non_blocking_function = false;
 
-		$rocket_loader_ignore = '';
-		if ( $this->config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ) {
-			$rocket_loader_ignore = 'data-cfasync="false"';
+		$attributes = (array) $attributes;
+
+		$is_module = (
+			isset( $attributes['type'] ) &&
+			'module' === $attributes['type']
+		);
+
+		if ( 'nb-js' === $embed_type && $is_module ) {
+			// Modules must stay as standard blocking scripts so browsers parse `type="module"` correctly.
+			$embed_type = 'blocking';
 		}
 
-		if ( 'blocking' === $embed_type ) {
-			$script = '<script ' . $rocket_loader_ignore . ' src="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-		} else {
-			$script = '';
+		$can_add_cfasync = ( 'nb-js' !== $embed_type );
+		if ( $can_add_cfasync && $this->config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ) {
+			// Respect Cloudflare Rocket Loader opt-out unless we're using the inline nb-js loader.
+			$attributes['data-cfasync'] = 'false';
+		}
 
-			if ( 'nb-js' === $embed_type ) {
+		switch ( $embed_type ) {
+			case 'nb-js':
+				$script = '';
+
 				if ( ! $non_blocking_function ) {
 					$non_blocking_function = true;
 					$script                = "<script>function w3tc_load_js(u){var d=document,p=d.getElementsByTagName('HEAD')[0],c=d.createElement('script');c.src=u;p.appendChild(c);}</script>";
 				}
 
-				$script .= "<script>w3tc_load_js('" . $url . "');</script>";
+				$script .= "<script>w3tc_load_js('" . esc_js( $url ) . "');</script>";
+				break;
 
-			} elseif ( 'nb-async' === $embed_type ) {
-				$script = '<script ' . $rocket_loader_ignore . ' async src="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-			} elseif ( 'nb-defer' === $embed_type ) {
-				$script = '<script ' . $rocket_loader_ignore . ' defer src="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-			} elseif ( 'extsrc' === $embed_type ) {
-				$script = '<script ' . $rocket_loader_ignore . ' extsrc="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-			} elseif ( 'asyncsrc' === $embed_type ) {
-				$script = '<script ' . $rocket_loader_ignore . ' asyncsrc="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-			} else {
-				$script = '<script ' . $rocket_loader_ignore . ' src="' . str_replace( '&', '&amp;', $url ) . '"></script>';
-			}
+			case 'nb-async':
+				$attributes['src']   = $url;
+				$attributes['async'] = true;
+				$script              = $this->build_script_tag( $attributes );
+				break;
+
+			case 'nb-defer':
+				$attributes['src']   = $url;
+				$attributes['defer'] = true;
+				$script              = $this->build_script_tag( $attributes );
+				break;
+
+			case 'extsrc':
+				$attributes['extsrc'] = $url;
+				$script               = $this->build_script_tag( $attributes );
+				break;
+
+			case 'asyncsrc':
+				$attributes['asyncsrc'] = $url;
+				$script                 = $this->build_script_tag( $attributes );
+				break;
+
+			default:
+				$attributes['src'] = $url;
+				$script            = $this->build_script_tag( $attributes );
+				break;
 		}
 
 		return $script . "\r\n";
+	}
+
+	/**
+	 * Builds a script tag string with provided attributes.
+	 *
+	 * @param array $attributes Attributes to render on the script element.
+	 *
+	 * @return string
+	 */
+	private function build_script_tag( $attributes ) {
+		$attributes_string = $this->compile_script_attributes( $attributes );
+
+		return '<script' . ( '' !== $attributes_string ? ' ' . $attributes_string : '' ) . '></script>';
+	}
+
+	/**
+	 * Converts attribute pairs into a HTML attribute string.
+	 *
+	 * @param array $attributes Attribute key/value pairs.
+	 *
+	 * @return string
+	 */
+	private function compile_script_attributes( $attributes ) {
+		if ( empty( $attributes ) ) {
+			return '';
+		}
+
+		$parts = array();
+
+		foreach ( $attributes as $name => $value ) {
+			if ( is_bool( $value ) ) {
+				if ( $value ) {
+					$parts[] = $name;
+				}
+
+				continue;
+			}
+
+			if ( null === $value || '' === $value ) {
+				continue;
+			}
+
+			$parts[] = $name . '="' . esc_attr( $value ) . '"';
+		}
+
+		return implode( ' ', $parts );
 	}
 
 	/**
@@ -1279,6 +1353,16 @@ class _W3_MinifyHelpers {
 		if ( ! isset( $external ) ) {
 			$external        = $this->config->get_array( 'minify.cache.files' );
 			$external_regexp = $this->config->get_boolean( 'minify.cache.files_regexp' );
+		}
+
+		$normalized_url = Util_Environment::remove_query_all( $url );
+		if ( strpos( $normalized_url, 'wp-includes/js/dist/script-modules/' ) !== false ) {
+			// Core WP modules break when re-minified, so allow them to pass through untouched.
+			if ( $this->debug ) {
+				Minify_Core::log( 'is_file_for_minification: skipping WordPress script module ' . $url );
+			}
+
+			return '';
 		}
 
 		foreach ( $external as $item ) {

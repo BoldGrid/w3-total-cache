@@ -199,7 +199,7 @@ class Cdn_RackSpace_Api_CloudFiles {
 				)
 			);
 
-			if ( '404' === $result['response']['code'] ) {
+			if ( 404 === (int) $result['response']['code'] ) {
 				return null;
 			}
 

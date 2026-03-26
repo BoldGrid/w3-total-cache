@@ -155,6 +155,14 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_purge_urls_box() {
+		// Prevent duplicate renders when CDN and CDNFSD both hook this box.
+		static $ran = false;
+
+		if ( $ran ) {
+			return;
+		}
+
+		$ran    = true;
 		$config = Dispatcher::config();
 
 		include W3TC_DIR . '/Cdn_BunnyCdn_Page_View_Purge_Urls.php';

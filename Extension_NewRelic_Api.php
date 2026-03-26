@@ -12,7 +12,7 @@ namespace W3TC;
  *
  * Interacts with the New Relic Connect API
  *
- * @link newrelic.github.com/newrelic_api/
+ * @link https://docs.newrelic.com/docs/apis/rest-api-v2/get-started/introduction-new-relic-rest-api-v2/
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
@@ -56,12 +56,17 @@ class Extension_NewRelic_Api {
 	 */
 	private function _get( $api_call_url, $query = array() ) {
 		$defaults = array(
-			'headers' => 'x-api-key:' . $this->_api_key,
+			'headers' => array(
+				'X-Api-Key' => $this->_api_key,
+			),
 			'body'    => $query,
+			'timeout' => 5,
 		);
 		$url      = self::$url . $api_call_url;
 
+		$start    = microtime( true );
 		$response = wp_remote_get( $url, $defaults );
+		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( 'Could not get data' );
@@ -97,11 +102,16 @@ class Extension_NewRelic_Api {
 	private function _put( $api_call_url, $params ) {
 		$defaults = array(
 			'method'  => 'PUT',
-			'headers' => 'x-api-key:' . $this->_api_key,
+			'headers' => array(
+				'X-Api-Key' => $this->_api_key,
+			),
 			'body'    => $params,
+			'timeout' => 5,
 		);
 		$url      = self::$url . $api_call_url;
+		$start    = microtime( true );
 		$response = wp_remote_request( $url, $defaults );
+		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( 'Could not put data' );

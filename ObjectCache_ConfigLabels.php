@@ -30,6 +30,10 @@ class ObjectCache_ConfigLabels {
 				'objectcache.groups.global'        => __( 'Global groups:', 'w3-total-cache' ),
 				'objectcache.groups.nonpersistent' => __( 'Non-persistent groups:', 'w3-total-cache' ),
 				'objectcache.purge.all'            => __( 'Flush all cache on post, comment etc changes.', 'w3-total-cache' ),
+				'objectcache.wpcli_disk'           => __( 'Enable for WP-CLI', 'w3-total-cache' ),
+				'objectcache.wp_cron'              => __( 'Enable WP-Cron Event', 'w3-total-cache' ),
+				'objectcache.wp_cron_time'         => __( 'Start Time', 'w3-total-cache' ),
+				'objectcache.wp_cron_interval'     => __( 'Interval', 'w3-total-cache' ),
 			)
 		);
 	}
