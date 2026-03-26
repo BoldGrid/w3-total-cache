@@ -200,6 +200,7 @@ async function httpGet(url) {
 
 			response.on('end', () => {
 				resolve({
+					statusCode: response.statusCode,
 					headers: response.headers,
 					body: data
 				});
