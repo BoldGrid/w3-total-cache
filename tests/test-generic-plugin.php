@@ -193,4 +193,37 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$this->assertSame( $response, $sanitized );
 		$this->assertStringContainsString( W3TC_DYNAMIC_SECURITY, $sanitized->get_data()['rendered'] );
 	}
+
+	/**
+	 * Output buffering must not be disabled for a spoofed W3 Total Cache user-agent (mfunc secret leak).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_allows_output_buffering_when_user_agent_matches_w3tc_powered_by() {
+		global $w3_late_init;
+
+		$prev_late    = $w3_late_init;
+		$w3_late_init = false;
+		$prev_ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null;
+
+		$_SERVER['HTTP_USER_AGENT'] = W3TC_POWERED_BY;
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		if ( null === $prev_ua ) {
+			unset( $_SERVER['HTTP_USER_AGENT'] );
+		} else {
+			$_SERVER['HTTP_USER_AGENT'] = $prev_ua;
+		}
+
+		$w3_late_init = $prev_late;
+
+		$this->assertTrue(
+			$can_ob,
+			'can_ob() must remain true when HTTP_USER_AGENT contains W3TC_POWERED_BY (client-controlled).'
+		);
+	}
 }

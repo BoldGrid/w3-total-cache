@@ -1009,13 +1009,9 @@ class Generic_Plugin {
 			return false;
 		}
 
-		/**
-		 * Check User Agent
-		 */
-		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
-			return false;
-		}
+		// Do not skip output buffering based on User-Agent: the value is client-controlled.
+		// A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
+		// page-cache processing and leaking W3TC_DYNAMIC_SECURITY from unprocessed mfunc/mclude.
 
 		return true;
 	}

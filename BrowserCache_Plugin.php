@@ -182,13 +182,7 @@ class BrowserCache_Plugin {
 			return false;
 		}
 
-		/**
-		 * Check User Agent
-		 */
-		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
-			return false;
-		}
+		// Do not skip output buffering based on User-Agent (client-spoofable); see Generic_Plugin::can_ob().
 
 		return true;
 	}
