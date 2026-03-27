@@ -39,6 +39,9 @@ fi
 cd $W3D_WP_PATH
 sudo -u www-data wp plugin activate w3-total-cache ${ACTIVATE_OPTIONS}
 
+# Optional QA PHP settings (.user.ini / Apache htaccess). No-op unless W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1.
+/share/scripts/init-box/755-w3tcqa-php-output-buffering.sh
+
 # backup final
 /share/scripts/w3tc-umount.sh
 cd /var/www/

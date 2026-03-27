@@ -1,0 +1,11 @@
+
+# W3TC QA: php output_buffering — mod_php only (ignored by php-fpm; .user.ini covers FPM)
+<IfModule mod_php.c>
+	php_value output_buffering 0
+</IfModule>
+<IfModule mod_php7.c>
+	php_value output_buffering 0
+</IfModule>
+<IfModule mod_php8.c>
+	php_value output_buffering 0
+</IfModule>
