@@ -22,6 +22,35 @@ function blogHomePath(path) {
 	return home + p;
 }
 
+/**
+ * Parse JSON from an HTTP body, tolerating leading non-JSON noise if output buffering
+ * prepends HTML or whitespace ahead of the payload (possible with direct ob_callback).
+ *
+ * @param {string} body Response body.
+ * @returns {object|Array}
+ */
+function parseJsonResponseBody(body) {
+	const s = String(body).trim();
+	try {
+		return JSON.parse(s);
+	} catch (first) {
+		const openObj = s.indexOf('{');
+		const openArr = s.indexOf('[');
+		let start = -1;
+		if (openObj === -1) {
+			start = openArr;
+		} else if (openArr === -1) {
+			start = openObj;
+		} else {
+			start = Math.min(openObj, openArr);
+		}
+		if (start < 0) {
+			throw first;
+		}
+		return JSON.parse(s.slice(start));
+	}
+}
+
 describe('REST API JSON smoke (output buffering / empty body regressions)', function() {
 	this.timeout(sys.suiteTimeout);
 	before(sys.beforeDefault);
@@ -41,7 +70,7 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 		});
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(50);
-		const data = JSON.parse(r.body);
+		const data = parseJsonResponseBody(r.body);
 		expect(data).property('namespaces');
 	});
 
@@ -55,7 +84,7 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 		});
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(2);
-		const data = JSON.parse(r.body);
+		const data = parseJsonResponseBody(r.body);
 		expect(Array.isArray(data)).true;
 	});
 });
