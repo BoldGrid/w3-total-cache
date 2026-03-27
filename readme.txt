@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.9
-Stable tag: 2.9.2
+Stable tag: 2.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -366,7 +366,7 @@ Please reach out to all of these people and support their projects if you're so 
 == Changelog ==
 
 = 2.9.4 =
-* Fix: Output buffering: Properly handle and close output buffer levels
+* Fix: Output buffering: Reverted to previous output buffering from 2.9.1
 
 = 2.9.3 =
 * Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
