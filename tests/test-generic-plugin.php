@@ -500,17 +500,18 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * wp_ob_end_flush_all is removed from the shutdown action after ob_shutdown().
+	 * wp_ob_end_flush_all is NOT removed from the shutdown action on the main path.
 	 *
-	 * If wp_ob_end_flush_all were allowed to run at shutdown priority 1 it would
-	 * prematurely flush the re-buffered output, closing headers before higher-
-	 * priority shutdown handlers (e.g. session cookie writes) have run.
+	 * Allowing wp_ob_end_flush_all to run at shutdown priority 1 flushes the
+	 * re-buffered output early, so the client receives the response before
+	 * heavier shutdown handlers (e.g. WooCommerce order processing) execute.
+	 * Removing it caused minute-long delays on WooCommerce order-completion pages.
 	 *
 	 * @since X.X.X
 	 *
 	 * @return void
 	 */
-	public function test_ob_shutdown_removes_wp_ob_end_flush_all_from_shutdown() {
+	public function test_ob_shutdown_does_not_remove_wp_ob_end_flush_all_on_main_path() {
 		// Capture the original shutdown hook priority so we can restore it after the test.
 		$original_priority = has_action( 'shutdown', 'wp_ob_end_flush_all' );
 
@@ -528,9 +529,9 @@ class Generic_Plugin_ObShutdown_Test extends WP_UnitTestCase {
 
 			$this->plugin->ob_shutdown();
 
-			$this->assertFalse(
+			$this->assertNotFalse(
 				has_action( 'shutdown', 'wp_ob_end_flush_all' ),
-				'ob_shutdown() must remove wp_ob_end_flush_all from the shutdown action.'
+				'ob_shutdown() must NOT remove wp_ob_end_flush_all on the main path — removal causes WooCommerce response delays.'
 			);
 		} finally {
 			// Consume re-buffered output if the buffer is still active.

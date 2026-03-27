@@ -124,7 +124,6 @@ class Generic_Plugin {
 		}
 
 		if ( $this->can_ob() ) {
-			add_filter( 'wp_die_ajax_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_json_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
@@ -1100,21 +1099,24 @@ class Generic_Plugin {
 
 		$this->_ob_shutdown_done = true;
 
-		/*
-		 * For non-HTML response types (e.g. application/json from AJAX plugins like
-		 * FacetWP that do not define DOING_AJAX), discard nested output buffer
-		 * contents rather than flushing them down into ours. Nested OBs opened by
-		 * themes or plugins during the request may contain partial page HTML that
-		 * must not be prepended to a JSON response body.
-		 *
-		 * For standard HTML responses, flush nested OBs so their content reaches
-		 * W3TC's buffer and is processed (minified, CDN-rewritten, cached, etc.).
-		 */
 		$is_html = $this->_is_html_response();
 
 		/*
 		 * Flush (or discard) any nested output buffers added by WordPress or other
-		 * plugins, so their content is included in (or excluded from) ours.
+		 * plugins so their content reaches (or is excluded from) W3TC's buffer.
+		 *
+		 * For HTML responses, flush nested OBs so their content is captured and
+		 * processed (minified, CDN-rewritten, cached, etc.).
+		 *
+		 * For non-HTML responses (e.g. application/json from AJAX plugins like
+		 * FacetWP that do not define DOING_AJAX), discard nested OB contents.
+		 * Nested OBs from themes or plugins may hold partial HTML that must not
+		 * be prepended to a JSON body.
+		 *
+		 * Note: WordPress REST Server (WP_REST_Server::serve_request()) does NOT
+		 * open its own ob_start(); it echoes JSON directly into the active buffer.
+		 * REST API responses are therefore already in W3TC's buffer and this loop
+		 * is a no-op for them.
 		 */
 		while ( ob_get_level() > $this->_ob_level ) {
 			if ( $is_html ) {
@@ -1146,37 +1148,38 @@ class Generic_Plugin {
 		$buffer = (string) ob_get_clean();
 
 		/*
-		 * Run the W3TC processing pipeline for HTML responses and for WordPress
-		 * REST API requests (where REST_REQUEST is defined). For other non-HTML
-		 * responses (e.g. FacetWP or other AJAX endpoints that return JSON
-		 * containing HTML snippets), skip ob_callback() entirely to avoid
-		 * running lazy load or other HTML processors over the payload.
+		 * Run the W3TC processing pipeline only when it can usefully act on
+		 * the response:
 		 *
-		 * REST API responses need ob_callback() so the pagecache callback can
-		 * write them to cache when pgcache.rest is set to 'cache'. Other
-		 * ob_callback() processors (minify, CDN, lazyload, etc.) are safe for
-		 * REST JSON because can_print_comment() / is_html_xml() return false,
-		 * preventing HTML-only modifications from being applied.
+		 *   - HTML responses: always process (minify, CDN, lazyload, cache, etc.)
+		 *   - REST API requests: only process when REST caching is explicitly
+		 *     enabled (pgcache.rest === 'cache'), so pagecache can write the
+		 *     response. When REST caching is disabled there is no reason to run
+		 *     the full callback bus over a JSON payload.
+		 *   - Everything else (non-HTML, non-REST): skip entirely to avoid
+		 *     running output processors over JSON or other API payloads.
 		 */
-		if ( $is_html || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		$is_rest_request    = defined( 'REST_REQUEST' ) && REST_REQUEST;
+		$process_rest       = $is_rest_request && 'cache' === $this->_config->get_string( 'pgcache.rest' );
+
+		if ( $is_html || $process_rest ) {
 			$buffer = $this->ob_callback( $buffer );
 		}
 
 		/*
 		 * Place the processed output into a new, callback-free buffer instead of
 		 * echoing it directly. This keeps response headers open so that any
-		 * remaining shutdown handlers at higher priorities — or registered PHP
-		 * shutdown functions — can still call setcookie() / header() without
-		 * triggering a "headers already sent" warning.
+		 * remaining shutdown handlers at higher priorities can still call
+		 * setcookie() / header() before wp_ob_end_flush_all flushes at priority 1.
 		 *
-		 * Removing wp_ob_end_flush_all (shutdown priority 1) prevents a premature
-		 * flush of this buffer during the WordPress shutdown action. PHP
-		 * automatically flushes all open output buffers at true end-of-script,
-		 * after every register_shutdown_function callback has completed.
+		 * wp_ob_end_flush_all is intentionally NOT removed here. Allowing it to
+		 * run at shutdown priority 1 ensures the response is sent to the client
+		 * before higher-priority shutdown actions (e.g. WooCommerce order
+		 * processing) execute. Removing it caused minute-long response delays on
+		 * WooCommerce order-completion pages.
 		 */
 		ob_start();
 		echo $buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
 	}
 
 	/**
