@@ -27,6 +27,10 @@ describe('Page cache footer once on cache hit (double ob_callback regression)', 
 	before(sys.beforeDefault);
 	after(sys.after);
 
+	it('install QA mu-plugin (nginx X-Accel-Buffering: no)', async() => {
+		await sys.installQaNginxStreamMuPlugin();
+	});
+
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,
@@ -38,6 +42,8 @@ describe('Page cache footer once on cache hit (double ob_callback regression)', 
 	});
 
 	it('warm cache then assert single Served from footer on hit', async() => {
+		await page.setExtraHTTPHeaders(sys.qaNginxStreamRequestHeaders);
+
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
 		log.log('Second request (expect cache hit where supported)');
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);

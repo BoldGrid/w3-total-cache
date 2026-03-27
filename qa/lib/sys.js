@@ -182,17 +182,53 @@ async function copyPhpToPath(from, to) {
 }
 
 /**
+ * Request headers: PHP mu-plugin w3tc-qa-x-accel-buffering.php responds with
+ * X-Accel-Buffering: no so nginx disables FastCGI response buffering for that hit.
+ *
+ * @type {Object<string,string>}
+ */
+const qaNginxStreamRequestHeaders = {
+	'X-W3TC-QA': 'no-buffer'
+};
+
+/**
+ * Copy QA mu-plugin that emits X-Accel-Buffering: no when X-W3TC-QA: no-buffer is sent.
+ *
+ * @returns {Promise<void>}
+ */
+async function installQaNginxStreamMuPlugin() {
+	log.log('Installing W3TC QA mu-plugin (nginx stream / X-Accel-Buffering)');
+	const dir = env.wpContentPath + 'mu-plugins';
+	const r = await exec('mkdir -p ' + dir);
+	expect(r.stdout).empty;
+	const r2 = await exec(
+		'cp -f ../../plugins/w3tc-qa-x-accel-buffering.php ' + dir + '/'
+	);
+	expect(r2.stdout).empty;
+}
+
+/**
 * Perform an HTTP request.
 *
 * @param {string} url URL.
+* @param {Object} options Optional. { headers: Object } merged into request headers.
 * @returns {Promise}
 */
-async function httpGet(url) {
+async function httpGet(url, options) {
+	options = options || {};
+	let extraHeaders = options.headers || {};
 	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+
+	let requestHeaders = Object.assign(
+		{
+			'Connection': 'close'
+		},
+		extraHeaders
+	);
 
 	let p = new Promise((resolve, reject) => {
 		let httpModule = (url.substr(0, 7) === 'http://' ? http : https);
-		httpModule.get(url, (response) => {
+		httpModule.get(url, { headers: requestHeaders }, (response) => {
 			let data = '';
 			response.on('data', (chunk) => {
 				data += chunk;
@@ -251,6 +287,8 @@ module.exports,
 		copyPhpToRoot,
 		copyPhpToPath,
 		httpGet,
+		installQaNginxStreamMuPlugin,
+		qaNginxStreamRequestHeaders,
 		repeatOnFailure
 	}
 );

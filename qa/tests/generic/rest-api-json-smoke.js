@@ -27,10 +27,18 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 	before(sys.beforeDefault);
 	after(sys.after);
 
+	it('install QA mu-plugin (nginx X-Accel-Buffering: no)', async() => {
+		await sys.installQaNginxStreamMuPlugin();
+	});
+
 	it('wp-json route index returns non-empty JSON', async() => {
 		const url = blogHomePath('wp-json/');
 		log.log('GET ' + url);
-		const r = await sys.httpGet(url);
+		const r = await sys.httpGet(url, {
+			headers: Object.assign({}, sys.qaNginxStreamRequestHeaders, {
+				'Accept': 'application/json'
+			})
+		});
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(50);
 		const data = JSON.parse(r.body);
@@ -40,7 +48,11 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 	it('wp/v2/posts returns a JSON array', async() => {
 		const url = blogHomePath('wp-json/wp/v2/posts');
 		log.log('GET ' + url);
-		const r = await sys.httpGet(url);
+		const r = await sys.httpGet(url, {
+			headers: Object.assign({}, sys.qaNginxStreamRequestHeaders, {
+				'Accept': 'application/json'
+			})
+		});
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(2);
 		const data = JSON.parse(r.body);

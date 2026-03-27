@@ -19,6 +19,10 @@ describe('Minify combined asset URL returns non-empty body', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
+	it('install QA mu-plugin (nginx X-Accel-Buffering: no)', async() => {
+		await sys.installQaNginxStreamMuPlugin();
+	});
+
 	it('copy theme files', async() => {
 		const theme = await wp.getCurrentTheme(adminPage);
 		const themePath = env.wpContentPath + 'themes/' + theme;
@@ -46,6 +50,8 @@ describe('Minify combined asset URL returns non-empty body', function() {
 	});
 
 	it('each sampled minify URL returns 200 with non-empty body', async() => {
+		await page.setExtraHTTPHeaders(sys.qaNginxStreamRequestHeaders);
+
 		await page.goto(testPageUrl, {
 			timeout: 300000,
 			waitUntil: 'domcontentloaded'
@@ -67,7 +73,7 @@ describe('Minify combined asset URL returns non-empty body', function() {
 		const sample = urls.slice(0, 5);
 		for (const u of sample) {
 			log.log('GET ' + u);
-			const r = await sys.httpGet(u);
+			const r = await sys.httpGet(u, { headers: sys.qaNginxStreamRequestHeaders });
 			expect(r.statusCode).equals(200);
 			expect(r.body.length).greaterThan(0);
 		}
