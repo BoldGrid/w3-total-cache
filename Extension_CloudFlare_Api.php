@@ -55,13 +55,14 @@ class Extension_CloudFlare_Api {
 	/**
 	 * Constructs the Cloudflare API client with the provided configuration.
 	 *
-	 * @param array $config Configuration array containing 'email', 'key', 'zone_id', and 'timelimit_api_request'.
+	 * @param array $config Configuration array containing 'key', 'zone_id', and 'timelimit_api_request'.
+	 *                     'email' is required only for the legacy Global API key (37 characters); API tokens omit it.
 	 *
 	 * @return void
 	 */
 	public function __construct( $config ) {
-		$this->_email   = $config['email'];
-		$this->_key     = $config['key'];
+		$this->_email   = isset( $config['email'] ) ? trim( (string) $config['email'] ) : '';
+		$this->_key     = isset( $config['key'] ) ? trim( (string) $config['key'] ) : '';
 		$this->_zone_id = ( isset( $config['zone_id'] ) ? $config['zone_id'] : '' );
 
 		if ( ! isset( $config['timelimit_api_request'] ) ||
@@ -70,6 +71,49 @@ class Extension_CloudFlare_Api {
 		} else {
 			$this->_timelimit_api_request = $config['timelimit_api_request'];
 		}
+	}
+
+	/**
+	 * Whether the key string is a legacy Global API Key (37 characters, legacy dashboard format).
+	 *
+	 * Any other length uses Bearer authentication for API tokens (including historical 40-character
+	 * tokens and newer Cloudflare token formats).
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $key Raw key from settings or request.
+	 *
+	 * @return bool
+	 */
+	public static function is_legacy_global_api_key_string( $key ) {
+		$key = trim( (string) $key );
+
+		return 37 === \strlen( $key );
+	}
+
+	/**
+	 * Whether email and key are sufficient to authenticate to the Cloudflare v4 API.
+	 *
+	 * Global API keys require the account email. API tokens only require a non-empty token.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $email Account email (may be empty when using an API token).
+	 * @param string $key   Global API key or API token.
+	 *
+	 * @return bool
+	 */
+	public static function are_api_credentials_usable( $email, $key ) {
+		$key = trim( (string) $key );
+		if ( '' === $key ) {
+			return false;
+		}
+
+		if ( self::is_legacy_global_api_key_string( $key ) ) {
+			return '' !== trim( (string) $email );
+		}
+
+		return true;
 	}
 
 	/**
@@ -264,7 +308,7 @@ class Extension_CloudFlare_Api {
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
 	private function _wp_remote_request( $method, $url, $body = array() ) {
-		if ( empty( $this->_email ) || empty( $this->_key ) ) {
+		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
@@ -334,7 +378,7 @@ class Extension_CloudFlare_Api {
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
 	private function _wp_remote_request_with_meta( $method, $url, $body = array() ) {
-		if ( empty( $this->_email ) || empty( $this->_key ) ) {
+		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
@@ -404,7 +448,7 @@ class Extension_CloudFlare_Api {
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
 	private function _wp_remote_request_graphql( $method, $url, $body ) {
-		if ( empty( $this->_email ) || empty( $this->_key ) ) {
+		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
@@ -463,6 +507,33 @@ class Extension_CloudFlare_Api {
 	}
 
 	/**
+	 * Whether the stored key matches the legacy Global API Key format (X-Auth-Key + X-Auth-Email).
+	 *
+	 * Cloudflare Global API keys are 37 characters. API tokens use Bearer auth and are opaque strings
+	 * of varying lengths (including historical 40-character tokens and newer formats).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private function _is_legacy_global_api_key() {
+		return self::is_legacy_global_api_key_string( $this->_key );
+	}
+
+	/**
+	 * Whether credentials are sufficient for the detected auth mode.
+	 *
+	 * API tokens require only a non-empty key. Legacy global keys also require the account email.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private function _credentials_configured() {
+		return self::are_api_credentials_usable( $this->_email, $this->_key );
+	}
+
+	/**
 	 * Generates HTTP request headers for Cloudflare API requests.
 	 *
 	 * @return array The headers array for API requests.
@@ -470,27 +541,26 @@ class Extension_CloudFlare_Api {
 	 * @throws \Exception If the authentication credentials are invalid or missing.
 	 */
 	private function _generate_wp_remote_request_headers() {
-		if ( empty( $this->_email ) || empty( $this->_key ) ) {
-			throw new \Exception( \esc_html__( 'Missing authentication email and/or API token / global key.', 'w3-total-cache' ) );
+		if ( ! $this->_credentials_configured() ) {
+			throw new \Exception(
+				\esc_html__(
+					'Missing API token, or Global API key with account email.',
+					'w3-total-cache'
+				)
+			);
 		}
 
-		$headers = array();
-
-		if ( 40 === strlen( $this->_key ) ) { // CF API Token.
-			$headers = array(
-				'Content-Type'  => 'application/json',
-				'Authorization' => 'Bearer ' . $this->_key,
-			);
-		} elseif ( 37 === strlen( $this->_key ) ) { // CF Legacy API Global Key.
-			$headers = array(
+		if ( $this->_is_legacy_global_api_key() ) {
+			return array(
 				'Content-Type' => 'application/json',
 				'X-Auth-Key'   => $this->_key,
 				'X-Auth-Email' => $this->_email,
 			);
-		} else {
-			throw new \Exception( \esc_html__( 'Improper API token / global key length.', 'w3-total-cache' ) );
 		}
 
-		return $headers;
+		return array(
+			'Content-Type'  => 'application/json',
+			'Authorization' => 'Bearer ' . $this->_key,
+		);
 	}
 }

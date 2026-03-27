@@ -561,8 +561,10 @@ class Generic_Plugin {
 				if (
 					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&
 					'cloudflare' === $this->_config->get_string( 'cdnfsd.engine' ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+					Extension_CloudFlare_Api::are_api_credentials_usable(
+						$this->_config->get_string( array( 'cloudflare', 'email' ) ),
+						$this->_config->get_string( array( 'cloudflare', 'key' ) )
+					) &&
 					! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) ) &&
 					in_array( 'cloudflare', array_keys( Extensions_Util::get_active_extensions( $this->_config ) ), true ) &&
 					(
