@@ -493,6 +493,12 @@ class PgCache_ContentGrabber {
 			$content = $this->_compress( $content, $compression );
 		}
 
+		// Signal ob_callback() to skip re-processing: this content is already
+		// fully processed (dynamic fragments parsed, compression applied).
+		// Without this flag, ob_callback() would re-process the cached output
+		// including appending a duplicate footer comment.
+		$GLOBALS['w3_late_caching_succeeded'] = true;
+
 		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		Dispatcher::usage_statistics_apply_before_init_and_exit(
