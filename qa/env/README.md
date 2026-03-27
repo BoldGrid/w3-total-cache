@@ -78,7 +78,22 @@ cd ~/w3tcqa
 w3test tests/pagecache/a03-check-disk-enhanced.js
 ```
 
-if folder specified - all tests in that folder will be executed till first failure
+If folder specified - all tests in that folder will be executed until first failure
+
+## Optional box environment flags
+
+Per-box variables are sourced from `/share/environments/<name>.env` when tests run.
+
+- **`W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1`** — `800-w3tc.sh` runs
+  `755-w3tcqa-php-output-buffering.sh`, which installs `.user.ini` and (on Apache) appends
+  mod_php `output_buffering` overrides.
+- **`W3D_QA_PHP_OUTPUT_BUFFERING_OFF=0`** — the same script **removes** those artifacts
+  (only files/blocks it recognizes). Run again with `=1` to reinstall.
+- **Unset** — script does nothing (default matrix unchanged).
+
+  On a live box: `export W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1` or `=0` and run
+  `/share/scripts/init-box/755-w3tcqa-php-output-buffering.sh` to toggle without editing
+  `export.sh`.
 
 ## Tools
 
