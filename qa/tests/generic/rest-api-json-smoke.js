@@ -69,10 +69,6 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 				'Accept': 'application/json'
 			})
 		});
-		// Log response headers:
-		log.log('Response headers: ' + JSON.stringify(r.headers));
-		log.log('Response body: ' + r.body);
-
 
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(50);
