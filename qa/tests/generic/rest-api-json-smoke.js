@@ -64,10 +64,16 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 		const url = blogHomePath('wp-json/');
 		log.log('GET ' + url);
 		const r = await sys.httpGet(url, {
+			followRedirects: true,
 			headers: Object.assign({}, sys.qaNginxStreamRequestHeaders, {
 				'Accept': 'application/json'
 			})
 		});
+		// Log response headers:
+		log.log('Response headers: ' + JSON.stringify(r.headers));
+		log.log('Response body: ' + r.body);
+
+
 		expect(r.statusCode).equals(200);
 		expect(r.body.length).greaterThan(50);
 		const data = parseJsonResponseBody(r.body);
@@ -78,6 +84,7 @@ describe('REST API JSON smoke (output buffering / empty body regressions)', func
 		const url = blogHomePath('wp-json/wp/v2/posts');
 		log.log('GET ' + url);
 		const r = await sys.httpGet(url, {
+			followRedirects: true,
 			headers: Object.assign({}, sys.qaNginxStreamRequestHeaders, {
 				'Accept': 'application/json'
 			})

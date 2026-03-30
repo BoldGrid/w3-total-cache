@@ -22,7 +22,7 @@ describe('Site Health REST signals (PR output-buffering regressions)', function(
 	it('Tools > Site Health does not show REST API failure strings', async() => {
 		await adminPage.setExtraHTTPHeaders(sys.qaNginxStreamRequestHeaders);
 
-		const url = env.networkAdminUrl + 'tools.php?page=site-health';
+		const url = env.adminUrl + 'tools.php?page=site-health';
 		log.log('Opening ' + url);
 		await adminPage.goto(url, {
 			waitUntil: 'domcontentloaded',
