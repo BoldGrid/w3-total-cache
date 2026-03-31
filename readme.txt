@@ -527,6 +527,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Upgrade Notice ==
 
+= 2.9.4 =
+This is a security update.  Users that implement mfunc/mclude should update to this version.
+
 = 2.8.13 =
 This is a security update.  Users that implement mfunc/mclude should update to this version.
 
