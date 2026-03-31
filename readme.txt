@@ -366,9 +366,9 @@ Please reach out to all of these people and support their projects if you're so 
 == Changelog ==
 
 = 2.9.4 =
-* Fix: Output buffering: Reverted to previous output buffering from 2.9.1
+* Fix: Output buffering: Reverted to the previous output buffering from 2.9.1
 * Fix: Cloudflare: Token/Key validation
-* Fix: Prevent mfunc processing bypss by user-agent
+* Fix: Prevent mfunc processing bypass by user-agent
 
 = 2.9.3 =
 * Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
