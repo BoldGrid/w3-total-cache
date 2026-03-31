@@ -15,6 +15,7 @@ function requireRoot(p) {
 const expect    = require('chai').expect;
 const http      = require('http');
 const https     = require('https');
+const { URL }   = require('url');
 const log       = require('mocha-logger');
 const puppeteer = require('puppeteer');
 const util      = require('util');
@@ -208,10 +209,40 @@ async function installQaNginxStreamMuPlugin() {
 }
 
 /**
+ * Single GET without following redirects.
+ *
+ * @param {string} requestUrl URL.
+ * @param {Object} requestHeaders Headers.
+ * @returns {Promise<{statusCode: number, headers: Object, body: string}>}
+ */
+function httpGetOnce(requestUrl, requestHeaders) {
+	return new Promise((resolve, reject) => {
+		const httpModule = (requestUrl.substr(0, 7) === 'http://' ? http : https);
+		httpModule.get(requestUrl, { headers: requestHeaders }, (response) => {
+			let data = '';
+			response.on('data', (chunk) => {
+				data += chunk;
+			});
+
+			response.on('end', () => {
+				resolve({
+					statusCode: response.statusCode,
+					headers: response.headers,
+					body: data
+				});
+			});
+		}).on('error', (err) => {
+			reject(err.message);
+		});
+	});
+}
+
+/**
 * Perform an HTTP request.
 *
 * @param {string} url URL.
 * @param {Object} options Optional. { headers: Object } merged into request headers.
+*   Set followRedirects: true to follow 301/302/303/307/308 (e.g. W3TC multisite ?repeat=w3tc).
 * @returns {Promise}
 */
 async function httpGet(url, options) {
@@ -226,27 +257,31 @@ async function httpGet(url, options) {
 		extraHeaders
 	);
 
-	let p = new Promise((resolve, reject) => {
-		let httpModule = (url.substr(0, 7) === 'http://' ? http : https);
-		httpModule.get(url, { headers: requestHeaders }, (response) => {
-			let data = '';
-			response.on('data', (chunk) => {
-				data += chunk;
-			});
+	const followRedirects = options.followRedirects === true;
+	const maxRedirects = typeof options.maxRedirects === 'number' ? options.maxRedirects : 10;
 
-			response.on('end', () => {
-				resolve({
-					statusCode: response.statusCode,
-					headers: response.headers,
-					body: data
-				});
-			});
-		}).on('error', (err) => {
-				reject(err.message);
-		});
-	});
+	let currentUrl = url;
+	let redirects = 0;
 
-	return p;
+	for (;;) {
+		const r = await httpGetOnce(currentUrl, requestHeaders);
+		if (!followRedirects) {
+			return r;
+		}
+		const code = r.statusCode;
+		if (code !== 301 && code !== 302 && code !== 303 && code !== 307 && code !== 308) {
+			return r;
+		}
+		if (redirects >= maxRedirects) {
+			return r;
+		}
+		const loc = r.headers.location;
+		if (!loc) {
+			return r;
+		}
+		currentUrl = new URL(loc, currentUrl).href;
+		redirects++;
+	}
 }
 
 /**

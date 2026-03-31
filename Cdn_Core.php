@@ -960,8 +960,10 @@ class Cdn_Core {
 				break;
 
 			case 'cloudflare':
-				$is_cdnfsd_authorized = ! empty( $cloudflare_config['email'] ) &&
-					! empty( $cloudflare_config['key'] ) &&
+				$is_cdnfsd_authorized = Extension_CloudFlare_Api::are_api_credentials_usable(
+					isset( $cloudflare_config['email'] ) ? $cloudflare_config['email'] : '',
+					isset( $cloudflare_config['key'] ) ? $cloudflare_config['key'] : ''
+				) &&
 					! empty( $cloudflare_config['zone_id'] ) &&
 					! empty( $cloudflare_config['zone_name'] );
 				break;

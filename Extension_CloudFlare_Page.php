@@ -63,7 +63,7 @@ class Extension_CloudFlare_Page {
 		$key     = $c->get_string( array( 'cloudflare', 'key' ) );
 		$zone_id = $c->get_string( array( 'cloudflare', 'zone_id' ) );
 
-		if ( empty( $email ) || empty( $key ) || empty( $zone_id ) ) {
+		if ( empty( $zone_id ) || ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
 			$state = 'not_configured';
 		} else {
 			$settings = array();

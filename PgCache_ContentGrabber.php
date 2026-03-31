@@ -110,6 +110,13 @@ class PgCache_ContentGrabber {
 	private $_page_key_extension;
 
 	/**
+	 * Shutdown buffer
+	 *
+	 * @var string
+	 */
+	private $_shutdown_buffer = '';
+
+	/**
 	 * Cache reject reason
 	 *
 	 * @var string
@@ -493,12 +500,6 @@ class PgCache_ContentGrabber {
 			$content = $this->_compress( $content, $compression );
 		}
 
-		// Signal ob_callback() to skip re-processing: this content is already
-		// fully processed (dynamic fragments parsed, compression applied).
-		// Without this flag, ob_callback() would re-process the cached output
-		// including appending a duplicate footer comment.
-		$GLOBALS['w3_late_caching_succeeded'] = true;
-
 		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		Dispatcher::usage_statistics_apply_before_init_and_exit(
@@ -585,17 +586,38 @@ class PgCache_ContentGrabber {
 			}
 		}
 
+		// We can't capture output in ob_callback so we use shutdown function.
 		if ( $has_dynamic ) {
-			$compression = $this->_page_key_extension['compression'];
-			if ( defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' ) ) {
-				$compression = false;
-			}
+			$this->_shutdown_buffer = $buffer;
 
-			$buffer = $this->_parse_dynamic( $buffer );
-			$buffer = $this->_compress( $buffer, $compression );
+			$buffer = '';
+
+			register_shutdown_function(
+				array(
+					$this,
+					'shutdown',
+				)
+			);
 		}
 
 		return $buffer;
+	}
+
+	/**
+	 * Handles the shutdown process for compressing and outputting the page buffer.
+	 *
+	 * @return void
+	 */
+	public function shutdown() {
+		$compression = $this->_page_key_extension['compression'];
+
+		// Parse dynamic content.
+		$buffer = $this->_parse_dynamic( $this->_shutdown_buffer );
+
+		// Compress page according to headers already set.
+		$compressed_buffer = $this->_compress( $buffer, $compression );
+
+		echo $compressed_buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -2338,7 +2360,7 @@ class PgCache_ContentGrabber {
 			$compressions_to_store = array( false );
 		}
 
-		// For dynamic pages, return the unprocessed buffer so ob_callback can parse and compress it directly.
+		// Right now dont return compressed buffer if we are dynamic that will happen on shutdown after processing dynamic stuff.
 		$compression_of_returned_content = ( $has_dynamic ? false : $compression_header );
 
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );

@@ -45,31 +45,6 @@ class Generic_Plugin {
 	private $frontend_notice;
 
 	/**
-	 * Output buffer nesting level recorded at ob_start() time.
-	 *
-	 * Used by ob_shutdown() to identify which buffer level belongs to W3TC.
-	 *
-	 * @since 2.9.2
-	 *
-	 * @var int
-	 */
-	private $_ob_level = 0;
-
-	/**
-	 * Guards against ob_shutdown() being invoked twice.
-	 *
-	 * Function `ob_shutdown()` is registered both as a WordPress 'shutdown' action
-	 * (priority 0, so it runs before wp_ob_end_flush_all at priority 1) and as
-	 * a PHP shutdown function (fallback for abnormal termination). This flag
-	 * ensures the second invocation is a no-op.
-	 *
-	 * @since 2.9.2
-	 *
-	 * @var bool
-	 */
-	private $_ob_shutdown_done = false;
-
-	/**
 	 * Constructor
 	 *
 	 * @return void
@@ -124,31 +99,10 @@ class Generic_Plugin {
 		}
 
 		if ( $this->can_ob() ) {
-			add_filter( 'wp_die_json_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
 
-			/*
-			 * Register with no callback so no display-handler restriction applies.
-			 * ob_callback() is invoked explicitly in ob_shutdown() instead.
-			 * PHP's display-handler restriction (ob_start() forbidden inside a
-			 * callback) made every ob flush mechanism unsafe for mfunc processing.
-			 */
-			ob_start();
-			$this->_ob_level = ob_get_level();
-
-			/*
-			 * Hook into WordPress 'shutdown' at priority 0 so ob_shutdown runs
-			 * before wp_ob_end_flush_all (priority 1). ob_shutdown processes the
-			 * buffer, places the result in a fresh ob_start() buffer, and removes
-			 * wp_ob_end_flush_all so it cannot flush that buffer prematurely.
-			 * PHP auto-flushes all open buffers at true end-of-script, after every
-			 * register_shutdown_function callback has run.
-			 * The PHP shutdown function below is a fallback for abnormal
-			 * termination paths where the WordPress 'shutdown' action may not fire.
-			 */
-			add_action( 'shutdown', array( $this, 'ob_shutdown' ), 0 );
-			register_shutdown_function( array( $this, 'ob_shutdown' ) );
+			ob_start( array( $this, 'ob_callback' ) );
 		}
 
 		$this->register_plugin_check_filters();
@@ -607,8 +561,10 @@ class Generic_Plugin {
 				if (
 					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&
 					'cloudflare' === $this->_config->get_string( 'cdnfsd.engine' ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+					Extension_CloudFlare_Api::are_api_credentials_usable(
+						$this->_config->get_string( array( 'cloudflare', 'email' ) ),
+						$this->_config->get_string( array( 'cloudflare', 'key' ) )
+					) &&
 					! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) ) &&
 					in_array( 'cloudflare', array_keys( Extensions_Util::get_active_extensions( $this->_config ) ), true ) &&
 					(
@@ -1053,182 +1009,10 @@ class Generic_Plugin {
 			return false;
 		}
 
-		/**
-		 * Check User Agent
-		 */
-		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
-			return false;
-		}
+		// Do not skip output buffering based on User-Agent: the value is client-controlled.
+		// A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
+		// page-cache processing and leaking W3TC_DYNAMIC_SECURITY from unprocessed mfunc/mclude.
 
-		return true;
-	}
-
-	/**
-	 * Processes and outputs the W3TC output buffer at shutdown time.
-	 *
-	 * Registered both as a WordPress 'shutdown' action (priority 0) and as a
-	 * PHP shutdown function (fallback for abnormal termination). The flag
-	 * $_ob_shutdown_done prevents double-invocation.
-	 *
-	 * ob_callback() is invoked explicitly here rather than as a PHP display
-	 * handler, because display handlers (callbacks invoked during ob_end_clean,
-	 * ob_end_flush, or PHP's own buffer cleanup) set PHP's internal ob_lock
-	 * flag, which forbids any nested ob_start() call. _parse_dynamic_mfunc()
-	 * requires ob_start() to capture eval() output, so it must not run inside
-	 * a display handler. The ob_start() in run() is registered with no callback
-	 * to ensure no display handler is ever registered for our buffer.
-	 *
-	 * After processing the buffer, output is placed into a fresh ob_start()
-	 * buffer rather than echoed directly. wp_ob_end_flush_all (priority 1) is
-	 * removed so it cannot flush that buffer early. PHP then auto-flushes all
-	 * open output buffers after every shutdown function has run, which keeps
-	 * response headers open for any remaining shutdown handlers (e.g. late
-	 * setcookie() or header() calls from other plugins or session libraries).
-	 * The same removal runs on the early-return path when our buffer was
-	 * already closed, so Core does not flush at priority 1 before those hooks.
-	 *
-	 * @since 2.9.2
-	 *
-	 * @return void
-	 */
-	public function ob_shutdown() {
-		if ( $this->_ob_shutdown_done ) {
-			return;
-		}
-
-		$this->_ob_shutdown_done = true;
-
-		$is_html = $this->_is_html_response();
-
-		/*
-		 * Flush (or discard) any nested output buffers added by WordPress or other
-		 * plugins so their content reaches (or is excluded from) W3TC's buffer.
-		 *
-		 * For HTML responses, flush nested OBs so their content is captured and
-		 * processed (minified, CDN-rewritten, cached, etc.).
-		 *
-		 * For non-HTML responses (e.g. application/json from AJAX plugins like
-		 * FacetWP that do not define DOING_AJAX), discard nested OB contents.
-		 * Nested OBs from themes or plugins may hold partial HTML that must not
-		 * be prepended to a JSON body.
-		 *
-		 * Note: WordPress REST Server (WP_REST_Server::serve_request()) does NOT
-		 * open its own ob_start(); it echoes JSON directly into the active buffer.
-		 * REST API responses are therefore already in W3TC's buffer and this loop
-		 * is a no-op for them.
-		 */
-		while ( ob_get_level() > $this->_ob_level ) {
-			if ( $is_html ) {
-				ob_end_flush();
-			} else {
-				ob_end_clean();
-			}
-		}
-
-		if ( ob_get_level() < $this->_ob_level ) {
-			/*
-			 * Our buffer was already closed (e.g. by a redirect or wp_die). Still
-			 * remove wp_ob_end_flush_all so shutdown priority 1 does not flush
-			 * remaining buffers before later hooks (e.g. setcookie at priority 999).
-			 * When headers are already committed, late header() calls still fail
-			 * harmlessly; when output remains buffered elsewhere, this preserves
-			 * compatibility with session/cookie finalization on shutdown.
-			 */
-			remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
-			return;
-		}
-
-		/*
-		 * Read the buffer and close it. Because ob_start() was registered with
-		 * no callback, ob_get_clean() never triggers a display handler, so
-		 * ob_start() calls inside ob_callback() (e.g. _parse_dynamic_mfunc)
-		 * are permitted.
-		 */
-		$buffer = (string) ob_get_clean();
-
-		/*
-		 * Run the W3TC processing pipeline only when it can usefully act on
-		 * the response:
-		 *
-		 *   - HTML responses: always process (minify, CDN, lazyload, cache, etc.)
-		 *   - REST API requests: only process when REST caching is explicitly
-		 *     enabled (pgcache.rest === 'cache'), so pagecache can write the
-		 *     response. When REST caching is disabled there is no reason to run
-		 *     the full callback bus over a JSON payload.
-		 *   - Everything else (non-HTML, non-REST): skip entirely to avoid
-		 *     running output processors over JSON or other API payloads.
-		 */
-		$is_rest_request    = defined( 'REST_REQUEST' ) && REST_REQUEST;
-		$process_rest       = $is_rest_request && 'cache' === $this->_config->get_string( 'pgcache.rest' );
-
-		if ( $is_html || $process_rest ) {
-			$buffer = $this->ob_callback( $buffer );
-		}
-
-		/*
-		 * Place the processed output into a new, callback-free buffer instead of
-		 * echoing it directly. This keeps response headers open so that any
-		 * remaining shutdown handlers at higher priorities can still call
-		 * setcookie() / header() before wp_ob_end_flush_all flushes at priority 1.
-		 *
-		 * wp_ob_end_flush_all is intentionally NOT removed here. Allowing it to
-		 * run at shutdown priority 1 ensures the response is sent to the client
-		 * before higher-priority shutdown actions (e.g. WooCommerce order
-		 * processing) execute. Removing it caused minute-long response delays on
-		 * WooCommerce order-completion pages.
-		 */
-		ob_start();
-		echo $buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Determines whether the current HTTP response is an HTML (or XML) content type.
-	 *
-	 * Used by ob_shutdown() to decide whether to flush or discard nested output
-	 * buffers. For HTML responses, nested OB content (from themes/plugins) should
-	 * be included in W3TC's buffer. For non-HTML responses (e.g. application/json
-	 * from AJAX plugins), nested OB content should be discarded so it cannot
-	 * contaminate the response.
-	 *
-	 * When no Content-Type header has been sent yet the response defaults to HTML,
-	 * so true is returned.
-	 *
-	 * @since 2.9.3
-	 *
-	 * @return bool True if the response is HTML/XML, false otherwise.
-	 */
-	protected function _is_html_response() {
-		$html_types = array(
-			'text/html',
-			'text/xml',
-			'text/xsl',
-			'application/xhtml+xml',
-			'application/rss+xml',
-			'application/atom+xml',
-			'application/rdf+xml',
-			'application/xml',
-		);
-
-		foreach ( headers_list() as $header ) {
-			$header = strtolower( $header );
-			if ( strpos( $header, 'content-type:' ) === false ) {
-				continue;
-			}
-
-			foreach ( $html_types as $type ) {
-				if ( strpos( $header, $type ) !== false ) {
-					return true;
-				}
-			}
-
-			// A Content-Type header is present but it is not one of the HTML/XML
-			// types above (e.g. application/json, text/plain). Treat as non-HTML.
-			return false;
-		}
-
-		// No Content-Type header sent yet — default to treating as HTML so that
-		// standard WordPress page requests continue to work correctly.
 		return true;
 	}
 
