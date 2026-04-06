@@ -1032,7 +1032,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
 						__( '%1$sPage Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s', 'w3-total-cache' ),
 						'<div class="notice notice-error inline"><p>',
-						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '">',
+						'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '">',
 						'</a>',
 						'</p></div>'
 					),
@@ -1118,7 +1118,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 									'</acronym>',
 									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+									'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

@@ -100,7 +100,7 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 				),
 				'<em>',
 				'</em>',
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
 				'</a>'
 			),
 			array(

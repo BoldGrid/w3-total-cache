@@ -117,7 +117,7 @@ class Licensing_Plugin_Admin {
 						),
 					)
 				),
-				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
+				'href'   => wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
 			);
 		}
 
@@ -126,7 +126,7 @@ class Licensing_Plugin_Admin {
 				'id'     => 'w3tc_debug_overlay_upgrade',
 				'parent' => 'w3tc_debug_overlays',
 				'title'  => esc_html__( 'Upgrade', 'w3-total-cache' ),
-				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
+				'href'   => wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
 			);
 		}
 
@@ -709,9 +709,7 @@ class Licensing_Plugin_Admin {
 				);
 
 			case $this->_status_is( $status, 'invalid' ):
-				$url = is_network_admin()
-					? network_admin_url( 'admin.php?page=w3tc_general#licensing' )
-					: admin_url( 'admin.php?page=w3tc_general#licensing' );
+				$url = Util_Ui::admin_url( 'admin.php?page=w3tc_general#licensing' );
 				return sprintf(
 					// Translators: 1 Product name, 2 opening HTML a tag to license setting, 3 closing HTML a tag.
 					__(

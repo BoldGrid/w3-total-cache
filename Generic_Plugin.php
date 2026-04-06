@@ -518,7 +518,7 @@ class Generic_Plugin {
 					__( 'Performance', 'w3-total-cache' )
 				),
 				'href'  => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_dashboard' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ),
 					'w3tc'
 				),
 			);
@@ -531,7 +531,7 @@ class Generic_Plugin {
 					'parent' => 'w3tc',
 					'title'  => __( 'Purge All Caches', 'w3-total-cache' ),
 					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=' . $current_page . '&w3tc_flush_all' ),
+						Util_Ui::admin_url( 'admin.php?page=' . $current_page . '&w3tc_flush_all' ),
 						'w3tc'
 					),
 				);
@@ -551,7 +551,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge All Caches Except Bunny CDN', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_bunnycdn_flush_all_except_bunnycdn' ),
+							Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_bunnycdn_flush_all_except_bunnycdn' ),
 							'w3tc'
 						),
 					);
@@ -579,7 +579,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge All Caches Except Cloudflare', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
+							Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
 							'w3tc'
 						),
 					);
@@ -591,7 +591,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge Current Page', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
+							Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
 							'w3tc'
 						),
 					);
@@ -609,7 +609,7 @@ class Generic_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'Feature Showcase', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_feature_showcase' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_feature_showcase' ),
 					'w3tc'
 				),
 			);
@@ -619,7 +619,7 @@ class Generic_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'General Settings', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_general' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
 					'w3tc'
 				),
 			);
@@ -630,7 +630,7 @@ class Generic_Plugin {
 					'parent' => 'w3tc',
 					'title'  => __( 'Page Cache Queue', 'w3-total-cache' ),
 					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ),
+						Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ),
 						'w3tc'
 					),
 				);
@@ -641,7 +641,7 @@ class Generic_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'Manage Extensions', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_extensions' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ),
 					'w3tc'
 				),
 			);
@@ -651,7 +651,7 @@ class Generic_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'FAQ', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_faq' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_faq' ),
 					'w3tc'
 				),
 			);
@@ -661,7 +661,7 @@ class Generic_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'Support', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					network_admin_url( 'admin.php?page=w3tc_support' ),
+					Util_Ui::admin_url( 'admin.php?page=w3tc_support' ),
 					'w3tc'
 				),
 			);

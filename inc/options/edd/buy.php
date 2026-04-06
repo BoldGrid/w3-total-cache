@@ -43,7 +43,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Please enter the license key you received after successful checkout %1$s.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_general#licensing' ) ) . '">' . esc_html( __( 'here', 'w3-total-cache' ) ) . '</a>'
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#licensing' ) ) . '">' . esc_html( __( 'here', 'w3-total-cache' ) ) . '</a>'
 				),
 				array(
 					'a' => array(

@@ -858,7 +858,7 @@ class Cdn_Plugin {
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'CDN Cache', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_cdn'
 					),
 					'w3tc'
@@ -872,7 +872,7 @@ class Cdn_Plugin {
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'CDN: Manual Purge', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_cdn_purge'
 					),
 					'w3tc'

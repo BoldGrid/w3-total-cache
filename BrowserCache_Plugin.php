@@ -451,7 +451,7 @@ class BrowserCache_Plugin {
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Browser Cache', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_browser_cache'
 					),
 					'w3tc'

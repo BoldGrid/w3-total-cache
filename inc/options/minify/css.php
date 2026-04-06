@@ -28,7 +28,7 @@ Util_Ui::config_item_pro(
 				sprintf(
 					// translators: 1 The opening anchor tag linking to our support page, 2 its closing tag.
 					__( 'Need help? Take a look at our %1$spremium support, customization and audit services%2$s.', 'w3-total-cache' ),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 					'</a>'
 				),
 				array( 'a' => array( 'href' => array() ) )

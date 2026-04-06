@@ -218,7 +218,7 @@ class Extension_CloudFlare_Plugin_Admin {
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Cloudflare', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_cloudflare_flush'
 					),
 					'w3tc'

@@ -185,7 +185,7 @@ class Extension_NewRelic_Plugin_Admin {
 					'Please review the %1$ssettings%2$s.',
 					'w3-total-cache'
 				),
-				'<a href="' . network_admin_url( 'admin.php?page=w3tc_general#monitoring' ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) . '">',
 				'</a>'
 			) . '</p>';
 			$message .= "</div></p>\n";
