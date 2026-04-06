@@ -85,7 +85,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 				),
 				'<em>',
 				'</em>',
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
 				'</a>'
 			),
 			array(
@@ -343,7 +343,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 				),
 				'<em>',
 				'</em>',
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
 				'</a>'
 			),
 			array(

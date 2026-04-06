@@ -387,7 +387,7 @@ class PgCache_Plugin {
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Page Cache', 'w3-total-cache' ),
 			'href'   => wp_nonce_url(
-				admin_url(
+				Util_Ui::admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_pgcache'
 				),
 				'w3tc'
@@ -400,7 +400,7 @@ class PgCache_Plugin {
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Page Cache: Current Page', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_post&amp;post_id=' .
 							Util_Environment::detect_post_id() . '&amp;force=true'
 					),

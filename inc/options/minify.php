@@ -1126,7 +1126,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
 						__( '%1$sMinify is disabled! Enable it %2$shere%3$s to enable this feature.%4$s', 'w3-total-cache' ),
 						'<div class="notice notice-error inline"><p>',
-						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '">',
+						'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '">',
 						'</a>',
 						'</p></div>'
 					),
@@ -1209,7 +1209,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 									),
 									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+									'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(
@@ -1235,7 +1235,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 									),
 									'<acronym title="' . esc_attr__( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+									'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

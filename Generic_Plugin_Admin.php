@@ -466,7 +466,7 @@ class Generic_Plugin_Admin {
 			$state_master = Dispatcher::config_state_master();
 
 			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
-				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				wp_safe_redirect( esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
 			}
 		}
 
@@ -715,7 +715,7 @@ class Generic_Plugin_Admin {
 							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
 							'</a>.<br/>',
 							'<br/>',
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
 							'</a>'
 						),
 						array(
@@ -919,7 +919,7 @@ class Generic_Plugin_Admin {
 
 		if ( ! is_writable( WP_CONTENT_DIR ) || ! is_writable( Util_Rule::get_browsercache_rules_cache_path() ) ) {
 			$delete_link = '<a href="' .
-				wp_nonce_url( admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc' ) .
+				wp_nonce_url( Util_Ui::admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc' ) .
 				'">Uninstall</a>';
 			array_unshift( $links, $delete_link );
 		}
@@ -935,7 +935,7 @@ class Generic_Plugin_Admin {
 	 * @return array
 	 */
 	public function favorite_actions( $actions ) {
-		$actions[ wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
+		$actions[ wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
 			apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
 		);

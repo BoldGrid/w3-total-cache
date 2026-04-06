@@ -155,7 +155,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Application settings could not be retrieved. New Relic may not be properly configured, %1$sreview the settings%2$s.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) . '">',
 					'</a>'
 				),
 				array(

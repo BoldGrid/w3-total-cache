@@ -272,7 +272,7 @@ class DbCache_Plugin {
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Database', 'w3-total-cache' ),
 			'href'   => wp_nonce_url(
-				admin_url(
+				Util_Ui::admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_dbcache'
 				),
 				'w3tc'

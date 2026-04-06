@@ -66,7 +66,7 @@ class Minify_Plugin_Admin {
 			'id'     => 'w3tc_overlay_minify',
 			'parent' => 'w3tc_debug_overlays',
 			'title'  => __( 'Minify Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=minify_help' ), 'w3tc' ),
+			'href'   => wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=minify_help' ), 'w3tc' ),
 		);
 
 		return $menu_items;

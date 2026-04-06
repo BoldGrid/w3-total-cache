@@ -122,7 +122,7 @@ class Extension_AlwaysCached_Plugin {
 				'parent' => 'w3tc',
 				'title'  => __( 'Regenerate Current Page', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
-					admin_url(
+					Util_Ui::admin_url(
 						'admin.php?page=' . $current_page .
 						'&amp;w3tc_alwayscached_regenerate&amp;post_id=' . Util_Environment::detect_post_id()
 					),

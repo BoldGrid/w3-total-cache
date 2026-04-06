@@ -59,7 +59,7 @@ defined( 'W3TC' ) || die;
 							'For even better performance, combine FSD with other powerful features like Browser Cache, Minify, Fragment caching, or Lazy Load! Did you know that we offer premium support, customization and audit services? %1$sClick here for more information%2$s.',
 							'w3-total-cache'
 						),
-						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+						'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 						'</a>'
 					),
 					array(

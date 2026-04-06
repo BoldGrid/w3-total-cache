@@ -981,7 +981,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'</acronym>',
 									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+									'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

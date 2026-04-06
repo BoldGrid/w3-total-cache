@@ -48,7 +48,7 @@ Util_Ui::config_item_pro(
 				sprintf(
 					// translators: 1 The opening anchor tag linking to our support page, 2 its closing tag.
 					__( 'Use the caching statistics to compare the performance of different configurations like caching methods, object lifetimes and so on. Did you know that we offer premium support, customization and audit services? %1$sClick here for more information%2$s.', 'w3-total-cache' ),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 					'</a>'
 				),
 				array( 'a' => array( 'href' => array() ) )

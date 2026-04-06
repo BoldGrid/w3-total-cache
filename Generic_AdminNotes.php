@@ -232,7 +232,7 @@ class Generic_AdminNotes {
 									'key'      => 'common.show_note.plugins_updated',
 									'value'    => 'false',
 									'page'     => 'w3tc_minify',
-									'redirect' => esc_url( admin_url( 'admin.php?page=w3tc_minify' ) ),
+									'redirect' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify' ) ),
 								)
 							)
 						)

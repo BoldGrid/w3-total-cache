@@ -317,7 +317,7 @@ class Cdn_AdminNotes {
 		$error = $wpdb->last_error;
 		if ( $error ) {
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
-				$url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
+				$url = Util_Ui::admin_url( 'admin.php?page=w3tc_install' );
 				throw new \Exception(
 					sprintf(
 						// translators: 1: Error message, 2: Install link.
