@@ -96,8 +96,8 @@ class Generic_Plugin_Survey {
 			return;
 		}
 
-		// Verify nonce.
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+		// Verify nonce (rt9-192 per-action; legacy 'w3tc' accepted as back-compat).
+		if ( ! Util_Nonce::verify_admin( 'w3tc_exit_survey_render' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
 		}
 
@@ -116,8 +116,8 @@ class Generic_Plugin_Survey {
 			return;
 		}
 
-		// Verify nonce.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+		// Verify nonce (rt9-192 per-action; legacy 'w3tc' accepted as back-compat).
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_submit' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
 		}
 
@@ -194,8 +194,8 @@ class Generic_Plugin_Survey {
 			return;
 		}
 
-		// Verify nonce.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+		// Verify nonce (rt9-192 per-action; legacy 'w3tc' accepted as back-compat).
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_skip' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
 		}
 

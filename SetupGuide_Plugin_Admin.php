@@ -33,6 +33,34 @@ class SetupGuide_Plugin_Admin {
 	private static $template;
 
 	/**
+	 * Per-AJAX-action nonce map.
+	 *
+	 * Replaces the previous shared `w3tc_wizard` nonce so a nonce minted for one
+	 * wizard step cannot be replayed against a different step's handler.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @var array
+	 */
+	private static $nonce_actions = array(
+		'w3tc_wizard_skip'              => 'w3tc_wizard_skip',
+		'w3tc_tos_choice'               => 'w3tc_wizard_tos_choice',
+		'w3tc_get_pgcache_settings'     => 'w3tc_wizard_get_pgcache_settings',
+		'w3tc_test_pgcache'             => 'w3tc_wizard_test_pgcache',
+		'w3tc_config_pgcache'           => 'w3tc_wizard_config_pgcache',
+		'w3tc_get_dbcache_settings'     => 'w3tc_wizard_get_dbcache_settings',
+		'w3tc_test_dbcache'             => 'w3tc_wizard_test_dbcache',
+		'w3tc_config_dbcache'           => 'w3tc_wizard_config_dbcache',
+		'w3tc_get_objcache_settings'    => 'w3tc_wizard_get_objcache_settings',
+		'w3tc_test_objcache'            => 'w3tc_wizard_test_objcache',
+		'w3tc_config_objcache'          => 'w3tc_wizard_config_objcache',
+		'w3tc_get_imageservice_settings' => 'w3tc_wizard_get_imageservice_settings',
+		'w3tc_config_imageservice'      => 'w3tc_wizard_config_imageservice',
+		'w3tc_get_lazyload_settings'    => 'w3tc_wizard_get_lazyload_settings',
+		'w3tc_config_lazyload'          => 'w3tc_wizard_config_lazyload',
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 2.0.0
@@ -62,7 +90,65 @@ class SetupGuide_Plugin_Admin {
 	 * @return void
 	 */
 	public function set_template() {
+		// Gate the SetupGuide AJAX/template registration to admins only.
+		// SetupGuide is admin-only by design; without this, wp_ajax_w3tc_*
+		// handlers would be registered for any logged-in user (subscriber+),
+		// exposing privileged config writes via wizard nonce alone.
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		self::$template = new Wizard\Template( $this->get_config() );
+	}
+
+	/**
+	 * Resolve the per-action nonce key for the current AJAX action.
+	 *
+	 * Falls back to the legacy shared `w3tc_wizard` nonce so older cached
+	 * wizard pages (still posting a shared nonce) don't break for admins
+	 * mid-session.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
+	 *
+	 * @return string Nonce action name to verify against.
+	 */
+	private static function get_nonce_action( $action ) {
+		if ( isset( self::$nonce_actions[ $action ] ) ) {
+			return self::$nonce_actions[ $action ];
+		}
+
+		return 'w3tc_wizard';
+	}
+
+	/**
+	 * Verify the request's nonce for a SetupGuide AJAX handler.
+	 *
+	 * Performs the inner capability check first (defense-in-depth) and then
+	 * checks the per-action nonce. Sends a JSON error and dies on failure.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
+	 *
+	 * @return void
+	 */
+	private function verify_ajax_request( $action ) {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_send_json_error( __( 'Insufficient permissions', 'w3-total-cache' ), 403 );
+		}
+
+		$primary  = self::get_nonce_action( $action );
+		$provided = Util_Request::get_string( '_wpnonce' );
+
+		// Accept either the per-action nonce or the legacy shared `w3tc_wizard`
+		// nonce. The legacy fallback covers admins still on a cached wizard
+		// page rendered before this release; new requests always send the
+		// per-action nonce.
+		if ( ! \wp_verify_nonce( $provided, $primary ) && ! \wp_verify_nonce( $provided, 'w3tc_wizard' ) ) {
+			\wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
 	}
 
 	/**
@@ -83,6 +169,18 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Wizard\Template::render()
 	 */
 	public function load() {
+		// Defense-in-depth: SetupGuide is admin-only. The Layer 1 gate in
+		// set_template() should keep self::$template null for non-admins, but
+		// short-circuit here as well so a future refactor can't reintroduce
+		// the bug.
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_die( \esc_html__( 'You do not have sufficient permissions to access this page.', 'w3-total-cache' ) );
+		}
+
+		if ( is_null( self::$template ) ) {
+			return;
+		}
+
 		self::$template->render();
 	}
 
@@ -92,12 +190,10 @@ class SetupGuide_Plugin_Admin {
 	 * @since 2.0.0
 	 */
 	public function skip() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			update_site_option( 'w3tc_setupguide_completed', time() );
-			wp_send_json_success();
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$this->verify_ajax_request( 'w3tc_wizard_skip' );
+
+		update_site_option( 'w3tc_setupguide_completed', time() );
+		wp_send_json_success();
 	}
 
 	/**
@@ -108,31 +204,29 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['choice'] TOS choice: accept/decline.
 	 */
 	public function set_tos_choice() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$choice          = Util_Request::get_string( 'choice' );
-			$allowed_choices = array(
-				'accept',
-				'decline',
-			);
+		$this->verify_ajax_request( 'w3tc_tos_choice' );
 
-			if ( in_array( $choice, $allowed_choices, true ) ) {
-				$config = new Config();
+		$choice          = Util_Request::get_string( 'choice' );
+		$allowed_choices = array(
+			'accept',
+			'decline',
+		);
 
-				if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
-					$state_master = Dispatcher::config_state_master();
-					$state_master->set( 'license.community_terms', $choice );
-					$state_master->save();
+		if ( in_array( $choice, $allowed_choices, true ) ) {
+			$config = new Config();
 
-					$config->set( 'common.track_usage', ( 'accept' === $choice ) );
-					$config->save();
-				}
+			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+				$state_master = Dispatcher::config_state_master();
+				$state_master->set( 'license.community_terms', $choice );
+				$state_master->save();
 
-				wp_send_json_success();
-			} else {
-				wp_send_json_error( __( 'Invalid choice', 'w3-total-cache' ), 400 );
+				$config->set( 'common.track_usage', ( 'accept' === $choice ) );
+				$config->save();
 			}
+
+			wp_send_json_success();
 		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Invalid choice', 'w3-total-cache' ), 400 );
 		}
 	}
 
@@ -173,40 +267,38 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Util_Http::ttfb()
 	 */
 	public function test_pgcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$nocache = ! empty( Util_Request::get_string( 'nocache' ) );
-			$url     = site_url();
-			$results = array(
-				'nocache'  => $nocache,
-				'url'      => $url,
-				'urlshort' => $this->abbreviate_url( $url ),
-				'ttfb'     => null,
-			);
+		$this->verify_ajax_request( 'w3tc_test_pgcache' );
 
-			if ( $nocache ) {
-				$ttfb = Util_Http::ttfb( $url, true );
-				if ( false !== $ttfb ) {
-					$results['ttfb'] = $ttfb;
-				}
-			} else {
-				// Warm the cache once before the timed request.
-				Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
+		$nocache = ! empty( Util_Request::get_string( 'nocache' ) );
+		$url     = site_url();
+		$results = array(
+			'nocache'  => $nocache,
+			'url'      => $url,
+			'urlshort' => $this->abbreviate_url( $url ),
+			'ttfb'     => null,
+		);
 
-				$ttfb = Util_Http::ttfb( $url, false );
-				if ( false !== $ttfb ) {
-					$results['ttfb'] = $ttfb;
-				}
+		if ( $nocache ) {
+			$ttfb = Util_Http::ttfb( $url, true );
+			if ( false !== $ttfb ) {
+				$results['ttfb'] = $ttfb;
+			}
+		} else {
+			// Warm the cache once before the timed request.
+			Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
 
-				$ttfb_uncached = Util_Http::ttfb( $url, true );
-				if ( false !== $ttfb_uncached && null === $results['ttfb'] ) {
-					$results['ttfb'] = $ttfb_uncached;
-				}
+			$ttfb = Util_Http::ttfb( $url, false );
+			if ( false !== $ttfb ) {
+				$results['ttfb'] = $ttfb;
 			}
 
-			wp_send_json_success( $results );
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			$ttfb_uncached = Util_Http::ttfb( $url, true );
+			if ( false !== $ttfb_uncached && null === $results['ttfb'] ) {
+				$results['ttfb'] = $ttfb_uncached;
+			}
 		}
+
+		wp_send_json_success( $results );
 	}
 
 	/**
@@ -218,18 +310,16 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_pgcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_get_pgcache_settings' );
 
-			wp_send_json_success(
-				array(
-					'enabled' => $config->get_boolean( 'pgcache.enabled' ),
-					'engine'  => $config->get_string( 'pgcache.engine' ),
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled' => $config->get_boolean( 'pgcache.enabled' ),
+				'engine'  => $config->get_string( 'pgcache.engine' ),
+			)
+		);
 	}
 
 	/**
@@ -246,78 +336,76 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::flush_posts()
 	 */
 	public function config_pgcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
-			$is_updating     = false;
-			$success         = false;
-			$config          = new Config();
-			$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
-			$pgcache_engine  = $config->get_string( 'pgcache.engine' );
-			$allowed_engines = array(
-				'',
-				'file',
-				'file_generic',
-				'redis',
-				'memcached',
-				'nginx_memcached',
-				'apc',
-				'eaccelerator',
-				'xcache',
-				'wincache',
-			);
+		$this->verify_ajax_request( 'w3tc_config_pgcache' );
 
-			if ( in_array( $engine, $allowed_engines, true ) ) {
-				if ( empty( $engine ) || 'file' === $engine || 'file_generic' === $engine || Util_Installed::$engine() ) {
-					if ( $pgcache_enabled !== $enable ) {
-						$config->set( 'pgcache.enabled', $enable );
-						$is_updating = true;
-					}
+		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$is_updating     = false;
+		$success         = false;
+		$config          = new Config();
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$pgcache_engine  = $config->get_string( 'pgcache.engine' );
+		$allowed_engines = array(
+			'',
+			'file',
+			'file_generic',
+			'redis',
+			'memcached',
+			'nginx_memcached',
+			'apc',
+			'eaccelerator',
+			'xcache',
+			'wincache',
+		);
 
-					if ( ! empty( $engine ) && $pgcache_engine !== $engine ) {
-						$config->set( 'pgcache.engine', $engine );
-						$is_updating = true;
-					}
+		if ( in_array( $engine, $allowed_engines, true ) ) {
+			if ( empty( $engine ) || 'file' === $engine || 'file_generic' === $engine || Util_Installed::$engine() ) {
+				if ( $pgcache_enabled !== $enable ) {
+					$config->set( 'pgcache.enabled', $enable );
+					$is_updating = true;
+				}
 
-					if ( $is_updating ) {
-						$config->save();
+				if ( ! empty( $engine ) && $pgcache_engine !== $engine ) {
+					$config->set( 'pgcache.engine', $engine );
+					$is_updating = true;
+				}
 
-						$f = Dispatcher::component( 'CacheFlush' );
-						$f->flush_posts();
+				if ( $is_updating ) {
+					$config->save();
 
-						$e = Dispatcher::component( 'PgCache_Environment' );
-						$e->fix_on_wpadmin_request( $config, true );
-					}
+					$f = Dispatcher::component( 'CacheFlush' );
+					$f->flush_posts();
 
-					if ( $config->get_boolean( 'pgcache.enabled' ) === $enable &&
-						( ! $enable || $config->get_string( 'pgcache.engine' ) === $engine ) ) {
-							$success = true;
-							$message = __( 'Settings updated', 'w3-total-cache' );
-					} else {
-						$message = __( 'Settings not updated', 'w3-total-cache' );
-					}
+					$e = Dispatcher::component( 'PgCache_Environment' );
+					$e->fix_on_wpadmin_request( $config, true );
+				}
+
+				if ( $config->get_boolean( 'pgcache.enabled' ) === $enable &&
+					( ! $enable || $config->get_string( 'pgcache.engine' ) === $engine ) ) {
+						$success = true;
+						$message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+					$message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
-
-			wp_send_json_success(
-				array(
-					'success'          => $success,
-					'message'          => $message,
-					'enable'           => $enable,
-					'engine'           => $engine,
-					'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
-					'current_engine'   => $config->get_string( 'pgcache.engine' ),
-					'previous_enabled' => $pgcache_enabled,
-					'previous_engine'  => $pgcache_engine,
-				)
-			);
 		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
+
+		wp_send_json_success(
+			array(
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
+				'current_engine'   => $config->get_string( 'pgcache.engine' ),
+				'previous_enabled' => $pgcache_enabled,
+				'previous_engine'  => $pgcache_engine,
+			)
+		);
 	}
 
 	/**
@@ -331,74 +419,72 @@ class SetupGuide_Plugin_Admin {
 	 * @global $wpdb WordPress database object.
 	 */
 	public function test_dbcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config  = new Config();
-			$results = array(
-				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
-				'engine'  => $config->get_string( 'dbcache.engine' ),
-				'elapsed' => null,
-			);
+		$this->verify_ajax_request( 'w3tc_test_dbcache' );
 
-			global $wpdb;
+		$config  = new Config();
+		$results = array(
+			'enabled' => $config->get_boolean( 'dbcache.enabled' ),
+			'engine'  => $config->get_string( 'dbcache.engine' ),
+			'elapsed' => null,
+		);
 
-			// Ensure db.php drop-in is present before testing.
-			$env = new DbCache_Environment();
-			$env->fix_on_wpadmin_request( $config, true );
+		global $wpdb;
 
-			// Temporarily mimic a front-end request so dbcache isn't rejected by admin context.
-			$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$original_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		// Ensure db.php drop-in is present before testing.
+		$env = new DbCache_Environment();
+		$env->fix_on_wpadmin_request( $config, true );
 
-			$_SERVER['HTTP_REFERER'] = site_url( '/' );
-			$_SERVER['REQUEST_URI']  = '/';
+		// Temporarily mimic a front-end request so dbcache isn't rejected by admin context.
+		$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$original_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
-			$removed_cookies = array();
-			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
-				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
-					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
-					unset( $_COOKIE[ $cookie_name ] );
-				}
+		$_SERVER['HTTP_REFERER'] = site_url( '/' );
+		$_SERVER['REQUEST_URI']  = '/';
+
+		$removed_cookies = array();
+		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
+			if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
+				$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
+				unset( $_COOKIE[ $cookie_name ] );
 			}
-
-			// Clear any request-wide dbcache reject state from earlier bootstrap queries.
-			$this->reset_dbcache_reject_state();
-
-			$queries = $this->get_dbcache_test_queries( $wpdb );
-
-			// Use more iterations to reduce timing noise and amplify cache benefit.
-			$iterations = 30;
-
-			// Reduce cross-test interference from runtime caches.
-			$this->reset_runtime_caches();
-
-			// Always flush dbcache between engine tests to avoid warm carry-over.
-			$flusher = Dispatcher::component( 'CacheFlush' );
-			$flusher->dbcache_flush();
-
-			// Run the workload once to capture a single timing per engine.
-			$results['elapsed'] = $this->run_dbcache_benchmark( $wpdb, $queries, $iterations );
-
-			// Restore request context.
-			if ( null === $original_referer ) {
-				unset( $_SERVER['HTTP_REFERER'] );
-			} else {
-				$_SERVER['HTTP_REFERER'] = $original_referer;
-			}
-
-			if ( null === $original_uri ) {
-				unset( $_SERVER['REQUEST_URI'] );
-			} else {
-				$_SERVER['REQUEST_URI'] = $original_uri;
-			}
-
-			foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
-				$_COOKIE[ $cookie_name ] = $cookie_value;
-			}
-
-			wp_send_json_success( $results );
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
+
+		// Clear any request-wide dbcache reject state from earlier bootstrap queries.
+		$this->reset_dbcache_reject_state();
+
+		$queries = $this->get_dbcache_test_queries( $wpdb );
+
+		// Use more iterations to reduce timing noise and amplify cache benefit.
+		$iterations = 30;
+
+		// Reduce cross-test interference from runtime caches.
+		$this->reset_runtime_caches();
+
+		// Always flush dbcache between engine tests to avoid warm carry-over.
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->dbcache_flush();
+
+		// Run the workload once to capture a single timing per engine.
+		$results['elapsed'] = $this->run_dbcache_benchmark( $wpdb, $queries, $iterations );
+
+		// Restore request context.
+		if ( null === $original_referer ) {
+			unset( $_SERVER['HTTP_REFERER'] );
+		} else {
+			$_SERVER['HTTP_REFERER'] = $original_referer;
+		}
+
+		if ( null === $original_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $original_uri;
+		}
+
+		foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
+			$_COOKIE[ $cookie_name ] = $cookie_value;
+		}
+
+		wp_send_json_success( $results );
 	}
 
 	/**
@@ -410,18 +496,16 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_dbcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_get_dbcache_settings' );
 
-			wp_send_json_success(
-				array(
-					'enabled' => $config->get_boolean( 'dbcache.enabled' ),
-					'engine'  => $config->get_string( 'dbcache.engine' ),
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
+				'engine'  => $config->get_string( 'dbcache.engine' ),
+			)
+		);
 	}
 
 	/**
@@ -438,81 +522,79 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::dbcache_flush()
 	 */
 	public function config_dbcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
-			$is_updating     = false;
-			$success         = false;
-			$config          = new Config();
-			$old_enabled     = $config->get_boolean( 'dbcache.enabled' );
-			$old_engine      = $config->get_string( 'dbcache.engine' );
-			$allowed_engines = array(
-				'',
-				'file',
-				'redis',
-				'memcached',
-				'apc',
-				'eaccelerator',
-				'xcache',
-				'wincache',
-			);
+		$this->verify_ajax_request( 'w3tc_config_dbcache' );
 
-			if ( in_array( $engine, $allowed_engines, true ) ) {
-				if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
-					if ( $old_enabled !== $enable ) {
-						$config->set( 'dbcache.enabled', $enable );
-						$is_updating = true;
-					}
+		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$is_updating     = false;
+		$success         = false;
+		$config          = new Config();
+		$old_enabled     = $config->get_boolean( 'dbcache.enabled' );
+		$old_engine      = $config->get_string( 'dbcache.engine' );
+		$allowed_engines = array(
+			'',
+			'file',
+			'redis',
+			'memcached',
+			'apc',
+			'eaccelerator',
+			'xcache',
+			'wincache',
+		);
 
-					if ( ! empty( $engine ) && $old_engine !== $engine ) {
-						$config->set( 'dbcache.engine', $engine );
-						$is_updating = true;
-					}
+		if ( in_array( $engine, $allowed_engines, true ) ) {
+			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+				if ( $old_enabled !== $enable ) {
+					$config->set( 'dbcache.enabled', $enable );
+					$is_updating = true;
+				}
 
-					if ( $is_updating ) {
-						$config->save();
+				if ( ! empty( $engine ) && $old_engine !== $engine ) {
+					$config->set( 'dbcache.engine', $engine );
+					$is_updating = true;
+				}
 
-						// Flush Database Cache.
-						$f = Dispatcher::component( 'CacheFlush' );
-						$f->dbcache_flush();
+				if ( $is_updating ) {
+					$config->save();
 
-						// Fix environment on event. Only instates cron if needed.
-						Util_Admin::fix_on_event( $config, 'setupguide_dbcache' );
+					// Flush Database Cache.
+					$f = Dispatcher::component( 'CacheFlush' );
+					$f->dbcache_flush();
 
-						// Ensure db.php drop-in is updated immediately for the next request.
-						$env = new DbCache_Environment();
-						$env->fix_on_wpadmin_request( $config, true );
-					}
+					// Fix environment on event. Only instates cron if needed.
+					Util_Admin::fix_on_event( $config, 'setupguide_dbcache' );
 
-					if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
-						( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
-							$success = true;
-							$message = __( 'Settings updated', 'w3-total-cache' );
-					} else {
-						$message = __( 'Settings not updated', 'w3-total-cache' );
-					}
+					// Ensure db.php drop-in is updated immediately for the next request.
+					$env = new DbCache_Environment();
+					$env->fix_on_wpadmin_request( $config, true );
+				}
+
+				if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
+					( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
+						$success = true;
+						$message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+					$message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
-
-			wp_send_json_success(
-				array(
-					'success'          => $success,
-					'message'          => $message,
-					'enable'           => $enable,
-					'engine'           => $engine,
-					'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
-					'current_engine'   => $config->get_string( 'dbcache.engine' ),
-					'previous_enabled' => $old_enabled,
-					'previous_engine'  => $old_engine,
-				)
-			);
 		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
+
+		wp_send_json_success(
+			array(
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
+				'current_engine'   => $config->get_string( 'dbcache.engine' ),
+				'previous_enabled' => $old_enabled,
+				'previous_engine'  => $old_engine,
+			)
+		);
 	}
 
 	/**
@@ -524,87 +606,85 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function test_objcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			global $wp_object_cache;
+		$this->verify_ajax_request( 'w3tc_test_objcache' );
 
-			$config  = new Config();
-			$results = array(
-				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
-				'engine'  => $config->get_string( 'objectcache.engine' ),
-				'elapsed' => null,
-			);
+		global $wp_object_cache;
 
-			// Ensure object-cache.php drop-in is present before testing.
-			$oc_env = new ObjectCache_Environment();
-			$oc_env->fix_on_wpadmin_request( $config, true );
+		$config  = new Config();
+		$results = array(
+			'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
+			'engine'  => $config->get_string( 'objectcache.engine' ),
+			'elapsed' => null,
+		);
 
-			// Temporarily mimic a front-end request and allow writes in admin-ajax.
-			$original_enabled_for_admin = $config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
-			$config->set( 'objectcache.enabled_for_wp_admin', true );
-			$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		// Ensure object-cache.php drop-in is present before testing.
+		$oc_env = new ObjectCache_Environment();
+		$oc_env->fix_on_wpadmin_request( $config, true );
 
-			$_SERVER['REQUEST_URI'] = '/';
+		// Temporarily mimic a front-end request and allow writes in admin-ajax.
+		$original_enabled_for_admin = $config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
+		$config->set( 'objectcache.enabled_for_wp_admin', true );
+		$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
-			$removed_cookies = array();
-			foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
-				if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
-					$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
-					unset( $_COOKIE[ $cookie_name ] );
-				}
+		$_SERVER['REQUEST_URI'] = '/';
+
+		$removed_cookies = array();
+		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
+			if ( 0 === strpos( $cookie_name, 'wordpress_logged_in' ) ) {
+				$removed_cookies[ $cookie_name ] = $_COOKIE[ $cookie_name ]; // phpcs:ignore WordPress.Security
+				unset( $_COOKIE[ $cookie_name ] );
 			}
-
-			if ( function_exists( 'wp_suspend_cache_addition' ) ) {
-				wp_suspend_cache_addition( false );
-			}
-
-			$post_ids      = $this->get_objcache_sample_post_ids();
-			$payload_key   = 'w3tc_objcache_setupguide_payload';
-			$payload_value = array(
-				'time'     => time(),
-				'post_ids' => $post_ids,
-			);
-
-			// Start with a clean runtime cache for consistent runs.
-			$this->flush_object_cache_runtime();
-
-			wp_cache_set( $payload_key, $payload_value, 'w3tc_setupguide', 300 );
-
-			// Warm persistent cache.
-			$this->run_objcache_scenario( $post_ids, $payload_key );
-
-			// Flush runtime cache only if a runtime-only flush is available; avoid full persistent flush.
-			$this->flush_object_cache_runtime();
-
-			// Reinitialize the runtime cache instance to better simulate a new request hitting the persistent store.
-			if ( function_exists( 'wp_cache_init' ) ) {
-				wp_cache_init();
-			}
-
-			$results['elapsed']   = $this->run_objcache_scenario( $post_ids, $payload_key );
-			$results['post_ct']   = count( $post_ids );
-			$results['cache_hit'] = ( false !== wp_cache_get( $payload_key, 'w3tc_setupguide' ) );
-
-			// Restore context.
-			if ( null === $original_uri ) {
-				unset( $_SERVER['REQUEST_URI'] );
-			} else {
-				$_SERVER['REQUEST_URI'] = $original_uri;
-			}
-
-			foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
-				$_COOKIE[ $cookie_name ] = $cookie_value;
-			}
-
-			if ( function_exists( 'wp_suspend_cache_addition' ) ) {
-				wp_suspend_cache_addition( true );
-			}
-
-			$config->set( 'objectcache.enabled_for_wp_admin', $original_enabled_for_admin );
-
-			wp_send_json_success( $results );
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
+
+		if ( function_exists( 'wp_suspend_cache_addition' ) ) {
+			wp_suspend_cache_addition( false );
+		}
+
+		$post_ids      = $this->get_objcache_sample_post_ids();
+		$payload_key   = 'w3tc_objcache_setupguide_payload';
+		$payload_value = array(
+			'time'     => time(),
+			'post_ids' => $post_ids,
+		);
+
+		// Start with a clean runtime cache for consistent runs.
+		$this->flush_object_cache_runtime();
+
+		wp_cache_set( $payload_key, $payload_value, 'w3tc_setupguide', 300 );
+
+		// Warm persistent cache.
+		$this->run_objcache_scenario( $post_ids, $payload_key );
+
+		// Flush runtime cache only if a runtime-only flush is available; avoid full persistent flush.
+		$this->flush_object_cache_runtime();
+
+		// Reinitialize the runtime cache instance to better simulate a new request hitting the persistent store.
+		if ( function_exists( 'wp_cache_init' ) ) {
+			wp_cache_init();
+		}
+
+		$results['elapsed']   = $this->run_objcache_scenario( $post_ids, $payload_key );
+		$results['post_ct']   = count( $post_ids );
+		$results['cache_hit'] = ( false !== wp_cache_get( $payload_key, 'w3tc_setupguide' ) );
+
+		// Restore context.
+		if ( null === $original_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $original_uri;
+		}
+
+		foreach ( $removed_cookies as $cookie_name => $cookie_value ) {
+			$_COOKIE[ $cookie_name ] = $cookie_value;
+		}
+
+		if ( function_exists( 'wp_suspend_cache_addition' ) ) {
+			wp_suspend_cache_addition( true );
+		}
+
+		$config->set( 'objectcache.enabled_for_wp_admin', $original_enabled_for_admin );
+
+		wp_send_json_success( $results );
 	}
 
 	/**
@@ -616,18 +696,16 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_objcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_get_objcache_settings' );
 
-			wp_send_json_success(
-				array(
-					'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
-					'engine'  => $config->get_string( 'objectcache.engine' ),
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
+				'engine'  => $config->get_string( 'objectcache.engine' ),
+			)
+		);
 	}
 
 	/**
@@ -644,86 +722,84 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::objcache_flush()
 	 */
 	public function config_objcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
-			$is_updating     = false;
-			$success         = false;
-			$config          = new Config();
-			$old_enabled     = $config->getf_boolean( 'objectcache.enabled' );
-			$old_engine      = $config->get_string( 'objectcache.engine' );
-			$allowed_engines = array(
-				'',
-				'file',
-				'redis',
-				'memcached',
-				'apc',
-				'eaccelerator',
-				'xcache',
-				'wincache',
-			);
+		$this->verify_ajax_request( 'w3tc_config_objcache' );
 
-			if ( in_array( $engine, $allowed_engines, true ) ) {
-				if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
-					if ( $old_enabled !== $enable ) {
-						$config->set( 'objectcache.enabled', $enable );
-						$is_updating = true;
-					}
+		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$is_updating     = false;
+		$success         = false;
+		$config          = new Config();
+		$old_enabled     = $config->getf_boolean( 'objectcache.enabled' );
+		$old_engine      = $config->get_string( 'objectcache.engine' );
+		$allowed_engines = array(
+			'',
+			'file',
+			'redis',
+			'memcached',
+			'apc',
+			'eaccelerator',
+			'xcache',
+			'wincache',
+		);
 
-					if ( ! empty( $engine ) && $old_engine !== $engine ) {
-						$config->set( 'objectcache.engine', $engine );
-						$is_updating = true;
-					}
+		if ( in_array( $engine, $allowed_engines, true ) ) {
+			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+				if ( $old_enabled !== $enable ) {
+					$config->set( 'objectcache.enabled', $enable );
+					$is_updating = true;
+				}
 
-					if ( $is_updating ) {
-						$config->save();
+				if ( ! empty( $engine ) && $old_engine !== $engine ) {
+					$config->set( 'objectcache.engine', $engine );
+					$is_updating = true;
+				}
 
-						// Flush Object Cache.
-						$f = Dispatcher::component( 'CacheFlush' );
-						$f->objectcache_flush();
+				if ( $is_updating ) {
+					$config->save();
 
-						// Fix environment on event. Only instates cron if needed.
-						Util_Admin::fix_on_event( $config, 'setupguide_objectcache' );
+					// Flush Object Cache.
+					$f = Dispatcher::component( 'CacheFlush' );
+					$f->objectcache_flush();
 
-						// Ensure object-cache.php drop-in is updated immediately for the next request.
-						$oc_env = new ObjectCache_Environment();
-						$oc_env->fix_on_wpadmin_request( $config, true );
-					}
+					// Fix environment on event. Only instates cron if needed.
+					Util_Admin::fix_on_event( $config, 'setupguide_objectcache' );
 
-					if (
-						$config->getf_boolean( 'objectcache.enabled' ) === $enable
-						&& (
-							! $enable
-							|| $config->get_string( 'objectcache.engine' ) === $engine
-						)
-					) {
-						$success = true;
-						$message = __( 'Settings updated', 'w3-total-cache' );
-					} else {
-						$message = __( 'Settings not updated', 'w3-total-cache' );
-					}
+					// Ensure object-cache.php drop-in is updated immediately for the next request.
+					$oc_env = new ObjectCache_Environment();
+					$oc_env->fix_on_wpadmin_request( $config, true );
+				}
+
+				if (
+					$config->getf_boolean( 'objectcache.enabled' ) === $enable
+					&& (
+						! $enable
+						|| $config->get_string( 'objectcache.engine' ) === $engine
+					)
+				) {
+					$success = true;
+					$message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+					$message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
-
-			wp_send_json_success(
-				array(
-					'success'          => $success,
-					'message'          => $message,
-					'enable'           => $enable,
-					'engine'           => $engine,
-					'current_enabled'  => $config->getf_boolean( 'objectcache.enabled' ),
-					'current_engine'   => $config->get_string( 'objectcache.engine' ),
-					'previous_enabled' => $old_enabled,
-					'previous_engine'  => $old_engine,
-				)
-			);
 		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
+
+		wp_send_json_success(
+			array(
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->getf_boolean( 'objectcache.enabled' ),
+				'current_engine'   => $config->get_string( 'objectcache.engine' ),
+				'previous_enabled' => $old_enabled,
+				'previous_engine'  => $old_engine,
+			)
+		);
 	}
 
 	/**
@@ -736,21 +812,19 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_array()
 	 */
 	public function get_lazyload_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_get_lazyload_settings' );
 
-			wp_send_json_success(
-				array(
-					'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
-					'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
-					'process_background' => $config->get_boolean( 'lazyload_process_background' ),
-					'exclude'            => $config->get_array( 'lazyload.exclude' ), // phpcs:ignore WordPressVIPMinimum
-					'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
+				'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
+				'process_background' => $config->get_boolean( 'lazyload_process_background' ),
+				'exclude'            => $config->get_array( 'lazyload.exclude' ), // phpcs:ignore WordPressVIPMinimum
+				'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
+			)
+		);
 	}
 
 	/**
@@ -768,38 +842,36 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_lazyload() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable           = ! empty( Util_Request::get_string( 'enable' ) );
-			$config           = new Config();
-			$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
+		$this->verify_ajax_request( 'w3tc_config_lazyload' );
 
-			if ( $lazyload_enabled !== $enable ) {
-				$config->set( 'lazyload.enabled', $enable );
-				$config->set( 'lazyload.process_img', true );
-				$config->set( 'lazyload_process_background', true );
-				$config->set( 'lazyload.embed_method', 'async_head' );
-				$config->save();
+		$enable           = ! empty( Util_Request::get_string( 'enable' ) );
+		$config           = new Config();
+		$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
 
-				$f = Dispatcher::component( 'CacheFlush' );
-				$f->flush_posts();
+		if ( $lazyload_enabled !== $enable ) {
+			$config->set( 'lazyload.enabled', $enable );
+			$config->set( 'lazyload.process_img', true );
+			$config->set( 'lazyload_process_background', true );
+			$config->set( 'lazyload.embed_method', 'async_head' );
+			$config->save();
 
-				$e = Dispatcher::component( 'PgCache_Environment' );
-				$e->fix_on_wpadmin_request( $config, true );
-			}
+			$f = Dispatcher::component( 'CacheFlush' );
+			$f->flush_posts();
 
-			$is_enabled = $config->get_boolean( 'lazyload.enabled' );
-
-			wp_send_json_success(
-				array(
-					'success'           => $is_enabled === $enable,
-					'enable'            => $enable,
-					'lazyload_enabled'  => $config->get_boolean( 'lazyload.enabled' ),
-					'lazyload_previous' => $lazyload_enabled,
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			$e = Dispatcher::component( 'PgCache_Environment' );
+			$e->fix_on_wpadmin_request( $config, true );
 		}
+
+		$is_enabled = $config->get_boolean( 'lazyload.enabled' );
+
+		wp_send_json_success(
+			array(
+				'success'           => $is_enabled === $enable,
+				'enable'            => $enable,
+				'lazyload_enabled'  => $config->get_boolean( 'lazyload.enabled' ),
+				'lazyload_previous' => $lazyload_enabled,
+			)
+		);
 	}
 
 	/**
@@ -811,18 +883,16 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_imageservice_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_get_imageservice_settings' );
 
-			wp_send_json_success(
-				array(
-					'enabled'  => $config->is_extension_active( 'imageservice' ),
-					'settings' => $this->get_imageservice_settings_with_defaults( $config ),
-				)
-			);
-		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
-		}
+		$config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled'  => $config->is_extension_active( 'imageservice' ),
+				'settings' => $this->get_imageservice_settings_with_defaults( $config ),
+			)
+		);
 	}
 
 	/**
@@ -840,43 +910,41 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_imageservice() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable = ! empty( Util_Request::get_string( 'enable' ) );
-			$config = new Config();
+		$this->verify_ajax_request( 'w3tc_config_imageservice' );
 
-			// Merge stored values with defaults so new settings are always present.
-			$settings = $this->get_imageservice_settings_with_defaults( $config );
+		$enable = ! empty( Util_Request::get_string( 'enable' ) );
+		$config = new Config();
 
-			// Update settings from the request, defaulting to current values if absent.
-			$request_settings        = Util_Request::get_array( 'settings', array() );
-			$settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $settings['compression'];
-			$settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $settings['auto'];
-			$settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $settings['visibility'];
-			$settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $settings['webp'];
-			$settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $settings['avif'];
+		// Merge stored values with defaults so new settings are always present.
+		$settings = $this->get_imageservice_settings_with_defaults( $config );
 
-			$config->set( 'imageservice', $settings );
-			$config->save();
+		// Update settings from the request, defaulting to current values if absent.
+		$request_settings        = Util_Request::get_array( 'settings', array() );
+		$settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $settings['compression'];
+		$settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $settings['auto'];
+		$settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $settings['visibility'];
+		$settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $settings['webp'];
+		$settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $settings['avif'];
 
-			if ( ! empty( $enable ) ) {
-				Extensions_Util::activate_extension( 'imageservice', $config );
-			} else {
-				Extensions_Util::deactivate_extension( 'imageservice', $config );
-			}
+		$config->set( 'imageservice', $settings );
+		$config->save();
 
-			$is_enabled = $config->is_extension_active( 'imageservice' );
-
-			wp_send_json_success(
-				array(
-					'success'               => $is_enabled === $enable,
-					'enable'                => $enable,
-					'imageservice_enabled'  => $is_enabled,
-					'imageservice_settings' => $settings,
-				)
-			);
+		if ( ! empty( $enable ) ) {
+			Extensions_Util::activate_extension( 'imageservice', $config );
 		} else {
-			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+			Extensions_Util::deactivate_extension( 'imageservice', $config );
 		}
+
+		$is_enabled = $config->is_extension_active( 'imageservice' );
+
+		wp_send_json_success(
+			array(
+				'success'               => $is_enabled === $enable,
+				'enable'                => $enable,
+				'imageservice_enabled'  => $is_enabled,
+				'imageservice_settings' => $settings,
+			)
+		);
 	}
 
 	/**
@@ -1150,6 +1218,13 @@ class SetupGuide_Plugin_Admin {
 				number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
 		);
 
+		// Mint per-action nonces so the JS can post the correct nonce per
+		// AJAX action (defense against cross-action nonce replay).
+		$nonces = array();
+		foreach ( self::$nonce_actions as $action => $nonce_action ) {
+			$nonces[ $action ] = \wp_create_nonce( $nonce_action );
+		}
+
 		if ( 'w3tc_extensions' === $page ) {
 			$page = 'extensions/' . Util_Request::get_string( 'extension' );
 		}
@@ -1167,6 +1242,7 @@ class SetupGuide_Plugin_Admin {
 						'object_name' => 'W3TC_SetupGuide',
 						'data'        => array(
 							'page'              => $page,
+							'nonces'            => $nonces,
 							'wp_version'        => $wp_version,
 							'php_version'       => phpversion(),
 							'w3tc_version'      => W3TC_VERSION,

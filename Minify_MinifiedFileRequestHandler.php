@@ -38,6 +38,37 @@ class Minify_MinifiedFileRequestHandler {
 	private $_error_occurred = false;
 
 	/**
+	 * Site-transient key used to gate the unauthenticated `rewrite_test.css`
+	 * and `XXX.css` probes (rt9-143). Only requests presenting the matching
+	 * token via `X-W3TC-Minify-Probe` may trigger the probe responses.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_TRANSIENT = 'w3tc_minify_probe_token';
+
+	/**
+	 * Lifetime (seconds) of an issued probe token. Probes are server-to-self
+	 * within a single admin request, so a short window suffices.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @var int
+	 */
+	const PROBE_TOKEN_TTL = 60;
+
+	/**
+	 * HTTP header carrying the probe token from the issuing admin request to
+	 * the (unauthenticated) `init`-hook minify handler.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_HEADER = 'X-W3TC-Minify-Probe';
+
+	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
 	 *
 	 * Initializes the configuration object.
@@ -46,6 +77,86 @@ class Minify_MinifiedFileRequestHandler {
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
+	}
+
+	/**
+	 * Issues a short-lived single-use token authorising the legitimate
+	 * minify rewrite/cache-length probes.
+	 *
+	 * The token is stored as a site transient with a small TTL and is read
+	 * back (and consumed) in {@see consume_probe_token()} when the probe
+	 * request lands. This closes rt9-143: anonymous attackers can no longer
+	 * trigger the `rewrite_test.css` / `XXX.css` side channels, while the
+	 * plugin's own admin-side rewrite verification continues to work.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @return string A 32-character hex token.
+	 */
+	public static function issue_probe_token() {
+		// 16 random bytes -> 32 hex chars; cryptographically strong.
+		try {
+			$token = bin2hex( random_bytes( 16 ) );
+		} catch ( \Exception $e ) {
+			// random_bytes only throws if the OS RNG is unavailable; degrade
+			// to wp_generate_password as a last resort.
+			$token = \wp_generate_password( 32, false, false );
+		}
+
+		\set_site_transient( self::PROBE_TOKEN_TRANSIENT, $token, self::PROBE_TOKEN_TTL );
+
+		return $token;
+	}
+
+	/**
+	 * Validates the inbound probe token and consumes it on success so it
+	 * cannot be replayed.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @return bool True if the request presents a matching probe token.
+	 */
+	private function consume_probe_token() {
+		$header_key = 'HTTP_' . strtoupper( str_replace( '-', '_', self::PROBE_TOKEN_HEADER ) );
+		if ( empty( $_SERVER[ $header_key ] ) ) {
+			return false;
+		}
+
+		$presented = trim( (string) $_SERVER[ $header_key ] );
+		// Defensive: strict format match for a 32-char hex token.
+		if ( ! preg_match( '/^[a-f0-9]{32}$/', $presented ) ) {
+			return false;
+		}
+
+		$expected = \get_site_transient( self::PROBE_TOKEN_TRANSIENT );
+		if ( ! is_string( $expected ) || '' === $expected ) {
+			return false;
+		}
+
+		if ( ! \hash_equals( $expected, $presented ) ) {
+			return false;
+		}
+
+		// One-shot: clear the transient so this token cannot be replayed.
+		\delete_site_transient( self::PROBE_TOKEN_TRANSIENT );
+
+		return true;
+	}
+
+	/**
+	 * Sends a 404-style response and exits. Used to suppress the
+	 * unauthenticated probe side-channels.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @return void
+	 */
+	private function reject_probe() {
+		if ( ! headers_sent() ) {
+			\status_header( 404 );
+			\nocache_headers();
+		}
+		exit();
 	}
 
 	/**
@@ -62,12 +173,23 @@ class Minify_MinifiedFileRequestHandler {
 		// Check for rewrite test request.
 		$rewrite_marker = 'rewrite_test.css';
 		if ( substr( $file, strlen( $file ) - strlen( $rewrite_marker ) ) === $rewrite_marker ) {
+			// rt9-143: gate the probe behind a single-use token so anonymous
+			// callers cannot use it to fingerprint the handler.
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			echo 'Minify OK';
 			exit();
 		}
 
 		$filelength_test_marker = 'XXX.css';
 		if ( substr( $file, strlen( $file ) - strlen( $filelength_test_marker ) ) === $filelength_test_marker ) {
+			// rt9-143: this probe writes attacker-supplied content to the
+			// minify cache directory. Require an issued probe token so only
+			// the plugin's own admin-side environment check can drive it.
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			$cache = $this->_get_cache();
 			header( 'Content-type: text/css' );
 

@@ -84,6 +84,19 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	/**
 	 * Handles SNS notification actions.
 	 *
+	 * The notification payload may include a `blog_id` (multisite) and a
+	 * `host` (multisite hostname) so a cluster-wide invalidation message can
+	 * target a specific blog's caches. Earlier versions of the plugin
+	 * applied these fields by mutating `$w3_current_blog_id` and
+	 * `$_SERVER['HTTP_HOST']` from `pub/sns.php` *before* signature
+	 * validation, which made `pub/sns.php` an unauthenticated host-header
+	 * injection sink (rt9-20 / rt9-148). The mutation is now performed here,
+	 * post-validation, with strict allowlisting against the actually
+	 * configured site hostnames, and only when WordPress is in multisite
+	 * mode.
+	 *
+	 * @since 2.9.5 Moved blog/host switch out of `pub/sns.php`; added host allowlist.
+	 *
 	 * @param string $v The raw SNS notification message in JSON format.
 	 *
 	 * @return void
@@ -94,21 +107,66 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 			$this->_log( 'Message originated from hostname: ' . $m['hostname'] );
 		}
 
-		define( 'DOING_SNS', true );
+		// Switch blog context AFTER signature validation, only on multisite,
+		// and only when the message names a blog the validator has approved.
+		// `switch_to_blog()` correctly updates $blog_id and option lookups
+		// without relying on `$_SERVER['HTTP_HOST']`.
+		$switched = false;
+		if ( \is_multisite() && isset( $m['blog_id'] ) && \is_numeric( $m['blog_id'] ) ) {
+			$requested_blog_id = (int) $m['blog_id'];
+			$blog_details      = \get_blog_details( $requested_blog_id, false );
+
+			if ( $blog_details ) {
+				$host_ok = true;
+				if ( isset( $m['host'] ) && \is_string( $m['host'] ) && '' !== $m['host'] ) {
+					// Allowlist: the requested host must match the blog's stored domain.
+					$expected_host = isset( $blog_details->domain ) ? (string) $blog_details->domain : '';
+					$host_ok       = ( '' !== $expected_host && \strcasecmp( $expected_host, (string) $m['host'] ) === 0 );
+
+					if ( ! $host_ok ) {
+						$this->_log(
+							sprintf(
+								'Rejected blog switch: host "%s" does not match blog %d (%s).',
+								(string) $m['host'],
+								$requested_blog_id,
+								$expected_host
+							)
+						);
+					}
+				}
+
+				if ( $host_ok ) {
+					\switch_to_blog( $requested_blog_id );
+					$switched = true;
+				}
+			} else {
+				$this->_log( sprintf( 'Rejected blog switch: blog_id %d not found.', $requested_blog_id ) );
+			}
+		}
+
+		if ( ! defined( 'DOING_SNS' ) ) {
+			define( 'DOING_SNS', true );
+		}
 		$this->_log( 'Actions executing' );
 		do_action( 'w3tc_messagebus_message_received' );
 
-		if ( isset( $m['actions'] ) ) {
-			$actions = $m['actions'];
-			foreach ( $actions as $action ) {
-				$this->_execute( $action );
+		try {
+			if ( isset( $m['actions'] ) ) {
+				$actions = $m['actions'];
+				foreach ( $actions as $action ) {
+					$this->_execute( $action );
+				}
+			} else {
+				$this->_execute( $m['action'] );
 			}
-		} else {
-			$this->_execute( $m['action'] );
-		}
 
-		do_action( 'w3tc_messagebus_message_processed' );
-		$this->_log( 'Actions executed' );
+			do_action( 'w3tc_messagebus_message_processed' );
+			$this->_log( 'Actions executed' );
+		} finally {
+			if ( $switched ) {
+				\restore_current_blog();
+			}
+		}
 	}
 
 	/**

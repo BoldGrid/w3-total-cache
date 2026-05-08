@@ -209,6 +209,22 @@ class Extensions_Plugin_Admin {
 			return;
 		}
 
+		/**
+		 * CSRF: the bulk activate/deactivate dispatcher previously had no
+		 * nonce verification (rt9-25, rt9-186). Verify a per-action nonce
+		 * keyed `w3tc_extensions_bulk` rendered by the bulk-action form in
+		 * `inc/options/extensions/list.php`. Util_Nonce accepts the legacy
+		 * shared `'w3tc'` action as a back-compat fallback.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! Util_Nonce::verify_admin( 'w3tc_extensions_bulk' ) ) {
+			\wp_die(
+				\esc_html__( 'Nonce verification failed for bulk extension action.', 'w3-total-cache' ),
+				403
+			);
+		}
+
 		$message    = '';
 		$extensions = Util_Request::get_array( 'checked' );
 		$action     = Util_Request::get( 'action' );
@@ -249,10 +265,28 @@ class Extensions_Plugin_Admin {
 			return;
 		}
 
-		$action = Util_Request::get_string( 'action' );
+		$action    = Util_Request::get_string( 'action' );
+		$extension = Util_Request::get_string( 'extension' );
 
-		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) ) {
-			$extension = Util_Request::get_string( 'extension' );
+		/**
+		 * CSRF: per-action nonce keyed `w3tc_extension_<action>_<slug>`
+		 * (rt9-25, rt9-186). The single-link minters in
+		 * `inc/options/extensions/list.php` historically used
+		 * `wp_nonce_url(..., 'w3tc')`; Util_Nonce accepts that legacy
+		 * shared action as a back-compat fallback. Drop the fallback in a
+		 * follow-up release once the link templates render the per-action
+		 * nonce.
+		 *
+		 * @since X.X.X
+		 */
+		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) && '' !== $extension ) {
+			$primary_action = 'w3tc_extension_' . $action . '_' . $extension;
+			if ( ! Util_Nonce::verify_admin( $primary_action ) ) {
+				\wp_die(
+					\esc_html__( 'Nonce verification failed for extension action.', 'w3-total-cache' ),
+					403
+				);
+			}
 
 			if ( 'activate' === $action ) {
 				Extensions_Util::activate_extension( $extension, $this->_config );

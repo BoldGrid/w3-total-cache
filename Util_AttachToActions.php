@@ -176,6 +176,13 @@ class Util_AttachToActions {
 			return;
 		}
 
+		// Only flush if the post was previously published (publish → draft transition).
+		// Without this check, new drafts and Gutenberg autosaves trigger spurious flushes.
+		$old_post = \get_post( $post_id );
+		if ( ! $old_post || 'publish' !== $old_post->post_status ) {
+			return;
+		}
+
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
 		$cacheflush->flush_post( $post_id );
 	}

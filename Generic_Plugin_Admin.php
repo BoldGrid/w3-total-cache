@@ -146,8 +146,30 @@ class Generic_Plugin_Admin {
 		$executor = new Root_AdminActions();
 
 		if ( $action && $executor->exists( $action ) ) {
-			if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-				wp_nonce_ays( 'w3tc' );
+			/**
+			 * Per-action nonce key for the admin-action dispatcher (rt9-192,
+			 * rt9-198). The legacy shared `'w3tc'` action is still accepted
+			 * via Util_Nonce so admin tabs minted before the deploy keep
+			 * working; remove that fallback in a follow-up release.
+			 *
+			 * @since X.X.X
+			 */
+			if ( ! Util_Nonce::verify_admin( 'w3tc_admin_action_' . $action ) ) {
+				wp_nonce_ays( 'w3tc_admin_action_' . $action );
+			}
+
+			/**
+			 * Defence-in-depth: enforce manage_options at the dispatcher
+			 * regardless of how the menu was registered or how
+			 * w3tc_capability_menu was filtered.
+			 *
+			 * @since X.X.X
+			 */
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				wp_die(
+					\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+					403
+				);
 			}
 
 			try {
@@ -205,14 +227,38 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_ajax() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		/**
+		 * Per-action nonce key for the AJAX dispatcher (rt9-192, rt9-198).
+		 * The legacy `'w3tc'` action is accepted as a back-compat fallback
+		 * via Util_Nonce::verify_admin so admin tabs minted before the
+		 * deploy keep working; the manage_options gate below remains the
+		 * authoritative authorisation check.
+		 *
+		 * @since X.X.X
+		 */
+		$ajax_action = 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' );
+		if ( ! Util_Nonce::verify_admin( $ajax_action ) ) {
+			wp_nonce_ays( $ajax_action );
 		}
 
 		try {
+			/**
+			 * Hard floor: every w3tc_ajax_* action requires manage_options.
+			 * The legacy w3tc_ajax_base_capability_ / w3tc_ajax_capability_*
+			 * filters are still applied but cannot lower the gate below
+			 * manage_options (rt9-169, rt9-190, rt9-231).
+			 *
+			 * @since X.X.X
+			 */
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				throw new \Exception( 'no permissions' );
+			}
+
 			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
 			$capability      = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ), $base_capability );
-			if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
+			// Default-deny: an empty/false filter return is treated as "no permissions",
+			// not as "no check required".
+			if ( empty( $capability ) || ! \current_user_can( $capability ) ) {
 				throw new \Exception( 'no permissions' );
 			}
 
@@ -234,8 +280,14 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_forums_api() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		/**
+		 * Per-action nonce key (rt9-192). Accepts the legacy `'w3tc'`
+		 * action via Util_Nonce as a back-compat fallback.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! Util_Nonce::verify_admin( 'w3tc_forums_api' ) ) {
+			wp_nonce_ays( 'w3tc_forums_api' );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -467,6 +519,7 @@ class Generic_Plugin_Admin {
 
 			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				exit;
 			}
 		}
 
@@ -613,6 +666,18 @@ class Generic_Plugin_Admin {
 	 */
 	private function _admin_menu( $base_capability ) {
 		$base_capability = apply_filters( 'w3tc_capability_menu', $base_capability );
+
+		/**
+		 * Floor the filtered menu capability at manage_options. The
+		 * w3tc_capability_menu filter remains for back-compat but cannot
+		 * lower the menu/dispatcher gate below manage_options
+		 * (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		if ( current_user_can( $base_capability ) ) {
 			$menus         = Dispatcher::component( 'Root_AdminMenu' );
@@ -935,9 +1000,21 @@ class Generic_Plugin_Admin {
 	 * @return array
 	 */
 	public function favorite_actions( $actions ) {
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose the "Empty Caches" favorite action to
+		 * non-admins (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
+		$capability = apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' );
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			$capability = 'manage_options';
+		}
+
 		$actions[ wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
-			apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
+			$capability,
 		);
 
 		return $actions;

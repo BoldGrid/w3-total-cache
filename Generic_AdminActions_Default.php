@@ -59,11 +59,34 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
+	 * Defence-in-depth capability gate for every public action method
+	 * dispatched through Root_AdminActions. Calls wp_die on failure.
+	 *
+	 * Even though Generic_Plugin_Admin::load() now floors the dispatcher
+	 * at manage_options, this per-handler check guarantees that any
+	 * future caller (custom AJAX route, programmatic invocation) cannot
+	 * bypass the cap gate (rt9-171, rt9-194, rt9-223).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function _require_admin_cap() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				403
+			);
+		}
+	}
+
+	/**
 	 * Enables preview mode and redirects to the home URL.
 	 *
 	 * @return void
 	 */
 	public function w3tc_default_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( true );
 		Util_Environment::redirect( get_home_url() );
 	}
@@ -74,6 +97,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_stop_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( false );
 		Util_Admin::redirect( array(), true );
 	}
@@ -86,6 +110,7 @@ class Generic_AdminActions_Default {
 	 * @throws \Exception If saving the license key or configuration fails.
 	 */
 	public function w3tc_default_save_license_key() {
+		$this->_require_admin_cap();
 		$license = Util_Request::get_string( 'license_key' );
 		try {
 			$old_config = new Config();
@@ -112,6 +137,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note() {
+		$this->_require_admin_cap();
 		$note    = Util_Request::get_string( 'note' );
 		$setting = sprintf( 'notes.%s', $note );
 
@@ -128,6 +154,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -143,6 +170,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_master() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -159,6 +187,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_note() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -174,6 +203,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note_custom() {
+		$this->_require_admin_cap();
 		$note = Util_Request::get_string( 'note' );
 		do_action( "w3tc_hide_button_custom-{$note}" );
 		Util_Admin::redirect( array(), true );
@@ -185,6 +215,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_purgelog_clear() {
+		$this->_require_admin_cap();
 		$module       = Util_Request::get_label( 'module' );
 		$log_filename = Util_Debug::log_filename( $module . '-purge' );
 
@@ -208,6 +239,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_remove_add_in() {
+		$this->_require_admin_cap();
 		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
 		// in the case of missing permissions to delete
@@ -246,6 +278,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_save_options() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 		Util_Admin::redirect_with_custom_messages2( $redirect_data );
 	}
@@ -256,6 +289,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_save_and_flush() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 
 		$f = Dispatcher::component( 'CacheFlush' );
@@ -292,8 +326,14 @@ class Generic_AdminActions_Default {
 			$data['response_query_string']['action']    = Util_Request::get_string( 'action' );
 		}
 
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot lower the gate below admin (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
 		$capability = apply_filters( 'w3tc_capability_config_save', 'manage_options' );
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! \current_user_can( 'manage_options' ) || empty( $capability ) || ! \current_user_can( $capability ) ) {
 			wp_die( esc_html__( 'You do not have the rights to perform this action.', 'w3-total-cache' ) );
 		}
 

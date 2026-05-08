@@ -364,6 +364,17 @@ class Licensing_Plugin_Admin {
 	public function admin_init() {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
 
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose license admin notices to non-admins
+		 * (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		$this->maybe_update_license_status();
 
 		if ( current_user_can( $capability ) ) {
@@ -572,8 +583,11 @@ class Licensing_Plugin_Admin {
 			true // Load in footer.
 		);
 
-		// Add the inline script.
-		$nonce           = wp_create_nonce( 'w3tc' );
+		// Add the inline script. Per-action nonces (rt9-192) so that a
+		// nonce minted for the dismiss endpoint cannot be replayed against
+		// the recheck endpoint or any other w3tc handler.
+		$dismiss_nonce   = wp_create_nonce( 'w3tc_dismiss_license_notice' );
+		$recheck_nonce   = wp_create_nonce( 'w3tc_recheck_license' );
 		$rechecking_text = __( 'Rechecking...', 'w3-total-cache' );
 		$script          = "
 			jQuery(function($) {
@@ -589,7 +603,7 @@ class Licensing_Plugin_Admin {
 						$.post(ajaxurl, {
 							action: 'w3tc_dismiss_license_notice',
 							notice_id: cleanId,
-							_wpnonce: '" . esc_js( $nonce ) . "'
+							_wpnonce: '" . esc_js( $dismiss_nonce ) . "'
 						});
 					}
 				});
@@ -602,7 +616,7 @@ class Licensing_Plugin_Admin {
 
 					$.post(ajaxurl, {
 						action: 'w3tc_recheck_license',
-						_wpnonce: '" . esc_js( $nonce ) . "'
+						_wpnonce: '" . esc_js( $recheck_nonce ) . "'
 					}).always(function() {
 						location.reload();
 					});
@@ -1003,7 +1017,10 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function ajax_dismiss_license_notice() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		// Per-action nonce (rt9-192). Legacy 'w3tc' accepted as back-compat
+		// fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		// the authoritative authorisation gate.
+		Util_Nonce::verify_ajax( 'w3tc_dismiss_license_notice' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
@@ -1039,7 +1056,10 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function ajax_recheck_license() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		// Per-action nonce (rt9-192). Legacy 'w3tc' accepted as back-compat
+		// fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		// the authoritative authorisation gate.
+		Util_Nonce::verify_ajax( 'w3tc_recheck_license' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );

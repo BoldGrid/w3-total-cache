@@ -283,7 +283,29 @@ class Extension_CloudFlare_Plugin_Admin {
 		$nonce    = Util_Request::get_string( '_wpnonce' );
 		$error    = null;
 
-		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+		/**
+		 * Subscriber-reachable AJAX route: the nonce alone does not
+		 * establish authorization. Without this gate any logged-in user
+		 * with a leaked w3tc nonce could proxy attacker-supplied
+		 * Cloudflare credentials through the site (rt9-135, rt9-170).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_send_json(
+				array(
+					'result' => false,
+					'error'  => 'Insufficient permissions.',
+				)
+			);
+			return;
+		}
+
+		// Per-action nonce key (rt9-192). Util_Nonce accepts the legacy
+		// shared `'w3tc'` action as a back-compat fallback so that admin
+		// tabs minted before the deploy keep working; the cap-check above
+		// remains the authoritative authorisation gate.
+		if ( ! Util_Nonce::verify_admin( 'w3tc_cloudflare_api_request' ) ) {
 			$error = 'Access denied.';
 		} elseif ( ! $key ) {
 			$error = 'Empty token / global key.';

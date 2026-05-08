@@ -82,7 +82,18 @@ class Generic_Plugin {
 		}
 
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
+		/**
+		 * The W3TC theme preview filters force-swap the active theme
+		 * for any visitor that supplies the public W3TC_POWERED_BY
+		 * User-Agent. Gate the registration on edit_theme_options so
+		 * unauthenticated visitors cannot probe installed themes
+		 * (rt9-180 sub-finding A).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) )
+			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false
+			&& \current_user_can( 'edit_theme_options' ) ) {
 			add_filter( 'template', array( $this, 'template_preview' ) );
 			add_filter( 'stylesheet', array( $this, 'stylesheet_preview' ) );
 		} elseif ( $this->_config->get_boolean( 'mobile.enabled' ) || $this->_config->get_boolean( 'referrer.enabled' ) ) {
@@ -721,6 +732,19 @@ class Generic_Plugin {
 	 */
 	public function load_frontend_message() {
 		if ( is_admin() ) {
+			return;
+		}
+
+		/**
+		 * load_frontend_message() reads/deletes the w3tc_message option
+		 * which is meant to relay an admin-side notice through a
+		 * frontend redirect. Without this gate any visitor could trigger
+		 * delete_option('w3tc_message') by guessing the message id, or
+		 * exfiltrate stored notice payloads (rt9-180 sub-finding B).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
 			return;
 		}
 

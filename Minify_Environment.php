@@ -287,6 +287,16 @@ class Minify_Environment {
 	/**
 	 * Tests the rewrite rules by sending a request to a test Minify URL.
 	 *
+	 * The probe URL points at the unauthenticated `Minify_Plugin::init`
+	 * handler. To prevent anonymous attackers from triggering the probe
+	 * (rt9-143), we issue a one-shot capability token via
+	 * {@see Minify_MinifiedFileRequestHandler::issue_probe_token()} and pass
+	 * it on the request through the `X-W3TC-Minify-Probe` header. The
+	 * handler will only emit `Minify OK` (or honour the `XXX.css` cache-write
+	 * probe) when the token matches.
+	 *
+	 * @since 2.9.5 Authenticated probe via short-lived `X-W3TC-Minify-Probe` token.
+	 *
 	 * @param string $url The URL to test for rewriting functionality.
 	 *
 	 * @return string 'ok' if successful, or an error message otherwise.
@@ -296,7 +306,16 @@ class Minify_Environment {
 		$result = get_site_transient( $key );
 
 		if ( 'ok' !== $result ) {
-			$response = Util_Http::get( $url );
+			$probe_token = Minify_MinifiedFileRequestHandler::issue_probe_token();
+
+			$response = Util_Http::get(
+				$url,
+				array(
+					'headers' => array(
+						'X-W3TC-Minify-Probe' => $probe_token,
+					),
+				)
+			);
 
 			$is_ok = (
 				! is_wp_error( $response ) &&

@@ -479,10 +479,11 @@ class Extension_ImageService_Plugin_Admin {
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
 
-		// Save submitted settings.
+		// Save submitted settings. Per-action nonce key (rt9-192); legacy
+		// `'w3tc'` accepted as a back-compat fallback via Util_Nonce.
 		$nonce_val                    = Util_Request::get_string( '_wpnonce' );
 		$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
-		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
+		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && Util_Nonce::verify_admin( 'w3tc_imageservice_settings' ) ) {
 			$settings                = $c->get_array( 'imageservice' );
 			$settings['compression'] = $imageservice_compression_val;
 
@@ -1788,6 +1789,25 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
+
+		/**
+		 * Baseline gate: only users that can upload media can call the
+		 * Image Service conversion endpoint. The shared
+		 * w3tc_imageservice_submit nonce is localized to anyone with
+		 * upload_files (see admin_enqueue_scripts), so without this
+		 * floor a Contributor/Subscriber holding a leaked nonce could
+		 * trigger BoldGrid API calls (rt9-227).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'upload_files' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Insufficient permissions.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
 
 		// Check for post id.
 		$post_id_val = Util_Request::get_integer( 'post_id' );

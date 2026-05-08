@@ -150,11 +150,37 @@ class UsageStatistics_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_ajax_ustats_access_log_test() {
-		$nonce_val = Util_Request::get_array( '_wpnonce' )[0];
-		$nonce     = isset( $nonce_val ) ? $nonce_val : false;
-
-		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+		/**
+		 * Layer 3 of the CSRF playbook: read the nonce as a scalar string
+		 * via Util_Nonce::read_nonce so `_wpnonce[]=foo` is rejected at
+		 * the type boundary before reaching wp_verify_nonce (rt9-173). The
+		 * previous `Util_Request::get_array('_wpnonce')[0]` accessor
+		 * accepted attacker-supplied array notation.
+		 *
+		 * Layer 2: per-action nonce key `w3tc_ustats_access_log_test`
+		 * (rt9-192); legacy `'w3tc'` accepted as back-compat fallback by
+		 * Util_Nonce::verify_admin.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! Util_Nonce::verify_admin( 'w3tc_ustats_access_log_test' ) ) {
 			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
+		}
+
+		/**
+		 * Subscriber-reachable AJAX route: the nonce alone does not
+		 * establish authorization. Without this gate any logged-in user
+		 * could probe arbitrary filesystem paths via fopen(), turning
+		 * the handler into a file-existence oracle (rt9-9, rt9-21,
+		 * rt9-134, rt9-101).
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				403
+			);
 		}
 
 		$handle       = false;

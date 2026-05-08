@@ -42,6 +42,12 @@ class Cdn_GoogleDrive_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_google_drive_auth_return() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				403
+			);
+		}
 		$view = new Cdn_GoogleDrive_Popup_AuthReturn();
 		$view->render();
 		exit();
@@ -58,6 +64,22 @@ class Cdn_GoogleDrive_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_google_drive_auth_set() {
+		/**
+		 * Hard admin gate: only manage_options users may bind a Google
+		 * Drive OAuth token to the site CDN config (rt9-233). This is
+		 * the cap-check half of the OAuth-state fix; binding the token
+		 * to the admin's session via a server-side state nonce is owned
+		 * by the config-injection group.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				403
+			);
+		}
+
 		// thanks wp core for wp_magic_quotes hell.
 		$client_id     = Util_Request::get_string( 'client_id' );
 		$access_token  = Util_Request::get_string( 'access_token' );

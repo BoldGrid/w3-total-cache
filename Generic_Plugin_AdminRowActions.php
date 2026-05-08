@@ -36,6 +36,17 @@ class Generic_Plugin_AdminRowActions {
 	public function post_row_actions( $actions, $post ) {
 		$capability = apply_filters( 'w3tc_capability_row_action_w3tc_flush_post', 'manage_options' );
 
+		/**
+		 * Floor the filterable cap at manage_options to prevent a
+		 * downstream filter from exposing the row action to non-admins
+		 * (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			return $actions;
+		}
+
 		if ( current_user_can( $capability ) ) {
 			$actions = array_merge(
 				$actions,
@@ -67,6 +78,17 @@ class Generic_Plugin_AdminRowActions {
 	 */
 	public function page_row_actions( $actions, $post ) {
 		$capability = apply_filters( 'w3tc_capability_row_action_w3tc_flush_post', 'manage_options' );
+
+		/**
+		 * Floor the filterable cap at manage_options to prevent a
+		 * downstream filter from exposing the row action to non-admins
+		 * (rt9-190, rt9-231).
+		 *
+		 * @since X.X.X
+		 */
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			return $actions;
+		}
 
 		if ( current_user_can( $capability ) ) {
 			$actions = array_merge(
