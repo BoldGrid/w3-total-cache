@@ -83,9 +83,29 @@ if ( empty( $_SERVER['HTTP_X_AMZ_SNS_MESSAGE_TYPE'] ) ) {
 
 // 3. Bound the request body. AWS SNS notifications are well below 256KB; we
 // hard-cap to defend against memory-exhaustion attempts.
+//
+// The Content-Length check is a fast pre-filter, but it is not sufficient on
+// its own: chunked transfer-encoded requests (and proxied requests where the
+// front-end strips Content-Length) report 0 here. We therefore also read the
+// body ourselves with a hard byte cap so a streaming client cannot bypass the
+// limit by omitting Content-Length.
 $w3tc_sns_max_body_bytes = 262144; // 256 KB.
 $w3tc_sns_content_length = isset( $_SERVER['CONTENT_LENGTH'] ) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
 if ( $w3tc_sns_content_length > $w3tc_sns_max_body_bytes ) {
+	w3tc_sns_reject( 413, 'Payload too large' );
+}
+
+// Read at most max+1 bytes; if the stream still has data we know the payload
+// exceeds the cap and reject. We deliberately consume php://input here so the
+// SDK's `fromRawPostData()` (which would re-read the stream unbounded) is not
+// used downstream.
+$w3tc_sns_input_handle = fopen( 'php://input', 'rb' );
+if ( false === $w3tc_sns_input_handle ) {
+	w3tc_sns_reject( 400, 'Cannot read body' );
+}
+$w3tc_sns_body = stream_get_contents( $w3tc_sns_input_handle, $w3tc_sns_max_body_bytes + 1 );
+fclose( $w3tc_sns_input_handle );
+if ( false === $w3tc_sns_body || strlen( $w3tc_sns_body ) > $w3tc_sns_max_body_bytes ) {
 	w3tc_sns_reject( 413, 'Payload too large' );
 }
 
@@ -102,11 +122,16 @@ if ( ! class_exists( '\Aws\Sns\Message' ) || ! class_exists( '\Aws\Sns\MessageVa
 	w3tc_sns_reject( 500, 'Server misconfigured' );
 }
 
-// 5. Build the SNS Message from the raw POST body (this also reads
-// php://input). On any structural problem, fail closed without leaking
-// detail.
+// 5. Build the SNS Message from the bounded body we read in step 3. We use
+// `fromArray()` instead of `fromRawPostData()` because the latter re-reads
+// php://input without a size cap. On any structural problem, fail closed
+// without leaking detail.
+$w3tc_sns_decoded = json_decode( $w3tc_sns_body, true );
+if ( ! is_array( $w3tc_sns_decoded ) ) {
+	w3tc_sns_reject( 400, 'Invalid SNS message' );
+}
 try {
-	$w3tc_sns_message = \Aws\Sns\Message::fromRawPostData();
+	$w3tc_sns_message = \Aws\Sns\Message::fromArray( $w3tc_sns_decoded );
 } catch ( \Exception $e ) {
 	w3tc_sns_reject( 400, 'Invalid SNS message' );
 }

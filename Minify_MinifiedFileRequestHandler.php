@@ -46,7 +46,16 @@ class Minify_MinifiedFileRequestHandler {
 	 *
 	 * @var string
 	 */
-	const PROBE_TOKEN_TRANSIENT = 'w3tc_minify_probe_token';
+	/**
+	 * Per-token site-transient key prefix. Each issued probe token becomes
+	 * its own transient so concurrent rewrite tests (multiple admins, or one
+	 * admin running back-to-back tests) cannot clobber each other's tokens.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_PREFIX = 'w3tc_minify_probe_';
 
 	/**
 	 * Lifetime (seconds) of an issued probe token. Probes are server-to-self
@@ -103,7 +112,10 @@ class Minify_MinifiedFileRequestHandler {
 			$token = \wp_generate_password( 32, false, false );
 		}
 
-		\set_site_transient( self::PROBE_TOKEN_TRANSIENT, $token, self::PROBE_TOKEN_TTL );
+		// Key the transient by token value so each issued token gets its own
+		// storage slot. Concurrent probes therefore do not overwrite each
+		// other; each token can be independently consumed.
+		\set_site_transient( self::PROBE_TOKEN_PREFIX . $token, '1', self::PROBE_TOKEN_TTL );
 
 		return $token;
 	}
@@ -128,17 +140,18 @@ class Minify_MinifiedFileRequestHandler {
 			return false;
 		}
 
-		$expected = \get_site_transient( self::PROBE_TOKEN_TRANSIENT );
-		if ( ! is_string( $expected ) || '' === $expected ) {
+		// Token IS the transient key. Lookup is the validation: a missing
+		// transient (false) means the token is invalid, expired, or already
+		// consumed. The 32-char hex format check above bounds the lookup
+		// keyspace; the unguessable random token bounds attacker probability.
+		$key   = self::PROBE_TOKEN_PREFIX . $presented;
+		$valid = \get_site_transient( $key );
+		if ( false === $valid ) {
 			return false;
 		}
 
-		if ( ! \hash_equals( $expected, $presented ) ) {
-			return false;
-		}
-
-		// One-shot: clear the transient so this token cannot be replayed.
-		\delete_site_transient( self::PROBE_TOKEN_TRANSIENT );
+		// One-shot: clear so this token cannot be replayed.
+		\delete_site_transient( $key );
 
 		return true;
 	}

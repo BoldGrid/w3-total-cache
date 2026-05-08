@@ -292,11 +292,12 @@ class Extension_CloudFlare_Plugin_Admin {
 		 * @since X.X.X
 		 */
 		if ( ! \current_user_can( 'manage_options' ) ) {
-			wp_send_json(
+			wp_send_json_error(
 				array(
 					'result' => false,
 					'error'  => 'Insufficient permissions.',
-				)
+				),
+				403
 			);
 			return;
 		}
