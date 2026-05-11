@@ -147,11 +147,31 @@ class Generic_AdminActions_Test {
 			}
 		}
 
+		/*
+		 * Validate the admin-supplied `path_java` against the
+		 * Util_Java allowlist before it can flow into the vendored
+		 * minifier wrappers' static `$javaExecutable` properties.
+		 * Without this gate, the value would land in a `shell_exec()`
+		 * concatenation inside `lib/Minify/Minify/{YUICompressor,
+		 * ClosureCompiler}.php` and provide an RCE primitive even
+		 * for callers who reached this handler legitimately. See
+		 * `.claude/skills/sec-command-injection/SKILL.md`.
+		 *
+		 * @since X.X.X
+		 */
+		$validated_java = '';
+		if ( empty( $error ) && 'googleccjs' !== $engine ) {
+			$validated_java = Util_Java::validate_with_log( $path_java, 'test_minifier' );
+			if ( false === $validated_java ) {
+				$error = __( 'JAVA executable path is not allowed. The path must be an existing, executable file under an approved directory (e.g. /usr/bin, /usr/local/bin, /opt). Operators may extend the allowlist via the `W3TC_JAVA_BIN_ALLOWED_DIRS` constant in wp-config.php.', 'w3-total-cache' );
+			}
+		}
+
 		if ( empty( $error ) ) {
 			switch ( $engine ) {
 				case 'yuijs':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
@@ -159,7 +179,7 @@ class Generic_AdminActions_Test {
 
 				case 'yuicss':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
@@ -167,7 +187,7 @@ class Generic_AdminActions_Test {
 
 				case 'ccjs':
 					\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
@@ -183,9 +203,21 @@ class Generic_AdminActions_Test {
 			}
 		}
 
+		/*
+		 * Vendored exception strings (e.g. `Minify_YUICompressor :
+		 * $jarFile(...) is not a valid file.`) interpolate the
+		 * raw attacker-supplied path. The minifier dashboard JS
+		 * renders the response via `.html(data.error)`, so a raw
+		 * `<script>` in the path would otherwise execute. Strip
+		 * HTML at the response boundary; this overlaps with the
+		 * xss group's territory (rt9-90) but lives here because
+		 * we're already touching this handler.
+		 *
+		 * @since X.X.X
+		 */
 		$response = array(
 			'result' => $result,
-			'error'  => $error,
+			'error'  => is_string( $error ) ? \esc_html( $error ) : '',
 		);
 
 		echo wp_json_encode( $response );

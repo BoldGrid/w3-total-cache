@@ -125,20 +125,41 @@ class Minify_ContentMinifier {
 	public function init( $engine ) {
 		switch ( $engine ) {
 			case 'yuijs':
+				$java = Util_Java::validate_with_log(
+					$this->_config->get_string( 'minify.yuijs.path.java' ),
+					'yuijs'
+				);
+				if ( false === $java ) {
+					return;
+				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuijs.path.java' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuijs.path.jar' );
 				break;
 
 			case 'yuicss':
+				$java = Util_Java::validate_with_log(
+					$this->_config->get_string( 'minify.yuicss.path.java' ),
+					'yuicss'
+				);
+				if ( false === $java ) {
+					return;
+				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuicss.path.java' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuicss.path.jar' );
 				break;
 
 			case 'ccjs':
+				$java = Util_Java::validate_with_log(
+					$this->_config->get_string( 'minify.ccjs.path.java' ),
+					'ccjs'
+				);
+				if ( false === $java ) {
+					return;
+				}
 				\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $this->_config->get_string( 'minify.ccjs.path.java' );
+				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $this->_config->get_string( 'minify.ccjs.path.jar' );
 				break;
 		}
@@ -179,31 +200,39 @@ class Minify_ContentMinifier {
 				break;
 
 			case 'yuijs':
-				$options = array(
-					'line-break'            => $this->_config->get_integer( 'minify.yuijs.options.line-break' ),
-					'nomunge'               => $this->_config->get_boolean( 'minify.yuijs.options.nomunge' ),
-					'preserve-semi'         => $this->_config->get_boolean( 'minify.yuijs.options.preserve-semi' ),
-					'disable-optimizations' => $this->_config->get_boolean( 'minify.yuijs.options.disable-optimizations' ),
+				$options = Util_Java::sanitize_yui_options(
+					array(
+						'line-break'            => $this->_config->get_integer( 'minify.yuijs.options.line-break' ),
+						'nomunge'               => $this->_config->get_boolean( 'minify.yuijs.options.nomunge' ),
+						'preserve-semi'         => $this->_config->get_boolean( 'minify.yuijs.options.preserve-semi' ),
+						'disable-optimizations' => $this->_config->get_boolean( 'minify.yuijs.options.disable-optimizations' ),
+					)
 				);
 				break;
 
 			case 'yuicss':
-				$options = array(
-					'line-break' => $this->_config->get_integer( 'minify.yuicss.options.line-break' ),
+				$options = Util_Java::sanitize_yui_options(
+					array(
+						'line-break' => $this->_config->get_integer( 'minify.yuicss.options.line-break' ),
+					)
 				);
 				break;
 
 			case 'ccjs':
-				$options = array(
-					'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
-					'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+				$options = Util_Java::sanitize_ccjs_options(
+					array(
+						'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
+						'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+					)
 				);
 				break;
 
 			case 'googleccjs':
-				$options = array(
-					'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
-					'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+				$options = Util_Java::sanitize_ccjs_options(
+					array(
+						'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
+						'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+					)
 				);
 				break;
 
