@@ -161,8 +161,35 @@ class UsageStatistics_Plugin_Admin {
 		$filename_val = Util_Request::get_string( 'filename' );
 		$filepath     = ! empty( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
 
-		if ( $filepath ) {
-			$handle = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress
+		/**
+		 * Path-traversal allowlist for the access-log test handler
+		 * (rt9-101 path half). The admin-supplied filename previously
+		 * flowed straight into fopen() with only a `://` -> `/` collapse,
+		 * turning the handler into a file-existence oracle on arbitrary
+		 * host paths (e.g. `/etc/passwd`, `/proc/self/cmdline`).
+		 *
+		 * The cap-check half (current_user_can('manage_options')) is added
+		 * by the missing-auth-capability-checks PR; this allowlist closes
+		 * the residual path-traversal surface even when an admin account
+		 * is compromised or is the attacker.
+		 *
+		 * Acceptable resolved paths must live under one of:
+		 *   - the WP uploads basedir
+		 *   - W3TC_CACHE_DIR (W3TC's own cache tree)
+		 *   - WP_CONTENT_DIR (covers debug.log + any user-configured
+		 *     log location inside wp-content)
+		 *
+		 * On rejection we return the same generic 'Failed to open file'
+		 * response as the not-found case -- the rejection reason is not
+		 * leaked to the client, so the wire shape stays stable for
+		 * legitimate users.
+		 *
+		 * @since X.X.X
+		 */
+		$validated = self::validate_access_log_path( $filepath );
+
+		if ( false !== $validated ) {
+			$handle = @fopen( $validated, 'rb' ); // phpcs:ignore WordPress
 		}
 
 		if ( $handle ) {
@@ -172,5 +199,68 @@ class UsageStatistics_Plugin_Admin {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * Validates a user-supplied filesystem path against the access-log
+	 * test handler's allowlist.
+	 *
+	 * Returns the canonicalized absolute path on success, or false if
+	 * the input is empty, doesn't resolve via realpath(), or escapes the
+	 * permitted root set.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|null $filepath Raw filepath from the request.
+	 *
+	 * @return string|false Canonical absolute path, or false on rejection.
+	 */
+	private static function validate_access_log_path( $filepath ) {
+		if ( ! \is_string( $filepath ) || '' === $filepath ) {
+			return false;
+		}
+
+		$real = \realpath( $filepath );
+
+		if ( false === $real || ! \is_file( $real ) ) {
+			return false;
+		}
+
+		$roots = array();
+
+		if ( \function_exists( 'wp_upload_dir' ) ) {
+			$uploads = \wp_upload_dir( null, false );
+			if ( \is_array( $uploads ) && ! empty( $uploads['basedir'] ) ) {
+				$uploads_real = \realpath( $uploads['basedir'] );
+				if ( false !== $uploads_real ) {
+					$roots[] = $uploads_real;
+				}
+			}
+		}
+
+		if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+			$cache_real = \realpath( W3TC_CACHE_DIR );
+			if ( false !== $cache_real ) {
+				$roots[] = $cache_real;
+			}
+		}
+
+		if ( \defined( 'WP_CONTENT_DIR' ) ) {
+			$content_real = \realpath( WP_CONTENT_DIR );
+			if ( false !== $content_real ) {
+				$roots[] = $content_real;
+			}
+		}
+
+		foreach ( $roots as $root ) {
+			if ( '' === $root ) {
+				continue;
+			}
+			if ( 0 === \strpos( $real, $root . DIRECTORY_SEPARATOR ) ) {
+				return $real;
+			}
+		}
+
+		return false;
 	}
 }

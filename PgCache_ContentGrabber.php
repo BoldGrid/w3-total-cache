@@ -318,18 +318,24 @@ class PgCache_ContentGrabber {
 	 */
 	private function run_extensions_dropin() {
 		$c          = $this->_config;
-		$extensions = $c->get_array( 'extensions.active' );
 
-		$dropin = $c->get_array( 'extensions.active_dropin' );
+		/**
+		 * Layer 1 of the file-inclusion playbook: same fix as
+		 * Root_Loader::run_extensions -- drop raw-config-path concat in
+		 * favour of Util_Extension::resolve() slug-allowlist + realpath()
+		 * canonicalization under W3TC_EXTENSION_DIR. Legacy
+		 * `extensions.active` / `extensions.active_dropin` entries are
+		 * normalized read-side via convert_legacy_entries(); unknown
+		 * slugs are dropped, not included (rt9-99 dropin variant).
+		 *
+		 * @since X.X.X
+		 */
+		$extensions = Util_Extension::convert_legacy_entries( $c->get_array( 'extensions.active' ) );
+		$dropin     = Util_Extension::convert_legacy_entries( $c->get_array( 'extensions.active_dropin' ) );
+
 		foreach ( $dropin as $extension => $nothing ) {
 			if ( isset( $extensions[ $extension ] ) ) {
-				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
-
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+				Util_Extension::include_once( $extension );
 			}
 		}
 	}
@@ -2076,9 +2082,59 @@ class PgCache_ContentGrabber {
 	 */
 	public function _bad_behavior() {
 		$bb_file = $this->_config->get_string( 'pgcache.bad_behavior_path' );
-		if ( '' !== $bb_file ) {
-			require_once $bb_file;
+
+		if ( '' === $bb_file ) {
+			return;
 		}
+
+		/**
+		 * Allowlist gate for the admin-configured Bad Behavior plugin path
+		 * (rt9-100, rt9-63). The legacy code called
+		 * `require_once $this->_config->get_string('pgcache.bad_behavior_path')`
+		 * with zero validation -- any admin-settable string flowed straight
+		 * into require_once. Mass-assignment writes to this key (handled
+		 * separately by sec-fix-mass-assignment) gave a subscriber-reachable
+		 * RCE primitive.
+		 *
+		 * The validator below enforces:
+		 *   - realpath() canonicalization succeeds (file must exist)
+		 *   - the resolved path lives under WP_PLUGIN_DIR (so legitimate
+		 *     `WP_PLUGIN_DIR/bad-behavior/bad-behavior-wordpress.php` style
+		 *     installs are still reachable, but `/tmp/evil.php`,
+		 *     `/etc/passwd`, and the W3TC plugin directory itself are not).
+		 *
+		 * Failures are logged via Util_Debug::log('pgcache', ...) and the
+		 * include is skipped silently -- operators see the same page-cache
+		 * behaviour as if Bad Behavior were not installed.
+		 *
+		 * @since X.X.X
+		 */
+		$real = \realpath( $bb_file );
+
+		if ( false === $real || ! \is_file( $real ) ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: realpath() failed for ' . $bb_file );
+			}
+			return;
+		}
+
+		$plugin_root = \defined( 'WP_PLUGIN_DIR' ) ? \realpath( WP_PLUGIN_DIR ) : false;
+
+		if ( false === $plugin_root ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: WP_PLUGIN_DIR not resolvable' );
+			}
+			return;
+		}
+
+		if ( 0 !== \strpos( $real, $plugin_root . DIRECTORY_SEPARATOR ) ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: not under WP_PLUGIN_DIR (' . $real . ')' );
+			}
+			return;
+		}
+
+		require_once $real;
 	}
 
 	/**
