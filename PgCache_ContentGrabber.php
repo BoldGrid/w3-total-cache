@@ -530,6 +530,12 @@ class PgCache_ContentGrabber {
 
 		$compression      = false;
 		$has_dynamic      = $this->_has_dynamic( $buffer );
+
+		// Sign dynamic-fragment tags so read-time dispatch can verify integrity (eval-rce mitigation, layer 2).
+		if ( $has_dynamic ) {
+			$buffer = $this->_sign_dynamic_tags( $buffer );
+		}
+
 		$response_headers = $this->_get_response_headers();
 
 		// TODO: call modifies object state, rename method at least.
@@ -2084,6 +2090,19 @@ class PgCache_ContentGrabber {
 	/**
 	 * Parses dynamic content within the provided buffer.
 	 *
+	 * Security model (post-CVE eval-rce):
+	 *  - Layer 1: dispatch goes through a registered-callback registry
+	 *    (the `w3tc_dynamic_callbacks` filter) — raw PHP / file paths are
+	 *    refused; only `call:<slug>` payloads dispatch.
+	 *  - Layer 2: each tag must carry an HMAC computed at cache-write time
+	 *    using `wp_salt('auth')`. Read-time recomputes and rejects on
+	 *    mismatch. The HMAC is appended to the cached tag by
+	 *    `_sign_dynamic_tags()` during the output-buffering pass.
+	 *  - Layer 3: if `W3TC_DYNAMIC_SECURITY` is undefined / empty / `1`,
+	 *    no dispatch happens at all — the buffer is returned untouched.
+	 *
+	 * @since 2.9.5
+	 *
 	 * @param string $buffer The content buffer to parse.
 	 *
 	 * @return string The buffer with parsed dynamic content.
@@ -2118,70 +2137,361 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Executes a dynamic mfunc tag found in content.
+	 * Returns the registry of dynamic callback slugs → callables.
 	 *
-	 * phpcs:disable Squiz.PHP.Eval.Discouraged
+	 * Themes and plugins register dispatchable callbacks via:
 	 *
-	 * @param array $matches The matches from the regular expression.
+	 *     add_filter( 'w3tc_dynamic_callbacks', function( $cbs ) {
+	 *         $cbs['my_slug'] = function( $args ) {
+	 *             return '<span>' . esc_html( $args['user'] ?? '' ) . '</span>';
+	 *         };
+	 *         return $cbs;
+	 *     } );
 	 *
-	 * @return string The result of executing the mfunc code.
+	 * Then emit a tag like:
+	 *
+	 *     <!-- mfunc TOKEN call:my_slug {"user":"alice"} --><!-- /mfunc TOKEN -->
+	 *
+	 * The HMAC envelope (`hmac:<hex>`) is added automatically at
+	 * cache-write time; emitters MUST NOT compute it themselves.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @return array<string,callable>
 	 */
-	public function _parse_dynamic_mfunc( $matches ) {
-		$code1 = trim( $matches[1] );
-		$code2 = trim( $matches[2] );
-		$code  = ( $code1 ? $code1 : $code2 );
-
-		if ( $code ) {
-			$code = trim( $code, ';' ) . ';';
-
-			try {
-				ob_start();
-				$result = eval( $code ); // phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
-				$output = ob_get_contents();
-				ob_end_clean();
-			} catch ( \Exception $ex ) {
-				$result = false;
-			}
-
-			if ( false === $result ) {
-				$output = sprintf( 'Unable to execute code: %s', htmlspecialchars( $code ) );
-			}
-		} else {
-			$output = htmlspecialchars( 'Invalid mfunc tag syntax. The correct format is: <!-- W3TC_DYNAMIC_SECURITY mfunc PHP code --><!-- /mfunc W3TC_DYNAMIC_SECURITY --> or <!-- W3TC_DYNAMIC_SECURITY mfunc -->PHP code<!-- /mfunc W3TC_DYNAMIC_SECURITY -->.' );
+	private function _get_dynamic_callbacks() {
+		if ( ! \function_exists( 'apply_filters' ) ) {
+			return array();
 		}
 
-		return $output;
+		$callbacks = \apply_filters( 'w3tc_dynamic_callbacks', array() );
+
+		return \is_array( $callbacks ) ? $callbacks : array();
 	}
 
 	/**
-	 * Includes a file based on a dynamic mclude tag found in content.
+	 * Returns the HMAC secret used to sign dynamic-fragment payloads.
+	 *
+	 * Uses `wp_salt('auth')` when available so the secret is bound to
+	 * the site and rotates whenever the operator rotates auth salts.
+	 * Falls back to the W3TC_DYNAMIC_SECURITY token mixed with
+	 * AUTH_KEY/SECURE_AUTH_KEY when WordPress is not loaded (CLI tests).
+	 *
+	 * @since 2.9.5
+	 *
+	 * @return string
+	 */
+	private function _dynamic_hmac_key() {
+		if ( \function_exists( 'wp_salt' ) ) {
+			return \wp_salt( 'auth' );
+		}
+
+		$parts = array(
+			defined( 'W3TC_DYNAMIC_SECURITY' ) ? (string) W3TC_DYNAMIC_SECURITY : '',
+			defined( 'AUTH_KEY' )              ? (string) AUTH_KEY              : '',
+			defined( 'SECURE_AUTH_KEY' )       ? (string) SECURE_AUTH_KEY       : '',
+		);
+
+		return implode( '|', $parts );
+	}
+
+	/**
+	 * Computes the HMAC for a (kind, slug, args-json) tuple.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $kind      Tag kind, 'mfunc' or 'mclude'.
+	 * @param string $slug      Callback slug.
+	 * @param string $args_json Raw JSON args string (signed verbatim so
+	 *                          there is no ambiguity between encode/decode
+	 *                          on either side).
+	 *
+	 * @return string Lowercase hex sha256 HMAC.
+	 */
+	public function _dynamic_hmac( $kind, $slug, $args_json ) {
+		return \hash_hmac( 'sha256', $kind . '|' . $slug . '|' . $args_json, $this->_dynamic_hmac_key() );
+	}
+
+	/**
+	 * Parses a mfunc / mclude tag header into (slug, args_json, hmac).
+	 *
+	 * Accepts the safe form:
+	 *
+	 *     call:<slug> <json-args> hmac:<hex>
+	 *
+	 * Whitespace between segments is flexible; `<json-args>` is the
+	 * substring between the slug token and `hmac:`.  Returns `null` if
+	 * the tag is not in the safe form (no `call:` prefix or no `hmac:`).
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $header The raw payload header from the tag.
+	 *
+	 * @return array{slug:string,args_json:string,hmac:string}|null
+	 */
+	private function _parse_dynamic_header( $header ) {
+		$header = trim( $header );
+
+		if ( ! preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*?)\s*hmac:([0-9a-f]{64})$~is', $header, $m ) ) {
+			return null;
+		}
+
+		return array(
+			'slug'      => $m[1],
+			'args_json' => trim( $m[2] ),
+			'hmac'      => strtolower( $m[3] ),
+		);
+	}
+
+	/**
+	 * Decodes a tag's JSON args, returning an empty array for empty / invalid input.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $args_json JSON string.
+	 *
+	 * @return array
+	 */
+	private function _decode_dynamic_args( $args_json ) {
+		if ( '' === $args_json ) {
+			return array();
+		}
+
+		$decoded = \json_decode( $args_json, true );
+
+		return \is_array( $decoded ) ? $decoded : array();
+	}
+
+	/**
+	 * Logs a deprecation notice when raw-PHP mfunc / file-path mclude tags
+	 * are seen at dispatch time.  These tags are no longer executed — emitters
+	 * must migrate to the `call:<slug>` registered-callback form.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $kind   'mfunc' or 'mclude'.
+	 * @param string $reason Human-readable reason.
+	 *
+	 * @return void
+	 */
+	private function _log_dynamic_deprecation( $kind, $reason ) {
+		if ( \function_exists( '_doing_it_wrong' ) ) {
+			\_doing_it_wrong(
+				$kind,
+				\esc_html(
+					sprintf(
+						/* translators: 1: tag kind (mfunc/mclude), 2: reason. */
+						'W3TC dynamic %1$s tag refused: %2$s. Raw PHP / file-path payloads are no longer dispatched; migrate to the registered-callback form (<!-- %1$s TOKEN call:slug {...} -->) via the `w3tc_dynamic_callbacks` filter.',
+						$kind,
+						$reason
+					)
+				),
+				'2.9.5'
+			);
+		} elseif ( \function_exists( 'error_log' ) ) {
+			\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf( '[W3TC] dynamic %s tag refused: %s', $kind, $reason )
+			);
+		}
+	}
+
+	/**
+	 * Dispatches a verified, registered callback by slug.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $kind 'mfunc' or 'mclude'.
+	 * @param string $slug Callback slug.
+	 * @param array  $args Decoded JSON args.
+	 *
+	 * @return string The callback's HTML output, or an error sentinel.
+	 */
+	private function _dispatch_dynamic_callback( $kind, $slug, $args ) {
+		$callbacks = $this->_get_dynamic_callbacks();
+
+		if ( empty( $callbacks ) ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s registry is empty; no callbacks registered.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		if ( ! isset( $callbacks[ $slug ] ) || ! \is_callable( $callbacks[ $slug ] ) ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s slug "%s" is not registered.', $kind, $slug ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		try {
+			$output = \call_user_func( $callbacks[ $slug ], $args, $kind );
+		} catch ( \Throwable $ex ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s slug "%s" raised an exception.', $kind, $slug ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		return \is_string( $output ) ? $output : (string) $output;
+	}
+
+	/**
+	 * Common dispatcher for mfunc / mclude tags.
+	 *
+	 * Enforces the three security layers:
+	 *  1. Refuses unless `W3TC_DYNAMIC_SECURITY` is defined (already gated
+	 *     upstream by `_parse_dynamic()`).
+	 *  2. Refuses unless the payload is in the `call:<slug>` form with a
+	 *     valid HMAC envelope.
+	 *  3. Refuses unless the slug is in the registered-callback registry.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $kind    'mfunc' or 'mclude'.
+	 * @param array  $matches preg_replace_callback matches: [0]=full, [1]=header, [2]=body.
+	 *
+	 * @return string
+	 */
+	private function _dispatch_dynamic( $kind, $matches ) {
+		$header = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+		$body   = isset( $matches[2] ) ? trim( $matches[2] ) : '';
+
+		// Prefer the header for the call descriptor; fall back to the body for
+		// the alternate "<!-- mfunc TOKEN -->call:slug ... hmac:hex<!-- /mfunc TOKEN -->" form.
+		$candidate = '' !== $header ? $header : $body;
+		$parsed    = $this->_parse_dynamic_header( $candidate );
+
+		if ( null === $parsed ) {
+			$this->_log_dynamic_deprecation( $kind, 'raw payload (no call:slug + hmac envelope)' );
+
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s tag refused: missing call:slug + hmac envelope.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		$expected = $this->_dynamic_hmac( $kind, $parsed['slug'], $parsed['args_json'] );
+
+		if ( ! \hash_equals( $expected, $parsed['hmac'] ) ) {
+			$this->_log_dynamic_deprecation( $kind, 'HMAC mismatch' );
+
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s tag refused: HMAC mismatch.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		return $this->_dispatch_dynamic_callback( $kind, $parsed['slug'], $this->_decode_dynamic_args( $parsed['args_json'] ) );
+	}
+
+	/**
+	 * Dispatches a dynamic mfunc tag.
+	 *
+	 * Previously this method `eval()`'d arbitrary PHP from the tag payload.
+	 * That primitive has been removed; only registered callbacks dispatched
+	 * via `call:<slug>` + HMAC are honored.
+	 *
+	 * @since 2.9.5
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string The content of the included file, or an error message.
+	 * @return string The callback's output, or an error message.
+	 */
+	public function _parse_dynamic_mfunc( $matches ) {
+		return $this->_dispatch_dynamic( 'mfunc', $matches );
+	}
+
+	/**
+	 * Dispatches a dynamic mclude tag.
+	 *
+	 * Previously this method `include`'d an attacker-controlled relative
+	 * path (rt9-232).  That primitive has been removed; only registered
+	 * callbacks dispatched via `call:<slug>` + HMAC are honored.  Plugins
+	 * that need to render an include's output should wrap it in a slug.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param array $matches The matches from the regular expression.
+	 *
+	 * @return string The callback's output, or an error message.
 	 */
 	public function _parse_dynamic_mclude( $matches ) {
-		$file1 = trim( $matches[1] );
-		$file2 = trim( $matches[2] );
+		return $this->_dispatch_dynamic( 'mclude', $matches );
+	}
 
-		$file = ( $file1 ? $file1 : $file2 );
-
-		if ( $file ) {
-			$file = ABSPATH . $file;
-
-			if ( file_exists( $file ) && is_readable( $file ) ) {
-				ob_start();
-				include $file;
-				$output = ob_get_contents();
-				ob_end_clean();
-			} else {
-				$output = sprintf( 'Unable to open file: %s', htmlspecialchars( $file ) );
-			}
-		} else {
-			$output = htmlspecialchars( 'Incorrect mclude tag syntax. The correct format is: <!-- mclude W3TC_DYNAMIC_SECURITY path/to/file.php --><!-- /mclude W3TC_DYNAMIC_SECURITY --> or <!-- mclude W3TC_DYNAMIC_SECURITY -->path/to/file.php<!-- /mclude W3TC_DYNAMIC_SECURITY -->.' );
+	/**
+	 * Signs every dynamic mfunc / mclude tag in $buffer by appending an
+	 * `hmac:<hex>` envelope to its header.  Called once before the buffer
+	 * is written to the page cache so that later read-time dispatch can
+	 * verify integrity.
+	 *
+	 * Tags whose payload is not in the safe `call:<slug>` form are left
+	 * unsigned — at dispatch time they will fall through to the
+	 * deprecation path and refuse to execute.  This is intentional: it
+	 * makes back-compat behavior visible (an error in place of the tag)
+	 * rather than silently dropping the tag at write time.
+	 *
+	 * @since 2.9.5
+	 *
+	 * @param string $buffer Buffer containing rendered HTML.
+	 *
+	 * @return string Buffer with HMAC envelopes added.
+	 */
+	public function _sign_dynamic_tags( $buffer ) {
+		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) || 1 === (int) W3TC_DYNAMIC_SECURITY ) {
+			return $buffer;
 		}
 
-		return $output;
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
+		$sign_one = function ( $kind ) {
+			return function ( $matches ) use ( $kind ) {
+				$header = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+				$body   = isset( $matches[2] ) ? $matches[2] : '';
+
+				// If the header already has a complete `call:slug ... hmac:hex` envelope, leave it alone.
+				if ( null !== $this->_parse_dynamic_header( $header ) ) {
+					return $matches[0];
+				}
+
+				// Only sign the safe `call:<slug>` form.  Raw-PHP / file-path payloads are left
+				// unsigned and will be refused at dispatch time.
+				if ( ! preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $header, $m ) ) {
+					return $matches[0];
+				}
+
+				$slug      = $m[1];
+				$args_json = trim( $m[2] );
+				$hmac      = $this->_dynamic_hmac( $kind, $slug, $args_json );
+
+				$new_header = 'call:' . $slug;
+				if ( '' !== $args_json ) {
+					$new_header .= ' ' . $args_json;
+				}
+				$new_header .= ' hmac:' . $hmac;
+
+				return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' ' . $new_header . ' -->' . $body . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
+			};
+		};
+
+		$buffer = preg_replace_callback(
+			'~<!--\s*mfunc\s+' . $security . '\s+(.*?)\s*-->(.*?)<!--\s*/mfunc\s+' . $security . '\s*-->~is',
+			$sign_one( 'mfunc' ),
+			$buffer
+		);
+
+		$buffer = preg_replace_callback(
+			'~<!--\s*mclude\s+' . $security . '\s+(.*?)\s*-->(.*?)<!--\s*/mclude\s+' . $security . '\s*-->~is',
+			$sign_one( 'mclude' ),
+			$buffer
+		);
+
+		return $buffer;
 	}
 
 	/**

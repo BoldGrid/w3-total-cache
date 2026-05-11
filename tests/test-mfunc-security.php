@@ -358,6 +358,268 @@ assert_true(
 );
 
 // ---------------------------------------------------------------------------
+// ── SECTION 4: Registered-callback dispatcher + HMAC envelope (eval-rce fix)
+// ──   Exercises the actual PgCache_ContentGrabber methods, not just regex.
+// ---------------------------------------------------------------------------
+
+echo "\n=== DISPATCHER + HMAC (PgCache_ContentGrabber, eval-rce fix) ===\n\n";
+
+// Minimal stub for WordPress functions the dispatcher consults.
+if ( ! function_exists( 'apply_filters' ) ) {
+	$GLOBALS['__test_dynamic_callbacks'] = array();
+	function apply_filters( $hook, $value ) {
+		if ( 'w3tc_dynamic_callbacks' === $hook ) {
+			return $GLOBALS['__test_dynamic_callbacks'];
+		}
+		return $value;
+	}
+}
+if ( ! function_exists( 'esc_html' ) ) {
+	function esc_html( $s ) {
+		return htmlspecialchars( (string) $s, ENT_QUOTES, 'UTF-8' );
+	}
+}
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
+// Minimal stubs so PgCache_ContentGrabber's constructor works in standalone PHP.
+// Defined via eval() so we can stay in global namespace for the rest of the file.
+if ( ! class_exists( 'W3TC\\Dispatcher' ) ) {
+	eval(
+		'namespace W3TC;
+		class __TestConfigStub {
+			public function get_boolean( $k ) { return false; }
+			public function get_integer( $k ) { return 0; }
+			public function get_string( $k )  { return \'\'; }
+		}
+		class Dispatcher {
+			public static function config() { return new __TestConfigStub(); }
+			public static function component( $name ) { return null; }
+		}
+		class Util_Environment {
+			public static function host_port() { return \'localhost\'; }
+			public static function is_https()  { return false; }
+		}'
+	);
+}
+
+// Load the class under test.  W3TC_DYNAMIC_SECURITY is already defined above.
+require_once __DIR__ . '/../PgCache_ContentGrabber.php';
+
+$grabber = new \W3TC\PgCache_ContentGrabber();
+
+// Reset the registry for each subsection.
+$reset_callbacks = function () {
+	$GLOBALS['__test_dynamic_callbacks'] = array();
+};
+
+// Register a known-safe callback for the dispatch tests.
+$register_callback = function ( $slug, $fn ) {
+	$GLOBALS['__test_dynamic_callbacks'][ $slug ] = $fn;
+};
+
+// ── 4a. Raw-PHP mfunc payload (legacy eval form) is REFUSED ──
+$reset_callbacks();
+$raw_php = '<!-- mfunc ' . $token . ' phpinfo(); --><!-- /mfunc ' . $token . ' -->';
+$result  = $grabber->_parse_dynamic( $raw_php );
+assert_true(
+	'[4a] Raw-PHP mfunc payload is refused (no eval, error sentinel)',
+	false === strpos( $result, 'phpinfo' )
+		&& false !== strpos( $result, 'refused' ),
+	"result: $result"
+);
+
+// ── 4b. Raw-PHP mfunc between-tags form is REFUSED ──
+$reset_callbacks();
+$raw_between = '<!-- mfunc ' . $token . ' -->phpinfo();<!-- /mfunc ' . $token . ' -->';
+$result      = $grabber->_parse_dynamic( $raw_between );
+assert_true(
+	'[4b] Raw-PHP between-tags mfunc is refused',
+	false === strpos( $result, 'phpinfo' )
+		&& false !== strpos( $result, 'refused' ),
+	"result: $result"
+);
+
+// ── 4c. mclude with attacker-controlled file path is REFUSED (rt9-232 closed) ──
+$reset_callbacks();
+$lfi      = '<!-- mclude ' . $token . ' ../../../../etc/passwd --><!-- /mclude ' . $token . ' -->';
+$result   = $grabber->_parse_dynamic( $lfi );
+assert_true(
+	'[4c] mclude with file-path payload is refused (rt9-232 closed)',
+	false === strpos( $result, 'root:' )
+		&& false !== strpos( $result, 'refused' ),
+	"result: $result"
+);
+
+// ── 4d. mfunc with call:slug but no HMAC is REFUSED ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'USER:' . ( $args['name'] ?? '' );
+} );
+$unsigned = '<!-- mfunc ' . $token . ' call:render_user {"name":"alice"} --><!-- /mfunc ' . $token . ' -->';
+$result   = $grabber->_parse_dynamic( $unsigned );
+assert_true(
+	'[4d] mfunc with call:slug but no HMAC is refused',
+	false === strpos( $result, 'USER:alice' )
+		&& false !== strpos( $result, 'refused' ),
+	"result: $result"
+);
+
+// ── 4e. mfunc with WRONG HMAC is REFUSED (cache-poisoning defense) ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'USER:' . ( $args['name'] ?? '' );
+} );
+$wrong_hmac = '<!-- mfunc ' . $token . ' call:render_user {"name":"alice"} hmac:' . str_repeat( '0', 64 ) . ' --><!-- /mfunc ' . $token . ' -->';
+$result     = $grabber->_parse_dynamic( $wrong_hmac );
+assert_true(
+	'[4e] mfunc with wrong HMAC is refused (cache-poisoning defense)',
+	false === strpos( $result, 'USER:alice' )
+		&& false !== strpos( $result, 'HMAC mismatch' ),
+	"result: $result"
+);
+
+// ── 4f. mfunc with correct HMAC + registered slug DISPATCHES ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'USER:' . ( $args['name'] ?? '' );
+} );
+$args_json   = '{"name":"alice"}';
+$good_hmac   = $grabber->_dynamic_hmac( 'mfunc', 'render_user', $args_json );
+$good_tag    = '<!-- mfunc ' . $token . ' call:render_user ' . $args_json . ' hmac:' . $good_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$result      = $grabber->_parse_dynamic( $good_tag );
+assert_true(
+	'[4f] mfunc with correct HMAC + registered slug dispatches',
+	false !== strpos( $result, 'USER:alice' ),
+	"result: $result"
+);
+
+// ── 4g. mfunc with correct HMAC but UNREGISTERED slug is REFUSED ──
+$reset_callbacks();
+// Register an unrelated callback so the registry is non-empty, then dispatch a different slug.
+$register_callback( 'other_cb', function ( $args ) {
+	return 'OTHER';
+} );
+$bad_slug    = 'not_registered';
+$args_json   = '{}';
+$hmac_for_bad = $grabber->_dynamic_hmac( 'mfunc', $bad_slug, $args_json );
+$bad_tag     = '<!-- mfunc ' . $token . ' call:' . $bad_slug . ' ' . $args_json . ' hmac:' . $hmac_for_bad . ' --><!-- /mfunc ' . $token . ' -->';
+$result      = $grabber->_parse_dynamic( $bad_tag );
+assert_true(
+	'[4g] mfunc with valid HMAC but unregistered slug is refused',
+	false === strpos( $result, 'OTHER' )
+		&& false !== strpos( $result, 'not registered' ),
+	"result: $result"
+);
+
+// ── 4h. mclude with valid HMAC + UNREGISTERED slug is REFUSED (rt9-232 part 2) ──
+$reset_callbacks();
+$register_callback( 'other_cb', function ( $args ) {
+	return 'OTHER';
+} );
+$bad_mclude_slug = 'inc_passwd';
+$args_json       = '{}';
+$mclude_hmac     = $grabber->_dynamic_hmac( 'mclude', $bad_mclude_slug, $args_json );
+$mclude_tag      = '<!-- mclude ' . $token . ' call:' . $bad_mclude_slug . ' ' . $args_json . ' hmac:' . $mclude_hmac . ' --><!-- /mclude ' . $token . ' -->';
+$result          = $grabber->_parse_dynamic( $mclude_tag );
+assert_true(
+	'[4h] mclude with valid HMAC but unregistered slug is refused',
+	false === strpos( $result, 'OTHER' )
+		&& false !== strpos( $result, 'not registered' ),
+	"result: $result"
+);
+
+// ── 4i. mclude with correct HMAC + registered slug DISPATCHES ──
+$reset_callbacks();
+$register_callback( 'render_inc', function ( $args ) {
+	return 'INC:' . ( $args['part'] ?? '' );
+} );
+$args_json    = '{"part":"header"}';
+$mclude_hmac  = $grabber->_dynamic_hmac( 'mclude', 'render_inc', $args_json );
+$mclude_good  = '<!-- mclude ' . $token . ' call:render_inc ' . $args_json . ' hmac:' . $mclude_hmac . ' --><!-- /mclude ' . $token . ' -->';
+$result       = $grabber->_parse_dynamic( $mclude_good );
+assert_true(
+	'[4i] mclude with correct HMAC + registered slug dispatches',
+	false !== strpos( $result, 'INC:header' ),
+	"result: $result"
+);
+
+// ── 4j. Empty callback registry: even a perfectly-signed tag is REFUSED ──
+$reset_callbacks(); // empty registry
+$args_json   = '{}';
+$hmac        = $grabber->_dynamic_hmac( 'mfunc', 'render_user', $args_json );
+$tag         = '<!-- mfunc ' . $token . ' call:render_user ' . $args_json . ' hmac:' . $hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$result      = $grabber->_parse_dynamic( $tag );
+assert_true(
+	'[4j] Empty callback registry refuses dispatch (no callbacks registered)',
+	false !== strpos( $result, 'registry is empty' ),
+	"result: $result"
+);
+
+// ── 4k. _sign_dynamic_tags adds an HMAC envelope to a call:slug tag ──
+$reset_callbacks();
+$unsigned_call = '<!-- mfunc ' . $token . ' call:render_user {"name":"bob"} --><!-- /mfunc ' . $token . ' -->';
+$signed        = $grabber->_sign_dynamic_tags( $unsigned_call );
+$expected_hmac = $grabber->_dynamic_hmac( 'mfunc', 'render_user', '{"name":"bob"}' );
+assert_true(
+	'[4k] _sign_dynamic_tags adds hmac:<hex> envelope to call:slug tag',
+	false !== strpos( $signed, 'hmac:' . $expected_hmac ),
+	"signed: $signed"
+);
+
+// ── 4l. _sign_dynamic_tags leaves raw-PHP tags unsigned (will be refused later) ──
+$reset_callbacks();
+$raw           = '<!-- mfunc ' . $token . ' phpinfo(); --><!-- /mfunc ' . $token . ' -->';
+$signed_raw    = $grabber->_sign_dynamic_tags( $raw );
+assert_true(
+	'[4l] _sign_dynamic_tags leaves raw-PHP tags unsigned (no hmac: added)',
+	false === strpos( $signed_raw, 'hmac:' ),
+	"signed_raw: $signed_raw"
+);
+
+// ── 4m. _sign_dynamic_tags is idempotent: signing twice does not double-add HMAC ──
+$reset_callbacks();
+$once  = $grabber->_sign_dynamic_tags( $unsigned_call );
+$twice = $grabber->_sign_dynamic_tags( $once );
+assert_true(
+	'[4m] _sign_dynamic_tags is idempotent (no double-hmac)',
+	$once === $twice,
+	"once vs twice differ:\nonce: $once\ntwice: $twice"
+);
+
+// ── 4n. End-to-end: register → sign → dispatch yields callback output ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'HELLO:' . ( $args['name'] ?? '' );
+} );
+$e2e_raw      = '<!-- mfunc ' . $token . ' call:render_user {"name":"world"} --><!-- /mfunc ' . $token . ' -->';
+$e2e_signed   = $grabber->_sign_dynamic_tags( $e2e_raw );
+$e2e_executed = $grabber->_parse_dynamic( $e2e_signed );
+assert_true(
+	'[4n] End-to-end sign → dispatch yields callback output',
+	false !== strpos( $e2e_executed, 'HELLO:world' ),
+	"result: $e2e_executed"
+);
+
+// ── 4o. Tampered-after-sign tag is REFUSED (HMAC binds args_json) ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'PWNED:' . ( $args['name'] ?? '' );
+} );
+$valid_args  = '{"name":"alice"}';
+$valid_hmac  = $grabber->_dynamic_hmac( 'mfunc', 'render_user', $valid_args );
+// Attacker tampers with args after signing.
+$tampered    = '<!-- mfunc ' . $token . ' call:render_user {"name":"attacker"} hmac:' . $valid_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$result      = $grabber->_parse_dynamic( $tampered );
+assert_true(
+	'[4o] Tampered args after signing is refused (HMAC mismatch)',
+	false === strpos( $result, 'PWNED:attacker' )
+		&& false !== strpos( $result, 'HMAC mismatch' ),
+	"result: $result"
+);
+
+// ---------------------------------------------------------------------------
 // Results
 // ---------------------------------------------------------------------------
 
