@@ -38,7 +38,7 @@ class Generic_Plugin {
 	/**
 	 * Frontend notice payload when redirecting back from admin actions.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @var ?array
 	 */
@@ -114,7 +114,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from comment content before storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param array $comment_data Comment data being processed.
 	 *
@@ -131,7 +131,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from RSS/feed content.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $content Content to sanitize.
 	 *
@@ -144,7 +144,7 @@ class Generic_Plugin {
 	/**
 	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param \WP_REST_Response|mixed $result  Response data.
 	 * @param \WP_REST_Server         $server  REST server instance.
@@ -170,7 +170,7 @@ class Generic_Plugin {
 	/**
 	 * Recursively removes dynamic fragment tags from REST data structures.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param mixed $data Response data.
 	 *
@@ -203,7 +203,7 @@ class Generic_Plugin {
 	/**
 	 * Removes dynamic fragment tags from a text string.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @param string $value Raw content to sanitize.
 	 *
@@ -218,9 +218,13 @@ class Generic_Plugin {
 		$original_value = $value;
 
 		// Remove dynamic fragment tags from the value.
+		// Use \s*\S+ (zero-or-more whitespace, then one-or-more non-whitespace) so that
+		// tags with no space between the keyword and token (e.g. <!-- mfuncTOKEN -->) are
+		// also caught and not passed through to the str_replace step below where a crafted
+		// token-containing name could otherwise be morphed into a valid mfunc tag.
 		$pattern = array(
-			'~<!--\s*mfunc\s+[^\s]+.*?-->(.*?)<!--\s*/mfunc\s+[^\s]+.*?\s*-->~Uis',
-			'~<!--\s*mclude\s+[^\s]+.*?-->(.*?)<!--\s*/mclude\s+[^\s]+.*?\s*-->~Uis',
+			'~<!--\s*mfunc\s*\S+.*?-->(.*?)<!--\s*/mfunc\s*\S+.*?\s*-->~Uis',
+			'~<!--\s*mclude\s*\S+.*?-->(.*?)<!--\s*/mclude\s*\S+.*?\s*-->~Uis',
 		);
 
 		$value   = preg_replace_callback(
@@ -557,8 +561,10 @@ class Generic_Plugin {
 				if (
 					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&
 					'cloudflare' === $this->_config->get_string( 'cdnfsd.engine' ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
-					! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+					Extension_CloudFlare_Api::are_api_credentials_usable(
+						$this->_config->get_string( array( 'cloudflare', 'email' ) ),
+						$this->_config->get_string( array( 'cloudflare', 'key' ) )
+					) &&
 					! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) ) &&
 					in_array( 'cloudflare', array_keys( Extensions_Util::get_active_extensions( $this->_config ) ), true ) &&
 					(
@@ -709,7 +715,7 @@ class Generic_Plugin {
 	/**
 	 * Loads a pending frontend message triggered during an admin redirect.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.14
 	 *
 	 * @return void
 	 */
@@ -1003,13 +1009,9 @@ class Generic_Plugin {
 			return false;
 		}
 
-		/**
-		 * Check User Agent
-		 */
-		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
-			return false;
-		}
+		// Do not skip output buffering based on User-Agent: the value is client-controlled.
+		// A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
+		// page-cache processing and leaking W3TC_DYNAMIC_SECURITY from unprocessed mfunc/mclude.
 
 		return true;
 	}
@@ -1193,7 +1195,7 @@ class Generic_Plugin {
 	/**
 	 * Registers Plugin Check filters so they run in all contexts.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L160
 	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L180

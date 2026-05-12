@@ -15,6 +15,7 @@ function requireRoot(p) {
 const expect    = require('chai').expect;
 const http      = require('http');
 const https     = require('https');
+const { URL }   = require('url');
 const log       = require('mocha-logger');
 const puppeteer = require('puppeteer');
 const util      = require('util');
@@ -182,17 +183,42 @@ async function copyPhpToPath(from, to) {
 }
 
 /**
-* Perform an HTTP request.
-*
-* @param {string} url URL.
-* @returns {Promise}
-*/
-async function httpGet(url) {
-	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+ * Request headers: PHP mu-plugin w3tc-qa-x-accel-buffering.php responds with
+ * X-Accel-Buffering: no so nginx disables FastCGI response buffering for that hit.
+ *
+ * @type {Object<string,string>}
+ */
+const qaNginxStreamRequestHeaders = {
+	'X-W3TC-QA': 'no-buffer'
+};
 
-	let p = new Promise((resolve, reject) => {
-		let httpModule = (url.substr(0, 7) === 'http://' ? http : https);
-		httpModule.get(url, (response) => {
+/**
+ * Copy QA mu-plugin that emits X-Accel-Buffering: no when X-W3TC-QA: no-buffer is sent.
+ *
+ * @returns {Promise<void>}
+ */
+async function installQaNginxStreamMuPlugin() {
+	log.log('Installing W3TC QA mu-plugin (nginx stream / X-Accel-Buffering)');
+	const dir = env.wpContentPath + 'mu-plugins';
+	const r = await exec('mkdir -p ' + dir);
+	expect(r.stdout).empty;
+	const r2 = await exec(
+		'cp -f ../../plugins/w3tc-qa-x-accel-buffering.php ' + dir + '/'
+	);
+	expect(r2.stdout).empty;
+}
+
+/**
+ * Single GET without following redirects.
+ *
+ * @param {string} requestUrl URL.
+ * @param {Object} requestHeaders Headers.
+ * @returns {Promise<{statusCode: number, headers: Object, body: string}>}
+ */
+function httpGetOnce(requestUrl, requestHeaders) {
+	return new Promise((resolve, reject) => {
+		const httpModule = (requestUrl.substr(0, 7) === 'http://' ? http : https);
+		httpModule.get(requestUrl, { headers: requestHeaders }, (response) => {
 			let data = '';
 			response.on('data', (chunk) => {
 				data += chunk;
@@ -200,16 +226,62 @@ async function httpGet(url) {
 
 			response.on('end', () => {
 				resolve({
+					statusCode: response.statusCode,
 					headers: response.headers,
 					body: data
 				});
 			});
 		}).on('error', (err) => {
-				reject(err.message);
+			reject(err.message);
 		});
 	});
+}
 
-	return p;
+/**
+* Perform an HTTP request.
+*
+* @param {string} url URL.
+* @param {Object} options Optional. { headers: Object } merged into request headers.
+*   Set followRedirects: true to follow 301/302/303/307/308 (e.g. W3TC multisite ?repeat=w3tc).
+* @returns {Promise}
+*/
+async function httpGet(url, options) {
+	options = options || {};
+	let extraHeaders = options.headers || {};
+	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+
+	let requestHeaders = Object.assign(
+		{
+			'Connection': 'close'
+		},
+		extraHeaders
+	);
+
+	const followRedirects = options.followRedirects === true;
+	const maxRedirects = typeof options.maxRedirects === 'number' ? options.maxRedirects : 10;
+
+	let currentUrl = url;
+	let redirects = 0;
+
+	for (;;) {
+		const r = await httpGetOnce(currentUrl, requestHeaders);
+		if (!followRedirects) {
+			return r;
+		}
+		const code = r.statusCode;
+		if (code !== 301 && code !== 302 && code !== 303 && code !== 307 && code !== 308) {
+			return r;
+		}
+		if (redirects >= maxRedirects) {
+			return r;
+		}
+		const loc = r.headers.location;
+		if (!loc) {
+			return r;
+		}
+		currentUrl = new URL(loc, currentUrl).href;
+		redirects++;
+	}
 }
 
 /**
@@ -250,6 +322,8 @@ module.exports,
 		copyPhpToRoot,
 		copyPhpToPath,
 		httpGet,
+		installQaNginxStreamMuPlugin,
+		qaNginxStreamRequestHeaders,
 		repeatOnFailure
 	}
 );
