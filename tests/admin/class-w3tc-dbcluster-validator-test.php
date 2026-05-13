@@ -86,6 +86,62 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * HTML output side-effects (close-tag + trailing literal, short-echo
+	 * tag) must be refused. The validated file is `require`'d, so any
+	 * literal HTML in it would be printed to the response.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_validate_rejects_html_output_side_effects() {
+		$payloads = array(
+			// Close PHP, then bare text — `require` would print "evil".
+			'close-tag + inline html'  => '<?php $w3tc_dbcluster_config = array(); ?>evil',
+			// Short-echo tag — directly prints when required.
+			'open-tag-with-echo'       => '<?php $w3tc_dbcluster_config = array(); ?> hello <?= "evil" ?>',
+			// Reopens after a close-tag — even with no trailing text, the
+			// close→open round-trip emits whitespace.
+			'close + reopen tag'       => '<?php $w3tc_dbcluster_config = array(); ?> <?php ',
+		);
+
+		foreach ( $payloads as $label => $src ) {
+			$err = Generic_AdminActions_Config::validate_dbcluster_content( $src );
+			$this->assertIsString( $err, "Expected rejection for [$label] but validator accepted it." );
+		}
+	}
+
+	/**
+	 * A bare reference to `$w3tc_dbcluster_config` (no `=` after it) is
+	 * not an initialisation and must be refused. The previous gate was
+	 * "the variable name appears anywhere"; this verifies the gate now
+	 * looks for an actual assignment.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_validate_requires_actual_assignment_to_target_variable() {
+		$err = Generic_AdminActions_Config::validate_dbcluster_content( '<?php $w3tc_dbcluster_config;' );
+		$this->assertIsString( $err );
+		$this->assertStringContainsString( 'must assign', $err );
+
+		// `global $w3tc_dbcluster_config;` alone (without a follow-up
+		// assignment elsewhere in the file) is also a bare reference.
+		$err = Generic_AdminActions_Config::validate_dbcluster_content( '<?php global $w3tc_dbcluster_config;' );
+		$this->assertIsString( $err );
+
+		// `$w3tc_dbcluster_config = ...` (the legitimate form) is accepted.
+		$this->assertNull(
+			Generic_AdminActions_Config::validate_dbcluster_content( '<?php $w3tc_dbcluster_config = array();' )
+		);
+
+		// Subscript-style initialisation (`$w3tc_dbcluster_config['key'] = ...`)
+		// is also accepted — that's a legitimate way to populate the array.
+		$this->assertNull(
+			Generic_AdminActions_Config::validate_dbcluster_content(
+				'<?php $w3tc_dbcluster_config = array(); $w3tc_dbcluster_config["persistent"] = false;'
+			)
+		);
+	}
+
+	/**
 	 * Empty / no-php-tag / non-assigning files are refused.
 	 *
 	 * @since X.X.X

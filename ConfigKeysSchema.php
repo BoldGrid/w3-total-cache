@@ -238,13 +238,20 @@ class ConfigKeysSchema {
 		// `__toString`, so an attacker-shaped object payload would
 		// otherwise become a fatal instead of a silent drop.
 		$is_object = \is_object( $value );
+		$is_array  = \is_array( $value );
 
 		switch ( $descriptor['type'] ) {
 			case 'boolean':
-				return $is_object ? false : (bool) $value;
+				// Boolean keys accept only scalars. `(bool) ['x'=>1]`
+				// would otherwise be `true`, smuggling a structured
+				// payload through a toggle.
+				if ( $is_object || $is_array ) {
+					return false;
+				}
+				return (bool) $value;
 
 			case 'integer':
-				if ( $is_object || \is_array( $value ) ) {
+				if ( $is_object || $is_array ) {
 					return 0;
 				}
 				return (int) $value;
@@ -253,7 +260,7 @@ class ConfigKeysSchema {
 				return \is_scalar( $value ) ? (string) $value : '';
 
 			case 'array':
-				return \is_array( $value ) ? $value : array();
+				return $is_array ? $value : array();
 		}
 
 		return $value;

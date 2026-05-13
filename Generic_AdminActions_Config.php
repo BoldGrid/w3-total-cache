@@ -265,7 +265,20 @@ class Generic_AdminActions_Config {
 			return \__( 'Configuration file must start with `<?php`.', 'w3-total-cache' );
 		}
 
-		// Forbidden tokens: any of these in the token stream is a hard reject.
+		// Forbidden tokens: any of these in the token stream is a hard
+		// reject. T_DOUBLE_COLON is the canonical name for the `::`
+		// operator since PHP 5.4; the legacy alias T_PAAMAYIM_NEKUDOTAYIM
+		// is intentionally NOT referenced here -- listing both would
+		// duplicate the entry and the alias is not guaranteed to exist
+		// across every supported PHP build.
+		//
+		// T_CLOSE_TAG, T_INLINE_HTML, and T_OPEN_TAG_WITH_ECHO reject
+		// every shape of HTML output: a payload that closes the PHP
+		// block and follows with literal text would otherwise validate
+		// and print that text to the response whenever the file is
+		// require'd, and the short-echo open-tag directly echoes its
+		// argument. Both are observable side effects; the dbcluster
+		// config file must do nothing but set a variable.
 		$forbidden_tokens = array(
 			T_EVAL,
 			T_INCLUDE,
@@ -276,7 +289,6 @@ class Generic_AdminActions_Config {
 			T_HALT_COMPILER,
 			T_NEW,
 			T_DOUBLE_COLON,
-			T_PAAMAYIM_NEKUDOTAYIM,
 			T_OBJECT_OPERATOR,
 			T_CLASS,
 			T_FUNCTION,
@@ -288,6 +300,9 @@ class Generic_AdminActions_Config {
 			T_PRINT,
 			T_ECHO,
 			T_YIELD,
+			T_CLOSE_TAG,
+			T_INLINE_HTML,
+			T_OPEN_TAG_WITH_ECHO,
 		);
 
 		$tokens = @\token_get_all( $content );
@@ -340,9 +355,23 @@ class Generic_AdminActions_Config {
 				}
 			}
 
-			// Track whether the file ever assigns to $w3tc_dbcluster_config.
+			// Track whether the file ACTUALLY assigns to $w3tc_dbcluster_config.
+			// A bare `$w3tc_dbcluster_config;` reference (no `=` after it) does
+			// not initialise the variable; the dbcluster code would then
+			// behave as if the file were empty. Walk forward past whitespace /
+			// comments and confirm the next significant token is the `=`
+			// assignment operator (or `[`, which would be a subscript-assignment).
 			if ( T_VARIABLE === $tid && '$w3tc_dbcluster_config' === $tval ) {
-				$has_assignment_to_target = true;
+				for ( $j = $i + 1; $j < $n; $j++ ) {
+					$next = $tokens[ $j ];
+					if ( \is_array( $next ) && \in_array( $next[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
+						continue;
+					}
+					if ( \is_string( $next ) && ( '=' === $next || '[' === $next ) ) {
+						$has_assignment_to_target = true;
+					}
+					break;
+				}
 			}
 		}
 

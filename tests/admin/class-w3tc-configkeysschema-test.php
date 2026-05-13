@@ -137,15 +137,21 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * @since X.X.X
 	 */
 	public function test_coerce_collapses_invalid_payloads_to_type_default() {
-		// boolean — anything → real bool.
+		// boolean — scalars only; structured payloads collapse to false.
+		// The point is that no object / array shape reaches storage as a
+		// truthy toggle. `(bool) ['x'=>1]` would otherwise be `true`,
+		// smuggling a structured value through a boolean key.
 		$bool_d = array( 'type' => 'boolean' );
 		$this->assertSame( true, ConfigKeysSchema::coerce( '1', $bool_d ) );
 		$this->assertSame( true, ConfigKeysSchema::coerce( 1, $bool_d ) );
 		$this->assertSame( false, ConfigKeysSchema::coerce( 0, $bool_d ) );
 		$this->assertSame( false, ConfigKeysSchema::coerce( '', $bool_d ) );
-		// Object payload (POP gadget shape) collapses to true (PHP semantics),
-		// not an object — the key point is that no object reaches storage.
-		$this->assertIsBool( ConfigKeysSchema::coerce( new stdClass(), $bool_d ) );
+		// Structured payloads (POP gadget shape, JSON-imported sub-array)
+		// fold to false — not to PHP's natural `(bool)` of a non-empty
+		// structure, which would be true.
+		$this->assertSame( false, ConfigKeysSchema::coerce( new stdClass(), $bool_d ) );
+		$this->assertSame( false, ConfigKeysSchema::coerce( array( 'x' => 1 ), $bool_d ) );
+		$this->assertSame( false, ConfigKeysSchema::coerce( array(), $bool_d ) );
 
 		// integer — strict int cast.
 		$int_d = array( 'type' => 'integer' );
@@ -153,6 +159,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, ConfigKeysSchema::coerce( 'not a number', $int_d ) );
 		$this->assertSame( 7, ConfigKeysSchema::coerce( 7.9, $int_d ) );
 		$this->assertIsInt( ConfigKeysSchema::coerce( new stdClass(), $int_d ) );
+		$this->assertSame( 0, ConfigKeysSchema::coerce( array( 'x' ), $int_d ) );
 
 		// string — scalars preserved, non-scalars → ''.
 		$str_d = array( 'type' => 'string' );
