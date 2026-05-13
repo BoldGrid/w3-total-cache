@@ -36,7 +36,8 @@ class Extensions_AdminActions {
 		if ( ! \current_user_can( 'manage_options' ) || empty( $capability ) || ! \current_user_can( $capability ) ) {
 			wp_die(
 				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
-				403
+				'',
+				array( 'response' => 403 )
 			);
 		}
 

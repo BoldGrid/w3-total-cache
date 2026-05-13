@@ -111,37 +111,41 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 		// and only when the message names a blog the validator has approved.
 		// `switch_to_blog()` correctly updates $blog_id and option lookups
 		// without relying on `$_SERVER['HTTP_HOST']`.
+		//
+		// Fail-closed: if the message specifies a `blog_id` that cannot be
+		// validated (unknown blog, host-allowlist mismatch), refuse to
+		// process the actions at all. Applying a cache-invalidation in the
+		// CURRENT (i.e. the multisite primary) blog when the message was
+		// intended for a different one is silent data corruption on a
+		// cache-coherency bus.
 		$switched = false;
 		if ( \is_multisite() && isset( $m['blog_id'] ) && \is_numeric( $m['blog_id'] ) ) {
 			$requested_blog_id = (int) $m['blog_id'];
 			$blog_details      = \get_blog_details( $requested_blog_id, false );
 
-			if ( $blog_details ) {
-				$host_ok = true;
-				if ( isset( $m['host'] ) && \is_string( $m['host'] ) && '' !== $m['host'] ) {
-					// Allowlist: the requested host must match the blog's stored domain.
-					$expected_host = isset( $blog_details->domain ) ? (string) $blog_details->domain : '';
-					$host_ok       = ( '' !== $expected_host && \strcasecmp( $expected_host, (string) $m['host'] ) === 0 );
-
-					if ( ! $host_ok ) {
-						$this->_log(
-							sprintf(
-								'Rejected blog switch: host "%s" does not match blog %d (%s).',
-								(string) $m['host'],
-								$requested_blog_id,
-								$expected_host
-							)
-						);
-					}
-				}
-
-				if ( $host_ok ) {
-					\switch_to_blog( $requested_blog_id );
-					$switched = true;
-				}
-			} else {
-				$this->_log( sprintf( 'Rejected blog switch: blog_id %d not found.', $requested_blog_id ) );
+			if ( ! $blog_details ) {
+				$this->_log( sprintf( 'Refused message: blog_id %d not found.', $requested_blog_id ) );
+				return;
 			}
+
+			if ( isset( $m['host'] ) && \is_string( $m['host'] ) && '' !== $m['host'] ) {
+				// Allowlist: the requested host must match the blog's stored domain.
+				$expected_host = isset( $blog_details->domain ) ? (string) $blog_details->domain : '';
+				if ( '' === $expected_host || \strcasecmp( $expected_host, (string) $m['host'] ) !== 0 ) {
+					$this->_log(
+						sprintf(
+							'Refused message: host "%s" does not match blog %d (%s).',
+							(string) $m['host'],
+							$requested_blog_id,
+							$expected_host
+						)
+					);
+					return;
+				}
+			}
+
+			\switch_to_blog( $requested_blog_id );
+			$switched = true;
 		}
 
 		if ( ! defined( 'DOING_SNS' ) ) {

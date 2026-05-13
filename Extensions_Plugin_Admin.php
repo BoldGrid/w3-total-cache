@@ -221,7 +221,8 @@ class Extensions_Plugin_Admin {
 		if ( ! Util_Nonce::verify_admin( 'w3tc_extensions_bulk' ) ) {
 			\wp_die(
 				\esc_html__( 'Nonce verification failed for bulk extension action.', 'w3-total-cache' ),
-				403
+				'',
+				array( 'response' => 403 )
 			);
 		}
 
@@ -284,7 +285,8 @@ class Extensions_Plugin_Admin {
 			if ( ! Util_Nonce::verify_admin( $primary_action ) ) {
 				\wp_die(
 					\esc_html__( 'Nonce verification failed for extension action.', 'w3-total-cache' ),
-					403
+					'',
+					array( 'response' => 403 )
 				);
 			}
 

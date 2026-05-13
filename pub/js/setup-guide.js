@@ -40,7 +40,15 @@ var w3tcWizardSlidesWithTests = [
  * @return string Nonce value.
  */
 function w3tcGetWizardNonce( action ) {
-	if ( W3TC_SetupGuide && W3TC_SetupGuide.nonces && W3TC_SetupGuide.nonces[ action ] ) {
+	// `typeof` guard: if localization failed or the script was loaded on a
+	// page that didn't enqueue `W3TC_SetupGuide`, bare reference would throw
+	// a ReferenceError and break every subsequent SetupGuide handler. The
+	// fall-through to the form's `_wpnonce` field keeps the legacy nonce
+	// path working in that case.
+	if ( typeof W3TC_SetupGuide !== 'undefined'
+		&& W3TC_SetupGuide
+		&& W3TC_SetupGuide.nonces
+		&& W3TC_SetupGuide.nonces[ action ] ) {
 		return W3TC_SetupGuide.nonces[ action ];
 	}
 

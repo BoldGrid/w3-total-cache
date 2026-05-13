@@ -117,6 +117,10 @@ class Util_Nonce {
 		if ( self::verify_admin( $action, $field, $allow_legacy ) ) {
 			return true;
 		}
-		\wp_die( -1, 403 );
+		// `wp_die`'s second arg is the page title, not the HTTP status. Pass
+		// the status via the `$args` array so the response is an actual 403
+		// (consistent with the other access-control failures in the auth
+		// hardening pass).
+		\wp_die( -1, '', array( 'response' => 403 ) );
 	}
 }

@@ -38,18 +38,14 @@ class Minify_MinifiedFileRequestHandler {
 	private $_error_occurred = false;
 
 	/**
-	 * Site-transient key used to gate the unauthenticated `rewrite_test.css`
-	 * and `XXX.css` probes (rt9-143). Only requests presenting the matching
-	 * token via `X-W3TC-Minify-Probe` may trigger the probe responses.
+	 * Per-token site-transient key prefix used to gate the unauthenticated
+	 * `rewrite_test.css` and `XXX.css` probes (rt9-143).
 	 *
-	 * @since 2.9.5
-	 *
-	 * @var string
-	 */
-	/**
-	 * Per-token site-transient key prefix. Each issued probe token becomes
-	 * its own transient so concurrent rewrite tests (multiple admins, or one
-	 * admin running back-to-back tests) cannot clobber each other's tokens.
+	 * Each issued probe token becomes its own transient (`<prefix><token>`)
+	 * so concurrent rewrite tests — multiple admins, or one admin running
+	 * back-to-back tests — cannot clobber each other's tokens. Only
+	 * requests presenting a matching token via `X-W3TC-Minify-Probe` may
+	 * trigger the probe responses.
 	 *
 	 * @since 2.9.5
 	 *
@@ -107,9 +103,13 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$token = bin2hex( random_bytes( 16 ) );
 		} catch ( \Exception $e ) {
-			// random_bytes only throws if the OS RNG is unavailable; degrade
-			// to wp_generate_password as a last resort.
-			$token = \wp_generate_password( 32, false, false );
+			// `random_bytes` only throws if the OS RNG is unavailable. Fall
+			// back to `wp_generate_password` — but normalise the output so
+			// it still matches the strict `/^[a-f0-9]{32}$/` consume regex.
+			// Without `bin2hex`-shaped output the consume side would
+			// silently reject every probe on hosts without OS RNG.
+			$raw   = \wp_generate_password( 16, false, false );
+			$token = strtolower( bin2hex( substr( $raw, 0, 16 ) ) );
 		}
 
 		// Key the transient by token value so each issued token gets its own
