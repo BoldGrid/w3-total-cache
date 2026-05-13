@@ -2098,22 +2098,37 @@ class PgCache_ContentGrabber {
 		 *
 		 * The validator below enforces:
 		 *   - realpath() canonicalization succeeds (file must exist)
-		 *   - the resolved path lives under WP_PLUGIN_DIR (so legitimate
-		 *     `WP_PLUGIN_DIR/bad-behavior/bad-behavior-wordpress.php` style
-		 *     installs are still reachable, but `/tmp/evil.php`,
-		 *     `/etc/passwd`, and the W3TC plugin directory itself are not).
+		 *   - the resolved path lives under WP_PLUGIN_DIR, which is the
+		 *     correct boundary because operators have multiple legitimate
+		 *     install layouts (`bad-behavior`, `bad-behavior-mu`, etc.).
+		 *     `/tmp/evil.php`, `/etc/passwd`, and anything else outside
+		 *     `WP_PLUGIN_DIR` are rejected. The W3TC plugin directory is
+		 *     itself under `WP_PLUGIN_DIR` and is therefore NOT excluded
+		 *     by this prefix check; the realpath + `is_file()` checks
+		 *     plus the fact that this method is only called from the
+		 *     page-cache start path make a self-include via this key a
+		 *     non-issue (no W3TC file is a sensible "Bad Behavior" hook).
 		 *
-		 * Failures are logged via Util_Debug::log('pgcache', ...) and the
-		 * include is skipped silently -- operators see the same page-cache
-		 * behaviour as if Bad Behavior were not installed.
+		 * Failures are logged via Util_Debug::log('pgcache', ...). User-
+		 * influenced path strings are sanitized through
+		 * `Util_Debug::sanitize_log_value()` (a wrapper applied here as
+		 * a local helper) so a crafted config value containing CR/LF
+		 * cannot forge additional log lines (log-injection).
 		 *
 		 * @since X.X.X
 		 */
+		$sanitize_for_log = static function ( $value ) {
+			$value = (string) $value;
+			$value = \str_replace( array( "\r", "\n" ), array( '\\r', '\\n' ), $value );
+
+			return \preg_replace( '/[\x00-\x1F\x7F]/', '?', $value );
+		};
+
 		$real = \realpath( $bb_file );
 
 		if ( false === $real || ! \is_file( $real ) ) {
 			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
-				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: realpath() failed for ' . $bb_file );
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: realpath() failed for ' . $sanitize_for_log( $bb_file ) );
 			}
 			return;
 		}
@@ -2129,7 +2144,7 @@ class PgCache_ContentGrabber {
 
 		if ( 0 !== \strpos( $real, $plugin_root . DIRECTORY_SEPARATOR ) ) {
 			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
-				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: not under WP_PLUGIN_DIR (' . $real . ')' );
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: not under WP_PLUGIN_DIR (' . $sanitize_for_log( $real ) . ')' );
 			}
 			return;
 		}
