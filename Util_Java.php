@@ -184,9 +184,18 @@ class Util_Java {
 			);
 		}
 
+		// On most Linux distributions (Debian/Ubuntu/RHEL/Amazon/Alpine),
+		// the canonical `/usr/bin/java` is a symlink chain that resolves
+		// (via `/etc/alternatives/java`) to a binary under `/usr/lib/jvm/...`.
+		// `validate()` checks the realpath-resolved location, so the
+		// default allowlist must include `/usr/lib/jvm` — otherwise the
+		// documented "configure path.java = /usr/bin/java" path fails
+		// validation and the Java minifiers silently stay disabled on
+		// every stock-distro install.
 		return array(
 			'/usr/bin',
 			'/usr/local/bin',
+			'/usr/lib/jvm',
 			'/opt',
 		);
 	}

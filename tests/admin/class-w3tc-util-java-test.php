@@ -184,6 +184,12 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 			$this->assertContains( '/usr/bin', $dirs );
 			$this->assertContains( '/usr/local/bin', $dirs );
 			$this->assertContains( '/opt', $dirs );
+			// `/usr/bin/java` is a symlink chain on most distros that
+			// resolves through `/etc/alternatives/java` under
+			// `/usr/lib/jvm`; the realpath-based validator needs the JVM
+			// root in the default allowlist or the documented config
+			// fails on every stock install.
+			$this->assertContains( '/usr/lib/jvm', $dirs );
 		}
 	}
 
