@@ -30,7 +30,10 @@ namespace W3TC;
  * executable, and must live underneath one of a small set of trusted
  * directories. Operators with non-standard layouts may override the
  * allowed-directory list by defining
- * `W3TC_JAVA_BIN_ALLOWED_DIRS` (colon-separated) in `wp-config.php`.
+ * `W3TC_JAVA_BIN_ALLOWED_DIRS` in `wp-config.php`. The override is
+ * parsed using PHP's `PATH_SEPARATOR` so it is portable between
+ * *nix (`:`-separated) and Windows (`;`-separated) installs and
+ * does not collide with the colon in a Windows drive letter.
  * The constant must be defined server-side; it is never read from
  * web input.
  *
@@ -61,7 +64,22 @@ class Util_Java {
 		// we even touch the filesystem. realpath() would normally
 		// strip most of these, but rejecting early keeps the log
 		// output sane and prevents accidental TOCTOU surface.
-		if ( \preg_match( '/[\x00-\x1F\x7F;&|`$<>"\'\\\\(){}\[\]\*\?]/', $path ) ) {
+		//
+		// The metachar set is platform-aware: on Windows the path
+		// separator is `\\` and legitimate Java installs commonly
+		// live under `C:\Program Files (x86)\Java\...` (spaces and
+		// parentheses are allowed in the directory name), so the
+		// non-Windows regex would block every real Windows path.
+		// On Windows we still reject the cmd.exe metacharacters
+		// (`& | < > ^ "` plus glob characters) and rely on
+		// `realpath()` + the allowlist below to enforce the actual
+		// "is this a Java binary" check.
+		if ( '\\' === DIRECTORY_SEPARATOR ) {
+			$metachar_re = '/[\x00-\x1F\x7F&|<>^"\*\?]/';
+		} else {
+			$metachar_re = '/[\x00-\x1F\x7F;&|`$<>"\'\\\\(){}\[\]\*\?]/';
+		}
+		if ( \preg_match( $metachar_re, $path ) ) {
 			return false;
 		}
 
@@ -82,13 +100,18 @@ class Util_Java {
 			}
 		}
 
-		$allowed = self::allowed_dirs();
+		$allowed       = self::allowed_dirs();
+		$is_windows    = '\\' === DIRECTORY_SEPARATOR;
+		$real_compare  = $is_windows ? \strtolower( $real ) : $real;
 		foreach ( $allowed as $dir ) {
 			if ( '' === $dir ) {
 				continue;
 			}
 			$prefix = \rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
-			if ( 0 === \strpos( $real, $prefix ) ) {
+			if ( $is_windows ) {
+				$prefix = \strtolower( $prefix );
+			}
+			if ( 0 === \strpos( $real_compare, $prefix ) ) {
 				return $real;
 			}
 		}
@@ -122,7 +145,7 @@ class Util_Java {
 				\sprintf(
 					'Util_Java: rejected non-allowlisted Java executable path for %s (allowed dirs: %s).',
 					$tag,
-					\implode( ':', self::allowed_dirs() )
+					\implode( PATH_SEPARATOR, self::allowed_dirs() )
 				)
 			);
 		}
@@ -131,9 +154,15 @@ class Util_Java {
 
 	/**
 	 * Returns the list of directories from which a Java binary is
-	 * accepted. Defaults to a conservative set; operators may
-	 * override by defining `W3TC_JAVA_BIN_ALLOWED_DIRS` in
-	 * `wp-config.php` (colon-separated, never from web input).
+	 * accepted. Defaults to a conservative set per platform;
+	 * operators may override by defining `W3TC_JAVA_BIN_ALLOWED_DIRS`
+	 * in `wp-config.php`. The override is parsed using PHP's
+	 * `PATH_SEPARATOR` (`;` on Windows, `:` elsewhere) so a Windows
+	 * drive letter such as `C:\Program Files\Java\bin` is not
+	 * accidentally split on its own colon.
+	 *
+	 * The constant must be defined server-side; it is never read
+	 * from web input.
 	 *
 	 * @since X.X.X
 	 *
@@ -142,10 +171,17 @@ class Util_Java {
 	public static function allowed_dirs() {
 		if ( \defined( 'W3TC_JAVA_BIN_ALLOWED_DIRS' ) ) {
 			$raw  = (string) \constant( 'W3TC_JAVA_BIN_ALLOWED_DIRS' );
-			$dirs = \array_filter( \array_map( 'trim', \explode( ':', $raw ) ) );
+			$dirs = \array_filter( \array_map( 'trim', \explode( PATH_SEPARATOR, $raw ) ) );
 			if ( ! empty( $dirs ) ) {
 				return \array_values( $dirs );
 			}
+		}
+
+		if ( '\\' === DIRECTORY_SEPARATOR ) {
+			return array(
+				'C:\\Program Files\\Java',
+				'C:\\Program Files (x86)\\Java',
+			);
 		}
 
 		return array(
