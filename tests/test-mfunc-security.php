@@ -383,25 +383,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
 
-// Minimal stubs so PgCache_ContentGrabber's constructor works in standalone PHP.
-// Defined via eval() so we can stay in global namespace for the rest of the file.
+// Load real W3TC namespace stubs (Dispatcher / Util_Environment / config) so
+// PgCache_ContentGrabber's constructor can run in standalone PHP.  Using a
+// separate `namespace W3TC;` file rather than eval() keeps this regression
+// test free of the very primitive (eval) it exists to prove was removed.
 if ( ! class_exists( 'W3TC\\Dispatcher' ) ) {
-	eval(
-		'namespace W3TC;
-		class __TestConfigStub {
-			public function get_boolean( $k ) { return false; }
-			public function get_integer( $k ) { return 0; }
-			public function get_string( $k )  { return \'\'; }
-		}
-		class Dispatcher {
-			public static function config() { return new __TestConfigStub(); }
-			public static function component( $name ) { return null; }
-		}
-		class Util_Environment {
-			public static function host_port() { return \'localhost\'; }
-			public static function is_https()  { return false; }
-		}'
-	);
+	require_once __DIR__ . '/mfunc-security-stubs.php';
 }
 
 // Load the class under test.  W3TC_DYNAMIC_SECURITY is already defined above.
@@ -600,6 +587,43 @@ assert_true(
 	'[4n] End-to-end sign → dispatch yields callback output',
 	false !== strpos( $e2e_executed, 'HELLO:world' ),
 	"result: $e2e_executed"
+);
+
+// ── 4n.body. Body-form (descriptor between tags) is signed by _sign_dynamic_tags ──
+//        Emitters can place the `call:slug` descriptor in the body too — the
+//        signer must reach it there, otherwise dispatch will refuse a safe tag.
+$reset_callbacks();
+$body_raw      = '<!-- mfunc ' . $token . ' -->call:render_user {"name":"bob"}<!-- /mfunc ' . $token . ' -->';
+$body_signed   = $grabber->_sign_dynamic_tags( $body_raw );
+$expected_body_hmac = $grabber->_dynamic_hmac( 'mfunc', 'render_user', '{"name":"bob"}' );
+assert_true(
+	'[4n.body] _sign_dynamic_tags signs body-form call:slug tags',
+	false !== strpos( $body_signed, 'hmac:' . $expected_body_hmac ),
+	"signed: $body_signed"
+);
+
+// ── 4n.body-e2e. End-to-end: register → sign body-form → dispatch ──
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'BODY:' . ( $args['name'] ?? '' );
+} );
+$body_e2e_raw      = '<!-- mfunc ' . $token . ' -->call:render_user {"name":"carol"}<!-- /mfunc ' . $token . ' -->';
+$body_e2e_signed   = $grabber->_sign_dynamic_tags( $body_e2e_raw );
+$body_e2e_executed = $grabber->_parse_dynamic( $body_e2e_signed );
+assert_true(
+	'[4n.body-e2e] Body-form sign → dispatch yields callback output',
+	false !== strpos( $body_e2e_executed, 'BODY:carol' ),
+	"result: $body_e2e_executed"
+);
+
+// ── 4n.body-idem. Body-form signing is idempotent ──
+$reset_callbacks();
+$body_once   = $grabber->_sign_dynamic_tags( $body_raw );
+$body_twice  = $grabber->_sign_dynamic_tags( $body_once );
+assert_true(
+	'[4n.body-idem] Body-form _sign_dynamic_tags is idempotent (no double-hmac)',
+	$body_once === $body_twice,
+	"once vs twice differ:\nonce: $body_once\ntwice: $body_twice"
 );
 
 // ── 4o. Tampered-after-sign tag is REFUSED (HMAC binds args_json) ──

@@ -2426,9 +2426,13 @@ class PgCache_ContentGrabber {
 
 	/**
 	 * Signs every dynamic mfunc / mclude tag in $buffer by appending an
-	 * `hmac:<hex>` envelope to its header.  Called once before the buffer
-	 * is written to the page cache so that later read-time dispatch can
-	 * verify integrity.
+	 * `hmac:<hex>` envelope to the `call:<slug>` descriptor.  Called once
+	 * before the buffer is written to the page cache so that later
+	 * read-time dispatch can verify integrity.
+	 *
+	 * Both inline-header form (`<!-- mfunc TOKEN call:slug ... -->...<!-- /mfunc TOKEN -->`)
+	 * and between-tags / body form (`<!-- mfunc TOKEN -->call:slug ...<!-- /mfunc TOKEN -->`)
+	 * are signed in place, because dispatch accepts both shapes.
 	 *
 	 * Tags whose payload is not in the safe `call:<slug>` form are left
 	 * unsigned — at dispatch time they will fall through to the
@@ -2451,17 +2455,29 @@ class PgCache_ContentGrabber {
 
 		$sign_one = function ( $kind ) {
 			return function ( $matches ) use ( $kind ) {
-				$header = isset( $matches[1] ) ? trim( $matches[1] ) : '';
-				$body   = isset( $matches[2] ) ? $matches[2] : '';
+				$header     = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+				$body_raw   = isset( $matches[2] ) ? $matches[2] : '';
+				$body       = trim( $body_raw );
 
 				// If the header already has a complete `call:slug ... hmac:hex` envelope, leave it alone.
 				if ( null !== $this->_parse_dynamic_header( $header ) ) {
 					return $matches[0];
 				}
 
-				// Only sign the safe `call:<slug>` form.  Raw-PHP / file-path payloads are left
-				// unsigned and will be refused at dispatch time.
-				if ( ! preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $header, $m ) ) {
+				// Likewise, leave a fully-signed body-form alone.
+				if ( '' === $header && null !== $this->_parse_dynamic_header( $body ) ) {
+					return $matches[0];
+				}
+
+				// Determine where the `call:<slug>` descriptor lives: in the header
+				// (inline form) or in the body (between-tags form).  Both forms are
+				// honored at dispatch time, so both must be signed at write time.
+				if ( preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $header, $m ) ) {
+					$source = 'header';
+				} elseif ( '' === $header && preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $body, $m ) ) {
+					$source = 'body';
+				} else {
+					// Raw-PHP / file-path payload — leave unsigned; dispatch will refuse.
 					return $matches[0];
 				}
 
@@ -2469,13 +2485,17 @@ class PgCache_ContentGrabber {
 				$args_json = trim( $m[2] );
 				$hmac      = $this->_dynamic_hmac( $kind, $slug, $args_json );
 
-				$new_header = 'call:' . $slug;
+				$descriptor = 'call:' . $slug;
 				if ( '' !== $args_json ) {
-					$new_header .= ' ' . $args_json;
+					$descriptor .= ' ' . $args_json;
 				}
-				$new_header .= ' hmac:' . $hmac;
+				$descriptor .= ' hmac:' . $hmac;
 
-				return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' ' . $new_header . ' -->' . $body . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
+				if ( 'header' === $source ) {
+					return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' ' . $descriptor . ' -->' . $body_raw . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
+				}
+
+				return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->' . $descriptor . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
 			};
 		};
 
