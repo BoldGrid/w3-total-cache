@@ -94,7 +94,15 @@ class Extension_CloudFlare_Api {
 	 * @return string Validated segment, or '' on rejection.
 	 */
 	private static function validate_api_path_segment( $value ) {
-		if ( ! \is_string( $value ) || '' === $value ) {
+		if ( ! \is_string( $value ) ) {
+			return '';
+		}
+		// Trim before the alphabet check. Stored config values often
+		// carry stray whitespace from copy-paste / multi-line dashboards;
+		// rejecting those would silently break installs whose stored
+		// zone_id has a trailing newline / space / tab.
+		$value = \trim( $value );
+		if ( '' === $value ) {
 			return '';
 		}
 		if ( ! \preg_match( '/^[A-Za-z0-9._-]+$/', $value ) ) {
@@ -232,6 +240,16 @@ class Extension_CloudFlare_Api {
 	 * @return array An associative array of settings indexed by their IDs.
 	 */
 	public function zone_settings() {
+		// Refuse to issue `/zones//settings` when the validated zone_id
+		// was empty (constructor rejected the configured value, or no
+		// zone is configured yet). Without this guard the API call
+		// returns a confusing 4xx that surfaces as a generic admin
+		// error; bailing out early produces an empty result set and
+		// keeps the caller's `foreach` safe.
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		$a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $this->_zone_id . '/settings' );
 
 		$by_id = array();
@@ -284,6 +302,14 @@ class Extension_CloudFlare_Api {
 	 * @return array The analytics data.
 	 */
 	public function analytics_dashboard( $start, $end, $type = 'day' ) {
+		// Empty zone_id (constructor rejected the configured value) →
+		// empty result set; the GraphQL query would otherwise inline
+		// `zoneTag: ""` and the API returns an error that surfaces as
+		// "analytics broken" to the admin.
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		$dataset         = 'httpRequests1dGroups';
 		$datetime_filter = 'date';
 
@@ -333,6 +359,15 @@ class Extension_CloudFlare_Api {
 	 * @return array The response from the Cloudflare API.
 	 */
 	public function purge() {
+		// Empty zone_id (constructor rejected the configured value) →
+		// don't issue `DELETE /zones//purge_cache`. The API responds
+		// with a generic 4xx that the cache-flush admin surfaces as a
+		// "purge failed" alert; bailing out early is the same effect
+		// without the request round trip.
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		return $this->_wp_remote_request(
 			'DELETE',
 			self::$_root_uri . '/zones/' . $this->_zone_id . '/purge_cache',

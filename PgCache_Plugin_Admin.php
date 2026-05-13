@@ -223,14 +223,19 @@ class PgCache_Plugin_Admin {
 		// Depth cap. The first call lands at depth 0; nested fetches
 		// increment. Three levels is enough to cover a sitemap index
 		// → child sitemap → URL list shape, the deepest WordPress
-		// emits in practice.
+		// emits in practice. Refusal returns the empty array, NOT
+		// `array( $url )` — the caller (`prime()`) iterates the
+		// returned list and calls `Util_Http::get()` on each entry, so
+		// returning the rejected URL would defeat the depth cap
+		// (the URL would still be fetched, just not recursed into).
 		if ( $depth > 3 ) {
-			return array( $url );
+			return array();
 		}
 
-		// Per-hop public-host check.
+		// Per-hop public-host check. Refused URLs are dropped from the
+		// fetch list for the same reason as above.
 		if ( ! Util_Url::is_public_host( $url ) ) {
-			return array( $url );
+			return array();
 		}
 
 		// First call sets the origin host for the rest of the recursion.
@@ -238,8 +243,9 @@ class PgCache_Plugin_Admin {
 		if ( null === $origin_host ) {
 			$origin_host = $current_host;
 		} elseif ( strcasecmp( $origin_host, (string) $current_host ) !== 0 ) {
-			// Cross-origin nested sitemap entry — refuse silently.
-			return array( $url );
+			// Cross-origin nested sitemap entry — refuse silently and
+			// drop it from the fetch list.
+			return array();
 		}
 
 		$urls     = array( $url );

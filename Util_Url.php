@@ -89,32 +89,50 @@ class Util_Url {
 			return self::is_public_ip( $host );
 		}
 
-		// Otherwise resolve. `gethostbynamel()` returns the full v4
+		// Resolve A records (v4). `gethostbynamel()` returns the full v4
 		// resolution set; we accept the URL only when every result is
 		// public. (One CNAME -> mixed result set is exotic but possible.)
-		$ips = @\gethostbynamel( $host );
-		if ( false === $ips || empty( $ips ) ) {
-			return false;
+		// An empty / failed result here is NOT fatal on its own — an
+		// IPv6-only host has no A records but legitimately resolves via
+		// AAAA. We treat A-failure as "consult AAAA" rather than refuse.
+		$ipv4_set = @\gethostbynamel( $host );
+		if ( false === $ipv4_set ) {
+			$ipv4_set = array();
 		}
 
-		foreach ( $ips as $ip ) {
+		foreach ( $ipv4_set as $ip ) {
 			if ( ! \is_string( $ip ) || ! self::is_public_ip( $ip ) ) {
 				return false;
 			}
 		}
 
-		// Bonus: try the v6 resolution if available, fold any private
-		// addresses there into a rejection too. `dns_get_record` is
-		// optional but PHP-builtin; ignore failures silently.
+		// Resolve AAAA records (v6). `dns_get_record()` is PHP-builtin
+		// but disabled on some hardened hosts, so its absence isn't an
+		// error — we just lose the v6 leg of the check.
+		$ipv6_set = array();
 		if ( \function_exists( 'dns_get_record' ) ) {
 			$aaaa = @\dns_get_record( $host, DNS_AAAA );
 			if ( \is_array( $aaaa ) ) {
 				foreach ( $aaaa as $rec ) {
-					if ( isset( $rec['ipv6'] ) && ! self::is_public_ip( $rec['ipv6'] ) ) {
-						return false;
+					if ( isset( $rec['ipv6'] ) && \is_string( $rec['ipv6'] ) ) {
+						$ipv6_set[] = $rec['ipv6'];
 					}
 				}
 			}
+		}
+
+		foreach ( $ipv6_set as $ip ) {
+			if ( ! self::is_public_ip( $ip ) ) {
+				return false;
+			}
+		}
+
+		// Refuse hosts that have NO public address at all — i.e. neither
+		// a v4 resolution nor a v6 resolution. This covers both the
+		// genuinely-unresolvable case and the "dns_get_record disabled
+		// and gethostbynamel returned nothing" edge.
+		if ( empty( $ipv4_set ) && empty( $ipv6_set ) ) {
+			return false;
 		}
 
 		return true;

@@ -174,10 +174,11 @@ class Util_Http {
 			CURLOPT_FOLLOWLOCATION => 1,
 			// SSL peer verification is the cURL default; the legacy
 			// `CURLOPT_SSL_VERIFYPEER => false` was removed (rt9-13
-			// TTFB leg). Operators with broken CA bundles can override
-			// globally via the `http_request_args` filter — a deliberate,
-			// support-team-supervised choice — but a TTFB probe must
-			// not silently accept a forged cert.
+			// TTFB leg). Note: this function calls raw cURL directly
+			// (not the WordPress HTTP API), so the WP `http_request_args`
+			// / `https_ssl_verify` filters do NOT apply here. Operators
+			// with broken CA bundles need to fix the bundle itself; a
+			// TTFB probe MUST NOT silently accept a forged cert.
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 		);
 
