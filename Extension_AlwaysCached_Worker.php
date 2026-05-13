@@ -113,6 +113,18 @@ class Extension_AlwaysCached_Worker {
 			);
 		}
 
+		// The queue is populated from admin-set URLs; an attacker who
+		// reaches the queue-write surface (mass-assignment, chained
+		// privesc, a future config bug) could inject a URL pointing at
+		// AWS instance metadata, a Redis bound to localhost, or an
+		// RFC1918 neighbour. Refuse anything that doesn't resolve to a
+		// public IP before the wp_remote_request fires.
+		if ( ! Util_Url::is_public_host( $item['url'] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'AlwaysCached refused non-public URL' );
+			return 'failed';
+		}
+
 		$result = wp_remote_request(
 			$item['url'],
 			array(

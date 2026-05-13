@@ -193,13 +193,53 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Parses a sitemap URL and returns the list of URLs contained in it.
 	 *
-	 * @param string $url The URL of the sitemap to parse.
+	 * The sitemap URL is configured by an admin and can contain
+	 * `<sitemap><loc>...</loc></sitemap>` entries that the parser will
+	 * recursively fetch. Three constraints close the SSRF surface:
+	 *
+	 *  1. Each fetched URL must resolve to a public host (no localhost,
+	 *     no RFC1918, no AWS metadata, etc.).
+	 *  2. Nested `<sitemap>` entries are required to share the origin
+	 *     of the root sitemap — an attacker who lands a sub-URL in a
+	 *     legitimately-fetched sitemap can't pivot to a third-party
+	 *     host. Combined with (1) this also limits a recursive walk to
+	 *     a single first-party origin.
+	 *  3. Recursion is depth-capped (default 3). A pathological
+	 *     sitemap that points at itself, or a deeply nested index, can
+	 *     no longer DOS the worker.
+	 *
+	 * @param string      $url           The URL of the sitemap to parse.
+	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
+	 *                                   fetches must match. Auto-populated.
+	 * @param int         $depth         Internal: current recursion depth (0-based).
 	 *
 	 * @return array The list of URLs parsed from the sitemap.
 	 */
-	public function parse_sitemap( $url ) {
+	public function parse_sitemap( $url, $origin_host = null, $depth = 0 ) {
 		if ( ! Util_Environment::is_url( $url ) ) {
 			$url = home_url( $url );
+		}
+
+		// Depth cap. The first call lands at depth 0; nested fetches
+		// increment. Three levels is enough to cover a sitemap index
+		// → child sitemap → URL list shape, the deepest WordPress
+		// emits in practice.
+		if ( $depth > 3 ) {
+			return array( $url );
+		}
+
+		// Per-hop public-host check.
+		if ( ! Util_Url::is_public_host( $url ) ) {
+			return array( $url );
+		}
+
+		// First call sets the origin host for the rest of the recursion.
+		$current_host = \wp_parse_url( $url, PHP_URL_HOST );
+		if ( null === $origin_host ) {
+			$origin_host = $current_host;
+		} elseif ( strcasecmp( $origin_host, (string) $current_host ) !== 0 ) {
+			// Cross-origin nested sitemap entry — refuse silently.
+			return array( $url );
 		}
 
 		$urls     = array( $url );
@@ -226,7 +266,10 @@ class PgCache_Plugin_Admin {
 			if ( $xml->getName() === 'sitemapindex' ) {
 				foreach ( $xml->sitemap as $sitemap ) {
 					if ( $sitemap->loc ) {
-						$urls = array_merge( $urls, $this->parse_sitemap( (string) $sitemap->loc ) );
+						$urls = array_merge(
+							$urls,
+							$this->parse_sitemap( (string) $sitemap->loc, $origin_host, $depth + 1 )
+						);
 					}
 				}
 			} elseif ( $xml->getName() === 'urlset' ) {

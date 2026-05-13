@@ -242,7 +242,19 @@ class Generic_Plugin_Admin {
 			wp_send_json_error( 'no permissions', 403 );
 		}
 
-		$tag   = Util_Request::get_string( 'tabId' );
+		$tag = Util_Request::get_string( 'tabId' );
+
+		// $tag is concatenated into the forums API URL as a path / query
+		// segment. Even though the host (`W3TC_BOLDGRID_FORUM_API`) is
+		// fixed, an attacker who lands an admin nonce (CSRF, the
+		// nonce-reuse vector closed in the missing-auth PR) could
+		// inject `../../`, query-string-shaped, or scheme-relative
+		// payloads. Restrict to a conservative alphabet that matches
+		// the documented `tabId` shape.
+		if ( '' === $tag || ! preg_match( '/^[A-Za-z0-9._-]+$/', $tag ) ) {
+			wp_send_json_error( 'invalid tabId', 400 );
+		}
+
 		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
 
 		wp_send_json( $posts );
