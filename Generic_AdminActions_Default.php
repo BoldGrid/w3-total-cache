@@ -125,11 +125,21 @@ class Generic_AdminActions_Default {
 	/**
 	 * Updates a specified configuration state value and saves the changes.
 	 *
+	 * The state-key namespace is shared with mass-assignment-sensitive
+	 * config keys (`license.*`, `common.*`, dismissable-notice flags),
+	 * so the writable set is restricted to {@see ConfigKeysSchema::is_known_state_key()}.
+	 * Unknown keys are silently refused without writing.
+	 *
 	 * @return void
 	 */
 	public function w3tc_default_config_state() {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$config_state = Dispatcher::config_state_master();
 		$config_state->set( $key, $value );
@@ -146,6 +156,11 @@ class Generic_AdminActions_Default {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
+
 		$config_state = Dispatcher::config_state_master();
 		$config_state->set( $key, $value );
 		$config_state->save();
@@ -161,6 +176,11 @@ class Generic_AdminActions_Default {
 	public function w3tc_default_config_state_note() {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$s = Dispatcher::config_state_note();
 		$s->set( $key, $value );
@@ -742,14 +762,24 @@ class Generic_AdminActions_Default {
 	/**
 	 * Reads configuration settings from a request and updates the configuration object.
 	 *
+	 * The schema in `ConfigKeys.php` (queried via {@see ConfigKeysSchema})
+	 * is treated as an allowlist:
+	 *
+	 *  - Request keys that do not map to a known schema entry are dropped
+	 *    silently. Previously every request key was written into config
+	 *    regardless of whether ConfigKeys.php declared it.
+	 *  - Compound keys (`extension__<id>__<sub>`) — written through the
+	 *    `w3tc_config_key_descriptor` filter by extensions — are still
+	 *    accepted; their gate is the extension's own filter.
+	 *  - Values are type-coerced from the schema before write, so a
+	 *    boolean-typed key always becomes `true`/`false`.
+	 *
 	 * @param object $config Configuration object to update.
 	 *
 	 * @return void
 	 */
 	public function read_request( $config ) {
 		$request = Util_Request::get_request();
-
-		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.
 
 		foreach ( $request as $request_key => $request_value ) {
 			if ( is_array( $request_value ) ) {
@@ -769,11 +799,7 @@ class Generic_AdminActions_Default {
 			}
 
 			$key        = Util_Ui::config_key_from_http_name( $request_key );
-			$descriptor = null;
-
-			if ( ! is_array( $key ) && array_key_exists( $key, $keys ) ) {
-				$descriptor = $keys[ $key ];
-			}
+			$descriptor = ConfigKeysSchema::descriptor( $key );
 
 			/**
 			 * This filter is needed for compound keys to set the appropirate data type to save as.
@@ -786,6 +812,14 @@ class Generic_AdminActions_Default {
 			 * @param array $key        Key to match on.
 			*/
 			$descriptor = apply_filters( 'w3tc_config_key_descriptor', $descriptor, $key );
+
+			// Strict allowlist gate: a key reaches `$config->set()` only if
+			// either (a) it's a compound extension key (the extension owns its
+			// own gate via the filter above), or (b) the schema knows it or
+			// the filter supplied a descriptor for it.
+			if ( ! is_array( $key ) && null === $descriptor && ! ConfigKeysSchema::is_known( $key ) ) {
+				continue;
+			}
 
 			if ( isset( $descriptor['type'] ) ) {
 				if ( 'array' === $descriptor['type'] ) {

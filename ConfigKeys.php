@@ -59,6 +59,7 @@ $keys = array(
 	'dbcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array( 'no_import' => true ), // Switches code path into a different engine; set only via dedicated page.
 	),
 	'dbcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -281,6 +282,7 @@ $keys = array(
 	'objectcache.engine'                                   => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'objectcache.file.locking'                             => array(
 		'type'    => 'boolean',
@@ -392,6 +394,7 @@ $keys = array(
 	'pgcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file_generic',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'pgcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -922,6 +925,7 @@ $keys = array(
 	'minify.css.engine'                                    => array(
 		'type'    => 'string',
 		'default' => 'css',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.css.method'                                    => array(
 		'type'    => 'string',
@@ -962,6 +966,7 @@ $keys = array(
 	'minify.js.engine'                                     => array(
 		'type'    => 'string',
 		'default' => 'js',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.js.method'                                     => array(
 		'type'    => 'string',
@@ -1006,10 +1011,12 @@ $keys = array(
 	'minify.yuijs.path.java'                               => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ), // OS command-injection target; set only via dedicated page.
 	),
 	'minify.yuijs.path.jar'                                => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuijs.options.line-break'                      => array(
 		'type'    => 'integer',
@@ -1030,10 +1037,12 @@ $keys = array(
 	'minify.yuicss.path.java'                              => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuicss.path.jar'                               => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuicss.options.line-break'                     => array(
 		'type'    => 'integer',
@@ -1042,10 +1051,12 @@ $keys = array(
 	'minify.ccjs.path.java'                                => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.ccjs.path.jar'                                 => array(
 		'type'    => 'string',
 		'default' => 'compiler.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.ccjs.options.compilation_level'                => array(
 		'type'    => 'string',
@@ -1182,6 +1193,7 @@ $keys = array(
 	'cdn.engine'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'cdn.uploads.enable'                                   => array(
 		'type'    => 'boolean',
@@ -2471,14 +2483,17 @@ $keys = array(
 	'extensions.active'                                    => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ), // File-inclusion target; managed via Extensions UI only.
 	),
 	'extensions.active_frontend'                           => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'extensions.active_dropin'                             => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'plugin.license_key'                                   => array(
 		'type'        => 'string',

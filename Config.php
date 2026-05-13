@@ -539,6 +539,20 @@ class Config {
 	/**
 	 * Imports a configuration from a file.
 	 *
+	 * Every incoming JSON key is validated against the `ConfigKeys.php`
+	 * schema via {@see ConfigKeysSchema}.  Unknown keys are dropped
+	 * silently and high-impact keys flagged `no_import => true`
+	 * (`extensions.active*`, `*.path.java/jar`, `*.engine`) are refused
+	 * here even though they are documented config keys — those are
+	 * editable only through their dedicated UI page, where the page-
+	 * specific validator runs.  Accepted values are type-coerced
+	 * (`boolean` becomes a real `bool`, etc.) so an attacker-shaped
+	 * payload cannot smuggle an object into a scalar slot.
+	 *
+	 * Rejection counts are written to the `w3tc` debug channel via
+	 * `Util_Debug::log` so operators can diagnose "my exported config
+	 * didn't restore everything" without having to look at the JSON.
+	 *
 	 * @global $wp_filesystem
 	 * @see get_filesystem_method()
 	 *
@@ -570,8 +584,45 @@ class Config {
 					$data = $c->get_data();
 				}
 
+				$rejected_unknown = 0;
+				$rejected_locked  = 0;
+				$applied          = 0;
+
 				foreach ( $data as $key => $value ) {
+					// `version` is metadata, not a settable key.
+					if ( 'version' === $key ) {
+						continue;
+					}
+
+					if ( ! ConfigKeysSchema::is_known( $key ) ) {
+						++$rejected_unknown;
+						continue;
+					}
+
+					if ( ! ConfigKeysSchema::can_import( $key ) ) {
+						++$rejected_locked;
+						continue;
+					}
+
+					$descriptor = ConfigKeysSchema::descriptor( $key );
+					$value      = ConfigKeysSchema::coerce( $value, $descriptor );
+
 					$this->set( $key, $value );
+					++$applied;
+				}
+
+				if ( ( $rejected_unknown > 0 || $rejected_locked > 0 ) && \class_exists( '\W3TC\Util_Debug' ) ) {
+					Util_Debug::log(
+						'w3tc',
+						\sprintf(
+							'Config::import: applied %d, rejected %d unknown key%s and %d no-import key%s.',
+							$applied,
+							$rejected_unknown,
+							1 === $rejected_unknown ? '' : 's',
+							$rejected_locked,
+							1 === $rejected_locked ? '' : 's'
+						)
+					);
 				}
 
 				return true;
