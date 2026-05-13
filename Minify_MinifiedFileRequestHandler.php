@@ -1128,7 +1128,17 @@ class Minify_MinifiedFileRequestHandler {
 		$data = $cache->fetch( $key );
 
 		if ( isset( $data['content'] ) ) {
-			$value = @unserialize( $data['content'], array( 'allowed_classes' => false ) );
+			$value = @unserialize( $data['content'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+			// `allowed_classes => false` returns `__PHP_Incomplete_Class` for
+			// crafted object payloads. Callers of _cache_get() expect either
+			// `false` (miss) or a legitimate scalar / array; treating an
+			// incomplete-object result as a miss keeps the downstream paths
+			// well-typed and prevents fatal-on-array-access if a future caller
+			// dereferences the value.
+			if ( is_object( $value ) ) {
+				return false;
+			}
 
 			return $value;
 		}

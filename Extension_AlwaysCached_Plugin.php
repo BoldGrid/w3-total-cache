@@ -170,7 +170,15 @@ class Extension_AlwaysCached_Plugin {
 		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
 
 		if ( ! empty( $queue_item ) ) {
-			$this->request_queue_item_extension = @unserialize( $queue_item['extension'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+			$decoded = @unserialize( $queue_item['extension'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+
+			// `allowed_classes => false` returns `__PHP_Incomplete_Class` for
+			// crafted object payloads; `w3tc_pagecache_set()` later does
+			// `isset( $this->request_queue_item_extension[ $k ] )`, which would
+			// fatal on a non-array. Coerce anything that isn't an array to an
+			// empty array so the downstream path stays well-typed.
+			$this->request_queue_item_extension = is_array( $decoded ) ? $decoded : array();
+
 			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
 		}
 	}

@@ -637,7 +637,14 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	private function parent_id_resolve_step( $root_id, $folder ) {
 		// decode top folder.
 		$ids_string = get_transient( 'w3tc_cdn_google_drive_folder_ids' );
-		$ids        = @unserialize( $ids_string, array( 'allowed_classes' => false ) );
+		$ids        = @unserialize( $ids_string, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+		// `allowed_classes => false` substitutes `__PHP_Incomplete_Class` for any
+		// serialized object payload; array-offset access on that would fatal.
+		// Normalize to an empty array up-front so every later access is safe.
+		if ( ! is_array( $ids ) ) {
+			$ids = array();
+		}
 
 		if ( isset( $ids[ $root_id . '_' . $folder ] ) ) {
 			return $ids[ $root_id . '_' . $folder ];
@@ -676,10 +683,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 			$this->_service->permissions->insert( $id, $permission );
 		}
 
-		if ( ! is_array( $ids ) ) {
-			$ids = array();
-		}
-
+		// `$ids` was normalized to an array immediately after unserialize() above.
 		$ids[ $root_id . '_' . $folder ] = $id;
 		set_transient( 'w3tc_cdn_google_drive_folder_ids', serialize( $ids ) );
 

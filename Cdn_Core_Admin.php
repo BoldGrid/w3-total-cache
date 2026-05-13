@@ -286,7 +286,16 @@ class Cdn_Core_Admin {
 					}
 
 					if ( $post->metadata ) {
-						$metadata = @unserialize( $post->metadata, array( 'allowed_classes' => false ) );
+						$metadata = @unserialize( $post->metadata, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+
+						// `allowed_classes => false` returns `__PHP_Incomplete_Class`
+						// for crafted object payloads, but `Cdn_Core::get_metadata_files()`
+						// dereferences `$metadata['file']` / `['sizes']` directly. Coerce
+						// non-arrays (corrupted postmeta or crafted payload) to an empty
+						// array so we just emit zero files instead of fataling.
+						if ( ! is_array( $metadata ) ) {
+							$metadata = array();
+						}
 
 						$post_files = array_merge( $post_files, $common->get_metadata_files( $metadata ) );
 					}
