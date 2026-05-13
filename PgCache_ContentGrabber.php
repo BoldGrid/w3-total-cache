@@ -2139,10 +2139,19 @@ class PgCache_ContentGrabber {
 	/**
 	 * Returns the registry of dynamic callback slugs → callables.
 	 *
+	 * **Callback contract.** Every registered callable is invoked with
+	 * two arguments: `( array $args, string $kind )`. `$args` is the
+	 * JSON-decoded payload from the tag (always an array); `$kind` is
+	 * the literal string `'mfunc'` or `'mclude'`. The second argument
+	 * lets a callback serve both kinds with different rendering, or
+	 * assert on `$kind` defensively. Callbacks may declare only
+	 * `$args` if they don't need it — PHP discards the extra
+	 * positional — but a typed/strict-mode signature MUST accept both.
+	 *
 	 * Themes and plugins register dispatchable callbacks via:
 	 *
 	 *     add_filter( 'w3tc_dynamic_callbacks', function( $cbs ) {
-	 *         $cbs['my_slug'] = function( $args ) {
+	 *         $cbs['my_slug'] = function( $args, $kind ) {
 	 *             return '<span>' . esc_html( $args['user'] ?? '' ) . '</span>';
 	 *         };
 	 *         return $cbs;
@@ -2157,7 +2166,7 @@ class PgCache_ContentGrabber {
 	 *
 	 * @since 2.9.5
 	 *
-	 * @return array<string,callable>
+	 * @return array<string,callable> Slug → callable(array $args, string $kind): string
 	 */
 	private function _get_dynamic_callbacks() {
 		if ( ! \function_exists( 'apply_filters' ) ) {
@@ -2202,9 +2211,18 @@ class PgCache_ContentGrabber {
 	 *
 	 * @param string $kind      Tag kind, 'mfunc' or 'mclude'.
 	 * @param string $slug      Callback slug.
-	 * @param string $args_json Raw JSON args string (signed verbatim so
-	 *                          there is no ambiguity between encode/decode
-	 *                          on either side).
+	 * @param string $args_json The JSON args string in its **canonical
+	 *                          form** — i.e. with leading/trailing
+	 *                          whitespace trimmed. Both the signing path
+	 *                          (`_sign_dynamic_tags`) and the verifying
+	 *                          path (`_parse_dynamic_header` →
+	 *                          `_dispatch_dynamic`) apply the same
+	 *                          `trim()` before calling this helper, so
+	 *                          the HMAC is deterministic across write
+	 *                          and read for the same tag. Callers MUST
+	 *                          NOT pass an untrimmed value; doing so
+	 *                          would produce an HMAC that the verifier
+	 *                          rejects.
 	 *
 	 * @return string Lowercase hex sha256 HMAC.
 	 */
@@ -2499,14 +2517,21 @@ class PgCache_ContentGrabber {
 			};
 		};
 
+		// `\s*` (NOT `\s+`) between the security token and the closing
+		// `-->` so we match the same set of tags as `_parse_dynamic` /
+		// `_has_dynamic` (both use `(.*)-->`, accepting zero whitespace).
+		// A tag like `<!-- mfunc TOKEN-->call:slug...<!-- /mfunc TOKEN -->`
+		// would otherwise be detected as dynamic at parse time but never
+		// signed at write time — dispatch would then refuse it for a
+		// missing HMAC envelope.
 		$buffer = preg_replace_callback(
-			'~<!--\s*mfunc\s+' . $security . '\s+(.*?)\s*-->(.*?)<!--\s*/mfunc\s+' . $security . '\s*-->~is',
+			'~<!--\s*mfunc\s+' . $security . '\s*(.*?)\s*-->(.*?)<!--\s*/mfunc\s+' . $security . '\s*-->~is',
 			$sign_one( 'mfunc' ),
 			$buffer
 		);
 
 		$buffer = preg_replace_callback(
-			'~<!--\s*mclude\s+' . $security . '\s+(.*?)\s*-->(.*?)<!--\s*/mclude\s+' . $security . '\s*-->~is',
+			'~<!--\s*mclude\s+' . $security . '\s*(.*?)\s*-->(.*?)<!--\s*/mclude\s+' . $security . '\s*-->~is',
 			$sign_one( 'mclude' ),
 			$buffer
 		);

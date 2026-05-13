@@ -626,6 +626,38 @@ assert_true(
 	"once vs twice differ:\nonce: $body_once\ntwice: $body_twice"
 );
 
+// ── 4n.body-nows. Tags without whitespace between token and `-->` are signed.
+//        Parse / has_dynamic accept `<!-- mfunc TOKEN-->call:slug...-->`,
+//        so sign must accept the same set or dispatch refuses a safe tag.
+$reset_callbacks();
+$register_callback( 'render_user', function ( $args ) {
+	return 'NOWS:' . ( $args['name'] ?? '' );
+} );
+$nows_raw      = '<!-- mfunc ' . $token . '-->call:render_user {"name":"dave"}<!-- /mfunc ' . $token . ' -->';
+$nows_signed   = $grabber->_sign_dynamic_tags( $nows_raw );
+$nows_executed = $grabber->_parse_dynamic( $nows_signed );
+assert_true(
+	'[4n.body-nows] Body-form without space before `-->` is signed + dispatched',
+	false !== strpos( $nows_executed, 'NOWS:dave' ),
+	"result: $nows_executed"
+);
+
+// ── 4n.kind. Dispatcher invokes callbacks with ($args, $kind) — the documented
+//        contract. A callback that asserts on $kind must receive the right value.
+$reset_callbacks();
+$register_callback( 'render_kind', function ( $args, $kind ) {
+	return 'KIND[' . $kind . ']:' . ( $args['x'] ?? '' );
+} );
+$kind_args  = '{"x":"y"}';
+$kind_hmac  = $grabber->_dynamic_hmac( 'mfunc', 'render_kind', $kind_args );
+$kind_tag   = '<!-- mfunc ' . $token . ' call:render_kind ' . $kind_args . ' hmac:' . $kind_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$kind_out   = $grabber->_parse_dynamic( $kind_tag );
+assert_true(
+	'[4n.kind] Callback receives $kind as second positional argument',
+	false !== strpos( $kind_out, 'KIND[mfunc]:y' ),
+	"result: $kind_out"
+);
+
 // ── 4o. Tampered-after-sign tag is REFUSED (HMAC binds args_json) ──
 $reset_callbacks();
 $register_callback( 'render_user', function ( $args ) {
