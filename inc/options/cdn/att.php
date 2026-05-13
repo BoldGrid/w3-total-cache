@@ -15,8 +15,17 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_att_token"><?php esc_html_e( 'Token:', 'w3-total-cache' ); ?></th>
 	<td>
-		<input id="cdn_att_token" class="w3tc-ignore-change" type="password"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__att__token" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.att.token' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_att_token',
+				'name'        => 'cdn__att__token',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.att.token' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>

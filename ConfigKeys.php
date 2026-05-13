@@ -31,10 +31,12 @@ $keys = array(
 	'cluster.messagebus.sns.api_key'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // AWS SNS API key — encrypted at rest.
 	),
 	'cluster.messagebus.sns.api_secret'                    => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cluster.messagebus.sns.topic_arn'                     => array(
 		'type'    => 'string',
@@ -1277,6 +1279,7 @@ $keys = array(
 	'cdn.ftp.pass'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // FTP password — encrypted at rest.
 	),
 	'cdn.ftp.path'                                         => array(
 		'type'    => 'string',
@@ -1305,6 +1308,7 @@ $keys = array(
 	'cdn.ftp.privkey'                                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // SFTP private key — encrypted at rest.
 	),
 	'cdn.google_drive.client_id'                           => array(
 		'type'    => 'string',
@@ -1313,6 +1317,7 @@ $keys = array(
 	'cdn.google_drive.refresh_token'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.google_drive.folder.id'                           => array(
 		'type'    => 'string',
@@ -1329,10 +1334,12 @@ $keys = array(
 	'cdn.s3.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // S3 access key ID — encrypted at rest.
 	),
 	'cdn.s3.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // S3 secret key.
 	),
 	'cdn.s3.bucket'                                        => array(
 		'type'    => 'string',
@@ -1361,10 +1368,12 @@ $keys = array(
 	'cdn.cf.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf.bucket'                                        => array(
 		'type'    => 'string',
@@ -1393,10 +1402,12 @@ $keys = array(
 	'cdn.cf2.key'                                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf2.secret'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf2.id'                                           => array(
 		'type'    => 'string',
@@ -1417,6 +1428,7 @@ $keys = array(
 	'cdn.rscf.key'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.rscf.location'                                    => array(
 		'type'    => 'string',
@@ -1441,6 +1453,7 @@ $keys = array(
 	'cdn.rackspace_cdn.api_key'                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.rackspace_cdn.region'                             => array(
 		'type'    => 'string',
@@ -1473,6 +1486,7 @@ $keys = array(
 	'cdn.azure.key'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.azure.container'                                  => array(
 		'type'    => 'string',
@@ -1521,6 +1535,7 @@ $keys = array(
 	'cdn.cotendo.password'                                 => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cotendo.zones'                                    => array(
 		'type'    => 'array',
@@ -1541,6 +1556,7 @@ $keys = array(
 	'cdn.akamai.password'                                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.akamai.email_notification'                        => array(
 		'type'    => 'array',
@@ -1569,6 +1585,7 @@ $keys = array(
 	'cdn.edgecast.token'                                   => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.edgecast.domain'                                  => array(
 		'type'    => 'array',
@@ -1585,6 +1602,7 @@ $keys = array(
 	'cdn.att.token'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.att.domain'                                       => array(
 		'type'    => 'array',
@@ -2484,6 +2502,7 @@ $keys = array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		'flags'       => array( 'secret' => true ), // EDD license key — encrypted at rest.
 	),
 	'plugin.type'                                          => array(
 		'type'        => 'string',

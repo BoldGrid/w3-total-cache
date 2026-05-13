@@ -782,6 +782,107 @@ class Util_Ui {
 	}
 
 	/**
+	 * Renders an input for a credential-typed config value.
+	 *
+	 * Never reflects the actual secret into the HTML `value=` attribute.
+	 * Instead:
+	 *
+	 *  - `value=""` is always emitted (so a settings-page render — view-
+	 *    source, browser cache, screenshot, intermediary proxy — never
+	 *    yields the credential).
+	 *  - A `••••••••` placeholder is rendered when a secret is
+	 *    configured, so the admin can see that *something* is set
+	 *    without seeing the value. An empty config value renders an
+	 *    empty placeholder (the admin sees a blank input — same UX as
+	 *    "credential not set").
+	 *  - `autocomplete="new-password"` discourages browsers from
+	 *    auto-filling stored passwords into the wrong field.
+	 *
+	 * The companion server-side rule lives in
+	 * `Generic_AdminActions_Default::read_request()`: an empty POST for
+	 * a `secret`-flagged key means "no change", not "blank it". Together
+	 * the two rules let the placeholder pattern round-trip cleanly:
+	 * the admin saves Settings without re-entering existing
+	 * credentials.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $args {
+	 *     Field arguments.
+	 *
+	 *     @type string $id          DOM id.
+	 *     @type string $name        Submit name (e.g. `cdn__s3__secret`).
+	 *     @type bool   $has_value   Whether a secret is currently
+	 *                               configured. When true the input
+	 *                               renders a dot placeholder.
+	 *     @type int    $size        HTML size attribute. Default 60.
+	 *     @type string $type        `password` (default) or `text`.
+	 *     @type string $sealing_key Pass a key prefix (e.g. `cdn.`) to
+	 *                               disable the input when sealed by
+	 *                               the master config.
+	 *     @type bool   $extra_class Whether to also include the
+	 *                               `w3tc-ignore-change` class
+	 *                               (default true).
+	 * }
+	 *
+	 * @return void
+	 */
+	/**
+	 * Returns true when the given config key carries the
+	 * `flags.secret => true` marker in `ConfigKeys.php`.
+	 *
+	 * Used by {@see self::control2()} to auto-mask textbox-rendered
+	 * secret keys (e.g. `cdn.s3.key` routed through
+	 * `Util_Ui::config_item()`), so a future credential field added to
+	 * the schema is masked by being flagged — no template edit needed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|array $key Config key (compound keys are never
+	 *                          secrets in the static schema).
+	 *
+	 * @return bool
+	 */
+	public static function is_secret_config_key( $key ) {
+		if ( \is_array( $key ) || ! \is_string( $key ) || '' === $key ) {
+			return false;
+		}
+
+		$secrets = Config::secret_keys();
+
+		return isset( $secrets[ $key ] );
+	}
+
+	public static function secret_input( $args ) {
+		$id          = isset( $args['id'] ) ? (string) $args['id'] : '';
+		$name        = isset( $args['name'] ) ? (string) $args['name'] : '';
+		$has_value   = ! empty( $args['has_value'] );
+		$size        = isset( $args['size'] ) ? (int) $args['size'] : 60;
+		$type        = isset( $args['type'] ) && 'text' === $args['type'] ? 'text' : 'password';
+		$sealing_key = isset( $args['sealing_key'] ) ? (string) $args['sealing_key'] : '';
+		$extra_class = ! isset( $args['extra_class'] ) || (bool) $args['extra_class'];
+		$disabled    = ! empty( $args['disabled'] );
+
+		$placeholder = $has_value ? '••••••••' : '';
+
+		if ( ! $disabled && '' !== $sealing_key && Dispatcher::config()->is_sealed( $sealing_key ) ) {
+			$disabled = true;
+		}
+
+		echo '<input'
+			. ( $extra_class ? ' class="w3tc-ignore-change"' : '' )
+			. ' type="' . esc_attr( $type ) . '"'
+			. ' id="' . esc_attr( $id ) . '"'
+			. ' name="' . esc_attr( $name ) . '"'
+			. ' value=""'
+			. ' placeholder="' . esc_attr( $placeholder ) . '"'
+			. ' autocomplete="new-password"'
+			. ' size="' . esc_attr( (string) $size ) . '"'
+			. ( $disabled ? ' disabled="disabled"' : '' )
+			. ' />';
+	}
+
+	/**
 	 * Echoes a select element.
 	 *
 	 * @param string $id        The ID attribute for the select element.
@@ -1186,16 +1287,33 @@ class Util_Ui {
 				)
 			);
 		} elseif ( 'textbox' === $a['control'] ) {
-			self::textbox2(
-				array(
-					'name'        => $a['control_name'],
-					'value'       => $a['value'],
-					'disabled'    => $a['disabled'],
-					'type'        => isset( $a['textbox_type'] ) ? $a['textbox_type'] : null,
-					'size'        => isset( $a['textbox_size'] ) ? $a['textbox_size'] : null,
-					'placeholder' => isset( $a['textbox_placeholder'] ) ? $a['textbox_placeholder'] : null,
-				)
-			);
+			// Secret-flagged keys (CDN API secrets, FTP passwords, license
+			// key, etc.) must NEVER reflect their value into the HTML
+			// `value=` attribute. Route through the placeholder renderer
+			// so the form pattern stays consistent with the inputs that
+			// already migrated to `Util_Ui::secret_input()` directly.
+			if ( self::is_secret_config_key( $a['key'] ?? '' ) ) {
+				self::secret_input(
+					array(
+						'name'      => $a['control_name'],
+						'has_value' => '' !== (string) ( $a['value'] ?? '' ),
+						'disabled'  => $a['disabled'],
+						'type'      => 'password',
+						'size'      => isset( $a['textbox_size'] ) ? (int) $a['textbox_size'] : 60,
+					)
+				);
+			} else {
+				self::textbox2(
+					array(
+						'name'        => $a['control_name'],
+						'value'       => $a['value'],
+						'disabled'    => $a['disabled'],
+						'type'        => isset( $a['textbox_type'] ) ? $a['textbox_type'] : null,
+						'size'        => isset( $a['textbox_size'] ) ? $a['textbox_size'] : null,
+						'placeholder' => isset( $a['textbox_placeholder'] ) ? $a['textbox_placeholder'] : null,
+					)
+				);
+			}
 		} elseif ( 'textarea' === $a['control'] ) {
 			self::textarea2(
 				array(
