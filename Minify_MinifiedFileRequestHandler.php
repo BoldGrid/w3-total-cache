@@ -1128,7 +1128,7 @@ class Minify_MinifiedFileRequestHandler {
 		$data = $cache->fetch( $key );
 
 		if ( isset( $data['content'] ) ) {
-			$value = @unserialize( $data['content'] );
+			$value = @unserialize( $data['content'], array( 'allowed_classes' => false ) );
 
 			return $value;
 		}

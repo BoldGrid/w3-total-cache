@@ -637,7 +637,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	private function parent_id_resolve_step( $root_id, $folder ) {
 		// decode top folder.
 		$ids_string = get_transient( 'w3tc_cdn_google_drive_folder_ids' );
-		$ids        = @unserialize( $ids_string );
+		$ids        = @unserialize( $ids_string, array( 'allowed_classes' => false ) );
 
 		if ( isset( $ids[ $root_id . '_' . $folder ] ) ) {
 			return $ids[ $root_id . '_' . $folder ];

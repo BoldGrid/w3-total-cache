@@ -84,7 +84,7 @@ class Cache_Xcache extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$v = @unserialize( xcache_get( $storage_key ) );
+		$v = @unserialize( xcache_get( $storage_key ), array( 'allowed_classes' => false ) );
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
@@ -155,7 +155,7 @@ class Cache_Xcache extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		if ( $this->_use_expired_data ) {
-			$v = @unserialize( xcache_get( $storage_key ) );
+			$v = @unserialize( xcache_get( $storage_key ), array( 'allowed_classes' => false ) );
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
 				xcache_set( $storage_key, serialize( $v ), 0 );

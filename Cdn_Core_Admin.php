@@ -286,7 +286,7 @@ class Cdn_Core_Admin {
 					}
 
 					if ( $post->metadata ) {
-						$metadata = @unserialize( $post->metadata );
+						$metadata = @unserialize( $post->metadata, array( 'allowed_classes' => false ) );
 
 						$post_files = array_merge( $post_files, $common->get_metadata_files( $metadata ) );
 					}

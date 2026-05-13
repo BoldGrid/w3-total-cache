@@ -170,7 +170,7 @@ class Extension_AlwaysCached_Plugin {
 		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
 
 		if ( ! empty( $queue_item ) ) {
-			$this->request_queue_item_extension = @unserialize( $queue_item['extension'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+			$this->request_queue_item_extension = @unserialize( $queue_item['extension'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
 		}
 	}

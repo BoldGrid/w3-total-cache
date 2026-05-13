@@ -168,7 +168,7 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		$v = $accessor->get( $storage_key );
-		$v = @unserialize( $v );
+		$v = @unserialize( $v, array( 'allowed_classes' => false ) );
 
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
@@ -406,7 +406,7 @@ class Cache_Redis extends Cache_Base {
 		$accessor->watch( $storage_key );
 
 		$value = $accessor->get( $storage_key );
-		$value = @unserialize( $value );
+		$value = @unserialize( $value, array( 'allowed_classes' => false ) );
 
 		if ( ! is_array( $value ) ) {
 			$accessor->unwatch();
@@ -466,7 +466,7 @@ class Cache_Redis extends Cache_Base {
 
 			foreach ( $orig_keys as $i => $orig_key ) {
 				if ( isset( $values[ $i ] ) && false !== $values[ $i ] ) {
-					$results[ $orig_key ] = @unserialize( $values[ $i ] );
+					$results[ $orig_key ] = @unserialize( $values[ $i ], array( 'allowed_classes' => false ) );
 				} else {
 					$results[ $orig_key ] = null;
 				}
