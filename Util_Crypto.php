@@ -90,19 +90,29 @@ class Util_Crypto {
 	}
 
 	/**
-	 * Derives the envelope key.
+	 * Derives a per-purpose envelope key.
 	 *
-	 * Tied to `wp_salt('secure_auth')` so the key rotates whenever the
-	 * operator rotates that salt. Falls back to a mix of AUTH_KEY +
-	 * SECURE_AUTH_KEY when wp_salt() is unavailable (CLI helpers,
-	 * standalone tests).
+	 * Encrypt-then-MAC best practice is to use independent keys for the
+	 * cipher and the authenticator: re-using the same key across two
+	 * primitives is widely flagged as a design smell even when (as here,
+	 * with AES-256-CBC + HMAC-SHA256) it has no known break.  We derive
+	 * two 32-byte keys from the same salt by HMAC-ing different context
+	 * strings — a poor-man's HKDF-Expand that's enough to keep the
+	 * cipher key and the MAC key cryptographically independent.
+	 *
+	 * Both keys are tied to `wp_salt('secure_auth')` so the keying
+	 * material rotates whenever the operator rotates that salt. Falls
+	 * back to a mix of AUTH_KEY + SECURE_AUTH_KEY when `wp_salt()` is
+	 * unavailable (CLI helpers, standalone tests).
 	 *
 	 * @since X.X.X
 	 *
-	 * @return string Raw 32-byte HMAC-SHA256 output suitable for
-	 *                AES-256-CBC + HMAC-SHA256.
+	 * @param string $purpose `'enc'` for the AES-256-CBC key, `'mac'`
+	 *                        for the HMAC-SHA256 key.
+	 *
+	 * @return string Raw 32-byte HMAC-SHA256 output.
 	 */
-	private static function derive_key() {
+	private static function derive_key( $purpose = 'enc' ) {
 		if ( \function_exists( 'wp_salt' ) ) {
 			$salt = (string) \wp_salt( 'secure_auth' );
 		} else {
@@ -110,7 +120,7 @@ class Util_Crypto {
 				. '|' . ( defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : '' );
 		}
 
-		return \hash_hmac( 'sha256', 'w3tc:envelope', $salt, true );
+		return \hash_hmac( 'sha256', 'w3tc:envelope:' . $purpose, $salt, true );
 	}
 
 	/**
@@ -140,14 +150,15 @@ class Util_Crypto {
 			return $plaintext;
 		}
 
-		$key = self::derive_key();
-		$iv  = \random_bytes( 16 );
-		$ct  = @\openssl_encrypt( $plaintext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv );
+		$enc_key = self::derive_key( 'enc' );
+		$mac_key = self::derive_key( 'mac' );
+		$iv      = \random_bytes( 16 );
+		$ct      = @\openssl_encrypt( $plaintext, 'aes-256-cbc', $enc_key, OPENSSL_RAW_DATA, $iv );
 		if ( false === $ct ) {
 			return $plaintext;
 		}
 
-		$tag = \hash_hmac( 'sha256', $iv . $ct, $key, true );
+		$tag = \hash_hmac( 'sha256', $iv . $ct, $mac_key, true );
 
 		return self::ENVELOPE_PREFIX . \base64_encode( $iv . $tag . $ct ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
@@ -190,13 +201,14 @@ class Util_Crypto {
 		$tag = \substr( $body, 16, 32 );
 		$ct  = \substr( $body, 48 );
 
-		$key      = self::derive_key();
-		$expected = \hash_hmac( 'sha256', $iv . $ct, $key, true );
+		$enc_key  = self::derive_key( 'enc' );
+		$mac_key  = self::derive_key( 'mac' );
+		$expected = \hash_hmac( 'sha256', $iv . $ct, $mac_key, true );
 		if ( ! \hash_equals( $expected, $tag ) ) {
 			return false;
 		}
 
-		$pt = @\openssl_decrypt( $ct, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv );
+		$pt = @\openssl_decrypt( $ct, 'aes-256-cbc', $enc_key, OPENSSL_RAW_DATA, $iv );
 		if ( false === $pt ) {
 			return false;
 		}

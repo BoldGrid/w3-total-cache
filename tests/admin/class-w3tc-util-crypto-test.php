@@ -154,6 +154,35 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The encrypt key and the MAC key are derived from the same salt
+	 * but with different context strings, so they are NOT equal. This
+	 * pins the encrypt-then-MAC split-keys property — a future
+	 * "simplify" refactor that re-uses one key for both primitives
+	 * would re-introduce the design smell Copilot flagged.
+	 *
+	 * `derive_key()` is private; the property is exercised through
+	 * Reflection so the API surface stays unchanged.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_derive_key_uses_distinct_purposes() {
+		$method = new \ReflectionMethod( Util_Crypto::class, 'derive_key' );
+		$method->setAccessible( true );
+
+		$enc_a = $method->invoke( null, 'enc' );
+		$enc_b = $method->invoke( null, 'enc' );
+		$mac   = $method->invoke( null, 'mac' );
+
+		// Deterministic for a given purpose...
+		$this->assertSame( $enc_a, $enc_b );
+		$this->assertSame( 32, strlen( $enc_a ) );
+		$this->assertSame( 32, strlen( $mac ) );
+
+		// ...but different across purposes.
+		$this->assertNotSame( $enc_a, $mac );
+	}
+
+	/**
 	 * `is_envelope()` recognises the prefix and rejects everything else.
 	 *
 	 * @since X.X.X

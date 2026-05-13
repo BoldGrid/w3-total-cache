@@ -45,7 +45,12 @@ class Mobile_Referrer extends Mobile_Base {
 				Util_Cookie::set( W3TC_REFERRER_COOKIE_NAME, $http_referrer, 0, '/' );
 			}
 		} elseif ( isset( $_COOKIE[ W3TC_REFERRER_COOKIE_NAME ] ) ) {
-			Util_Cookie::clear( W3TC_REFERRER_COOKIE_NAME );
+			// Pass the same explicit `/` path used by the set() branch
+			// above. Without it the clear() picks up COOKIEPATH, and on
+			// sites where COOKIEPATH differs from `/` the browser keeps
+			// the path-`/` cookie alive forever (set-cookie matches on
+			// (name, path, domain)).
+			Util_Cookie::clear( W3TC_REFERRER_COOKIE_NAME, '/' );
 		}
 
 		return $http_referrer;

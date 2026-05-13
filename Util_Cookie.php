@@ -72,16 +72,37 @@ class Util_Cookie {
 			$domain = ( defined( 'COOKIE_DOMAIN' ) && COOKIE_DOMAIN ) ? COOKIE_DOMAIN : '';
 		}
 
-		$options = array(
-			'expires'  => (int) $expires,
-			'path'     => (string) $path,
-			'domain'   => (string) $domain,
-			'secure'   => \function_exists( 'is_ssl' ) ? (bool) \is_ssl() : false,
-			'httponly' => true,
-			'samesite' => 'Lax',
-		);
+		$secure   = \function_exists( 'is_ssl' ) ? (bool) \is_ssl() : false;
+		$httponly = true;
 
-		return \setcookie( $name, (string) $value, $options );
+		// PHP 7.3+ accepts the options-array form natively. The plugin's
+		// composer.json platform pin allows PHP 7.2.5, where passing an
+		// array triggers a warning and the cookie is NOT set. Fall back
+		// to the positional form on 7.2 and smuggle `SameSite=Lax` via
+		// the trailing `; samesite=Lax` on the path argument — Set-Cookie
+		// emits the path verbatim, and every supported browser parses the
+		// trailing semicolon-separated attribute as a real SameSite token.
+		if ( \PHP_VERSION_ID >= 70300 ) {
+			$options = array(
+				'expires'  => (int) $expires,
+				'path'     => (string) $path,
+				'domain'   => (string) $domain,
+				'secure'   => $secure,
+				'httponly' => $httponly,
+				'samesite' => 'Lax',
+			);
+			return \setcookie( $name, (string) $value, $options );
+		}
+
+		return \setcookie(
+			$name,
+			(string) $value,
+			(int) $expires,
+			(string) $path . '; samesite=Lax',
+			(string) $domain,
+			$secure,
+			$httponly
+		);
 	}
 
 	/**

@@ -782,6 +782,32 @@ class Util_Ui {
 	}
 
 	/**
+	 * Returns true when the given config key carries the
+	 * `flags.secret => true` marker in `ConfigKeys.php`.
+	 *
+	 * Used by {@see self::control2()} to auto-mask textbox-rendered
+	 * secret keys (e.g. `cdn.s3.key` routed through
+	 * `Util_Ui::config_item()`), so a future credential field added to
+	 * the schema is masked by being flagged — no template edit needed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|array $key Config key (compound keys are never
+	 *                          secrets in the static schema).
+	 *
+	 * @return bool
+	 */
+	public static function is_secret_config_key( $key ) {
+		if ( \is_array( $key ) || ! \is_string( $key ) || '' === $key ) {
+			return false;
+		}
+
+		$secrets = Config::secret_keys();
+
+		return isset( $secrets[ $key ] );
+	}
+
+	/**
 	 * Renders an input for a credential-typed config value.
 	 *
 	 * Never reflects the actual secret into the HTML `value=` attribute.
@@ -827,32 +853,6 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	/**
-	 * Returns true when the given config key carries the
-	 * `flags.secret => true` marker in `ConfigKeys.php`.
-	 *
-	 * Used by {@see self::control2()} to auto-mask textbox-rendered
-	 * secret keys (e.g. `cdn.s3.key` routed through
-	 * `Util_Ui::config_item()`), so a future credential field added to
-	 * the schema is masked by being flagged — no template edit needed.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param string|array $key Config key (compound keys are never
-	 *                          secrets in the static schema).
-	 *
-	 * @return bool
-	 */
-	public static function is_secret_config_key( $key ) {
-		if ( \is_array( $key ) || ! \is_string( $key ) || '' === $key ) {
-			return false;
-		}
-
-		$secrets = Config::secret_keys();
-
-		return isset( $secrets[ $key ] );
-	}
-
 	public static function secret_input( $args ) {
 		$id          = isset( $args['id'] ) ? (string) $args['id'] : '';
 		$name        = isset( $args['name'] ) ? (string) $args['name'] : '';
@@ -1293,12 +1293,24 @@ class Util_Ui {
 			// so the form pattern stays consistent with the inputs that
 			// already migrated to `Util_Ui::secret_input()` directly.
 			if ( self::is_secret_config_key( $a['key'] ?? '' ) ) {
+				// Carry through the caller-supplied id so the surrounding
+				// `<label for="...">` (which uses `control_name` as the
+				// for-target) keeps its click/focus association. Honor
+				// `textbox_type` when the caller passed one — some
+				// "credentials" render as text by design (e.g. an Access
+				// Key ID, where the operator wants to see what they
+				// typed) — but default to `password` so unspecified
+				// secret fields don't reflect on-screen.
+				$secret_type = ( isset( $a['textbox_type'] ) && 'text' === $a['textbox_type'] )
+					? 'text'
+					: 'password';
 				self::secret_input(
 					array(
+						'id'        => $a['control_name'],
 						'name'      => $a['control_name'],
 						'has_value' => '' !== (string) ( $a['value'] ?? '' ),
 						'disabled'  => $a['disabled'],
-						'type'      => 'password',
+						'type'      => $secret_type,
 						'size'      => isset( $a['textbox_size'] ) ? (int) $a['textbox_size'] : 60,
 					)
 				);
