@@ -2110,10 +2110,15 @@ class PgCache_ContentGrabber {
 		 *     non-issue (no W3TC file is a sensible "Bad Behavior" hook).
 		 *
 		 * Failures are logged via Util_Debug::log('pgcache', ...). User-
-		 * influenced path strings are sanitized through
-		 * `Util_Debug::sanitize_log_value()` (a wrapper applied here as
-		 * a local helper) so a crafted config value containing CR/LF
-		 * cannot forge additional log lines (log-injection).
+		 * influenced path strings pass through the local
+		 * `$sanitize_for_log` closure below — it escapes CR/LF to the
+		 * literal sequences `\r` / `\n` and replaces any remaining
+		 * control byte (`0x00`-`0x1F` / `0x7F`) with `?`, so a crafted
+		 * config value cannot forge additional log lines (log-injection).
+		 * Kept inline rather than promoted to a Util_Debug helper because
+		 * this is the only log site in the file-inclusion fix that
+		 * concatenates an admin-controlled string; promoting it would
+		 * change the Util_Debug API surface for no other consumer.
 		 *
 		 * @since X.X.X
 		 */

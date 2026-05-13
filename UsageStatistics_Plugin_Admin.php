@@ -157,6 +157,20 @@ class UsageStatistics_Plugin_Admin {
 			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
 		}
 
+		// Self-contained capability gate. The missing-auth-capability-checks
+		// PR also lands a `manage_options` requirement here; duplicating it
+		// in this PR makes the file-inclusion fix safe to merge in any
+		// order. Two passing `current_user_can()` calls cost nothing; one
+		// missing one is the difference between a residual oracle and a
+		// closed surface.
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
 		$handle       = false;
 		$filename_val = Util_Request::get_string( 'filename' );
 		$filepath     = ! empty( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
@@ -168,10 +182,10 @@ class UsageStatistics_Plugin_Admin {
 		 * turning the handler into a file-existence oracle on arbitrary
 		 * host paths (e.g. `/etc/passwd`, `/proc/self/cmdline`).
 		 *
-		 * The cap-check half (current_user_can('manage_options')) is added
-		 * by the missing-auth-capability-checks PR; this allowlist closes
-		 * the residual path-traversal surface even when an admin account
-		 * is compromised or is the attacker.
+		 * Defence-in-depth on top of the `manage_options` check above:
+		 * even when an admin account is compromised or the attacker IS
+		 * the admin, the allowlist refuses paths outside the documented
+		 * log-bearing directories.
 		 *
 		 * Acceptable resolved paths must live under one of:
 		 *   - the WP uploads basedir
