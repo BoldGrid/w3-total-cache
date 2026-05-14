@@ -36,8 +36,17 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_rscf_key" class="w3tc-ignore-change" type="password"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__rscf__key" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.rscf.key' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_rscf_key',
+				'name'        => 'cdn__rscf__key',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.rscf.key' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <?php
