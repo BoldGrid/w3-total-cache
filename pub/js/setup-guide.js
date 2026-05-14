@@ -34,7 +34,7 @@ var w3tcWizardSlidesWithTests = [
  * Falls back to the wizard form's `_wpnonce` field for legacy compatibility
  * (the PHP-side verifier still accepts the shared `w3tc_wizard` nonce).
  *
- * @since 2.9.5
+ * @since X.X.X
  *
  * @param string action The wp_ajax action name (e.g. `w3tc_config_pgcache`).
  * @return string Nonce value.

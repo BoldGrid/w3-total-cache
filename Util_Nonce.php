@@ -32,6 +32,15 @@ namespace W3TC;
  * SHOULD be removed in a follow-up release once the minter surface is fully
  * migrated to per-action nonces.
  *
+ * TODO(follow-up release): flip the `$allow_legacy` default to `false` and
+ * remove the LEGACY_ACTION branch in verify_admin() once every
+ * `wp_create_nonce('w3tc')` minter (~60 call sites across admin views,
+ * Util_Ui::nonce_field(), Util_AdminLinks, inc/options/extensions/list.php,
+ * etc.) has been migrated to per-action keys. Until then per-action
+ * enforcement is best-effort: existing minters still produce LEGACY_ACTION
+ * tokens and pass via the fallback, so the practical security improvement is
+ * only realised once the minters move too.
+ *
  * @since X.X.X
  */
 class Util_Nonce {
@@ -121,6 +130,17 @@ class Util_Nonce {
 		// the status via the `$args` array so the response is an actual 403
 		// (consistent with the other access-control failures in the auth
 		// hardening pass).
+		//
+		// Body is the legacy WordPress AJAX-failure sentinel `-1` so existing
+		// jQuery `.fail()` handlers (and `check_ajax_referer`-shaped callers)
+		// keep working. Detailed reasons go to the server log only -- echoing
+		// them in the response would help an attacker enumerate which nonce
+		// key a handler expects.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf( '[W3TC] Util_Nonce::verify_ajax failed for action "%s".', $action )
+			);
+		}
 		\wp_die( -1, '', array( 'response' => 403 ) );
 	}
 }

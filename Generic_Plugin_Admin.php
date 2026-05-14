@@ -1006,10 +1006,18 @@ class Generic_Plugin_Admin {
 		 * filter cannot expose the "Empty Caches" favorite action to
 		 * non-admins (rt9-190, rt9-231).
 		 *
+		 * Early-return when the current user is not an admin: there is no
+		 * reason to compute or filter a capability for an action we would
+		 * never expose to them anyway.
+		 *
 		 * @since X.X.X
 		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return $actions;
+		}
+
 		$capability = apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' );
-		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+		if ( empty( $capability ) ) {
 			$capability = 'manage_options';
 		}
 

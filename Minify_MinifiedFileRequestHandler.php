@@ -47,7 +47,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * requests presenting a matching token via `X-W3TC-Minify-Probe` may
 	 * trigger the probe responses.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @var string
 	 */
@@ -57,7 +57,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * Lifetime (seconds) of an issued probe token. Probes are server-to-self
 	 * within a single admin request, so a short window suffices.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @var int
 	 */
@@ -67,7 +67,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * HTTP header carrying the probe token from the issuing admin request to
 	 * the (unauthenticated) `init`-hook minify handler.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @var string
 	 */
@@ -94,7 +94,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * trigger the `rewrite_test.css` / `XXX.css` side channels, while the
 	 * plugin's own admin-side rewrite verification continues to work.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @return string A 32-character hex token.
 	 */
@@ -124,7 +124,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * Validates the inbound probe token and consumes it on success so it
 	 * cannot be replayed.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @return bool True if the request presents a matching probe token.
 	 */
@@ -160,7 +160,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * Sends a 404-style response and exits. Used to suppress the
 	 * unauthenticated probe side-channels.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */

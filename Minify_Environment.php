@@ -295,7 +295,7 @@ class Minify_Environment {
 	 * handler will only emit `Minify OK` (or honour the `XXX.css` cache-write
 	 * probe) when the token matches.
 	 *
-	 * @since 2.9.5 Authenticated probe via short-lived `X-W3TC-Minify-Probe` token.
+	 * @since X.X.X Authenticated probe via short-lived `X-W3TC-Minify-Probe` token.
 	 *
 	 * @param string $url The URL to test for rewriting functionality.
 	 *

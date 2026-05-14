@@ -35,13 +35,19 @@
  *      `switch_to_blog()` against an allowlist derived from configured site
  *      hostnames.
  *
- * Defence in depth: `pub/.htaccess` (shipped alongside this file) denies
- * direct execution of every other PHP file under `pub/`, so adding a new
- * file to this directory does not silently expose a new public entrypoint.
+ * Defence in depth (Apache only): `pub/.htaccess` (shipped alongside this
+ * file) denies direct execution of every other PHP file under `pub/`, so
+ * adding a new file to this directory does not silently expose a new public
+ * entrypoint on Apache or LiteSpeed installations. Nginx ignores `.htaccess`
+ * entirely; on Nginx-only sites the pre-bootstrap SNS signature check below
+ * is the only public-entrypoint gate for this file, and operators relying
+ * on `pub/` defense-in-depth must add an equivalent `location ~ ^/.../pub/`
+ * deny rule to nginx.conf. (The W3TC nginx-config emitter does not currently
+ * emit such a rule; this is tracked as a follow-up.)
  *
  * @package W3TC
  *
- * @since 2.9.5
+ * @since X.X.X
  */
 
 // phpcs:disable WordPress.Security.NonceVerification.Missing -- Endpoint authenticated via AWS SNS signature, not a WP nonce.
@@ -51,22 +57,24 @@
 /**
  * Emit a small text response and terminate.
  *
- * @since 2.9.5
+ * @since X.X.X
  *
  * @param int    $status HTTP status code.
  * @param string $body   Short response body (single line).
  *
  * @return void
  */
-function w3tc_sns_reject( $status, $body ) {
-	if ( ! headers_sent() ) {
-		http_response_code( $status );
-		header( 'Content-Type: text/plain; charset=utf-8' );
-		header( 'Cache-Control: no-store' );
-		header( 'X-Robots-Tag: noindex, nofollow, noarchive' );
+if ( ! function_exists( 'w3tc_sns_reject' ) ) {
+	function w3tc_sns_reject( $status, $body ) {
+		if ( ! headers_sent() ) {
+			http_response_code( $status );
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			header( 'Cache-Control: no-store' );
+			header( 'X-Robots-Tag: noindex, nofollow, noarchive' );
+		}
+		echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Caller-controlled constant string only.
+		exit();
 	}
-	echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Caller-controlled constant string only.
-	exit();
 }
 
 // 1. Method gate: this endpoint exists solely to receive AWS SNS POSTs.
@@ -122,17 +130,19 @@ if ( ! class_exists( '\Aws\Sns\Message' ) || ! class_exists( '\Aws\Sns\MessageVa
 	w3tc_sns_reject( 500, 'Server misconfigured' );
 }
 
-// 5. Build the SNS Message from the bounded body we read in step 3. We use
-// `fromArray()` instead of `fromRawPostData()` because the latter re-reads
-// php://input without a size cap. On any structural problem, fail closed
-// without leaking detail.
+// 5. Build the SNS Message directly from the bounded body we read in step 3.
+// The SDK's `fromRawPostData()` re-reads php://input without a size cap and
+// `fromJsonString()` would re-decode the body, so we decode once and pass the
+// array to the constructor. Catch \Throwable rather than \Exception so future
+// SDK upgrades that throw Error subtypes (e.g. TypeError on a missing key) do
+// not bypass the 400 response and leak a 500 stack trace.
 $w3tc_sns_decoded = json_decode( $w3tc_sns_body, true );
 if ( ! is_array( $w3tc_sns_decoded ) ) {
 	w3tc_sns_reject( 400, 'Invalid SNS message' );
 }
 try {
-	$w3tc_sns_message = \Aws\Sns\Message::fromArray( $w3tc_sns_decoded );
-} catch ( \Exception $e ) {
+	$w3tc_sns_message = new \Aws\Sns\Message( $w3tc_sns_decoded );
+} catch ( \Throwable $e ) {
 	w3tc_sns_reject( 400, 'Invalid SNS message' );
 }
 
@@ -142,7 +152,7 @@ try {
 try {
 	$w3tc_sns_validator = new \Aws\Sns\MessageValidator();
 	$w3tc_sns_validator->validate( $w3tc_sns_message );
-} catch ( \Exception $e ) {
+} catch ( \Throwable $e ) {
 	w3tc_sns_reject( 403, 'Forbidden' );
 }
 
@@ -158,7 +168,17 @@ if ( ! defined( 'W3TC_WP_LOADING' ) ) {
 }
 
 if ( ! defined( 'ABSPATH' ) ) {
+	// Standard layout: this file lives at
+	// `wp-content/plugins/w3-total-cache/pub/sns.php`, so wp-load.php is four
+	// directories up. Sites that vendor W3TC outside `wp-content/plugins/`
+	// (must-use plugin dirs, custom plugin directories, some managed-host
+	// bundles) ship a shim at `<plugin>/../w3tc-wp-loader.php`; fall back to
+	// that before erroring so non-standard installs don't 500 on every SNS
+	// POST after the upgrade.
 	$w3tc_sns_wp_load = __DIR__ . '/../../../../wp-load.php';
+	if ( ! file_exists( $w3tc_sns_wp_load ) ) {
+		$w3tc_sns_wp_load = __DIR__ . '/../../w3tc-wp-loader.php';
+	}
 	if ( ! file_exists( $w3tc_sns_wp_load ) ) {
 		w3tc_sns_reject( 500, 'WordPress not found' );
 	}

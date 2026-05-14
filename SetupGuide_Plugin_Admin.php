@@ -38,26 +38,26 @@ class SetupGuide_Plugin_Admin {
 	 * Replaces the previous shared `w3tc_wizard` nonce so a nonce minted for one
 	 * wizard step cannot be replayed against a different step's handler.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @var array
 	 */
 	private static $nonce_actions = array(
-		'w3tc_wizard_skip'              => 'w3tc_wizard_skip',
-		'w3tc_tos_choice'               => 'w3tc_wizard_tos_choice',
-		'w3tc_get_pgcache_settings'     => 'w3tc_wizard_get_pgcache_settings',
-		'w3tc_test_pgcache'             => 'w3tc_wizard_test_pgcache',
-		'w3tc_config_pgcache'           => 'w3tc_wizard_config_pgcache',
-		'w3tc_get_dbcache_settings'     => 'w3tc_wizard_get_dbcache_settings',
-		'w3tc_test_dbcache'             => 'w3tc_wizard_test_dbcache',
-		'w3tc_config_dbcache'           => 'w3tc_wizard_config_dbcache',
-		'w3tc_get_objcache_settings'    => 'w3tc_wizard_get_objcache_settings',
-		'w3tc_test_objcache'            => 'w3tc_wizard_test_objcache',
-		'w3tc_config_objcache'          => 'w3tc_wizard_config_objcache',
+		'w3tc_wizard_skip'               => 'w3tc_wizard_skip',
+		'w3tc_tos_choice'                => 'w3tc_wizard_tos_choice',
+		'w3tc_get_pgcache_settings'      => 'w3tc_wizard_get_pgcache_settings',
+		'w3tc_test_pgcache'              => 'w3tc_wizard_test_pgcache',
+		'w3tc_config_pgcache'            => 'w3tc_wizard_config_pgcache',
+		'w3tc_get_dbcache_settings'      => 'w3tc_wizard_get_dbcache_settings',
+		'w3tc_test_dbcache'              => 'w3tc_wizard_test_dbcache',
+		'w3tc_config_dbcache'            => 'w3tc_wizard_config_dbcache',
+		'w3tc_get_objcache_settings'     => 'w3tc_wizard_get_objcache_settings',
+		'w3tc_test_objcache'             => 'w3tc_wizard_test_objcache',
+		'w3tc_config_objcache'           => 'w3tc_wizard_config_objcache',
 		'w3tc_get_imageservice_settings' => 'w3tc_wizard_get_imageservice_settings',
-		'w3tc_config_imageservice'      => 'w3tc_wizard_config_imageservice',
-		'w3tc_get_lazyload_settings'    => 'w3tc_wizard_get_lazyload_settings',
-		'w3tc_config_lazyload'          => 'w3tc_wizard_config_lazyload',
+		'w3tc_config_imageservice'       => 'w3tc_wizard_config_imageservice',
+		'w3tc_get_lazyload_settings'     => 'w3tc_wizard_get_lazyload_settings',
+		'w3tc_config_lazyload'           => 'w3tc_wizard_config_lazyload',
 	);
 
 	/**
@@ -108,7 +108,7 @@ class SetupGuide_Plugin_Admin {
 	 * wizard pages (still posting a shared nonce) don't break for admins
 	 * mid-session.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
 	 *
@@ -128,7 +128,7 @@ class SetupGuide_Plugin_Admin {
 	 * Performs the inner capability check first (defense-in-depth) and then
 	 * checks the per-action nonce. Sends a JSON error and dies on failure.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
 	 *

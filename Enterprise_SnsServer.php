@@ -95,7 +95,7 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	 * configured site hostnames, and only when WordPress is in multisite
 	 * mode.
 	 *
-	 * @since 2.9.5 Moved blog/host switch out of `pub/sns.php`; added host allowlist.
+	 * @since X.X.X Moved blog/host switch out of `pub/sns.php`; added host allowlist.
 	 *
 	 * @param string $v The raw SNS notification message in JSON format.
 	 *
@@ -144,6 +144,16 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 				}
 			}
 
+			// When the payload supplies `blog_id` but no `host`, we fall
+			// through to switch_to_blog() without a host-allowlist check. That
+			// is only safe because `process_message()` (caller) has already
+			// matched the SNS `TopicArn` against this site's configured topic.
+			// The TopicArn is unique per cluster, so a message that reaches
+			// this branch is, by construction, an authenticated message
+			// targeting one of this cluster's blogs. Do NOT loosen the
+			// TopicArn check upstream without also adding a host requirement
+			// here — together they enforce that an attacker cannot replay a
+			// signed-but-foreign SNS message at this multisite's blogs.
 			\switch_to_blog( $requested_blog_id );
 			$switched = true;
 		}
