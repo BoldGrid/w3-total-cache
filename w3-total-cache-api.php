@@ -198,27 +198,21 @@ function w3tc_class_autoload( $class_value ) {
 			require $filename;
 			return;
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( function_exists( 'esc_html' ) && function_exists( '__' ) ) {
-				echo esc_html(
-					sprintf(
-						// translators: 1 class name, 2 file name.
-						__(
-							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-							'w3-total-cache'
-						),
-						$class_value,
-						$filename
-					)
-				);
-			} else {
-				printf(
-					'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-					$class_value, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					$filename // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
-			}
-
-			debug_print_backtrace();
+			// rt9-17: previously echoed the class name, the resolved
+			// filename, and a full backtrace to the response body — a
+			// reliable plugin-fingerprint + filesystem-path leak under
+			// WP_DEBUG. Route to the PHP error log instead; it lands in
+			// WP_DEBUG_LOG / php-error.log without ever touching the
+			// HTTP response. Using error_log here (not Util_Debug::log)
+			// because Util_Debug.php is itself loaded by this autoloader
+			// and the missing-class branch must not recurse.
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf(
+					'W3TC autoload: class %1$s requested but file %2$s missing',
+					$class_value,
+					$filename
+				)
+			);
 		}
 	}
 

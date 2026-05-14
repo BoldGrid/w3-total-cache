@@ -209,7 +209,17 @@ class Cdn_BunnyCdn_Page {
 				)
 			);
 		} catch ( \Exception $ex ) {
-			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
+			// Log full SDK detail server-side (URLs, request IDs,
+			// partial credentials sometimes leak through SDK exception
+			// strings); return only a generic message to the admin so
+			// the response body doesn't carry sensitive context.
+			Util_Debug::log( 'bunnycdn', 'purge failed: ' . $ex->getMessage() );
+			\wp_send_json_error(
+				array(
+					'error_message' => \__( 'Bunny CDN purge request failed; see the W3TC debug log for details.', 'w3-total-cache' ),
+				),
+				422
+			);
 		}
 
 		\wp_send_json_success();

@@ -265,13 +265,20 @@ class Util_Environment {
 	/**
 	 * Returns header W3TC adds to responses powered by itself.
 	 *
+	 * rt9-117: previously returned `W3 Total Cache/<W3TC_VERSION>`,
+	 * which exposed the exact plugin version in every `X-Powered-By`
+	 * response header (and in every emitted `.htaccess` / nginx.conf
+	 * `add_header` rule). Attackers correlate the version against
+	 * known CVE lists; the brand alone is enough for support and
+	 * legitimate identification without giving an attacker a free
+	 * affected-versions check.
+	 *
 	 * @static
 	 *
 	 * @return string
 	 */
 	public static function w3tc_header() {
-		return W3TC_POWERED_BY .
-			'/' . W3TC_VERSION;
+		return W3TC_POWERED_BY;
 	}
 
 	/**

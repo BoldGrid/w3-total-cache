@@ -2533,7 +2533,11 @@ class PgCache_ContentGrabber {
 			$msg
 		);
 		$data = strtr( $data, '<>', '..' );
-		$date = Util_Debug::redact_wpnonce( $data );
+		// rt9-15: assignment used to land in `$date` (typo for `$data`),
+		// so the redacted form was never written and the log file kept
+		// the raw `_wpnonce=` value. Keep the variable name on `$data`
+		// so the file_put_contents below writes the redacted form.
+		$data = Util_Debug::redact_wpnonce( $data );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
 

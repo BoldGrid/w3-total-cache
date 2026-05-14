@@ -83,11 +83,13 @@ class Cdnfsd_BunnyCdn_Popup {
 		try {
 			$pull_zones = $api->list_pull_zones();
 		} catch ( \Exception $ex ) {
-			// Reauthorize: Ask for a new account API key.
+			// Log full SDK detail server-side; admin sees a generic
+			// message (rt9-16).
+			Util_Debug::log( 'bunnycdn', 'fsd list_pull_zones failed: ' . $ex->getMessage() );
 			$this->render_intro(
 				array(
 					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-					'error_message'   => \esc_html( \__( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					'error_message'   => \esc_html( \__( 'Cannot list pull zones; see the W3TC debug log for details.', 'w3-total-cache' ) ),
 				)
 			);
 		}
@@ -159,11 +161,13 @@ class Cdnfsd_BunnyCdn_Popup {
 				$name         = $response['Name'];
 				$cdn_hostname = $response['Hostnames'][0]['Value'];
 			} catch ( \Exception $ex ) {
-				// Reauthorize: Ask for a new account API key.
+				// Log full SDK detail server-side; admin sees a generic
+				// message (rt9-16).
+				Util_Debug::log( 'bunnycdn', 'fsd configure_pull_zone failed: ' . $ex->getMessage() );
 				$this->render_intro(
 					array(
 						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-						'error_message'   => \esc_html( \__( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+						'error_message'   => \esc_html( \__( 'Cannot select or add a pull zone; see the W3TC debug log for details.', 'w3-total-cache' ) ),
 					)
 				);
 			}

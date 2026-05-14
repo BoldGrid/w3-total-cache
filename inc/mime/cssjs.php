@@ -3,6 +3,10 @@
 /**
  * CSS and JS mime types
  */
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 return array(
 	'css'  => 'text/css',
 	'htc'  => 'text/x-component',

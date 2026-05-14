@@ -20,7 +20,6 @@ class Support_AdminActions {
 	 *
 	 * phpcs:disable WordPress.CodeAnalysis.AssignmentInCondition
 	 * phpcs:disable Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
-	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_phpinfo
 	 *
 	 * @return void
 	 */
@@ -72,11 +71,24 @@ class Support_AdminActions {
 			closedir( $handle );
 		}
 
+		$wp_config_path = Util_Environment::wp_config_path();
+
 		foreach ( $attach_files as $attach_file ) {
 			if ( $attach_file && file_exists( $attach_file ) && ! in_array( $attach_file, $attachments, true ) ) {
+				$content = file_get_contents( $attach_file );
+
+				// rt9-27/214: the wp-config.php attachment ships the
+				// DB password and every auth key/salt to a remote
+				// endpoint. Strip those `define()` blocks before
+				// transmission; everything else in the file remains
+				// useful for support diagnosis.
+				if ( $wp_config_path && $attach_file === $wp_config_path ) {
+					$content = Util_Debug::redact_secrets( $content );
+				}
+
 				$attachments[] = array(
 					'filename' => basename( $attach_file ),
-					'content'  => file_get_contents( $attach_file ),
+					'content'  => $content,
 				);
 			}
 		}
@@ -90,16 +102,11 @@ class Support_AdminActions {
 			'content'  => $server_info,
 		);
 
-		// Attach phpinfo.
-		ob_start();
-		phpinfo();
-		$php_info = ob_get_contents();
-		ob_end_clean();
-
-		$attachments[] = array(
-			'filename' => 'php_info.html',
-			'content'  => $php_info,
-		);
+		// rt9-129: phpinfo() leaks $_SERVER (cookie names, request URIs,
+		// loaded module paths, configure-time secrets) into the support
+		// payload. The remote endpoint already receives server_info.txt
+		// plus the redacted wp-config.php, which together cover the
+		// useful subset of phpinfo() without the secret-bearing fields.
 
 		// Attach self-test.
 		ob_start();

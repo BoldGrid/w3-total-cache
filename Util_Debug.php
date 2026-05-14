@@ -222,18 +222,57 @@ class Util_Debug {
 	}
 
 	/**
-	 * Redacts the value of the _wpnonce parameter in a log line.
+	 * Redacts the value of every `_wpnonce` (and bare `nonce`) parameter
+	 * in a log line.
+	 *
+	 * Match shape: capture the trailing `nonce=` (covers both `_wpnonce=`
+	 * and the rare bare `nonce=`) and replace the value up to the next
+	 * `&` or whitespace. The previous pattern `/(nonce=)[^&\]]+/` excluded
+	 * `&` and `]` only — values stopped at `]` (uncommon) but ran on
+	 * through spaces, tabs, and newlines, so a log entry like
+	 * `... _wpnonce=ABC123 nextline ...` would have left `ABC123 nextline`
+	 * partly visible.
+	 *
+	 * Operates on the whole log line, not just a URL, so log entries
+	 * containing multiple URLs (or trailing context) get every value
+	 * redacted.
 	 *
 	 * @param  string $log_line The log line containing the nonce parameter.
-	 * @return string The log line with the nonce value redacted.
+	 * @return string The log line with every nonce value redacted to `REDACTED`.
 	 */
 	public static function redact_wpnonce( string $log_line ): string {
-		// Regular expression to match the nonce parameter and its value.
-		$pattern = '/(nonce=)[^&\]]+/';
+		return (string) preg_replace( '/(nonce=)[^&\s]*/i', '$1REDACTED', $log_line );
+	}
 
-		// Replace the value of nonce with "REDACTED".
-		$redacted_log_line = preg_replace( $pattern, '$1REDACTED', $log_line );
+	/**
+	 * Strips secret-looking `define( 'KEY', 'value' )` blocks from a
+	 * blob of PHP source (typically a `wp-config.php` dump bundled into
+	 * the support-handler outbound POST).
+	 *
+	 * Targets the documented WordPress secret-bearing constants
+	 * (DB_PASSWORD + the eight auth keys / salts) by name; everything
+	 * else passes through unchanged. The blob is also run through
+	 * `redact_wpnonce()` so any URLs embedded in the dump get the
+	 * same treatment as a normal log line.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $blob Raw text that may contain `define()` calls.
+	 *
+	 * @return string Same text with each matching `define()` value
+	 *                replaced by `'REDACTED'`.
+	 */
+	public static function redact_secrets( $blob ) {
+		if ( ! \is_string( $blob ) ) {
+			return '';
+		}
 
-		return $redacted_log_line;
+		$blob = (string) preg_replace(
+			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])([^'\"]*)(\\4)\\s*\\)\\s*;/i",
+			"define( '\$2', 'REDACTED' );",
+			$blob
+		);
+
+		return self::redact_wpnonce( $blob );
 	}
 }
