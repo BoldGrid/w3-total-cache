@@ -379,8 +379,10 @@ if ( ! function_exists( 'esc_html' ) ) {
 		return htmlspecialchars( (string) $s, ENT_QUOTES, 'UTF-8' );
 	}
 }
-// Stubs for the rate-limiter + deprecation-notice path. Each test that cares
-// about the contents resets `__test_did_wrong` / `__test_transients` first.
+/**
+ * Stubs for the rate-limiter + deprecation-notice path. Each test that cares
+ * about the contents resets `__test_did_wrong` / `__test_transients` first.
+ */
 if ( ! function_exists( '_doing_it_wrong' ) ) {
 	$GLOBALS['__test_did_wrong'] = array();
 	function _doing_it_wrong( $fn, $msg, $ver ) {
@@ -786,8 +788,10 @@ assert_true(
 	'out: ' . var_export( $int_out, true )
 );
 
-// Catch warnings explicitly so the "no warning on array coercion" check is
-// not a false negative due to PHP's default error reporting masking notices.
+/**
+ * Catch warnings explicitly so the "no warning on array coercion" check is
+ * not a false negative due to PHP's default error reporting masking notices.
+ */
 $warning_caught = false;
 $prev_handler   = set_error_handler( function ( $errno ) use ( &$warning_caught ) {
 	$warning_caught = true;
@@ -803,8 +807,10 @@ assert_true(
 	'out: ' . var_export( $array_out, true ) . ' warning_caught: ' . ( $warning_caught ? 'yes' : 'no' )
 );
 
-// All four non-string returns should have produced log entries (one per
-// distinct gettype: NULL, boolean, integer, array → 4 distinct dedupe keys).
+/**
+ * All four non-string returns should have produced log entries (one per
+ * distinct gettype: NULL, boolean, integer, array → 4 distinct dedupe keys).
+ */
 assert_true(
 	'[4r.log] Non-string returns produced log entries through the dedupe channel',
 	4 === count( $GLOBALS['__test_did_wrong'] ),

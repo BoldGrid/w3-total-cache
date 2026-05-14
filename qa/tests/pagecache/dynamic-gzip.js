@@ -22,11 +22,13 @@ describe('', function() {
 
 
 	it('set options', async() => {
-		// The eval()/include primitives behind mfunc/mclude were removed; the
-		// dispatcher now only honours `call:<slug>` payloads against callbacks
-		// registered via the `w3tc_dynamic_callbacks` filter. This mu-plugin
-		// registers `qa_multiply` which returns `a * b` so the test below can
-		// assert on the same `4428840` (= 5678 * 780) hit indicator.
+		/**
+		 * The eval()/include primitives behind mfunc/mclude were removed; the
+		 * dispatcher now only honours `call:<slug>` payloads against callbacks
+		 * registered via the `w3tc_dynamic_callbacks` filter. This mu-plugin
+		 * registers `qa_multiply` which returns `a * b` so the test below can
+		 * assert on the same `4428840` (= 5678 * 780) hit indicator.
+		 */
 		await sys.copyPhpToPath('../../plugins/pagecache/dynamic-mfunc-callback.php',
 			env.wpContentPath + 'mu-plugins');
 

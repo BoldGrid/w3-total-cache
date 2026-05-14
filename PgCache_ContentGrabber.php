@@ -2301,14 +2301,16 @@ class PgCache_ContentGrabber {
 	 * @return void
 	 */
 	private function _log_dynamic_deprecation( $kind, $reason ) {
-		// Rate-limit identical (kind|reason) notices to once per 5 minutes
-		// per site. On a high-traffic site, the first cache miss after this
-		// patch ships re-renders every still-cached legacy tag through this
-		// path; without a guard, `_doing_it_wrong()` floods admin notices
-		// (when WP_DEBUG is on) and `error_log()` floods the system log on
-		// every page load until the cache rolls over. The dedupe key uses
-		// md5() rather than the raw string because $reason can contain HMACs
-		// and arbitrary slugs, and transient keys are length-bounded.
+		/**
+		 * Rate-limit identical (kind|reason) notices to once per 5 minutes
+		 * per site. On a high-traffic site, the first cache miss after this
+		 * patch ships re-renders every still-cached legacy tag through this
+		 * path; without a guard, `_doing_it_wrong()` floods admin notices
+		 * (when WP_DEBUG is on) and `error_log()` floods the system log on
+		 * every page load until the cache rolls over. The dedupe key uses
+		 * md5() rather than the raw string because $reason can contain HMACs
+		 * and arbitrary slugs, and transient keys are length-bounded.
+		 */
 		$dedupe_key = 'w3tc_dyn_dep_' . md5( (string) $kind . '|' . (string) $reason );
 		if ( \function_exists( 'get_site_transient' ) && \function_exists( 'set_site_transient' ) ) {
 			if ( false !== \get_site_transient( $dedupe_key ) ) {
@@ -2378,22 +2380,26 @@ class PgCache_ContentGrabber {
 		}
 
 		if ( ! \is_string( $output ) ) {
-			// A callback that returns null/false/an array silently coerces to
-			// an empty (or garbled) string and hides the bug from site owners
-			// — the fragment just disappears. Surface it through the same
-			// log channel as the deprecation path so the breakage is visible
-			// (and rate-limited identically) before we coerce.
+			/**
+			 * A callback that returns null/false/an array silently coerces to
+			 * an empty (or garbled) string and hides the bug from site owners
+			 * — the fragment just disappears. Surface it through the same
+			 * log channel as the deprecation path so the breakage is visible
+			 * (and rate-limited identically) before we coerce.
+			 */
 			$this->_log_dynamic_deprecation(
 				$kind,
 				sprintf( 'callback "%s" returned non-string %s', $slug, \gettype( $output ) )
 			);
 
-			// `(string)` on an array or a non-Stringable object raises a PHP
-			// warning and produces the literal `"Array"` / "Object of class …
-			// could not be converted" sentinel. Both are useless in cached
-			// HTML and noisy in the error log. Coerce scalars (which have
-			// useful string forms — `null` → `''`, `false` → `''`, numbers
-			// → the digits) but emit an empty string for the rest.
+			/**
+			 * `(string)` on an array or a non-Stringable object raises a PHP
+			 * warning and produces the literal `"Array"` / "Object of class …
+			 * could not be converted" sentinel. Both are useless in cached
+			 * HTML and noisy in the error log. Coerce scalars (which have
+			 * useful string forms — `null` → `''`, `false` → `''`, numbers
+			 * → the digits) but emit an empty string for the rest.
+			 */
 			if ( \is_scalar( $output ) || ( \is_object( $output ) && \method_exists( $output, '__toString' ) ) ) {
 				return (string) $output;
 			}

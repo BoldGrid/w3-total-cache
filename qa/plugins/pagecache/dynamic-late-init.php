@@ -37,9 +37,11 @@ add_action(
 		if ( '' === $token ) {
 			return;
 		}
-		// HMAC envelope is added at cache-write time by
-		// PgCache_ContentGrabber::_sign_dynamic_tags(); emitters MUST NOT
-		// compute it themselves.
+		/**
+		 * HMAC envelope is added at cache-write time by
+		 * PgCache_ContentGrabber::_sign_dynamic_tags(); emitters MUST NOT
+		 * compute it themselves.
+		 */
 		echo '<!-- mfunc ' . esc_html( $token ) . ' call:qa_multiply {"a":484763,"b":2} --><!-- /mfunc ' . esc_html( $token ) . ' -->';
 	}
 );

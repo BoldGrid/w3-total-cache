@@ -60,8 +60,10 @@ describe('', function() {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 
 		let content = await page.content();
-		// The HMAC envelope + call:slug descriptor should be replaced by
-		// the callback's output once late-init re-runs `_parse_dynamic`.
+		/**
+		 * The HMAC envelope + call:slug descriptor should be replaced by
+		 * the callback's output once late-init re-runs `_parse_dynamic`.
+		 */
 		expect(content).not.contains('call:qa_multiply');
 		expect(content).contains('969526');
 	});
@@ -80,9 +82,11 @@ describe('', function() {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 
 		let content = await page.content();
-		// In regular (non-late-init) mode pgcache serves the cached file
-		// verbatim without re-running `_parse_dynamic`, so the callback is
-		// never invoked and `969526` does not appear in the rendered HTML.
+		/**
+		 * In regular (non-late-init) mode pgcache serves the cached file
+		 * verbatim without re-running `_parse_dynamic`, so the callback is
+		 * never invoked and `969526` does not appear in the rendered HTML.
+		 */
 		expect(content).not.contains('969526');
 	});
 });
