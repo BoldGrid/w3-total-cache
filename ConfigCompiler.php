@@ -265,12 +265,25 @@ class ConfigCompiler {
 			$master = new ConfigCompiler( 0, $this->_preview );
 			$master->load();
 
+			// The master config is read from disk as `enc:v1:...` for
+			// secret keys; the child config we're saving holds those
+			// keys as plaintext. Decrypt the master copy so the
+			// seal-comparison below is a like-for-like check, otherwise
+			// every child save would think every secret had changed.
+			Config::decrypt_secrets( $master->_data );
+
 			foreach ( $this->_data as $key => $value ) {
 				if ( ! self::child_key_sealed( $key, $master->_data, $this->_data ) ) {
 					$data[ $key ] = $this->_data[ $key ];
 				}
 			}
 		}
+
+		// Encrypt credential-typed keys (`flags.secret => true`) before
+		// they hit master.php. The in-memory `$this->_data` stays in
+		// plaintext so callers reading their values during the same
+		// request continue to see decrypted strings.
+		Config::encrypt_secrets( $data );
 
 		ConfigUtil::save_item( $this->_blog_id, $this->_preview, $data );
 	}

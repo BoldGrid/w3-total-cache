@@ -1048,14 +1048,11 @@ class Generic_Plugin {
 
 		if ( 'logged_out' === $action ) {
 			foreach ( $rejected_roles as $role ) {
-				$role_hash = md5( NONCE_KEY . $role );
-				setcookie(
-					'w3tc_logged_' . $role_hash,
-					$expire,
-					time() - 31536000,
-					COOKIEPATH,
-					COOKIE_DOMAIN
-				);
+				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role ) );
+				// One-release back-compat: also clear the legacy MD5-named
+				// cookie so an upgrade doesn't leave a stale bypass-cookie
+				// behind. Drop this `clear()` call in the next release.
+				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role ) );
 			}
 
 			return;
@@ -1067,15 +1064,10 @@ class Generic_Plugin {
 
 		foreach ( $roles as $role ) {
 			if ( in_array( $role, $rejected_roles, true ) ) {
-				$role_hash = md5( NONCE_KEY . $role );
-				setcookie(
-					'w3tc_logged_' . $role_hash,
-					true,
-					$expire,
-					COOKIEPATH,
-					COOKIE_DOMAIN,
-					is_ssl(),
-					true
+				Util_Cookie::set(
+					'w3tc_logged_' . Util_Cookie::role_cookie_name( $role ),
+					'1',
+					$expire
 				);
 			}
 		}

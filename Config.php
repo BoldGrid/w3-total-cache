@@ -623,6 +623,8 @@ class Config {
 			}
 		}
 
+		self::decrypt_secrets( $data );
+
 		$this->_data     = $data;
 		$this->_compiled = false;
 	}
@@ -635,7 +637,123 @@ class Config {
 	private function load_full() {
 		$c = new ConfigCompiler( $this->_blog_id, $this->_preview );
 		$c->load();
-		$this->_data     = $c->get_data();
+		$data = $c->get_data();
+		self::decrypt_secrets( $data );
+		$this->_data     = $data;
 		$this->_compiled = true;
+	}
+
+	/**
+	 * Returns the set of config keys declared as `secret` in
+	 * ConfigKeys.php — credential-typed keys whose stored value is
+	 * encrypted with {@see Util_Crypto::envelope_encrypt()}.
+	 *
+	 * The schema include is cached for the request, so this is cheap
+	 * to call from both the load and save paths.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array<string,true> Map of secret key name → true.
+	 */
+	public static function secret_keys() {
+		static $cache = null;
+
+		if ( null !== $cache ) {
+			return $cache;
+		}
+
+		$keys = array();
+		include W3TC_DIR . '/ConfigKeys.php';
+
+		$cache = array();
+		if ( is_array( $keys ) ) {
+			foreach ( $keys as $name => $descriptor ) {
+				if (
+					is_array( $descriptor )
+					&& isset( $descriptor['flags'] )
+					&& is_array( $descriptor['flags'] )
+					&& ! empty( $descriptor['flags']['secret'] )
+				) {
+					$cache[ $name ] = true;
+				}
+			}
+		}
+
+		return $cache;
+	}
+
+	/**
+	 * Decrypts every secret-flagged key in-place inside `$data`.
+	 *
+	 * Legacy plaintext values pass through unchanged (the envelope
+	 * helper is a no-op on non-`enc:v1:` strings), so an existing
+	 * install upgrades transparently — values stay readable until the
+	 * next `save()` re-wraps them.
+	 *
+	 * Tampered envelopes (bad HMAC, malformed base64) decrypt to
+	 * `false`; we collapse that to an empty string so the downstream
+	 * config consumer sees "credential needs re-entry" rather than the
+	 * literal `false` (which `get_string()` would coerce to `""` anyway
+	 * but via a non-obvious code path).
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $data Configuration data (modified in place).
+	 *
+	 * @return void
+	 */
+	public static function decrypt_secrets( &$data ) {
+		if ( ! is_array( $data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+			return;
+		}
+
+		$secret_keys = self::secret_keys();
+		if ( empty( $secret_keys ) ) {
+			return;
+		}
+
+		foreach ( $secret_keys as $key => $_ ) {
+			if ( ! isset( $data[ $key ] ) || ! is_string( $data[ $key ] ) ) {
+				continue;
+			}
+			$plain = Util_Crypto::envelope_decrypt( $data[ $key ] );
+			if ( false === $plain ) {
+				$data[ $key ] = '';
+			} else {
+				$data[ $key ] = $plain;
+			}
+		}
+	}
+
+	/**
+	 * Encrypts every secret-flagged key in-place inside `$data`.
+	 *
+	 * Called by {@see ConfigCompiler::save()} before writing
+	 * `master.php`. Non-secret keys are untouched. Already-enveloped
+	 * values are not double-wrapped (the envelope helper detects its
+	 * own prefix and short-circuits).
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $data Configuration data (modified in place).
+	 *
+	 * @return void
+	 */
+	public static function encrypt_secrets( &$data ) {
+		if ( ! is_array( $data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+			return;
+		}
+
+		$secret_keys = self::secret_keys();
+		if ( empty( $secret_keys ) ) {
+			return;
+		}
+
+		foreach ( $secret_keys as $key => $_ ) {
+			if ( ! isset( $data[ $key ] ) || ! is_string( $data[ $key ] ) || '' === $data[ $key ] ) {
+				continue;
+			}
+			$data[ $key ] = Util_Crypto::envelope_encrypt( $data[ $key ] );
+		}
 	}
 }

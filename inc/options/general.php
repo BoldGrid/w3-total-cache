@@ -726,10 +726,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<tr>
 					<th><label for="cluster_messagebus_sns_api_key"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_key' ); ?></label></th>
 					<td>
-						<input id="cluster_messagebus_sns_api_key"
-							class="w3tc-ignore-change" type="text"
-							name="cluster__messagebus__sns__api_key"
-							value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_key' ) ); ?>" size="60" />
+						<?php
+						Util_Ui::secret_input(
+							array(
+								'id'        => 'cluster_messagebus_sns_api_key',
+								'name'      => 'cluster__messagebus__sns__api_key',
+								'has_value' => '' !== $this->_config->get_string( 'cluster.messagebus.sns.api_key' ),
+								'size'      => 60,
+								'type'      => 'text',
+							)
+						);
+						?>
 						<p class="description">
 							<?php
 							echo wp_kses(
@@ -755,10 +762,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<tr>
 					<th><label for="cluster_messagebus_sns_api_secret"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_secret' ); ?></label></th>
 					<td>
-						<input id="cluster_messagebus_sns_api_secret"
-							class="w3tc-ignore-change" type="text"
-							name="cluster__messagebus__sns__api_secret"
-							value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ) ); ?>" size="60" />
+						<?php
+						Util_Ui::secret_input(
+							array(
+								'id'        => 'cluster_messagebus_sns_api_secret',
+								'name'      => 'cluster__messagebus__sns__api_secret',
+								'has_value' => '' !== $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ),
+								'size'      => 60,
+							)
+						);
+						?>
 						<p class="description">
 							<?php
 							echo wp_kses(
@@ -840,7 +853,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							<label for="plugin_license_key"><?php Util_Ui::e_config_label( 'plugin.license_key' ); ?></label>
 						</th>
 						<td>
-							<input id="plugin_license_key" name="plugin__license_key" type="text" value="<?php echo esc_attr( $this->_config->get_string( 'plugin.license_key' ) ); ?>" size="45"/>
+							<?php
+							Util_Ui::secret_input(
+								array(
+									'id'        => 'plugin_license_key',
+									'name'      => 'plugin__license_key',
+									'has_value' => '' !== $this->_config->get_string( 'plugin.license_key' ),
+									'size'      => 45,
+									'type'      => 'text',
+								)
+							);
+							?>
 							<span class="w3tc_license_verification"></span>
 							<p class="description">
 								<?php

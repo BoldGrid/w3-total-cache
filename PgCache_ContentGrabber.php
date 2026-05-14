@@ -1270,7 +1270,16 @@ class PgCache_ContentGrabber {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( strpos( $cookie_name, 'w3tc_logged_' ) === 0 ) {
 				foreach ( $roles as $role ) {
-					if ( strstr( $cookie_name, md5( NONCE_KEY . $role ) ) ) {
+					// Accept BOTH the new HMAC-SHA256 cookie name and the
+					// legacy MD5(NONCE_KEY . $role) form for one release
+					// window so an upgrade doesn't immediately serve the
+					// logged-out-cache to users whose browsers still hold
+					// the old-named cookie. The legacy lookup is dropped
+					// in the release AFTER this one.
+					if ( strstr( $cookie_name, Util_Cookie::role_cookie_name( $role ) ) ) {
+						return false;
+					}
+					if ( strstr( $cookie_name, Util_Cookie::role_cookie_name_legacy( $role ) ) ) {
 						return false;
 					}
 				}

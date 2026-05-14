@@ -15,8 +15,17 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_azure_key"><?php esc_html_e( 'Account key:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_azure_key" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__azure__key" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.azure.key' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_azure_key',
+				'name'        => 'cdn__azure__key',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.azure.key' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>

@@ -263,7 +263,7 @@ class PgCache_Plugin {
 	 * @return void
 	 */
 	public function on_logout() {
-		setcookie( 'w3tc_logged_out' );
+		Util_Cookie::set( 'w3tc_logged_out', '1' );
 	}
 
 	/**
@@ -273,7 +273,7 @@ class PgCache_Plugin {
 	 */
 	public function on_login() {
 		if ( isset( $_COOKIE['w3tc_logged_out'] ) ) {
-			setcookie( 'w3tc_logged_out', '', 1 );
+			Util_Cookie::clear( 'w3tc_logged_out' );
 		}
 	}
 
