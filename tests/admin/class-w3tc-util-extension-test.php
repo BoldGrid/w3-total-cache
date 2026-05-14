@@ -191,4 +191,123 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	public function test_convert_legacy_entries_handles_empty_map() {
 		$this->assertSame( array(), Util_Extension::convert_legacy_entries( array() ) );
 	}
+
+	/**
+	 * `convert_legacy_entries()` must drop a known slug whose value is
+	 * the empty string. The earlier draft of the helper let `''` skip
+	 * the path-shape check entirely (because `'' !== $value` short-
+	 * circuited the conditional) and accepted the entry; this test pins
+	 * the corrected behaviour so an attacker who lands `slug => ''` via
+	 * a future config-write surface cannot bypass the alien-path check.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_convert_legacy_entries_drops_empty_string_value() {
+		$out = Util_Extension::convert_legacy_entries( array( 'cloudflare' => '' ) );
+		$this->assertArrayNotHasKey( 'cloudflare', $out );
+		$this->assertSame( array(), $out );
+	}
+
+	/**
+	 * Third-party extension API: `resolve()` accepts a slug that is NOT
+	 * in the hard-coded map but IS registered through the documented
+	 * `w3tc_extensions` filter, provided the resolved file still lives
+	 * under `W3TC_EXTENSION_DIR`. This pins the BC-break fix that
+	 * restored the public extension API after the slug-allowlist
+	 * hardening — without this branch, every third-party extension
+	 * that follows the `extension-example/` template would be silently
+	 * dropped at load time.
+	 *
+	 * Uses W3TC's own `Util_Extension.php` as the target file because
+	 * it is guaranteed to exist under `W3TC_EXTENSION_DIR` in any test
+	 * environment where the suite can run at all.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_resolve_accepts_filter_registered_slug() {
+		$known    = Util_Extension::known_extensions();
+		$sentinel = 'w3-total-cache/Util_Extension.php';
+		$expected = W3TC_EXTENSION_DIR . '/' . $sentinel;
+		if ( ! file_exists( $expected ) ) {
+			$this->markTestSkipped( 'W3TC plugin not physically present under W3TC_EXTENSION_DIR.' );
+		}
+
+		$cb = function ( $extensions ) use ( $sentinel ) {
+			$extensions['third-party-test-extension'] = array(
+				'path' => $sentinel,
+				'name' => 'Test extension (filter-registered)',
+			);
+			return $extensions;
+		};
+		add_filter( 'w3tc_extensions', $cb );
+
+		try {
+			$path = Util_Extension::resolve( 'third-party-test-extension' );
+			$this->assertIsString( $path );
+			$this->assertSame( realpath( $expected ), $path );
+		} finally {
+			remove_filter( 'w3tc_extensions', $cb );
+		}
+	}
+
+	/**
+	 * Defence-in-depth on the filter-driven fallback: a third-party
+	 * registration whose `path` would escape `W3TC_EXTENSION_DIR` (via
+	 * a `..` segment) is rejected before realpath() even runs. Catches
+	 * the case where an attacker who controls a third-party extension's
+	 * filter callback tries to point W3TC at an arbitrary file.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_resolve_rejects_filter_path_with_traversal() {
+		$cb = function ( $extensions ) {
+			$extensions['attacker-controlled'] = array(
+				'path' => '../../../etc/passwd',
+				'name' => 'evil',
+			);
+			return $extensions;
+		};
+		add_filter( 'w3tc_extensions', $cb );
+
+		try {
+			$this->assertFalse( Util_Extension::resolve( 'attacker-controlled' ) );
+		} finally {
+			remove_filter( 'w3tc_extensions', $cb );
+		}
+	}
+
+	/**
+	 * `convert_legacy_entries()` reaches into the filter source for the
+	 * same slug-acceptance decision so a third-party slug present in
+	 * `extensions.active` is preserved through the legacy-converter and
+	 * eventually reaches `resolve()`. Without this, the BC-break fix
+	 * would only work for slugs that the converter already allowlisted —
+	 * i.e. it would still drop every third-party slug at config-read
+	 * time even though `resolve()` itself accepts them.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_convert_legacy_entries_accepts_filter_registered_slug() {
+		$sentinel = 'w3-total-cache/Util_Extension.php';
+		$cb       = function ( $extensions ) use ( $sentinel ) {
+			$extensions['third-party-test-extension'] = array(
+				'path' => $sentinel,
+				'name' => 'Test extension (filter-registered)',
+			);
+			return $extensions;
+		};
+		add_filter( 'w3tc_extensions', $cb );
+
+		try {
+			$out = Util_Extension::convert_legacy_entries(
+				array(
+					'third-party-test-extension' => '*',
+				)
+			);
+			$this->assertArrayHasKey( 'third-party-test-extension', $out );
+			$this->assertSame( $sentinel, $out['third-party-test-extension'] );
+		} finally {
+			remove_filter( 'w3tc_extensions', $cb );
+		}
+	}
 }

@@ -203,7 +203,7 @@ class Root_Loader {
 		}
 
 		if ( is_admin() ) {
-			foreach ( $extensions as $extension => $path ) {
+			foreach ( $extensions as $extension => $nothing ) {
 				Util_Extension::include_once( $extension );
 			}
 		}

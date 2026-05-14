@@ -317,7 +317,7 @@ class PgCache_ContentGrabber {
 	 * @return void
 	 */
 	private function run_extensions_dropin() {
-		$c          = $this->_config;
+		$c = $this->_config;
 
 		/**
 		 * Layer 1 of the file-inclusion playbook: same fix as
