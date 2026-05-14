@@ -153,6 +153,36 @@ class PgCache_Environment {
 	 *
 	 * @return bool True if rules are required, false otherwise.
 	 */
+	/**
+	 * Returns a copy of `$values` with every element passed through
+	 * {@see Util_Rule::sanitize_directive_value()}.
+	 *
+	 * Used by the rule-emitting paths above so admin-set arrays
+	 * (mobile/referrer agents, reject-cookie lists, rgroup keys)
+	 * can't smuggle a CR/LF / NUL / `<` / `>` into the rendered
+	 * `.htaccess` / `nginx.conf` and inject a fresh directive on the
+	 * next line.
+	 *
+	 * Non-string array entries collapse to '' (then drop in the
+	 * caller's array_filter, if any) — the helper never throws.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $values Raw array of values.
+	 *
+	 * @return array Sanitised values, in the same order.
+	 */
+	private static function sanitize_directive_values( $values ) {
+		if ( ! is_array( $values ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $values as $v ) {
+			$out[] = Util_Rule::sanitize_directive_value( (string) $v );
+		}
+		return $out;
+	}
+
 	private function is_rules_required( $c ) {
 		$e = $c->get_string( 'pgcache.engine' );
 
@@ -636,7 +666,8 @@ class PgCache_Environment {
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
 				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
-				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_redirect = Util_Rule::sanitize_directive_value( isset( $mobile_config['redirect'] ) ? (string) $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( $mobile_agents );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && $mobile_redirect ) {
 					$rules .= '    RewriteCond %{HTTP_USER_AGENT} (' . implode( '|', $mobile_agents ) . ") [NC]\n";
@@ -652,7 +683,8 @@ class PgCache_Environment {
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
-				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_redirect  = Util_Rule::sanitize_directive_value( isset( $referrer_config['redirect'] ) ? (string) $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( $referrer_referrers );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && $referrer_redirect ) {
 					$rules .= '    RewriteCond %{HTTP_COOKIE} w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ") [NC]\n";
@@ -669,10 +701,12 @@ class PgCache_Environment {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
 				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( $mobile_agents );
+				$mobile_group_s  = Util_Rule::sanitize_directive_value( (string) $mobile_group );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && ! $mobile_redirect ) {
 					$rules      .= '    RewriteCond %{HTTP_USER_AGENT} (' . implode( '|', $mobile_agents ) . ") [NC]\n";
-					$rules      .= '    RewriteRule .* - [E=W3TC_UA:_' . $mobile_group . "]\n";
+					$rules      .= '    RewriteRule .* - [E=W3TC_UA:_' . $mobile_group_s . "]\n";
 					$env_W3TC_UA = '%{ENV:W3TC_UA}';
 				}
 			}
@@ -686,10 +720,12 @@ class PgCache_Environment {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
 				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( $referrer_referrers );
+				$referrer_group_s   = Util_Rule::sanitize_directive_value( (string) $referrer_group );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && ! $referrer_redirect ) {
 					$rules       .= '    RewriteCond %{HTTP_COOKIE} w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ") [NC]\n";
-					$rules       .= '    RewriteRule .* - [E=W3TC_REF:_' . $referrer_group . "]\n";
+					$rules       .= '    RewriteRule .* - [E=W3TC_REF:_' . $referrer_group_s . "]\n";
 					$env_W3TC_REF = '%{ENV:W3TC_REF}';
 				}
 			}
@@ -706,6 +742,7 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
+							$cookie = Util_Rule::sanitize_directive_value( $cookie );
 							$cookie = Util_Environment::preg_quote( $cookie );
 							if ( strpos( $cookie, '=' ) === false ) {
 								$cookie .= '=.*';
@@ -716,8 +753,9 @@ class PgCache_Environment {
 
 					if ( count( $cookies ) > 0 ) {
 						$cookies_regexp  = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
+						$group_name_s    = Util_Rule::sanitize_directive_value( (string) $group_name );
 						$rules          .= "    RewriteCond %{HTTP_COOKIE} $cookies_regexp [NC]\n";
-						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name . "]\n";
+						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name_s . "]\n";
 						$env_W3TC_COOKIE = '%{ENV:W3TC_COOKIE}';
 					}
 				}
@@ -770,6 +808,12 @@ class PgCache_Environment {
 			"    RewriteCond %{ENV:W3TC_QUERY_STRING} =\"\"\n";
 
 		// Check for rejected cookies.
+		// Strip CR/LF/NUL/<> from every reject-cookie array entry before
+		// preg_quote handles the metachars. preg_quote does NOT escape
+		// newlines, so without this an admin-set / JSON-imported entry
+		// containing `\n` would inject a fresh `RewriteRule` (rt9-76).
+		$reject_cookies     = self::sanitize_directive_values( $reject_cookies );
+		$reject_user_agents = self::sanitize_directive_values( $reject_user_agents );
 		$use_cache_rules .= '    RewriteCond %{HTTP_COOKIE} !(' . implode(
 			'|',
 			array_map(
@@ -970,8 +1014,8 @@ class PgCache_Environment {
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
-				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
-				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : array() );
+				$mobile_redirect = Util_Rule::sanitize_directive_value( isset( $mobile_config['redirect'] ) ? (string) $mobile_config['redirect'] : '' );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && $mobile_redirect ) {
 					$rules .= 'if ($http_user_agent ~* "(' . implode( '|', $mobile_agents ) . ")\") {\n";
@@ -987,8 +1031,8 @@ class PgCache_Environment {
 
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
-				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
-				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : array() );
+				$referrer_redirect  = Util_Rule::sanitize_directive_value( isset( $referrer_config['redirect'] ) ? (string) $referrer_config['redirect'] : '' );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) &&
 					$referrer_redirect ) {
@@ -1020,6 +1064,10 @@ class PgCache_Environment {
 		$env_w3tc_slash = '$w3tc_slash';
 
 		// Check for rejected cookies.
+		// Sanitise newlines / NUL / `<` / `>` out of every entry — see
+		// the Apache code path above for the rt9-76 rationale.
+		$reject_cookies     = self::sanitize_directive_values( $reject_cookies );
+		$reject_user_agents = self::sanitize_directive_values( $reject_user_agents );
 		$rules .= 'if ($http_cookie ~* "(' . implode(
 			'|',
 			array_map(
@@ -1056,8 +1104,9 @@ class PgCache_Environment {
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
-				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : array() );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_group_s  = Util_Rule::sanitize_directive_value( (string) $mobile_group );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && ! $mobile_redirect ) {
 					if ( $set_ua_var ) {
@@ -1065,7 +1114,7 @@ class PgCache_Environment {
 						$set_ua_var = false;
 					}
 					$rules .= 'if ($http_user_agent ~* "(' . implode( '|', $mobile_agents ) . ")\") {\n";
-					$rules .= '    set $w3tc_ua _' . $mobile_group . ";\n";
+					$rules .= '    set $w3tc_ua _' . $mobile_group_s . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ua = '$w3tc_ua';
@@ -1087,8 +1136,9 @@ class PgCache_Environment {
 			$set_ref_var     = true;
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
-				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : array() );
 				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_group_s   = Util_Rule::sanitize_directive_value( (string) $referrer_group );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && ! $referrer_redirect ) {
 					if ( $set_ref_var ) {
@@ -1097,7 +1147,7 @@ class PgCache_Environment {
 					}
 
 					$rules .= 'if ($http_cookie ~* "w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ")\") {\n";
-					$rules .= '    set $w3tc_ref _' . $referrer_group . ";\n";
+					$rules .= '    set $w3tc_ref _' . $referrer_group_s . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ref = '$w3tc_ref';
@@ -1117,6 +1167,7 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
+							$cookie = Util_Rule::sanitize_directive_value( $cookie );
 							$cookie = Util_Environment::preg_quote( $cookie );
 							if ( false === strpos( $cookie, '=' ) ) {
 								$cookie .= '=.*';
@@ -1128,6 +1179,7 @@ class PgCache_Environment {
 
 					if ( count( $cookies ) > 0 ) {
 						$cookies_regexp = '"^(.*;)?(' . implode( '|', $cookies ) . ')(;.*)?$"';
+						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
 
 						if ( $set_cookie_var ) {
 							$rules         .= "set \$w3tc_cookie \"\";\n";
@@ -1135,7 +1187,7 @@ class PgCache_Environment {
 						}
 
 						$rules .= "if (\$http_cookie ~* $cookies_regexp) {\n";
-						$rules .= '    set $w3tc_cookie _' . $group_name . ";\n";
+						$rules .= '    set $w3tc_cookie _' . $group_name_s . ";\n";
 						$rules .= "}\n";
 
 						$env_w3tc_cookie = '$w3tc_cookie';

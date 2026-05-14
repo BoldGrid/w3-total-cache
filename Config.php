@@ -436,6 +436,21 @@ class Config {
 	 * @return mixed The value that was set.
 	 */
 	public function set( $key, $value ) {
+		// Strip CR/LF/NUL/<> from values bound for keys whose stored
+		// string is later concatenated into a `.htaccess` / `nginx.conf`
+		// directive (see `Util_Rule::sanitize_directive_value()` for
+		// the why). The same characters are stripped at the renderer
+		// boundary too — this is the upstream defence-in-depth half:
+		// the bad bytes never enter master.php in the first place, so
+		// `Config::get_string('browsercache.security.csp.script')`
+		// returns clean data to every consumer downstream.
+		if ( ! is_array( $key ) && is_string( $value ) && '' !== $value ) {
+			$desc = self::directive_string_descriptor( $key );
+			if ( null !== $desc ) {
+				$value = \preg_replace( '/[\r\n\x00<>]/', '', $value );
+			}
+		}
+
 		if ( ! is_array( $key ) ) {
 			$this->_data[ $key ] = $value;
 		} else {
@@ -451,6 +466,45 @@ class Config {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Returns the descriptor for a `directive_string`-flagged key, or
+	 * null if the key isn't in the schema or doesn't carry the flag.
+	 *
+	 * Loads `ConfigKeys.php` once per request and caches the slimmed
+	 * directive-string map (keyed by config-key name → true). Other
+	 * call sites that need the full schema (mass-assignment fix's
+	 * `ConfigKeysSchema`) load it the same way.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $key Single-string config key.
+	 *
+	 * @return true|null  `true` when the key is flagged; `null` otherwise.
+	 */
+	private static function directive_string_descriptor( $key ) {
+		static $set = null;
+
+		if ( null === $set ) {
+			$set  = array();
+			$keys = array();
+			include W3TC_DIR . '/ConfigKeys.php';
+			if ( is_array( $keys ) ) {
+				foreach ( $keys as $name => $descriptor ) {
+					if (
+						is_array( $descriptor )
+						&& isset( $descriptor['flags'] )
+						&& is_array( $descriptor['flags'] )
+						&& ! empty( $descriptor['flags']['directive_string'] )
+					) {
+						$set[ $name ] = true;
+					}
+				}
+			}
+		}
+
+		return isset( $set[ $key ] ) ? true : null;
 	}
 
 	/**

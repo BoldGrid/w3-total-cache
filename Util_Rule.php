@@ -45,6 +45,58 @@ class Util_Rule {
 	}
 
 	/**
+	 * Strips characters that would terminate or escape an Apache /
+	 * Nginx directive line when an admin-supplied config value is
+	 * concatenated into `.htaccess` or `nginx.conf`.
+	 *
+	 * The W3TC `*_Environment.php` writers compose server-config blocks
+	 * by string concatenation:
+	 *
+	 *     $rules .= '    Header set Content-Security-Policy "' . $csp . "\"\n";
+	 *
+	 * If `$csp` contains a literal newline, the generated block looks
+	 * like
+	 *
+	 *     Header set Content-Security-Policy "default-src 'self';
+	 *     SetHandler application/x-httpd-php"
+	 *
+	 * — the newline ends the `Header set` directive and the next line
+	 * is parsed by Apache as a brand-new directive, attacker-controlled
+	 * (rt9-73 / rt9-74 / rt9-228 / rt9-75 / rt9-76).
+	 *
+	 * The strip set:
+	 *
+	 *  - `\r\n`     — terminates the current directive in both Apache
+	 *                 and Nginx.
+	 *  - `\x00`     — NUL byte; truncates the rest of the string in
+	 *                 some downstream consumers and confuses log
+	 *                 readers.
+	 *  - `<` `>`    — Apache uses `<Directive>...</Directive>` for
+	 *                 sectional containers; an injected `<Files>` block
+	 *                 can change the file-handler for a glob the
+	 *                 attacker chose.
+	 *
+	 * Returns `''` for non-strings so the helper is safe to call on
+	 * an `isset()`-result value without an extra type check at the
+	 * caller.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $value Raw config value about to be written into a
+	 *                     server-config file.
+	 *
+	 * @return string Sanitised value safe to embed inside a quoted
+	 *                directive argument or as an unquoted token.
+	 */
+	public static function sanitize_directive_value( $value ) {
+		if ( ! \is_string( $value ) ) {
+			return '';
+		}
+
+		return \preg_replace( '/[\r\n\x00<>]/', '', $value );
+	}
+
+	/**
 	 * Returns nginx rules path
 	 *
 	 * @return string
