@@ -228,6 +228,52 @@ GitHub automatically links the PR to the parent advisory because the fork is the
 
 If you want to migrate review threads from the public PR, do it **now** — post them as comments on the new private PR or stitch them into the advisory description via `PATCH /repos/{owner}/{repo}/security-advisories/{ghsa_id}`. The original review/inline comments do **not** travel with the commits.
 
+#### 5a. Carry assignees and reviewers from the original PR
+
+`gh pr create` creates the private PR with the relocator (whoever runs this skill, typically a repo admin like `cssjoe`) as the **author** and with no assignees or reviewers. The original public PR's sidebar metadata does *not* travel with the commits. If the original had `jacobd91` as the contributor / assignee and `cssjoe` as the requested reviewer, the private PR's sidebar starts empty and the PR's only natural participant is the relocator.
+
+Carry the metadata across with two nuances:
+
+1. **Assignees copy verbatim.** Whoever was assigned on the public PR should be assigned on the private PR too — they are the people who own the work and need it on their dashboard. Filter to only logins that are advisory collaborators (or members of a collaborating team), otherwise GitHub silently drops the assignment.
+
+2. **Requested reviewers transpose.** GitHub forbids requesting review from the PR author, so any login that was a reviewer on the public PR but is now the private PR's author must be skipped — typically the relocator. The remaining original reviewers (Copilot bot, etc.) usually shouldn't carry over either: bots can't review the TPF, and the team membership already grants the natural human reviewers access without a formal request.
+
+   The right default is **leave reviewers empty on the private PR** and rely on team membership for access. Add a specific human reviewer only when the original public PR had a non-author non-bot reviewer and you want them surfaced in their dashboard. Ask before adding — there's no good universal default for "who reviews the relocated code now that the relocator is the new author."
+
+```bash
+PRIVATE_PR_NUMBER=$(gh pr list --repo $FORK_FULL --json number --jq '.[0].number')
+RELOCATOR=$(gh api user --jq '.login')
+
+# Pull original assignees/reviewers from the public PR snapshot taken in Phase 0.
+ORIG_ASSIGNEES=$(jq -r '.assignees[]?.login' .cursor/working/${PR}-pr-snapshot.json | tr '\n' ' ')
+ORIG_REVIEWERS=$(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PR}-pr-snapshot.json | tr '\n' ' ')
+
+# Optional: filter assignees to advisory collaborators / team members so the
+# assignment doesn't silently drop. (Cheap to skip — GitHub will just no-op
+# unauthorized assignees rather than error.)
+for LOGIN in $ORIG_ASSIGNEES; do
+  gh pr edit $PRIVATE_PR_NUMBER --repo $FORK_FULL --add-assignee "$LOGIN"
+done
+
+# Reviewer transpose: skip the relocator (who is the new author).
+for LOGIN in $ORIG_REVIEWERS; do
+  if [ "$LOGIN" != "$RELOCATOR" ] && [ "$LOGIN" != "Copilot" ] && ! echo "$LOGIN" | grep -q '\[bot\]$'; then
+    # Default is to LEAVE EMPTY. If you uncomment, request the user first.
+    : # gh pr edit $PRIVATE_PR_NUMBER --repo $FORK_FULL --add-reviewer "$LOGIN"
+  fi
+done
+
+# Verify
+gh pr view $PRIVATE_PR_NUMBER --repo $FORK_FULL --json assignees,reviewRequests \
+  | jq '{assignees: [.assignees[]?.login], reviewRequests: [.reviewRequests[]?.login // .reviewRequests[]?.slug]}'
+```
+
+Three gotchas worth memorizing:
+
+- **`Review cannot be requested from pull request author.`** REST `POST /pulls/{n}/requested_reviewers` with the author's login returns `422` immediately. The transpose-or-skip step exists specifically because the relocator becomes the new author and would have otherwise been the natural inheritor of the reviewer slot.
+- **Bot accounts are not addable as TPF reviewers.** Copilot's `copilot-pull-request-reviewer[bot]` is not a TPF collaborator and the API will silently drop or 422 the request. Never carry bot reviewers across.
+- **Assignment silently drops if the assignee lacks TPF access.** If `jacobd91` is not in the collaborating team and not in `collaborating_users[]`, the `--add-assignee jacobd91` call appears to succeed but the assignment never lands. Either add them as `collaborating_users[]` first (per the advisory-collaborator section below), or rely on the team membership.
+
 Add reviewers as advisory collaborators *before* requesting review on the private PR — they'll 404 on the TPF otherwise. There is **no** `.../security-advisories/{ghsa}/collaborators` sub-endpoint (it returns 404). Use `PATCH` on the advisory itself with `collaborating_users[]` and/or `collaborating_teams[]`:
 
 ```bash
@@ -342,7 +388,122 @@ If Phase 5b was skipped (no Jira ticket in scope), use a neutral bracket-prefix 
 
 Title rename is *forward-defense only*. It does not unindex the original title from search engines, GHArchive, or webarchive snapshots that already captured the old title; those copies live outside GitHub's control. What it does change is the stable closed-PR landing page that future crawlers re-read.
 
-#### 6b. Build and post the close comment
+#### 6b. Strip sidebar metadata and shrink the description to just the Jira URL
+
+**Standing rule:** before closing, strip every non-essential field from the PR sidebar and shrink the description to a single line — the Jira URL. The sidebar fields (assignees, requested reviewers, requested teams, labels, milestone, linked issues in the "Development" section) outlive the close: they keep the PR appearing in dashboards, milestone burndowns, "PRs assigned to me" panels, and Jira/GitHub-integration cards weeks after the relocation. They imply the PR is still in someone's workflow when it isn't. Same logic for the description — once the workstream has moved private, every paragraph beyond the Jira URL is an excuse for an onlooker to read further.
+
+This step is also forward-defense only: people watching the repo received notifications when these fields were originally set, and any external mirror that crawled the PR before this run captured the original sidebar. The goal is to remove the *current state* signposts, not to retract the historical record.
+
+What to strip and how:
+
+```bash
+PR=1315
+REPO=BoldGrid/w3-total-cache
+JIRA_KEY=ENG7-2909   # parent ticket from Phase 5b
+URL="https://imh-internal.atlassian.net/browse/$JIRA_KEY"
+
+# Snapshot current state so we can see what we're removing.
+gh pr view $PR --repo $REPO \
+  --json assignees,reviewRequests,labels,milestone,closingIssuesReferences \
+  > .cursor/working/${PR}-sidebar-snapshot.json
+
+# 1. Assignees: remove every assignee.
+for LOGIN in $(jq -r '.assignees[]?.login' .cursor/working/${PR}-sidebar-snapshot.json); do
+  gh pr edit $PR --repo $REPO --remove-assignee "$LOGIN"
+done
+
+# 2. Requested reviewers (individuals): remove each.
+for LOGIN in $(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PR}-sidebar-snapshot.json); do
+  gh pr edit $PR --repo $REPO --remove-reviewer "$LOGIN"
+done
+
+# 3. Requested reviewer teams: remove each. (Teams use the slug, not login.)
+for SLUG in $(jq -r '.reviewRequests[]? | (.slug // empty)' .cursor/working/${PR}-sidebar-snapshot.json); do
+  gh pr edit $PR --repo $REPO --remove-reviewer "$REPO_OWNER/$SLUG"
+done
+
+# 4. Labels: remove every label.
+for LABEL in $(jq -r '.labels[]?.name' .cursor/working/${PR}-sidebar-snapshot.json); do
+  gh pr edit $PR --repo $REPO --remove-label "$LABEL"
+done
+
+# 5. Milestone: clear if set. (--milestone "" doesn't always work; PATCH the
+#    underlying issue with milestone=null instead.)
+if [ "$(jq -r '.milestone.title // empty' .cursor/working/${PR}-sidebar-snapshot.json)" != "" ]; then
+  gh api -X PATCH repos/$REPO/issues/$PR -F milestone= --jq '.milestone'
+fi
+
+# 6. Linked issues (Development section). Two ways issues become linked:
+#    a) Closing-keyword in PR body (Closes #123) — handled by the body
+#       replacement below; once the body has no closing keywords, those
+#       links drop on the next refresh.
+#    b) Manually linked via the GitHub UI ("Link issues" button) — these
+#       persist across body edits. Disconnect each via GraphQL.
+LINKED_NUMBERS=$(jq -r '.closingIssuesReferences[]?.number // empty' .cursor/working/${PR}-sidebar-snapshot.json)
+if [ -n "$LINKED_NUMBERS" ]; then
+  PR_NODE_ID=$(gh api repos/$REPO/pulls/$PR --jq '.node_id')
+  for NUM in $LINKED_NUMBERS; do
+    ISSUE_NODE_ID=$(gh api repos/$REPO/issues/$NUM --jq '.node_id')
+    gh api graphql -f query='mutation($pr: ID!, $issue: ID!){
+      disconnectIssueLinkedToPullRequest(input: {linkedIssueId: $issue, pullRequestId: $pr}) {
+        pullRequest { id }
+      }
+    }' -F pr="$PR_NODE_ID" -F issue="$ISSUE_NODE_ID"
+  done
+fi
+
+# 7. Description: replace with the Jira URL alone. Nothing else.
+gh pr edit $PR --repo $REPO --body "$URL"
+```
+
+Verify the strip:
+
+```bash
+gh pr view $PR --repo $REPO \
+  --json body,assignees,reviewRequests,labels,milestone,closingIssuesReferences \
+  | jq '{body, assignees: [.assignees[]?.login], reviewRequests: [.reviewRequests[]?.login // .reviewRequests[]?.slug], labels: [.labels[]?.name], milestone: .milestone.title, closingIssuesReferences: [.closingIssuesReferences[]?.number]}'
+```
+
+Expected end state for every field other than `body`: `[]` or `null`. `body` should be the bare Jira URL.
+
+Three gotchas worth memorizing:
+
+- **`--milestone ""` is unreliable.** `gh pr edit --milestone ""` sometimes errors and sometimes is a noop depending on the gh version. The REST PATCH with `milestone=` (empty value) is the reliable clearer.
+- **Removing requested reviewers does not retract the original notification.** Reviewers were emailed when first requested; removing them now only stops the PR from showing up in their "PRs awaiting your review" panel going forward. This is the desired outcome (clear the dashboard) but is not a "they never knew" operation.
+- **Removing a requested reviewer does NOT clear the "requested changes" badge.** If that reviewer already submitted a `CHANGES_REQUESTED` review, the Reviewers sidebar keeps showing them with a red "requested changes" indicator forever — that's driven by the submitted *review*'s state, not by the requested-reviewer field. Phase 6b.5 below covers this; it must run before the close (Phase 6e) because GitHub silently no-ops `dismiss` on closed PRs (both REST and GraphQL).
+
+#### 6b.5. Dismiss any blocking reviews before closing
+
+GitHub locks the dismiss action once a PR is closed. Both REST `PUT /pulls/{n}/reviews/{id}/dismissals` and GraphQL `dismissPullRequestReview` return success without errors but silently no-op — the only way to clear a stale `CHANGES_REQUESTED` badge after the fact is reopen → dismiss → re-close, which costs two timeline events and (typically) two notifications per PR per watcher.
+
+Avoid that by dismissing here, before Phase 6e closes the PR. Target every review whose `state` is `CHANGES_REQUESTED` (or `APPROVED`, if you want to drop those too — judgment call; the typical case is you only need to clear the blocking ones). Bot reviewers are already `COMMENTED` by default and don't show a state badge in the sidebar.
+
+```bash
+# Find every blocking review (CHANGES_REQUESTED). APPROVED is optional —
+# leaving approvals visible on a closed-then-relocated PR is usually
+# fine, but include them in the loop if you want a fully neutral sidebar.
+gh api repos/$REPO/pulls/$PR/reviews \
+  --jq '[.[] | select(.state == "CHANGES_REQUESTED") | .id]' \
+  > .cursor/working/${PR}-blocking-reviews.json
+
+for REVIEW_ID in $(jq -r '.[]' .cursor/working/${PR}-blocking-reviews.json); do
+  gh api -X PUT "repos/$REPO/pulls/$PR/reviews/$REVIEW_ID/dismissals" \
+    -f message="Workstream relocated; review no longer applicable." \
+    -f event=DISMISS \
+    --jq '{id, state}'
+done
+```
+
+Verify the dismissal landed (state should be `DISMISSED`):
+
+```bash
+gh api repos/$REPO/pulls/$PR/reviews \
+  --jq '[.[] | select(.user.login != "" ) | {id, user: .user.login, state}]'
+```
+
+The dismissal message is public — keep it neutral and free of vuln/GHSA context.
+
+#### 6c. Build and post the close comment
 
 Build a terse, non-revealing close comment in `${PR}-close-comment.md`. The comment is public; it must not name the GHSA, link the advisory URL, or restate the vulnerability:
 
@@ -350,11 +511,116 @@ Build a terse, non-revealing close comment in `${PR}-close-comment.md`. The comm
 Closing this PR. Continued work on this fix is being handled through a private review process. A new public PR will be opened when the change is ready to merge. Thanks to everyone who reviewed here.
 ```
 
-#### 6c. Post, close, and delete the branch
+#### 6d. Minimize every bot-authored review / inline / issue comment as `OUTDATED`
+
+**Standing rule:** any PR being relocated to a GHSA gets every bot-authored comment surface (Copilot / `copilot-pull-request-reviewer[bot]`, Codecov, Dependabot, GitHub Actions bots, etc.) minimized as `OUTDATED` before the PR is closed — regardless of whether the individual comment looks sensitive in isolation. The PR is being closed because the workstream moved private; bot review threads anchored against a now-closed public branch are stale by definition, and leaving Copilot's review summaries + inline comments visible on a closed-then-relocated PR signals to onlookers that there was substantive review activity worth re-reading. Hide them.
+
+This step is independent of (and additive to) any per-item categorization the `pr-content-to-jira` skill ran earlier. Even if `pr-content-to-jira` was skipped entirely, run this. Even if the bot comments were left visible because they were "harmless coding-standards nits," minimize them anyway — the closed-PR context is what changes the calculus.
+
+Pull node IDs for every bot surface across all four PR comment surfaces, then minimize:
+
+```bash
+PR=1315
+REPO=BoldGrid/w3-total-cache
+
+# All review summaries authored by any *[bot] login.
+gh api repos/$REPO/pulls/$PR/reviews \
+  --jq '[.[] | select(.user.login | endswith("[bot]")) | .node_id]' \
+  > .cursor/working/${PR}-bot-review-nodes.json
+
+# All inline review comments authored by Copilot or any *[bot] login.
+# (Note: GitHub renders Copilot's inline-comment author as the literal "Copilot",
+#  not "copilot-pull-request-reviewer[bot]". Match both.)
+gh api --paginate repos/$REPO/pulls/$PR/comments \
+  --jq '[.[] | select(.user.login == "Copilot" or (.user.login | endswith("[bot]"))) | .node_id]' \
+  > .cursor/working/${PR}-bot-inline-nodes.json
+
+# All issue comments authored by any *[bot] login (covers codecov, etc.).
+gh api repos/$REPO/issues/$PR/comments \
+  --jq '[.[] | select(.user.login | endswith("[bot]") or .user.login == "Copilot") | .node_id]' \
+  > .cursor/working/${PR}-bot-issue-nodes.json
+
+# Minimize every node, idempotent (already-minimized nodes return success).
+for FILE in .cursor/working/${PR}-bot-{review,inline,issue}-nodes.json; do
+  for NODE_ID in $(jq -r '.[]' "$FILE"); do
+    gh api graphql -f query='mutation($id: ID!){
+      minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) {
+        minimizedComment { isMinimized minimizedReason }
+      }
+    }' -F id="$NODE_ID"
+  done
+done
+```
+
+Verify before proceeding to 6d:
+
+```bash
+# Should print isMinimized=true for every bot-authored node.
+for FILE in .cursor/working/${PR}-bot-{review,inline,issue}-nodes.json; do
+  for NODE_ID in $(jq -r '.[]' "$FILE"); do
+    gh api graphql -f query='query($id: ID!){
+      node(id: $id) {
+        ... on Minimizable { isMinimized minimizedReason }
+      }
+    }' -F id="$NODE_ID" --jq '.data.node | "\(.isMinimized) \(.minimizedReason)"'
+  done
+done
+```
+
+Whether to additionally `DELETE` the codecov coverage comment is a judgment call (it's bot-authored, posted on a now-closed PR, and useless once the branch is gone — but it's also benign and the minimize covers the visibility goal). Default: minimize, don't delete.
+
+**Why not delete bot comments outright?** A few reasons:
+
+- Deletes destroy the comment row; minimize keeps the row so the PR's conversation timeline still has shape (other comments may reply to / quote the bot review).
+- Some bot integrations (Copilot review session links, codecov sentry links) are actively referenced from internal docs / alert routes; preserving the row keeps those links resolvable.
+- `OUTDATED` is the truthful classifier here — the PR is closed, the branch is gone, the review is by definition out of date.
+
+#### 6e. Post the close comment, close the PR, and delete the branch
 
 ```bash
 gh pr comment $PR --repo $REPO --body-file .cursor/working/${PR}-close-comment.md
 gh pr close   $PR --repo $REPO --delete-branch
+```
+
+Note: do not also minimize this freshly-posted close comment — it's a maintainer-authored signpost meant to be visible at the top of the closed-PR landing page. The bot-comment standing rule above (Phase 6d) only applies to `*[bot]` and `Copilot` author logins.
+
+Inverse note for the maintainer-authored content the `pr-content-to-jira` skill replaced with one-line pointer text earlier (own review summaries + own inline comments): once the PR is closed, those pointer-bodied surfaces should also be minimized as `OUTDATED`. They survived edit-instead-of-delete because the bodies aren't bot-authored, but on a closed-then-relocated PR they're now just visual noise pointing at a Jira ticket the casual onlooker can't open. The `pr-content-to-jira` skill's Phase 6 covers the edit-to-pointer step; this skill's Phase 6d quietly subsumes the bot ones; the maintainer-authored pointer bodies need a separate sweep here. Idempotent — if any are already minimized, the mutation returns success.
+
+```bash
+# Maintainer-authored own surfaces that were edited to the pointer line by
+# pr-content-to-jira's Phase 6. Identify them by current body length and
+# the substring "moved to internal ticket".
+for KIND in reviews comments; do
+  if [ "$KIND" = "reviews" ]; then
+    URL_PATH="repos/$REPO/pulls/$PR/reviews"
+  else
+    URL_PATH="repos/$REPO/pulls/$PR/comments"
+  fi
+  gh api --paginate "$URL_PATH" \
+    --jq '[.[] | select(.body | contains("moved to internal ticket")) | .node_id]' \
+    | jq -r '.[]' \
+    | while read -r NODE_ID; do
+      [ -n "$NODE_ID" ] || continue
+      gh api graphql -f query='mutation($id: ID!){
+        minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) {
+          minimizedComment { isMinimized minimizedReason }
+        }
+      }' -F id="$NODE_ID"
+    done
+done
+
+# Same sweep on issue comments (own comments edited to the pointer).
+gh api repos/$REPO/issues/$PR/comments \
+  --jq '[.[] | select(.body | contains("moved to internal ticket")) | .node_id]' \
+  | jq -r '.[]' \
+  | while read -r NODE_ID; do
+    [ -n "$NODE_ID" ] || continue
+    gh api graphql -f query='mutation($id: ID!){
+      minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) {
+        minimizedComment { isMinimized minimizedReason }
+      }
+    }' -F id="$NODE_ID"
+  done
 ```
 
 If the original branch lived in a contributor's fork (cross-repo PR — `isCrossRepository: true`), `--delete-branch` deletes the public-repo `refs/pull/{n}/head` pointer but **cannot** delete the contributor's fork branch. Surface this to the user; the contributor must delete from their own fork.
@@ -419,6 +685,14 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 
 12. **The Jira back-link is not automatic.** The advisory description points outbound to Jira, but Jira does not learn about the GHSA on its own. Phase 5b is the explicit back-link step; without it, anyone landing on the Jira ticket weeks later sees only the closed public PR and has no path forward to the live private workstream. Always run Phase 5b before Phase 6 so a failure doesn't leave Jira out of date with a closed public PR pointing at it.
 
+13. **Minimize all bot comments on relocated PRs (standing rule).** Phase 6d minimizes every `*[bot]` / `Copilot`-authored review summary, inline comment, and issue comment as `OUTDATED` before the PR is closed — regardless of whether `pr-content-to-jira` flagged them as sensitive. The trigger is "this PR is being closed because the workstream moved to a private GHSA," not "this comment looked dangerous." Closed-then-relocated PRs should not advertise stale bot review activity to anyone landing on the closed-PR landing page weeks later. The mutation is idempotent; safe to re-run on a PR where some bot comments are already minimized. The maintainer-authored close comment stays visible. Maintainer-authored *pointer* comments (the ones `pr-content-to-jira` edited from sensitive content down to a single "moved to internal ticket..." line) get a separate minimize sweep at the bottom of Phase 6e — same logic, different author class, so a different code path.
+
+14. **Strip the sidebar and shrink the description on relocated PRs (standing rule).** Phase 6b clears assignees, requested reviewers (users *and* teams), labels, milestone, and any manually-linked issues in the "Development" section, and replaces the PR description with **only** the Jira URL — no surrounding paragraph, no audit-trail explainer, no template prose. The sidebar fields outlive the close: they keep the PR appearing in dashboards, milestone burndowns, "PRs assigned to me" panels, and Jira/GitHub-integration cards weeks after the relocation. The description's job after relocation is to point at the live workstream and nothing else; every paragraph beyond the bare URL is an invitation for an onlooker to read further. Forward-defense only — fields and prose that were visible before this run are already in notification emails, GHArchive, and external mirrors.
+
+15. **Dismiss blocking reviews BEFORE closing (standing rule).** GitHub silently no-ops `dismiss` on closed PRs — both REST `PUT /pulls/{n}/reviews/{id}/dismissals` and GraphQL `dismissPullRequestReview` return success without errors but the review's `state` stays `CHANGES_REQUESTED` (or `APPROVED`). The "requested changes" red badge on the closed-PR Reviewers sidebar is driven by the submitted review's state, not the requested-reviewer field, so removing the requested reviewer in Phase 6b doesn't clear it. Phase 6b.5 must dismiss every blocking review while the PR is still open. The only post-close fix is reopen → dismiss → re-close, which costs ~2 notifications per watcher per PR — usually not worth it for a historical badge. Keep the dismissal message neutral; it's public.
+
+16. **The private PR's author is the relocator, not the original PR author (transpose rule).** `gh pr create` in Phase 5 sets the *relocator* as the author of the private PR — typically a repo admin like `cssjoe` who is shepherding the relocation, not the original contributor (`jacobd91` etc.). This inverts the original PR's author/reviewer relationship: the original author has no formal role on the private PR by default, and the original reviewer (often the relocator) is now blocked from being a reviewer because GitHub forbids `Review cannot be requested from pull request author`. Phase 5a carries assignees verbatim and transposes/skips reviewers accordingly, with the safe default being **leave reviewers empty** on the private PR and rely on team membership (e.g., `w3-total-cache-developers` for the BoldGrid repo) for access. Add a specific human reviewer only when the original public PR had a non-author non-bot reviewer who isn't the relocator and you specifically want them surfaced in their own dashboard for the relocated work. Never carry bot reviewers (Copilot, etc.) — they aren't TPF collaborators and the API will silently drop or 422 the request.
+
 ---
 
 ## Quick reference: end-to-end sequence
@@ -436,6 +710,15 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
                             (same-repo PRs: expect "Everything up-to-date" — TPF inherits all branches)
 5. Open private PR:         gh pr create --repo <fork> --base "$(jq -r .default_branch <fork-response>)" --head <branch> ...
                             (TPF default branch == parent repo's default; not always "main")
+                            Then carry over assignees/reviewers from the
+                              public PR snapshot (Phase 5a). Assignees
+                              copy verbatim. Reviewers TRANSPOSE: skip
+                              the relocator (now the new PR author —
+                              GitHub 422s "Review cannot be requested
+                              from pull request author"), skip Copilot
+                              and any *[bot]. Default is leave reviewers
+                              EMPTY and rely on team membership; ask
+                              before adding a specific human reviewer.
 6. Add advisory collaborators (if reviewers aren't already):
                             gh api -X PATCH repos/$REPO/security-advisories/$GHSA \
                               -f 'collaborating_teams[]=<maintained-team-slug>' \
@@ -457,6 +740,30 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
                              landing page. Use "[Withdrawn] Internal change"
                              if no Jira ticket. Never use vuln-revealing
                              words in the new title.)
+                            Strip sidebar metadata: clear assignees,
+                              requested reviewers (users + teams),
+                              labels, milestone, and any manually-linked
+                              issues in the Development section. Set body
+                              to ONLY the Jira URL — every paragraph
+                              beyond it is an excuse for an onlooker to
+                              read further. Standing rule for relocated
+                              PRs — see Phase 6b.
+                            Dismiss every CHANGES_REQUESTED review (and
+                              optionally APPROVED ones) BEFORE closing.
+                              GitHub silently no-ops dismiss on closed
+                              PRs (both REST and GraphQL); the only
+                              alternative is reopen → dismiss → re-close,
+                              which costs notifications. See Phase 6b.5.
+                            Minimize every *[bot] / Copilot review +
+                              inline + issue comment as OUTDATED via
+                              GraphQL minimizeComment. Standing rule
+                              for relocated PRs — closed-then-relocated
+                              PRs should not advertise stale bot review
+                              activity. Idempotent; safe to re-run.
+                              Also minimize any maintainer-authored
+                              pointer-body comments (those edited by
+                              pr-content-to-jira to "moved to internal
+                              ticket ...") — same logic, separate sweep.
                             gh pr comment $PR (bland public message)
                             gh pr close   $PR --delete-branch
 8. Verify: PR closed, public branch gone, fork branch present at headRefOid,

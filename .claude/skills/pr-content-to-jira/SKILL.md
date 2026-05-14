@@ -102,6 +102,8 @@ Build a categorization table. Suggested buckets:
 - **MEDIUM**: per-file vuln-fix technique commentary (bot reviews summarizing what was hardened where).
 - **NONE**: codecov coverage reports; review stubs ("See comments."); generic "thanks" / "LGTM".
 
+**Standing rule for bot comments on PRs that will be relocated to a GHSA.** If `move-pr-to-private-ghsa` will follow this skill (or is the reason this skill is being run), every `*[bot]` / `Copilot`-authored comment surface is in the `MEDIUM` bucket *minimum* and the action is **always** `minimize OUTDATED`, regardless of how individually-harmless the body looks. This includes empty stubs ("Copilot reviewed N files…"), coverage reports, and inline coding-style nits. The reasoning belongs to the closing-side workflow — a closed-then-relocated PR with visible bot review activity invites onlookers to dig — and is encoded in `move-pr-to-private-ghsa` Phase 6c. Run it here so the Jira-side audit-trail comments faithfully reflect what is hidden on the public PR; or leave it to the GHSA skill's Phase 6c, which is idempotent. Either way, do not present bot comments to the user as "leave visible" candidates when a relocation is in scope.
+
 Present this to the user as a table before acting. Recommended `AskQuestion` shape:
 
 1. Multi-select: which sensitivity buckets to move/redact.
@@ -248,11 +250,21 @@ Confirm each moved item is either (a) replaced with pointer text, (b) returned i
 
 ### `${PR}-pointer-body.md` — PR description replacement
 
+If the PR will stay open after this skill runs (no GHSA relocation in scope), use the explainer form:
+
 ```markdown
 Internal tracking: {JIRA_URL}
 
 The original PR description was moved to the internal Jira ticket for the security audit trail. The code changes remain visible in the diff and the "Files changed" tab — only the descriptive context that enumerated audit finding IDs and architectural partials has been redacted here.
 ```
+
+If the PR will be closed in this same workflow (the typical case when paired with `move-pr-to-private-ghsa`), the body should be **only** the Jira URL — no surrounding paragraph. Skip writing the explainer form above and write the URL alone:
+
+```
+{JIRA_URL}
+```
+
+That matches the `move-pr-to-private-ghsa` Phase 6b standing rule. Anything more invites a closed-PR onlooker to read further. The `move-pr-to-private-ghsa` skill's Phase 6b will overwrite the body with the bare URL anyway, so writing the explainer form here when a relocation is in scope just creates two consecutive body edits in the PR's history for no benefit.
 
 ### `${PR}-pointer-comment.txt` — own-comment replacement (one-liner)
 
