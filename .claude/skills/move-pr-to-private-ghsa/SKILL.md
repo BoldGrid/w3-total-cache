@@ -327,13 +327,30 @@ If the verify fails: see the `pr-content-to-jira` skill's "Phase 3 — CRITICAL:
 
 ### Phase 6 — Close the original public PR and delete its branch
 
+#### 6a. Rename the PR title to the parent Jira ticket key
+
+Before closing, replace the PR's descriptive title with just the parent Jira ticket key from Phase 5b (e.g., `ENG7-2908`). The original title was already indexed before this skill ran (GHArchive, search engines, etc. — see caveat #1), but the closed-PR landing page sits at a stable URL that search engines will keep re-crawling indefinitely. Replacing the descriptive title with just the Jira key removes the public signpost that says "the patch is in the commits below" while still leaving an admin a breadcrumb to the audit-trail ticket. Anyone outside Atlassian SSO sees a useless identifier; anyone inside SSO has one click to the full context.
+
+```bash
+JIRA_KEY=ENG7-2908   # parent ticket from Phase 5b
+gh pr edit $PR --repo $REPO --title "$JIRA_KEY"
+
+gh pr view $PR --repo $REPO --json title,state | jq
+```
+
+If Phase 5b was skipped (no Jira ticket in scope), use a neutral bracket-prefix instead — e.g., `[Withdrawn] Internal change`. **Never** anything that hints at the security context (no "vuln", "security", "access control", "CVE", "auth", "nonce", "capability", etc.).
+
+Title rename is *forward-defense only*. It does not unindex the original title from search engines, GHArchive, or webarchive snapshots that already captured the old title; those copies live outside GitHub's control. What it does change is the stable closed-PR landing page that future crawlers re-read.
+
+#### 6b. Build and post the close comment
+
 Build a terse, non-revealing close comment in `${PR}-close-comment.md`. The comment is public; it must not name the GHSA, link the advisory URL, or restate the vulnerability:
 
 ```markdown
 Closing this PR. Continued work on this fix is being handled through a private review process. A new public PR will be opened when the change is ready to merge. Thanks to everyone who reviewed here.
 ```
 
-Post it, then close + delete:
+#### 6c. Post, close, and delete the branch
 
 ```bash
 gh pr comment $PR --repo $REPO --body-file .cursor/working/${PR}-close-comment.md
@@ -433,7 +450,14 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
                             contentFormat=markdown
                             (skip only if there is no Jira ticket; do this BEFORE step 7
                              so a Jira failure doesn't leave Jira pointing at a closed public PR)
-7. Public-side cleanup:     gh pr comment $PR (bland public message)
+7. Public-side cleanup:     gh pr edit    $PR --title "$JIRA_KEY"
+                            (rename to the parent Jira key from Phase 5b,
+                             e.g. ENG7-2908; strips the descriptive
+                             search-engine signpost off the closed-PR
+                             landing page. Use "[Withdrawn] Internal change"
+                             if no Jira ticket. Never use vuln-revealing
+                             words in the new title.)
+                            gh pr comment $PR (bland public message)
                             gh pr close   $PR --delete-branch
 8. Verify: PR closed, public branch gone, fork branch present at headRefOid,
    advisory state draft, new private PR listed under the advisory,
