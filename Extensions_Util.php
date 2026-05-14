@@ -125,8 +125,20 @@ class Extensions_Util {
 				// Set transient for displaying activation notice.
 				set_transient( 'w3tc_activation_' . $extension, true, DAY_IN_SECONDS );
 
+				Util_Debug::audit_log(
+					'extension_activated',
+					array( 'extension' => $extension )
+				);
+
 				return true;
 			} catch ( \Exception $ex ) {
+				Util_Debug::audit_log(
+					'extension_activate_failed',
+					array(
+						'extension' => $extension,
+						'message'   => $ex->getMessage(),
+					)
+				);
 				return false;
 			}
 		}
@@ -172,8 +184,20 @@ class Extensions_Util {
 
 			do_action( 'w3tc_deactivate_extension_' . $extension );
 
+			Util_Debug::audit_log(
+				'extension_deactivated',
+				array( 'extension' => $extension )
+			);
+
 			return true;
 		} catch ( \Exception $ex ) {
+			Util_Debug::audit_log(
+				'extension_deactivate_failed',
+				array(
+					'extension' => $extension,
+					'message'   => $ex->getMessage(),
+				)
+			);
 			return false;
 		}
 

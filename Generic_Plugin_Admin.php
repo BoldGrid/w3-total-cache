@@ -198,28 +198,71 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Load action
+	 * Load action — generic W3TC admin AJAX dispatcher.
 	 *
-	 * @throws \Exception Exception.
+	 * rt9-188: the prior implementation wrapped both the capability
+	 * check and the handler dispatch in a single try/catch that
+	 * echoed `$e->getMessage()` with a 200 status. Authorization
+	 * failures looked indistinguishable from success on the wire
+	 * (HTTP 200 + body `"no permissions"`), and the underlying
+	 * security event never reached any log. Now:
+	 *
+	 *  * Nonce failure → `w3tc_audit_log` (`nonce_failed`) +
+	 *    `wp_nonce_ays` (which emits 403 / dies).
+	 *  * Capability failure → `w3tc_audit_log` (`cap_denied`) +
+	 *    `wp_send_json_error( ..., 403 )` (matches the pattern
+	 *    already used by `wp_ajax_w3tc_forums_api` below).
+	 *  * Handler exception → `w3tc_audit_log` (`handler_exception`)
+	 *    + `Util_Debug::log` (sanitized) + `wp_send_json_error(
+	 *    ..., 500 )`. The exception body never reaches the client
+	 *    verbatim; only a stable generic message does.
 	 *
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_ajax() {
+		$action = Util_Request::get_string( 'w3tc_action' );
+
 		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			Util_Debug::audit_log(
+				'nonce_failed',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+				)
+			);
 			wp_nonce_ays( 'w3tc' );
 		}
 
-		try {
-			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
-			$capability      = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ), $base_capability );
-			if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
-				throw new \Exception( 'no permissions' );
-			}
+		$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
+		$capability      = apply_filters( 'w3tc_ajax_capability_' . $action, $base_capability );
 
+		if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
+			Util_Debug::audit_log(
+				'cap_denied',
+				array(
+					'handler'    => 'wp_ajax_w3tc_ajax',
+					'action'     => $action,
+					'capability' => $capability,
+				)
+			);
+			wp_send_json_error( 'no permissions', 403 );
+		}
+
+		try {
 			do_action( 'w3tc_ajax' );
-			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
+			do_action( 'w3tc_ajax_' . $action );
 		} catch ( \Exception $e ) {
-			echo esc_html( $e->getMessage() );
+			Util_Debug::audit_log(
+				'handler_exception',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+					'class'   => get_class( $e ),
+					'message' => $e->getMessage(),
+				)
+			);
+			Util_Debug::log( 'admin-ajax', 'exception in ' . $action . ': ' . $e->getMessage() );
+			wp_send_json_error( 'handler error', 500 );
 		}
 
 		exit();

@@ -221,8 +221,36 @@ class Generic_AdminActions_Default {
 				$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
 				try {
 					Util_WpFile::copy_file( $src, $dst );
-				} catch ( Util_WpFile_FilesystemOperationException $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// missing exception handle?
+				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+					// rt9-197: previously an empty catch silently
+					// dropped a copy failure here, then fell through
+					// to the success redirect. The drop-in was left
+					// missing while the admin saw "add-in removed"
+					// (false audit trail). Surface the failure to
+					// both the audit hook and the admin notice so
+					// operators learn the drop-in needs manual
+					// restoration.
+					Util_Debug::audit_log(
+						'addin_install_failed',
+						array(
+							'module'  => 'pgcache',
+							'source'  => $src,
+							'dest'    => $dst,
+							'message' => $ex->getMessage(),
+						)
+					);
+					Util_Debug::log( 'admin', 'advanced-cache.php restore failed: ' . $ex->getMessage() );
+					Util_Admin::redirect_with_custom_messages(
+						array(),
+						array(
+							sprintf(
+								// translators: %s = filesystem operation error message.
+								__( 'Could not restore advanced-cache.php: %s. The page-cache drop-in needs manual restoration.', 'w3-total-cache' ),
+								$ex->getMessage()
+							),
+						)
+					);
+					return;
 				}
 				break;
 			case 'dbcache':

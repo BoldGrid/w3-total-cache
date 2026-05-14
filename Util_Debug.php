@@ -82,15 +82,113 @@ class Util_Debug {
 	}
 
 	/**
-	 * Log
+	 * Fire the W3TC audit-log action.
+	 *
+	 * Provides the canonical entry point for all security-relevant
+	 * events in W3TC — failed nonce checks, capability denials,
+	 * config writes, extension toggles, support-handler invocations,
+	 * Cloudflare API requests, and exceptions caught at the admin
+	 * AJAX boundary.
+	 *
+	 * Two responsibilities live here:
+	 *
+	 *  1. Sanitize `$context` so any string value that may carry
+	 *     user-supplied content (request URI, exception message,
+	 *     payload fragment) is run through {@see self::redact()}
+	 *     before any subscriber sees it. This keeps `_wpnonce`,
+	 *     passwords, API keys, and wp-config secrets out of the
+	 *     audit stream regardless of who subscribes.
+	 *
+	 *  2. Fire the `w3tc_audit_log` action with the redacted
+	 *     context. Subscribers (a SIEM bridge plugin, a WordPress
+	 *     activity-log plugin) decide what to do with the event;
+	 *     W3TC itself does not persist it.
+	 *
+	 * Hook signature:
+	 *
+	 *     do_action( 'w3tc_audit_log', string $event, array $context )
+	 *
+	 *  - `$event` is a stable identifier
+	 *    (e.g. `cap_denied`, `cloudflare_api_failed`,
+	 *    `config_imported`).
+	 *  - `$context` is an associative array. `user_id` and `ip` are
+	 *    populated automatically if the caller doesn't include them.
+	 *
+	 * Designed to be cheap and safe to call from any handler path.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $event   Event identifier (snake_case).
+	 * @param array  $context Optional event context. String values
+	 *                        are redacted before dispatch.
+	 *
+	 * @return void
+	 */
+	public static function audit_log( $event, array $context = array() ) {
+		if ( ! is_string( $event ) || '' === $event ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'user_id', $context ) && \function_exists( 'get_current_user_id' ) ) {
+			$context['user_id'] = \get_current_user_id();
+		}
+
+		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			$context['ip'] = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		}
+
+		foreach ( $context as $k => $v ) {
+			if ( \is_string( $v ) ) {
+				$context[ $k ] = self::redact( $v );
+			}
+		}
+
+		if ( \function_exists( 'do_action' ) ) {
+			\do_action( 'w3tc_audit_log', $event, $context );
+		}
+	}
+
+	/**
+	 * Log a single line to the per-module debug log.
+	 *
+	 * rt9-51: callers historically passed user-controlled content
+	 * (request URIs, exception strings, HTTP bodies) verbatim. The
+	 * old implementation stripped `<` and `>` only — which is not
+	 * sufficient to prevent log forging. A newline or carriage
+	 * return in `$message` would let an attacker close the current
+	 * entry and inject a fabricated one (different timestamp,
+	 * different "user"), poisoning incident response.
+	 *
+	 * Sanitization rules:
+	 *  * Replace CR / LF with a space so a single entry stays a
+	 *    single physical line.
+	 *  * Replace TAB with a space so column-aligned readers don't
+	 *    get tricked.
+	 *  * Drop NUL bytes (some terminal pagers truncate on NUL).
+	 *  * Keep the existing `<>` → `.` swap so logs are HTML-safe if
+	 *    rendered in a browser-based viewer.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param unknown $module  Module.
 	 * @param string  $message Message.
 	 *
-	 * @return string
+	 * @return int|false       Bytes written, or false on failure.
 	 */
 	public static function log( $module, $message ) {
-		$message  = strtr( $message, '<>', '..' );
+		$message = (string) $message;
+		$message = strtr(
+			$message,
+			array(
+				'<'  => '.',
+				'>'  => '.',
+				"\r" => ' ',
+				"\n" => ' ',
+				"\t" => ' ',
+				"\0" => '',
+			)
+		);
+
 		$filename = self::log_filename( $module );
 
 		return @file_put_contents( $filename, '[' . gmdate( 'r' ) . '] ' . $message . "\n", FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
@@ -222,18 +320,83 @@ class Util_Debug {
 	}
 
 	/**
-	 * Redacts the value of the _wpnonce parameter in a log line.
+	 * Redacts the value of every `_wpnonce` / bare `nonce` parameter
+	 * in a log line.
+	 *
+	 * The old pattern `/(nonce=)[^&\]]+/` excluded only `&` and `]`,
+	 * so values ran past whitespace, tabs, and newlines into the
+	 * adjacent log context. Stop at the first whitespace character
+	 * as well.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param  string $log_line The log line containing the nonce parameter.
-	 * @return string The log line with the nonce value redacted.
+	 * @return string The log line with every nonce value redacted to `REDACTED`.
 	 */
 	public static function redact_wpnonce( string $log_line ): string {
-		// Regular expression to match the nonce parameter and its value.
-		$pattern = '/(nonce=)[^&\]]+/';
+		return (string) preg_replace( '/(nonce=)[^&\s]*/i', '$1REDACTED', $log_line );
+	}
 
-		// Replace the value of nonce with "REDACTED".
-		$redacted_log_line = preg_replace( $pattern, '$1REDACTED', $log_line );
+	/**
+	 * General-purpose log-content redactor.
+	 *
+	 * Applied to any value that may carry user-supplied or
+	 * secret-bearing data on its way into a log file or an outbound
+	 * support payload. Covers the patterns seen across the W3TC
+	 * codebase:
+	 *
+	 *  * `_wpnonce=` / `nonce=` URL parameter values.
+	 *  * `password=`, `passwd=`, `pass=`, `secret=`, `token=`,
+	 *    `apikey=` / `api_key=`, `key=`, and `Authorization:
+	 *    Bearer …` HTTP header content.
+	 *  * `define( 'KEY', 'value' )` blocks for the documented
+	 *    wp-config.php secret-bearing constants (DB_PASSWORD plus
+	 *    the eight auth keys / salts).
+	 *
+	 * Designed to be idempotent — calling it twice yields the same
+	 * output as calling it once.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $blob Anything stringifiable. Non-string input
+	 *                    returns an empty string rather than throwing.
+	 *
+	 * @return string Redacted text.
+	 */
+	public static function redact( $blob ) {
+		if ( ! \is_string( $blob ) ) {
+			if ( \is_scalar( $blob ) ) {
+				$blob = (string) $blob;
+			} else {
+				return '';
+			}
+		}
 
-		return $redacted_log_line;
+		// wp-config-style secret defines.
+		$blob = (string) \preg_replace(
+			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])([^'\"]*)(\\4)\\s*\\)\\s*;/i",
+			"define( '\$2', 'REDACTED' );",
+			$blob
+		);
+
+		// HTTP Authorization header (Bearer / Basic) — header may be
+		// embedded in an exception/dump.
+		$blob = (string) \preg_replace(
+			'/(Authorization:\s*(?:Bearer|Basic)\s+)[^\s\r\n,;]+/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		// Common secret-named query / form parameter values.
+		$blob = (string) \preg_replace(
+			'/((?:password|passwd|pass|secret|token|api[_-]?key|key)=)[^&\s]*/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		// Nonces (idempotent with redact_wpnonce, applied last so
+		// any nonce embedded inside one of the earlier-redacted
+		// patterns still picks up the standard token form).
+		return self::redact_wpnonce( $blob );
 	}
 }

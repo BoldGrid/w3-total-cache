@@ -27,6 +27,11 @@ class Support_AdminActions {
 	public function w3tc_support_send_details() {
 		$c = Dispatcher::config();
 
+		Util_Debug::audit_log(
+			'support_send',
+			array( 'destination' => W3TC_SUPPORT_REQUEST_URL )
+		);
+
 		$post = array();
 
 		foreach ( $_GET as $p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

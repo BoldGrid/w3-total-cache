@@ -283,29 +283,48 @@ class Extension_CloudFlare_Plugin_Admin {
 		$nonce    = Util_Request::get_string( '_wpnonce' );
 		$error    = null;
 
+		// rt9-54: every failure path in this handler used to assign
+		// `$error` and silently return a JSON body. Nonce mismatches,
+		// empty/invalid credentials, and credential-validation
+		// failures generated no audit signal — so brute-force
+		// scanning the API form (an attacker probing for known good
+		// account_api_key values) was invisible to any operator
+		// running a SIEM bridge. Each branch now fires the
+		// `w3tc_audit_log` action with a stable event name. The
+		// branches still continue to set `$error` so the AJAX
+		// response shape is unchanged.
 		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
 			$error = 'Access denied.';
+			Util_Debug::audit_log( 'cloudflare_api_nonce_failed', array() );
 		} elseif ( ! $key ) {
 			$error = 'Empty token / global key.';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'empty_key' ) );
 		} elseif ( Extension_CloudFlare_Api::is_legacy_global_api_key_string( $key ) ) {
 			if ( ! $email ) {
 				$error = 'Empty email.';
+				Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'empty_email' ) );
 			} elseif ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 				$error = 'Invalid email.';
+				Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'invalid_email' ) );
 			}
 		} elseif ( $email && ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 			$error = 'Invalid email.';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'invalid_email' ) );
 		} elseif ( ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
 			$error = 'Invalid authentication (API token, or Global API key with account email).';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'format' ) );
 		}
 
 		if ( null === $error ) {
 			if ( ! $zone ) {
 				$error = 'Empty zone.';
+				Util_Debug::audit_log( 'cloudflare_api_zone_invalid', array( 'reason' => 'empty' ) );
 			} elseif ( strpos( $zone, '.' ) === false ) {
 				$error = 'Invalid domain.';
+				Util_Debug::audit_log( 'cloudflare_api_zone_invalid', array( 'reason' => 'no_dot' ) );
 			} elseif ( ! in_array( $action, $actions, true ) ) {
 				$error = 'Invalid action.';
+				Util_Debug::audit_log( 'cloudflare_api_action_invalid', array( 'action' => $action ) );
 			} else {
 				$config = array(
 					'email' => $email,
@@ -316,6 +335,15 @@ class Extension_CloudFlare_Plugin_Admin {
 				@$this->api = new Extension_CloudFlare_Api( $config );
 
 				@set_time_limit( $this->_config->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+
+				Util_Debug::audit_log(
+					'cloudflare_api_request',
+					array(
+						'action' => $action,
+						'zone'   => $zone,
+					)
+				);
+
 				$response = $this->api->api_request( $action, $value );
 
 				if ( $response ) {
@@ -324,9 +352,25 @@ class Extension_CloudFlare_Plugin_Admin {
 						$error  = 'OK';
 					} else {
 						$error = $response->msg;
+						Util_Debug::audit_log(
+							'cloudflare_api_failed',
+							array(
+								'action'  => $action,
+								'zone'    => $zone,
+								'message' => (string) $response->msg,
+							)
+						);
 					}
 				} else {
 					$error = 'Unable to make Cloudflare API request.';
+					Util_Debug::audit_log(
+						'cloudflare_api_failed',
+						array(
+							'action'  => $action,
+							'zone'    => $zone,
+							'message' => 'no response',
+						)
+					);
 				}
 			}
 		}

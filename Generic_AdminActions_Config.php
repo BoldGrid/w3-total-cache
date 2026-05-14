@@ -62,11 +62,16 @@ class Generic_AdminActions_Config {
 		}
 
 		if ( $error ) {
+			Util_Debug::audit_log(
+				'config_import_failed',
+				array( 'error' => $error )
+			);
 			Util_Admin::redirect( array( 'w3tc_error' => $error ), true );
 			return;
 		}
 
 		Util_Admin::config_save( $this->_config, $config );
+		Util_Debug::audit_log( 'config_imported', array() );
 		Util_Admin::redirect( array( 'w3tc_note' => 'config_import' ), true );
 	}
 
@@ -78,6 +83,7 @@ class Generic_AdminActions_Config {
 	 * @return void
 	 */
 	public function w3tc_config_export() {
+		Util_Debug::audit_log( 'config_exported', array() );
 		$filename = substr( get_home_url(), strpos( get_home_url(), '//' ) + 2 );
 		@header(
 			sprintf(
@@ -99,6 +105,8 @@ class Generic_AdminActions_Config {
 	 * @return void
 	 */
 	public function w3tc_config_reset() {
+		Util_Debug::audit_log( 'config_reset', array() );
+
 		$config = new Config();
 		$config->set_defaults();
 		Util_Admin::config_save( $this->_config, $config );
@@ -178,11 +186,25 @@ class Generic_AdminActions_Config {
 	public function w3tc_config_dbcluster_config_save() {
 		$params = array( 'page' => 'w3tc_general' );
 
+		$payload_size = \strlen( (string) Util_Request::get_string( 'newcontent' ) );
+
+		Util_Debug::audit_log(
+			'dbcluster_config_save',
+			array(
+				'path'  => W3TC_FILE_DB_CLUSTER_CONFIG,
+				'bytes' => $payload_size,
+			)
+		);
+
 		if ( ! file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG, Util_Request::get_string( 'newcontent' ) ) ) {
 			try {
 				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
 			} catch ( \Exception $e ) {
 				$error = $e->getMessage();
+				Util_Debug::audit_log(
+					'dbcluster_config_save_failed',
+					array( 'message' => $error )
+				);
 				Util_Admin::redirect_with_custom_messages(
 					$params,
 					array(
