@@ -41,8 +41,7 @@ class Licensing_Core {
 				W3TC_LICENSE_API_URL
 			),
 			array(
-				'timeout'   => 15,
-				'sslverify' => false,
+				'timeout' => 15,
 			)
 		);
 
@@ -81,8 +80,7 @@ class Licensing_Core {
 				W3TC_LICENSE_API_URL
 			),
 			array(
-				'timeout'   => 15,
-				'sslverify' => false,
+				'timeout' => 15,
 			)
 		);
 
@@ -126,8 +124,7 @@ class Licensing_Core {
 				W3TC_LICENSE_API_URL
 			),
 			array(
-				'timeout'   => 15,
-				'sslverify' => false,
+				'timeout' => 15,
 			)
 		);
 
@@ -166,8 +163,7 @@ class Licensing_Core {
 				W3TC_LICENSE_API_URL
 			),
 			array(
-				'timeout'   => 15,
-				'sslverify' => false,
+				'timeout' => 15,
 			)
 		);
 

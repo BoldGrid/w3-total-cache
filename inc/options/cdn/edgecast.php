@@ -15,8 +15,17 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_edgecast_token"><?php esc_html_e( 'Token:', 'w3-total-cache' ); ?></th>
 	<td>
-		<input id="cdn_edgecast_token" class="w3tc-ignore-change" type="password"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__edgecast__token" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.edgecast.token' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_edgecast_token',
+				'name'        => 'cdn__edgecast__token',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.edgecast.token' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>

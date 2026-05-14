@@ -321,9 +321,9 @@ class Util_Environment {
 	 */
 	public static function set_preview( $is_enabled ) {
 		if ( $is_enabled ) {
-			setcookie( 'w3tc_preview', '*', 0, '/' );
+			Util_Cookie::set( 'w3tc_preview', '*', 0, '/' );
 		} else {
-			setcookie( 'w3tc_preview', '', time() - 3600, '/' );
+			Util_Cookie::clear( 'w3tc_preview', '/' );
 		}
 	}
 

@@ -801,6 +801,22 @@ class Generic_AdminActions_Default {
 				}
 			}
 
+			// Secret-typed keys (`flags.secret => true`) render in the
+			// admin form with `value=""` and a placeholder, so the user
+			// only re-submits a real value when they're rotating the
+			// credential. An empty POST for a secret means "no change",
+			// not "wipe it". Skip the set() in that case so we don't
+			// blank every CDN credential on every Settings save.
+			if (
+				is_array( $descriptor )
+				&& isset( $descriptor['flags'] )
+				&& is_array( $descriptor['flags'] )
+				&& ! empty( $descriptor['flags']['secret'] )
+				&& ( ! is_string( $request_value ) || '' === $request_value )
+			) {
+				continue;
+			}
+
 			$config->set( $key, $request_value );
 		}
 	}
