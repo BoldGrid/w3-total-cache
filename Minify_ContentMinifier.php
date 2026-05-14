@@ -86,21 +86,21 @@ class Minify_ContentMinifier {
 				$path_java = $this->_config->get_string( 'minify.yuijs.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.yuijs.path.jar' );
 
-				return false !== Util_Java::validate( $path_java )
+				return false !== Util_Java::validate_with_log( $path_java, 'yuijs' )
 					&& file_exists( $path_jar );
 
 			case 'yuicss':
 				$path_java = $this->_config->get_string( 'minify.yuicss.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.yuicss.path.jar' );
 
-				return false !== Util_Java::validate( $path_java )
+				return false !== Util_Java::validate_with_log( $path_java, 'yuicss' )
 					&& file_exists( $path_jar );
 
 			case 'ccjs':
 				$path_java = $this->_config->get_string( 'minify.ccjs.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.ccjs.path.jar' );
 
-				return false !== Util_Java::validate( $path_java )
+				return false !== Util_Java::validate_with_log( $path_java, 'ccjs' )
 					&& file_exists( $path_jar );
 
 			case 'htmltidy':
@@ -129,13 +129,17 @@ class Minify_ContentMinifier {
 	/**
 	 * Initializes the given minifier engine.
 	 *
-	 * Java-backed engines call `Util_Java::validate_with_log()` and
-	 * refuse to assign the vendored static `$javaExecutable` when the
-	 * configured path is rejected; in that case the method returns
-	 * `false` so callers that want to fall back can do so.  Note that
-	 * `available()` already runs the same allowlist check, so a
-	 * properly-gated caller will not reach `init()` with a bad path
-	 * in the first place — the return value here is defense-in-depth.
+	 * Java-backed engines re-run `Util_Java::validate()` and refuse to
+	 * assign the vendored static `$javaExecutable` when the configured
+	 * path is rejected; in that case the method returns `false` so
+	 * callers that want to fall back can do so. Note that `available()`
+	 * already runs the same allowlist check (via `validate_with_log()`,
+	 * which emits the minify-debug log entry once per request), so a
+	 * properly-gated caller will not reach `init()` with a bad path in
+	 * the first place — the return value here is defense-in-depth.
+	 * Using plain `validate()` rather than `validate_with_log()` here
+	 * avoids double-logging the same rejection from `available()` and
+	 * `init()` on the rare path where both run.
 	 *
 	 * @param string $engine The minifier engine to initialize.
 	 *
@@ -145,10 +149,7 @@ class Minify_ContentMinifier {
 	public function init( $engine ) {
 		switch ( $engine ) {
 			case 'yuijs':
-				$java = Util_Java::validate_with_log(
-					$this->_config->get_string( 'minify.yuijs.path.java' ),
-					'yuijs'
-				);
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuijs.path.java' ) );
 				if ( false === $java ) {
 					return false;
 				}
@@ -158,10 +159,7 @@ class Minify_ContentMinifier {
 				return true;
 
 			case 'yuicss':
-				$java = Util_Java::validate_with_log(
-					$this->_config->get_string( 'minify.yuicss.path.java' ),
-					'yuicss'
-				);
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuicss.path.java' ) );
 				if ( false === $java ) {
 					return false;
 				}
@@ -171,10 +169,7 @@ class Minify_ContentMinifier {
 				return true;
 
 			case 'ccjs':
-				$java = Util_Java::validate_with_log(
-					$this->_config->get_string( 'minify.ccjs.path.java' ),
-					'ccjs'
-				);
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.ccjs.path.java' ) );
 				if ( false === $java ) {
 					return false;
 				}

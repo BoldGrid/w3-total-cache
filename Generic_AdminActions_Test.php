@@ -163,7 +163,12 @@ class Generic_AdminActions_Test {
 		if ( empty( $error ) && 'googleccjs' !== $engine ) {
 			$validated_java = Util_Java::validate_with_log( $path_java, 'test_minifier' );
 			if ( false === $validated_java ) {
-				$error = __( 'JAVA executable path is not allowed. The path must be an existing, executable file under an approved directory (e.g. /usr/bin, /usr/local/bin, /opt). Operators may extend the allowlist via the `W3TC_JAVA_BIN_ALLOWED_DIRS` constant in wp-config.php.', 'w3-total-cache' );
+				$error = sprintf(
+					/* translators: 1: comma-separated list of allowed directories, 2: wp-config.php constant name. */
+					__( 'JAVA executable path is not allowed. The path must be an existing, executable file under one of: %1$s. Operators may extend the allowlist via the %2$s constant in wp-config.php.', 'w3-total-cache' ),
+					implode( ', ', Util_Java::allowed_dirs() ),
+					'W3TC_JAVA_BIN_ALLOWED_DIRS'
+				);
 			}
 		}
 

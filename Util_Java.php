@@ -56,24 +56,26 @@ class Util_Java {
 	 * @return string|false Canonical path on success, false on rejection.
 	 */
 	public static function validate( $path ) {
-		if ( ! is_string( $path ) || '' === $path ) {
+		if ( ! \is_string( $path ) || '' === $path ) {
 			return false;
 		}
 
-		// Reject any control character or shell metacharacter before
-		// we even touch the filesystem. realpath() would normally
-		// strip most of these, but rejecting early keeps the log
-		// output sane and prevents accidental TOCTOU surface.
-		//
-		// The metachar set is platform-aware: on Windows the path
-		// separator is `\\` and legitimate Java installs commonly
-		// live under `C:\Program Files (x86)\Java\...` (spaces and
-		// parentheses are allowed in the directory name), so the
-		// non-Windows regex would block every real Windows path.
-		// On Windows we still reject the cmd.exe metacharacters
-		// (`& | < > ^ "` plus glob characters) and rely on
-		// `realpath()` + the allowlist below to enforce the actual
-		// "is this a Java binary" check.
+		/**
+		 * Reject any control character or shell metacharacter before
+		 * we even touch the filesystem. realpath() would normally
+		 * strip most of these, but rejecting early keeps the log
+		 * output sane and prevents accidental TOCTOU surface.
+		 *
+		 * The metachar set is platform-aware: on Windows the path
+		 * separator is `\\` and legitimate Java installs commonly
+		 * live under `C:\Program Files (x86)\Java\...` (spaces and
+		 * parentheses are allowed in the directory name), so the
+		 * non-Windows regex would block every real Windows path.
+		 * On Windows we still reject the cmd.exe metacharacters
+		 * (`& | < > ^ "` plus glob characters) and rely on
+		 * `realpath()` + the allowlist below to enforce the actual
+		 * "is this a Java binary" check.
+		 */
 		if ( '\\' === DIRECTORY_SEPARATOR ) {
 			$metachar_re = '/[\x00-\x1F\x7F&|<>^"\*\?]/';
 		} else {
@@ -92,17 +94,19 @@ class Util_Java {
 			return false;
 		}
 
-		// On Windows the binary must end in `.exe` to be runnable
-		// without a shell-side resolution step.
+		/**
+		 * On Windows the binary must end in `.exe` to be runnable
+		 * without a shell-side resolution step.
+		 */
 		if ( '\\' === DIRECTORY_SEPARATOR ) {
 			if ( '.exe' !== \strtolower( \substr( $real, -4 ) ) ) {
 				return false;
 			}
 		}
 
-		$allowed       = self::allowed_dirs();
-		$is_windows    = '\\' === DIRECTORY_SEPARATOR;
-		$real_compare  = $is_windows ? \strtolower( $real ) : $real;
+		$allowed      = self::allowed_dirs();
+		$is_windows   = '\\' === DIRECTORY_SEPARATOR;
+		$real_compare = $is_windows ? \strtolower( $real ) : $real;
 		foreach ( $allowed as $dir ) {
 			if ( '' === $dir ) {
 				continue;
@@ -140,10 +144,21 @@ class Util_Java {
 		$result = self::validate( $path );
 		if ( false === $result ) {
 			$tag = '' === $context ? 'java' : $context;
+			/**
+			 * Include the rejected path verbatim in the log line. The metachar
+			 * regex inside `validate()` runs before this code path, so the
+			 * string is free of control bytes; debug logs land on the
+			 * filesystem (not in any UI), so echoing the path is operator-
+			 * facing only. Without this, debugging "minifier silently
+			 * stopped working" requires instrumenting PHP to see what value
+			 * was being validated.
+			 */
+			$logged_path = \is_string( $path ) ? $path : '(non-string)';
 			Util_Debug::log(
 				'minify',
 				\sprintf(
-					'Util_Java: rejected non-allowlisted Java executable path for %s (allowed dirs: %s).',
+					'Util_Java: rejected non-allowlisted Java executable path "%s" for %s (allowed dirs: %s).',
+					$logged_path,
 					$tag,
 					\implode( PATH_SEPARATOR, self::allowed_dirs() )
 				)
@@ -163,6 +178,15 @@ class Util_Java {
 	 *
 	 * The constant must be defined server-side; it is never read
 	 * from web input.
+	 *
+	 * **Allowlist semantics — sharp edge.** The check in `validate()`
+	 * is a pure string-prefix match against `<dir>/`. Single-segment
+	 * values broaden the allowlist substantially: setting
+	 * `W3TC_JAVA_BIN_ALLOWED_DIRS = '/usr'` accepts every file under
+	 * `/usr/*` (e.g. `/usr/anything/at/all/java`). Defensive operators
+	 * should prefer the narrowest viable parent — for example
+	 * `/opt/openjdk-17/bin` rather than `/opt` — so a future
+	 * world-writable subdirectory cannot turn into an exec sink.
 	 *
 	 * @since X.X.X
 	 *
@@ -184,14 +208,16 @@ class Util_Java {
 			);
 		}
 
-		// On most Linux distributions (Debian/Ubuntu/RHEL/Amazon/Alpine),
-		// the canonical `/usr/bin/java` is a symlink chain that resolves
-		// (via `/etc/alternatives/java`) to a binary under `/usr/lib/jvm/...`.
-		// `validate()` checks the realpath-resolved location, so the
-		// default allowlist must include `/usr/lib/jvm` — otherwise the
-		// documented "configure path.java = /usr/bin/java" path fails
-		// validation and the Java minifiers silently stay disabled on
-		// every stock-distro install.
+		/**
+		 * On most Linux distributions (Debian/Ubuntu/RHEL/Amazon/Alpine),
+		 * the canonical `/usr/bin/java` is a symlink chain that resolves
+		 * (via `/etc/alternatives/java`) to a binary under `/usr/lib/jvm/...`.
+		 * `validate()` checks the realpath-resolved location, so the
+		 * default allowlist must include `/usr/lib/jvm` — otherwise the
+		 * documented "configure path.java = /usr/bin/java" path fails
+		 * validation and the Java minifiers silently stay disabled on
+		 * every stock-distro install.
+		 */
 		return array(
 			'/usr/bin',
 			'/usr/local/bin',
@@ -231,9 +257,11 @@ class Util_Java {
 			$out['compilation_level'] = $options['compilation_level'];
 		}
 
-		// `formatting` is consumed by the W3TC-side wrapper, not the
-		// vendored `_getCmd`, but pass it through with the same
-		// allowlist so downstream code stays consistent.
+		/**
+		 * `formatting` is consumed by the W3TC-side wrapper, not the
+		 * vendored `_getCmd`, but pass it through with the same
+		 * allowlist so downstream code stays consistent.
+		 */
 		$valid_formatting = array( 'pretty_print', 'print_input_delimiter', '' );
 		if ( isset( $options['formatting'] ) && \in_array( $options['formatting'], $valid_formatting, true ) ) {
 			$out['formatting'] = $options['formatting'];
