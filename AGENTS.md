@@ -13,6 +13,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - Do not make coding standards changes in changed files unless it is directly related to the functionality being modified.
 - Opening parenthesis of a multi-line function call must be the last content on the line (PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket).
 - Prefix all global namespace functions with a backslash.
+- Use `/** ... */` doc-block syntax for all multi-line comments and function/class/file doc-blocks, per the WordPress inline-documentation standard. Do not use stacked `//` lines for multi-line commentary; reserve `//` for single-line trailing or explanatory remarks.
 
 ## References
 - WordPress Coding Standards: https://developer.wordpress.org/coding-standards/
@@ -39,3 +40,8 @@ This project is a WordPress plugin designed to enhance website performance throu
 ## Dependency Management
 - Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.2.5–8.3 constraint declared in `composer.json`.
 - When running Composer directly, keep `composer update --with-all-dependencies` targeted at the repo root so the generated lock file honors the configured PHP platform (7.2.5).
+
+## Working Files
+- For ad-hoc agent scratch files (PR-comment bodies, JSON payloads for `gh api`, draft patches, intermediate tool output, etc.), write to `.cursor/working/` — it is covered by `.gitignore` (`.cursor/working/`).
+- Do not write to `/tmp/` or to any path outside the project tree.
+- Leave scratch files in place for traceability rather than deleting on task completion; the directory is gitignored so they will not pollute commits.
