@@ -98,11 +98,14 @@ class Cdn_BunnyCdn_Popup {
 		try {
 			$pull_zones = $api->list_pull_zones();
 		} catch ( \Exception $ex ) {
-			// Reauthorize: Ask for a new account API key.
+			// Reauthorize: Ask for a new account API key. Suppliers pass
+			// plain text — Cdn_BunnyCdn_Popup_View_Intro escapes at the
+			// sink — so SDK exception text that contains URLs / IDs
+			// renders cleanly without double-encoded entities.
 			$this->render_intro(
 				array(
 					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-					'error_message'   => \esc_html( \__( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					'error_message'   => \__( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage(),
 				)
 			);
 		}
@@ -176,11 +179,12 @@ class Cdn_BunnyCdn_Popup {
 				$name         = $response['Name'];
 				$cdn_hostname = $response['Hostnames'][0]['Value'];
 			} catch ( \Exception $ex ) {
-				// Reauthorize: Ask for a new account API key.
+				// Reauthorize: Ask for a new account API key. Plain-text
+				// supplier; sink escapes.
 				$this->render_intro(
 					array(
 						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-						'error_message'   => \esc_html( \__( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+						'error_message'   => \__( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage(),
 					)
 				);
 			}

@@ -79,6 +79,13 @@ class Generic_AdminActions_Config {
 	 */
 	public function w3tc_config_export() {
 		$filename = substr( get_home_url(), strpos( get_home_url(), '//' ) + 2 );
+
+		// Force `application/json` so the response can never be sniffed as
+		// HTML by a browser walking back through history / preview /
+		// view-source — closes rt9-37 (reflected XSS through the export
+		// endpoint).
+		@header( 'Content-Type: application/json; charset=utf-8' );
+		@header( 'X-Content-Type-Options: nosniff' );
 		@header(
 			sprintf(
 				// Translators: 1 filename.

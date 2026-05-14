@@ -24,7 +24,17 @@ defined( 'W3TC' ) || die();
 <form class="w3tc_cdn_bunnycdn_fsd_form">
 	<?php if ( isset( $details['error_message'] ) ) : ?>
 		<div class="error">
-			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php
+			// Escape at the sink, NOT at the supplier. SDK exception
+			// messages occasionally embed user-controlled URLs / IDs
+			// that an upstream caller may forget to escape; pinning the
+			// escape here means a future supplier passing a raw
+			// `$ex->getMessage()` to `wp_send_json_error` still renders
+			// safely. Suppliers in the BunnyCDN code paths pass plain
+			// text so this is the only escape — no double-encoded
+			// entities show up in legitimate error strings.
+			echo esc_html( (string) $details['error_message'] );
+			?>
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">

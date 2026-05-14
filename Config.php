@@ -527,13 +527,22 @@ class Config {
 	 * @return string The configuration data as a JSON string.
 	 */
 	public function export() {
+		// JSON_HEX_TAG / HEX_AMP / HEX_APOS / HEX_QUOT escape `<` `&` `'`
+		// `"` to their `\uXXXX` forms. The export endpoint serves this
+		// body to admins, and even with `Content-Type: application/json`
+		// some clients can be tricked into rendering it as HTML
+		// (history walks, view-source, intermediary proxies). Hex-
+		// escaping every HTML-significant character means the body
+		// cannot contain a literal `<script>` regardless of what an
+		// admin saved in config — closes the reflected-XSS leg of
+		// rt9-37 without changing the JSON semantics (JSON parsers
+		// decode `<` back to `<` transparently).
+		$flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 		if ( defined( 'JSON_PRETTY_PRINT' ) ) {
-			$content = wp_json_encode( $this->_data, JSON_PRETTY_PRINT );
-		} else {
-			$content = wp_json_encode( $this->_data );
+			$flags |= JSON_PRETTY_PRINT;
 		}
 
-		return $content;
+		return wp_json_encode( $this->_data, $flags );
 	}
 
 	/**

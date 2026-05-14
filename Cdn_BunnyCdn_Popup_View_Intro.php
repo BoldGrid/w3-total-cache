@@ -24,7 +24,14 @@ defined( 'W3TC' ) || die();
 <form class="w3tc_cdn_bunnycdn_form">
 	<?php if ( isset( $details['error_message'] ) ) : ?>
 		<div class="error">
-			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php
+			// Escape at the sink. See the Cdnfsd variant of this file
+			// for the rationale — pinning the escape here keeps the
+			// view safe even if a future supplier forgets to escape an
+			// `$ex->getMessage()` before passing it via
+			// `wp_send_json_error`.
+			echo esc_html( (string) $details['error_message'] );
+			?>
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">

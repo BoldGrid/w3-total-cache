@@ -272,6 +272,16 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		return array_unique(
 			array_map(
 				function ( $value ) {
+					// `sanitize_text_field` strips tags + control chars at
+					// the write boundary so a malicious admin (or chained
+					// vector landing in the cachegroups save path) cannot
+					// store a `<script>` / `<img onerror=...>` payload as
+					// a User-Agent / referrer match string. Even though
+					// every render path already escapes these on output,
+					// the stored-XSS leg of CHAIN-010 motivates a
+					// defence-in-depth strip on the way in.
+					$value = sanitize_text_field( wp_unslash( (string) $value ) );
+
 					return preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', strtolower( $value ) );
 				},
 				$values
