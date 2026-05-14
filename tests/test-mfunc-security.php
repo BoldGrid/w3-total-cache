@@ -379,6 +379,29 @@ if ( ! function_exists( 'esc_html' ) ) {
 		return htmlspecialchars( (string) $s, ENT_QUOTES, 'UTF-8' );
 	}
 }
+// Stubs for the rate-limiter + deprecation-notice path. Each test that cares
+// about the contents resets `__test_did_wrong` / `__test_transients` first.
+if ( ! function_exists( '_doing_it_wrong' ) ) {
+	$GLOBALS['__test_did_wrong'] = array();
+	function _doing_it_wrong( $fn, $msg, $ver ) {
+		$GLOBALS['__test_did_wrong'][] = array( 'fn' => $fn, 'msg' => $msg, 'ver' => $ver );
+	}
+}
+if ( ! function_exists( 'get_site_transient' ) ) {
+	$GLOBALS['__test_transients'] = array();
+	function get_site_transient( $key ) {
+		return $GLOBALS['__test_transients'][ $key ] ?? false;
+	}
+	function set_site_transient( $key, $value, $ttl ) {
+		$GLOBALS['__test_transients'][ $key ] = $value;
+		return true;
+	}
+}
+if ( ! function_exists( 'wp_salt' ) ) {
+	function wp_salt( $scheme = 'auth' ) {
+		return 'test-mfunc-salt-' . $scheme;
+	}
+}
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
@@ -673,6 +696,119 @@ assert_true(
 	false === strpos( $result, 'PWNED:attacker' )
 		&& false !== strpos( $result, 'HMAC mismatch' ),
 	"result: $result"
+);
+
+// ── 4p. Rate-limit: identical (kind|reason) refusals collapse to one notice
+// ──   _log_dynamic_deprecation must dedupe via a site transient so a busy
+// ──   site post-upgrade doesn't flood admin notices / error_log on every
+// ──   request that re-renders a stale legacy mfunc tag.
+$reset_callbacks();
+$GLOBALS['__test_did_wrong']  = array();
+$GLOBALS['__test_transients'] = array();
+$raw_payload = '<!-- mfunc ' . $token . ' phpinfo(); --><!-- /mfunc ' . $token . ' -->';
+for ( $i = 0; $i < 5; $i++ ) {
+	$grabber->_parse_dynamic( $raw_payload );
+}
+assert_true(
+	'[4p] 5 identical refusals collapse to 1 _doing_it_wrong call (rate-limit)',
+	1 === count( $GLOBALS['__test_did_wrong'] ),
+	'_doing_it_wrong calls: ' . count( $GLOBALS['__test_did_wrong'] )
+);
+
+// ── 4p.distinct. Distinct (kind|reason) crosses the dedupe key. A wrong
+// ──   HMAC + a raw payload produce different reasons so both should log.
+$GLOBALS['__test_did_wrong']  = array();
+$GLOBALS['__test_transients'] = array();
+$grabber->_parse_dynamic( $raw_payload );
+$wrong_hmac_tag = '<!-- mfunc ' . $token . ' call:nonexistent {} hmac:' . str_repeat( '0', 64 ) . ' --><!-- /mfunc ' . $token . ' -->';
+$grabber->_parse_dynamic( $wrong_hmac_tag );
+assert_true(
+	'[4p.distinct] Distinct refusal reasons produce distinct log entries',
+	2 === count( $GLOBALS['__test_did_wrong'] ),
+	'_doing_it_wrong calls: ' . count( $GLOBALS['__test_did_wrong'] )
+);
+
+// ── 4q. _doing_it_wrong is called with esc_html($kind) and 'X.X.X' version
+// ──   ($kind is internal but PHPCS flags it; X.X.X is the build placeholder)
+$GLOBALS['__test_did_wrong']  = array();
+$GLOBALS['__test_transients'] = array();
+$grabber->_parse_dynamic( $raw_payload );
+assert_true(
+	'[4q.esc] _doing_it_wrong first arg is esc_html($kind)',
+	isset( $GLOBALS['__test_did_wrong'][0]['fn'] )
+		&& htmlspecialchars( 'mfunc', ENT_QUOTES, 'UTF-8' ) === $GLOBALS['__test_did_wrong'][0]['fn'],
+	'fn: ' . ( $GLOBALS['__test_did_wrong'][0]['fn'] ?? '<unset>' )
+);
+assert_true(
+	'[4q.version] _doing_it_wrong version is X.X.X (build placeholder)',
+	isset( $GLOBALS['__test_did_wrong'][0]['ver'] )
+		&& 'X.X.X' === $GLOBALS['__test_did_wrong'][0]['ver'],
+	'ver: ' . ( $GLOBALS['__test_did_wrong'][0]['ver'] ?? '<unset>' )
+);
+
+// ── 4r. Non-string callback returns are logged AND safely coerced.
+// ──   - scalars (null, false, int) coerce via (string) — no warning
+// ──   - arrays / non-Stringable objects yield '' instead of "Array" + warning
+// ──   - and either case fires the deprecation log channel so the bug is visible.
+$reset_callbacks();
+$register_callback( 'returns_null',  function () { return null; } );
+$register_callback( 'returns_false', function () { return false; } );
+$register_callback( 'returns_int',   function () { return 42; } );
+$register_callback( 'returns_array', function () { return array( 'x' ); } );
+
+$GLOBALS['__test_did_wrong']  = array();
+$GLOBALS['__test_transients'] = array();
+
+$null_args  = '{}';
+$null_hmac  = $grabber->_dynamic_hmac( 'mfunc', 'returns_null', $null_args );
+$null_tag   = '<!-- mfunc ' . $token . ' call:returns_null ' . $null_args . ' hmac:' . $null_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$null_out   = $grabber->_parse_dynamic( $null_tag );
+assert_true(
+	'[4r.null] null callback return coerces to empty string without warning',
+	'' === $null_out,
+	'out: ' . var_export( $null_out, true )
+);
+
+$false_hmac = $grabber->_dynamic_hmac( 'mfunc', 'returns_false', $null_args );
+$false_tag  = '<!-- mfunc ' . $token . ' call:returns_false ' . $null_args . ' hmac:' . $false_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$false_out  = $grabber->_parse_dynamic( $false_tag );
+assert_true(
+	'[4r.false] false callback return coerces to empty string',
+	'' === $false_out
+);
+
+$int_hmac = $grabber->_dynamic_hmac( 'mfunc', 'returns_int', $null_args );
+$int_tag  = '<!-- mfunc ' . $token . ' call:returns_int ' . $null_args . ' hmac:' . $int_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$int_out  = $grabber->_parse_dynamic( $int_tag );
+assert_true(
+	'[4r.int] int callback return coerces to digit string',
+	'42' === $int_out,
+	'out: ' . var_export( $int_out, true )
+);
+
+// Catch warnings explicitly so the "no warning on array coercion" check is
+// not a false negative due to PHP's default error reporting masking notices.
+$warning_caught = false;
+$prev_handler   = set_error_handler( function ( $errno ) use ( &$warning_caught ) {
+	$warning_caught = true;
+	return true;
+}, E_WARNING | E_NOTICE );
+$array_hmac = $grabber->_dynamic_hmac( 'mfunc', 'returns_array', $null_args );
+$array_tag  = '<!-- mfunc ' . $token . ' call:returns_array ' . $null_args . ' hmac:' . $array_hmac . ' --><!-- /mfunc ' . $token . ' -->';
+$array_out  = $grabber->_parse_dynamic( $array_tag );
+set_error_handler( $prev_handler );
+assert_true(
+	'[4r.array] array callback return yields "" (no "Array" leak, no warning)',
+	'' === $array_out && false === $warning_caught,
+	'out: ' . var_export( $array_out, true ) . ' warning_caught: ' . ( $warning_caught ? 'yes' : 'no' )
+);
+
+// All four non-string returns should have produced log entries (one per
+// distinct gettype: NULL, boolean, integer, array → 4 distinct dedupe keys).
+assert_true(
+	'[4r.log] Non-string returns produced log entries through the dedupe channel',
+	4 === count( $GLOBALS['__test_did_wrong'] ),
+	'_doing_it_wrong calls: ' . count( $GLOBALS['__test_did_wrong'] )
 );
 
 // ---------------------------------------------------------------------------

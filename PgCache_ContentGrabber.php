@@ -2101,7 +2101,7 @@ class PgCache_ContentGrabber {
 	 *  - Layer 3: if `W3TC_DYNAMIC_SECURITY` is undefined / empty / `1`,
 	 *    no dispatch happens at all — the buffer is returned untouched.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $buffer The content buffer to parse.
 	 *
@@ -2164,7 +2164,15 @@ class PgCache_ContentGrabber {
 	 * The HMAC envelope (`hmac:<hex>`) is added automatically at
 	 * cache-write time; emitters MUST NOT compute it themselves.
 	 *
-	 * @since 2.9.5
+	 * **Cache-miss fallback content.** Use the *inline-header* form (with the
+	 * `call:slug` descriptor inside the opening comment) if you want HTML
+	 * placed between the comments to survive a cache miss. The *body-form*
+	 * (descriptor between the comments) is supported for back-compat but its
+	 * body is overwritten by `_sign_dynamic_tags()` at write time — anything
+	 * you placed there as fallback markup will be wiped before the cached
+	 * file lands on disk.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return array<string,callable> Slug → callable(array $args, string $kind): string
 	 */
@@ -2186,7 +2194,7 @@ class PgCache_ContentGrabber {
 	 * Falls back to the W3TC_DYNAMIC_SECURITY token mixed with
 	 * AUTH_KEY/SECURE_AUTH_KEY when WordPress is not loaded (CLI tests).
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @return string
 	 */
@@ -2197,8 +2205,8 @@ class PgCache_ContentGrabber {
 
 		$parts = array(
 			defined( 'W3TC_DYNAMIC_SECURITY' ) ? (string) W3TC_DYNAMIC_SECURITY : '',
-			defined( 'AUTH_KEY' )              ? (string) AUTH_KEY              : '',
-			defined( 'SECURE_AUTH_KEY' )       ? (string) SECURE_AUTH_KEY       : '',
+			defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : '',
+			defined( 'SECURE_AUTH_KEY' ) ? (string) SECURE_AUTH_KEY : '',
 		);
 
 		return implode( '|', $parts );
@@ -2207,7 +2215,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Computes the HMAC for a (kind, slug, args-json) tuple.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $kind      Tag kind, 'mfunc' or 'mclude'.
 	 * @param string $slug      Callback slug.
@@ -2241,7 +2249,7 @@ class PgCache_ContentGrabber {
 	 * substring between the slug token and `hmac:`.  Returns `null` if
 	 * the tag is not in the safe form (no `call:` prefix or no `hmac:`).
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $header The raw payload header from the tag.
 	 *
@@ -2264,7 +2272,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Decodes a tag's JSON args, returning an empty array for empty / invalid input.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $args_json JSON string.
 	 *
@@ -2285,7 +2293,7 @@ class PgCache_ContentGrabber {
 	 * are seen at dispatch time.  These tags are no longer executed — emitters
 	 * must migrate to the `call:<slug>` registered-callback form.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $kind   'mfunc' or 'mclude'.
 	 * @param string $reason Human-readable reason.
@@ -2293,9 +2301,25 @@ class PgCache_ContentGrabber {
 	 * @return void
 	 */
 	private function _log_dynamic_deprecation( $kind, $reason ) {
+		// Rate-limit identical (kind|reason) notices to once per 5 minutes
+		// per site. On a high-traffic site, the first cache miss after this
+		// patch ships re-renders every still-cached legacy tag through this
+		// path; without a guard, `_doing_it_wrong()` floods admin notices
+		// (when WP_DEBUG is on) and `error_log()` floods the system log on
+		// every page load until the cache rolls over. The dedupe key uses
+		// md5() rather than the raw string because $reason can contain HMACs
+		// and arbitrary slugs, and transient keys are length-bounded.
+		$dedupe_key = 'w3tc_dyn_dep_' . md5( (string) $kind . '|' . (string) $reason );
+		if ( \function_exists( 'get_site_transient' ) && \function_exists( 'set_site_transient' ) ) {
+			if ( false !== \get_site_transient( $dedupe_key ) ) {
+				return;
+			}
+			\set_site_transient( $dedupe_key, 1, 300 );
+		}
+
 		if ( \function_exists( '_doing_it_wrong' ) ) {
 			\_doing_it_wrong(
-				$kind,
+				\esc_html( $kind ),
 				\esc_html(
 					sprintf(
 						/* translators: 1: tag kind (mfunc/mclude), 2: reason. */
@@ -2304,7 +2328,7 @@ class PgCache_ContentGrabber {
 						$reason
 					)
 				),
-				'2.9.5'
+				'X.X.X'
 			);
 		} elseif ( \function_exists( 'error_log' ) ) {
 			\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -2316,7 +2340,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Dispatches a verified, registered callback by slug.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $kind 'mfunc' or 'mclude'.
 	 * @param string $slug Callback slug.
@@ -2353,7 +2377,31 @@ class PgCache_ContentGrabber {
 			);
 		}
 
-		return \is_string( $output ) ? $output : (string) $output;
+		if ( ! \is_string( $output ) ) {
+			// A callback that returns null/false/an array silently coerces to
+			// an empty (or garbled) string and hides the bug from site owners
+			// — the fragment just disappears. Surface it through the same
+			// log channel as the deprecation path so the breakage is visible
+			// (and rate-limited identically) before we coerce.
+			$this->_log_dynamic_deprecation(
+				$kind,
+				sprintf( 'callback "%s" returned non-string %s', $slug, \gettype( $output ) )
+			);
+
+			// `(string)` on an array or a non-Stringable object raises a PHP
+			// warning and produces the literal `"Array"` / "Object of class …
+			// could not be converted" sentinel. Both are useless in cached
+			// HTML and noisy in the error log. Coerce scalars (which have
+			// useful string forms — `null` → `''`, `false` → `''`, numbers
+			// → the digits) but emit an empty string for the rest.
+			if ( \is_scalar( $output ) || ( \is_object( $output ) && \method_exists( $output, '__toString' ) ) ) {
+				return (string) $output;
+			}
+
+			return '';
+		}
+
+		return $output;
 	}
 
 	/**
@@ -2366,7 +2414,7 @@ class PgCache_ContentGrabber {
 	 *     valid HMAC envelope.
 	 *  3. Refuses unless the slug is in the registered-callback registry.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $kind    'mfunc' or 'mclude'.
 	 * @param array  $matches preg_replace_callback matches: [0]=full, [1]=header, [2]=body.
@@ -2414,7 +2462,7 @@ class PgCache_ContentGrabber {
 	 * That primitive has been removed; only registered callbacks dispatched
 	 * via `call:<slug>` + HMAC are honored.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
@@ -2432,7 +2480,7 @@ class PgCache_ContentGrabber {
 	 * callbacks dispatched via `call:<slug>` + HMAC are honored.  Plugins
 	 * that need to render an include's output should wrap it in a slug.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
@@ -2458,7 +2506,7 @@ class PgCache_ContentGrabber {
 	 * makes back-compat behavior visible (an error in place of the tag)
 	 * rather than silently dropping the tag at write time.
 	 *
-	 * @since 2.9.5
+	 * @since X.X.X
 	 *
 	 * @param string $buffer Buffer containing rendered HTML.
 	 *
@@ -2473,9 +2521,9 @@ class PgCache_ContentGrabber {
 
 		$sign_one = function ( $kind ) {
 			return function ( $matches ) use ( $kind ) {
-				$header     = isset( $matches[1] ) ? trim( $matches[1] ) : '';
-				$body_raw   = isset( $matches[2] ) ? $matches[2] : '';
-				$body       = trim( $body_raw );
+				$header   = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+				$body_raw = isset( $matches[2] ) ? $matches[2] : '';
+				$body     = trim( $body_raw );
 
 				// If the header already has a complete `call:slug ... hmac:hex` envelope, leave it alone.
 				if ( null !== $this->_parse_dynamic_header( $header ) ) {
