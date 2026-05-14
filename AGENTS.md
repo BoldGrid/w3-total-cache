@@ -45,3 +45,10 @@ This project is a WordPress plugin designed to enhance website performance throu
 - For ad-hoc agent scratch files (PR-comment bodies, JSON payloads for `gh api`, draft patches, intermediate tool output, etc.), write to `.cursor/working/` — it is covered by `.gitignore` (`.cursor/working/`).
 - Do not write to `/tmp/` or to any path outside the project tree.
 - Leave scratch files in place for traceability rather than deleting on task completion; the directory is gitignored so they will not pollute commits.
+- **Prefix task-specific scratch files with the primary identifier the user is working from** so concurrent task workflows don't collide in the directory:
+  - PR-driven task → `{PR}-{role}.{ext}` (e.g., `1313-pr-body.json`, `1313-jira-jacobd91-comment.md`, `1313-anchor-comment.md`).
+  - Jira-driven task → `{KEY}-{role}.{ext}` (e.g., `ENG7-2908-summary.md`).
+  - Both relevant → `{PR}-{KEY}-{role}.{ext}` (e.g., `1313-ENG7-2908-jira-cssjoe.md`).
+  - Non-task-specific persistent agent references (playbooks, conventions) → `PLAYBOOK-{topic}.md` or `CONVENTION-{topic}.md`.
+- Long-lived agent playbooks are committed under `.claude/skills/{skill-name}/SKILL.md`. Read the relevant skill at the start of a matching task before improvising — skills encode caveats discovered the hard way on prior runs. Current skills:
+  - `.claude/skills/pr-content-to-jira/SKILL.md` — move sensitive descriptive content (vuln scope, finding IDs, exploit-shaped review commentary) off a public GitHub PR and into an internal Jira ticket. Use when a PR has accumulated content that should not stay in the default public view and a parent Jira ticket exists.
