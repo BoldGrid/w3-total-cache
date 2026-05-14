@@ -117,7 +117,14 @@ class Cdn_Plugin {
 		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
 
 		if ( $is_cdn_enabled && $cdn_engine ) {
-			@header( 'X-W3TC-CDN: ' . $cdn_engine );
+			// rt9-102: `cdn.engine` is admin-settable. The
+			// ConfigKeys `enum` clause already constrains it to an
+			// allowlisted slug at write time, but route it through
+			// Util_Response::header anyway so any future bypass
+			// (a filter mutating the value at read time, a
+			// downstream caller using header() directly with a
+			// crafted string) still cannot split this response.
+			Util_Response::header( 'X-W3TC-CDN', $cdn_engine );
 		}
 	}
 

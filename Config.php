@@ -436,6 +436,8 @@ class Config {
 	 * @return mixed The value that was set.
 	 */
 	public function set( $key, $value ) {
+		$value = self::enforce_enum( $key, $value, $this );
+
 		if ( ! is_array( $key ) ) {
 			$this->_data[ $key ] = $value;
 		} else {
@@ -451,6 +453,120 @@ class Config {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Constrains scalar `$value` to the enum declared in
+	 * {@see ConfigKeys.php} for `$key`, when present.
+	 *
+	 * Schema declares an enum like:
+	 *
+	 *     'cdn.engine' => array(
+	 *         'type'    => 'string',
+	 *         'default' => '',
+	 *         'enum'    => array( 'ftp', 's3', ... ),
+	 *     ),
+	 *
+	 * Behavior:
+	 *
+	 *  * If the key has no `enum` entry, return `$value` unchanged.
+	 *  * If `$value` is in the enum, return it unchanged.
+	 *  * Otherwise, retain the value already stored under that key
+	 *    (or the schema `default`) and emit an audit-log entry. The
+	 *    invalid value never reaches `$this->_data`, so downstream
+	 *    callers — including the `header()` emitters that
+	 *    interpolate `cdn.engine` — only ever see an allowlisted
+	 *    slug.
+	 *
+	 * Top-level keys only (compound `array( 'extension', 'sub' )`
+	 * keys skip enforcement); the schema doesn't currently declare
+	 * enums on extension subkeys.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|array $key    Config key (string for top-level, array for extension subkey).
+	 * @param mixed        $value  The candidate value.
+	 * @param Config       $config Config instance, used to look up the prior value as fallback.
+	 *
+	 * @return mixed The original value if allowed, otherwise the prior stored value (or schema default).
+	 */
+	private static function enforce_enum( $key, $value, Config $config ) {
+		if ( ! \is_string( $key ) ) {
+			return $value;
+		}
+
+		$schema = self::config_keys_schema();
+		if ( ! isset( $schema[ $key ]['enum'] ) || ! \is_array( $schema[ $key ]['enum'] ) ) {
+			return $value;
+		}
+
+		$enum = $schema[ $key ]['enum'];
+
+		// Only enforce on scalar candidate values. An attacker who
+		// passes a non-scalar gets rejected; legitimate code never
+		// stores arrays under an enum-typed string key.
+		if ( ! \is_scalar( $value ) ) {
+			$value = '';
+		}
+
+		$value_string = (string) $value;
+
+		if ( \in_array( $value_string, $enum, true ) ) {
+			return $value;
+		}
+
+		// Reject. Retain whatever was previously stored (or fall
+		// back to the schema default). Audit-log the rejection so
+		// operators can see attempted out-of-enum writes (a sign of
+		// CRLF injection attempts or a buggy filter).
+		$fallback = '';
+		if ( isset( $config->_data[ $key ] ) ) {
+			$fallback = $config->_data[ $key ];
+		} elseif ( isset( $schema[ $key ]['default'] ) ) {
+			$fallback = $schema[ $key ]['default'];
+		}
+
+		if ( \class_exists( __NAMESPACE__ . '\\Util_Debug', false ) ) {
+			Util_Debug::log(
+				'config',
+				\sprintf(
+					'Rejected out-of-enum write to %s; retained prior value. Allowed: %s',
+					$key,
+					\implode( ',', $enum )
+				)
+			);
+		}
+
+		return $fallback;
+	}
+
+	/**
+	 * Lazy-load the {@see ConfigKeys.php} schema once per request.
+	 *
+	 * `ConfigKeys.php` populates a local `$keys` variable; we
+	 * import the file inside an isolated scope and cache the
+	 * result so per-write enum lookups don't re-include the file.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function config_keys_schema() {
+		static $schema = null;
+
+		if ( null === $schema ) {
+			$schema = array();
+
+			$loader = static function () {
+				$keys = array();
+				include W3TC_DIR . '/ConfigKeys.php';
+				return $keys;
+			};
+
+			$schema = (array) $loader();
+		}
+
+		return $schema;
 	}
 
 	/**

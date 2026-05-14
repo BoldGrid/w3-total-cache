@@ -1182,6 +1182,34 @@ $keys = array(
 	'cdn.engine'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		// rt9-102: cdn.engine is interpolated into the X-W3TC-CDN
+		// response header by Cdn_Plugin::send_headers. Without an
+		// allowlist, an admin-settable value could carry CRLF and
+		// inject arbitrary response headers (defense-in-depth on
+		// PHP 7.x; PHP 8.3 already rejects raw CRLF in header()).
+		// Enum derives from the supported engines listed in
+		// Cdn_Core_Admin and Cache::engine_name; empty string is
+		// the "no CDN" default and must remain valid.
+		'enum'    => array(
+			'',
+			'akamai',
+			'att',
+			'azure',
+			'azuremi',
+			'bunnycdn',
+			'cf',
+			'cf2',
+			'cloudfront',
+			'cotendo',
+			'edgecast',
+			'ftp',
+			'google_drive',
+			'mirror',
+			'rackspace_cdn',
+			'rscf',
+			's3',
+			's3_compatible',
+		),
 	),
 	'cdn.uploads.enable'                                   => array(
 		'type'    => 'boolean',
