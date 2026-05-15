@@ -513,9 +513,11 @@ Closing this PR. Continued work on this fix is being handled through a private r
 
 #### 6d. Minimize every bot-authored review / inline / issue comment as `OUTDATED`
 
-**Standing rule:** any PR being relocated to a GHSA gets every bot-authored comment surface (Copilot / `copilot-pull-request-reviewer[bot]`, Codecov, Dependabot, GitHub Actions bots, etc.) minimized as `OUTDATED` before the PR is closed — regardless of whether the individual comment looks sensitive in isolation. The PR is being closed because the workstream moved private; bot review threads anchored against a now-closed public branch are stale by definition, and leaving Copilot's review summaries + inline comments visible on a closed-then-relocated PR signals to onlookers that there was substantive review activity worth re-reading. Hide them.
+**Standing rule:** any PR being relocated to a GHSA gets every bot-authored comment surface (Copilot / `copilot-pull-request-reviewer[bot]`, Dependabot, GitHub Actions bots, etc.) minimized as `OUTDATED` before the PR is closed — regardless of whether the individual comment looks sensitive in isolation. The PR is being closed because the workstream moved private; bot review threads anchored against a now-closed public branch are stale by definition, and leaving Copilot's review summaries + inline comments visible on a closed-then-relocated PR signals to onlookers that there was substantive review activity worth re-reading. Hide them.
 
-This step is independent of (and additive to) any per-item categorization the `pr-content-to-jira` skill ran earlier. Even if `pr-content-to-jira` was skipped entirely, run this. Even if the bot comments were left visible because they were "harmless coding-standards nits," minimize them anyway — the closed-PR context is what changes the calculus.
+**Carve-out: codecov coverage reports are intentionally left visible.** Coverage reports posted by `codecov-commenter` (or any future `codecov`-prefixed login such as `codecov[bot]`) are *not* minimized on a relocated PR. Coverage data is a diagnostic signal that doesn't telegraph security review activity — and the same numbers are reachable on codecov.io regardless of what the PR thread shows, so hiding the comment changes nothing useful while breaking the link some teammates rely on for "did the move drop coverage?" follow-ups. The bot-minimization filter below explicitly skips any login starting with `codecov`; everything else gets the standing rule. Note that `codecov-commenter` historically has `user.type: "User"` (not `Bot`) and a login without a `[bot]` suffix, so the carve-out is mostly belt-and-braces against a future GitHub-App migration that would change the login shape — but bake the explicit skip in regardless so a future filter rewrite can't accidentally absorb codecov.
+
+This step is independent of (and additive to) any per-item categorization the `pr-content-to-jira` skill ran earlier. Even if `pr-content-to-jira` was skipped entirely, run this. Even if the non-codecov bot comments were left visible because they were "harmless coding-standards nits," minimize them anyway — the closed-PR context is what changes the calculus.
 
 Pull node IDs for every bot surface across all four PR comment surfaces, then minimize:
 
@@ -535,9 +537,15 @@ gh api --paginate repos/$REPO/pulls/$PR/comments \
   --jq '[.[] | select(.user.login == "Copilot" or (.user.login | endswith("[bot]"))) | .node_id]' \
   > .cursor/working/${PR}-bot-inline-nodes.json
 
-# All issue comments authored by any *[bot] login (covers codecov, etc.).
+# All issue comments authored by any *[bot] login (or literal "Copilot"),
+# EXCLUDING codecov-commenter / codecov[bot] — coverage reports are
+# intentionally left visible per the carve-out above. The startswith
+# guard catches both the current "codecov-commenter" (user.type=User,
+# no [bot] suffix — which the [bot]-suffix filter already misses, but
+# being explicit is forward-defense) and any future "codecov[bot]"
+# spelling that the filter WOULD otherwise absorb.
 gh api repos/$REPO/issues/$PR/comments \
-  --jq '[.[] | select(.user.login | endswith("[bot]") or .user.login == "Copilot") | .node_id]' \
+  --jq '[.[] | select((.user.login | endswith("[bot]")) or .user.login == "Copilot") | select(.user.login | startswith("codecov") | not) | .node_id]' \
   > .cursor/working/${PR}-bot-issue-nodes.json
 
 # Minimize every node, idempotent (already-minimized nodes return success).
@@ -567,12 +575,12 @@ for FILE in .cursor/working/${PR}-bot-{review,inline,issue}-nodes.json; do
 done
 ```
 
-Whether to additionally `DELETE` the codecov coverage comment is a judgment call (it's bot-authored, posted on a now-closed PR, and useless once the branch is gone — but it's also benign and the minimize covers the visibility goal). Default: minimize, don't delete.
+**Codecov coverage comments are not minimized and not deleted — they stay visible.** This is the same carve-out the standing rule above codifies; the filter already skips them. Don't second-guess it on a per-PR basis ("but this codecov comment quotes the changed file paths…") — the file paths are visible in the diff anyway, the coverage numbers themselves don't telegraph security context, and the codecov.io report linked from the comment renders the same data regardless of whether the PR comment is collapsed. Leaving codecov visible also preserves the "did the relocated change drop coverage?" answer for anyone who revisits the closed PR weeks later.
 
-**Why not delete bot comments outright?** A few reasons:
+**Why not delete the (non-codecov) bot comments outright?** A few reasons:
 
 - Deletes destroy the comment row; minimize keeps the row so the PR's conversation timeline still has shape (other comments may reply to / quote the bot review).
-- Some bot integrations (Copilot review session links, codecov sentry links) are actively referenced from internal docs / alert routes; preserving the row keeps those links resolvable.
+- Some bot integrations (Copilot review session links, etc.) are actively referenced from internal docs / alert routes; preserving the row keeps those links resolvable.
 - `OUTDATED` is the truthful classifier here — the PR is closed, the branch is gone, the review is by definition out of date.
 
 #### 6e. Post the close comment, close the PR, and delete the branch
@@ -685,7 +693,7 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 
 12. **The Jira back-link is not automatic.** The advisory description points outbound to Jira, but Jira does not learn about the GHSA on its own. Phase 5b is the explicit back-link step; without it, anyone landing on the Jira ticket weeks later sees only the closed public PR and has no path forward to the live private workstream. Always run Phase 5b before Phase 6 so a failure doesn't leave Jira out of date with a closed public PR pointing at it.
 
-13. **Minimize all bot comments on relocated PRs (standing rule).** Phase 6d minimizes every `*[bot]` / `Copilot`-authored review summary, inline comment, and issue comment as `OUTDATED` before the PR is closed — regardless of whether `pr-content-to-jira` flagged them as sensitive. The trigger is "this PR is being closed because the workstream moved to a private GHSA," not "this comment looked dangerous." Closed-then-relocated PRs should not advertise stale bot review activity to anyone landing on the closed-PR landing page weeks later. The mutation is idempotent; safe to re-run on a PR where some bot comments are already minimized. The maintainer-authored close comment stays visible. Maintainer-authored *pointer* comments (the ones `pr-content-to-jira` edited from sensitive content down to a single "moved to internal ticket..." line) get a separate minimize sweep at the bottom of Phase 6e — same logic, different author class, so a different code path.
+13. **Minimize bot comments on relocated PRs, with a codecov carve-out (standing rule).** Phase 6d minimizes every `*[bot]` / `Copilot`-authored review summary, inline comment, and issue comment as `OUTDATED` before the PR is closed — *except* codecov coverage reports (`codecov-commenter` or any `codecov`-prefixed login), which are intentionally left visible. The trigger for the minimize side of the rule is "this PR is being closed because the workstream moved to a private GHSA," not "this comment looked dangerous"; closed-then-relocated PRs should not advertise stale Copilot/Dependabot review activity to anyone landing on the closed-PR landing page weeks later. The trigger for the codecov carve-out is "coverage data is diagnostic, not security-context — and the same numbers live at codecov.io anyway, so hiding the PR comment changes nothing useful while breaking the link teammates rely on for follow-ups." The bot filter in Phase 6d explicitly excludes `codecov`-prefixed logins to make the carve-out durable against any future Codecov GitHub-App migration that switches the login from `codecov-commenter` (current) to `codecov[bot]` (which the `[bot]`-suffix filter would otherwise absorb). The minimize mutation is idempotent; safe to re-run on a PR where some bot comments are already minimized. The maintainer-authored close comment stays visible. Maintainer-authored *pointer* comments (the ones `pr-content-to-jira` edited from sensitive content down to a single "moved to internal ticket..." line) get a separate minimize sweep at the bottom of Phase 6e — same logic, different author class, so a different code path.
 
 14. **Strip the sidebar and shrink the description on relocated PRs (standing rule).** Phase 6b clears assignees, requested reviewers (users *and* teams), labels, milestone, and any manually-linked issues in the "Development" section, and replaces the PR description with **only** the Jira URL — no surrounding paragraph, no audit-trail explainer, no template prose. The sidebar fields outlive the close: they keep the PR appearing in dashboards, milestone burndowns, "PRs assigned to me" panels, and Jira/GitHub-integration cards weeks after the relocation. The description's job after relocation is to point at the live workstream and nothing else; every paragraph beyond the bare URL is an invitation for an onlooker to read further. Forward-defense only — fields and prose that were visible before this run are already in notification emails, GHArchive, and external mirrors.
 
@@ -756,8 +764,16 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
                               which costs notifications. See Phase 6b.5.
                             Minimize every *[bot] / Copilot review +
                               inline + issue comment as OUTDATED via
-                              GraphQL minimizeComment. Standing rule
-                              for relocated PRs — closed-then-relocated
+                              GraphQL minimizeComment, EXCEPT codecov
+                              coverage comments (codecov-commenter /
+                              future codecov[bot]) — those are
+                              intentionally left visible (carve-out:
+                              coverage data is diagnostic, not
+                              security-context, and codecov.io has
+                              the same numbers anyway). The Phase 6d
+                              filter explicitly excludes codecov-
+                              prefixed logins. Standing rule for
+                              relocated PRs — closed-then-relocated
                               PRs should not advertise stale bot review
                               activity. Idempotent; safe to re-run.
                               Also minimize any maintainer-authored
