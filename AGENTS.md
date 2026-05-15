@@ -14,6 +14,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - Opening parenthesis of a multi-line function call must be the last content on the line (PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket).
 - Prefix all global namespace functions with a backslash.
 - Use `/** ... */` doc-block syntax for all multi-line comments and function/class/file doc-blocks, per the WordPress inline-documentation standard. Do not use stacked `//` lines for multi-line commentary; reserve `//` for single-line trailing or explanatory remarks.
+- **Keep code comments short, and add them only when required.** Required cases: an unexpected data shape, a non-obvious branch / fallthrough, a workaround for an external bug, a deliberate deviation from a coding standard. Do **not** narrate what the code already says, restate variable names, summarize the change a PR is making, or include best-practice reminders / general programming tips. The default for any new line of code is **no** comment; add one only when the next reader cannot infer the answer from the code itself. This applies to all languages in the project (PHP, JavaScript, CSS, shell, etc.) and to all comment styles (`//`, `#`, `/* ... */`, `/** ... */`, HTML comments).
 
 ## References
 - WordPress Coding Standards: https://developer.wordpress.org/coding-standards/
@@ -54,6 +55,14 @@ This project is a WordPress plugin designed to enhance website performance throu
   - `.claude/skills/move-pr-to-private-ghsa/SKILL.md` — move an in-progress public security-fix PR into a GHSA's temporary private fork and close + delete the public PR.
 - Report vulnerabilities via the [Patchstack VDP](https://patchstack.com/database/vdp/d5047161-3e39-4462-9250-1b04385021dd), not via public issues or PRs.
 - When in doubt, default to silence on the public side and ask the maintainers in Jira/Slack before posting.
+
+### Security advisories (GHSAs) — naming and Jira-link conventions
+Every GHSA created against this repo, and every PR opened inside a GHSA's temporary private fork (TPF), is paired with a Jira ticket (`ENG7-####`). The following conventions are mandatory and apply to both new advisories and any future edits to existing ones:
+- **Advisory summary** starts with `{JIRA_KEY}: ` followed by the descriptive title. Example: `ENG7-3019: Sanitize newlines from config values written to .htaccess/nginx.conf`. Do not also tack the key on the end as `(ENG7-####)` — only the front-prefix is canonical.
+- **Advisory description** starts with the bare line `Jira: https://imh-internal.atlassian.net/browse/{JIRA_KEY}` followed by a blank line, before any heading or prose. Anyone landing on the advisory should reach the audit-trail ticket in zero clicks. Older "Internal tracking: …" first lines have been normalized to this form; do not reintroduce them.
+- **TPF private PR title** uses the same `{JIRA_KEY}: {descriptive title}` prefix as the advisory summary. The two surfaces share the same identifier and must not drift.
+- The bare `{JIRA_KEY}` (no descriptive suffix) is the title used on the **closed public PR** after relocation, by design — that is the search-engine signpost stripper, not the collaborator UX surface.
+The operational details (how to PATCH an advisory, how to rename a TPF PR, how to make the rename idempotent when the source title already carries a prefix) are encoded in `.claude/skills/move-pr-to-private-ghsa/SKILL.md` caveat #18 and its Phase 2 / Phase 5 snippets. Read that skill before creating a new GHSA or amending an existing one.
 
 ## Dependency Management
 - Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.2.5–8.3 constraint declared in `composer.json`.

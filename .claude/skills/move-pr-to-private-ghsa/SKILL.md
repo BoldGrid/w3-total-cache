@@ -1,13 +1,13 @@
 ---
 name: move-pr-to-private-ghsa
-description: Move an in-progress public GitHub PR for a security fix into a GitHub Security Advisory's temporary private fork (TPF) so the remaining work continues privately. Use when a security-fix PR was opened on a public repo and the team decides further review and additional commits should happen in a draft GHSA's TPF, with the original public PR closed and its branch deleted. Requires repo-admin (or `repository_advisories:write` + `repo`) GitHub auth. Encodes the create-advisory → start-private-fork → push-branch → open-private-PR → back-link-to-Jira → close-public-PR sequence plus the gotchas (async fork creation, no CI on TPFs, all-or-nothing merge in the advisory UI, public PR history is already public, contributor-fork branches can't be deleted by the maintainer, Jira-side bidirectional cross-link must be posted explicitly). Pair with `pr-content-to-jira` when the public PR has accumulated sensitive descriptive content that also needs an audit-trail home.
+description: Move an in-progress public GitHub PR for a security fix into a GitHub Security Advisory's temporary private fork (TPF) so the remaining work continues privately. Use when a security-fix PR was opened on a public repo and the team decides further review and additional commits should happen in a draft GHSA's TPF, with the original public PR closed and its branch deleted. Requires repo-admin (or `repository_advisories:write` + `repo`) GitHub auth. Encodes the create-advisory → start-private-fork → push-branch → open-private-PR → back-link-to-Jira → close-public-PR sequence plus the gotchas (async fork creation, no CI on TPFs, all-or-nothing merge in the advisory UI, public PR history is already public, contributor-fork branches can't be deleted by the maintainer, Jira-side bidirectional cross-link must be posted explicitly). Standing rule: always run `pr-content-to-jira` first as the paired content-relocation step — never as a per-run "should we?" question.
 ---
 
 # Move PR to private GHSA
 
 Move an in-progress public GitHub PR for a security fix into a GitHub Security Advisory's temporary private fork (TPF) so review and additional commits continue privately. This skill encodes the workflow plus every gotcha discovered along the way.
 
-This skill is the GHSA counterpart to `.claude/skills/pr-content-to-jira/SKILL.md`. The two are often used together: this one moves the **code** (commits, branch, future review) to a private surface; that one moves the **descriptive content** (audit-finding IDs, kill-chain text, exploit primitives in review) off the public PR into Jira. When both apply, run `pr-content-to-jira` first so the audit-trail content is preserved before the public PR is closed.
+This skill is the GHSA counterpart to `.claude/skills/pr-content-to-jira/SKILL.md`. **Standing rule: always run `pr-content-to-jira` first, then this skill — never ask "should we?".** The two skills move different artifacts (this one moves the **code** — commits, branch, future review — to a private surface; that one moves the **descriptive content** — audit-finding IDs, kill-chain text, exploit primitives in review — off the public PR into Jira), and the right order is always content-first / code-second so the audit-trail content is preserved before the public PR is closed. If the public PR has no sensitive descriptive content (rare but possible — e.g., a one-line fix with a neutral title), `pr-content-to-jira` becomes a near-noop run that still establishes the Jira ↔ PR cross-link the back-link in Phase 5b depends on. Run it anyway.
 
 ---
 
@@ -65,11 +65,11 @@ Capture from the user (or ask):
 
 - PR URL → derive `{owner}`, `{repo}`, `{n}`.
 - Severity (`critical` / `high` / `medium` / `low`) — required for the advisory unless you supply `cvss_vector_string` instead.
-- One-line summary (≤1024 chars) for the advisory.
-- Long description (≤65535 chars) — usually the original PR description plus any review context worth preserving.
+- One-line summary (≤1024 chars) for the advisory. The standing-rule title shape is **`{JIRA_KEY}: {clean summary}`** — see Phase 2's summary/description standing rule below.
+- Long description (≤65535 chars) — usually the original PR description plus any review context worth preserving. Its first line MUST be the canonical Jira link, per the Phase 2 standing rule.
 - Optional: pre-allocated CVE ID, CWE IDs, credits (login + role).
-- Whether to migrate review/comment context from the public PR into the advisory description (recommended) or leave it for separate Jira-side preservation via `pr-content-to-jira`.
-- **Jira ticket key (e.g., `ENG7-2908`)** for the back-link in Phase 5b. If `pr-content-to-jira` was already run on this PR, the same ticket key carries over. If there is no Jira ticket, skip Phase 5b but say so explicitly to the user — the bidirectional link is otherwise easy to forget.
+- Confirm `pr-content-to-jira` has already been run for this PR (standing rule — see "When to use this"). If it hasn't, run it first and return here. The Jira side becomes the audit-trail home for descriptive content; the advisory description should focus on the change itself (what's fixed, scope, residual risk) rather than re-housing the same finding-IDs/kill-chain content that pr-content-to-jira just moved into Jira.
+- **Jira ticket key (e.g., `ENG7-2908`)** — this drives THREE things: (1) the Phase 5b back-link comment, (2) the advisory summary prefix (`{KEY}: ...`), and (3) the TPF private PR title prefix (`{KEY}: ...`). It is therefore required for any GHSA the workflow produces, not optional. If `pr-content-to-jira` was already run on this PR, the same ticket key carries over. If there genuinely is no Jira ticket, stop and create one before continuing — the prefixed-title and Jira-link-at-top conventions assume one exists.
 - Public-facing close-message wording for the original PR (must reveal nothing about the vulnerability or the GHSA).
 
 Run in parallel:
@@ -113,8 +113,8 @@ Build the request body. The `start_private_fork: true` flag avoids a second roun
 ```jsonc
 // .cursor/working/${PR}-advisory-payload.json
 {
-  "summary": "<≤1024 char title>",
-  "description": "<full description; can include the original PR body>",
+  "summary": "{JIRA_KEY}: <≤1024 char descriptive title; no trailing (ENG7-####) suffix>",
+  "description": "Jira: https://imh-internal.atlassian.net/browse/{JIRA_KEY}\n\n<rest of description>",
   "severity": "high",
   "cve_id": null,
   "vulnerabilities": [
@@ -127,7 +127,8 @@ Build the request body. The `start_private_fork: true` flag avoids a second roun
   ],
   "cwe_ids": [],
   "credits": [
-    { "login": "cssjoe", "type": "remediation_developer" }
+    { "login": "<original PR assignee>", "type": "remediation_developer" },
+    { "login": "<original requested human reviewer>", "type": "remediation_reviewer" }
   ],
   "start_private_fork": true
 }
@@ -139,6 +140,8 @@ Notes on the payload:
 - Set exactly one of `severity` (categorical enum) or `cvss_vector_string` (vector). Don't set both.
 - `cve_id: null` is fine for a brand-new draft; reserve a CVE later via `POST /repos/{owner}/{repo}/security-advisories/{ghsa_id}/cve`.
 - `credits[].type` enum: `analyst`, `finder`, `reporter`, `coordinator`, `remediation_developer`, `remediation_reviewer`, `remediation_verifier`, `tool`, `sponsor`, `other`.
+- **Standing rule for summary + description shape (advisory side).** The `summary` MUST be prefixed with `{JIRA_KEY}: ` (key + colon + space), where `{JIRA_KEY}` is the Jira ticket captured in Phase 0 (e.g., `ENG7-3019: Sanitize newlines from config values written to .htaccess/nginx.conf`). Do not also tack the key on the end as `(ENG7-####)` — earlier advisories used that shape and have since been normalized; only the front-prefix is canonical now. The `description` MUST start with the bare line `Jira: https://imh-internal.atlassian.net/browse/{JIRA_KEY}` followed by a blank line, before any heading or prose. This pairing exists so anyone landing on the advisory (collaborator, future maintainer, auditor) sees the audit-trail home in zero clicks. The same prefix is reused on the private PR's title in Phase 5; the description's Jira-line is the canonical machine-detectable signal for idempotency on re-runs / re-edits.
+- **Standing rule for credits**: derive the credit set from the original public PR's sidebar — every assignee on the PR is credited as `remediation_developer`, every requested reviewer is credited as `remediation_reviewer`. Filter out bot logins (`Copilot`, anything ending in `[bot]`) — those are not creditable GitHub accounts and the API will 422 on them. Do **not** ask the user to confirm; do **not** drop a human credit because of a perceived conflict (e.g., the same login being both assignee and reviewer, or the relocator being credited as `remediation_reviewer` because they were the original public PR's reviewer — the relocator becomes the *private PR's* author, but their role on the *advisory* is still "reviewer of the underlying remediation"). Just include the full filtered set. If GitHub dedupes or rejects an entry, the create call will surface that and you can adjust then; don't preemptively filter for hypothetical conflicts.
 
 Submit:
 
@@ -213,7 +216,13 @@ The SHA should match `headRefOid` from the original PR snapshot.
 The TPF inherits the **parent repo's default branch**, not necessarily `main`. Read it from the fork response rather than hardcoding (e.g., this repo defaults to `master`, so a hardcoded `--base main` would 404):
 
 ```bash
-TITLE=$(jq -r '.title' .cursor/working/${PR}-pr-snapshot.json)
+JIRA_KEY=ENG7-XXXX  # captured in Phase 0; the advisory summary uses this same prefix.
+RAW_TITLE=$(jq -r '.title' .cursor/working/${PR}-pr-snapshot.json)
+# Strip any existing `{KEY}: ` prefix or trailing `(KEY)` suffix from the public PR's
+# title before re-applying the canonical front-prefix — keeps the rule idempotent if
+# the public PR title was already manually prefixed.
+CLEAN_TITLE=$(echo "$RAW_TITLE" | sed -E "s/^${JIRA_KEY}: ?//; s/ *\(${JIRA_KEY}\) *$//")
+TITLE="${JIRA_KEY}: ${CLEAN_TITLE}"
 BASE=$(jq -r '.default_branch' .cursor/working/${PR}-${GHSA}-fork-response.json)
 
 gh pr create \
@@ -223,6 +232,8 @@ gh pr create \
   --title "$TITLE" \
   --body-file .cursor/working/${PR}-${GHSA}-private-pr-body.md
 ```
+
+**Standing rule for the TPF private PR's title.** It MUST be prefixed with `{JIRA_KEY}: ` to match the advisory's summary prefix — the two surfaces share the same "what is this advisory tracking" identifier and they should not drift. The closed public PR's title is independently renamed to the bare `{JIRA_KEY}` (no descriptive suffix) in Phase 6a, so the three closely-related GitHub surfaces end up with three distinct-but-related titles: bare key on the closed public PR (strips the search-engine signpost), prefixed + descriptive title on both the advisory and the TPF private PR (collaborators need to see what this is at a glance).
 
 GitHub automatically links the PR to the parent advisory because the fork is the advisory's TPF. The PR shows up under "Collaborate on a patch" on the advisory page.
 
@@ -238,7 +249,7 @@ Carry the metadata across with two nuances:
 
 2. **Requested reviewers transpose.** GitHub forbids requesting review from the PR author, so any login that was a reviewer on the public PR but is now the private PR's author must be skipped — typically the relocator. The remaining original reviewers (Copilot bot, etc.) usually shouldn't carry over either: bots can't review the TPF, and the team membership already grants the natural human reviewers access without a formal request.
 
-   The right default is **leave reviewers empty on the private PR** and rely on team membership for access. Add a specific human reviewer only when the original public PR had a non-author non-bot reviewer and you want them surfaced in their dashboard. Ask before adding — there's no good universal default for "who reviews the relocated code now that the relocator is the new author."
+   **Standing rule: leave reviewers empty on the private PR.** Rely on team membership (e.g., `w3-total-cache-developers` for the BoldGrid repo — see "Repo-specific collaborator defaults" below) for access. Do **not** ask the user whether to add a specific human reviewer; the team membership covers the natural human reviewers, and asking on every run is the kind of question whose answer never changes. If a future engagement legitimately needs a non-team human reviewer surfaced in their own dashboard for the relocated work, the team can request that explicitly on the GHSA after Phase 5 — it's a one-line `gh pr edit --add-reviewer` follow-up against the private PR rather than a per-run prompt.
 
 ```bash
 PRIVATE_PR_NUMBER=$(gh pr list --repo $FORK_FULL --json number --jq '.[0].number')
@@ -255,10 +266,13 @@ for LOGIN in $ORIG_ASSIGNEES; do
   gh pr edit $PRIVATE_PR_NUMBER --repo $FORK_FULL --add-assignee "$LOGIN"
 done
 
-# Reviewer transpose: skip the relocator (who is the new author).
+# Reviewer transpose: standing rule is LEAVE EMPTY and rely on team
+# membership. This loop is intentionally a noop; the filter exists
+# only to document which logins would be skipped if a future variant
+# of this skill ever decides to add specific reviewers automatically.
+# Don't uncomment without team sign-off — see Phase 5a header.
 for LOGIN in $ORIG_REVIEWERS; do
   if [ "$LOGIN" != "$RELOCATOR" ] && [ "$LOGIN" != "Copilot" ] && ! echo "$LOGIN" | grep -q '\[bot\]$'; then
-    # Default is to LEAVE EMPTY. If you uncomment, request the user first.
     : # gh pr edit $PRIVATE_PR_NUMBER --repo $FORK_FULL --add-reviewer "$LOGIN"
   fi
 done
@@ -699,7 +713,11 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 
 15. **Dismiss blocking reviews BEFORE closing (standing rule).** GitHub silently no-ops `dismiss` on closed PRs — both REST `PUT /pulls/{n}/reviews/{id}/dismissals` and GraphQL `dismissPullRequestReview` return success without errors but the review's `state` stays `CHANGES_REQUESTED` (or `APPROVED`). The "requested changes" red badge on the closed-PR Reviewers sidebar is driven by the submitted review's state, not the requested-reviewer field, so removing the requested reviewer in Phase 6b doesn't clear it. Phase 6b.5 must dismiss every blocking review while the PR is still open. The only post-close fix is reopen → dismiss → re-close, which costs ~2 notifications per watcher per PR — usually not worth it for a historical badge. Keep the dismissal message neutral; it's public.
 
-16. **The private PR's author is the relocator, not the original PR author (transpose rule).** `gh pr create` in Phase 5 sets the *relocator* as the author of the private PR — typically a repo admin like `cssjoe` who is shepherding the relocation, not the original contributor (`jacobd91` etc.). This inverts the original PR's author/reviewer relationship: the original author has no formal role on the private PR by default, and the original reviewer (often the relocator) is now blocked from being a reviewer because GitHub forbids `Review cannot be requested from pull request author`. Phase 5a carries assignees verbatim and transposes/skips reviewers accordingly, with the safe default being **leave reviewers empty** on the private PR and rely on team membership (e.g., `w3-total-cache-developers` for the BoldGrid repo) for access. Add a specific human reviewer only when the original public PR had a non-author non-bot reviewer who isn't the relocator and you specifically want them surfaced in their own dashboard for the relocated work. Never carry bot reviewers (Copilot, etc.) — they aren't TPF collaborators and the API will silently drop or 422 the request.
+16. **The private PR's author is the relocator, not the original PR author (transpose rule).** `gh pr create` in Phase 5 sets the *relocator* as the author of the private PR — typically a repo admin like `cssjoe` who is shepherding the relocation, not the original contributor (`jacobd91` etc.). This inverts the original PR's author/reviewer relationship: the original author has no formal role on the private PR by default, and the original reviewer (often the relocator) is now blocked from being a reviewer because GitHub forbids `Review cannot be requested from pull request author`. Phase 5a carries assignees verbatim and **standing rule is leave reviewers empty on the private PR** — rely on team membership (e.g., `w3-total-cache-developers` for the BoldGrid repo) for access. Don't ask per-run whether to add a specific human reviewer; the team membership covers the natural human reviewers, and asking on every run is the kind of question whose answer never changes. Never carry bot reviewers (Copilot, etc.) — they aren't TPF collaborators and the API will silently drop or 422 the request. If a future engagement legitimately needs a non-team human reviewer surfaced in their own dashboard, the team can request that explicitly post-Phase-5 — it's a one-line `gh pr edit --add-reviewer` follow-up rather than a per-run prompt.
+
+17. **Credits derive from the original PR's sidebar — don't ask, ignore conflicts (standing rule).** Phase 2's `credits[]` payload is built mechanically from the original public PR's sidebar: every assignee → `remediation_developer`, every requested reviewer → `remediation_reviewer`. Filter only bot logins (`Copilot`, anything ending in `[bot]`) since the API will 422 on those. Do **not** ask the user to confirm the credit set, and do **not** preemptively drop human entries because of a perceived conflict — the same login being both assignee and reviewer is fine, the relocator being credited as `remediation_reviewer` because they were the original public PR's reviewer is fine (the relocator becomes the *private PR's* author but their role on the *advisory* is still "reviewer of the underlying remediation"). If GitHub dedupes or rejects an entry, the create call's response surfaces that and you can adjust on the failure; preemptive filtering for hypothetical conflicts just produces under-credited advisories and per-run questions whose answers never change.
+
+18. **Advisory summary + TPF PR title MUST start with `{JIRA_KEY}: `, and advisory description MUST start with `Jira: <URL>` (standing rule).** Phase 2's summary string is `{JIRA_KEY}: {clean descriptive title}` (no trailing `(ENG7-####)` parenthetical — that older shape has been retired, only the front-prefix is canonical). Phase 2's description's first line is the bare canonical link `Jira: https://imh-internal.atlassian.net/browse/{JIRA_KEY}` followed by one blank line, then the rest of the description. Phase 5's `gh pr create` re-uses the same `{JIRA_KEY}: {clean title}` prefix on the TPF private PR. Together these make the audit-trail home reachable in zero clicks from either the advisory page or the TPF PR list — a much shorter path than "scan the description for whichever URL the writer happened to mention first." The Phase 6a rename of the *closed public PR* to the bare `{JIRA_KEY}` (no descriptive suffix) is intentionally different: it strips the public-search signpost, where the advisory + TPF PR want the descriptive title preserved for collaborator UX. Idempotency: if Phase 2 / Phase 5 ever re-run against an advisory or TPF PR that already has the prefix, strip an existing `{KEY}: ` prefix or trailing `(KEY)` suffix from the source title before re-applying — the sed pattern is in the Phase 5 snippet.
 
 ---
 
@@ -707,26 +725,38 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 
 ```
 0. Capture: PR URL, severity, summary, description, optional CVE/CWE/credits,
-            Jira ticket key (for the Phase 5b back-link), close-message wording.
+            Jira ticket key (REQUIRED — drives the back-link in step 6b,
+              the advisory summary prefix `{KEY}: ...` in step 2, and
+              the TPF private PR title prefix `{KEY}: ...` in step 5),
+            close-message wording.
 1. Fetch PR head:           git fetch origin +refs/pull/$PR/head:refs/heads/pr-${PR}-tmp
 2. Create draft GHSA + TPF: gh api -X POST repos/$REPO/security-advisories --input payload.json
                              (with start_private_fork: true)
+                             Standing rule: summary starts with `{KEY}: `;
+                              description starts with `Jira: <URL>` line +
+                              blank line BEFORE any heading or prose.
+                              See caveat #18.
 3. Poll until fork is reachable; capture full_name from response.
 4. Push branch:             git remote add ghsa <fork URL>
                             git push ghsa pr-${PR}-tmp:<branch>
                             git remote remove ghsa
                             (same-repo PRs: expect "Everything up-to-date" — TPF inherits all branches)
-5. Open private PR:         gh pr create --repo <fork> --base "$(jq -r .default_branch <fork-response>)" --head <branch> ...
+5. Open private PR:         gh pr create --repo <fork> --base "$(jq -r .default_branch <fork-response>)" --head <branch> --title "$JIRA_KEY: $CLEAN_TITLE" ...
                             (TPF default branch == parent repo's default; not always "main")
+                            Standing rule: title is `{JIRA_KEY}: {clean title}` —
+                              same prefix as the advisory summary. Strip any
+                              existing `{KEY}: ` prefix or trailing `(KEY)`
+                              from the public PR's title before re-applying
+                              for idempotency. See caveat #18.
                             Then carry over assignees/reviewers from the
                               public PR snapshot (Phase 5a). Assignees
                               copy verbatim. Reviewers TRANSPOSE: skip
                               the relocator (now the new PR author —
                               GitHub 422s "Review cannot be requested
                               from pull request author"), skip Copilot
-                              and any *[bot]. Default is leave reviewers
-                              EMPTY and rely on team membership; ask
-                              before adding a specific human reviewer.
+                              and any *[bot]. Standing rule: leave
+                              reviewers EMPTY and rely on team membership
+                              for access — don't ask per-run.
 6. Add advisory collaborators (if reviewers aren't already):
                             gh api -X PATCH repos/$REPO/security-advisories/$GHSA \
                               -f 'collaborating_teams[]=<maintained-team-slug>' \
@@ -786,6 +816,8 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
    advisory state draft, new private PR listed under the advisory,
    Jira's most recent comment contains the advisory + private PR URLs.
 
-Always run `pr-content-to-jira` BEFORE step 7 if the public PR has sensitive
-descriptive content worth preserving in the audit trail.
+Standing rule: ALWAYS run `pr-content-to-jira` first (Phase 0 / before step 1),
+not just before step 7. Don't ask the user — even a PR with no obvious sensitive
+content benefits from the pre-relocation Jira ↔ PR cross-link the back-link in
+step 6b depends on.
 ```
