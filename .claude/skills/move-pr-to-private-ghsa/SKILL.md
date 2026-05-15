@@ -44,6 +44,7 @@ Per AGENTS.md "Working Files", prefix every scratch file with the originating PR
 
 - `{PR}-pr-snapshot.json` — original PR metadata
 - `{PR}-branch-info.json` — branch ref, head SHA, base, commits
+- `{PR}-worktree/` — linked git worktree where the temp branch is checked out (Phase 1 isolation default; removed in Phase 7 teardown)
 - `{PR}-advisory-payload.json` — POST body for `/security-advisories`
 - `{PR}-advisory-response.json` — response (capture `ghsa_id`, `html_url`)
 - `{PR}-{GHSA}-fork-response.json` — temp private fork details (capture `full_name`)
@@ -87,7 +88,7 @@ Run in parallel:
   ```
 - If a Jira ticket is in scope: `getAccessibleAtlassianResources` (capture `cloudId`) and `getJiraIssue` for `{KEY}` (confirm the ticket exists, capture its current state for the user's mental model).
 
-### Phase 1 — Pre-flight on the original branch
+### Phase 1 — Pre-flight on the original branch (worktree-isolated)
 
 Two cases, handle differently based on `isCrossRepository`:
 
@@ -96,15 +97,27 @@ Two cases, handle differently based on `isCrossRepository`:
 | Same-repo PR | `false` | `{owner}/{repo}:{headRefName}` |
 | Fork PR | `true` | `{contributor-fork}:{headRefName}` |
 
-Either way, fetch the PR's head into a local working branch using the canonical `refs/pull/{n}/head` ref — it works for both cases:
+Either way, fetch the PR's head into a local working branch using the canonical `refs/pull/{n}/head` ref — it works for both cases — and check it out in a **linked worktree** under `.cursor/working/` so the relocation never disturbs the main project tree:
 
 ```bash
 git fetch origin "+refs/pull/$PR/head:refs/heads/pr-${PR}-tmp"
-git checkout pr-${PR}-tmp
-git log -1 --format='%H %s'   # confirm matches headRefOid from snapshot
+git worktree add .cursor/working/${PR}-worktree pr-${PR}-tmp
+( cd .cursor/working/${PR}-worktree && git log -1 --format='%H %s' )   # confirm matches headRefOid from snapshot
 ```
 
-If the working tree has uncommitted changes, stash before this — `git checkout` will refuse otherwise.
+The worktree shares `.git/` with the main repo, so the fetched ref is visible from either location, but the actual checkout — the only step that touches a working tree — happens inside `.cursor/working/${PR}-worktree/`. **Standing rule: this is the default.** No stash dance, no branch switch in your main tree, no risk of leaving `pr-${PR}-tmp` checked out if the relocation is interrupted mid-flight. The worktree directory lives under `.cursor/working/`, which is already gitignored per AGENTS.md "Working Files" — and per the same convention, **scratch files stay in the main project's `.cursor/working/`** (the `${PR}-*.json` / `.md` artifacts from "Filename convention for scratch files" above), not inside the worktree. The worktree is a transient git checkout; the scratch files are the audit trail of the run and belong in the canonical location.
+
+If `git worktree add` fails because the destination already exists from a prior aborted run, clean up first:
+
+```bash
+git worktree remove --force .cursor/working/${PR}-worktree 2>/dev/null || true
+rm -rf .cursor/working/${PR}-worktree
+git branch -D pr-${PR}-tmp 2>/dev/null || true
+```
+
+then re-run the fetch + worktree-add.
+
+The remaining git operation in this skill (the Phase 4 push) does **not** require cwd to be inside the worktree — the `pr-${PR}-tmp` ref is shared between the main repo and the worktree. Run it from wherever is convenient.
 
 ### Phase 2 — Create the draft advisory + start TPF (one shot)
 
@@ -189,15 +202,15 @@ gh api -X POST repos/$REPO/security-advisories/$GHSA/forks
 
 ### Phase 4 — Push the branch into the temp private fork
 
-Add the TPF as a remote, push, then remove the remote so it doesn't linger in your local config:
+Push directly to the TPF's URL without registering a remote — keeps `.git/config` untouched and complements the Phase 1 isolation default:
 
 ```bash
 HEAD_REF_NAME=$(jq -r '.headRefName' .cursor/working/${PR}-pr-snapshot.json)
 
-git remote add ghsa "https://github.com/$FORK_FULL.git"
-git push ghsa pr-${PR}-tmp:${HEAD_REF_NAME}
-git remote remove ghsa
+git push "https://github.com/$FORK_FULL.git" pr-${PR}-tmp:${HEAD_REF_NAME}
 ```
+
+(Earlier revisions of this skill registered a transient `ghsa` remote — `git remote add ghsa … / push ghsa … / git remote remove ghsa` — which worked but mutated the main repo's config briefly. Direct-URL push is the canonical form now. If you specifically want a named remote — e.g., for debugging a failed push and re-running interactively — you can still `git remote add ghsa "https://github.com/$FORK_FULL.git"`, push that way, and `git remote remove ghsa` afterward.)
 
 **`Everything up-to-date` is expected for same-repo PRs.** The TPF is created by forking the public repo *with all of its branches*, so the head branch already exists in the TPF at the same SHA before the push runs. The push is a noop in that case but still correct. For cross-repo (contributor-fork) PRs the branch genuinely doesn't exist on the TPF until you push, so the push will report new objects.
 
@@ -669,6 +682,15 @@ gh pr list --repo $FORK_FULL --json number,title,headRefName,baseRefName
 # expect the new private PR
 ```
 
+Tear down the local worktree once you're satisfied the relocation is complete. The temp branch `pr-${PR}-tmp` is no longer referenced by anything you'll need:
+
+```bash
+git worktree remove .cursor/working/${PR}-worktree
+git branch -D pr-${PR}-tmp
+```
+
+(Optional — if you'd rather keep the local branch around for manual cherry-picking against the TPF later, skip the `git branch -D`. The worktree should still go.)
+
 If a Jira back-link was posted in Phase 5b, also verify it landed and contains the expected URLs:
 
 ```
@@ -729,7 +751,13 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
               the advisory summary prefix `{KEY}: ...` in step 2, and
               the TPF private PR title prefix `{KEY}: ...` in step 5),
             close-message wording.
-1. Fetch PR head:           git fetch origin +refs/pull/$PR/head:refs/heads/pr-${PR}-tmp
+1. Fetch PR head + worktree:
+                            git fetch origin +refs/pull/$PR/head:refs/heads/pr-${PR}-tmp
+                            git worktree add .cursor/working/${PR}-worktree pr-${PR}-tmp
+                            (Standing rule: worktree-isolated default — no
+                             stash, no branch switch in the main tree.
+                             Scratch files still go in the main project's
+                             .cursor/working/, NOT inside the worktree.)
 2. Create draft GHSA + TPF: gh api -X POST repos/$REPO/security-advisories --input payload.json
                              (with start_private_fork: true)
                              Standing rule: summary starts with `{KEY}: `;
@@ -737,10 +765,10 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
                               blank line BEFORE any heading or prose.
                               See caveat #18.
 3. Poll until fork is reachable; capture full_name from response.
-4. Push branch:             git remote add ghsa <fork URL>
-                            git push ghsa pr-${PR}-tmp:<branch>
-                            git remote remove ghsa
-                            (same-repo PRs: expect "Everything up-to-date" — TPF inherits all branches)
+4. Push branch:             git push "https://github.com/$FORK_FULL.git" pr-${PR}-tmp:<branch>
+                            (direct URL push — no transient remote in .git/config.
+                             same-repo PRs: expect "Everything up-to-date" —
+                             TPF inherits all branches.)
 5. Open private PR:         gh pr create --repo <fork> --base "$(jq -r .default_branch <fork-response>)" --head <branch> --title "$JIRA_KEY: $CLEAN_TITLE" ...
                             (TPF default branch == parent repo's default; not always "main")
                             Standing rule: title is `{JIRA_KEY}: {clean title}` —
@@ -815,6 +843,8 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 8. Verify: PR closed, public branch gone, fork branch present at headRefOid,
    advisory state draft, new private PR listed under the advisory,
    Jira's most recent comment contains the advisory + private PR URLs.
+   Then tear down: git worktree remove .cursor/working/${PR}-worktree
+                   git branch -D pr-${PR}-tmp
 
 Standing rule: ALWAYS run `pr-content-to-jira` first (Phase 0 / before step 1),
 not just before step 7. Don't ask the user — even a PR with no obvious sensitive
