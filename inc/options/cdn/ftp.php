@@ -139,8 +139,17 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_ftp_pass" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__ftp__pass" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.ftp.pass' ) ); ?>" size="30" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_ftp_pass',
+				'name'        => 'cdn__ftp__pass',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.ftp.pass' ),
+				'size'        => 30,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
@@ -302,8 +311,19 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_ftp_privkey" class="w3tc-ignore-change" type="text"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__ftp__privkey" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.ftp.privkey' ) ); ?>" size="30" <?php echo function_exists( 'ssh2_connect' ) ? '' : 'disabled'; ?> />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_ftp_privkey',
+				'name'        => 'cdn__ftp__privkey',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.ftp.privkey' ),
+				'size'        => 30,
+				'type'        => 'text',
+				'sealing_key' => 'cdn.',
+				'disabled'    => ! function_exists( 'ssh2_connect' ),
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>

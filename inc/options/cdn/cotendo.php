@@ -15,8 +15,17 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_cotendo_password"><?php esc_html_e( 'Password:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_cotendo_password" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__cotendo__password" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.cotendo.password' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_cotendo_password',
+				'name'        => 'cdn__cotendo__password',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.cotendo.password' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>

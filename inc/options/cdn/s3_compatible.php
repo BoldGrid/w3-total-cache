@@ -46,8 +46,17 @@ Util_Ui::config_item(
 <tr>
 	<th><label for="cdn_s3_secret"><?php esc_html_e( 'Secret key:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_s3_secret" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__s3__secret" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.s3.secret' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_s3_secret',
+				'name'        => 'cdn__s3__secret',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.s3.secret' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
