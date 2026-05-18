@@ -117,7 +117,7 @@ $pass  = 0;
 $fail  = 0;
 $cases = array();
 
-function assert_true( $label, $expectation, $detail = '' ) {
+function cu_assert_true( $label, $expectation, $detail = '' ) {
 	global $pass, $fail, $cases;
 	if ( $expectation ) {
 		$cases[] = array( 'PASS', $label );
@@ -143,24 +143,24 @@ $probe = new class() extends \W3TC\Cache_Base {
 // 1. Primitives and arrays round-trip unchanged.
 // ---------------------------------------------------------------------------
 
-assert_true(
+cu_assert_true(
 	'string round-trip',
 	'hello' === $probe->probe( serialize( 'hello' ) )
 );
 
-assert_true(
+cu_assert_true(
 	'int round-trip',
 	42 === $probe->probe( serialize( 42 ) )
 );
 
-assert_true(
+cu_assert_true(
 	'array round-trip',
 	array( 'a' => 1, 'b' => array( 2, 3 ) ) === $probe->probe(
 		serialize( array( 'a' => 1, 'b' => array( 2, 3 ) ) )
 	)
 );
 
-assert_true(
+cu_assert_true(
 	'envelope-shaped array round-trip',
 	array( 'key_version' => 1, 'value' => 'x' ) === $probe->probe(
 		serialize( array( 'key_version' => 1, 'value' => 'x' ) )
@@ -175,15 +175,15 @@ $post     = new WP_Post( 7, 'Hello' );
 $envelope = array( 'content' => $post, 'key_version_all' => 5 );
 $decoded  = $probe->probe( serialize( $envelope ) );
 
-assert_true(
+cu_assert_true(
 	'WP_Post nested in envelope: outer array preserved',
 	is_array( $decoded ) && isset( $decoded['content'], $decoded['key_version_all'] )
 );
-assert_true(
+cu_assert_true(
 	'WP_Post nested in envelope: inner value is WP_Post (not __PHP_Incomplete_Class)',
 	is_array( $decoded ) && $decoded['content'] instanceof WP_Post
 );
-assert_true(
+cu_assert_true(
 	'WP_Post nested in envelope: properties intact',
 	is_array( $decoded ) && 7 === $decoded['content']->ID && 'Hello' === $decoded['content']->post_title
 );
@@ -191,7 +191,7 @@ assert_true(
 // stdClass is on the default allowlist.
 $obj    = (object) array( 'k' => 'v' );
 $result = $probe->probe( serialize( $obj ) );
-assert_true(
+cu_assert_true(
 	'stdClass round-trip',
 	$result instanceof stdClass && 'v' === $result->k
 );
@@ -202,21 +202,21 @@ assert_true(
 
 $plugin_value = new W3TC_Test_PluginCacheValue( 'secret-payload' );
 $result       = $probe->probe( serialize( $plugin_value ) );
-assert_true(
+cu_assert_true(
 	'disallowed top-level object returns false (cache miss)',
 	false === $result
 );
 
 $nested = array( 'content' => $plugin_value, 'key_version_all' => 1 );
 $result = $probe->probe( serialize( $nested ) );
-assert_true(
+cu_assert_true(
 	'disallowed object nested in envelope returns false (cache miss)',
 	false === $result
 );
 
 $deep = array( 'a' => array( 'b' => array( 'c' => $plugin_value ) ) );
 $result = $probe->probe( serialize( $deep ) );
-assert_true(
+cu_assert_true(
 	'deeply nested disallowed object returns false (cache miss)',
 	false === $result
 );
@@ -225,7 +225,7 @@ assert_true(
 $post_with_payload             = new WP_Post( 1, 'x' );
 $post_with_payload->post_title = $plugin_value;
 $result                        = $probe->probe( serialize( $post_with_payload ) );
-assert_true(
+cu_assert_true(
 	'allowed-class wrapper hiding disallowed object in PUBLIC property returns false',
 	false === $result
 );
@@ -241,7 +241,7 @@ add_filter( 'w3tc_cache_allowed_classes', function ( $allowed ) {
 
 $wrapper_with_hidden_payload = new W3TC_Test_AllowedWrapper( 'visible-ok', new W3TC_Test_PluginCacheValue( 'leaked' ) );
 $result                      = $probe->probe( serialize( $wrapper_with_hidden_payload ) );
-assert_true(
+cu_assert_true(
 	'allowed-class wrapper hiding disallowed object in PROTECTED property returns false',
 	false === $result
 );
@@ -259,7 +259,7 @@ add_filter( 'w3tc_cache_allowed_classes', function ( $allowed ) {
 
 $plugin_value = new W3TC_Test_PluginCacheValue( 'opted-in' );
 $result       = $probe->probe( serialize( $plugin_value ) );
-assert_true(
+cu_assert_true(
 	'filter-extended class round-trips as real instance',
 	$result instanceof W3TC_Test_PluginCacheValue && 'opted-in' === $result->payload
 );
@@ -290,7 +290,7 @@ $blob_inner   = 'O:' . strlen( $class_name ) . ':"' . $class_name . '":2:{'
 // would pass for the wrong reason — unserialize rejecting a malformed
 // payload, not the helper guarding the gadget).
 $sanity = @unserialize( $blob_inner );
-assert_true(
+cu_assert_true(
 	'gadget fixture decodes as a real W3TC_Test_Gadget (sanity)',
 	$sanity instanceof W3TC_Test_Gadget,
 	'blob did not decode — fix length prefix'
@@ -312,7 +312,7 @@ $result = $probe->probe( $blob_inner );
 unset( $result );
 gc_collect_cycles();
 
-assert_true(
+cu_assert_true(
 	'gadget __destruct never fires when class is not on allowlist',
 	! file_exists( $sentinel )
 );
@@ -333,7 +333,7 @@ for ( $i = 0; $i < 200; ++$i ) {
 	$deep = array( 'next' => $deep );
 }
 $result = $probe->probe( serialize( $deep ) );
-assert_true(
+cu_assert_true(
 	'over-deep nesting fails closed (cache miss, no leaked stub)',
 	false === $result
 );
@@ -342,19 +342,19 @@ assert_true(
 // 7. Edge cases.
 // ---------------------------------------------------------------------------
 
-assert_true(
+cu_assert_true(
 	'empty string returns false',
 	false === $probe->probe( '' )
 );
-assert_true(
+cu_assert_true(
 	'non-string returns false',
 	false === $probe->probe( null )
 );
-assert_true(
+cu_assert_true(
 	'malformed payload returns false',
 	false === $probe->probe( 'not a serialize stream' )
 );
-assert_true(
+cu_assert_true(
 	'literal false (b:0;) returns false (acceptable — no caller stores false)',
 	false === $probe->probe( serialize( false ) )
 );
