@@ -240,14 +240,51 @@ class Config {
 			if ( isset( $a[ $key0 ] ) ) {
 				$key1 = $key[1];
 				if ( isset( $a[ $key0 ][ $key1 ] ) ) {
+					self::_maybe_lazy_decrypt( $a[ $key0 ][ $key1 ] );
 					return $a[ $key0 ][ $key1 ];
 				}
 			}
 		} elseif ( isset( $a[ $key ] ) ) {
+			self::_maybe_lazy_decrypt( $a[ $key ] );
 			return $a[ $key ];
 		}
 
 		return null;
+	}
+
+	/**
+	 * Lazily decrypts an `enc:v1:...` envelope value in place on first read.
+	 *
+	 * Companion to the early-bootstrap skip in {@see self::decrypt_secrets()}:
+	 * `advanced-cache.php` loads BEFORE `wp-includes/pluggable.php`, so any
+	 * `Dispatcher::config()` call made during the page-cache drop-in runs
+	 * `load()` while `wp_salt()` is still undefined. We skip the eager
+	 * decrypt in that window so {@see Util_Crypto::derive_key()} doesn't
+	 * take its `SECURE_AUTH_KEY|AUTH_KEY` fallback branch — which derives a
+	 * different key than `wp_salt('secure_auth')` and would HMAC-fail every
+	 * secret, collapsing each one to `''` for the rest of the request.
+	 *
+	 * By the time admin / settings / CDN code calls `$config->get_string()`,
+	 * `wp_salt()` has loaded, so we decrypt then and cache the plaintext
+	 * back into `$_data` so subsequent reads are plain hash lookups.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $value Value to inspect; mutated in place when an
+	 *                     envelope is successfully decrypted (or collapsed
+	 *                     to '' on HMAC tamper).
+	 *
+	 * @return void
+	 */
+	private static function _maybe_lazy_decrypt( &$value ) {
+		if ( ! is_string( $value ) || 0 !== strncmp( $value, 'enc:v1:', 7 ) ) {
+			return;
+		}
+		if ( ! \function_exists( 'wp_salt' ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+			return;
+		}
+		$plain = Util_Crypto::envelope_decrypt( $value );
+		$value = ( false === $plain ) ? '' : $plain;
 	}
 
 	/**
@@ -704,6 +741,27 @@ class Config {
 	 */
 	public static function decrypt_secrets( &$data ) {
 		if ( ! is_array( $data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+			return;
+		}
+
+		/**
+		 * `wp_salt()` is defined in `wp-includes/pluggable.php`, which loads
+		 * AFTER `advanced-cache.php`. When `WP_CACHE` is defined, the W3TC
+		 * page-cache drop-in calls `Dispatcher::config()` during early
+		 * bootstrap — triggering `Config::__construct()` → `load()` → this
+		 * method — well before `wp_salt()` exists. An eager decrypt here
+		 * would force {@see Util_Crypto::derive_key()} down its
+		 * `SECURE_AUTH_KEY|AUTH_KEY` fallback path, which produces a
+		 * different key than `wp_salt('secure_auth')` uses at encrypt time.
+		 * Every secret would then HMAC-fail and collapse to `''`, and the
+		 * Dispatcher singleton would carry empty credentials for the rest
+		 * of the request.
+		 *
+		 * Skip eager decrypt in that window; {@see self::_get()} lazily
+		 * decrypts envelope values on first read instead, by which point
+		 * `wp_salt()` is guaranteed to be loaded.
+		 */
+		if ( ! \function_exists( 'wp_salt' ) ) {
 			return;
 		}
 

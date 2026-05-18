@@ -752,6 +752,18 @@ class Generic_AdminActions_Default {
 		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.
 
 		foreach ( $request as $request_key => $request_value ) {
+			/**
+			 * The `{name}__w3tc_clear` companion fields rendered next to
+			 * masked secret inputs by `Util_Ui::secret_input()` are
+			 * processed alongside their parent key in the secret block
+			 * below — skip them here so they don't get treated as
+			 * standalone config keys (the descriptor lookup would miss
+			 * and they'd fall through to a stray `$config->set()`).
+			 */
+			if ( '__w3tc_clear' === substr( (string) $request_key, -12 ) ) {
+				continue;
+			}
+
 			if ( is_array( $request_value ) ) {
 				$request_value = array_map( 'stripslashes_deep', $request_value );
 			} else {
@@ -801,20 +813,46 @@ class Generic_AdminActions_Default {
 				}
 			}
 
-			// Secret-typed keys (`flags.secret => true`) render in the
-			// admin form with `value=""` and a placeholder, so the user
-			// only re-submits a real value when they're rotating the
-			// credential. An empty POST for a secret means "no change",
-			// not "wipe it". Skip the set() in that case so we don't
-			// blank every CDN credential on every Settings save.
-			if (
+			$is_secret = (
 				is_array( $descriptor )
 				&& isset( $descriptor['flags'] )
 				&& is_array( $descriptor['flags'] )
 				&& ! empty( $descriptor['flags']['secret'] )
-				&& ( ! is_string( $request_value ) || '' === $request_value )
-			) {
-				continue;
+			);
+
+			if ( $is_secret ) {
+				/**
+				 * Explicit-clear path: a companion `{name}__w3tc_clear`
+				 * checkbox submitted with value `1` is the ONLY way to
+				 * wipe a stored secret through the admin UI — see
+				 * `Util_Ui::secret_input()` for the rendering side.
+				 * Checked BEFORE the empty-POST-preserves-secret rule
+				 * below so admins can drop a credential (e.g. revoke a
+				 * Pro license, rotate out a leaked S3 key) without
+				 * needing to type a placeholder value first.
+				 *
+				 * The downstream `Config::save()` then fires the usual
+				 * `w3tc_config_ui_save-w3tc_general` hook, so e.g.
+				 * `Licensing_Plugin_Admin::possible_state_change()`
+				 * still observes the `! $new_key_set && $old_key_set`
+				 * branch and deactivates the license against EDD.
+				 */
+				$clear_key = $request_key . '__w3tc_clear';
+				if ( isset( $request[ $clear_key ] ) && '1' === (string) $request[ $clear_key ] ) {
+					$config->set( $key, '' );
+					continue;
+				}
+
+				/**
+				 * Empty-POST-preserves-secret: masked secret inputs
+				 * always submit `value=""`, so an admin saving Settings
+				 * without rotating the credential MUST not blank the
+				 * stored value. Skip the set() entirely; the existing
+				 * encrypted blob on disk is preserved.
+				 */
+				if ( ! is_string( $request_value ) || '' === $request_value ) {
+					continue;
+				}
 			}
 
 			$config->set( $key, $request_value );
