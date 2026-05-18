@@ -897,7 +897,33 @@ class Licensing_Plugin_Admin {
 	 */
 	private function maybe_update_license_status() {
 		$state = Dispatcher::config_state();
-		if ( time() < $state->get_integer( 'license.next_check' ) ) {
+
+		/**
+		 * Auto-heal stuck `no_key` state caused by the early-bootstrap
+		 * decrypt regression (#1321 follow-up, #1329).
+		 *
+		 * If an earlier `maybe_update_license_status()` call ran while
+		 * `Dispatcher::config()` was carrying a wiped `plugin.license_key`
+		 * (because `advanced-cache.php` triggered `decrypt_secrets()`
+		 * before `wp_salt()` was loaded), this method took the
+		 * `! empty( $license_key )` === false branch below, set
+		 * `license.status` to `'no_key'`, set `plugin.type` to `''`, and
+		 * cached `license.next_check` ~5 days out. The next-check cache
+		 * then blocks recovery for up to 5 days even after the underlying
+		 * decrypt bug is fixed and the key reads correctly.
+		 *
+		 * A non-empty `plugin.license_key` paired with `license.status`
+		 * `'no_key'` is an impossible-by-design state — `'no_key'` is only
+		 * set when the key is empty. Treat it as evidence the cache is
+		 * stale and bypass the rate-limit gate exactly once so the
+		 * re-check fires on the next admin page load.
+		 */
+		$is_stuck_no_key = (
+			'' !== $this->get_license_key()
+			&& 'no_key' === $state->get_string( 'license.status' )
+		);
+
+		if ( ! $is_stuck_no_key && time() < $state->get_integer( 'license.next_check' ) ) {
 			return;
 		}
 
