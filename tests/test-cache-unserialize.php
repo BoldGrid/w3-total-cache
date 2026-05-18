@@ -81,6 +81,20 @@ class W3TC_Test_PluginCacheValue {
 	}
 }
 
+// Fixture wrapper class with a non-public property — exercises the
+// (array)-cast property traversal in _contains_incomplete_class().
+// get_object_vars() called from a base class would NOT see $hidden, so
+// a disallowed object stored there would have leaked through the guard
+// before this fix.
+class W3TC_Test_AllowedWrapper {
+	public $visible;
+	protected $hidden;
+	public function __construct( $visible = null, $hidden = null ) {
+		$this->visible = $visible;
+		$this->hidden  = $hidden;
+	}
+}
+
 // Fixture gadget class with a __destruct side effect — proves that gadget
 // __destruct never fires when the class is not on the allowlist.
 class W3TC_Test_Gadget {
@@ -212,9 +226,27 @@ $post_with_payload             = new WP_Post( 1, 'x' );
 $post_with_payload->post_title = $plugin_value;
 $result                        = $probe->probe( serialize( $post_with_payload ) );
 assert_true(
-	'allowed-class wrapper hiding disallowed object returns false (cache miss)',
+	'allowed-class wrapper hiding disallowed object in PUBLIC property returns false',
 	false === $result
 );
+
+// Same test against a non-public property of an allowed-by-filter wrapper.
+// Regression guard for Copilot review: get_object_vars() called from
+// Cache_Base only sees public props, so this case would have leaked
+// before switching to (array) iteration.
+add_filter( 'w3tc_cache_allowed_classes', function ( $allowed ) {
+	$allowed[] = 'W3TC_Test_AllowedWrapper';
+	return $allowed;
+} );
+
+$wrapper_with_hidden_payload = new W3TC_Test_AllowedWrapper( 'visible-ok', new W3TC_Test_PluginCacheValue( 'leaked' ) );
+$result                      = $probe->probe( serialize( $wrapper_with_hidden_payload ) );
+assert_true(
+	'allowed-class wrapper hiding disallowed object in PROTECTED property returns false',
+	false === $result
+);
+
+remove_all_filters( 'w3tc_cache_allowed_classes' );
 
 // ---------------------------------------------------------------------------
 // 4. Filter extension: plugin opts its class into the allowlist.
@@ -245,11 +277,35 @@ if ( file_exists( $sentinel ) ) {
 
 // Build the serialized blob by hand so we never instantiate a real
 // W3TC_Test_Gadget (whose destructor would write the sentinel itself).
+// Class-name byte count must match exactly — `O:N:"<name>":...` where N
+// is strlen($name). "W3TC_Test_Gadget" is 16 bytes.
 $payload_str  = 'rce';
-$blob_inner   = 'O:17:"W3TC_Test_Gadget":2:{'
+$class_name   = 'W3TC_Test_Gadget';
+$blob_inner   = 'O:' . strlen( $class_name ) . ':"' . $class_name . '":2:{'
 	. 's:9:"sink_path";s:' . strlen( $sentinel ) . ':"' . $sentinel . '";'
 	. 's:7:"payload";s:' . strlen( $payload_str ) . ':"' . $payload_str . '";'
 	. '}';
+
+// Sanity-check the blob actually parses (otherwise the assertion below
+// would pass for the wrong reason — unserialize rejecting a malformed
+// payload, not the helper guarding the gadget).
+$sanity = @unserialize( $blob_inner );
+assert_true(
+	'gadget fixture decodes as a real W3TC_Test_Gadget (sanity)',
+	$sanity instanceof W3TC_Test_Gadget,
+	'blob did not decode — fix length prefix'
+);
+// Force the sanity instance to be released without firing its destructor's
+// file write. Clear sink_path first; this also means the sanity check
+// itself does not leave a sentinel.
+if ( $sanity instanceof W3TC_Test_Gadget ) {
+	$sanity->sink_path = '';
+}
+unset( $sanity );
+gc_collect_cycles();
+if ( file_exists( $sentinel ) ) {
+	@unlink( $sentinel );
+}
 
 $result = $probe->probe( $blob_inner );
 // Force any incomplete-class instances to fall out of scope.
@@ -266,7 +322,24 @@ if ( file_exists( $sentinel ) ) {
 }
 
 // ---------------------------------------------------------------------------
-// 6. Edge cases.
+// 6. Depth fail-closed.
+// Regression guard for Copilot review: when the decoded tree is nested
+// deeper than the recursion limit, the helper must return false (treat as
+// miss), not pass the un-inspected subtree through.
+// ---------------------------------------------------------------------------
+
+$deep = $plugin_value; // disallowed object at the bottom
+for ( $i = 0; $i < 200; ++$i ) {
+	$deep = array( 'next' => $deep );
+}
+$result = $probe->probe( serialize( $deep ) );
+assert_true(
+	'over-deep nesting fails closed (cache miss, no leaked stub)',
+	false === $result
+);
+
+// ---------------------------------------------------------------------------
+// 7. Edge cases.
 // ---------------------------------------------------------------------------
 
 assert_true(

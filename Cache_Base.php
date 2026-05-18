@@ -340,7 +340,10 @@ class Cache_Base {
 	 * The deserialization hardening introduced in PR #1319 (ENG7-3003) passed
 	 * `allowed_classes => false` to every backend read so the vendored Guzzle
 	 * FileCookieJar __destruct gadget could not be reached. That hardening is
-	 * preserved here — by default no class is instantiated, so the gadget
+	 * preserved here — by default the allowlist contains only the WordPress
+	 * core data classes (`stdClass`, `WP_Post`, `WP_Term`, `WP_User`,
+	 * `WP_Comment`, `WP_Site`, `WP_Network`, `WP_Error`), which does not
+	 * include FileCookieJar or any other vendored gadget, so the gadget
 	 * remains unreachable — but rather than handing callers an unusable
 	 * `__PHP_Incomplete_Class` (which fatals on the first property/method/
 	 * array access in PHP 8), we:
@@ -446,6 +449,19 @@ class Cache_Base {
 	 * method call, array-cast) is a fatal in PHP 8. Detecting one anywhere
 	 * in the decoded tree lets the caller drop the entry as a cache miss.
 	 *
+	 * Fails closed on depth overflow: if the value is more deeply nested
+	 * than the recursion limit we return true (treat as if a stub was
+	 * found), so the caller drops the entry. The cost of a false positive
+	 * is a cache-miss + regen; the cost of a false negative is a PHP 8
+	 * fatal when downstream code touches the un-inspected subtree.
+	 *
+	 * Iterates object properties via `(array) $value` rather than
+	 * `get_object_vars()` so private/protected properties on filter-
+	 * allowed wrapper classes are walked too — otherwise a disallowed
+	 * object hidden in a non-public property of an allowed class would
+	 * slip through. The `instanceof __PHP_Incomplete_Class` check above
+	 * runs before this cast, so we never (array)-cast a stub.
+	 *
 	 * @since X.X.X
 	 *
 	 * @param mixed $value Decoded payload.
@@ -454,8 +470,11 @@ class Cache_Base {
 	 * @return bool
 	 */
 	private static function _contains_incomplete_class( $value, $depth = 0 ) {
-		if ( $depth > 32 ) {
-			return false;
+		if ( $depth > 128 ) {
+			// Fail closed: treat over-deep payloads as if a stub was found
+			// so the caller drops the entry instead of returning an
+			// un-inspected subtree.
+			return true;
 		}
 
 		if ( $value instanceof \__PHP_Incomplete_Class ) {
@@ -472,7 +491,7 @@ class Cache_Base {
 		}
 
 		if ( is_object( $value ) ) {
-			foreach ( get_object_vars( $value ) as $item ) {
+			foreach ( (array) $value as $item ) {
 				if ( self::_contains_incomplete_class( $item, $depth + 1 ) ) {
 					return true;
 				}
