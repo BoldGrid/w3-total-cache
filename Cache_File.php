@@ -184,7 +184,7 @@ class Cache_File extends Cache_Base {
 	public function get_with_old( $key, $group = '' ) {
 		list( $data, $has_old_data ) = $this->_get_with_old_raw( $key, $group );
 		if ( ! empty( $data ) ) {
-			$data_unserialized = @unserialize( $data, array( 'allowed_classes' => false ) );
+			$data_unserialized = $this->_unserialize( $data );
 		} else {
 			$data_unserialized = $data;
 		}

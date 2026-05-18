@@ -74,7 +74,7 @@ class Cache_Apcu extends Cache_Base {
 		$has_old_data = false;
 		$storage_key  = $this->get_item_key( $key );
 
-		$v = @unserialize( apcu_fetch( $storage_key ), array( 'allowed_classes' => false ) );
+		$v = $this->_unserialize( apcu_fetch( $storage_key ) );
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
@@ -141,7 +141,7 @@ class Cache_Apcu extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		if ( $this->_use_expired_data ) {
-			$v = @unserialize( apcu_fetch( $storage_key ), array( 'allowed_classes' => false ) );
+			$v = $this->_unserialize( apcu_fetch( $storage_key ) );
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
 				apcu_store( $storage_key, serialize( $v ), 0 );

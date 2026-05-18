@@ -333,4 +333,152 @@ class Cache_Base {
 	public function counter_get( $key ) {
 		return false;
 	}
+
+	/**
+	 * Safely unserialize a cache payload.
+	 *
+	 * The deserialization hardening introduced in PR #1319 (ENG7-3003) passed
+	 * `allowed_classes => false` to every backend read so the vendored Guzzle
+	 * FileCookieJar __destruct gadget could not be reached. That hardening is
+	 * preserved here — by default no class is instantiated, so the gadget
+	 * remains unreachable — but rather than handing callers an unusable
+	 * `__PHP_Incomplete_Class` (which fatals on the first property/method/
+	 * array access in PHP 8), we:
+	 *
+	 *   1. Allow a curated set of WordPress core data classes by default.
+	 *   2. Expose the `w3tc_cache_allowed_classes` filter so plugins that
+	 *      store their own objects through the W3TC-backed object cache
+	 *      (Advanced Custom Fields, WooCommerce sessions, etc.) can opt
+	 *      their classes in.
+	 *   3. Walk the decoded value recursively and, if any
+	 *      `__PHP_Incomplete_Class` survived the filter, signal a cache
+	 *      miss (return false) so the caller regenerates the entry instead
+	 *      of crashing on it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|false|null $data Serialized bytes from the storage backend.
+	 *
+	 * @return mixed The unserialized value, or false to signal a cache miss
+	 *               (either real unserialize failure or an untrusted object).
+	 */
+	protected function _unserialize( $data ) {
+		if ( ! is_string( $data ) || '' === $data ) {
+			return false;
+		}
+
+		$allowed = self::_get_allowed_classes();
+		$value   = @unserialize( $data, array( 'allowed_classes' => $allowed ) );
+
+		if ( false === $value ) {
+			return false;
+		}
+
+		if ( self::_contains_incomplete_class( $value ) ) {
+			return false;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Resolve the list of classes permitted when unserializing cache payloads.
+	 *
+	 * Defaults to the WordPress core data classes that core itself caches
+	 * via `wp_cache_set()` (WP_Post / WP_Term / WP_User / WP_Comment /
+	 * WP_Site / WP_Network / WP_Error, plus stdClass for the many places
+	 * core and plugins cache plain `(object)` casts).
+	 *
+	 * Plugins extend the list with the `w3tc_cache_allowed_classes` filter.
+	 * Returning `true` permits every class — equivalent to pre-PR #1319
+	 * behavior, which re-opens the FileCookieJar deserialization gadget
+	 * surface. Don't return `true` unless you have already removed every
+	 * untrusted writer from your cache backend.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array|true Class names allowed during unserialize, or true to allow all.
+	 */
+	private static function _get_allowed_classes() {
+		$defaults = array(
+			'stdClass',
+			'WP_Post',
+			'WP_Term',
+			'WP_User',
+			'WP_Comment',
+			'WP_Site',
+			'WP_Network',
+			'WP_Error',
+		);
+
+		if ( ! function_exists( 'apply_filters' ) ) {
+			return $defaults;
+		}
+
+		/**
+		 * Filter the list of classes permitted when unserializing cache payloads.
+		 *
+		 * Plugins that store PHP objects in the WordPress object cache (or any
+		 * W3TC-backed cache) should register their classes here so values
+		 * survive the round-trip. Classes not on this list are decoded as
+		 * `__PHP_Incomplete_Class` and cause the entry to be treated as a
+		 * cache miss.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param array $allowed Class names allowed during unserialize.
+		 */
+		$allowed = apply_filters( 'w3tc_cache_allowed_classes', $defaults );
+
+		if ( true === $allowed ) {
+			return true;
+		}
+
+		return is_array( $allowed ) ? $allowed : $defaults;
+	}
+
+	/**
+	 * Walk a decoded value and return true if any `__PHP_Incomplete_Class`
+	 * instance is reachable from it.
+	 *
+	 * An incomplete class is what `unserialize()` returns for any object
+	 * whose class is not on the allowlist; touching one (property access,
+	 * method call, array-cast) is a fatal in PHP 8. Detecting one anywhere
+	 * in the decoded tree lets the caller drop the entry as a cache miss.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $value Decoded payload.
+	 * @param int   $depth Recursion depth guard.
+	 *
+	 * @return bool
+	 */
+	private static function _contains_incomplete_class( $value, $depth = 0 ) {
+		if ( $depth > 32 ) {
+			return false;
+		}
+
+		if ( $value instanceof \__PHP_Incomplete_Class ) {
+			return true;
+		}
+
+		if ( is_array( $value ) ) {
+			foreach ( $value as $item ) {
+				if ( self::_contains_incomplete_class( $item, $depth + 1 ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		if ( is_object( $value ) ) {
+			foreach ( get_object_vars( $value ) as $item ) {
+				if ( self::_contains_incomplete_class( $item, $depth + 1 ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }
