@@ -2,7 +2,7 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 2.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -36,7 +36,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Caching of (minified and compressed) pages and posts in memory or on disk or on (FSD) CDN (by user agent group)
 * Caching of (minified and compressed) CSS and JavaScript in memory, on disk or on CDN
 * Caching of feeds (site, categories, tags, comments, search results) in memory or on disk or on CDN
-* Caching of search results pages (i.e. URIs with query string variables) in memory or on disk
+* Caching of search results pages (i.e., URIs with query string variables) in memory or on disk
 * Caching of database objects in memory or on disk
 * Caching of objects in memory or on disk
 * Caching of fragments in memory or on disk
@@ -45,7 +45,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Minification of posts and pages and RSS feeds
 * Minification of inline, embedded or 3rd party JavaScript with automated updates to assets
 * Minification of inline, embedded or 3rd party CSS with automated updates to assets
-* Defer non critical CSS and Javascript for rendering pages faster than ever before
+* Defer non-critical CSS and JavaScript for rendering pages faster than ever before
 * Defer offscreen images using Lazy Load to improve the user experience
 * Browser caching using cache-control, future expire headers and entity tags (ETag) with "cache-busting"
 * JavaScript grouping by template (home page, post page etc) with embed location control
@@ -374,7 +374,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
 * Fix: Output buffering: Add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
 * Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
-* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g. FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
+* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g., FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
 
 = 2.9.2 =
 * Fix: Patch broken access control for Image Service AJAX operations
@@ -405,7 +405,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Minify: Auto JS: Handle async and defer attributes with values
 * Fix: Google PageSpeed: Lighthouse changes
 * Fix: Cloudflare: Undefined array warning
-* Fix: Rackspace API: Reponse code handling
+* Fix: Rackspace API: Response code handling
 * Fix: License deactivation messages
 * Update: ChartJS updated to v4.4.1
 * Enhancement: Added support links
@@ -423,7 +423,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Image Converter: WP_Query optimizations
 
 = 2.8.12 =
-* Fix: Lazy load background-image style handing
+* Fix: Lazy load background-image style handling
 * Fix: Elementor: Also flush Object Cache after Page Cache is flushed
 * Fix: Canonicalize Cache read path to avoid variants
 
@@ -472,13 +472,13 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
 * Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
 * Enhancement: Added an email field to the exit survey for requesting help
-* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
+* Enhancement: Added a pop-up modal to accept the risk when enabling Object Cache using Disk
 
 = 2.8.5 =
 * Fix: CDN: Amazon S3 long hostname for default region
 * Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
 * Fix: WP-CLI: Remove HTML in output
-* Enhancement: Simplified license messsaging
+* Enhancement: Simplified license messaging
 
 = 2.8.4 =
 * Fix: Deactivation modal JS error
@@ -528,10 +528,10 @@ Please reach out to all of these people and support their projects if you're so 
 == Upgrade Notice ==
 
 = 2.9.4 =
-This is a security update.  Users that implement mfunc/mclude should update to this version.
+This is a security update.  Users who implement mfunc/mclude should update to this version.
 
 = 2.8.13 =
-This is a security update.  Users that implement mfunc/mclude should update to this version.
+This is a security update.  Users who implement mfunc/mclude should update to this version.
 
 = 2.8.2 =
 This is a security update.  All users are encouraged to update to this version.
@@ -564,10 +564,10 @@ Thanks for using W3 Total Cache! This release introduces hundreds of well-tested
 This release includes various fixes for MaxCDN and minify users. As always there are general stability / compatibility improvements. Make sure to test in a sandbox or staging environment and report any issues via the bug submission form available on the support tab of the plugin.
 
 = 0.9.2.10 =
-This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatbility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
+This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatibility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
 
 = 0.9.2.9 =
-This release addresses security issues for Cloudflare users as well as users that implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
+This release addresses security issues for Cloudflare users as well as users who implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
 
 = 0.9.2.8 =
 WordPress attempts to use built-in support for managing files had issues. File management is a critical issue that will cause lots of issues if it doesn't work perfectly. This release is an attempt to restore file management back to the reliability of previous versions.

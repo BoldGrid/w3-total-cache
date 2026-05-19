@@ -823,13 +823,25 @@ class Util_Ui {
 	 *    "credential not set").
 	 *  - `autocomplete="new-password"` discourages browsers from
 	 *    auto-filling stored passwords into the wrong field.
+	 *  - When a secret is configured, a companion `Remove` checkbox is
+	 *    rendered alongside the input. Submitting that checkbox is the
+	 *    only way to wipe a stored credential through the UI — see
+	 *    `Generic_AdminActions_Default::read_request()` for the
+	 *    server-side counterpart. Without it, clearing the visible
+	 *    input and saving is a no-op (the empty-POST-preserves-secret
+	 *    rule, see below).
 	 *
-	 * The companion server-side rule lives in
-	 * `Generic_AdminActions_Default::read_request()`: an empty POST for
-	 * a `secret`-flagged key means "no change", not "blank it". Together
-	 * the two rules let the placeholder pattern round-trip cleanly:
-	 * the admin saves Settings without re-entering existing
-	 * credentials.
+	 * The companion server-side rules live in
+	 * `Generic_AdminActions_Default::read_request()`:
+	 *
+	 *   1. Empty POST for a `secret`-flagged key means "no change",
+	 *      not "blank it". This lets the placeholder pattern round-trip
+	 *      cleanly: the admin saves Settings without re-entering
+	 *      existing credentials.
+	 *   2. A submitted companion `{name}__w3tc_clear=1` field forces
+	 *      the value to '' (and the downstream save hooks then fire,
+	 *      e.g. `Licensing_Plugin_Admin::possible_state_change()`
+	 *      deactivates the license against EDD).
 	 *
 	 * @since X.X.X
 	 *
@@ -840,7 +852,8 @@ class Util_Ui {
 	 *     @type string $name        Submit name (e.g. `cdn__s3__secret`).
 	 *     @type bool   $has_value   Whether a secret is currently
 	 *                               configured. When true the input
-	 *                               renders a dot placeholder.
+	 *                               renders a dot placeholder AND a
+	 *                               companion `Remove` checkbox.
 	 *     @type int    $size        HTML size attribute. Default 60.
 	 *     @type string $type        `password` (default) or `text`.
 	 *     @type string $sealing_key Pass a key prefix (e.g. `cdn.`) to
@@ -880,6 +893,26 @@ class Util_Ui {
 			. ' size="' . esc_attr( (string) $size ) . '"'
 			. ( $disabled ? ' disabled="disabled"' : '' )
 			. ' />';
+
+		/**
+		 * Render the explicit-clear affordance only when a secret is
+		 * configured AND the field is editable. There is nothing to
+		 * remove from an empty field, and a sealed/disabled field has
+		 * to be unsealed before its value can be changed at all.
+		 *
+		 * The companion name pattern is `{name}__w3tc_clear` so it
+		 * never collides with a real ConfigKeys.php key (no schema
+		 * entry ends in `clear`) and is trivially filtered out of the
+		 * `$_REQUEST` iteration in `read_request()`.
+		 */
+		if ( $has_value && ! $disabled ) {
+			$clear_id = $id . '__w3tc_clear';
+			echo ' <label for="' . esc_attr( $clear_id ) . '" class="w3tc-secret-clear-label" style="margin-left:8px;font-weight:normal;cursor:pointer;">'
+				. '<input class="w3tc-ignore-change" type="checkbox" id="' . esc_attr( $clear_id ) . '"'
+				. ' name="' . esc_attr( $name ) . '__w3tc_clear" value="1" />'
+				. ' ' . esc_html__( 'Remove on save', 'w3-total-cache' )
+				. '</label>';
+		}
 	}
 
 	/**
