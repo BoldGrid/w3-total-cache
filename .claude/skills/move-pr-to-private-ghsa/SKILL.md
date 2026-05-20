@@ -250,7 +250,7 @@ gh pr create \
 
 GitHub automatically links the PR to the parent advisory because the fork is the advisory's TPF. The PR shows up under "Collaborate on a patch" on the advisory page.
 
-If you want to migrate review threads from the public PR, do it **now** — post them as comments on the new private PR or stitch them into the advisory description via `PATCH /repos/{owner}/{repo}/security-advisories/{ghsa_id}`. The original review/inline comments do **not** travel with the commits.
+If you want to migrate review threads from the public PR onto the TPF for ongoing-review continuity, that is a separate skill: `.claude/skills/repost-pr-reviews-to-tpf/SKILL.md`. It pulls source reviews + inline comments via `gh api`, groups them by review, and posts each anchored to the source's `original_commit_id` at `original_line` so GitHub renders them as historical outdated comments matching the original review UX exactly. Attribution lives in an inline preface on every body. Run it after Phase 6 (when the public PR is closed) so the framing of "continuity restoration" is accurate; running it earlier just duplicates content that's still readable on the open public PR. The original review/inline comments do **not** travel with the commits — without that follow-up skill, the TPF starts from a blank Conversation tab.
 
 #### 5a. Carry assignees and reviewers from the original PR
 
@@ -717,7 +717,7 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 
 6. **Reviewers must be advisory collaborators.** Add them via `PATCH /repos/{owner}/{repo}/security-advisories/{ghsa_id}` with `collaborating_teams[]` (preferred when a maintained team exists for the repo — see "Repo-specific collaborator defaults") and/or `collaborating_users[]` *before* asking them to review the private PR, otherwise they 404 on the TPF. The intuitive `POST .../collaborators` sub-endpoint does not exist and returns 404. `PATCH` is replace-semantics on these arrays — always include the full intended membership, not just the delta. Repo admins do not need to be re-added; their access comes from the role.
 
-7. **Comments don't migrate with commits.** Reviews, inline comments, and conversation threads from the public PR stay on the public PR. Migrate any context worth preserving into the advisory description or as comments on the new private PR — and consider running `pr-content-to-jira` to also copy that context into Jira for the audit trail.
+7. **Comments don't migrate with commits.** Reviews, inline comments, and conversation threads from the public PR stay on the public PR. Migrate any context worth preserving into the advisory description or as comments on the new private PR — and consider running `pr-content-to-jira` to also copy that context into Jira for the audit trail. For the specific case of replaying the source PR's review threads onto the TPF for ongoing-review continuity (Copilot bot reviews, human reviewer threads, etc.), use the dedicated follow-up skill `.claude/skills/repost-pr-reviews-to-tpf/SKILL.md` — it handles the anchor-to-original-commit pattern that makes the reposts render correctly as historical outdated comments.
 
 8. **`gh` has no native security-advisory subcommand** as of this writing. Everything here goes through `gh api`. If a future `gh security` (or `gh repo security`) subcommand exists, prefer it over the raw REST calls.
 
@@ -845,6 +845,16 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
    Jira's most recent comment contains the advisory + private PR URLs.
    Then tear down: git worktree remove .cursor/working/${PR}-worktree
                    git branch -D pr-${PR}-tmp
+
+9. (Optional follow-up) Replay the source PR's review threads onto the TPF for
+   ongoing-review continuity:
+   See `.claude/skills/repost-pr-reviews-to-tpf/SKILL.md` — pulls source reviews
+   + inline comments via `gh api`, posts each anchored to the source's
+   `original_commit_id` at `original_line` so GitHub renders them as historical
+   outdated comments matching the original review UX. Attribution lives in an
+   inline preface on every body. Without this step, the TPF starts from a blank
+   Conversation tab; with it, Copilot bot reviews / human reviewer threads on
+   the now-closed public PR are also available to reviewers on the TPF.
 
 Standing rule: ALWAYS run `pr-content-to-jira` first (Phase 0 / before step 1),
 not just before step 7. Don't ask the user — even a PR with no obvious sensitive
