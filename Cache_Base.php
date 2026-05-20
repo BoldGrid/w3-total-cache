@@ -352,7 +352,10 @@ class Cache_Base {
 	 *   2. Expose the `w3tc_cache_allowed_classes` filter so plugins that
 	 *      store their own objects through the W3TC-backed object cache
 	 *      (Advanced Custom Fields, WooCommerce sessions, etc.) can opt
-	 *      their classes in.
+	 *      their classes in. The filter is passed a context array
+	 *      (`module`/`group`/`key`) so plugins can scope opt-ins to the
+	 *      cache area that actually stores their objects instead of
+	 *      broadening the allowlist across every W3TC-backed read.
 	 *   3. Walk the decoded value recursively and, if any
 	 *      `__PHP_Incomplete_Class` survived the filter, signal a cache
 	 *      miss (return false) so the caller regenerates the entry instead
@@ -360,17 +363,30 @@ class Cache_Base {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param string|false|null $data Serialized bytes from the storage backend.
+	 * @param string|false|null $data    Serialized bytes from the storage backend.
+	 * @param array             $context Optional. Cache-area context forwarded to the
+	 *                                   `w3tc_cache_allowed_classes` filter. Keys:
+	 *                                   `module` (defaults to the backend's module),
+	 *                                   `group`, `key`.
 	 *
 	 * @return mixed The unserialized value, or false to signal a cache miss
 	 *               (either real unserialize failure or an untrusted object).
 	 */
-	protected function _unserialize( $data ) {
+	protected function _unserialize( $data, $context = array() ) {
 		if ( ! is_string( $data ) || '' === $data ) {
 			return false;
 		}
 
-		$allowed = self::_get_allowed_classes();
+		$context = array_merge(
+			array(
+				'module' => $this->_module,
+				'group'  => '',
+				'key'    => '',
+			),
+			is_array( $context ) ? $context : array()
+		);
+
+		$allowed = self::_get_allowed_classes( $context );
 		$value   = @unserialize( $data, array( 'allowed_classes' => $allowed ) );
 
 		if ( false === $value ) {
@@ -400,9 +416,11 @@ class Cache_Base {
 	 *
 	 * @since X.X.X
 	 *
+	 * @param array $context Cache-area context (module/group/key) forwarded to filters.
+	 *
 	 * @return array|true Class names allowed during unserialize, or true to allow all.
 	 */
-	private static function _get_allowed_classes() {
+	private static function _get_allowed_classes( $context ) {
 		$defaults = array(
 			'stdClass',
 			'WP_Post',
@@ -427,11 +445,26 @@ class Cache_Base {
 		 * `__PHP_Incomplete_Class` and cause the entry to be treated as a
 		 * cache miss.
 		 *
+		 * The `$context` array identifies which cache area is reading the
+		 * payload so the opt-in can be scoped narrowly:
+		 *   - `module` — backend module identifier (e.g. `object`, `pgcache`,
+		 *                `dbcache`, `minify`, `fragment`).
+		 *   - `group`  — cache group passed by the caller (e.g. `posts`,
+		 *                `transient`).
+		 *   - `key`    — caller-provided cache key, before backend key
+		 *                composition.
+		 *
+		 * Returning `true` permits every class — equivalent to pre-PR #1319
+		 * behavior, which re-opens the FileCookieJar deserialization gadget
+		 * surface. Returning a non-array, non-`true` value falls back to the
+		 * default allowlist.
+		 *
 		 * @since X.X.X
 		 *
 		 * @param array $allowed Class names allowed during unserialize.
+		 * @param array $context Cache-area context with `module`, `group`, `key`.
 		 */
-		$allowed = apply_filters( 'w3tc_cache_allowed_classes', $defaults );
+		$allowed = apply_filters( 'w3tc_cache_allowed_classes', $defaults, $context );
 
 		if ( true === $allowed ) {
 			return true;
@@ -455,6 +488,14 @@ class Cache_Base {
 	 * is a cache-miss + regen; the cost of a false negative is a PHP 8
 	 * fatal when downstream code touches the un-inspected subtree.
 	 *
+	 * Cycles are handled via `SplObjectStorage`: each visited object is
+	 * recorded and re-visits short-circuit `false` (no new stub on this
+	 * branch) so legitimate self-referential graphs — `WP_User` carrying a
+	 * `WP_User_Meta` back-reference, ORM entity caches that link parent ↔
+	 * child, etc. — round-trip instead of becoming permanent cache misses.
+	 * Without this, the depth guard would tip into the fail-closed branch
+	 * on every read of a cyclic value.
+	 *
 	 * Iterates object properties via `(array) $value` rather than
 	 * `get_object_vars()` so private/protected properties on filter-
 	 * allowed wrapper classes are walked too — otherwise a disallowed
@@ -464,12 +505,13 @@ class Cache_Base {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param mixed $value Decoded payload.
-	 * @param int   $depth Recursion depth guard.
+	 * @param mixed                  $value   Decoded payload.
+	 * @param int                    $depth   Recursion depth guard.
+	 * @param \SplObjectStorage|null $visited Set of objects already inspected on this walk.
 	 *
 	 * @return bool
 	 */
-	private static function _contains_incomplete_class( $value, $depth = 0 ) {
+	private static function _contains_incomplete_class( $value, $depth = 0, $visited = null ) {
 		if ( $depth > 128 ) {
 			// Fail closed: treat over-deep payloads as if a stub was found
 			// so the caller drops the entry instead of returning an
@@ -481,18 +523,29 @@ class Cache_Base {
 			return true;
 		}
 
-		if ( is_array( $value ) ) {
-			foreach ( $value as $item ) {
-				if ( self::_contains_incomplete_class( $item, $depth + 1 ) ) {
+		if ( is_object( $value ) ) {
+			if ( null === $visited ) {
+				$visited = new \SplObjectStorage();
+			}
+			if ( $visited->contains( $value ) ) {
+				// Already inspected on this walk — short-circuit so the
+				// depth guard doesn't mistake a legitimate cycle for an
+				// over-deep payload.
+				return false;
+			}
+			$visited->attach( $value );
+
+			foreach ( (array) $value as $item ) {
+				if ( self::_contains_incomplete_class( $item, $depth + 1, $visited ) ) {
 					return true;
 				}
 			}
 			return false;
 		}
 
-		if ( is_object( $value ) ) {
-			foreach ( (array) $value as $item ) {
-				if ( self::_contains_incomplete_class( $item, $depth + 1 ) ) {
+		if ( is_array( $value ) ) {
+			foreach ( $value as $item ) {
+				if ( self::_contains_incomplete_class( $item, $depth + 1, $visited ) ) {
 					return true;
 				}
 			}

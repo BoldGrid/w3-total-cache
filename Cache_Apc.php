@@ -74,7 +74,13 @@ class Cache_Apc extends Cache_Base {
 		$has_old_data = false;
 		$storage_key  = $this->get_item_key( $key );
 
-		$v = $this->_unserialize( apc_fetch( $storage_key ) );
+		$v = $this->_unserialize(
+			apc_fetch( $storage_key ),
+			array(
+				'group' => $group,
+				'key'   => $key,
+			)
+		);
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
@@ -141,7 +147,13 @@ class Cache_Apc extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		if ( $this->_use_expired_data ) {
-			$v = $this->_unserialize( apc_fetch( $storage_key ) );
+			$v = $this->_unserialize(
+				apc_fetch( $storage_key ),
+				array(
+					'group' => $group,
+					'key'   => $key,
+				)
+			);
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
 				apc_store( $storage_key, serialize( $v ), 0 );

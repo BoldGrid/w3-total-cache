@@ -168,7 +168,13 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		$v = $accessor->get( $storage_key );
-		$v = $this->_unserialize( $v );
+		$v = $this->_unserialize(
+			$v,
+			array(
+				'group' => $group,
+				'key'   => $key,
+			)
+		);
 
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
@@ -406,7 +412,7 @@ class Cache_Redis extends Cache_Base {
 		$accessor->watch( $storage_key );
 
 		$value = $accessor->get( $storage_key );
-		$value = $this->_unserialize( $value );
+		$value = $this->_unserialize( $value, array( 'key' => $key ) );
 
 		if ( ! is_array( $value ) ) {
 			$accessor->unwatch();
@@ -466,13 +472,24 @@ class Cache_Redis extends Cache_Base {
 
 			foreach ( $orig_keys as $i => $orig_key ) {
 				if ( isset( $values[ $i ] ) && false !== $values[ $i ] ) {
-					// _unserialize() returns false when the payload contains an
-					// untrusted object (gadget guard) or fails to decode; the
-					// WP object-cache consumer of get_multi() validates the
-					// envelope with is_array() / isset() downstream, so map
-					// "miss" to null here and let legitimate values through.
-					$decoded              = $this->_unserialize( $values[ $i ] );
-					$results[ $orig_key ] = ( false === $decoded ) ? null : $decoded;
+					// This backend only writes cache envelopes — arrays
+					// shaped `[ 'key_version' => ..., 'content' => ... ]`
+					// via set() / set_multi(). The single-key path in
+					// get_with_old() drops anything that isn't `is_array()`
+					// (corruption, manually-injected serialized scalar/
+					// object, etc.) so the batch path must match: coerce
+					// non-arrays to null instead of leaking through.
+					// _unserialize() also returns false for the gadget-
+					// guard miss; that's covered by the same is_array()
+					// check, since false is not an array.
+					$decoded              = $this->_unserialize(
+						$values[ $i ],
+						array(
+							'group' => $group,
+							'key'   => $orig_key,
+						)
+					);
+					$results[ $orig_key ] = is_array( $decoded ) ? $decoded : null;
 				} else {
 					$results[ $orig_key ] = null;
 				}

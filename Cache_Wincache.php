@@ -81,7 +81,13 @@ class Cache_Wincache extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$v = $this->_unserialize( wincache_ucache_get( $storage_key ) );
+		$v = $this->_unserialize(
+			wincache_ucache_get( $storage_key ),
+			array(
+				'group' => $group,
+				'key'   => $key,
+			)
+		);
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
@@ -153,7 +159,13 @@ class Cache_Wincache extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		if ( $this->_use_expired_data ) {
-			$v = $this->_unserialize( wincache_ucache_get( $storage_key ) );
+			$v = $this->_unserialize(
+				wincache_ucache_get( $storage_key ),
+				array(
+					'group' => $group,
+					'key'   => $key,
+				)
+			);
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
 				wincache_ucache_set( $storage_key, serialize( $v ), 0 );

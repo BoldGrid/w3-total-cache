@@ -34,11 +34,14 @@ $GLOBALS['__w3tc_filters'] = array();
 
 if ( ! function_exists( 'apply_filters' ) ) {
 	function apply_filters( $tag, $value ) {
+		$args = func_get_args();
+		array_shift( $args ); // drop $tag
 		if ( ! isset( $GLOBALS['__w3tc_filters'][ $tag ] ) ) {
 			return $value;
 		}
 		foreach ( $GLOBALS['__w3tc_filters'][ $tag ] as $cb ) {
-			$value = call_user_func( $cb, $value );
+			$args[0] = $value; // refresh first arg with the running value
+			$value   = call_user_func_array( $cb, $args );
 		}
 		return $value;
 	}
@@ -337,6 +340,117 @@ cu_assert_true(
 	'over-deep nesting fails closed (cache miss, no leaked stub)',
 	false === $result
 );
+
+// ---------------------------------------------------------------------------
+// 6b. Object cycles must not be mistaken for over-deep payloads.
+// Regression guard for the second Copilot review (PRRC_kwDOB3aSLs7CYA8h):
+// a self-referential graph of allowlist-OK objects used to hit the
+// fail-closed depth branch on every read and become a permanent cache miss.
+// SplObjectStorage-based visited tracking now short-circuits the cycle.
+// ---------------------------------------------------------------------------
+
+$cyclic            = new WP_Post( 1, 'cyclic' );
+$cyclic->post_title = $cyclic; // self-reference; serialize() emits an `r:` ref.
+$result            = $probe->probe( serialize( $cyclic ) );
+cu_assert_true(
+	'self-referential allowed object round-trips (cycle not a permanent miss)',
+	$result instanceof WP_Post && 1 === $result->ID
+);
+cu_assert_true(
+	'self-reference is preserved as a real cycle',
+	$result instanceof WP_Post && $result === $result->post_title
+);
+
+// Sibling cycle: two allowed objects each referencing the other inside an
+// outer array. Without visited tracking the recursive walk re-enters via
+// $b->ID -> $a -> $a->post_title -> $b -> ... and would only escape via
+// the depth guard, producing a false-positive miss.
+$a              = new WP_Post( 10, 'a' );
+$b              = new WP_Post( 20, 'b' );
+$a->post_title  = $b;
+$b->post_title  = $a;
+$result         = $probe->probe( serialize( array( 'a' => $a, 'b' => $b ) ) );
+cu_assert_true(
+	'mutual-reference allowed objects round-trip',
+	is_array( $result )
+		&& $result['a'] instanceof WP_Post
+		&& $result['b'] instanceof WP_Post
+		&& 10 === $result['a']->ID
+		&& 20 === $result['b']->ID
+);
+
+// Cycle that hides a disallowed object — must still miss. The visited-set
+// short-circuit must not let an attacker bury a stub inside a cycle to
+// evade the walk.
+$wrapper                = (object) array( 'ok' => 'visible' );
+$wrapper->bad           = new W3TC_Test_PluginCacheValue( 'leak' );
+$wrapper->self          = $wrapper; // cycle
+$result                 = $probe->probe( serialize( $wrapper ) );
+cu_assert_true(
+	'cycle hiding a disallowed object still misses (visited-set is not a bypass)',
+	false === $result
+);
+
+// ---------------------------------------------------------------------------
+// 6c. Filter context: the `w3tc_cache_allowed_classes` filter receives a
+// context array so plugins can scope opt-ins by module / group / key
+// instead of widening the allowlist across every W3TC-backed cache read.
+// Regression guard for the second Copilot review (PRRC_kwDOB3aSLs7CYA9v).
+// ---------------------------------------------------------------------------
+
+$captured = array();
+add_filter( 'w3tc_cache_allowed_classes', function ( $allowed, $context ) use ( &$captured ) {
+	$captured = $context;
+	return $allowed;
+} );
+
+// Default context: $probe has no module set (anonymous subclass skips the
+// parent constructor) so module is the empty string and group/key are
+// whatever the backend forwarded — here, defaults from _unserialize().
+$probe->probe( serialize( array( 'ok' => 1 ) ) );
+
+cu_assert_true(
+	'filter receives context array',
+	is_array( $captured ) && array_key_exists( 'module', $captured )
+		&& array_key_exists( 'group', $captured )
+		&& array_key_exists( 'key', $captured )
+);
+
+remove_all_filters( 'w3tc_cache_allowed_classes' );
+
+// Scoped opt-in: filter only adds the plugin's class when context['group']
+// matches. Reads from a different group must still treat the class as
+// disallowed.
+add_filter( 'w3tc_cache_allowed_classes', function ( $allowed, $context ) {
+	if ( isset( $context['group'] ) && 'wc_sessions' === $context['group'] ) {
+		$allowed[] = 'W3TC_Test_PluginCacheValue';
+	}
+	return $allowed;
+} );
+
+$plugin_value = new W3TC_Test_PluginCacheValue( 'scoped' );
+
+// Custom probe that lets the test pass a group through to _unserialize().
+$probe_scoped = new class() extends \W3TC\Cache_Base {
+	public function __construct() {}
+	public function probe( $data, $group = '' ) {
+		return $this->_unserialize( $data, array( 'group' => $group ) );
+	}
+};
+
+$in_scope     = $probe_scoped->probe( serialize( $plugin_value ), 'wc_sessions' );
+$out_of_scope = $probe_scoped->probe( serialize( $plugin_value ), 'posts' );
+
+cu_assert_true(
+	'in-scope group: class round-trips as real instance',
+	$in_scope instanceof W3TC_Test_PluginCacheValue && 'scoped' === $in_scope->payload
+);
+cu_assert_true(
+	'out-of-scope group: class still treated as cache miss',
+	false === $out_of_scope
+);
+
+remove_all_filters( 'w3tc_cache_allowed_classes' );
 
 // ---------------------------------------------------------------------------
 // 7. Edge cases.
