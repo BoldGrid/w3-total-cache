@@ -34,14 +34,25 @@ Do **not** use this as a substitute for a real GHSA / private-fork workflow if t
 
 ## Filename convention for scratch files
 
-All temporary working files for this task **must** be prefixed with the PR number followed (optionally) by the Jira key, separated by hyphens. See AGENTS.md "Working Files" for the workspace-wide rule.
+All temporary working files for this task **must** follow the `{KEY}-{REPO}-{PR}-{role}.{ext}` convention defined in AGENTS.md "Working Files" — the keying triple prevents collisions when two repos (e.g., the public `w3-total-cache` and any GHSA temporary private fork) carry overlapping PR numbers. `{REPO}` is the literal repo slug — the right-hand half of `org/repo`, all-lowercased (use `ghsa-…`, not `GHSA-…`).
 
-Examples for this skill:
-- `{PR}-pr-body.json` (raw PR description snapshot)
-- `{PR}-issue-comments.json`, `{PR}-reviews.json`, `{PR}-inline-comments.json` (inventory)
-- `{PR}-jira-{author}-comment.md` (Jira draft per author)
-- `{PR}-pointer-body.md` (PR description replacement)
-- `{PR}-anchor-comment.md` (new pinned PR comment explaining the move)
+Capture both `{KEY}` and `{REPO}` once at the top of Phase 1 so the prefix expands cleanly throughout the workflow:
+
+```bash
+KEY=ENG7-2908                       # Jira ticket
+REPO=BoldGrid/w3-total-cache        # owner/repo from the PR URL
+PR=1313                             # PR number
+SLUG="${REPO#*/}"                   # strips "BoldGrid/" → "w3-total-cache"
+PFX="${KEY}-${SLUG}-${PR}"          # canonical scratch-file prefix
+```
+
+Then every scratch path in this skill expands as `.cursor/working/${PFX}-{role}.{ext}`:
+
+- `${PFX}-pr-body.json` (raw PR description snapshot)
+- `${PFX}-issue-comments.json`, `${PFX}-reviews.json`, `${PFX}-inline-comments.json` (inventory)
+- `${PFX}-jira-{author}-comment.md` (Jira draft per author)
+- `${PFX}-pointer-body.md` (PR description replacement)
+- `${PFX}-anchor-comment.md` (new pinned PR comment explaining the move)
 
 Never write to `/tmp/` or anywhere outside the project tree.
 
@@ -65,34 +76,37 @@ Run in parallel:
 
 ### Phase 1 — Inventory the PR
 
-Pull structured data into prefixed scratch files:
+Pull structured data into prefixed scratch files. The `${PFX}` prefix is computed from the `KEY` / `REPO` / `PR` triple captured in "Filename convention for scratch files" above; expand it once and reuse:
 
 ```bash
-PR=1313
+KEY=ENG7-2908
 REPO=BoldGrid/w3-total-cache
+PR=1313
+SLUG="${REPO#*/}"
+PFX="${KEY}-${SLUG}-${PR}"
 mkdir -p .cursor/working
 
 gh api repos/$REPO/pulls/$PR --jq '{body, user: .user.login, title}' \
-  > .cursor/working/${PR}-pr-body.json
+  > .cursor/working/${PFX}-pr-body.json
 gh api repos/$REPO/issues/$PR/comments \
   --jq '[.[] | {id, user: .user.login, created_at, body}]' \
-  > .cursor/working/${PR}-issue-comments.json
+  > .cursor/working/${PFX}-issue-comments.json
 gh api repos/$REPO/pulls/$PR/reviews \
   --jq '[.[] | {id, user: .user.login, state, submitted_at, body}]' \
-  > .cursor/working/${PR}-reviews.json
+  > .cursor/working/${PFX}-reviews.json
 gh api repos/$REPO/pulls/$PR/comments \
   --jq '[.[] | {id, user: .user.login, path, line, created_at, body, in_reply_to_id, pull_request_review_id}]' \
-  > .cursor/working/${PR}-inline-comments.json
+  > .cursor/working/${PFX}-inline-comments.json
 ```
 
 There are **four** distinct comment surfaces — make sure all four files are pulled. They are *not* a superset of each other:
 
 | File | API endpoint | What lives here |
 |---|---|---|
-| `${PR}-pr-body.json` | `/pulls/{n}` | The PR description |
-| `${PR}-issue-comments.json` | `/issues/{n}/comments` | Top-level conversation comments (codecov, "thanks", etc.) |
-| `${PR}-reviews.json` | `/pulls/{n}/reviews` | Review summary bodies (one per review submission) |
-| `${PR}-inline-comments.json` | `/pulls/{n}/comments` | Per-line inline review comments |
+| `${PFX}-pr-body.json` | `/pulls/{n}` | The PR description |
+| `${PFX}-issue-comments.json` | `/issues/{n}/comments` | Top-level conversation comments (codecov, "thanks", etc.) |
+| `${PFX}-reviews.json` | `/pulls/{n}/reviews` | Review summary bodies (one per review submission) |
+| `${PFX}-inline-comments.json` | `/pulls/{n}/comments` | Per-line inline review comments |
 
 ### Phase 2 — Categorize sensitivity
 
@@ -166,7 +180,7 @@ Pick the action per item based on intent:
 
 Order matters: post to Jira before redacting on GitHub. If Jira fails or the format is wrong, you haven't lost the PR-side source yet.
 
-For each author group (per the chosen format), build a markdown file `${PR}-jira-{author}-comment.md` with:
+For each author group (per the chosen format), build a markdown file `${PFX}-jira-{author}-comment.md` with:
 
 - H1 header: `# Moved from public PR #{n} — author: {login}`
 - A one-paragraph provenance note explaining what's moved and why.
@@ -185,7 +199,7 @@ In this order:
 
 1. **Edit the PR body** with a pointer to the Jira ticket:
    ```bash
-   gh pr edit $PR --repo $REPO --body-file .cursor/working/${PR}-pointer-body.md
+   gh pr edit $PR --repo $REPO --body-file .cursor/working/${PFX}-pointer-body.md
    ```
 
 2. **Edit your own** issue comments / review summary bodies / inline review comments with the pointer template:
@@ -252,7 +266,7 @@ Confirm each moved item is either (a) replaced with pointer text, (b) returned i
 
 ## Pointer / anchor text templates
 
-### `${PR}-pointer-body.md` — PR description replacement
+### `${PFX}-pointer-body.md` — PR description replacement
 
 If the PR will stay open after this skill runs (no GHSA relocation in scope), use the explainer form:
 
@@ -270,13 +284,13 @@ If the PR will be closed in this same workflow (the typical case when paired wit
 
 That matches the `move-pr-to-private-ghsa` Phase 6b standing rule. Anything more invites a closed-PR onlooker to read further. The `move-pr-to-private-ghsa` skill's Phase 6b will overwrite the body with the bare URL anyway, so writing the explainer form here when a relocation is in scope just creates two consecutive body edits in the PR's history for no benefit.
 
-### `${PR}-pointer-comment.txt` — own-comment replacement (one-liner)
+### `${PFX}-pointer-comment.txt` — own-comment replacement (one-liner)
 
 ```markdown
 _Original content moved to internal ticket [{KEY}]({JIRA_URL}) for the security audit trail._
 ```
 
-### `${PR}-anchor-comment.md` — new pinned anchor on the PR
+### `${PFX}-anchor-comment.md` — new pinned anchor on the PR
 
 ```markdown
 **Conversation moved to internal tracking.**

@@ -40,19 +40,31 @@ Do **not** assume this rolls back public exposure. Anything visible on the origi
 
 ## Filename convention for scratch files
 
-Per AGENTS.md "Working Files", prefix every scratch file with the originating PR number. Once the GHSA ID is known, append it for downstream files:
+Per AGENTS.md "Working Files", every scratch file follows `{KEY}-{REPO}-{PR}-{role}.{ext}`. Capture `KEY`/`REPO`/`PR` once in Phase 0 and derive a single prefix that expands cleanly for the rest of the workflow:
 
-- `{PR}-pr-snapshot.json` — original PR metadata
-- `{PR}-branch-info.json` — branch ref, head SHA, base, commits
-- `{PR}-worktree/` — linked git worktree where the temp branch is checked out (Phase 1 isolation default; removed in Phase 7 teardown)
-- `{PR}-advisory-payload.json` — POST body for `/security-advisories`
-- `{PR}-advisory-response.json` — response (capture `ghsa_id`, `html_url`)
-- `{PR}-{GHSA}-fork-response.json` — temp private fork details (capture `full_name`)
-- `{PR}-{GHSA}-private-pr-body.md` — body for new PR in TPF
-- `{PR}-{GHSA}-advisory-description.md` — long-form description posted into advisory
-- `{PR}-{GHSA}-{KEY}-jira-backlink.md` — body of the back-link comment posted to Jira (Phase 5b)
-- `{PR}-{GHSA}-{KEY}-jira-backlink-response.json` — `addCommentToJiraIssue` response for verify
-- `{PR}-close-comment.md` — public-facing close comment for original PR
+```bash
+KEY=ENG7-2908                       # Jira ticket — required for this skill (see Phase 0)
+REPO=BoldGrid/w3-total-cache        # owner/repo from the PR URL
+PR=1313                             # public PR number
+SLUG="${REPO#*/}"                   # → "w3-total-cache"
+PFX="${KEY}-${SLUG}-${PR}"          # canonical scratch-file prefix
+```
+
+Every file path below expands as `.cursor/working/${PFX}-{role}.{ext}` (the workflow originated on the public PR, so the public PR's `{REPO}/{PR}` is the keying triple even for files that describe downstream GHSA artifacts — embed the GHSA slug in `{role}` rather than rotating the keying):
+
+- `${PFX}-pr-snapshot.json` — original PR metadata
+- `${PFX}-branch-info.json` — branch ref, head SHA, base, commits
+- `${PFX}-worktree/` — linked git worktree where the temp branch is checked out (Phase 1 isolation default; removed in Phase 7 teardown)
+- `${PFX}-advisory-payload.json` — POST body for `/security-advisories`
+- `${PFX}-advisory-response.json` — response (capture `ghsa_id`, `html_url`)
+- `${PFX}-ghsa-{ghsa-slug}-fork-response.json` — temp private fork details (capture `full_name`); `{ghsa-slug}` is the lowercase advisory ID suffix, e.g. `rgpr-5m2g-gvh2`
+- `${PFX}-ghsa-{ghsa-slug}-private-pr-body.md` — body for new PR in TPF
+- `${PFX}-ghsa-{ghsa-slug}-advisory-description.md` — long-form description posted into advisory
+- `${PFX}-ghsa-{ghsa-slug}-jira-backlink.md` — body of the back-link comment posted to Jira (Phase 5b)
+- `${PFX}-ghsa-{ghsa-slug}-jira-backlink-response.json` — `addCommentToJiraIssue` response for verify
+- `${PFX}-close-comment.md` — public-facing close comment for original PR
+
+The git branch name used for the worktree (`pr-${PR}-tmp`) intentionally stays as-is — it's a local ref, not a file, and is namespaced to this repo's `.git/`. Don't confuse it with a scratch-file path.
 
 Never write to `/tmp/` or anywhere outside the project tree.
 
@@ -73,18 +85,28 @@ Capture from the user (or ask):
 - **Jira ticket key (e.g., `ENG7-2908`)** — this drives THREE things: (1) the Phase 5b back-link comment, (2) the advisory summary prefix (`{KEY}: ...`), and (3) the TPF private PR title prefix (`{KEY}: ...`). It is therefore required for any GHSA the workflow produces, not optional. If `pr-content-to-jira` was already run on this PR, the same ticket key carries over. If there genuinely is no Jira ticket, stop and create one before continuing — the prefixed-title and Jira-link-at-top conventions assume one exists.
 - Public-facing close-message wording for the original PR (must reveal nothing about the vulnerability or the GHSA).
 
-Run in parallel:
+Once `KEY`, `REPO`, and `PR` are pinned, expand the canonical scratch-file prefix (used by every shell snippet from here on; see "Filename convention for scratch files" above):
+
+```bash
+KEY=ENG7-XXXX                        # Jira ticket captured in this phase
+REPO=BoldGrid/w3-total-cache         # owner/repo from the PR URL
+PR=1234                              # public PR number
+SLUG="${REPO#*/}"                    # → "w3-total-cache"
+PFX="${KEY}-${SLUG}-${PR}"           # → "ENG7-XXXX-w3-total-cache-1234"
+```
+
+Then run in parallel:
 
 - `gh auth status` and the permission check above.
 - ```bash
   gh pr view $PR --repo $REPO \
     --json number,title,body,headRefName,headRefOid,baseRefName,author,labels,state,isCrossRepository,headRepositoryOwner \
-    > .cursor/working/${PR}-pr-snapshot.json
+    > .cursor/working/${PFX}-pr-snapshot.json
   ```
 - ```bash
   gh api repos/$REPO/pulls/$PR/commits \
     --jq '[.[] | {sha, message: .commit.message, author: .commit.author.name}]' \
-    > .cursor/working/${PR}-branch-info.json
+    > .cursor/working/${PFX}-branch-info.json
   ```
 - If a Jira ticket is in scope: `getAccessibleAtlassianResources` (capture `cloudId`) and `getJiraIssue` for `{KEY}` (confirm the ticket exists, capture its current state for the user's mental model).
 
@@ -101,17 +123,17 @@ Either way, fetch the PR's head into a local working branch using the canonical 
 
 ```bash
 git fetch origin "+refs/pull/$PR/head:refs/heads/pr-${PR}-tmp"
-git worktree add .cursor/working/${PR}-worktree pr-${PR}-tmp
-( cd .cursor/working/${PR}-worktree && git log -1 --format='%H %s' )   # confirm matches headRefOid from snapshot
+git worktree add .cursor/working/${PFX}-worktree pr-${PR}-tmp
+( cd .cursor/working/${PFX}-worktree && git log -1 --format='%H %s' )   # confirm matches headRefOid from snapshot
 ```
 
-The worktree shares `.git/` with the main repo, so the fetched ref is visible from either location, but the actual checkout — the only step that touches a working tree — happens inside `.cursor/working/${PR}-worktree/`. **Standing rule: this is the default.** No stash dance, no branch switch in your main tree, no risk of leaving `pr-${PR}-tmp` checked out if the relocation is interrupted mid-flight. The worktree directory lives under `.cursor/working/`, which is already gitignored per AGENTS.md "Working Files" — and per the same convention, **scratch files stay in the main project's `.cursor/working/`** (the `${PR}-*.json` / `.md` artifacts from "Filename convention for scratch files" above), not inside the worktree. The worktree is a transient git checkout; the scratch files are the audit trail of the run and belong in the canonical location.
+The worktree shares `.git/` with the main repo, so the fetched ref is visible from either location, but the actual checkout — the only step that touches a working tree — happens inside `.cursor/working/${PFX}-worktree/`. **Standing rule: this is the default.** No stash dance, no branch switch in your main tree, no risk of leaving `pr-${PR}-tmp` checked out if the relocation is interrupted mid-flight. The worktree directory lives under `.cursor/working/`, which is already gitignored per AGENTS.md "Working Files" — and per the same convention, **scratch files stay in the main project's `.cursor/working/`** (the `${PFX}-*.json` / `.md` artifacts from "Filename convention for scratch files" above), not inside the worktree. The worktree is a transient git checkout; the scratch files are the audit trail of the run and belong in the canonical location.
 
 If `git worktree add` fails because the destination already exists from a prior aborted run, clean up first:
 
 ```bash
-git worktree remove --force .cursor/working/${PR}-worktree 2>/dev/null || true
-rm -rf .cursor/working/${PR}-worktree
+git worktree remove --force .cursor/working/${PFX}-worktree 2>/dev/null || true
+rm -rf .cursor/working/${PFX}-worktree
 git branch -D pr-${PR}-tmp 2>/dev/null || true
 ```
 
@@ -124,7 +146,7 @@ The remaining git operation in this skill (the Phase 4 push) does **not** requir
 Build the request body. The `start_private_fork: true` flag avoids a second round trip:
 
 ```jsonc
-// .cursor/working/${PR}-advisory-payload.json
+// .cursor/working/${PFX}-advisory-payload.json
 {
   "summary": "{JIRA_KEY}: <≤1024 char descriptive title; no trailing (ENG7-####) suffix>",
   "description": "Jira: https://imh-internal.atlassian.net/browse/{JIRA_KEY}\n\n<rest of description>",
@@ -160,12 +182,15 @@ Submit:
 
 ```bash
 gh api -X POST repos/$REPO/security-advisories \
-  --input .cursor/working/${PR}-advisory-payload.json \
-  > .cursor/working/${PR}-advisory-response.json
+  --input .cursor/working/${PFX}-advisory-payload.json \
+  > .cursor/working/${PFX}-advisory-response.json
 
-GHSA=$(jq -r '.ghsa_id' .cursor/working/${PR}-advisory-response.json)
-ADVISORY_URL=$(jq -r '.html_url' .cursor/working/${PR}-advisory-response.json)
-echo "Created $GHSA at $ADVISORY_URL"
+GHSA=$(jq -r '.ghsa_id' .cursor/working/${PFX}-advisory-response.json)
+ADVISORY_URL=$(jq -r '.html_url' .cursor/working/${PFX}-advisory-response.json)
+# Derive the slug suffix used in downstream filenames and the TPF repo slug.
+# GHSA returns "GHSA-rgpr-5m2g-gvh2"; the slug is "rgpr-5m2g-gvh2", all-lowercase.
+GHSA_SLUG=$(echo "${GHSA#GHSA-}" | tr '[:upper:]' '[:lower:]')
+echo "Created $GHSA at $ADVISORY_URL (slug: $GHSA_SLUG)"
 ```
 
 The advisory is now in `draft` state, only visible to repo admins + advisory collaborators.
@@ -184,8 +209,8 @@ FORK_GUESS="${REPO_OWNER}/${REPO_NAME:0:80}-${GHSA_LC}"
 
 for i in $(seq 1 30); do
   if gh api "repos/$FORK_GUESS" >/dev/null 2>&1; then
-    gh api "repos/$FORK_GUESS" > .cursor/working/${PR}-${GHSA}-fork-response.json
-    FORK_FULL=$(jq -r '.full_name' .cursor/working/${PR}-${GHSA}-fork-response.json)
+    gh api "repos/$FORK_GUESS" > .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-fork-response.json
+    FORK_FULL=$(jq -r '.full_name' .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-fork-response.json)
     echo "Fork ready: $FORK_FULL"
     break
   fi
@@ -205,7 +230,7 @@ gh api -X POST repos/$REPO/security-advisories/$GHSA/forks
 Push directly to the TPF's URL without registering a remote — keeps `.git/config` untouched and complements the Phase 1 isolation default:
 
 ```bash
-HEAD_REF_NAME=$(jq -r '.headRefName' .cursor/working/${PR}-pr-snapshot.json)
+HEAD_REF_NAME=$(jq -r '.headRefName' .cursor/working/${PFX}-pr-snapshot.json)
 
 git push "https://github.com/$FORK_FULL.git" pr-${PR}-tmp:${HEAD_REF_NAME}
 ```
@@ -230,20 +255,20 @@ The TPF inherits the **parent repo's default branch**, not necessarily `main`. R
 
 ```bash
 JIRA_KEY=ENG7-XXXX  # captured in Phase 0; the advisory summary uses this same prefix.
-RAW_TITLE=$(jq -r '.title' .cursor/working/${PR}-pr-snapshot.json)
+RAW_TITLE=$(jq -r '.title' .cursor/working/${PFX}-pr-snapshot.json)
 # Strip any existing `{KEY}: ` prefix or trailing `(KEY)` suffix from the public PR's
 # title before re-applying the canonical front-prefix — keeps the rule idempotent if
 # the public PR title was already manually prefixed.
 CLEAN_TITLE=$(echo "$RAW_TITLE" | sed -E "s/^${JIRA_KEY}: ?//; s/ *\(${JIRA_KEY}\) *$//")
 TITLE="${JIRA_KEY}: ${CLEAN_TITLE}"
-BASE=$(jq -r '.default_branch' .cursor/working/${PR}-${GHSA}-fork-response.json)
+BASE=$(jq -r '.default_branch' .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-fork-response.json)
 
 gh pr create \
   --repo $FORK_FULL \
   --base "$BASE" \
   --head ${HEAD_REF_NAME} \
   --title "$TITLE" \
-  --body-file .cursor/working/${PR}-${GHSA}-private-pr-body.md
+  --body-file .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-private-pr-body.md
 ```
 
 **Standing rule for the TPF private PR's title.** It MUST be prefixed with `{JIRA_KEY}: ` to match the advisory's summary prefix — the two surfaces share the same "what is this advisory tracking" identifier and they should not drift. The closed public PR's title is independently renamed to the bare `{JIRA_KEY}` (no descriptive suffix) in Phase 6a, so the three closely-related GitHub surfaces end up with three distinct-but-related titles: bare key on the closed public PR (strips the search-engine signpost), prefixed + descriptive title on both the advisory and the TPF private PR (collaborators need to see what this is at a glance).
@@ -269,8 +294,8 @@ PRIVATE_PR_NUMBER=$(gh pr list --repo $FORK_FULL --json number --jq '.[0].number
 RELOCATOR=$(gh api user --jq '.login')
 
 # Pull original assignees/reviewers from the public PR snapshot taken in Phase 0.
-ORIG_ASSIGNEES=$(jq -r '.assignees[]?.login' .cursor/working/${PR}-pr-snapshot.json | tr '\n' ' ')
-ORIG_REVIEWERS=$(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PR}-pr-snapshot.json | tr '\n' ' ')
+ORIG_ASSIGNEES=$(jq -r '.assignees[]?.login' .cursor/working/${PFX}-pr-snapshot.json | tr '\n' ' ')
+ORIG_REVIEWERS=$(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PFX}-pr-snapshot.json | tr '\n' ' ')
 
 # Optional: filter assignees to advisory collaborators / team members so the
 # assignment doesn't silently drop. (Cheap to skip — GitHub will just no-op
@@ -321,9 +346,9 @@ Two PATCH gotchas worth memorizing:
 - **To genuinely clear an array, send a JSON body — not `-f 'field[]='`.** The form-encoded shape `--raw-field 'collaborating_users[]='` sends a literal empty string as a user login and the API rejects it with `422 — User '' not found, collaborating_users cannot be modified`. If you need to clear (or fully reset) a list, build a JSON file and pass `--input`:
   ```bash
   echo '{"collaborating_users": [], "collaborating_teams": ["w3-total-cache-developers"]}' \
-    > .cursor/working/${PR}-${GHSA}-collab-patch.json
+    > .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-collab-patch.json
   gh api -X PATCH repos/$REPO/security-advisories/$GHSA \
-    --input .cursor/working/${PR}-${GHSA}-collab-patch.json
+    --input .cursor/working/${PFX}-ghsa-${GHSA_SLUG}-collab-patch.json
   ```
   Or just omit the field entirely when you only want to change the other one — the API treats omitted fields as "leave unchanged" on this endpoint.
 
@@ -354,7 +379,7 @@ The advisory description was written outbound (Jira → GHSA → Jira via the EN
 
 Skip this phase only if there is no Jira ticket in scope. Otherwise: do this **before** Phase 6 (closing the public PR). If the Jira post fails for any reason, you have not yet thrown away the public PR, so retry/recovery is simple.
 
-Build the comment body in `${PR}-${GHSA}-${KEY}-jira-backlink.md`:
+Build the comment body in `${PFX}-ghsa-${GHSA_SLUG}-jira-backlink.md`:
 
 ```markdown
 ## Moved to a private GitHub Security Advisory
@@ -384,13 +409,13 @@ Render and post via the Atlassian MCP `addCommentToJiraIssue` tool. Use `content
 {
   "cloudId": "<CID from getAccessibleAtlassianResources>",
   "issueIdOrKey": "ENG7-2908",
-  "commentBody": "<contents of ${PR}-${GHSA}-${KEY}-jira-backlink.md>",
+  "commentBody": "<contents of ${PFX}-ghsa-${GHSA_SLUG}-jira-backlink.md>",
   "contentFormat": "markdown",
   "responseContentFormat": "markdown"
 }
 ```
 
-Save the response to `${PR}-${GHSA}-${KEY}-jira-backlink-response.json`. Then verify:
+Save the response to `${PFX}-ghsa-${GHSA_SLUG}-jira-backlink-response.json`. Then verify:
 
 - The response `body` contains the literal advisory URL (search for `/security/advisories/${GHSA}` substring).
 - The response `body` contains the private PR URL.
@@ -432,31 +457,31 @@ URL="https://imh-internal.atlassian.net/browse/$JIRA_KEY"
 # Snapshot current state so we can see what we're removing.
 gh pr view $PR --repo $REPO \
   --json assignees,reviewRequests,labels,milestone,closingIssuesReferences \
-  > .cursor/working/${PR}-sidebar-snapshot.json
+  > .cursor/working/${PFX}-sidebar-snapshot.json
 
 # 1. Assignees: remove every assignee.
-for LOGIN in $(jq -r '.assignees[]?.login' .cursor/working/${PR}-sidebar-snapshot.json); do
+for LOGIN in $(jq -r '.assignees[]?.login' .cursor/working/${PFX}-sidebar-snapshot.json); do
   gh pr edit $PR --repo $REPO --remove-assignee "$LOGIN"
 done
 
 # 2. Requested reviewers (individuals): remove each.
-for LOGIN in $(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PR}-sidebar-snapshot.json); do
+for LOGIN in $(jq -r '.reviewRequests[]? | (.login // empty)' .cursor/working/${PFX}-sidebar-snapshot.json); do
   gh pr edit $PR --repo $REPO --remove-reviewer "$LOGIN"
 done
 
 # 3. Requested reviewer teams: remove each. (Teams use the slug, not login.)
-for SLUG in $(jq -r '.reviewRequests[]? | (.slug // empty)' .cursor/working/${PR}-sidebar-snapshot.json); do
+for SLUG in $(jq -r '.reviewRequests[]? | (.slug // empty)' .cursor/working/${PFX}-sidebar-snapshot.json); do
   gh pr edit $PR --repo $REPO --remove-reviewer "$REPO_OWNER/$SLUG"
 done
 
 # 4. Labels: remove every label.
-for LABEL in $(jq -r '.labels[]?.name' .cursor/working/${PR}-sidebar-snapshot.json); do
+for LABEL in $(jq -r '.labels[]?.name' .cursor/working/${PFX}-sidebar-snapshot.json); do
   gh pr edit $PR --repo $REPO --remove-label "$LABEL"
 done
 
 # 5. Milestone: clear if set. (--milestone "" doesn't always work; PATCH the
 #    underlying issue with milestone=null instead.)
-if [ "$(jq -r '.milestone.title // empty' .cursor/working/${PR}-sidebar-snapshot.json)" != "" ]; then
+if [ "$(jq -r '.milestone.title // empty' .cursor/working/${PFX}-sidebar-snapshot.json)" != "" ]; then
   gh api -X PATCH repos/$REPO/issues/$PR -F milestone= --jq '.milestone'
 fi
 
@@ -466,7 +491,7 @@ fi
 #       links drop on the next refresh.
 #    b) Manually linked via the GitHub UI ("Link issues" button) — these
 #       persist across body edits. Disconnect each via GraphQL.
-LINKED_NUMBERS=$(jq -r '.closingIssuesReferences[]?.number // empty' .cursor/working/${PR}-sidebar-snapshot.json)
+LINKED_NUMBERS=$(jq -r '.closingIssuesReferences[]?.number // empty' .cursor/working/${PFX}-sidebar-snapshot.json)
 if [ -n "$LINKED_NUMBERS" ]; then
   PR_NODE_ID=$(gh api repos/$REPO/pulls/$PR --jq '.node_id')
   for NUM in $LINKED_NUMBERS; do
@@ -511,9 +536,9 @@ Avoid that by dismissing here, before Phase 6e closes the PR. Target every revie
 # fine, but include them in the loop if you want a fully neutral sidebar.
 gh api repos/$REPO/pulls/$PR/reviews \
   --jq '[.[] | select(.state == "CHANGES_REQUESTED") | .id]' \
-  > .cursor/working/${PR}-blocking-reviews.json
+  > .cursor/working/${PFX}-blocking-reviews.json
 
-for REVIEW_ID in $(jq -r '.[]' .cursor/working/${PR}-blocking-reviews.json); do
+for REVIEW_ID in $(jq -r '.[]' .cursor/working/${PFX}-blocking-reviews.json); do
   gh api -X PUT "repos/$REPO/pulls/$PR/reviews/$REVIEW_ID/dismissals" \
     -f message="Workstream relocated; review no longer applicable." \
     -f event=DISMISS \
@@ -532,7 +557,7 @@ The dismissal message is public — keep it neutral and free of vuln/GHSA contex
 
 #### 6c. Build and post the close comment
 
-Build a terse, non-revealing close comment in `${PR}-close-comment.md`. The comment is public; it must not name the GHSA, link the advisory URL, or restate the vulnerability:
+Build a terse, non-revealing close comment in `${PFX}-close-comment.md`. The comment is public; it must not name the GHSA, link the advisory URL, or restate the vulnerability:
 
 ```markdown
 Closing this PR. Continued work on this fix is being handled through a private review process. A new public PR will be opened when the change is ready to merge. Thanks to everyone who reviewed here.
@@ -555,14 +580,14 @@ REPO=BoldGrid/w3-total-cache
 # All review summaries authored by any *[bot] login.
 gh api repos/$REPO/pulls/$PR/reviews \
   --jq '[.[] | select(.user.login | endswith("[bot]")) | .node_id]' \
-  > .cursor/working/${PR}-bot-review-nodes.json
+  > .cursor/working/${PFX}-bot-review-nodes.json
 
 # All inline review comments authored by Copilot or any *[bot] login.
 # (Note: GitHub renders Copilot's inline-comment author as the literal "Copilot",
 #  not "copilot-pull-request-reviewer[bot]". Match both.)
 gh api --paginate repos/$REPO/pulls/$PR/comments \
   --jq '[.[] | select(.user.login == "Copilot" or (.user.login | endswith("[bot]"))) | .node_id]' \
-  > .cursor/working/${PR}-bot-inline-nodes.json
+  > .cursor/working/${PFX}-bot-inline-nodes.json
 
 # All issue comments authored by any *[bot] login (or literal "Copilot"),
 # EXCLUDING codecov-commenter / codecov[bot] — coverage reports are
@@ -573,10 +598,10 @@ gh api --paginate repos/$REPO/pulls/$PR/comments \
 # spelling that the filter WOULD otherwise absorb.
 gh api repos/$REPO/issues/$PR/comments \
   --jq '[.[] | select((.user.login | endswith("[bot]")) or .user.login == "Copilot") | select(.user.login | startswith("codecov") | not) | .node_id]' \
-  > .cursor/working/${PR}-bot-issue-nodes.json
+  > .cursor/working/${PFX}-bot-issue-nodes.json
 
 # Minimize every node, idempotent (already-minimized nodes return success).
-for FILE in .cursor/working/${PR}-bot-{review,inline,issue}-nodes.json; do
+for FILE in .cursor/working/${PFX}-bot-{review,inline,issue}-nodes.json; do
   for NODE_ID in $(jq -r '.[]' "$FILE"); do
     gh api graphql -f query='mutation($id: ID!){
       minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) {
@@ -591,7 +616,7 @@ Verify before proceeding to 6d:
 
 ```bash
 # Should print isMinimized=true for every bot-authored node.
-for FILE in .cursor/working/${PR}-bot-{review,inline,issue}-nodes.json; do
+for FILE in .cursor/working/${PFX}-bot-{review,inline,issue}-nodes.json; do
   for NODE_ID in $(jq -r '.[]' "$FILE"); do
     gh api graphql -f query='query($id: ID!){
       node(id: $id) {
@@ -613,7 +638,7 @@ done
 #### 6e. Post the close comment, close the PR, and delete the branch
 
 ```bash
-gh pr comment $PR --repo $REPO --body-file .cursor/working/${PR}-close-comment.md
+gh pr comment $PR --repo $REPO --body-file .cursor/working/${PFX}-close-comment.md
 gh pr close   $PR --repo $REPO --delete-branch
 ```
 
@@ -685,7 +710,7 @@ gh pr list --repo $FORK_FULL --json number,title,headRefName,baseRefName
 Tear down the local worktree once you're satisfied the relocation is complete. The temp branch `pr-${PR}-tmp` is no longer referenced by anything you'll need:
 
 ```bash
-git worktree remove .cursor/working/${PR}-worktree
+git worktree remove .cursor/working/${PFX}-worktree
 git branch -D pr-${PR}-tmp
 ```
 
@@ -753,7 +778,7 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
             close-message wording.
 1. Fetch PR head + worktree:
                             git fetch origin +refs/pull/$PR/head:refs/heads/pr-${PR}-tmp
-                            git worktree add .cursor/working/${PR}-worktree pr-${PR}-tmp
+                            git worktree add .cursor/working/${PFX}-worktree pr-${PR}-tmp
                             (Standing rule: worktree-isolated default — no
                              stash, no branch switch in the main tree.
                              Scratch files still go in the main project's
@@ -843,7 +868,7 @@ Optional sanity check: open `$ADVISORY_URL` in a browser, scroll to "Collaborate
 8. Verify: PR closed, public branch gone, fork branch present at headRefOid,
    advisory state draft, new private PR listed under the advisory,
    Jira's most recent comment contains the advisory + private PR URLs.
-   Then tear down: git worktree remove .cursor/working/${PR}-worktree
+   Then tear down: git worktree remove .cursor/working/${PFX}-worktree
                    git branch -D pr-${PR}-tmp
 
 9. (Optional follow-up) Replay the source PR's review threads onto the TPF for

@@ -41,13 +41,25 @@ Do **not** use this to manufacture review consensus — the reposts will be auth
 
 ## Filename convention for scratch files
 
-Per AGENTS.md "Working Files", prefix every scratch file with the TPF PR number (the one you're posting *into*). Once the Jira key is known, append it. Optionally include the source PR number for clarity:
+Per AGENTS.md "Working Files", every scratch file follows `{KEY}-{REPO}-{PR}-{role}.{ext}`. The "primary" PR for this skill is the TPF PR you're posting *into* — the source PR is referenced from the filename role, not the keying triple. `{REPO}` is the lowercase slug (right-hand half of `org/repo`); GHSA TPFs follow `w3-total-cache-ghsa-…` (`ghsa` lowercase). Capture the prefix once in Phase 1 and reuse:
 
-- `{TPF-PR}-{KEY}-source-pr-{SRC-PR}-reviews.json` — source review summaries (`/reviews`, filtered by author regex)
-- `{TPF-PR}-{KEY}-source-pr-{SRC-PR}-comments.json` — source inline comments (`/comments`, filtered by author regex)
-- `{TPF-PR}-{KEY}-repost-reviews.py` — the reposter script
-- `{TPF-PR}-{KEY}-repost-{round}-payload.json` — POST body for `/pulls/{n}/reviews` (one per source review)
-- `{TPF-PR}-{KEY}-repost-{round}-response.json` — API response for verify
+```bash
+KEY=ENG7-2908                                # Jira ticket
+TPF_REPO=BoldGrid/w3-total-cache-ghsa-rgpr-5m2g-gvh2
+TPF_PR=1                                     # TPF PR number (almost always 1)
+TPF_SLUG="${TPF_REPO#*/}"                    # → "w3-total-cache-ghsa-rgpr-5m2g-gvh2"
+PFX="${KEY}-${TPF_SLUG}-${TPF_PR}"           # canonical scratch-file prefix
+```
+
+Every file path below expands as `.cursor/working/${PFX}-{role}.{ext}`:
+
+- `${PFX}-source-pr-${SRC_PR}-reviews.json` — source review summaries (`/reviews`, filtered by author regex)
+- `${PFX}-source-pr-${SRC_PR}-comments.json` — source inline comments (`/comments`, filtered by author regex)
+- `${PFX}-tpf-chain.json` — TPF PR commit list (Phase 2 reachability check)
+- `${PFX}-repost-reviews.py` — the reposter script
+- `${PFX}-repost-{round}-payload.json` — POST body for `/pulls/{n}/reviews` (one per source review)
+- `${PFX}-repost-{round}-response.json` — API response for verify
+- `${PFX}-verify-reposted.json` — Phase 5 verification dump
 
 Never write to `/tmp/` or anywhere outside the project tree.
 
@@ -82,25 +94,25 @@ SRC_PR=1313
 FILTER='[Cc]opilot'   # or specific login, etc.
 
 gh api "repos/${SRC_REPO}/pulls/${SRC_PR}/reviews" --paginate \
-  > .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-reviews-raw.json
+  > .cursor/working/${PFX}-source-pr-${SRC_PR}-reviews-raw.json
 
 jq "[.[] | select(.user.login | test(\"${FILTER}\")) | {id, state, commit_id, submitted_at, body, user_login: .user.login}]" \
-  .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-reviews-raw.json \
-  > .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-reviews.json
+  .cursor/working/${PFX}-source-pr-${SRC_PR}-reviews-raw.json \
+  > .cursor/working/${PFX}-source-pr-${SRC_PR}-reviews.json
 
 gh api "repos/${SRC_REPO}/pulls/${SRC_PR}/comments" --paginate \
-  > .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-comments-raw.json
+  > .cursor/working/${PFX}-source-pr-${SRC_PR}-comments-raw.json
 
 jq "[.[] | select(.user.login | test(\"${FILTER}\")) | {id, path, line, original_line, original_commit_id, side, pull_request_review_id, body, user_login: .user.login}]" \
-  .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-comments-raw.json \
-  > .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-comments.json
+  .cursor/working/${PFX}-source-pr-${SRC_PR}-comments-raw.json \
+  > .cursor/working/${PFX}-source-pr-${SRC_PR}-comments.json
 ```
 
 Quick sanity check — comment count grouped by review:
 
 ```bash
 jq '[.[] | {id, review_id: .pull_request_review_id}] | group_by(.review_id) | map({review_id: .[0].review_id, count: length})' \
-  .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-comments.json
+  .cursor/working/${PFX}-source-pr-${SRC_PR}-comments.json
 ```
 
 The count per review should match the body of the source review (Copilot reviews usually include a "generated N comments" line you can cross-reference).
@@ -111,13 +123,13 @@ Inline comments anchored to a commit that's no longer in the TPF PR's chain will
 
 ```bash
 gh api "repos/${TPF_REPO}/pulls/${TPF_PR}/commits" --paginate --jq '[.[] | .sha]' \
-  > .cursor/working/${TPF_PR}-${KEY}-tpf-chain.json
+  > .cursor/working/${PFX}-tpf-chain.json
 
 jq -r '[.[] | .original_commit_id] | unique | .[]' \
-  .cursor/working/${TPF_PR}-${KEY}-source-pr-${SRC_PR}-comments.json \
+  .cursor/working/${PFX}-source-pr-${SRC_PR}-comments.json \
 | while read sha; do
     if jq -e --arg sha "$sha" 'index($sha)' \
-         .cursor/working/${TPF_PR}-${KEY}-tpf-chain.json > /dev/null; then
+         .cursor/working/${PFX}-tpf-chain.json > /dev/null; then
       echo "OK   $sha"
     else
       echo "MISS $sha   (will need fallback to PR-level comment)"
@@ -131,7 +143,7 @@ Any `MISS` rows need to be handled separately — see "Caveats" #6. Most of the 
 
 One payload per source review. For each comment, anchor to `original_commit_id` + `original_line`. Attribution wrapper goes on both the review body and each inline comment body, so attribution survives every UI surface (timeline, file-tree review, individual comment permalink).
 
-The template script (write to `.cursor/working/${TPF_PR}-${KEY}-repost-reviews.py`):
+The template script (write to `.cursor/working/${PFX}-repost-reviews.py`):
 
 ```python
 #!/usr/bin/env python3
@@ -156,7 +168,9 @@ TPF_REPO       = "{TPF-OWNER}/{TPF-REPO}"
 TPF_PR         = {TPF-PR}
 SOURCE_PR_URL  = "https://github.com/{SRC-OWNER}/{SRC-REPO}/pull/{SRC-PR}"
 JIRA_KEY       = "{KEY}"
-PREFIX         = f"{TPF_PR}-{JIRA_KEY}"   # filename prefix for scratch files
+# Filename prefix per AGENTS.md "Working Files": {KEY}-{REPO-SLUG}-{TPF-PR}-...
+# (the TPF PR is the keying PR for this skill; SRC-PR lives in the role part).
+PREFIX         = f"{JIRA_KEY}-{TPF_REPO.split('/', 1)[1]}-{TPF_PR}"
 
 
 def load_reviews():
@@ -247,10 +261,10 @@ Fill in the curly-brace tokens for the specific run. Keep `event: "COMMENT"` reg
 ### Phase 4 — Post the reposts
 
 ```bash
-python3 .cursor/working/${TPF_PR}-${KEY}-repost-reviews.py
+python3 .cursor/working/${PFX}-repost-reviews.py
 ```
 
-Expect one POST per source review, each returning a review id + html_url. Save responses to `${TPF_PR}-${KEY}-repost-{round}-response.json`.
+Expect one POST per source review, each returning a review id + html_url. Save responses to `${PFX}-repost-{round}-response.json`.
 
 If a POST fails with `422`:
 
@@ -265,9 +279,9 @@ Read back the comments on the TPF PR and assert each reposted comment's `origina
 ```bash
 gh api "repos/${TPF_REPO}/pulls/${TPF_PR}/comments" --paginate \
   --jq "[.[] | select(.body | test(\"Reposted from\\\\b|From ${FILTER} inline comment\")) | {path, original_line, original_commit_id: (.original_commit_id // \"\")[0:10], review_id: .pull_request_review_id}]" \
-  > .cursor/working/${TPF_PR}-${KEY}-verify-reposted.json
+  > .cursor/working/${PFX}-verify-reposted.json
 
-jq '. | length' .cursor/working/${TPF_PR}-${KEY}-verify-reposted.json
+jq '. | length' .cursor/working/${PFX}-verify-reposted.json
 # expect: same as total inline-comment count across all source reviews
 ```
 
