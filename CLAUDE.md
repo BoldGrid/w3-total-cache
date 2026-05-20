@@ -55,6 +55,25 @@ Run the standalone mfunc security regression test (no WordPress bootstrap needed
 php tests/test-mfunc-security.php
 ```
 
+Run the standalone cache-unserialize helper test (no WordPress bootstrap needed):
+```bash
+php tests/test-cache-unserialize.php
+```
+
+#### Writing new standalone tests
+
+Standalone test files in `tests/` use a realpath-guard at the top so they exit early when PHPUnit auto-discovers them, e.g.:
+```php
+if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
+    return;
+}
+```
+The guard suppresses **body execution** only. Top-level `function` and `class` declarations are processed at PHP parse time, before the `return` ever runs — they take effect every time PHPUnit `require_once`s the file. As a result:
+
+- Helper functions must have **file-unique names**. Prefix them with a short identifier derived from the test's name (e.g. `cu_assert_true` for `test-cache-unserialize.php`), or wrap the declaration in `if ( ! function_exists( ... ) )`. A bare `assert_true` shared across two test files produces `Cannot redeclare ...` under PHPUnit even though both files appear to bail at runtime.
+- Fixture classes should be unique-by-prefix (`W3TC_Test_*`) or wrapped in `if ( ! class_exists( ... ) )`. The latter is required for stubs of classes WordPress itself defines (e.g. `WP_Post`), because PHPUnit loads the WP test bootstrap before the test file.
+- Shared `global $pass, $fail, $cases;` counters across files are safe only because both files bail at runtime; do not start relying on globals for cross-file state.
+
 ### Upgrade dependencies
 ```bash
 yarn run upgrade:deps
