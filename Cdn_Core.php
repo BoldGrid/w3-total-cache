@@ -565,7 +565,8 @@ class Cdn_Core {
 						'cname'       => $c->get_array( 'cdn.s3.cname' ),
 						'ssl'         => $c->get_string( 'cdn.s3.ssl' ),
 						'compression' => $compression,
-						'api_host'    => $c->get_string( 'cdn.s3_compatible.api_host' ),
+						'api_host'     => $c->get_string( 'cdn.s3_compatible.api_host' ),
+						'storage_type' => $c->get_string( 'cdn.s3_compatible.storage_type' ),
 					);
 					break;
 

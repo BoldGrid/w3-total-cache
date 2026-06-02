@@ -1365,6 +1365,10 @@ $keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
+	'cdn.s3_compatible.storage_type'                       => array(
+		'type'    => 'string',
+		'default' => 'auto',
+	),
 	'cdn.cf.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
