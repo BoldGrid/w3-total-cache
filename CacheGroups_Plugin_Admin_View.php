@@ -138,7 +138,21 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th colspan="2">
 					<ul>
-						<?php echo $useragent_groups['description']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php
+						/**
+						 * `description` reaches us through the public
+						 * `w3tc_ui_config_item_mobile.rgroups` filter, so any
+						 * plugin can mutate it before we render. The
+						 * legitimate content is two translated strings each
+						 * wrapped in `<li>`; clamp to that exact shape with
+						 * wp_kses so any other tag becomes inert text
+						 * .
+						 */
+						echo wp_kses(
+							$useragent_groups['description'],
+							array( 'li' => array() )
+						);
+						?>
 					</ul>
 				</th>
 			</tr>

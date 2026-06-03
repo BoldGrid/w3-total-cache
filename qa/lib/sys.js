@@ -96,6 +96,25 @@ async function beforeDefault() {
 }
 
 /**
+ * Truncate the http server error log (and WP debug.log) so w3test's
+ * post-run "log must be empty" check passes after tests that
+ * intentionally trigger expected Apache authz denies (AH01630).
+ *
+ * @returns {Promise<void>}
+ */
+async function clearHttpErrorLog() {
+	const errlog = process.env.W3D_HTTP_SERVER_ERROR_LOG_FILENAME;
+	if (errlog) {
+		await exec('truncate -s 0 ' + errlog);
+	}
+
+	const contentPath = process.env.W3D_WP_CONTENT_PATH;
+	if (contentPath) {
+		await exec('truncate -s 0 ' + contentPath + 'debug.log 2>/dev/null || true');
+	}
+}
+
+/**
 * after.
 *
 * After all tests.
@@ -285,6 +304,37 @@ async function httpGet(url, options) {
 }
 
 /**
+ * Skip the current Mocha test if any of the named environment
+ * variables is unset or empty. Use for engine specs whose live-API
+ * path requires real credentials the CI matrix does not provision.
+ *
+ * Example:
+ *   it('does the thing', function() {
+ *       sys.skipIfMissingEnv(this, ['CLOUDFLARE_EMAIL', 'CLOUDFLARE_KEY']);
+ *       // ... live-API assertions ...
+ *   });
+ *
+ * The form-save / readback portion of a spec should NOT be wrapped
+ * in this guard — those run in every matrix. Only gate the bits
+ * that actually contact the external service.
+ *
+ * @param {*} testCtx Mocha test context (`this` from inside an `it`/`before`).
+ * @param {Array<string>} envKeys Env-var names that must all be present and non-empty.
+ * @returns {boolean} true if the test was skipped (so callers can early-return).
+ */
+function skipIfMissingEnv(testCtx, envKeys) {
+	for (let i = 0; i < envKeys.length; i++) {
+		let k = envKeys[i];
+		if (!process.env[k] || process.env[k] === '') {
+			log.log('SKIP: required env-var ' + k + ' is not set');
+			testCtx.skip();
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
 * Repeat page operations on failure.
 *
 * @param {pPage} pPage Page.
@@ -324,7 +374,9 @@ module.exports,
 		httpGet,
 		installQaNginxStreamMuPlugin,
 		qaNginxStreamRequestHeaders,
-		repeatOnFailure
+		repeatOnFailure,
+		skipIfMissingEnv,
+		clearHttpErrorLog
 	}
 );
 

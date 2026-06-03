@@ -28,29 +28,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </p>
 <p>
-	<?php
-	switch ( $this->_config->get_string( 'cdn.engine' ) ) :
-		case 'cotendo':
-			?>
-			<ul>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/</em> &mdash; <?php esc_html_e( 'the directory itself (only when accessed directly without any file).', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/*.</em> &mdash; <?php esc_html_e( 'all files in the directory with no extension, with all parameter variations.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/*.jpg</em> &mdash; <?php esc_html_e( 'all files in the directory whose extension is "jpg".', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path</em> &mdash; <?php esc_html_e( 'the specific file (when the file does not have an extension), and without parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em> &mdash; <?php esc_html_e( 'the specific file with its extension, and without parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg?*</em> &mdash; <?php esc_html_e( 'the specific file with its extension, with all variation of parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg?key=value</em> &mdash; <?php esc_html_e( 'the specific file with its extension, with the specific parameters.', 'w3-total-cache' ); ?></li>
-			</ul>
-			<?php
-			break;
-
-		default:
-			?>
-			<em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em>
-			<?php
-			break;
-	endswitch;
-	?>
+	<em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em>
 </p>
 
 

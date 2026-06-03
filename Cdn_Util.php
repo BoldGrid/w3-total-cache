@@ -24,14 +24,10 @@ class Cdn_Util {
 		return in_array(
 			$engine,
 			array(
-				'akamai',
-				'att',
 				'azure',
 				'azuremi',
 				'cf',
 				'cf2',
-				'cotendo',
-				'edgecast',
 				'ftp',
 				'google_drive',
 				'mirror',
@@ -57,11 +53,7 @@ class Cdn_Util {
 			$engine,
 			array(
 				'mirror',
-				'cotendo',
 				'cf2',
-				'akamai',
-				'edgecast',
-				'att',
 				'rackspace_cdn',
 				'bunnycdn',
 			),
@@ -91,11 +83,8 @@ class Cdn_Util {
 		return in_array(
 			$engine,
 			array(
-				'att',
 				'bunnycdn',
 				'cf2',
-				'cotendo',
-				'edgecast',
 			),
 			true
 		);
@@ -112,14 +101,10 @@ class Cdn_Util {
 		return in_array(
 			$engine,
 			array(
-				'akamai',
-				'att',
 				'azure',
 				'azuremi',
 				'cf',
 				'cf2',
-				'cotendo',
-				'edgecast',
 				'ftp',
 				'rscf',
 				's3',

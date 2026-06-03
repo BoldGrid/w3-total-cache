@@ -5,7 +5,7 @@
     "homepage": "https://www.boldgrid.com/w3-total-cache/",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": ">=7.2.5 <8.4",
+        "php": ">=7.4 <8.6",
         "aws/aws-sdk-php": ">=3.308,<3.368.0",
         "aws/aws-php-sns-message-validator": "^1.9",
         "symfony/deprecation-contracts": "^2.5",
@@ -36,13 +36,14 @@
         },
         "audit": {
             "ignore": {
-              "PKSA-dxyf-6n16-t87m": "Pinned AWS SDK <3.368.0 to keep PHP 7.2 support; revisit when dropping PHP 7.2."
+              "PKSA-dxyf-6n16-t87m": "Affects only the pinned aws/aws-sdk-php <3.368.0 ceiling; revisit when the SDK ceiling is reviewed.",
+              "PKSA-4t1p-xpk2-nsss": "Affects only the pinned aws/aws-sdk-php <3.368.0 ceiling; revisit when the SDK ceiling is reviewed."
             }
         },
         "COMPOSER_MIRROR_PATH_REPOS": true,
         "optimize-autoloader": true,
         "platform": {
-            "php": "7.2.5"
+            "php": "7.4"
         }
     }
 }

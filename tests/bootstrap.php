@@ -22,6 +22,15 @@ if ( ! defined( 'W3TC_DIR' ) ) {
 	define( 'W3TC_DIR', dirname( __DIR__ ) );
 }
 
+/**
+ * PHPUnit loads the plugin from the checkout, not from the test
+ * WordPress install's WP_PLUGIN_DIR. Extension paths are relative to
+ * the plugins parent (e.g. w3-total-cache/Extension_*.php).
+ */
+if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
+	define( 'W3TC_EXTENSION_DIR', dirname( W3TC_DIR ) );
+}
+
 // Require necessary files.
 $files = array(
 

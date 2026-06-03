@@ -125,8 +125,30 @@ class Extensions_Util {
 				// Set transient for displaying activation notice.
 				set_transient( 'w3tc_activation_' . $extension, true, DAY_IN_SECONDS );
 
+				/**
+				 * Audit only after the change actually persists. When
+				 * `$dont_save_config` is true the caller (typically a
+				 * batch toggle handler) is responsible for the final
+				 * save; the activation isn't durable yet, so emit a
+				 * distinct `extension_activate_pending` event instead
+				 * of the success event. Otherwise an audit subscriber
+				 * can see `extension_activated` for a toggle that the
+				 * later batched save dropped on the floor.
+				 */
+				Util_Debug::audit_log(
+					$dont_save_config ? 'extension_activate_pending' : 'extension_activated',
+					array( 'extension' => $extension )
+				);
+
 				return true;
 			} catch ( \Exception $ex ) {
+				Util_Debug::audit_log(
+					'extension_activate_failed',
+					array(
+						'extension' => $extension,
+						'message'   => $ex->getMessage(),
+					)
+				);
 				return false;
 			}
 		}
@@ -148,7 +170,16 @@ class Extensions_Util {
 	public static function deactivate_extension( $extension, $config, $dont_save_config = false ) {
 		$extensions = $config->get_array( 'extensions.active' );
 
-		if ( array_key_exists( $extension, $extensions ) ) {
+		/**
+		 * Distinguish a real persisted state change from a no-op call.
+		 * `deactivate_extension( 'foo', $config )` against a `foo` that
+		 * isn't in `extensions.active` should not emit
+		 * `extension_deactivated`; emitting one would surface a state
+		 * change to audit subscribers when no state change happened.
+		 */
+		$was_active = array_key_exists( $extension, $extensions );
+
+		if ( $was_active ) {
 			unset( $extensions[ $extension ] );
 			ksort( $extensions, SORT_STRING );
 			$config->set( 'extensions.active', $extensions );
@@ -172,8 +203,34 @@ class Extensions_Util {
 
 			do_action( 'w3tc_deactivate_extension_' . $extension );
 
+			/**
+			 * Audit only after the change actually persists AND only
+			 * when a state change actually happened. `extension_deactivate_pending`
+			 * is emitted when the caller will save later (batched
+			 * toggle handler); `extension_deactivate_noop` covers the
+			 * no-op call against an already-inactive extension.
+			 */
+			if ( ! $was_active ) {
+				$event = 'extension_deactivate_noop';
+			} elseif ( $dont_save_config ) {
+				$event = 'extension_deactivate_pending';
+			} else {
+				$event = 'extension_deactivated';
+			}
+			Util_Debug::audit_log(
+				$event,
+				array( 'extension' => $extension )
+			);
+
 			return true;
 		} catch ( \Exception $ex ) {
+			Util_Debug::audit_log(
+				'extension_deactivate_failed',
+				array(
+					'extension' => $extension,
+					'message'   => $ex->getMessage(),
+				)
+			);
 			return false;
 		}
 

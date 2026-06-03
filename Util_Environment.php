@@ -265,13 +265,19 @@ class Util_Environment {
 	/**
 	 * Returns header W3TC adds to responses powered by itself.
 	 *
+	 * Previously this returned `W3 Total Cache/<W3TC_VERSION>`
+	 *, which placed the exact plugin version in every
+	 * `X-Powered-By` response header (and in every emitted `.htaccess`
+	 * / nginx.conf `add_header` rule). The brand alone is enough for
+	 * support and legitimate identification; the build version belongs
+	 * in the plugin's own settings page, not in every outbound response.
+	 *
 	 * @static
 	 *
 	 * @return string
 	 */
 	public static function w3tc_header() {
-		return W3TC_POWERED_BY .
-			'/' . W3TC_VERSION;
+		return W3TC_POWERED_BY;
 	}
 
 	/**
@@ -558,9 +564,11 @@ class Util_Environment {
 	 * @return string
 	 */
 	public static function cache_blog_minify_dir() {
-		// when minify manual used with a shared config - shared
-		// minify urls has to be used too, since CDN upload is possible
-		// only from network admin.
+		/**
+		 * when minify manual used with a shared config - shared
+		 * minify urls has to be used too, since CDN upload is possible
+		 * only from network admin.
+		 */
 		if ( self::is_wpmu() && self::is_using_master_config() && ! Dispatcher::config()->get_boolean( 'minify.auto' ) ) {
 			$path = self::cache_blog_dir( 'minify', 0 );
 		} else {
@@ -1183,6 +1191,60 @@ class Util_Environment {
 	}
 
 	/**
+	 * Parses an XML string with external-entity (XXE) protections.
+	 *
+	 * Modern libxml (>= 2.9, PHP's bundled version for years) disables
+	 * external entity substitution by default, and PHP 8.0+ removed the
+	 * ability to re-enable it. This helper hardens the remaining cases:
+	 *
+	 *  - Passes LIBXML_NONET so the parser never performs network access
+	 *    while resolving a document (blocks `SYSTEM "http://..."` entities
+	 *    and XInclude over the network).
+	 *  - On PHP < 8.0 with an older libxml, calls
+	 *    libxml_disable_entity_loader() so `file://` and `http://`
+	 *    external entities are refused regardless of the build default.
+	 *    The call is deprecated / a no-op on PHP 8.0+, so it is guarded by
+	 *    a version check to avoid emitting a deprecation notice.
+	 *
+	 * libxml parse warnings are suppressed and the previous error state
+	 * restored, so callers receive a clean SimpleXMLElement|false.
+	 *
+	 * @static
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $xml_string XML document.
+	 *
+	 * @return \SimpleXMLElement|false Parsed element, or false on failure.
+	 */
+	public static function safe_simplexml_load_string( $xml_string ) {
+		if ( ! is_string( $xml_string ) || '' === $xml_string ) {
+			return false;
+		}
+
+		$entity_loader_changed = false;
+		if ( PHP_VERSION_ID < 80000 && function_exists( 'libxml_disable_entity_loader' ) ) {
+			// phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated -- guarded by PHP_VERSION_ID < 80000; needed to refuse external entities on older libxml builds.
+			$previous_loader       = libxml_disable_entity_loader( true );
+			$entity_loader_changed = true;
+		}
+
+		$previous_errors = libxml_use_internal_errors( true );
+
+		$xml = simplexml_load_string( $xml_string, 'SimpleXMLElement', LIBXML_NONET );
+
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous_errors );
+
+		if ( $entity_loader_changed ) {
+			// phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated -- guarded by PHP_VERSION_ID < 80000; restores prior loader state set above.
+			libxml_disable_entity_loader( $previous_loader );
+		}
+
+		return $xml;
+	}
+
+	/**
 	 * Returns real path of given path.
 	 *
 	 * @static
@@ -1630,8 +1692,10 @@ class Util_Environment {
 			return true;
 		}
 
-		// in case when called before constant is set
-		// wp filters are not available in that case.
+		/**
+		 * in case when called before constant is set
+		 * wp filters are not available in that case.
+		 */
 		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $url );
 	}
 

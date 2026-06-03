@@ -53,6 +53,15 @@ class Template {
 	 * @since 2.0.0
 	 */
 	public function render() {
+		/**
+		 * Defense-in-depth: the wizard template emits an admin-only nonce
+		 * field and AJAX-bound markup. Refuse to render for users that
+		 * shouldn't be on the SetupGuide page.
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_die( \esc_html__( 'You do not have sufficient permissions to access this page.', 'w3-total-cache' ) );
+		}
+
 		$allowed_html = array(
 			'a'      => array(
 				'href'   => array(),

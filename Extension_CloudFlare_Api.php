@@ -63,7 +63,16 @@ class Extension_CloudFlare_Api {
 	public function __construct( $config ) {
 		$this->_email   = isset( $config['email'] ) ? trim( (string) $config['email'] ) : '';
 		$this->_key     = isset( $config['key'] ) ? trim( (string) $config['key'] ) : '';
-		$this->_zone_id = ( isset( $config['zone_id'] ) ? $config['zone_id'] : '' );
+
+		/**
+		 * `zone_id` flows into Cloudflare API URLs as a path segment
+		 * (`/zones/<zone_id>/settings/<name>`). The API host is locked
+		 * to api.cloudflare.com so an unexpected zone_id value can at
+		 * most rewrite the API path (extra `/`, query separators) —
+		 * the validation is cheap and closes that path.
+		 */
+		$raw_zone_id    = isset( $config['zone_id'] ) ? (string) $config['zone_id'] : '';
+		$this->_zone_id = self::validate_api_path_segment( $raw_zone_id );
 
 		if ( ! isset( $config['timelimit_api_request'] ) ||
 			$config['timelimit_api_request'] < 1 ) {
@@ -71,6 +80,38 @@ class Extension_CloudFlare_Api {
 		} else {
 			$this->_timelimit_api_request = $config['timelimit_api_request'];
 		}
+	}
+
+	/**
+	 * Returns the input untouched if it matches the conservative
+	 * Cloudflare path-segment alphabet (`A-Z a-z 0-9 . _ -`), otherwise
+	 * returns the empty string. Used to gate every external input that
+	 * lands in an API URL path segment.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $value Candidate segment.
+	 *
+	 * @return string Validated segment, or '' on rejection.
+	 */
+	private static function validate_api_path_segment( $value ) {
+		if ( ! \is_string( $value ) ) {
+			return '';
+		}
+		/**
+		 * Trim before the alphabet check. Stored config values often
+		 * carry stray whitespace from copy-paste / multi-line dashboards;
+		 * rejecting those would silently break installs whose stored
+		 * zone_id has a trailing newline / space / tab.
+		 */
+		$value = \trim( $value );
+		if ( '' === $value ) {
+			return '';
+		}
+		if ( ! \preg_match( '/^[A-Za-z0-9._-]+$/', $value ) ) {
+			return '';
+		}
+		return $value;
 	}
 
 	/**
@@ -186,6 +227,11 @@ class Extension_CloudFlare_Api {
 	 * @return array An array of zone details.
 	 */
 	public function zone( $id ) {
+		$id = self::validate_api_path_segment( (string) $id );
+		if ( '' === $id ) {
+			return array();
+		}
+
 		$a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $id );
 
 		return $a;
@@ -197,6 +243,18 @@ class Extension_CloudFlare_Api {
 	 * @return array An associative array of settings indexed by their IDs.
 	 */
 	public function zone_settings() {
+		/**
+		 * Refuse to issue `/zones//settings` when the validated zone_id
+		 * was empty (constructor rejected the configured value, or no
+		 * zone is configured yet). Without this guard the API call
+		 * returns a confusing 4xx that surfaces as a generic admin
+		 * error; bailing out early produces an empty result set and
+		 * keeps the caller's `foreach` safe.
+		 */
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		$a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $this->_zone_id . '/settings' );
 
 		$by_id = array();
@@ -216,6 +274,17 @@ class Extension_CloudFlare_Api {
 	 * @return array The response from the Cloudflare API.
 	 */
 	public function zone_setting_set( $name, $value ) {
+		/**
+		 * `$name` becomes a path segment. The legacy code spliced any
+		 * admin-supplied string straight in; restrict to the Cloudflare
+		 * setting-name alphabet so a value like `evil/../foo` can't
+		 * bend the URL.
+		 */
+		$name = self::validate_api_path_segment( (string) $name );
+		if ( '' === $name || '' === $this->_zone_id ) {
+			return array();
+		}
+
 		// Convert numeric values to the integer type.
 		if ( is_numeric( $value ) ) {
 			$value = intval( $value );
@@ -240,6 +309,16 @@ class Extension_CloudFlare_Api {
 	 * @return array The analytics data.
 	 */
 	public function analytics_dashboard( $start, $end, $type = 'day' ) {
+		/**
+		 * Empty zone_id (constructor rejected the configured value) →
+		 * empty result set; the GraphQL query would otherwise inline
+		 * `zoneTag: ""` and the API returns an error that surfaces as
+		 * "analytics broken" to the admin.
+		 */
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		$dataset         = 'httpRequests1dGroups';
 		$datetime_filter = 'date';
 
@@ -289,6 +368,17 @@ class Extension_CloudFlare_Api {
 	 * @return array The response from the Cloudflare API.
 	 */
 	public function purge() {
+		/**
+		 * Empty zone_id (constructor rejected the configured value) →
+		 * don't issue `DELETE /zones//purge_cache`. The API responds
+		 * with a generic 4xx that the cache-flush admin surfaces as a
+		 * "purge failed" alert; bailing out early is the same effect
+		 * without the request round trip.
+		 */
+		if ( '' === $this->_zone_id ) {
+			return array();
+		}
+
 		return $this->_wp_remote_request(
 			'DELETE',
 			self::$_root_uri . '/zones/' . $this->_zone_id . '/purge_cache',

@@ -7,6 +7,10 @@
  * @package W3TC
  */
 
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 ?>
 		</div>
 	</body>

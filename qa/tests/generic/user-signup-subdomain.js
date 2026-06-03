@@ -39,6 +39,18 @@ describe('', function() {
 
 
 
+	/**
+	 * rt9-180 sub-C: clear the per-IP rate-limit transients before a
+	 * matrix that sweeps multiple subsite scenarios back-to-back can
+	 * trip the 5/60s `Util_WpmuBlogmap::register_new_item` cap and
+	 * short-circuit the env-fix fan-out the rest of this suite asserts.
+	 */
+	it('clear blogmap rate-limit transients', async() => {
+		await w3tc.clearBlogmapRateLimit(adminPage);
+	});
+
+
+
 	it('set options', async() => {
 		let ocdcengine = (env.cacheEngineLabel == 'file_generic' ? 'file' :
 			env.cacheEngineLabel);

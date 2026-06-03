@@ -42,6 +42,29 @@ class Cdn_GoogleDrive_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_google_drive_auth_return() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+		/**
+		 * rt9-233: Validate the session-bound OAuth state token before
+		 * rendering the folder picker. The popup URL is reachable to
+		 * anyone holding the current admin's session cookie via a
+		 * crafted `?oa_*=...` payload — without state validation,
+		 * attacker-supplied OAuth tokens would silently be queried
+		 * against attacker-owned Google Drive accounts and displayed
+		 * as the admin's folder list. See Cdn_GoogleDrive_OAuthState.
+		 */
+		if ( ! Cdn_GoogleDrive_OAuthState::verify( Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM ) ) ) {
+			wp_die(
+				\esc_html__( 'OAuth state token missing or expired — restart the Google Drive authorization flow.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
 		$view = new Cdn_GoogleDrive_Popup_AuthReturn();
 		$view->render();
 		exit();
@@ -58,6 +81,43 @@ class Cdn_GoogleDrive_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_google_drive_auth_set() {
+		/**
+		 * Hard admin gate: only manage_options users may bind a Google
+		 * Drive OAuth token to the site CDN config.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
+		/**
+		 * rt9-233: OAuth state-to-session binding. The hidden state
+		 * input rendered by Cdn_GoogleDrive_Popup_AuthReturn_View must
+		 * match the token this admin's session issued at authorize-
+		 * link-click time. Without this gate, an admin tricked into
+		 * loading a crafted `?oa_*` URL would submit attacker-supplied
+		 * Google credentials into `cdn.google_drive.*` config and the
+		 * site would upload its CDN payload to the attacker's Drive.
+		 *
+		 * Single-use: consume the transient after a successful match
+		 * so the same state cannot replay a second config write.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! Cdn_GoogleDrive_OAuthState::verify( Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM ) ) ) {
+			wp_die(
+				\esc_html__( 'OAuth state token missing or expired — restart the Google Drive authorization flow.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+		Cdn_GoogleDrive_OAuthState::consume();
+
 		// thanks wp core for wp_magic_quotes hell.
 		$client_id     = Util_Request::get_string( 'client_id' );
 		$access_token  = Util_Request::get_string( 'access_token' );

@@ -185,14 +185,6 @@ class Cache {
 				$engine_name = 'Microsoft Azure Storage (Managed Identity)';
 				break;
 
-			case 'edgecast':
-				$engine_name = 'Media Template ProCDN / EdgeCast';
-				break;
-
-			case 'att':
-				$engine_name = 'AT&amp;T';
-				break;
-
 			case 'rackspace_cdn':
 				$engine_name = 'Rackspace';
 				break;

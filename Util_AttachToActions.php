@@ -164,15 +164,33 @@ class Util_AttachToActions {
 			$data = get_post( $post_id, ARRAY_A );
 		}
 
-		// if attachment changed - parent post has to be flushed
-		// since there are usually attachments content like title
-		// on the page (gallery).
+		/**
+		 * if attachment changed - parent post has to be flushed
+		 * since there are usually attachments content like title
+		 * on the page (gallery).
+		 */
 		if ( isset( $data['post_type'] ) && 'attachment' === $data['post_type'] ) {
 			$post_id = $data['post_parent'];
 			$data    = get_post( $post_id, ARRAY_A );
 		}
 
+		/**
+		 * Step 1: gate on the incoming (new) status being `draft`. Anything
+		 * other than a draft submission is irrelevant to this handler.
+		 */
 		if ( ! isset( $data['post_status'] ) || 'draft' !== $data['post_status'] ) {
+			return;
+		}
+
+		/**
+		 * Step 2: gate on the previous (current-on-disk) status being
+		 * `publish`. Combined with step 1 above this is a strict
+		 * publish → draft transition. Without this check, new drafts and
+		 * Gutenberg autosaves (which also report `post_status = draft`)
+		 * would trigger spurious cache flushes.
+		 */
+		$old_post = \get_post( $post_id );
+		if ( ! $old_post || 'publish' !== $old_post->post_status ) {
 			return;
 		}
 

@@ -144,8 +144,10 @@ class Extension_ImageService_Api {
 				$mime_types_out[] = 'image/webp';
 			}
 
-			// Check avif setting - handle both boolean and string values, default to true if not set.
-			// Only allow AVIF for Pro license holders.
+			/**
+			 * Check avif setting - handle both boolean and string values, default to true if not set.
+			 * Only allow AVIF for Pro license holders.
+			 */
 			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
 			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $config ) ) {
 				$mime_types_out[] = 'image/avif';
@@ -183,14 +185,13 @@ class Extension_ImageService_Api {
 		$response = wp_remote_request(
 			Util_Environment::get_api_base_url() . $this->endpoints['convert']['uri'],
 			array(
-				'method'    => $this->endpoints['convert']['method'],
-				'sslverify' => false,
-				'timeout'   => 30,
-				'headers'   => array(
+				'method'  => $this->endpoints['convert']['method'],
+				'timeout' => 30,
+				'headers' => array(
 					'Accept'       => 'application/json',
 					'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
 				),
-				'body'      => $body,
+				'body'    => $body,
 			)
 		);
 
@@ -284,10 +285,9 @@ class Extension_ImageService_Api {
 		$response = wp_remote_request(
 			Util_Environment::get_api_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
-				'method'    => $this->endpoints['status']['method'],
-				'sslverify' => false,
-				'timeout'   => 10,
-				'headers'   => array(
+				'method'  => $this->endpoints['status']['method'],
+				'timeout' => 10,
+				'headers' => array(
 					'Accept' => 'application/json',
 				),
 			)
@@ -435,10 +435,9 @@ class Extension_ImageService_Api {
 					'/' . rawurlencode( $this->home_url )
 			),
 			array(
-				'method'    => $this->endpoints['usage']['method'],
-				'sslverify' => false,
-				'timeout'   => 10,
-				'headers'   => array(
+				'method'  => $this->endpoints['usage']['method'],
+				'timeout' => 10,
+				'headers' => array(
 					'Accept' => 'application/json',
 				),
 			)

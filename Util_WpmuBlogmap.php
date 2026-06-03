@@ -23,6 +23,45 @@ class Util_WpmuBlogmap {
 	private static $content_by_filename = array();
 
 	/**
+	 * rt9-180 sub-C: per-IP rate limit for first-frontend blog
+	 * discovery to bound enumeration-driven amplification of
+	 * filesystem writes.
+	 *
+	 * The dedup at {@see self::register_new_item()} already bounds
+	 * the write to once per blog URL ever. This rate limit
+	 * additionally bounds how fast a single source IP can trigger
+	 * discoveries across multiple subsite URLs (multisite-
+	 * enumeration scenario). Legitimate-user threshold: a real
+	 * visitor does not visit 5 brand-new subsites within 60 seconds
+	 * from one IP. A synthetic monitor probing all subsites at once
+	 * sees a slight delay on the 6th+ URL — recoverable on the next
+	 * window — not a denial.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const RATE_LIMIT_TRANSIENT_PREFIX = 'w3tc_blogmap_register_rate_';
+
+	/**
+	 * Maximum first-frontend registrations from one IP per window.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const RATE_LIMIT_MAX_PER_WINDOW = 5;
+
+	/**
+	 * Rate-limit window in seconds.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const RATE_LIMIT_WINDOW_SECONDS = 60;
+
+	/**
 	 * Generates a unique blog map filename based on the blog's home URL.
 	 *
 	 * This method determines the appropriate blog map file path and name by hashing the blog's home URL. The file path structure
@@ -212,6 +251,23 @@ class Util_WpmuBlogmap {
 			return false;
 		}
 
+		/**
+		 * rt9-180 sub-C: per-IP rate-limit gate. The per-URL dedup
+		 * above already bounds writes to once per blog URL ever; this
+		 * additional gate caps enumeration-driven amplification from
+		 * a single source IP. On rate-limit we return false — same
+		 * return type as the dedup short-circuit — so the caller in
+		 * Generic_Plugin::init() sees `$do_redirect = false` and the
+		 * request continues with master config. The blog URL will
+		 * register on a subsequent visit once the rate-limit window
+		 * has cleared.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! self::_rate_limit_allows_write() ) {
+			return false;
+		}
+
 		$data                       = $config->get_boolean( 'common.force_master' ) ? 'm' : 'c';
 		$blog_home_url              = preg_replace( '/[^a-zA-Z0-9\+\.%~!:()\/\-\_]/', '', $blog_home_url );
 		$blog_ids[ $blog_home_url ] = $data . $GLOBALS['current_blog']->blog_id;
@@ -224,9 +280,89 @@ class Util_WpmuBlogmap {
 			return false;
 		}
 
+		/**
+		 * Increment the per-IP counter only on a successful write.
+		 * Dedup short-circuits and write failures don't count against
+		 * the rate limit — legitimate writes are what we throttle.
+		 */
+		self::_rate_limit_record_write();
+
 		unset( self::$content_by_filename[ $filename ] );
 		unset( $GLOBALS['w3tc_blogmap_register_new_item'] );
 
 		return true;
+	}
+
+	/**
+	 * Compute the per-IP rate-limit transient key.
+	 *
+	 * The raw IP is salted with `wp_salt('nonce')` and hashed so the
+	 * persisted transient does not contain the client IP literal
+	 * (defense against transient-table dumps revealing the visitor
+	 * IP set). Returns empty string when no IP is detected (e.g.
+	 * CLI / WP-Cron without REMOTE_ADDR) — the caller treats empty
+	 * as "no rate limit applies" so legitimate non-HTTP contexts
+	 * are never throttled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string Transient key, or '' when no IP available.
+	 */
+	private static function _ip_throttle_key() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] )
+			? (string) \wp_unslash( $_SERVER['REMOTE_ADDR'] )
+			: '';
+		if ( '' === $ip ) {
+			return '';
+		}
+		if ( false === \filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return '';
+		}
+		$salt = \function_exists( 'wp_salt' ) ? \wp_salt( 'nonce' ) : '';
+		return self::RATE_LIMIT_TRANSIENT_PREFIX
+			. \substr( \hash( 'sha256', $ip . '|' . $salt ), 0, 16 );
+	}
+
+	/**
+	 * True when the current request's IP has not yet exhausted its
+	 * registration quota within the active window. Permits writes
+	 * when no IP can be derived (CLI, edge cases) so legitimate
+	 * non-HTTP contexts are never blocked.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private static function _rate_limit_allows_write() {
+		$key = self::_ip_throttle_key();
+		if ( '' === $key ) {
+			return true;
+		}
+		$count = \get_transient( $key );
+		if ( false === $count || ! \is_numeric( $count ) ) {
+			$count = 0;
+		}
+		return (int) $count < self::RATE_LIMIT_MAX_PER_WINDOW;
+	}
+
+	/**
+	 * Increment the per-IP counter after a successful write. No-op
+	 * when no IP can be derived (matching the permissive policy in
+	 * {@see self::_rate_limit_allows_write()}).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private static function _rate_limit_record_write() {
+		$key = self::_ip_throttle_key();
+		if ( '' === $key ) {
+			return;
+		}
+		$count = \get_transient( $key );
+		if ( false === $count || ! \is_numeric( $count ) ) {
+			$count = 0;
+		}
+		\set_transient( $key, ( (int) $count ) + 1, self::RATE_LIMIT_WINDOW_SECONDS );
 	}
 }

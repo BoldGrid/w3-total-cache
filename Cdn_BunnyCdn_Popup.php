@@ -98,11 +98,23 @@ class Cdn_BunnyCdn_Popup {
 		try {
 			$pull_zones = $api->list_pull_zones();
 		} catch ( \Exception $ex ) {
-			// Reauthorize: Ask for a new account API key.
+			Util_Debug::log( 'bunnycdn', 'list_pull_zones failed: ' . $ex->getMessage() );
 			$this->render_intro(
 				array(
 					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-					'error_message'   => \esc_html( \__( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					/**
+					 * Copilot review (PR #4) flagged the prior
+					 * `\esc_html(...)` wrap as double-escaping the
+					 * view's sink-side `esc_html()` in
+					 * Cdn_BunnyCdn_Popup_View_Intro.php (cosmetic
+					 * `&amp;amp;`-style entities visible to the
+					 * admin). Suppliers in this code path pass raw
+					 * translated strings; the view is the single
+					 * escape point — matches the sec-xss skill
+					 * "strip the now-redundant supplier escapes"
+					 * rule.
+					 */
+					'error_message'   => \__( 'Cannot list pull zones; see the W3TC debug log for details.', 'w3-total-cache' ),
 				)
 			);
 		}
@@ -176,11 +188,16 @@ class Cdn_BunnyCdn_Popup {
 				$name         = $response['Name'];
 				$cdn_hostname = $response['Hostnames'][0]['Value'];
 			} catch ( \Exception $ex ) {
-				// Reauthorize: Ask for a new account API key.
+				Util_Debug::log( 'bunnycdn', 'configure_pull_zone failed: ' . $ex->getMessage() );
 				$this->render_intro(
 					array(
 						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-						'error_message'   => \esc_html( \__( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+						/**
+						 * Same supplier-passes-raw contract as the
+						 * list_pull_zones catch above — see that
+						 * comment for the rationale.
+						 */
+						'error_message'   => \__( 'Cannot select or add a pull zone; see the W3TC debug log for details.', 'w3-total-cache' ),
 					)
 				);
 			}

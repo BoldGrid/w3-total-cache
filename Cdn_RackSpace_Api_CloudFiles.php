@@ -53,9 +53,56 @@ class Cdn_RackSpace_Api_CloudFiles {
 	 */
 	public function __construct( $config = array() ) {
 		$this->_access_token             = $config['access_token'];
-		$this->_access_region_descriptor = $config['access_region_descriptor'];
+		$this->_access_region_descriptor = self::_sanitize_region_descriptor( $config['access_region_descriptor'] );
 
 		$this->_new_access_required = $config['new_access_required'];
+	}
+
+	/**
+	 * Strip attacker-controlled URL bases out of the
+	 * `access_region_descriptor` before any `_wp_remote_*` method can
+	 * use them. The descriptor reaches the API class from
+	 * {@see Cdn_RackSpaceCloudFiles_Popup} via
+	 * `Util_Request::get_string('access_region_descriptor')` —
+	 * attacker-controlled in transit even though the legitimate
+	 * round-trip carries a Rackspace-issued descriptor. Unsetting a
+	 * bad URL key drops the API call back to the
+	 * `new_access_required` callback, which triggers a fresh OAuth
+	 * fetch from Rackspace rather than connecting to an attacker host.
+	 *
+	 * Each `_wp_remote_*` method checks `! empty(...['object-store.publicURL'])`
+	 * before issuing a request, so unset is the right primitive: it
+	 * preserves the rest of the descriptor while neutering the SSRF
+	 * primitive.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $descriptor Raw descriptor (typically an array but
+	 *                          we guard against scalar / null too).
+	 *
+	 * @return array
+	 */
+	private static function _sanitize_region_descriptor( $descriptor ) {
+		if ( ! \is_array( $descriptor ) ) {
+			return array();
+		}
+		/**
+		 * Rackspace-issued URLs end in `.rackspacecloud.com` or
+		 * `.rackcdn.com`. Leading dot in the suffix list prevents
+		 * attacker-owned `*rackspacecloud.com.evil.example` from
+		 * matching by accident.
+		 */
+		$suffixes = array( '.rackspacecloud.com', '.rackcdn.com' );
+		if (
+			! empty( $descriptor['object-store.publicURL'] )
+			&& ! Util_Url::is_https_public_host_with_suffix(
+				$descriptor['object-store.publicURL'],
+				$suffixes
+			)
+		) {
+			unset( $descriptor['object-store.publicURL'] );
+		}
+		return $descriptor;
 	}
 
 	/**
@@ -155,9 +202,11 @@ class Cdn_RackSpace_Api_CloudFiles {
 				array(
 					'headers' => $headers,
 					'body'    => $body,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) .
-					// '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) .
+					 * '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'timeout' => 120,
 					'method'  => 'PUT',
 				)
@@ -192,9 +241,11 @@ class Cdn_RackSpace_Api_CloudFiles {
 				$url_base . $uri . '?format=json',
 				array(
 					'headers' => array( 'X-Auth-Token' => $this->_access_token ),
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) .
-					// '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) .
+					 * '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'HEAD',
 				)
 			);
@@ -232,9 +283,11 @@ class Cdn_RackSpace_Api_CloudFiles {
 				$url_base . $uri . '?format=json',
 				array(
 					'headers' => array( 'X-Auth-Token' => $this->_access_token ),
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) .
-					// '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) .
+					 * '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'DELETE',
 				)
 			);

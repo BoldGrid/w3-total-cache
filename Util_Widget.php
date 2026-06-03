@@ -55,7 +55,29 @@ class Util_Widget {
 			self::add( $widget_id, $name, $w3tc_registered_widgets[ $widget_id ]['callback'], $w3tc_registered_widget_controls[ $widget_id ]['callback'] );
 		}
 
-		if ( 'POST' === isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' && ! empty( Util_Request::get_string( 'widget_id' ) ) ) {
+		/**
+		 * Operator-precedence fix: PHP `===` (precedence 8) binds tighter
+		 * than `?:` (precedence 15), so the previous expression
+		 *
+		 *     'POST' === isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' && ! empty( Util_Request::get_string( 'widget_id' ) )
+		 *
+		 * actually parsed as
+		 *
+		 *     ( 'POST' === isset( ... ) ) ? sanitize_text_field( ... ) : ( '' && ! empty( widget_id ) )
+		 *
+		 * The condition `'POST' === <bool>` is always false, and the else
+		 * branch `'' && X` is also always false, so the guarded block
+		 * (`check_admin_referer` + `trigger_widget_control`) NEVER
+		 * executed. The rewrite below restores that
+		 * previously-dead widget POST handling path with an explicit
+		 * nonce check.
+		 *
+		 * @since X.X.X
+		 */
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) )
+			: '';
+		if ( 'POST' === $request_method && ! empty( Util_Request::get_string( 'widget_id' ) ) ) {
 			check_admin_referer( 'edit-dashboard-widget_' . Util_Request::get_string( 'widget_id' ), 'dashboard-widget-nonce' );
 			ob_start(); // The same hack "wp-admin/widgets.php" uses.
 			self::trigger_widget_control( Util_Request::get_string( 'widget_id' ) );

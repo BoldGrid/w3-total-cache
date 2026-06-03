@@ -36,7 +36,7 @@ class Generic_Plugin {
 	private $_config = null;
 
 	/**
-	 * Frontend notice payload when redirecting back from admin actions.
+	 * Frontend notice data when redirecting back from admin actions.
 	 *
 	 * @since 2.8.14
 	 *
@@ -82,7 +82,18 @@ class Generic_Plugin {
 		}
 
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
+		/**
+		 * The W3TC theme preview filters force-swap the active theme
+		 * for any visitor that supplies the public W3TC_POWERED_BY
+		 * User-Agent. Gate the registration on edit_theme_options so
+		 * unauthenticated visitors cannot probe installed themes
+		 *.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) )
+			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false
+			&& \current_user_can( 'edit_theme_options' ) ) {
 			add_filter( 'template', array( $this, 'template_preview' ) );
 			add_filter( 'stylesheet', array( $this, 'stylesheet_preview' ) );
 		} elseif ( $this->_config->get_boolean( 'mobile.enabled' ) || $this->_config->get_boolean( 'referrer.enabled' ) ) {
@@ -142,7 +153,7 @@ class Generic_Plugin {
 	}
 
 	/**
-	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
+	 * Sanitises REST API responses to strip dynamic-fragment tags before they reach the client.
 	 *
 	 * @since 2.8.13
 	 *
@@ -217,17 +228,19 @@ class Generic_Plugin {
 
 		$original_value = $value;
 
-		// Remove dynamic fragment tags from the value.
-		// Use \s*\S+ (zero-or-more whitespace, then one-or-more non-whitespace) so that
-		// tags with no space between the keyword and token (e.g. <!-- mfuncTOKEN -->) are
-		// also caught and not passed through to the str_replace step below where a crafted
-		// token-containing name could otherwise be morphed into a valid mfunc tag.
+		/**
+		 * Remove dynamic fragment tags from the value.
+		 * Use \s*\S+ (zero-or-more whitespace, then one-or-more non-whitespace) so that
+		 * tags with no space between the keyword and token (e.g. <!-- mfuncTOKEN -->) are
+		 * also caught and not passed through to the str_replace step below where a crafted
+		 * token-containing name could otherwise be morphed into a valid mfunc tag.
+		 */
 		$pattern = array(
 			'~<!--\s*mfunc\s*\S+.*?-->(.*?)<!--\s*/mfunc\s*\S+.*?\s*-->~Uis',
 			'~<!--\s*mclude\s*\S+.*?-->(.*?)<!--\s*/mclude\s*\S+.*?\s*-->~Uis',
 		);
 
-		$value   = preg_replace_callback(
+		$value = preg_replace_callback(
 			$pattern,
 			function ( $matches ) {
 				return $matches[1]; // Keep only the captured content between the tags.
@@ -359,18 +372,41 @@ class Generic_Plugin {
 			// change config to actual blog, it was master before.
 			$this->_config = new Config();
 
-			// fix environment, potentially it's first request to a specific blog.
-			$environment = Dispatcher::component( 'Root_Environment' );
-			$environment->fix_on_event( $this->_config, 'first_frontend', $this->_config );
+			/**
+			 * rt9-180 sub-C: Only run the cross-cache-layer
+			 * `fix_on_event('first_frontend')` fan-out when
+			 * `register_new_item()` actually wrote a new blogmap
+			 * entry (return value === true). On dedup short-circuit
+			 * or per-IP rate-limit, no new blog was discovered — the
+			 * env-fix handlers (PgCache, BrowserCache, Cdn, etc.)
+			 * have already run for this URL in a prior request, so
+			 * re-running is wasted IO. This also closes the
+			 * enumeration-amplification leg: an attacker probing N
+			 * undiscovered subsites can no longer drive N env-fix
+			 * fan-outs from one IP burst — the rate limit in
+			 * register_new_item caps the writes and the gate here
+			 * caps the env-fix calls that would otherwise fire
+			 * unconditionally.
+			 *
+			 * @since X.X.X
+			 */
+			if ( $do_redirect ) {
+				$environment = Dispatcher::component( 'Root_Environment' );
+				$environment->fix_on_event( $this->_config, 'first_frontend', $this->_config );
+			}
 
-			// need to repeat request processing, since we was not able to realize
-			// blog_id before so we are running with master config now.
-			// redirect to the same url causes "redirect loop" error in browser,
-			// so need to redirect to something a bit different.
+			/**
+			 * need to repeat request processing, since we was not able to realize
+			 * blog_id before so we are running with master config now.
+			 * redirect to the same url causes "redirect loop" error in browser,
+			 * so need to redirect to something a bit different.
+			 */
 			if ( $do_redirect ) {
 				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || php_sapi_name() === 'cli' ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-					// command-line mode, no real requests made,
-					// try to switch context in-request.
+					/**
+					 * command-line mode, no real requests made,
+					 * try to switch context in-request.
+					 */
 				} else {
 					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 					if ( strpos( $request_uri, '?' ) === false ) {
@@ -383,11 +419,25 @@ class Generic_Plugin {
 		}
 
 		/**
-		 * Check for rewrite test request
+		 * Check for rewrite test request.
+		 *
+		 * This probe exists so PgCache_Environment can verify that the
+		 * server's rewrite rules actually fire end-to-end. Without a token
+		 * the endpoint is reachable to any anonymous caller and acts as a
+		 * 2-byte plugin-presence oracle plus a cache-bypass side channel
+		 * (the response always bypasses page cache by design). Require the
+		 * single-use token issued by PgCache_Environment::test_rewrite()
+		 * so only the plugin's own admin-side verifier can drive it.
 		 */
 		$rewrite_test = Util_Request::get_boolean( 'w3tc_rewrite_test' );
 
 		if ( $rewrite_test ) {
+			if ( ! Util_ProbeToken::consume(
+				PgCache_Environment::PROBE_TOKEN_PREFIX,
+				PgCache_Environment::PROBE_TOKEN_HEADER
+			) ) {
+				Util_ProbeToken::reject();
+			}
 			echo 'OK';
 			exit();
 		}
@@ -503,6 +553,16 @@ class Generic_Plugin {
 	 */
 	public function admin_bar_menu() {
 		global $wp_admin_bar;
+
+		/**
+		 * Hard floor at `manage_options` so the `w3tc_capability_admin_bar`
+		 * filter cannot downgrade the admin bar to lower-capability users
+		 * (consistent with the floor applied at every other
+		 * `w3tc_capability_*` filter site).
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		$base_capability = apply_filters( 'w3tc_capability_admin_bar', 'manage_options' );
 
@@ -724,6 +784,22 @@ class Generic_Plugin {
 			return;
 		}
 
+		/**
+		 * Restrict frontend-message replay to admin callers.
+		 *
+		 * `load_frontend_message()` reads and deletes the `w3tc_message`
+		 * option that an admin-side redirect set, then renders the
+		 * stored data as a frontend notice. Without this gate any
+		 * visitor could trigger `delete_option('w3tc_message')` by
+		 * guessing the message id, or read stored notice contents
+		 *.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		$message_id = Util_Request::get_string( 'w3tc_message' );
 		if ( '' !== $message_id ) {
 			$stored_messages = get_option( 'w3tc_message' );
@@ -732,26 +808,26 @@ class Generic_Plugin {
 				delete_option( 'w3tc_message' );
 
 				$notice_type = '';
-				$payload     = array();
+				$entries     = array();
 
 				if ( isset( $message['errors'] ) && is_array( $message['errors'] ) ) {
-					$payload = array_values( array_filter( $message['errors'], 'strlen' ) );
-					if ( ! empty( $payload ) ) {
+					$entries = array_values( array_filter( $message['errors'], 'strlen' ) );
+					if ( ! empty( $entries ) ) {
 						$notice_type = 'error';
 					}
 				}
 
 				if ( '' === $notice_type && isset( $message['notes'] ) && is_array( $message['notes'] ) ) {
-					$payload = array_values( array_filter( $message['notes'], 'strlen' ) );
-					if ( ! empty( $payload ) ) {
+					$entries = array_values( array_filter( $message['notes'], 'strlen' ) );
+					if ( ! empty( $entries ) ) {
 						$notice_type = 'note';
 					}
 				}
 
-				if ( '' !== $notice_type && ! empty( $payload ) ) {
+				if ( '' !== $notice_type && ! empty( $entries ) ) {
 					$this->frontend_notice = array(
 						'type'     => $notice_type,
-						'messages' => $payload,
+						'messages' => $entries,
 					);
 				}
 			}
@@ -1009,9 +1085,11 @@ class Generic_Plugin {
 			return false;
 		}
 
-		// Do not skip output buffering based on User-Agent: the value is client-controlled.
-		// A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
-		// page-cache processing and leaking W3TC_DYNAMIC_SECURITY from unprocessed mfunc/mclude.
+		/**
+		 * Do not skip output buffering based on User-Agent: the value is client-controlled.
+		 * A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
+		 * page-cache processing and emitting W3TC_DYNAMIC_SECURITY in unprocessed mfunc/mclude.
+		 */
 
 		return true;
 	}
@@ -1049,9 +1127,11 @@ class Generic_Plugin {
 		if ( 'logged_out' === $action ) {
 			foreach ( $rejected_roles as $role ) {
 				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role ) );
-				// One-release back-compat: also clear the legacy MD5-named
-				// cookie so an upgrade doesn't leave a stale bypass-cookie
-				// behind. Drop this `clear()` call in the next release.
+				/**
+				 * One-release back-compat: also clear the legacy MD5-named
+				 * cookie so an upgrade doesn't leave a stale bypass-cookie
+				 * behind. Drop this `clear()` call in the next release.
+				 */
 				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role ) );
 			}
 

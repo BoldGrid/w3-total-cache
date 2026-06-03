@@ -119,9 +119,25 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="memcached_password"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="memcached_password" name="<?php echo esc_attr( $module ); ?>__memcached__password" type="text"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			<?php $this->value_with_disabled( $module . '.memcached.password', ! Util_Installed::memcached_auth(), '' ); ?> />
+		<?php
+		/**
+		 * rt9-19: Use the masked secret renderer so the stored
+		 * Memcached SASL password never round-trips through the HTML
+		 * `value=` attribute. `Util_Installed::memcached_auth()` may
+		 * disable the field when libmemcached lacks SASL support —
+		 * pass that through unchanged via the `disabled` arg.
+		 */
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'memcached_password',
+				'name'        => $module . '__memcached__password',
+				'has_value'   => '' !== $this->_config->get_string( $module . '.memcached.password' ),
+				'type'        => 'password',
+				'sealing_key' => $module . '.',
+				'disabled'    => ! Util_Installed::memcached_auth(),
+			)
+		);
+		?>
 		<p class="description">
 			<?php
 			echo wp_kses(

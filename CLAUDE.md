@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 W3 Total Cache (W3TC) is a WordPress performance plugin providing page caching, object caching, database caching, minification, CDN integration, and related optimizations.
 
-- **PHP compatibility**: 7.2.5–8.3 (enforced via `composer.json` platform config)
+- **PHP compatibility**: 7.4–8.5 (enforced via `composer.json` platform config)
 - **WordPress compatibility**: 5.3+
 - **Current version**: 2.9.1 (do not bump manually — done in the build process)
 

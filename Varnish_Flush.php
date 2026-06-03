@@ -151,8 +151,44 @@ class Varnish_Flush {
 
 		list( $varnish_host, $varnish_port ) = Util_Content::endpoint_to_host_port( $varnish_server, 80 );
 
-		// If url host is the same as varnish server - we can use regular WordPress http infrastructure, otherwise custom request
-		// should be sent using fsockopen, since we send request to other server than specified by $url.
+		/**
+		 * Refuse outbound purge requests targeting cloud metadata
+		 * (169.254.169.254), loopback (127.0.0.0/8), or any other
+		 * reserved range. Varnish legitimately runs on RFC1918 hosts
+		 * (10.x / 172.16-31.x / 192.168.x) so we use
+		 * `host_resolves_safe_internal()` here rather than the strict
+		 * `is_public_host()`. The check covers both literal IPs in the
+		 * admin-set `varnish.servers` value and hostnames that resolve
+		 * to a dangerous range via DNS. Filterable so an operator with
+		 * an audited reason — e.g. a sidecar Varnish on `127.0.0.1` —
+		 * can opt out per-host.
+		 */
+		if ( ! \apply_filters(
+			'w3tc_varnish_skip_host_check',
+			false,
+			$varnish_host,
+			$varnish_port
+		) && ! Util_Url::host_resolves_safe_internal( $varnish_host ) ) {
+			$this->_log(
+				$url,
+				sprintf(
+					'Refused PURGE to %s — host is loopback, link-local, or reserved range.',
+					$varnish_host
+				)
+			);
+			return new \WP_Error(
+				'http_request_failed',
+				sprintf(
+					'Refused to send Varnish PURGE to %s: host is loopback, link-local, or a reserved range. Set varnish.servers to a routable internal host, or filter `w3tc_varnish_skip_host_check` to opt out.',
+					$varnish_host
+				)
+			);
+		}
+
+		/**
+		 * If url host is the same as varnish server - we can use regular WordPress http infrastructure, otherwise custom request
+		 * should be sent using fsockopen, since we send request to other server than specified by $url.
+		 */
 		if ( $host === $varnish_host && $port === $varnish_port ) {
 			return Util_Http::request( $url, array( 'method' => 'PURGE' ) );
 		}

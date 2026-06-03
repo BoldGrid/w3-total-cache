@@ -58,15 +58,10 @@ class Extension_ImageService_Plugin {
 			)
 		);
 
-		add_filter(
-			'cron_schedules',
-			array(
-				'\W3TC\Extension_ImageService_Cron',
-				'add_schedule',
-			)
+		add_action(
+			'init',
+			array( '\W3TC\Extension_ImageService_Cron', 'register_cron' )
 		);
-
-		Extension_ImageService_Cron::add_cron();
 	}
 
 	/**

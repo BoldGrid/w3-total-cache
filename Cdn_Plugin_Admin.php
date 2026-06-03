@@ -102,29 +102,14 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
-		$engine_values['akamai'] = array(
-			'label'    => \__( 'Akamai', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
 		$engine_values['cf2'] = array(
 			'label'    => \__( 'Amazon CloudFront', 'w3-total-cache' ),
 			'disabled' => ! Util_Installed::curl() ? true : null,
 			'optgroup' => $optgroup_pull,
 		);
 
-		$engine_values['att'] = array(
-			'label'    => \__( 'AT&amp;T', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
 		$engine_values['bunnycdn'] = array(
 			'label'    => \__( 'Bunny CDN (recommended)', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['cotendo'] = array(
-			'label'    => \__( 'Cotendo (Akamai)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
@@ -135,11 +120,6 @@ class Cdn_Plugin_Admin {
 
 		$engine_values['rackspace_cdn'] = array(
 			'label'    => \__( 'RackSpace CDN', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['edgecast'] = array(
-			'label'    => \__( 'Verizon Digital Media Services (EdgeCast) / Media Temple ProCDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 

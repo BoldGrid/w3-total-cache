@@ -51,8 +51,38 @@ class Cdn_RackSpace_Api_Cdn {
 	 */
 	public function __construct( $config = array() ) {
 		$this->_access_token             = $config['access_token'];
-		$this->_access_region_descriptor = $config['access_region_descriptor'];
+		$this->_access_region_descriptor = self::_sanitize_region_descriptor( $config['access_region_descriptor'] );
 		$this->_new_access_required      = $config['new_access_required'];
+	}
+
+	/**
+	 * Strip attacker-controlled URL bases out of the
+	 * `access_region_descriptor` before any `_wp_remote_*` method can
+	 * use them. See {@see Cdn_RackSpace_Api_CloudFiles::_sanitize_region_descriptor()}
+	 * for the rationale; this class uses the `cdn.publicURL` key
+	 * instead of `object-store.publicURL`.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $descriptor Raw descriptor.
+	 *
+	 * @return array
+	 */
+	private static function _sanitize_region_descriptor( $descriptor ) {
+		if ( ! \is_array( $descriptor ) ) {
+			return array();
+		}
+		$suffixes = array( '.rackspacecloud.com', '.rackcdn.com' );
+		if (
+			! empty( $descriptor['cdn.publicURL'] )
+			&& ! Util_Url::is_https_public_host_with_suffix(
+				$descriptor['cdn.publicURL'],
+				$suffixes
+			)
+		) {
+			unset( $descriptor['cdn.publicURL'] );
+		}
+		return $descriptor;
 	}
 
 	/**
@@ -162,8 +192,10 @@ class Cdn_RackSpace_Api_Cdn {
 				$url_base . $uri . '?format=json',
 				array(
 					'headers' => 'X-Auth-Token: ' . $this->_access_token,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 				)
 			);
 
@@ -201,8 +233,10 @@ class Cdn_RackSpace_Api_Cdn {
 				array(
 					'headers' => $headers,
 					'body'    => $body,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'PATCH',
 				)
 			);
@@ -243,8 +277,10 @@ class Cdn_RackSpace_Api_Cdn {
 				array(
 					'headers' => $headers,
 					'body'    => $body,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem'
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem'
+					 */
 				)
 			);
 
@@ -282,8 +318,10 @@ class Cdn_RackSpace_Api_Cdn {
 				$url_base . $uri,
 				array(
 					'headers' => $headers,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'DELETE',
 				)
 			);

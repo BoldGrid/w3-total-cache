@@ -512,12 +512,14 @@ class BrowserCache_Environment {
 					$url = Util_Environment::home_url_maybe_https();
 				}
 
+				$url = Util_Rule::sanitize_directive_value( $url );
+
 				$rules_headers .= '    Header always append X-Frame-Options "' .
 					( 'same' === $dir ? 'SAMEORIGIN' : ( 'deny' === $dir ? 'DENY' : 'ALLOW-FROM' . $url ) ) . "\"\n";
 			}
 
 			if ( $config->get_boolean( 'browsercache.security.xss' ) ) {
-				$dir            = $config->get_string( 'browsercache.security.xss.directive' );
+				$dir            = Util_Rule::sanitize_directive_value( $config->get_string( 'browsercache.security.xss.directive' ) );
 				$rules_headers .= '    Header set X-XSS-Protection "' . ( 'block' === $dir ? '1; mode=block' : $dir ) . "\"\n";
 
 			}
@@ -527,10 +529,10 @@ class BrowserCache_Environment {
 			}
 
 			if ( $config->get_boolean( 'browsercache.security.pkp' ) ) {
-				$pin            = trim( $config->get_string( 'browsercache.security.pkp.pin' ) );
-				$pinbak         = trim( $config->get_string( 'browsercache.security.pkp.pin.backup' ) );
-				$extra          = $config->get_string( 'browsercache.security.pkp.extra' );
-				$url            = trim( $config->get_string( 'browsercache.security.pkp.report.url' ) );
+				$pin            = Util_Rule::sanitize_directive_value( trim( $config->get_string( 'browsercache.security.pkp.pin' ) ) );
+				$pinbak         = Util_Rule::sanitize_directive_value( trim( $config->get_string( 'browsercache.security.pkp.pin.backup' ) ) );
+				$extra          = Util_Rule::sanitize_directive_value( $config->get_string( 'browsercache.security.pkp.extra' ) );
+				$url            = Util_Rule::sanitize_directive_value( trim( $config->get_string( 'browsercache.security.pkp.report.url' ) ) );
 				$rep_only       = '1' === $config->get_string( 'browsercache.security.pkp.report.only' ) ? true : false;
 				$rules_headers .= '    Header set ' . ( $rep_only ? 'Public-Key-Pins-Report-Only' : 'Public-Key-Pins' ) .
 					' "pin-sha256="$pin"; pin-sha256="$pinbak"; max-age=' . $lifetime . ( strpos( $extra, 'inc' ) ? '; includeSubDomains' : '' ) .
@@ -538,7 +540,7 @@ class BrowserCache_Environment {
 			}
 
 			if ( $config->get_boolean( 'browsercache.security.referrer.policy' ) ) {
-				$dir            = $config->get_string( 'browsercache.security.referrer.policy.directive' );
+				$dir            = Util_Rule::sanitize_directive_value( $config->get_string( 'browsercache.security.referrer.policy.directive' ) );
 				$rules_headers .= '    Header set Referrer-Policy "' . ( empty( $dir ) ? '' : $dir ) . "\"\n";
 			}
 
@@ -593,6 +595,14 @@ class BrowserCache_Environment {
 						( ! empty( $default ) ? "default-src $default;" : '' ),
 					'; '
 				);
+
+				/**
+				 * Strip CR/LF/NUL/<> from the assembled directive before it
+				 * lands in `.htaccess` / `nginx.conf`. Defence-in-depth on
+				 * top of the Config::set-time reject — covers stored values
+				 * that pre-date this fix.
+				 */
+				$dir = Util_Rule::sanitize_directive_value( $dir );
 
 				if ( ! empty( $dir ) ) {
 					$rules_headers .= '    Header set Content-Security-Policy "' . $dir . "\"\n";
@@ -650,6 +660,9 @@ class BrowserCache_Environment {
 					'; '
 				);
 
+				// Strip CR/LF/NUL/<> — see the CSP block above.
+				$dir = Util_Rule::sanitize_directive_value( $dir );
+
 				if ( ! empty( $dir ) ) {
 					$rules_headers .= '    Header set Content-Security-Policy-Report-Only "' . $dir . "\"\n";
 				}
@@ -663,7 +676,15 @@ class BrowserCache_Environment {
 
 				foreach ( $fp_values as $key => $value ) {
 					if ( ! empty( $value ) ) {
-						$value = str_replace( array( '"', "'" ), '', $value );
+						/**
+						 * Strip quotes (existing rule) AND newlines /
+						 * NUL / `<` / `>` so a Feature-Policy /
+						 * Permissions-Policy directive value can't
+						 * start a fresh Apache directive on the next
+						 * line of .htaccess.
+						 */
+						$key   = Util_Rule::sanitize_directive_value( (string) $key );
+						$value = Util_Rule::sanitize_directive_value( str_replace( array( '"', "'" ), '', $value ) );
 
 						$feature_v[]    = "$key '$value'";
 						$permission_v[] = "$key=($value)";

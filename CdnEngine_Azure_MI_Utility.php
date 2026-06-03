@@ -260,9 +260,9 @@ class CdnEngine_Azure_MI_Utility {
 		string $container_id,
 		string $blob,
 		$contents,
-		string $content_type = null,
-		string $content_md5 = null,
-		string $cache_control = null
+		?string $content_type = null,
+		?string $content_md5 = null,
+		?string $cache_control = null
 	): array {
 		$headers = array(
 			'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
@@ -555,8 +555,8 @@ class CdnEngine_Azure_MI_Utility {
 			);
 		}
 
-		// Parse XML response to array.
-		$xml      = \simplexml_load_string( $response );
+		// Parse XML response to array (with XXE protections).
+		$xml      = Util_Environment::safe_simplexml_load_string( $response );
 		$json     = \json_encode( $xml );
 		$response = \json_decode( $json, true );
 

@@ -33,6 +33,16 @@ class Cdn_GoogleDrive_Popup_AuthReturn {
 		);
 		$access_token = wp_json_encode( $token_array );
 
+		/**
+		 * rt9-233: The AdminActions handler that invokes us
+		 * (`w3tc_cdn_google_drive_auth_return`) has already validated
+		 * the state token. Read the same value here so the view can
+		 * emit it as a hidden form input — the subsequent
+		 * `auth_set` POST then carries it back and gets re-validated
+		 * at the config-write boundary.
+		 */
+		$oauth_state = Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+
 		$client = new \W3TCG_Google_Client();
 		$client->setClientId( $client_id );
 		$client->setAccessToken( $access_token );

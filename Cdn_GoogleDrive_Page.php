@@ -29,7 +29,19 @@ class Cdn_GoogleDrive_Page {
 			false
 		);
 
+		/**
+		 * rt9-233: Mint a session-bound state token and embed it in
+		 * the OAuth return URL. The external w3-edge proxy preserves
+		 * the return_url's query string when redirecting the browser
+		 * back, so the token round-trips through to the callback. See
+		 * Cdn_GoogleDrive_OAuthState for the threat model.
+		 */
+		$state      = Cdn_GoogleDrive_OAuthState::issue();
 		$path       = 'admin.php?page=w3tc_cdn';
+		if ( '' !== $state ) {
+			$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM
+				. '=' . rawurlencode( $state );
+		}
 		$return_url = self_admin_url( $path );
 
 		wp_localize_script(
@@ -40,6 +52,20 @@ class Cdn_GoogleDrive_Page {
 
 		// it's return from google oauth.
 		if ( ! empty( Util_Request::get_string( 'oa_client_id' ) ) ) {
+			/**
+			 * rt9-233: Refuse to enqueue the auto-opening popup
+			 * unless the submitted state token matches the one this
+			 * session issued. Without this gate, an attacker who
+			 * holds valid OAuth tokens for an attacker-owned Google
+			 * Drive account can craft a URL with `oa_*` params and
+			 * trick an authenticated admin into writing attacker
+			 * credentials to `cdn.google_drive.*` config.
+			 */
+			$submitted_state = Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+			if ( ! Cdn_GoogleDrive_OAuthState::verify( $submitted_state ) ) {
+				return;
+			}
+
 			$path = wp_nonce_url( 'admin.php', 'w3tc' ) .
 				'&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return';
 			foreach ( $_GET as $key => $value ) { // phpcs:ignore
@@ -47,6 +73,14 @@ class Cdn_GoogleDrive_Page {
 					$path .= '&' . rawurlencode( $key ) . '=' . rawurlencode( Util_Request::get_string( $key ) );
 				}
 			}
+			/**
+			 * rt9-233: Forward the validated state into the popup URL
+			 * so the AuthReturn handler can re-validate independently
+			 * (defense in depth — popup URL is reachable by URL alone
+			 * and shouldn't trust the upstream Page-level check).
+			 */
+			$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM
+				. '=' . rawurlencode( $submitted_state );
 
 			$popup_url = self_admin_url( $path );
 

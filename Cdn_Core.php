@@ -368,7 +368,7 @@ class Cdn_Core {
 	 * This method checks the current configuration settings and returns an array
 	 * containing the appropriate configuration for the specified CDN engine.
 	 * The configuration details are dependent on the engine selected, such as
-	 * Akamai, Cloudflare, or S3, and include settings such as API keys, domain,
+	 * Cloudflare or S3, and include settings such as API keys, domain,
 	 * SSL configurations, and compression options. The method caches the configuration
 	 * after the first retrieval for subsequent calls.
 	 *
@@ -383,28 +383,6 @@ class Cdn_Core {
 			$compression = ( $c->get_boolean( 'browsercache.enabled' ) && $c->get_boolean( 'browsercache.html.compression' ) );
 
 			switch ( $engine ) {
-				case 'akamai':
-					$engine_config = array(
-						'username'           => $c->get_string( 'cdn.akamai.username' ),
-						'password'           => $c->get_string( 'cdn.akamai.password' ),
-						'zone'               => $c->get_string( 'cdn.akamai.zone' ),
-						'domain'             => $c->get_array( 'cdn.akamai.domain' ),
-						'ssl'                => $c->get_string( 'cdn.akamai.ssl' ),
-						'email_notification' => $c->get_array( 'cdn.akamai.email_notification' ),
-						'compression'        => false,
-					);
-					break;
-
-				case 'att':
-					$engine_config = array(
-						'account'     => $c->get_string( 'cdn.att.account' ),
-						'token'       => $c->get_string( 'cdn.att.token' ),
-						'domain'      => $c->get_array( 'cdn.att.domain' ),
-						'ssl'         => $c->get_string( 'cdn.att.ssl' ),
-						'compression' => false,
-					);
-					break;
-
 				case 'azure':
 					$engine_config = array(
 						'user'        => $c->get_string( 'cdn.azure.user' ),
@@ -449,27 +427,6 @@ class Cdn_Core {
 						'id'          => $c->get_string( 'cdn.cf2.id' ),
 						'cname'       => $c->get_array( 'cdn.cf2.cname' ),
 						'ssl'         => $c->get_string( 'cdn.cf2.ssl' ),
-						'compression' => false,
-					);
-					break;
-
-				case 'cotendo':
-					$engine_config = array(
-						'username'    => $c->get_string( 'cdn.cotendo.username' ),
-						'password'    => $c->get_string( 'cdn.cotendo.password' ),
-						'zones'       => $c->get_array( 'cdn.cotendo.zones' ),
-						'domain'      => $c->get_array( 'cdn.cotendo.domain' ),
-						'ssl'         => $c->get_string( 'cdn.cotendo.ssl' ),
-						'compression' => false,
-					);
-					break;
-
-				case 'edgecast':
-					$engine_config = array(
-						'account'     => $c->get_string( 'cdn.edgecast.account' ),
-						'token'       => $c->get_string( 'cdn.edgecast.token' ),
-						'domain'      => $c->get_array( 'cdn.edgecast.domain' ),
-						'ssl'         => $c->get_string( 'cdn.edgecast.ssl' ),
 						'compression' => false,
 					);
 					break;
@@ -841,17 +798,6 @@ class Cdn_Core {
 	 */
 	public function is_cdn_authorized() {
 		switch ( $this->_config->get_string( 'cdn.engine' ) ) {
-			case 'akamai':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.akamai.username' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.akamai.password' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.akamai.zone' ) );
-				break;
-
-			case 'att':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.att.account' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.att.token' ) );
-				break;
-
 			case 'azure':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azure.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.key' ) ) &&
@@ -882,19 +828,6 @@ class Cdn_Core {
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cf2.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf2.secret' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf2.id' ) );
-				break;
-
-			case 'cotendo':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cotendo.username' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.cotendo.password' ) ) &&
-					! empty( $this->_config->get_array( 'cdn.cotendo.domain' ) ) &&
-					! empty( $this->_config->get_array( 'cdn.cotendo.zones' ) );
-				break;
-
-			case 'edgecast':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.edgecast.account' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.edgecast.token' ) ) &&
-					! empty( $this->_config->get_array( 'cdn.edgecast.domain' ) );
 				break;
 
 			case 'ftp':

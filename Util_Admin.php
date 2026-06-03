@@ -42,6 +42,17 @@ class Util_Admin {
 			}
 		}
 
+		/**
+		 * `$url` may originate from the `?redirect=` request parameter, which is
+		 * attacker-controlled. Pass it through wp_validate_redirect() so a host
+		 * outside the WP install resolves to admin_url() rather than producing
+		 * an open redirect via the raw `Location:` header emitted downstream.
+		 * Relative paths (the common `admin.php?page=...` shape) pass through
+		 * unchanged because wp_validate_redirect() treats hostless URLs as same-
+		 * host.
+		 */
+		$url = wp_validate_redirect( $url, admin_url() );
+
 		Util_Environment::redirect( $url, $params );
 	}
 
@@ -374,12 +385,6 @@ class Util_Admin {
 						'cdn.azuremi.ssl',
 						'cdn.mirror.domain',
 						'cdn.mirror.ssl',
-						'cdn.cotendo.domain',
-						'cdn.cotendo.ssl',
-						'cdn.edgecast.domain',
-						'cdn.edgecast.ssl',
-						'cdn.att.domain',
-						'cdn.att.ssl',
 						'cdn.reject.logged_roles',
 						'cdn.reject.roles',
 						'cdn.reject.ua',

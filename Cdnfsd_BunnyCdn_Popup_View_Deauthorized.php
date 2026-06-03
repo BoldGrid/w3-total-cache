@@ -19,8 +19,13 @@ defined( 'W3TC' ) || die();
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
+		/**
+		 * Escape at the sink. See Cdn_BunnyCdn_Popup_View_Deauthorized.php
+		 * for the rationale — pin the escape here so an SDK error
+		 * message containing markup can't render.
+		 */
 		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
-		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo esc_html( (string) $delete_error_message ) . '.';
 		?>
 	</div>
 <?php endif; ?>

@@ -485,37 +485,65 @@ class Cdn_AdminActions {
 				// those use already stored w3tc config.
 				$w3_cdn = Dispatcher::component( 'Cdn_Core' )->get_cdn();
 			} else {
-				// those use dynamic config from the page.
-				$w3_cdn = CdnEngine::instance( $engine, $config );
+				/**
+				 * those use dynamic config from the page — the test
+				 * handler runs whatever host the admin has just
+				 * entered, before save. Refuse outbound to a non-
+				 * routable target so an admin (or anyone driving the
+				 * nonce via a separate primitive) cannot point this at
+				 * AWS instance metadata / 127.0.0.1:6379 / etc.
+				 */
+				$bad_host = self::_unsafe_test_host( $engine, $config );
+				if ( null !== $bad_host ) {
+					$result = false;
+					$error  = sprintf(
+						// Translators: 1 — rejected host literal.
+						__(
+							'Refused CDN test target: %1$s resolves to a loopback, link-local, or reserved IP address.',
+							'w3-total-cache'
+						),
+						$bad_host
+					);
+				} else {
+					$w3_cdn = CdnEngine::instance( $engine, $config );
+				}
 			}
 
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+			/**
+			 * `$result` was flipped to false above if the destination
+			 * host check refused the test, in which case $w3_cdn is
+			 * unset. Re-check before invoking the test so we don't
+			 * fatal on the next line.
+			 */
+			if ( $result ) {
+				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-			try {
-				if ( $w3_cdn->test( $error ) ) {
-					$result = true;
-					$error  = __( 'Test passed', 'w3-total-cache' );
-				} else {
+				try {
+					if ( $w3_cdn->test( $error ) ) {
+						$result = true;
+						$error  = __( 'Test passed', 'w3-total-cache' );
+					} else {
+						$result = false;
+						$error  = sprintf(
+							// Translators: 1 error message.
+							__(
+								'Error: %1$s',
+								'w3-total-cache'
+							),
+							$error
+						);
+					}
+				} catch ( \Exception $ex ) {
 					$result = false;
 					$error  = sprintf(
 						// Translators: 1 error message.
 						__(
-							'Error: %1$s',
+							'Error: %s',
 							'w3-total-cache'
 						),
-						$error
+						$ex->getMessage()
 					);
 				}
-			} catch ( \Exception $ex ) {
-				$result = false;
-				$error  = sprintf(
-					// Translators: 1 error message.
-					__(
-						'Error: %s',
-						'w3-total-cache'
-					),
-					$ex->getMessage()
-				);
 			}
 		}
 
@@ -525,6 +553,106 @@ class Cdn_AdminActions {
 		);
 
 		echo wp_json_encode( $response );
+	}
+
+	/**
+	 * Scan the dynamic CDN-test config for any host field that resolves
+	 * to a loopback / link-local / reserved-future address and return the
+	 * first offender, or NULL when every host looks routable.
+	 *
+	 * The CDN test handler accepts a `config` array from the admin form
+	 * *before* it has been saved, so the values here are whatever the
+	 * client posted. Allowing loopback or link-local targets turns the
+	 * test handler into a port scanner against the WP host (Redis on
+	 * 127.0.0.1:6379, AWS metadata on 169.254.169.254, etc.).
+	 *
+	 * Policy: RFC1918 hosts are allowed — operators legitimately run
+	 * internal FTP / mirror endpoints on `10.x` / `192.168.x`. Only the
+	 * dangerous ranges (loopback, link-local incl. metadata, multicast,
+	 * reserved-future) are refused. See {@see Util_Url::is_safe_internal_ip()}
+	 * for the exact range list.
+	 *
+	 * Keys inspected match the engine surface in {@see CdnEngine::instance()}'s
+	 * dynamic-config branch:
+	 *  - `host`     — FTP / SFTP target.
+	 *  - `api_host` — defensive control-endpoint field; no current engine
+	 *                 posts it, kept so the denylist stays a superset.
+	 *  - `endpoint` — S3 compatible alternate endpoint.
+	 *  - `account`  — Azure account name (resolves to `<account>.blob.core.windows.net`,
+	 *                 but the field also accepts a literal host for testing).
+	 *  - `domain`   — Mirror CDN domain (may be array or comma-string).
+	 *
+	 * Unknown engines / keys are not inspected — the helper is a
+	 * positive denylist, not an allowlist. The cost of a missed key is
+	 * the test handler reaches a non-listed target; the cost of an
+	 * over-eager allowlist is breaking legitimate operator setups.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $engine CDN engine identifier (unused today;
+	 *                        accepted so future per-engine policy can
+	 *                        diverge without a signature break).
+	 * @param array  $config Dynamic-config array as posted.
+	 *
+	 * @return string|null   Rejected host literal, or null if all clear.
+	 */
+	private static function _unsafe_test_host( $engine, $config ) {
+		unset( $engine );
+		if ( ! \is_array( $config ) ) {
+			return null;
+		}
+
+		$candidates = array();
+		foreach ( array( 'host', 'api_host', 'endpoint', 'account' ) as $key ) {
+			if ( isset( $config[ $key ] ) && \is_string( $config[ $key ] ) && '' !== $config[ $key ] ) {
+				$candidates[] = $config[ $key ];
+			}
+		}
+		if ( isset( $config['domain'] ) ) {
+			if ( \is_array( $config['domain'] ) ) {
+				foreach ( $config['domain'] as $d ) {
+					if ( \is_string( $d ) && '' !== $d ) {
+						$candidates[] = $d;
+					}
+				}
+			} elseif ( \is_string( $config['domain'] ) && '' !== $config['domain'] ) {
+				foreach ( \explode( ',', $config['domain'] ) as $d ) {
+					$d = \trim( $d );
+					if ( '' !== $d ) {
+						$candidates[] = $d;
+					}
+				}
+			}
+		}
+
+		foreach ( $candidates as $value ) {
+			/**
+			 * Strip scheme/path if a full URL leaked in; leave bare
+			 * hostnames and `host:port` alone.
+			 */
+			$host = $value;
+			if ( false !== \stripos( $host, '://' ) ) {
+				$parsed = \wp_parse_url( $host, PHP_URL_HOST );
+				if ( \is_string( $parsed ) && '' !== $parsed ) {
+					$host = $parsed;
+				}
+			}
+			// Drop a trailing `:port` (but preserve IPv6 brackets).
+			if ( '[' !== \substr( $host, 0, 1 ) ) {
+				$colon = \strpos( $host, ':' );
+				if ( false !== $colon ) {
+					$host = \substr( $host, 0, $colon );
+				}
+			}
+			if ( '' === $host ) {
+				continue;
+			}
+			if ( ! Util_Url::host_resolves_safe_internal( $host ) ) {
+				return $value;
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -19,8 +19,16 @@ defined( 'W3TC' ) || die();
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
+		/**
+		 * Escape at the sink. `$delete_error_message` is the raw
+		 * `\Exception::getMessage()` from the BunnyCDN deauthorise
+		 * path — a SDK error containing `<script>` would render here
+		 * if echoed unescaped. The docblock above claimed "String
+		 * already escaped" but the supplier-side path doesn't
+		 * actually guarantee that, so we pin the escape at the echo.
+		 */
 		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
-		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo esc_html( (string) $delete_error_message ) . '.';
 		?>
 	</div>
 <?php endif; ?>

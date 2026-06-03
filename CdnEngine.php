@@ -27,14 +27,6 @@ class CdnEngine {
 
 		if ( ! isset( $instances[ $instance_key ] ) ) {
 			switch ( $engine ) {
-				case 'akamai':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_Akamai( $config );
-					break;
-
-				case 'att':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_Att( $config );
-					break;
-
 				case 'azure':
 					$instances[ $instance_key ] = new CdnEngine_Azure( $config );
 					break;
@@ -53,14 +45,6 @@ class CdnEngine {
 
 				case 'cf2':
 					$instances[ $instance_key ] = new CdnEngine_Mirror_CloudFront( $config );
-					break;
-
-				case 'cotendo':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_Cotendo( $config );
-					break;
-
-				case 'edgecast':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_Edgecast( $config );
 					break;
 
 				case 'ftp':

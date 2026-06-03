@@ -146,8 +146,30 @@ class Generic_Plugin_Admin {
 		$executor = new Root_AdminActions();
 
 		if ( $action && $executor->exists( $action ) ) {
-			if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-				wp_nonce_ays( 'w3tc' );
+			/**
+			 * Per-action nonce key for the admin-action dispatcher. The legacy shared `'w3tc'` action is still accepted
+			 * via Util_Nonce so admin tabs minted before the deploy keep
+			 * working; remove that fallback in a follow-up release.
+			 *
+			 * @since X.X.X
+			 */
+			if ( ! Util_Nonce::verify_admin( 'w3tc_admin_action_' . $action ) ) {
+				wp_nonce_ays( 'w3tc_admin_action_' . $action );
+			}
+
+			/**
+			 * Defence-in-depth: enforce manage_options at the dispatcher
+			 * regardless of how the menu was registered or how
+			 * w3tc_capability_menu was filtered.
+			 *
+			 * @since X.X.X
+			 */
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				wp_die(
+					\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+					'',
+					array( 'response' => 403 )
+				);
 			}
 
 			try {
@@ -198,28 +220,95 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Load action
+	 * Load action — generic W3TC admin AJAX dispatcher.
 	 *
-	 * @throws \Exception Exception.
+	 * The prior implementation wrapped both the capability check and
+	 * the handler dispatch in a single try/catch that echoed
+	 * `$e->getMessage()` with a 200 status. Authorization
+	 * failures looked indistinguishable from success on the wire
+	 * (HTTP 200 + body `"no permissions"`), and the underlying audit
+	 * event never reached any log. Now:
+	 *
+	 *  * Nonce failure → `w3tc_audit_log` (`nonce_failed`) +
+	 *    `wp_nonce_ays` (which emits 403 / dies).
+	 *  * Capability failure → `w3tc_audit_log` (`cap_denied`) +
+	 *    `wp_send_json_error( ..., 403 )` (matches the pattern
+	 *    already used by `wp_ajax_w3tc_forums_api` below).
+	 *  * Handler exception → `w3tc_audit_log` (`handler_exception`)
+	 *    + `Util_Debug::log` (sanitized) + `wp_send_json_error(
+	 *    ..., 500 )`. The exception body never reaches the client
+	 *    verbatim; only a stable generic message does.
 	 *
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_ajax() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		$action      = Util_Request::get_string( 'w3tc_action' );
+		$ajax_action = 'w3tc_ajax_' . $action;
+
+		if ( ! Util_Nonce::verify_admin( $ajax_action ) ) {
+			Util_Debug::audit_log(
+				'nonce_failed',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+				)
+			);
+			wp_nonce_ays( $ajax_action );
+		}
+
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			Util_Debug::audit_log(
+				'cap_denied',
+				array(
+					'handler'    => 'wp_ajax_w3tc_ajax',
+					'action'     => $action,
+					'capability' => 'manage_options',
+				)
+			);
+			wp_send_json_error( 'no permissions', 403 );
+		}
+
+		$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
+		$capability      = apply_filters( 'w3tc_ajax_capability_' . $action, $base_capability );
+
+		if ( empty( $capability ) || ! \current_user_can( $capability ) ) {
+			Util_Debug::audit_log(
+				'cap_denied',
+				array(
+					'handler'    => 'wp_ajax_w3tc_ajax',
+					'action'     => $action,
+					'capability' => $capability,
+				)
+			);
+			wp_send_json_error( 'no permissions', 403 );
 		}
 
 		try {
-			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
-			$capability      = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ), $base_capability );
-			if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
-				throw new \Exception( 'no permissions' );
-			}
-
 			do_action( 'w3tc_ajax' );
-			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
+			do_action( 'w3tc_ajax_' . $action );
 		} catch ( \Exception $e ) {
-			echo esc_html( $e->getMessage() );
+			Util_Debug::audit_log(
+				'handler_exception',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+					'class'   => get_class( $e ),
+					'message' => $e->getMessage(),
+				)
+			);
+			/**
+			 * Route the raw exception message through `redact()` before
+			 * it lands in `admin-ajax.log`: SDK exceptions can embed
+			 * request parameters (`_wpnonce=`, `token=`, `Authorization:
+			 * Bearer …`, `define('AUTH_KEY', '…')`) directly in the
+			 * message string. `Util_Debug::log()` only strips control
+			 * characters and `<>`; it does NOT redact secrets, so a
+			 * raw `$e->getMessage()` could persist sensitive values
+			 * even though the audit-side context map is already
+			 * redacted.
+			 */
+			Util_Debug::log( 'admin-ajax', 'exception in ' . $action . ': ' . Util_Debug::redact( $e->getMessage() ) );
+			wp_send_json_error( 'handler error', 500 );
 		}
 
 		exit();
@@ -234,15 +323,35 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_forums_api() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		/**
+		 * Per-action nonce key. Accepts the legacy `'w3tc'`
+		 * action via Util_Nonce as a back-compat fallback.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! Util_Nonce::verify_admin( 'w3tc_forums_api' ) ) {
+			wp_nonce_ays( 'w3tc_forums_api' );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'no permissions', 403 );
 		}
 
-		$tag   = Util_Request::get_string( 'tabId' );
+		$tag = Util_Request::get_string( 'tabId' );
+
+		/**
+		 * $tag is concatenated into the forums API URL as a path / query
+		 * segment. Even though the host (`W3TC_BOLDGRID_FORUM_API`) is
+		 * fixed, an unprivileged caller who reaches this handler with
+		 * a valid admin nonce could submit `../../`, query-string-shaped,
+		 * or scheme-relative values that would otherwise change the
+		 * effective request target. Restrict to a conservative alphabet
+		 * that matches the documented `tabId` shape.
+		 */
+		if ( '' === $tag || ! preg_match( '/^[A-Za-z0-9._-]+$/', $tag ) ) {
+			wp_send_json_error( 'invalid tabId', 400 );
+		}
+
 		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
 
 		wp_send_json( $posts );
@@ -467,6 +576,7 @@ class Generic_Plugin_Admin {
 
 			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				exit;
 			}
 		}
 
@@ -614,6 +724,18 @@ class Generic_Plugin_Admin {
 	private function _admin_menu( $base_capability ) {
 		$base_capability = apply_filters( 'w3tc_capability_menu', $base_capability );
 
+		/**
+		 * Floor the filtered menu capability at manage_options. The
+		 * w3tc_capability_menu filter remains for back-compat but cannot
+		 * lower the menu/dispatcher gate below manage_options
+		 *.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( current_user_can( $base_capability ) ) {
 			$menus         = Dispatcher::component( 'Root_AdminMenu' );
 			$submenu_pages = $menus->generate( $base_capability );
@@ -706,8 +828,10 @@ class Generic_Plugin_Admin {
 					'cdnfsdEngine'     => $this->_config->get_string( 'cdnfsd.engine' ),
 					'cfWarning'        => wp_kses(
 						sprintf(
-							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
-							// translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
+							/**
+							 * translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
+							 * translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
+							 */
 							__(
 								'Please see %1$sAmazon\'s CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s.',
 								'w3-total-cache'
@@ -935,9 +1059,29 @@ class Generic_Plugin_Admin {
 	 * @return array
 	 */
 	public function favorite_actions( $actions ) {
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose the "Empty Caches" favorite action to
+		 * non-admins.
+		 *
+		 * Early-return when the current user is not an admin: there is no
+		 * reason to compute or filter a capability for an action we would
+		 * never expose to them anyway.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return $actions;
+		}
+
+		$capability = apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' );
+		if ( empty( $capability ) ) {
+			$capability = 'manage_options';
+		}
+
 		$actions[ wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
-			apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
+			$capability,
 		);
 
 		return $actions;
@@ -1197,9 +1341,11 @@ class Generic_Plugin_Admin {
 			$notes[ $note ] = $note_messages[ $note ];
 		}
 
-		// print errors happened during last request execution,
-		// when we decided to redirect with error message instead of
-		// printing it directly (to avoid reexecution on refresh).
+		/**
+		 * print errors happened during last request execution,
+		 * when we decided to redirect with error message instead of
+		 * printing it directly (to avoid reexecution on refresh).
+		 */
 		if ( ! is_null( $this->w3tc_message ) ) {
 			$v = $this->w3tc_message;
 			if ( isset( $v['errors'] ) && is_array( $v['errors'] ) ) {

@@ -33,6 +33,37 @@ class Cdn_AdminNotes {
 		$cdn_engine = $config->get_string( 'cdn.engine' );
 		$page       = Util_Request::get_string( 'page' );
 
+		/**
+		 * One-shot notice when the previously-configured engine was
+		 * auto-disabled by Cdn_Plugin::migrate_removed_engines() (i.e.
+		 * the install was on akamai / cotendo / edgecast / att before
+		 * this upgrade and the upstream service is gone). The notice
+		 * dismisses itself on click via the standard
+		 * `w3tc_default_config_state` flow.
+		 */
+		if ( $state->get_boolean( 'cdn.show_note_removed_engine' ) ) {
+			$removed_engine = $state->get_string( 'cdn.removed_engine_was' );
+			$removed_label  = '' === $removed_engine ? __( 'your previously configured engine', 'w3-total-cache' ) : $removed_engine;
+
+			$notes['cdn_removed_engine'] = sprintf(
+				// translators: 1: Removed engine slug, 2: Anchor open, 3: Anchor close, 4: Hide-note button.
+				__(
+					'CDN was disabled because %1$s has been removed (the upstream service is no longer available). %2$sPick a different engine on the CDN page%3$s to restore CDN delivery. %4$s',
+					'w3-total-cache'
+				),
+				'<strong>' . esc_html( $removed_label ) . '</strong>',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'</a>',
+				Util_Ui::button_hide_note2(
+					array(
+						'w3tc_default_config_state' => 'y',
+						'key'                       => 'cdn.show_note_removed_engine',
+						'value'                     => 'false',
+					)
+				)
+			);
+		}
+
 		if ( ! Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
 			/**
 			 * Show notification after theme change.
@@ -268,22 +299,6 @@ class Cdn_AdminNotes {
 
 			case ( 'mirror' === $cdn_engine && empty( $c->get_array( 'cdn.mirror.domain' ) ) ):
 				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'cotendo' === $cdn_engine && empty( $c->get_array( 'cdn.cotendo.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'edgecast' === $cdn_engine && empty( $c->get_array( 'cdn.edgecast.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'att' === $cdn_engine && empty( $c->get_array( 'cdn.att.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'akamai' === $cdn_engine && empty( $c->get_array( 'cdn.akamai.domain' ) ) ):
-				$error = 'The <strong>"Replace default hostname with"</strong> field cannot be empty.';
 				break;
 		}
 

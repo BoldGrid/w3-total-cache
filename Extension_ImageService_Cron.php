@@ -16,6 +16,20 @@ namespace W3TC;
  */
 class Extension_ImageService_Cron {
 	/**
+	 * Register the custom cron schedule and ensure the event is
+	 * scheduled. Hooked on WordPress `init` because W3TC's extension
+	 * bootstrap runs before `init`, and `add_schedule()` translates
+	 * the display label.
+	 *
+	 * @since X.X.X
+	 * @static
+	 */
+	public static function register_cron() {
+		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
+		self::add_cron();
+	}
+
+	/**
 	 * Add cron job/event.
 	 *
 	 * @since 2.2.0
@@ -91,8 +105,10 @@ class Extension_ImageService_Cron {
 			$processing_jobs = isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ?
 				$postmeta['processing_jobs'] : array();
 
-			// Backward compatibility: convert old format to new format.
-			// Only do this for items still marked as processing to avoid re-checking completed jobs.
+			/**
+			 * Backward compatibility: convert old format to new format.
+			 * Only do this for items still marked as processing to avoid re-checking completed jobs.
+			 */
 			if ( 'processing' === $status && empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
 				$processing_jobs = array(
 					'webp' => array(
@@ -103,8 +119,10 @@ class Extension_ImageService_Cron {
 				);
 			}
 
-			// Process items that have jobs to check, regardless of overall status.
-			// This ensures we continue processing even if some jobs complete and status changes.
+			/**
+			 * Process items that have jobs to check, regardless of overall status.
+			 * This ensures we continue processing even if some jobs complete and status changes.
+			 */
 			if ( ! empty( $processing_jobs ) ) {
 				// Get the Image Service API object (singlton).
 				$api = Extension_ImageService_Plugin::get_api();
@@ -169,8 +187,10 @@ class Extension_ImageService_Cron {
 						// Get mime_type from job or response.
 						$mime_type = isset( $job['mime_type'] ) ? $job['mime_type'] : ( isset( $response['mime_type'] ) ? $response['mime_type'] : 'image/webp' );
 
-						// Download image for this format using this job's job_id and signature.
-						// Pass mime_type_out to ensure API returns the correct format (e.g. AVIF vs WEBP).
+						/**
+						 * Download image for this format using this job's job_id and signature.
+						 * Pass mime_type_out to ensure API returns the correct format (e.g. AVIF vs WEBP).
+						 */
 						$download_response = $api->download( $job['job_id'], $job['signature'], $mime_type );
 						$download_headers  = wp_remote_retrieve_headers( $download_response );
 						$is_error          = isset( $download_response['error'] );
@@ -218,8 +238,10 @@ class Extension_ImageService_Cron {
 							unset( $post_children[ $format_key_out ] );
 						}
 
-						// Store download information for this format (store normalized headers).
-						// Always store download info, even if there's an error or no size reduction.
+						/**
+						 * Store download information for this format (store normalized headers).
+						 * Always store download info, even if there's an error or no size reduction.
+						 */
 						$downloads[ $format_key_out ] = $is_error ? $download_response['error'] : $headers_array;
 
 						// If the job key doesn't match the actual output, remove any stale entry keyed by the job key.
@@ -245,6 +267,50 @@ class Extension_ImageService_Cron {
 							continue;
 						}
 
+						/**
+						 * rt9-226: Allowlist the output extension AND content-sniff the
+						 * downloaded body before writing to disk. The original code took
+						 * `format_key_out` straight from the API's `x-mime-type-out` /
+						 * `content-type` header, so a compromised or MITM'd upstream
+						 * could yield extensions like `.php` / `.htaccess` and bytes
+						 * matching an arbitrary webshell. Both legs must agree:
+						 *
+						 * - Extension allowlist refuses everything outside the formats
+						 * we actually request — `webp`, `avif`, `jpeg`, `jpg`, `png`,
+						 * `gif`. (`jpg` accepted alongside `jpeg` because some clients
+						 * normalise differently.)
+						 * - Content-sniff via `getimagesizefromstring()` confirms the
+						 * bytes really are an image — PHP source begins `<?php` and
+						 * has no IHDR/SOI marker, so the sniff fails.
+						 *
+						 * On either failure we drop into the same "error, no write,
+						 * mark job complete" path the surrounding loop already uses.
+						 */
+						$body  = \wp_remote_retrieve_body( $download_response );
+						$allow = array( 'webp', 'avif', 'jpeg', 'jpg', 'png', 'gif' );
+						if ( ! \in_array( $format_key_out, $allow, true ) ) {
+							$has_error        = true;
+							$all_jobs_ready   = false;
+							$completed_jobs[] = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: output format not in allowlist (' . $format_key_out . ').';
+							continue;
+						}
+						if ( ! \is_string( $body ) || '' === $body ) {
+							$has_error        = true;
+							$all_jobs_ready   = false;
+							$completed_jobs[] = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: empty download body.';
+							continue;
+						}
+						$sniff = @\getimagesizefromstring( $body );
+						if ( false === $sniff ) {
+							$has_error        = true;
+							$all_jobs_ready   = false;
+							$completed_jobs[] = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: download body is not a recognised image.';
+							continue;
+						}
+
 						// Get original file info for saving.
 						$original_filepath = get_attached_file( $post_id );
 						$original_size     = wp_getimagesize( $original_filepath );
@@ -257,9 +323,9 @@ class Extension_ImageService_Cron {
 						$new_filepath = $original_filedir . '/' . $new_filename;
 
 						if ( is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
-							$wp_filesystem->put_contents( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+							$wp_filesystem->put_contents( $new_filepath, $body );
 						} else {
-							Util_File::file_put_contents_atomic( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+							Util_File::file_put_contents_atomic( $new_filepath, $body );
 						}
 
 						// Insert as attachment post.

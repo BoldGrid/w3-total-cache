@@ -82,18 +82,150 @@ class Util_Debug {
 	}
 
 	/**
-	 * Log
+	 * Fire the W3TC audit-log action.
+	 *
+	 * Provides the canonical entry point for all security-relevant
+	 * events in W3TC — failed nonce checks, capability denials,
+	 * config writes, extension toggles, support-handler invocations,
+	 * Cloudflare API requests, and exceptions caught at the admin
+	 * AJAX boundary.
+	 *
+	 * Two responsibilities live here:
+	 *
+	 *  1. Sanitize `$context` so any string value that may carry
+	 *     user-supplied content (request URI, exception message,
+	 *     request body fragment) is run through {@see self::redact()}
+	 *     before any subscriber sees it. This keeps `_wpnonce`,
+	 *     passwords, API keys, and wp-config secrets out of the
+	 *     audit stream regardless of who subscribes.
+	 *
+	 *  2. Fire the `w3tc_audit_log` action with the redacted
+	 *     context. Subscribers (a SIEM bridge plugin, a WordPress
+	 *     activity-log plugin) decide what to do with the event;
+	 *     W3TC itself does not persist it.
+	 *
+	 * Hook signature:
+	 *
+	 *     do_action( 'w3tc_audit_log', string $event, array $context )
+	 *
+	 *  - `$event` is a stable identifier
+	 *    (e.g. `cap_denied`, `cloudflare_api_failed`,
+	 *    `config_imported`).
+	 *  - `$context` is an associative array. `user_id` and `ip` are
+	 *    populated automatically if the caller doesn't include them.
+	 *
+	 * Designed to be cheap and safe to call from any handler path.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $event   Event identifier (snake_case).
+	 * @param array  $context Optional event context. String values
+	 *                        are redacted before dispatch.
+	 *
+	 * @return void
+	 */
+	public static function audit_log( $event, array $context = array() ) {
+		if ( ! is_string( $event ) || '' === $event ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'user_id', $context ) && \function_exists( 'get_current_user_id' ) ) {
+			$context['user_id'] = \get_current_user_id();
+		}
+
+		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			$context['ip'] = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		}
+
+		foreach ( $context as $k => $v ) {
+			if ( \is_string( $v ) ) {
+				$context[ $k ] = self::redact( $v );
+			}
+		}
+
+		if ( \function_exists( 'do_action' ) ) {
+			\do_action( 'w3tc_audit_log', $event, $context );
+		}
+	}
+
+	/**
+	 * Log a single line to the per-module debug log.
+	 *
+	 * Callers historically passed user-controlled content (request
+	 * URIs, exception strings, HTTP bodies) verbatim. The
+	 * old implementation stripped `<` and `>` only — not enough to
+	 * keep a single entry on a single physical line. A newline or
+	 * carriage return in `$message` would close the current entry
+	 * and let the remainder of the value appear as a fabricated
+	 * additional line (different timestamp, different "user"),
+	 * which would confuse incident response.
+	 *
+	 * Sanitization rules:
+	 *  * Replace CR / LF with a space so a single entry stays a
+	 *    single physical line.
+	 *  * Replace TAB with a space so column-aligned readers don't
+	 *    get tricked.
+	 *  * Drop NUL bytes (some terminal pagers truncate on NUL).
+	 *  * Keep the existing `<>` → `.` swap so logs are HTML-safe if
+	 *    rendered in a browser-based viewer.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param unknown $module  Module.
 	 * @param string  $message Message.
 	 *
-	 * @return string
+	 * @return int|false       Bytes written, or false on failure.
 	 */
 	public static function log( $module, $message ) {
-		$message  = strtr( $message, '<>', '..' );
+		$message = self::sanitize_log_message( $message );
+
 		$filename = self::log_filename( $module );
 
 		return @file_put_contents( $filename, '[' . gmdate( 'r' ) . '] ' . $message . "\n", FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+	}
+
+	/**
+	 * Sanitize a log-line message for safe append to a debug log file.
+	 *
+	 * Exposed as a separate static helper so the unit test suite can
+	 * exercise the exact production sanitiser without writing to disk
+	 * — calling `Util_Debug::log()` directly inside a test would
+	 * require figuring out the per-module log file path and asserting
+	 * against its trailing line. Tests now invoke this helper
+	 * directly so a regression that re-introduces CR/LF/TAB/NUL into
+	 * the sanitiser is caught by the existing assertions.
+	 *
+	 * The strip set:
+	 *  - `<` / `>`  → `.`  so logs are HTML-safe when rendered in a
+	 *                       browser-based viewer (some operator dashboards
+	 *                       display debug-log lines verbatim).
+	 *  - `\r` / `\n` → space  so a single submission stays a single
+	 *                       physical line (closes log forging — a
+	 *                       newline in a user-supplied value would
+	 *                       otherwise close the current entry and let
+	 *                       the remainder appear as a fabricated
+	 *                       additional line).
+	 *  - `\t`       → space  so column-aligned readers can't be tricked.
+	 *  - `\0`       → ''     since some terminal pagers truncate on NUL.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $message Anything stringifiable.
+	 *
+	 * @return string Sanitised single-line message.
+	 */
+	public static function sanitize_log_message( $message ) {
+		return strtr(
+			(string) $message,
+			array(
+				'<'  => '.',
+				'>'  => '.',
+				"\r" => ' ',
+				"\n" => ' ',
+				"\t" => ' ',
+				"\0" => '',
+			)
+		);
 	}
 
 	/**
@@ -138,6 +270,52 @@ class Util_Debug {
 		$username = ( empty( $user ) ? 'anonymous' : $user->user_login );
 		$message .= "\n\tusername:$username";
 
+		/**
+		 * rt9-56: Enrich the purge audit-log line with the source IP,
+		 * user-agent, request method+URI, the user's primary role, and
+		 * a per-request correlation ID so coordinated flush attacks or
+		 * unauthorised purges can be traced to attacker tooling.
+		 *
+		 * Every field is one-line-flattened via {@see self::log_purge_field_clean()}
+		 * — bytes that would break the single-record format (newlines,
+		 * tabs, `<` / `>` for markup-like content) are scrubbed, and
+		 * the UA / URI are length-capped so an attacker-controlled
+		 * 8KB User-Agent string cannot blow up the log file.
+		 *
+		 * `purge_role` is the user's *first* role only — that's enough
+		 * for forensic triage ("subscriber initiated a flush, escalate")
+		 * without leaking the full role array. Anonymous purges record
+		 * the literal `anonymous`.
+		 *
+		 * `purge_id` is a 16-hex correlation ID, derived from
+		 * `wp_generate_password()` with `false` for the special-char
+		 * argument so the value is alphanum-only and safe to grep for.
+		 * When `wp_generate_password()` isn't available (early purge
+		 * before WordPress fully loads) we fall back to `uniqid()`,
+		 * also alphanum.
+		 */
+		$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		$ua       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : '';
+		$uri      = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$method   = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) $_SERVER['REQUEST_METHOD'] : '';
+		$role     = ( ! empty( $user ) && ! empty( $user->roles ) && \is_array( $user->roles ) )
+			? (string) $user->roles[0]
+			: 'anonymous';
+		$corr_id  = '';
+		if ( \function_exists( 'wp_generate_password' ) ) {
+			$corr_id = wp_generate_password( 16, false, false );
+		} else {
+			$corr_id = \uniqid( '', true );
+			$corr_id = \preg_replace( '/[^A-Za-z0-9]/', '', $corr_id );
+		}
+
+		$message .= "\n\tip:" . self::log_purge_field_clean( $ip, 45 );
+		$message .= "\n\tua:" . self::log_purge_field_clean( $ua, 256 );
+		$message .= "\n\tmethod:" . self::log_purge_field_clean( $method, 16 );
+		$message .= "\n\turi:" . self::log_purge_field_clean( $uri, 256 );
+		$message .= "\n\trole:" . self::log_purge_field_clean( $role, 32 );
+		$message .= "\n\tpurge_id:" . self::log_purge_field_clean( $corr_id, 32 );
+
 		if ( is_array( $explicit_postfix ) ) {
 			$message .= "\n\t" . implode( "\n\t", $explicit_postfix );
 		}
@@ -145,6 +323,44 @@ class Util_Debug {
 		$message .= "\n" . implode( "\n", $backtrace_lines );
 
 		return self::log( $module . '-purge', $message );
+	}
+
+	/**
+	 * Single-line-flatten + length-cap a value before it lands in the
+	 * purge audit log. Strips bytes that would break the per-record
+	 * format (CR / LF / tab / null) and replaces markup-significant
+	 * `<` / `>` with `.` so an attacker-controlled User-Agent or URI
+	 * containing `<script>` doesn't render if a log viewer happens to
+	 * be HTML-aware. Then trims to `$max` bytes — 256 is plenty for
+	 * the worst legitimate UA / URI and prevents an 8KB User-Agent
+	 * from ballooning every purge entry.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $value Field value (already wp_unslash'd by caller).
+	 * @param int    $max   Maximum length in bytes after cleaning.
+	 *
+	 * @return string
+	 */
+	private static function log_purge_field_clean( $value, $max ) {
+		if ( ! \is_string( $value ) || '' === $value ) {
+			return '';
+		}
+		$value = \strtr(
+			$value,
+			array(
+				"\r" => ' ',
+				"\n" => ' ',
+				"\t" => ' ',
+				"\0" => '',
+				'<'  => '.',
+				'>'  => '.',
+			)
+		);
+		if ( \strlen( $value ) > $max ) {
+			$value = \substr( $value, 0, $max );
+		}
+		return $value;
 	}
 
 	/**
@@ -222,18 +438,65 @@ class Util_Debug {
 	}
 
 	/**
-	 * Redacts the value of the _wpnonce parameter in a log line.
+	 * Redacts the value of every `_wpnonce` / bare `nonce` parameter
+	 * in a log line.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param  string $log_line The log line containing the nonce parameter.
-	 * @return string The log line with the nonce value redacted.
+	 * @return string The log line with every nonce value redacted to `REDACTED`.
 	 */
 	public static function redact_wpnonce( string $log_line ): string {
-		// Regular expression to match the nonce parameter and its value.
-		$pattern = '/(nonce=)[^&\]]+/';
+		return (string) preg_replace( '/(nonce=)[^&\s\]]*/i', '$1REDACTED', $log_line );
+	}
 
-		// Replace the value of nonce with "REDACTED".
-		$redacted_log_line = preg_replace( $pattern, '$1REDACTED', $log_line );
+	/**
+	 * General-purpose log-content redactor.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $blob Anything stringifiable.
+	 * @return string Redacted text.
+	 */
+	public static function redact( $blob ) {
+		if ( ! \is_string( $blob ) ) {
+			if ( \is_scalar( $blob ) ) {
+				$blob = (string) $blob;
+			} else {
+				return '';
+			}
+		}
 
-		return $redacted_log_line;
+		$blob = (string) \preg_replace(
+			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])((?:\\\\.|(?!\\4).)*)(\\4)\\s*\\)\\s*;/i",
+			"define( '\$2', 'REDACTED' );",
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(Authorization:\s*(?:Bearer|Basic)\s+)[^\s\r\n,;]+/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(^|[?&;\s])((?:password|passwd|pass|secret|token|api[_-]?key|key)=)[^&\s]*/i',
+			'$1$2REDACTED',
+			$blob
+		);
+
+		return self::redact_wpnonce( $blob );
+	}
+
+	/**
+	 * Back-compat alias for {@see self::redact()}.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $blob Raw text that may contain secrets.
+	 * @return string Redacted text.
+	 */
+	public static function redact_secrets( $blob ) {
+		return self::redact( $blob );
 	}
 }

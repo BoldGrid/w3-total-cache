@@ -68,6 +68,14 @@ class Minify_ContentMinifier {
 	/**
 	 * Checks if the given minifier engine is available with the required files.
 	 *
+	 * For Java-backed engines (yuijs, yuicss, ccjs) the configured Java
+	 * executable is run through `Util_Java::validate()` as part of the
+	 * availability check, not only during `init()`.  Callers
+	 * (`Minify_Plugin`, `Minify_MinifiedFileRequestHandler`) gate engine
+	 * selection on `available()`, so refusing the engine here is what
+	 * actually stops a rejected `path.java` from being used by an
+	 * `init()` whose return value the caller ignores.
+	 *
 	 * @param string $engine The minifier engine to check.
 	 *
 	 * @return bool True if the engine is available, false otherwise.
@@ -78,19 +86,22 @@ class Minify_ContentMinifier {
 				$path_java = $this->_config->get_string( 'minify.yuijs.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.yuijs.path.jar' );
 
-				return file_exists( $path_java ) && file_exists( $path_jar );
+				return false !== Util_Java::validate_with_log( $path_java, 'yuijs' )
+					&& file_exists( $path_jar );
 
 			case 'yuicss':
 				$path_java = $this->_config->get_string( 'minify.yuicss.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.yuicss.path.jar' );
 
-				return file_exists( $path_java ) && file_exists( $path_jar );
+				return false !== Util_Java::validate_with_log( $path_java, 'yuicss' )
+					&& file_exists( $path_jar );
 
 			case 'ccjs':
 				$path_java = $this->_config->get_string( 'minify.ccjs.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.ccjs.path.jar' );
 
-				return file_exists( $path_java ) && file_exists( $path_jar );
+				return false !== Util_Java::validate_with_log( $path_java, 'ccjs' )
+					&& file_exists( $path_jar );
 
 			case 'htmltidy':
 			case 'htmltidyxml':
@@ -118,30 +129,57 @@ class Minify_ContentMinifier {
 	/**
 	 * Initializes the given minifier engine.
 	 *
+	 * Java-backed engines re-run `Util_Java::validate()` and refuse to
+	 * assign the vendored static `$javaExecutable` when the configured
+	 * path is rejected; in that case the method returns `false` so
+	 * callers that want to fall back can do so. Note that `available()`
+	 * already runs the same allowlist check (via `validate_with_log()`,
+	 * which emits the minify-debug log entry once per request), so a
+	 * properly-gated caller will not reach `init()` with a bad path in
+	 * the first place — the return value here is defense-in-depth.
+	 * Using plain `validate()` rather than `validate_with_log()` here
+	 * avoids double-logging the same rejection from `available()` and
+	 * `init()` on the rare path where both run.
+	 *
 	 * @param string $engine The minifier engine to initialize.
 	 *
-	 * @return void
+	 * @return bool True on success, false if a Java-backed engine was
+	 *              rejected by the allowlist.
 	 */
 	public function init( $engine ) {
 		switch ( $engine ) {
 			case 'yuijs':
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuijs.path.java' ) );
+				if ( false === $java ) {
+					return false;
+				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuijs.path.java' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuijs.path.jar' );
-				break;
+				return true;
 
 			case 'yuicss':
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuicss.path.java' ) );
+				if ( false === $java ) {
+					return false;
+				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuicss.path.java' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuicss.path.jar' );
-				break;
+				return true;
 
 			case 'ccjs':
+				$java = Util_Java::validate( $this->_config->get_string( 'minify.ccjs.path.java' ) );
+				if ( false === $java ) {
+					return false;
+				}
 				\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $this->_config->get_string( 'minify.ccjs.path.java' );
+				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $java;
 				\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $this->_config->get_string( 'minify.ccjs.path.jar' );
-				break;
+				return true;
 		}
+
+		return true;
 	}
 
 	/**
@@ -179,31 +217,39 @@ class Minify_ContentMinifier {
 				break;
 
 			case 'yuijs':
-				$options = array(
-					'line-break'            => $this->_config->get_integer( 'minify.yuijs.options.line-break' ),
-					'nomunge'               => $this->_config->get_boolean( 'minify.yuijs.options.nomunge' ),
-					'preserve-semi'         => $this->_config->get_boolean( 'minify.yuijs.options.preserve-semi' ),
-					'disable-optimizations' => $this->_config->get_boolean( 'minify.yuijs.options.disable-optimizations' ),
+				$options = Util_Java::sanitize_yui_options(
+					array(
+						'line-break'            => $this->_config->get_integer( 'minify.yuijs.options.line-break' ),
+						'nomunge'               => $this->_config->get_boolean( 'minify.yuijs.options.nomunge' ),
+						'preserve-semi'         => $this->_config->get_boolean( 'minify.yuijs.options.preserve-semi' ),
+						'disable-optimizations' => $this->_config->get_boolean( 'minify.yuijs.options.disable-optimizations' ),
+					)
 				);
 				break;
 
 			case 'yuicss':
-				$options = array(
-					'line-break' => $this->_config->get_integer( 'minify.yuicss.options.line-break' ),
+				$options = Util_Java::sanitize_yui_options(
+					array(
+						'line-break' => $this->_config->get_integer( 'minify.yuicss.options.line-break' ),
+					)
 				);
 				break;
 
 			case 'ccjs':
-				$options = array(
-					'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
-					'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+				$options = Util_Java::sanitize_ccjs_options(
+					array(
+						'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
+						'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+					)
 				);
 				break;
 
 			case 'googleccjs':
-				$options = array(
-					'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
-					'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+				$options = Util_Java::sanitize_ccjs_options(
+					array(
+						'compilation_level' => $this->_config->get_string( 'minify.ccjs.options.compilation_level' ),
+						'formatting'        => $this->_config->get_string( 'minify.ccjs.options.formatting' ),
+					)
 				);
 				break;
 

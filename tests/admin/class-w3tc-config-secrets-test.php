@@ -118,9 +118,11 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 
 		$config = new Config();
 
-		// Inject an envelope directly into _data to simulate the state a
-		// Config singleton would hold after an early-bootstrap load() that
-		// skipped decrypt_secrets() because wp_salt() wasn't loaded yet.
+		/**
+		 * Inject an envelope directly into _data to simulate the state a
+		 * Config singleton would hold after an early-bootstrap load() that
+		 * skipped decrypt_secrets() because wp_salt() wasn't loaded yet.
+		 */
 		$ref  = new \ReflectionObject( $config );
 		$prop = $ref->getProperty( '_data' );
 		$prop->setAccessible( true );
@@ -157,8 +159,17 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_string_collapses_tampered_envelope_to_empty() {
 		$envelope = Util_Crypto::envelope_encrypt( 'sensitive-value' );
-		// Flip one ciphertext byte to invalidate the HMAC.
-		$envelope_bad = substr_replace( $envelope, 'A', -10, 1 );
+		/**
+		 * Flip one base64 char inside the ciphertext region so the
+		 * recomputed HMAC over (iv || ct) won't match the stored tag.
+		 * Pick a replacement that is guaranteed to differ from the
+		 * current char -- substituting a literal would no-op (and let
+		 * the envelope round-trip cleanly) on the ~1/64 of random IVs
+		 * where that base64 position already holds the same char.
+		 */
+		$cur          = substr( $envelope, -10, 1 );
+		$bad          = ( 'A' === $cur ) ? 'B' : 'A';
+		$envelope_bad = substr_replace( $envelope, $bad, -10, 1 );
 
 		$config = new Config();
 

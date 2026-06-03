@@ -461,7 +461,7 @@ class RequestCore
 	 */
 	public function set_seek_position($position)
 	{
-		$this->seek_position = isset($position) ? (integer) $position : null;
+		$this->seek_position = isset($position) ? (int) $position : null;
 
 		return $this;
 	}

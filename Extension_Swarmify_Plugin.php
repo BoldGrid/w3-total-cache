@@ -51,9 +51,7 @@ class Extension_Swarmify_Plugin {
 			return;
 		}
 
-		if ( $this->_active() ) {
-			Util_Bus::add_ob_callback( 'swarmify', array( $this, 'ob_callback' ) );
-		}
+		Util_Bus::add_ob_callback( 'swarmify', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 	}
@@ -86,6 +84,10 @@ class Extension_Swarmify_Plugin {
 	 * @return string Modified HTML content.
 	 */
 	public function ob_callback( $buffer ) {
+		if ( ! $this->_active() ) {
+			return $buffer;
+		}
+
 		$c       = $this->_config;
 		$api_key = $c->get_string( array( 'swarmify', 'api_key' ) );
 		$api_key = preg_replace( '~[^0-9a-zA-Z-]~', '', $api_key ); // make safe.
@@ -151,7 +153,8 @@ class Extension_Swarmify_Plugin {
 		 * Check logged users
 		 */
 		if ( $this->_config->get_boolean( array( 'swarmify', 'reject.logged' ) ) &&
-			is_user_logged_in() ) {
+			\function_exists( 'is_user_logged_in' ) &&
+			\is_user_logged_in() ) {
 			$this->reject_reason = __( 'logged in user rejected', 'w3-total-cache' );
 
 			return false;
@@ -168,6 +171,7 @@ class Extension_Swarmify_Plugin {
 	 * @return array Modified footer comment strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
+		$this->_active();
 		$append    = ( '' !== $this->reject_reason ) ? sprintf( ' (%s)', $this->reject_reason ) : ' active';
 		$strings[] = sprintf(
 			// Translators: 1 status.

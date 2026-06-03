@@ -28,6 +28,35 @@ var w3tcWizardSlidesWithTests = [
 	'w3tc-wizard-slide-oc1'
 ];
 
+/**
+ * Resolve the per-action nonce for a SetupGuide AJAX action.
+ *
+ * Falls back to the wizard form's `_wpnonce` field for legacy compatibility
+ * (the PHP-side verifier still accepts the shared `w3tc_wizard` nonce).
+ *
+ * @since X.X.X
+ *
+ * @param string action The wp_ajax action name (e.g. `w3tc_config_pgcache`).
+ * @return string Nonce value.
+ */
+function w3tcGetWizardNonce( action ) {
+	/**
+	 * `typeof` guard: if localization failed or the script was loaded on a
+	 * page that didn't enqueue `W3TC_SetupGuide`, bare reference would throw
+	 * a ReferenceError and break every subsequent SetupGuide handler. The
+	 * fall-through to the form's `_wpnonce` field keeps the legacy nonce
+	 * path working in that case.
+	 */
+	if ( typeof W3TC_SetupGuide !== 'undefined'
+		&& W3TC_SetupGuide
+		&& W3TC_SetupGuide.nonces
+		&& W3TC_SetupGuide.nonces[ action ] ) {
+		return W3TC_SetupGuide.nonces[ action ];
+	}
+
+	return jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val();
+}
+
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
 		$nextButton = $container.find( '#w3tc-wizard-next '),
@@ -60,7 +89,7 @@ jQuery(function() {
 				method: 'POST',
 				url: ajaxurl,
 				data: {
-					_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+					_wpnonce: w3tcGetWizardNonce( 'w3tc_tos_choice' ),
 					action: "w3tc_tos_choice",
 					choice: choice
 				}
@@ -324,7 +353,6 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 		slideId = $slide.prop( 'id' ),
 		previousSlideId = $previousSlide && $previousSlide.length ? $previousSlide.prop( 'id' ) : null,
 		$container = jQuery( '#w3tc-wizard-container' ),
-		nonce = $container.find( '[name="_wpnonce"]' ).val(),
 		$nextButton = $container.find( '#w3tc-wizard-next' ),
 		$prevButton = $container.find( '#w3tc-wizard-previous' ),
 		$skipButton = $container.find( '#w3tc-wizard-skip' ),
@@ -345,7 +373,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_config_pgcache' ),
 				action: 'w3tc_config_pgcache',
 				enable: enable,
 				engine: engine
@@ -373,7 +401,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_get_pgcache_settings' ),
 				action: 'w3tc_get_pgcache_settings'
 			}
 		})
@@ -396,7 +424,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_config_dbcache' ),
 				action: 'w3tc_config_dbcache',
 				enable: enable,
 				engine: engine
@@ -424,7 +452,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_get_dbcache_settings' ),
 				action: 'w3tc_get_dbcache_settings'
 			}
 		})
@@ -447,7 +475,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_config_objcache' ),
 				action: 'w3tc_config_objcache',
 				enable: enable,
 				engine: engine
@@ -475,7 +503,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_get_objcache_settings' ),
 				action: 'w3tc_get_objcache_settings'
 			}
 		})
@@ -500,7 +528,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_config_imageservice' ),
 				action: 'w3tc_config_imageservice',
 				enable: enable,
 				settings: settings
@@ -540,7 +568,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_get_imageservice_settings' ),
 				action: 'w3tc_get_imageservice_settings'
 			}
 		})
@@ -575,7 +603,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_config_lazyload' ),
 				action: 'w3tc_config_lazyload',
 				enable: enable
 			}
@@ -597,7 +625,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 			method: 'POST',
 			url: ajaxurl,
 			data: {
-				_wpnonce: nonce,
+				_wpnonce: w3tcGetWizardNonce( 'w3tc_get_lazyload_settings' ),
 				action: 'w3tc_get_lazyload_settings'
 			}
 		})
@@ -895,7 +923,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 							method: 'POST',
 							url: ajaxurl,
 							data: {
-								_wpnonce: nonce,
+								_wpnonce: w3tcGetWizardNonce( 'w3tc_test_pgcache' ),
 								action: 'w3tc_test_pgcache'
 							}
 						})
@@ -1107,7 +1135,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 							method: 'POST',
 							url: ajaxurl,
 							data: {
-								_wpnonce: nonce,
+								_wpnonce: w3tcGetWizardNonce( 'w3tc_test_dbcache' ),
 								action: 'w3tc_test_dbcache'
 							}
 						})
@@ -1332,7 +1360,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 							method: 'POST',
 							url: ajaxurl,
 							data: {
-								_wpnonce: nonce,
+								_wpnonce: w3tcGetWizardNonce( 'w3tc_test_objcache' ),
 								action: 'w3tc_test_objcache'
 							}
 						})
@@ -1535,7 +1563,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 							method: 'POST',
 							url: ajaxurl,
 							data: {
-								_wpnonce: nonce,
+								_wpnonce: w3tcGetWizardNonce( 'w3tc_test_browsercache' ),
 								action: 'w3tc_test_browsercache'
 							}
 						})
@@ -1717,7 +1745,7 @@ function w3tc_wizard_actions( $slide, $previousSlide ) {
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						_wpnonce: nonce,
+						_wpnonce: w3tcGetWizardNonce( 'w3tc_wizard_skip' ),
 						action: "w3tc_wizard_skip"
 					}
 				})

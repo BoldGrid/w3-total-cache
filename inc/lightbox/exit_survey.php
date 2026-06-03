@@ -7,6 +7,10 @@
  * @package W3TC
  */
 
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 ?>
 <div id="w3tc-exit-survey-modal">
 	<div class="w3tc-modal-content">

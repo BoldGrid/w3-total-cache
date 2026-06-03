@@ -12,6 +12,58 @@ namespace W3TC;
  */
 class Licensing_Core {
 	/**
+	 * Resolves the license-API base URL after asserting it lives on a
+	 * `.w3-edge.com` host. The constant `W3TC_LICENSE_API_URL` is
+	 * declared in {@see w3-total-cache-api.php} behind an
+	 * `if ( ! defined() )` guard, which lets any code that loads
+	 * before the plugin (MU plugins, wp-config.php, an unrelated RCE
+	 * primitive) point license traffic at an attacker host and exfil
+	 * the license key + home URL.
+	 *
+	 * The allowlist accepts the canonical production host
+	 * (`www.w3-edge.com`) plus any `*.w3-edge.com` subdomain so a
+	 * legitimate staging override (`staging.w3-edge.com`) still works.
+	 * Schemes other than `https` are refused outright — even a valid
+	 * `*.w3-edge.com` host over plain `http://` leaks the license key
+	 * in transit.
+	 *
+	 * Returns `false` on rejection; callers short-circuit to their
+	 * existing "request failed" path (the same path
+	 * `is_wp_error($response)` already feeds into).
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string|false Sanitized base URL, or false if the
+	 *                      configured constant is unsafe.
+	 */
+	private static function _license_api_base_url() {
+		$url = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		if ( ! \is_string( $url ) || '' === $url ) {
+			return false;
+		}
+		$scheme = \wp_parse_url( $url, PHP_URL_SCHEME );
+		$host   = \wp_parse_url( $url, PHP_URL_HOST );
+		if ( 'https' !== $scheme || ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+		$host_lc = \strtolower( $host );
+		if ( 'w3-edge.com' === $host_lc ) {
+			return $url;
+		}
+		/**
+		 * Subdomain match: leading dot in the suffix prevents an
+		 * attacker-owned `xw3-edge.com` from passing the check.
+		 */
+		$suffix = '.w3-edge.com';
+		$slen   = \strlen( $suffix );
+		$hlen   = \strlen( $host_lc );
+		if ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix ) {
+			return $url;
+		}
+		return false;
+	}
+
+	/**
 	 * Activates a license for the plugin.
 	 *
 	 * @param string $license License key to be activated.
@@ -34,11 +86,16 @@ class Licensing_Core {
 			'version'             => $version,
 		);
 
+		$base = self::_license_api_base_url();
+		if ( false === $base ) {
+			return false;
+		}
+
 		// Call the custom API.
 		$response = wp_remote_get(
 			add_query_arg(
 				$api_params,
-				W3TC_LICENSE_API_URL
+				$base
 			),
 			array(
 				'timeout' => 15,
@@ -73,11 +130,16 @@ class Licensing_Core {
 			'r'           => wp_rand(),
 		);
 
+		$base = self::_license_api_base_url();
+		if ( false === $base ) {
+			return false;
+		}
+
 		// Call the custom API.
 		$response = wp_remote_get(
 			add_query_arg(
 				$api_params,
-				W3TC_LICENSE_API_URL
+				$base
 			),
 			array(
 				'timeout' => 15,
@@ -117,11 +179,16 @@ class Licensing_Core {
 			'version'     => $version,
 		);
 
+		$base = self::_license_api_base_url();
+		if ( false === $base ) {
+			return false;
+		}
+
 		// Call the custom API.
 		$response = wp_remote_get(
 			add_query_arg(
 				$api_params,
-				W3TC_LICENSE_API_URL
+				$base
 			),
 			array(
 				'timeout' => 15,
@@ -156,11 +223,16 @@ class Licensing_Core {
 			'version'     => $version,
 		);
 
+		$base = self::_license_api_base_url();
+		if ( false === $base ) {
+			return false;
+		}
+
 		// Call the custom API.
 		$response = wp_remote_get(
 			add_query_arg(
 				$api_params,
-				W3TC_LICENSE_API_URL
+				$base
 			),
 			array(
 				'timeout' => 15,

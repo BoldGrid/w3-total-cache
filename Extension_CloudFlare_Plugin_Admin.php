@@ -58,10 +58,12 @@ class Extension_CloudFlare_Plugin_Admin {
 			'author'          => 'W3 EDGE',
 			'description'     => wp_kses(
 				sprintf(
-					// translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
-					// translators: 3 opening HTML abbr tag, 4 closing HTML abbr tag,
-					// translators: 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag,
-					// translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.
+					/**
+					 * translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
+					 * translators: 3 opening HTML abbr tag, 4 closing HTML abbr tag,
+					 * translators: 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag,
+					 * translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.
+					 */
 					__(
 						'Cloudflare protects and accelerates websites. %1$sSign up now for free%2$s to get started, or if you have an account simply log in to obtain your %3$sAPI%4$s token / global key from the %5$saccount page%6$s to enter it on the General Settings box that appears after plugin activation. Contact the Cloudflare %7$ssupport team%8$s with any questions.',
 						'w3-total-cache'
@@ -168,9 +170,11 @@ class Extension_CloudFlare_Plugin_Admin {
 		if ( array_key_exists( 'cloudflare/cloudflare.php', $plugins ) && $this->_config->get_boolean( 'notes.cloudflare_plugin' ) ) {
 			echo wp_kses(
 				sprintf(
-					// translators: 1 opening HTML div tag with class "error" followed by opening HTML p tag,
-					// translators: 2 HTML button with lable "Hide this message" that will hide the error message,
-					// translators: 3 closing HTML p tag followed by closing HTML div tag.
+					/**
+					 * translators: 1 opening HTML div tag with class "error" followed by opening HTML p tag,
+					 * translators: 2 HTML button with lable "Hide this message" that will hide the error message,
+					 * translators: 3 closing HTML p tag followed by closing HTML div tag.
+					 */
 					__(
 						'%1$sCloudflare plugin detected. We recommend removing the plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear when Cloudflare is removed. %2$s%3$s',
 						'w3-total-cache'
@@ -283,29 +287,57 @@ class Extension_CloudFlare_Plugin_Admin {
 		$nonce    = Util_Request::get_string( '_wpnonce' );
 		$error    = null;
 
-		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+		/**
+		 * Subscriber-reachable AJAX route: the nonce alone does not
+		 * establish authorisation. Without this gate any logged-in user
+		 * holding a w3tc-shaped nonce could proxy arbitrary Cloudflare
+		 * credentials through the site.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'result' => false,
+					'error'  => 'Insufficient permissions.',
+				),
+				403
+			);
+			return;
+		}
+
+		if ( ! Util_Nonce::verify_admin( 'w3tc_cloudflare_api_request' ) ) {
 			$error = 'Access denied.';
+			Util_Debug::audit_log( 'cloudflare_api_nonce_failed', array() );
 		} elseif ( ! $key ) {
 			$error = 'Empty token / global key.';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'empty_key' ) );
 		} elseif ( Extension_CloudFlare_Api::is_legacy_global_api_key_string( $key ) ) {
 			if ( ! $email ) {
 				$error = 'Empty email.';
+				Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'empty_email' ) );
 			} elseif ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 				$error = 'Invalid email.';
+				Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'invalid_email' ) );
 			}
 		} elseif ( $email && ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 			$error = 'Invalid email.';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'invalid_email' ) );
 		} elseif ( ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
 			$error = 'Invalid authentication (API token, or Global API key with account email).';
+			Util_Debug::audit_log( 'cloudflare_api_credential_invalid', array( 'reason' => 'format' ) );
 		}
 
 		if ( null === $error ) {
 			if ( ! $zone ) {
 				$error = 'Empty zone.';
+				Util_Debug::audit_log( 'cloudflare_api_zone_invalid', array( 'reason' => 'empty' ) );
 			} elseif ( strpos( $zone, '.' ) === false ) {
 				$error = 'Invalid domain.';
+				Util_Debug::audit_log( 'cloudflare_api_zone_invalid', array( 'reason' => 'no_dot' ) );
 			} elseif ( ! in_array( $action, $actions, true ) ) {
 				$error = 'Invalid action.';
+				Util_Debug::audit_log( 'cloudflare_api_action_invalid', array( 'action' => $action ) );
 			} else {
 				$config = array(
 					'email' => $email,
@@ -316,6 +348,15 @@ class Extension_CloudFlare_Plugin_Admin {
 				@$this->api = new Extension_CloudFlare_Api( $config );
 
 				@set_time_limit( $this->_config->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+
+				Util_Debug::audit_log(
+					'cloudflare_api_request',
+					array(
+						'action' => $action,
+						'zone'   => $zone,
+					)
+				);
+
 				$response = $this->api->api_request( $action, $value );
 
 				if ( $response ) {
@@ -324,9 +365,25 @@ class Extension_CloudFlare_Plugin_Admin {
 						$error  = 'OK';
 					} else {
 						$error = $response->msg;
+						Util_Debug::audit_log(
+							'cloudflare_api_failed',
+							array(
+								'action'  => $action,
+								'zone'    => $zone,
+								'message' => (string) $response->msg,
+							)
+						);
 					}
 				} else {
 					$error = 'Unable to make Cloudflare API request.';
+					Util_Debug::audit_log(
+						'cloudflare_api_failed',
+						array(
+							'action'  => $action,
+							'zone'    => $zone,
+							'message' => 'no response',
+						)
+					);
 				}
 			}
 		}

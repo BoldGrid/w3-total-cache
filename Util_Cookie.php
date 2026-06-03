@@ -18,9 +18,11 @@ namespace W3TC;
  *
  * 1. **Cookie flags.** The pre-fix code used `setcookie( $name, $value, $expires )`
  *    (positional, 3-arg form) — no `secure`, no `httponly`, no
- *    `samesite`. The fixed version always uses PHP 7.3+ array-form
- *    `setcookie` so every w3tc_* cookie carries the flags WordPress
- *    convention requires (secure on HTTPS, httponly, samesite=Lax).
+ *    `samesite`. The fixed version always uses the array-form
+ *    `setcookie` (available since PHP 7.3, well below the plugin's
+ *    PHP 7.4+ floor) so every w3tc_* cookie carries the flags
+ *    WordPress convention requires (secure on HTTPS, httponly,
+ *    samesite=Lax).
  *
  * 2. **Role-cookie name derivation.** The legacy code names the
  *    "logged-in-as-this-role" cache-bypass cookie
@@ -48,8 +50,8 @@ class Util_Cookie {
 	/**
 	 * Sets a w3tc_* cookie with the standard security flags.
 	 *
-	 * Always uses the PHP 7.3+ array-form `setcookie` so `samesite`
-	 * lands in the response header. `secure` follows `is_ssl()` so the
+	 * Always uses the array-form `setcookie` so `samesite` lands in
+	 * the response header. `secure` follows `is_ssl()` so the
 	 * cookie stays usable on http-only test installs; `httponly` is
 	 * always true; `samesite=Lax` is WordPress convention (`Strict`
 	 * breaks legitimate cross-tab admin flows).
@@ -75,13 +77,17 @@ class Util_Cookie {
 		$secure   = \function_exists( 'is_ssl' ) ? (bool) \is_ssl() : false;
 		$httponly = true;
 
-		// PHP 7.3+ accepts the options-array form natively. The plugin's
-		// composer.json platform pin allows PHP 7.2.5, where passing an
-		// array triggers a warning and the cookie is NOT set. Fall back
-		// to the positional form on 7.2 and smuggle `SameSite=Lax` via
-		// the trailing `; samesite=Lax` on the path argument — Set-Cookie
-		// emits the path verbatim, and every supported browser parses the
-		// trailing semicolon-separated attribute as a real SameSite token.
+		/**
+		 * PHP 7.3+ accepts the options-array form natively, which is
+		 * always available on the plugin's PHP 7.4+ floor. The
+		 * positional-form fallback below is retained defensively in
+		 * case a host downgrades the runtime below the declared
+		 * minimum; it smuggles `SameSite=Lax` via the trailing
+		 * `; samesite=Lax` on the path argument — Set-Cookie emits
+		 * the path verbatim, and every supported browser parses the
+		 * trailing semicolon-separated attribute as a real SameSite
+		 * token.
+		 */
 		if ( \PHP_VERSION_ID >= 70300 ) {
 			$options = array(
 				'expires'  => (int) $expires,

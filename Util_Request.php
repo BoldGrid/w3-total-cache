@@ -88,7 +88,7 @@ class Util_Request {
 	 * @return double
 	 */
 	public static function get_double( $key, $default_value = 0. ) {
-		return (double) self::get( $key, $default_value ); // phpcs:ignore WordPress.PHP.TypeCasts.DoubleRealFound
+		return (float) self::get( $key, $default_value );
 	}
 
 	/**

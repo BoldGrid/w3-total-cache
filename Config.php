@@ -102,8 +102,10 @@ class Config {
 
 		$filename = self::util_config_filename( $blog_id, $preview );
 		if ( file_exists( $filename ) && is_readable( $filename ) ) {
-			// including file directly instead of read+eval causes constant problems with APC, ZendCache, and
-			// WSOD in a case of broken config file.
+			/**
+			 * including file directly instead of read+eval causes constant problems with APC, ZendCache, and
+			 * WSOD in a case of broken config file.
+			 */
 			$content = @file_get_contents( $filename );
 			$config  = @json_decode( substr( $content, 14 ), true );
 
@@ -473,6 +475,56 @@ class Config {
 	 * @return mixed The value that was set.
 	 */
 	public function set( $key, $value ) {
+		/**
+		 * Strip directive-terminating bytes from values bound for keys whose
+		 * stored string (or stored array of strings) is later concatenated
+		 * into a `.htaccess` / `nginx.conf` directive. See
+		 * `Util_Rule::sanitize_directive_value()` for the strip set and
+		 * rationale. Routed through the shared helper rather than
+		 * duplicating the regex so a future strip-set extension lands in
+		 * one place and stored/rendered values stay in lockstep.
+		 *
+		 * The same characters are stripped at the renderer boundary too;
+		 * this is the upstream defence-in-depth half so the bad bytes
+		 * never enter master.php in the first place.
+		 */
+		if ( ! is_array( $key ) && '' !== $value ) {
+			$desc = self::directive_string_descriptor( $key );
+			if ( null !== $desc ) {
+				if ( is_string( $value ) ) {
+					$value = Util_Rule::sanitize_directive_value( $value );
+				} elseif ( is_array( $value ) ) {
+					/**
+					 * Directive-bound array keys (`pgcache.reject.cookie`,
+					 * `pgcache.reject.ua`, `mobile.rgroups`, etc.) each
+					 * element of which is later concatenated into a rule
+					 * alternation. Sanitise every scalar entry and drop
+					 * any non-scalar (the helper would return '' anyway,
+					 * and array_filter strips the empty result so a
+					 * fully-stripped entry doesn't widen an `implode( '|', ... )`
+					 * regex into a match-everything alternative).
+					 */
+					$value = array_values(
+						array_filter(
+							array_map(
+								function ( $v ) {
+									return is_scalar( $v )
+										? Util_Rule::sanitize_directive_value( (string) $v )
+										: '';
+								},
+								$value
+							),
+							function ( $v ) {
+								return '' !== $v;
+							}
+						)
+					);
+				}
+			}
+		}
+
+		$value = self::enforce_enum( $key, $value, $this );
+
 		if ( ! is_array( $key ) ) {
 			$this->_data[ $key ] = $value;
 		} else {
@@ -488,6 +540,211 @@ class Config {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Removes a configuration key from the in-memory data set.
+	 *
+	 * Intended for one-time migrations that retire keys whose feature
+	 * has been removed from the plugin (e.g. a discontinued CDN engine),
+	 * so the orphaned key — and any stored secret under it — stops being
+	 * written back to `master.php`. The key is dropped from
+	 * `$this->_data`; call {@see save()} afterwards to persist the
+	 * removal. Removing a key that is not present is a no-op.
+	 *
+	 * Only top-level string keys are supported; compound
+	 * `array( 'extension', 'sub' )` keys are rejected.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $key Config key to remove.
+	 *
+	 * @return bool True if the key was present and removed; false otherwise.
+	 */
+	public function unset_key( $key ) {
+		if ( ! is_string( $key ) || ! isset( $this->_data[ $key ] ) ) {
+			return false;
+		}
+
+		unset( $this->_data[ $key ] );
+
+		return true;
+	}
+
+	/**
+	 * Returns the descriptor for a `directive_string`-flagged key, or
+	 * null if the key isn't in the schema or doesn't carry the flag.
+	 *
+	 * Loads `ConfigKeys.php` once per request and caches the slimmed
+	 * directive-string map (keyed by config-key name → true). Kept
+	 * local to `Config` rather than promoted to a shared schema
+	 * accessor because the `directive_string` flag is the only piece
+	 * of `ConfigKeys.php` that `Config::set()` consults; promoting
+	 * would widen this file's `ConfigKeys.php` surface without a
+	 * second consumer to justify it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $key Single-string config key.
+	 *
+	 * @return true|null  `true` when the key is flagged; `null` otherwise.
+	 */
+	private static function directive_string_descriptor( $key ) {
+		static $set = null;
+
+		if ( null === $set ) {
+			$set  = array();
+			$keys = array();
+			include W3TC_DIR . '/ConfigKeys.php';
+			if ( is_array( $keys ) ) {
+				foreach ( $keys as $name => $descriptor ) {
+					if (
+						is_array( $descriptor )
+						&& isset( $descriptor['flags'] )
+						&& is_array( $descriptor['flags'] )
+						&& ! empty( $descriptor['flags']['directive_string'] )
+					) {
+						$set[ $name ] = true;
+					}
+				}
+			}
+		}
+
+		return isset( $set[ $key ] ) ? true : null;
+	}
+
+	/**
+	 * Constrains scalar `$value` to the enum declared in
+	 * {@see ConfigKeys.php} for `$key`, when present.
+	 *
+	 * Schema declares an enum like:
+	 *
+	 *     'cdn.engine' => array(
+	 *         'type'    => 'string',
+	 *         'default' => '',
+	 *         'enum'    => array( 'ftp', 's3', ... ),
+	 *     ),
+	 *
+	 * Behavior:
+	 *
+	 *  * If the key has no `enum` entry, return `$value` unchanged.
+	 *  * If `$value` is in the enum, return it unchanged.
+	 *  * Otherwise, retain the value already stored under that key
+	 *    (or the schema `default`) and emit an audit-log entry. The
+	 *    invalid value never reaches `$this->_data`, so downstream
+	 *    callers — including the `header()` emitters that
+	 *    interpolate `cdn.engine` — only ever see an allowlisted
+	 *    slug.
+	 *
+	 * Top-level keys only (compound `array( 'extension', 'sub' )`
+	 * keys skip enforcement); the schema doesn't currently declare
+	 * enums on extension subkeys.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string|array $key    Config key (string for top-level, array for extension subkey).
+	 * @param mixed        $value  The candidate value.
+	 * @param Config       $config Config instance, used to look up the prior value as fallback.
+	 *
+	 * @return mixed The original value if allowed, otherwise the prior stored value (or schema default).
+	 */
+	private static function enforce_enum( $key, $value, Config $config ) {
+		if ( ! \is_string( $key ) ) {
+			return $value;
+		}
+
+		$schema = self::config_keys_schema();
+		if ( ! isset( $schema[ $key ]['enum'] ) || ! \is_array( $schema[ $key ]['enum'] ) ) {
+			return $value;
+		}
+
+		$enum = $schema[ $key ]['enum'];
+
+		/**
+		 * Non-scalar values are an immediate reject path. The earlier
+		 * shape coerced them to `''` and then ran the enum match — but
+		 * `''` is itself a valid enum member for `cdn.engine`, so an
+		 * array / object write (e.g. from a malformed import) would
+		 * have been *accepted* by the enum check and overwritten the
+		 * prior value. Route non-scalars straight to the fallback
+		 * branch below so they never normalise to an allowed slug.
+		 */
+		if ( \is_scalar( $value ) ) {
+			$value_string = (string) $value;
+
+			if ( \in_array( $value_string, $enum, true ) ) {
+				/**
+				 * Return the normalised string form so the stored
+				 * type matches the schema's declared `string` type
+				 * even when a caller passes a non-string scalar
+				 * (e.g. `true` → `'1'`, `42` → `'42'`) that happens
+				 * to string-cast into an allowed enum member.
+				 */
+				return $value_string;
+			}
+		}
+
+		/**
+		 * Reject. Retain whatever was previously stored (or fall
+		 * back to the schema default). Audit-log the rejection so
+		 * operators can see attempted out-of-enum writes (a CRLF-
+		 * bearing value, or a buggy filter widening the surface).
+		 */
+		$fallback = '';
+		if ( isset( $config->_data[ $key ] ) ) {
+			$fallback = $config->_data[ $key ];
+		} elseif ( isset( $schema[ $key ]['default'] ) ) {
+			$fallback = $schema[ $key ]['default'];
+		}
+
+		/**
+		 * Allow the autoloader to load `Util_Debug` if it isn't
+		 * already in memory (the earlier `class_exists(..., false)`
+		 * would skip the audit-log in any request path where
+		 * `Util_Debug` hadn't been touched yet — i.e. most enum-write
+		 * flows — and silently drop the diagnostic operators rely on).
+		 */
+		if ( \class_exists( __NAMESPACE__ . '\\Util_Debug' ) ) {
+			Util_Debug::log(
+				'config',
+				\sprintf(
+					'Rejected out-of-enum write to %s; retained prior value. Allowed: %s',
+					$key,
+					\implode( ',', $enum )
+				)
+			);
+		}
+
+		return $fallback;
+	}
+
+	/**
+	 * Lazy-load the {@see ConfigKeys.php} schema once per request.
+	 *
+	 * `ConfigKeys.php` populates a local `$keys` variable; we
+	 * import the file inside an isolated scope and cache the
+	 * result so per-write enum lookups don't re-include the file.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function config_keys_schema() {
+		static $schema = null;
+
+		if ( null === $schema ) {
+			$schema = array();
+
+			$loader = static function () {
+				$keys = array();
+				include W3TC_DIR . '/ConfigKeys.php';
+				return $keys;
+			};
+
+			$schema = (array) $loader();
+		}
+
+		return $schema;
 	}
 
 	/**
@@ -564,17 +821,43 @@ class Config {
 	 * @return string The configuration data as a JSON string.
 	 */
 	public function export() {
+		/**
+		 * JSON_HEX_TAG / HEX_AMP / HEX_APOS / HEX_QUOT escape `<` `&` `'`
+		 * `"` to their `\uXXXX` forms. The export endpoint serves this
+		 * body to admins, and even with `Content-Type: application/json`
+		 * some clients can render the response as HTML (history walks,
+		 * view-source, intermediary proxies that ignore the content-
+		 * type). Hex-escaping every HTML-significant character means
+		 * the body cannot contain a literal `<script>` regardless of
+		 * what an admin saved in config — closes that path without
+		 * changing the JSON semantics (JSON parsers decode `<` back
+		 * to `<` transparently).
+		 */
+		$flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 		if ( defined( 'JSON_PRETTY_PRINT' ) ) {
-			$content = wp_json_encode( $this->_data, JSON_PRETTY_PRINT );
-		} else {
-			$content = wp_json_encode( $this->_data );
+			$flags |= JSON_PRETTY_PRINT;
 		}
 
-		return $content;
+		return wp_json_encode( $this->_data, $flags );
 	}
 
 	/**
 	 * Imports a configuration from a file.
+	 *
+	 * Every incoming JSON key is validated against the `ConfigKeys.php`
+	 * schema via {@see ConfigKeysSchema}.  Unknown keys are dropped
+	 * silently and high-impact keys flagged `no_import => true`
+	 * (`extensions.active*`, `*.path.java/jar`, `*.engine`) are refused
+	 * here even though they are documented config keys — those are
+	 * editable only through their dedicated UI page, where the page-
+	 * specific validator runs.  Accepted values are type-coerced
+	 * (`boolean` becomes a real `bool`, etc.) so an unexpected
+	 * non-scalar value cannot land in a slot the schema declares
+	 * as a scalar.
+	 *
+	 * Rejection counts are written to the `w3tc` debug channel via
+	 * `Util_Debug::log` so operators can diagnose "my exported config
+	 * didn't restore everything" without having to look at the JSON.
 	 *
 	 * @global $wp_filesystem
 	 * @see get_filesystem_method()
@@ -607,8 +890,45 @@ class Config {
 					$data = $c->get_data();
 				}
 
+				$rejected_unknown = 0;
+				$rejected_locked  = 0;
+				$applied          = 0;
+
 				foreach ( $data as $key => $value ) {
+					// `version` is metadata, not a settable key.
+					if ( 'version' === $key ) {
+						continue;
+					}
+
+					if ( ! ConfigKeysSchema::is_known( $key ) ) {
+						++$rejected_unknown;
+						continue;
+					}
+
+					if ( ! ConfigKeysSchema::can_import( $key ) ) {
+						++$rejected_locked;
+						continue;
+					}
+
+					$descriptor = ConfigKeysSchema::descriptor( $key );
+					$value      = ConfigKeysSchema::coerce( $value, $descriptor );
+
 					$this->set( $key, $value );
+					++$applied;
+				}
+
+				if ( ( $rejected_unknown > 0 || $rejected_locked > 0 ) && \class_exists( '\W3TC\Util_Debug' ) ) {
+					Util_Debug::log(
+						'w3tc',
+						\sprintf(
+							'Config::import: applied %d, rejected %d unknown key%s and %d no-import key%s.',
+							$applied,
+							$rejected_unknown,
+							1 === $rejected_unknown ? '' : 's',
+							$rejected_locked,
+							1 === $rejected_locked ? '' : 's'
+						)
+					);
 				}
 
 				return true;

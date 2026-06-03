@@ -147,6 +147,7 @@ define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
 define( 'W3TC_MARKER_BEGIN_CDN', '# BEGIN W3TC CDN' );
 define( 'W3TC_MARKER_BEGIN_WEBP', '# BEGIN W3TC WEBP' );
 define( 'W3TC_MARKER_BEGIN_AVIF', '# BEGIN W3TC AVIF' );
+define( 'W3TC_MARKER_BEGIN_PLUGIN_DIR_DENY', '# BEGIN W3TC Plugin Dir Deny' );
 
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
 define( 'W3TC_MARKER_END_PGCACHE_CORE', '# END W3TC Page Cache core' );
@@ -161,6 +162,7 @@ define( 'W3TC_MARKER_END_CDN', '# END W3TC CDN' );
 define( 'W3TC_MARKER_END_NEW_RELIC_CORE', '# END W3TC New Relic core' );
 define( 'W3TC_MARKER_END_WEBP', '# END W3TC WEBP' );
 define( 'W3TC_MARKER_END_AVIF', '# END W3TC AVIF' );
+define( 'W3TC_MARKER_END_PLUGIN_DIR_DENY', '# END W3TC Plugin Dir Deny' );
 
 if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
 	define( 'W3TC_EXTENSION_DIR', ( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) );
@@ -198,27 +200,23 @@ function w3tc_class_autoload( $class_value ) {
 			require $filename;
 			return;
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( function_exists( 'esc_html' ) && function_exists( '__' ) ) {
-				echo esc_html(
-					sprintf(
-						// translators: 1 class name, 2 file name.
-						__(
-							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-							'w3-total-cache'
-						),
-						$class_value,
-						$filename
-					)
-				);
-			} else {
-				printf(
-					'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-					$class_value, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					$filename // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
-			}
-
-			debug_print_backtrace();
+			/**
+			 * previously echoed the class name, the resolved
+			 * filename, and a full backtrace into the response body
+			 * under WP_DEBUG. Route to the PHP error log instead; it
+			 * lands in WP_DEBUG_LOG / php-error.log without ever
+			 * touching the HTTP response. Using error_log here (not
+			 * Util_Debug::log) because Util_Debug.php is itself loaded
+			 * by this autoloader and the missing-class branch must not
+			 * recurse.
+			 */
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf(
+					'W3TC autoload: class %1$s requested but file %2$s missing',
+					$class_value,
+					$filename
+				)
+			);
 		}
 	}
 

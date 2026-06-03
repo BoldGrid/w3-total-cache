@@ -179,8 +179,10 @@ class PgCache_Plugin_Admin {
 
 		update_option( 'w3tc_pgcache_prime_offset', $next_offset, false );
 
-		// Make HTTP requests and prime cache.
-		// Use 'WordPress' since by default we use W3TC-powered by which blocks caching.
+		/**
+		 * Make HTTP requests and prime cache.
+		 * Use 'WordPress' since by default we use W3TC-powered by which blocks caching.
+		 */
 		foreach ( $queue as $url ) {
 			Util_Http::get( $url, array( 'user-agent' => 'WordPress' ) );
 
@@ -193,13 +195,66 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Parses a sitemap URL and returns the list of URLs contained in it.
 	 *
-	 * @param string $url The URL of the sitemap to parse.
+	 * The sitemap URL is configured by an admin and can contain
+	 * `<sitemap><loc>...</loc></sitemap>` entries that the parser will
+	 * recursively fetch. Three constraints bound the outbound-fetch
+	 * surface:
+	 *
+	 *  1. Each fetched URL must resolve to a public host (no localhost,
+	 *     no RFC1918, no AWS metadata, etc.).
+	 *  2. Nested `<sitemap>` entries are required to share the origin
+	 *     of the root sitemap. A sub-URL placed inside a legitimately-
+	 *     fetched sitemap can't redirect the fetcher to a third-party
+	 *     host. Combined with (1) this also limits a recursive walk to
+	 *     a single first-party origin.
+	 *  3. Recursion is depth-capped (default 3). A pathological
+	 *     sitemap that points at itself, or a deeply nested index, can
+	 *     no longer DOS the worker.
+	 *
+	 * @param string      $url           The URL of the sitemap to parse.
+	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
+	 *                                   fetches must match. Auto-populated.
+	 * @param int         $depth         Internal: current recursion depth (0-based).
 	 *
 	 * @return array The list of URLs parsed from the sitemap.
 	 */
-	public function parse_sitemap( $url ) {
+	public function parse_sitemap( $url, $origin_host = null, $depth = 0 ) {
 		if ( ! Util_Environment::is_url( $url ) ) {
 			$url = home_url( $url );
+		}
+
+		/**
+		 * Depth cap. The first call lands at depth 0; nested fetches
+		 * increment. Three levels is enough to cover a sitemap index
+		 * → child sitemap → URL list shape, the deepest WordPress
+		 * emits in practice. Refusal returns the empty array, NOT
+		 * `array( $url )` — the caller (`prime()`) iterates the
+		 * returned list and calls `Util_Http::get()` on each entry, so
+		 * returning the rejected URL would defeat the depth cap
+		 * (the URL would still be fetched, just not recursed into).
+		 */
+		if ( $depth > 3 ) {
+			return array();
+		}
+
+		/**
+		 * Per-hop public-host check. Refused URLs are dropped from the
+		 * fetch list for the same reason as above.
+		 */
+		if ( ! Util_Url::is_public_host( $url ) ) {
+			return array();
+		}
+
+		// First call sets the origin host for the rest of the recursion.
+		$current_host = \wp_parse_url( $url, PHP_URL_HOST );
+		if ( null === $origin_host ) {
+			$origin_host = $current_host;
+		} elseif ( strcasecmp( $origin_host, (string) $current_host ) !== 0 ) {
+			/**
+			 * Cross-origin nested sitemap entry — refuse silently and
+			 * drop it from the fetch list.
+			 */
+			return array();
 		}
 
 		$urls     = array( $url );
@@ -209,14 +264,15 @@ class PgCache_Plugin_Admin {
 			$url_matches     = null;
 			$sitemap_matches = null;
 
-			// Disable libxml errors to prevent warnings from breaking the XML parsing.
-			$previous = \libxml_use_internal_errors( true );
-			// Load the XML response.
-			$xml = \simplexml_load_string( $response['body'] );
-			// Clear any errors that may have occurred during parsing.
-			\libxml_clear_errors();
-			// Restore the previous libxml error handling.
-			\libxml_use_internal_errors( $previous );
+			/**
+			 * Parse the fetched sitemap XML with XXE protections. The body is
+			 * fetched from an admin-configured (and origin-host-constrained)
+			 * sitemap URL, so a hostile or compromised endpoint must not be
+			 * able to use external entities to read local files or pivot to
+			 * internal services. Util_Environment::safe_simplexml_load_string()
+			 * also handles the libxml error-suppression dance.
+			 */
+			$xml = Util_Environment::safe_simplexml_load_string( $response['body'] );
 
 			// Check if the XML load failed; return the URLs found so far (sitemap URL).
 			if ( false === $xml ) {
@@ -226,7 +282,10 @@ class PgCache_Plugin_Admin {
 			if ( $xml->getName() === 'sitemapindex' ) {
 				foreach ( $xml->sitemap as $sitemap ) {
 					if ( $sitemap->loc ) {
-						$urls = array_merge( $urls, $this->parse_sitemap( (string) $sitemap->loc ) );
+						$urls = array_merge(
+							$urls,
+							$this->parse_sitemap( (string) $sitemap->loc, $origin_host, $depth + 1 )
+						);
 					}
 				}
 			} elseif ( $xml->getName() === 'urlset' ) {

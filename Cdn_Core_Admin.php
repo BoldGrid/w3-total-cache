@@ -288,11 +288,13 @@ class Cdn_Core_Admin {
 					if ( $post->metadata ) {
 						$metadata = @unserialize( $post->metadata, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 
-						// `allowed_classes => false` returns `__PHP_Incomplete_Class`
-						// for crafted object payloads, but `Cdn_Core::get_metadata_files()`
-						// dereferences `$metadata['file']` / `['sizes']` directly. Coerce
-						// non-arrays (corrupted postmeta or crafted payload) to an empty
-						// array so we just emit zero files instead of fataling.
+						/**
+						 * `allowed_classes => false` returns `__PHP_Incomplete_Class`
+						 * for crafted object payloads, but `Cdn_Core::get_metadata_files()`
+						 * dereferences `$metadata['file']` / `['sizes']` directly. Coerce
+						 * non-arrays (corrupted postmeta or crafted payload) to an empty
+						 * array so we just emit zero files instead of fataling.
+						 */
 						if ( ! is_array( $metadata ) ) {
 							$metadata = array();
 						}
@@ -941,34 +943,6 @@ class Cdn_Core_Admin {
 			case (
 				'mirror' === $cdn_engine &&
 				! count( $this->_config->get_array( 'cdn.mirror.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'cotendo' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.cotendo.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'edgecast' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.edgecast.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'att' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.att.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'akamai' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.akamai.domain' ) )
 			):
 				$running = false;
 				break;

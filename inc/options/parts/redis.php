@@ -97,9 +97,24 @@ if ( version_compare( phpversion( 'redis' ), '3.1.3', '>=' ) ) {
 <tr>
 	<th><label for="redis_password"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="redis_password" name="<?php echo esc_attr( $module ); ?>__redis__password" type="text"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			<?php $this->value_with_disabled( $module . '.redis.password', false, '' ); ?> />
+		<?php
+		/**
+		 * rt9-19: Use the masked secret renderer so the stored Redis
+		 * password never round-trips through the HTML `value=` attribute
+		 * on every settings-page render. Matches the read-side rule in
+		 * `Generic_AdminActions_Default::read_request()` — empty POST
+		 * preserves the existing credential, `__w3tc_clear=1` wipes it.
+		 */
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'redis_password',
+				'name'        => $module . '__redis__password',
+				'has_value'   => '' !== $this->_config->get_string( $module . '.redis.password' ),
+				'type'        => 'password',
+				'sealing_key' => $module . '.',
+			)
+		);
+		?>
 		<p class="description">
 			<?php
 			echo wp_kses(

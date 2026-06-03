@@ -3,6 +3,10 @@
 /**
  * All possible mime types
  */
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 return array(
 	'123'                                 => 'application/vnd.lotus-1-2-3',
 	'3dml'                                => 'text/vnd.in3d.3dml',

@@ -65,6 +65,7 @@ class Extension_AlwaysCached_Plugin {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['w3tc_alwayscached'] ) ) {
+			self::authorize_worker_trigger_or_die();
 			Extension_AlwaysCached_Worker::run();
 			wp_die();
 		}
@@ -172,11 +173,13 @@ class Extension_AlwaysCached_Plugin {
 		if ( ! empty( $queue_item ) ) {
 			$decoded = @unserialize( $queue_item['extension'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 
-			// `allowed_classes => false` returns `__PHP_Incomplete_Class` for
-			// crafted object payloads; `w3tc_pagecache_set()` later does
-			// `isset( $this->request_queue_item_extension[ $k ] )`, which would
-			// fatal on a non-array. Coerce anything that isn't an array to an
-			// empty array so the downstream path stays well-typed.
+			/**
+			 * `allowed_classes => false` returns `__PHP_Incomplete_Class` for
+			 * crafted object payloads; `w3tc_pagecache_set()` later does
+			 * `isset( $this->request_queue_item_extension[ $k ] )`, which would
+			 * fatal on a non-array. Coerce anything that isn't an array to an
+			 * empty array so the downstream path stays well-typed.
+			 */
 			$this->request_queue_item_extension = is_array( $decoded ) ? $decoded : array();
 
 			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
@@ -396,6 +399,134 @@ class Extension_AlwaysCached_Plugin {
 	 */
 	public function w3tc_alwayscached_wp_cron() {
 		Extension_AlwaysCached_Worker::run();
+	}
+
+	/**
+	 * Authorise the HTTP-side queue-worker trigger or terminate the
+	 * request with 403.
+	 *
+	 * The `?w3tc_alwayscached` request parameter triggers the queue
+	 * worker, which spends up to 60 seconds dequeueing items and
+	 * issuing server-side HTTP fetches for each URL. Historically
+	 * the param was unauthenticated, so any internet-reachable W3TC
+	 * install with the extension enabled could be used to:
+	 *
+	 *   1. DoS the host (each request runs for ~60s of CPU + I/O).
+	 *   2. SSRF an internal URL by enqueueing it through any other
+	 *      flush-on-publish hook the attacker can reach, then
+	 *      triggering the dequeue from outside.
+	 *   3. Mutate the `w3tc_alwayscached_worker_timestamp` option
+	 *      from unauthenticated context.
+	 *
+	 * Authorised callers:
+	 *
+	 *   - Logged-in administrators (manage_options): legitimate
+	 *     browser-driven "process now" buttons. Matches the cap
+	 *     used by the admin AJAX + admin POST paths for the same
+	 *     worker.
+	 *   - Operators using a pre-shared secret. To enable, put
+	 *     `define( 'W3TC_WORKER_SECRET', 'long-random-string' );`
+	 *     in wp-config.php and curl with
+	 *     `Authorization: Bearer <secret>`. Constant-time compare
+	 *     via `hash_equals`. Empty / unset constant disables this
+	 *     path entirely — admins-only by default.
+	 *
+	 * The WP-Cron and WP-CLI paths (`w3tc_alwayscached_wp_cron`
+	 * action and `Cli::alwayscached_process()`) call the worker
+	 * directly and never reach this gate; those paths remain the
+	 * recommended automation entry points.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private static function authorize_worker_trigger_or_die() {
+		// Layer 1 — admin in a browser session.
+		if ( \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		/**
+		 * Layer 2 — pre-shared secret via Authorization: Bearer.
+		 * The constant is intentionally not exposed through the
+		 * admin UI; it must be set in wp-config.php (or via a
+		 * hosting platform's secret manager) so a config-mass-
+		 * assignment cannot enable the unauth path from inside
+		 * W3TC's own config store.
+		 */
+		if ( \defined( 'W3TC_WORKER_SECRET' ) && '' !== \W3TC_WORKER_SECRET ) {
+			$presented = self::read_bearer_token();
+			if ( '' !== $presented &&
+				\hash_equals( (string) \W3TC_WORKER_SECRET, $presented )
+			) {
+				return;
+			}
+		}
+
+		/**
+		 * Unauthenticated: emit a short text body and stop. We do
+		 * not echo any hint about which constant to set — the
+		 * admin who configured the install knows.
+		 */
+		if ( ! \headers_sent() ) {
+			\http_response_code( 403 );
+			\header( 'Content-Type: text/plain; charset=utf-8' );
+			\header( 'Cache-Control: no-store' );
+			\header( 'X-Robots-Tag: noindex, nofollow, noarchive' );
+		}
+		echo 'Forbidden';
+		exit;
+	}
+
+	/**
+	 * Extract the bearer token from the `Authorization` request
+	 * header. Returns an empty string if absent or malformed.
+	 *
+	 * Apache exposes the header through `HTTP_AUTHORIZATION`;
+	 * FastCGI / php-fpm typically expose it through
+	 * `REDIRECT_HTTP_AUTHORIZATION` when an Apache rewrite has
+	 * propagated it. PHP's `getallheaders()` is not available
+	 * under all SAPIs, so we fall back through the well-known
+	 * `$_SERVER` slots.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string Bearer token value (without the `Bearer `
+	 *                prefix), or empty string if not present.
+	 */
+	private static function read_bearer_token() {
+		$header = '';
+
+		if ( ! empty( $_SERVER['HTTP_AUTHORIZATION'] ) ) {
+			$header = (string) \wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		} elseif ( ! empty( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
+			$header = (string) \wp_unslash( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		} elseif ( \function_exists( 'getallheaders' ) ) {
+			$all = \getallheaders();
+			if ( is_array( $all ) ) {
+				foreach ( $all as $k => $v ) {
+					if ( 0 === \strcasecmp( (string) $k, 'authorization' ) ) {
+						$header = (string) $v;
+						break;
+					}
+				}
+			}
+		}
+
+		if ( '' === $header ) {
+			return '';
+		}
+
+		/**
+		 * RFC 6750: `Authorization: Bearer <token>`. We tolerate
+		 * any whitespace between scheme and token and reject any
+		 * other auth scheme.
+		 */
+		if ( ! \preg_match( '/^\s*Bearer\s+(\S+)\s*$/i', $header, $m ) ) {
+			return '';
+		}
+
+		return $m[1];
 	}
 
 	/**

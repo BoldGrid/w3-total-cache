@@ -59,6 +59,17 @@ class Cdn_Plugin {
 	 * @return void
 	 */
 	public function run() {
+		/**
+		 * One-time migration: auto-disable CDN if the configured engine
+		 * is one of the removed integrations (akamai, cotendo, edgecast,
+		 * att) and purge any orphaned per-engine config keys left behind.
+		 * The upstream APIs / services have been shut down; leaving the
+		 * engine selected would silently route through CdnEngine_Base
+		 * (a no-op) without telling the admin. Coerce to empty so the
+		 * next save flow lets the admin pick a working engine.
+		 */
+		$this->migrate_removed_engines();
+
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
@@ -106,6 +117,116 @@ class Cdn_Plugin {
 	}
 
 	/**
+	 * Auto-disable CDN when the configured engine is one whose upstream
+	 * service has been retired and the integration has been removed, and
+	 * purge any orphaned per-engine config keys left in `master.php`.
+	 *
+	 * Sites carrying a saved `cdn.engine` of `akamai`, `cotendo`,
+	 * `edgecast`, or `att` from before this upgrade would otherwise route
+	 * every CDN call through the default CdnEngine_Base (a no-op) and
+	 * surface no indication of what changed. This shim:
+	 *
+	 *  1. Sets `cdn.enabled = false` so cache-flush + upload hooks stop
+	 *     firing, and clears `cdn.engine` to the empty string so the
+	 *     admin lands on the "pick an engine" flow on next CDN-page visit.
+	 *  2. Removes the now-unknown `cdn.{akamai,cotendo,edgecast,att}.*`
+	 *     keys (including their stored credentials) so they are not
+	 *     written back to `master.php` on subsequent saves. The lists are
+	 *     frozen: these engines are gone and will never gain new keys.
+	 *  3. Sets a one-time admin-state flag so `Cdn_AdminNotes` surfaces an
+	 *     explanation of WHY the engine was disabled and what the admin
+	 *     should pick next.
+	 *
+	 * The key purge also runs for installs whose engine was already
+	 * cleared by an earlier release (cotendo / edgecast / att) but which
+	 * still carry the leftover keys; that path cleans up silently without
+	 * re-showing the notice.
+	 *
+	 * Idempotent: once the engine is cleared and the orphaned keys are
+	 * gone, subsequent calls find nothing to change and return without
+	 * rewriting the config.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function migrate_removed_engines() {
+		$cdn_engine      = $this->_config->get_string( 'cdn.engine' );
+		$removed_engines = array( 'akamai', 'cotendo', 'edgecast', 'att' );
+		$engine_removed  = in_array( $cdn_engine, $removed_engines, true );
+
+		/**
+		 * Per-engine config keys for the removed integrations. Frozen
+		 * lists — the engines no longer exist, so these can never grow.
+		 * unset_key() returns true only when a key was actually present,
+		 * so $purged decides whether the config save runs at all.
+		 */
+		$orphan_keys = array(
+			// Akamai (CCU SOAP v1 — integration retired).
+			'cdn.akamai.username',
+			'cdn.akamai.password',
+			'cdn.akamai.email_notification',
+			'cdn.akamai.action',
+			'cdn.akamai.zone',
+			'cdn.akamai.domain',
+			'cdn.akamai.ssl',
+			// Cotendo (api.cotendo.net gone since 2012).
+			'cdn.cotendo.username',
+			'cdn.cotendo.password',
+			'cdn.cotendo.zones',
+			'cdn.cotendo.domain',
+			'cdn.cotendo.ssl',
+			// EdgeCast (Edgio Chapter 11; network offline Jan 2025).
+			'cdn.edgecast.account',
+			'cdn.edgecast.token',
+			'cdn.edgecast.domain',
+			'cdn.edgecast.ssl',
+			// AT&T (white-label of EdgeCast — died alongside it).
+			'cdn.att.account',
+			'cdn.att.token',
+			'cdn.att.domain',
+			'cdn.att.ssl',
+		);
+
+		$purged = false;
+		foreach ( $orphan_keys as $key ) {
+			if ( $this->_config->unset_key( $key ) ) {
+				$purged = true;
+			}
+		}
+
+		// No removed engine selected and no leftover keys: fast
+		// idempotent path, no config rewrite.
+		if ( ! $engine_removed && ! $purged ) {
+			return;
+		}
+
+		if ( $engine_removed ) {
+			$this->_config->set( 'cdn.enabled', false );
+			$this->_config->set( 'cdn.engine', '' );
+		}
+
+		try {
+			$this->_config->save();
+		} catch ( \Exception $e ) {
+			/**
+			 * Config save can fail on read-only `master.php` (rare in
+			 * production); the in-memory updates stay in place so the
+			 * rest of the request behaves as if CDN is off, and the
+			 * migration retries on the next request.
+			 */
+			return;
+		}
+
+		if ( $engine_removed ) {
+			$state = Dispatcher::config_state();
+			$state->set( 'cdn.removed_engine_was', $cdn_engine );
+			$state->set( 'cdn.show_note_removed_engine', true );
+			$state->save();
+		}
+	}
+
+	/**
 	 * Send CDN Headers.
 	 *
 	 * @return void
@@ -117,7 +238,16 @@ class Cdn_Plugin {
 		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
 
 		if ( $is_cdn_enabled && $cdn_engine ) {
-			@header( 'X-W3TC-CDN: ' . $cdn_engine );
+			/**
+			 * `cdn.engine` is admin-settable. The
+			 * ConfigKeys `enum` clause already constrains it to an
+			 * allowlisted slug at write time, but route it through
+			 * Util_Response::header anyway so any future bypass
+			 * (a filter mutating the value at read time, a
+			 * downstream caller using header() directly with a
+			 * crafted string) still cannot split this response.
+			 */
+			Util_Response::header( 'X-W3TC-CDN', $cdn_engine );
 		}
 	}
 
@@ -472,9 +602,11 @@ class Cdn_Plugin {
 
 			$urls = $minify->get_urls();
 
-			// In WPMU + network admin (this code used for minify manual only)
-			// common minify files are stored under context of main blog (i.e. 1)
-			// but have urls of 0 blog, so download has to be used.
+			/**
+			 * In WPMU + network admin (this code used for minify manual only)
+			 * common minify files are stored under context of main blog (i.e. 1)
+			 * but have urls of 0 blog, so download has to be used.
+			 */
 			if ( 'file' === $this->_config->get_string( 'minify.engine' ) && ! ( Util_Environment::is_wpmu() && is_network_admin() ) ) {
 				foreach ( $urls as $url ) {
 					Util_Http::get( $url );

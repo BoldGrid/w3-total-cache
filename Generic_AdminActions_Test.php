@@ -41,15 +41,45 @@ class Generic_AdminActions_Test {
 	}
 
 	/**
+	 * Rejects the current handler invocation if it was not delivered as a
+	 * POST request. Used by handlers that consume a cleartext secret
+	 * (memcached / redis passwords) which would otherwise leak into the
+	 * webserver access log when supplied via $_GET. Util_Request::get_string()
+	 * reads $_REQUEST (= $_GET + $_POST), so a misconfigured client — or a
+	 * CSRF-style image-tag — could otherwise put the password on the URL.
+	 *
+	 * @return void
+	 */
+	private function require_post_request() {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) : '';
+		if ( 'POST' !== $method ) {
+			\status_header( 405 );
+			\header( 'Allow: POST' );
+			$this->respond_test_result( false );
+			// respond_test_result() exits.
+		}
+	}
+
+	/**
 	 * Test memcached
 	 *
 	 * @return void
 	 */
 	public function w3tc_test_memcached() {
+		// Reject GET so the cleartext password cannot land in the access log.
+		$this->require_post_request();
+
 		$servers         = Util_Request::get_array( 'servers' );
 		$binary_protocol = Util_Request::get_boolean( 'binary_protocol', true );
 		$username        = Util_Request::get_string( 'username', '' );
-		$password        = Util_Request::get_string( 'password', '' );
+
+		/**
+		 * Read directly from $_POST (bypassing Util_Request, which merges $_GET)
+		 * so this stays correct even if the POST-only gate is ever relaxed.
+		 */
+		$password = isset( $_POST['password'] )
+			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- password is opaque secret used only as the auth credential to memcached; nonce verified upstream by the admin-action dispatcher.
+			: '';
 
 		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
 	}
@@ -60,10 +90,17 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	public function w3tc_test_redis() {
+		// Reject GET so the cleartext password cannot land in the access log.
+		$this->require_post_request();
+
 		$servers                 = Util_Request::get_array( 'servers' );
 		$verify_tls_certificates = Util_Request::get_boolean( 'verify_tls_certificates', true );
-		$password                = Util_Request::get_string( 'password', '' );
 		$dbid                    = Util_Request::get_integer( 'dbid', 0 );
+
+		// Read password directly from $_POST (see w3tc_test_memcached for rationale).
+		$password = isset( $_POST['password'] )
+			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- password is opaque secret used only as the auth credential to redis; nonce verified upstream by the admin-action dispatcher.
+			: '';
 
 		if ( empty( $servers ) ) {
 			$success = false;
@@ -147,11 +184,34 @@ class Generic_AdminActions_Test {
 			}
 		}
 
+		/*
+		 * Validate the admin-supplied `path_java` against the
+		 * Util_Java allowlist before assigning it to the vendored
+		 * minifier wrapper's static $javaExecutable. The vendored
+		 * code concatenates that property into the command string
+		 * passed to exec(), so without this validator the value
+		 * would not be escaped at the boundary.
+		 *
+		 * @since X.X.X
+		 */
+		$validated_java = '';
+		if ( empty( $error ) && 'googleccjs' !== $engine ) {
+			$validated_java = Util_Java::validate_with_log( $path_java, 'test_minifier' );
+			if ( false === $validated_java ) {
+				$error = sprintf(
+					/* translators: 1: comma-separated list of allowed directories, 2: wp-config.php constant name. */
+					__( 'JAVA executable path is not allowed. The path must be an existing, executable file under one of: %1$s. Operators may extend the allowlist via the %2$s constant in wp-config.php.', 'w3-total-cache' ),
+					implode( ', ', Util_Java::allowed_dirs() ),
+					'W3TC_JAVA_BIN_ALLOWED_DIRS'
+				);
+			}
+		}
+
 		if ( empty( $error ) ) {
 			switch ( $engine ) {
 				case 'yuijs':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
@@ -159,7 +219,7 @@ class Generic_AdminActions_Test {
 
 				case 'yuicss':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
@@ -167,7 +227,7 @@ class Generic_AdminActions_Test {
 
 				case 'ccjs':
 					\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
-					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $path_java;
+					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $path_jar;
 
 					$result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
@@ -183,9 +243,18 @@ class Generic_AdminActions_Test {
 			}
 		}
 
+		/*
+		 * The vendored exception strings interpolate the configured
+		 * path verbatim into a message the dashboard renders client-
+		 * side. Strip HTML at the response boundary so the rendered
+		 * text is plain text. The full fix on the dashboard renderer
+		 * is tracked in the user-experience group's own change.
+		 *
+		 * @since X.X.X
+		 */
 		$response = array(
 			'result' => $result,
-			'error'  => $error,
+			'error'  => is_string( $error ) ? \esc_html( $error ) : '',
 		);
 
 		echo wp_json_encode( $response );

@@ -22,6 +22,25 @@ class Extensions_AdminActions {
 		$extension = Util_Request::get_string( 'w3tc_extensions_activate' );
 		$ext       = Extensions_Util::get_extension( $config, $extension );
 
+		/**
+		 * Per-extension capability gate, floored at manage_options.
+		 * Prevents non-admins from activating extensions even if a
+		 * downstream filter lowers the per-extension cap.
+		 *
+		 * @since X.X.X
+		 */
+		$capability = apply_filters(
+			'w3tc_capability_extensions_activate_' . $extension,
+			'manage_options'
+		);
+		if ( ! \current_user_can( 'manage_options' ) || empty( $capability ) || ! \current_user_can( $capability ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
 		if ( ! is_null( $ext ) && Extensions_Util::activate_extension( $extension, $config ) ) {
 			Util_Admin::redirect_with_custom_messages2(
 				array(

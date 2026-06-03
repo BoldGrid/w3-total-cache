@@ -345,8 +345,10 @@ class Licensing_Plugin_Admin {
 			// Store messages for processing.
 			update_option( 'license_update_messages', $messages );
 
-			// Only force license check if we didn't just activate a license.
-			// If we activated, we already have the status from the activation result.
+			/**
+			 * Only force license check if we didn't just activate a license.
+			 * If we activated, we already have the status from the activation result.
+			 */
 			if ( $new_key_set && ( ! isset( $activate_result ) || ! $activate_result ) ) {
 				// Force immediate license check to get latest status including billing requirements.
 				$this->maybe_update_license_status();
@@ -363,6 +365,17 @@ class Licensing_Plugin_Admin {
 	 */
 	public function admin_init() {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
+
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose license admin notices to non-admins
+		 *.
+		 *
+		 * @since X.X.X
+		 */
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		$this->maybe_update_license_status();
 
@@ -487,8 +500,10 @@ class Licensing_Plugin_Admin {
 		$paypal_billing_update_required = $state->get_boolean( 'license.paypal_billing_update_required' );
 		$is_dismissed                   = $this->is_notice_dismissed( 'paypal-billing-update-required' );
 
-		// Check for PayPal billing update requirement (shows on all admin pages).
-		// Only show if there's a license key and the status is not 'no_key'.
+		/**
+		 * Check for PayPal billing update requirement (shows on all admin pages).
+		 * Only show if there's a license key and the status is not 'no_key'.
+		 */
 		if ( $paypal_billing_update_required && ! $is_dismissed && ! empty( $license_key ) && 'no_key' !== $license_status ) {
 			$billing_url = $this->get_billing_url( $license_key );
 			if ( $billing_url ) {
@@ -572,8 +587,13 @@ class Licensing_Plugin_Admin {
 			true // Load in footer.
 		);
 
-		// Add the inline script.
-		$nonce           = wp_create_nonce( 'w3tc' );
+		/**
+		 * Add the inline script. Per-action nonces so that a
+		 * nonce minted for the dismiss endpoint cannot be replayed against
+		 * the recheck endpoint or any other w3tc handler.
+		 */
+		$dismiss_nonce   = wp_create_nonce( 'w3tc_dismiss_license_notice' );
+		$recheck_nonce   = wp_create_nonce( 'w3tc_recheck_license' );
 		$rechecking_text = __( 'Rechecking...', 'w3-total-cache' );
 		$script          = "
 			jQuery(function($) {
@@ -589,7 +609,7 @@ class Licensing_Plugin_Admin {
 						$.post(ajaxurl, {
 							action: 'w3tc_dismiss_license_notice',
 							notice_id: cleanId,
-							_wpnonce: '" . esc_js( $nonce ) . "'
+							_wpnonce: '" . esc_js( $dismiss_nonce ) . "'
 						});
 					}
 				});
@@ -602,7 +622,7 @@ class Licensing_Plugin_Admin {
 
 					$.post(ajaxurl, {
 						action: 'w3tc_recheck_license',
-						_wpnonce: '" . esc_js( $nonce ) . "'
+						_wpnonce: '" . esc_js( $recheck_nonce ) . "'
 					}).always(function() {
 						location.reload();
 					});
@@ -792,8 +812,32 @@ class Licensing_Plugin_Admin {
 			'license_key' => $license_key,
 		);
 
+		/**
+		 * Mirrors the allowlist in {@see Licensing_Core::_license_api_base_url()}.
+		 * Inlined rather than exposed because this is the only off-class
+		 * caller and the helper is intentionally private.
+		 */
+		$base    = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		$scheme  = \wp_parse_url( $base, PHP_URL_SCHEME );
+		$host    = \wp_parse_url( $base, PHP_URL_HOST );
+		$host_lc = \is_string( $host ) ? \strtolower( $host ) : '';
+		$suffix  = '.w3-edge.com';
+		$slen    = \strlen( $suffix );
+		$hlen    = \strlen( $host_lc );
+		$allowed = (
+			'https' === $scheme
+			&& '' !== $host_lc
+			&& (
+				'w3-edge.com' === $host_lc
+				|| ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix )
+			)
+		);
+		if ( ! $allowed ) {
+			return '';
+		}
+
 		$response = wp_remote_get(
-			add_query_arg( $api_params, W3TC_LICENSE_API_URL ),
+			add_query_arg( $api_params, $base ),
 			array(
 				'timeout'   => 15,
 				'sslverify' => true,
@@ -1029,7 +1073,12 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function ajax_dismiss_license_notice() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		/**
+		 * Per-action nonce. Legacy 'w3tc' accepted as back-compat
+		 * fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		 * the authoritative authorisation gate.
+		 */
+		Util_Nonce::verify_ajax( 'w3tc_dismiss_license_notice' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
@@ -1065,7 +1114,12 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function ajax_recheck_license() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		/**
+		 * Per-action nonce. Legacy 'w3tc' accepted as back-compat
+		 * fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		 * the authoritative authorisation gate.
+		 */
+		Util_Nonce::verify_ajax( 'w3tc_recheck_license' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );

@@ -45,6 +45,111 @@ class Util_Rule {
 	}
 
 	/**
+	 * Strips characters that would terminate or escape an Apache /
+	 * Nginx directive line when an admin-supplied config value is
+	 * concatenated into `.htaccess` or `nginx.conf`.
+	 *
+	 * The W3TC `*_Environment.php` writers compose server-config blocks
+	 * by string concatenation:
+	 *
+	 *     $rules .= '    Header set Content-Security-Policy "' . $csp . "\"\n";
+	 *
+	 * If `$csp` contains a literal newline, the generated block looks
+	 * like
+	 *
+	 *     Header set Content-Security-Policy "default-src 'self';
+	 *     SetHandler application/x-httpd-php"
+	 *
+	 * — the newline ends the `Header set` directive and the next line
+	 * is parsed by Apache as a fresh directive whose body is supplied
+	 * by the config value.
+	 *
+	 * The strip set:
+	 *
+	 *  - `\r\n`     — terminates the current directive in both Apache
+	 *                 and Nginx.
+	 *  - `\x00`     — NUL byte; truncates the rest of the string in
+	 *                 some downstream consumers and confuses log
+	 *                 readers.
+	 *  - `<` `>`    — Apache uses `<Directive>...</Directive>` for
+	 *                 sectional containers; an unexpected `<Files>` /
+	 *                 `<Location>` block could change the file-handler
+	 *                 for a glob supplied via the config value.
+	 *  - `"`        — every emitter wraps the value in a double-quoted
+	 *                 directive argument (Apache `Header set X "$v"`,
+	 *                 Nginx `add_header X "$v";`). A literal `"` would
+	 *                 close the quoted string and let subsequent bytes
+	 *                 become a fresh directive token.
+	 *
+	 * Note: `;` is preserved deliberately. The only legitimate users
+	 * of the helper are CSP / referrer-policy / HSTS-style values, all
+	 * of which use `;` as an in-directive separator AND only land in
+	 * quoted-string contexts (Apache `Header set`, Nginx `add_header`,
+	 * or regex alternations like `RewriteCond ... !(<v>)`) where `;`
+	 * carries no directive-terminating semantics.
+	 *
+	 * Returns `''` for non-strings so the helper is safe to call on
+	 * an `isset()`-result value without an extra type check at the
+	 * caller.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $value Raw config value about to be written into a
+	 *                     server-config file.
+	 *
+	 * @return string Sanitised value safe to embed inside a quoted
+	 *                directive argument.
+	 */
+	public static function sanitize_directive_value( $value ) {
+		if ( ! \is_string( $value ) ) {
+			return '';
+		}
+
+		return \preg_replace( '/[\r\n\x00<>"]/', '', $value );
+	}
+
+	/**
+	 * Validates an admin-supplied custom server-rules file path
+	 * (`config.path`).
+	 *
+	 * `config.path` is a free-text general-settings field ("Nginx server
+	 * configuration file path") that lets operators point W3TC at the
+	 * nginx / LiteSpeed config file its rule block is written into — which
+	 * legitimately lives outside the document root (e.g.
+	 * `/etc/nginx/conf.d/w3tc.conf`). Because the value is written to disk
+	 * verbatim by the environment writers, an unconstrained value is an
+	 * arbitrary-file-write primitive (drop a `.php` payload into the
+	 * docroot, or an extensionless write to `/etc/cron.d`, `/etc/sudoers`,
+	 * a php-fpm pool include, …).
+	 *
+	 * The rules file is, by definition, a server-config file, so we require
+	 * a `.conf` extension and reject null bytes and `..` traversal. That
+	 * preserves every legitimate use (the built-in defaults `nginx.conf` /
+	 * `litespeed.conf` and any real `*.conf` include path) while blocking
+	 * the documented write-to-RCE targets. Invalid values fall back to the
+	 * safe in-site-root default.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Admin-configured path.
+	 *
+	 * @return bool True when the path is an acceptable rules-file target.
+	 */
+	private static function is_valid_custom_rules_path( $path ) {
+		if ( ! is_string( $path ) || '' === $path || false !== strpos( $path, "\0" ) ) {
+			return false;
+		}
+
+		$normalized = Util_Environment::normalize_path( $path );
+
+		if ( preg_match( '~(?:^|/)\.\.(?:/|$)~', $normalized ) ) {
+			return false;
+		}
+
+		return (bool) preg_match( '~\.conf$~i', $normalized );
+	}
+
+	/**
 	 * Returns nginx rules path
 	 *
 	 * @return string
@@ -54,7 +159,7 @@ class Util_Rule {
 
 		$path = $config->get_string( 'config.path' );
 
-		if ( ! $path ) {
+		if ( ! self::is_valid_custom_rules_path( $path ) ) {
 			$path = Util_Environment::site_path() . 'nginx.conf';
 		}
 
@@ -71,7 +176,7 @@ class Util_Rule {
 
 		$path = $config->get_string( 'config.path' );
 
-		if ( ! $path ) {
+		if ( ! self::is_valid_custom_rules_path( $path ) ) {
 			$path = Util_Environment::site_path() . 'litespeed.conf';
 		}
 

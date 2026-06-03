@@ -181,26 +181,30 @@ class Root_Loader {
 		$c          = Dispatcher::config();
 		$extensions = $c->get_array( 'extensions.active' );
 
-		$frontend = $c->get_array( 'extensions.active_frontend' );
+		/**
+		 * Layer 1 of the file-inclusion playbook: drop raw-config-path
+		 * concatenation in favour of a slug -> known-path allowlist
+		 * resolved by Util_Extension::resolve(). The legacy config shape
+		 * (`slug => relative-path`) is normalized read-side via
+		 * convert_legacy_entries(); entries whose key is not in the
+		 * hard-coded allowlist -- or whose path value doesn't match the
+		 * canonical path for that slug -- are silently dropped, not
+		 * included.
+		 *
+		 * @since X.X.X
+		 */
+		$extensions = Util_Extension::convert_legacy_entries( $extensions );
+
+		$frontend = Util_Extension::convert_legacy_entries( $c->get_array( 'extensions.active_frontend' ) );
 		foreach ( $frontend as $extension => $nothing ) {
 			if ( isset( $extensions[ $extension ] ) ) {
-				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( $path, '/' ) );
-
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+				Util_Extension::include_once( $extension );
 			}
 		}
 
 		if ( is_admin() ) {
-			foreach ( $extensions as $extension => $path ) {
-				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
-
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+			foreach ( $extensions as $extension => $nothing ) {
+				Util_Extension::include_once( $extension );
 			}
 		}
 

@@ -479,10 +479,13 @@ class Extension_ImageService_Plugin_Admin {
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
 
-		// Save submitted settings.
+		/**
+		 * Save submitted settings. Per-action nonce key; legacy
+		 * `'w3tc'` accepted as a back-compat fallback via Util_Nonce.
+		 */
 		$nonce_val                    = Util_Request::get_string( '_wpnonce' );
 		$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
-		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
+		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && Util_Nonce::verify_admin( 'w3tc_imageservice_settings' ) ) {
 			$settings                = $c->get_array( 'imageservice' );
 			$settings['compression'] = $imageservice_compression_val;
 
@@ -705,8 +708,10 @@ class Extension_ImageService_Plugin_Admin {
 				$filepath = get_attached_file( $post_id );
 				$status   = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
 
-				// Check for old format conversion (backward compatibility).
-				// If post_child exists and is valid, treat it as converted regardless of current status.
+				/**
+				 * Check for old format conversion (backward compatibility).
+				 * If post_child exists and is valid, treat it as converted regardless of current status.
+				 */
 				if ( isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) ) {
 					$child_id = $imageservice_data['post_child'];
 					// Verify the child attachment still exists.
@@ -775,8 +780,10 @@ class Extension_ImageService_Plugin_Admin {
 							}
 						);
 
-						// Show all formats that have download info, not just those with post_children.
-						// This includes formats that failed or didn't reduce size.
+						/**
+						 * Show all formats that have download info, not just those with post_children.
+						 * This includes formats that failed or didn't reduce size.
+						 */
 						foreach ( $sorted_downloads as $format_key => $download_data ) {
 							// Skip if download_data is an error string and we don't have a post_child for it.
 							if ( is_string( $download_data ) && ( ! isset( $imageservice_data['post_children'][ $format_key ] ) || ! $imageservice_data['post_children'][ $format_key ] ) ) {
@@ -799,8 +806,10 @@ class Extension_ImageService_Plugin_Admin {
 								continue;
 							}
 							if ( is_array( $download_data ) ) {
-								// Headers are now stored normalized (lowercase keys) from cron.
-								// Handle both new normalized format and old format for backward compatibility.
+								/**
+								 * Headers are now stored normalized (lowercase keys) from cron.
+								 * Handle both new normalized format and old format for backward compatibility.
+								 */
 								$download_headers = $download_data;
 
 								// If old format with special structure, extract it.
@@ -866,8 +875,10 @@ class Extension_ImageService_Plugin_Admin {
 							}
 						}
 					} else {
-						// Handle single format (backward compatibility - old format).
-						// Check if old format conversion exists (post_child).
+						/**
+						 * Handle single format (backward compatibility - old format).
+						 * Check if old format conversion exists (post_child).
+						 */
 						$has_old_conversion = isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] );
 
 						if ( $has_old_conversion ) {
@@ -1565,8 +1576,10 @@ class Extension_ImageService_Plugin_Admin {
 				if ( $webp_enabled ) {
 					$requested_formats[] = 'image/webp';
 				}
-				// Check avif setting - handle both boolean and string values, default to true if not set.
-				// Only allow AVIF for Pro license holders.
+				/**
+				 * Check avif setting - handle both boolean and string values, default to true if not set.
+				 * Only allow AVIF for Pro license holders.
+				 */
 				$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
 				if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
 					$requested_formats[] = 'image/avif';
@@ -1577,8 +1590,10 @@ class Extension_ImageService_Plugin_Admin {
 				}
 			}
 
-			// Store jobs by format for easy lookup.
-			// If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+			/**
+			 * Store jobs by format for easy lookup.
+			 * If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+			 */
 			$jobs_by_format = array();
 			$forced_mime_type = null;
 			if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {
@@ -1789,6 +1804,25 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		/**
+		 * Baseline gate: only users that can upload media can call the
+		 * Image Service conversion endpoint. The shared
+		 * w3tc_imageservice_submit nonce is localized to anyone with
+		 * upload_files (see admin_enqueue_scripts), so without this
+		 * floor any Contributor/Subscriber whose session already holds
+		 * a w3tc nonce could trigger BoldGrid API calls.
+		 *
+		 * @since X.X.X
+		 */
+		if ( ! \current_user_can( 'upload_files' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Insufficient permissions.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
+
 		// Check for post id.
 		$post_id_val = Util_Request::get_integer( 'post_id' );
 		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
@@ -1936,8 +1970,10 @@ class Extension_ImageService_Plugin_Admin {
 			if ( $webp_enabled ) {
 				$requested_formats[] = 'image/webp';
 			}
-			// Check avif setting - handle both boolean and string values, default to true if not set.
-			// Only allow AVIF for Pro license holders.
+			/**
+			 * Check avif setting - handle both boolean and string values, default to true if not set.
+			 * Only allow AVIF for Pro license holders.
+			 */
 			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
 			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
 				$requested_formats[] = 'image/avif';
@@ -1948,8 +1984,10 @@ class Extension_ImageService_Plugin_Admin {
 			}
 		}
 
-		// Store jobs by format for easy lookup.
-		// If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+		/**
+		 * Store jobs by format for easy lookup.
+		 * If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+		 */
 		$jobs_by_format = array();
 		$forced_mime_type = null;
 		if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {

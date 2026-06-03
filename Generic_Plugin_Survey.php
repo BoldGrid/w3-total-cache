@@ -93,12 +93,12 @@ class Generic_Plugin_Survey {
 	 */
 	public function w3tc_ajax_exit_survey_render() {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			\wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 		}
 
-		// Verify nonce.
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		// Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
+		if ( ! Util_Nonce::verify_admin( 'w3tc_exit_survey_render' ) ) {
+			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 
 		include W3TC_INC_DIR . '/lightbox/exit_survey.php';
@@ -113,12 +113,15 @@ class Generic_Plugin_Survey {
 	 */
 	public function w3tc_ajax_exit_survey_submit() {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			\wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 		}
 
-		// Verify nonce.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		/**
+		 * Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
+		 * phpcs:ignore WordPress.Security.NonceVerification.Missing -- Util_Nonce::verify_admin() IS the nonce verifier.
+		 */
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_submit' ) ) {
+			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 
 		// Collect survey data.
@@ -191,12 +194,15 @@ class Generic_Plugin_Survey {
 	 */
 	public function w3tc_ajax_exit_survey_skip() {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			\wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 		}
 
-		// Verify nonce.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		/**
+		 * Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
+		 * phpcs:ignore WordPress.Security.NonceVerification.Missing -- Util_Nonce::verify_admin() IS the nonce verifier.
+		 */
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_skip' ) ) {
+			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 
 		// Collect remove data flag.

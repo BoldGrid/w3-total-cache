@@ -38,6 +38,42 @@ class Minify_MinifiedFileRequestHandler {
 	private $_error_occurred = false;
 
 	/**
+	 * Per-token site-transient key prefix used to gate the unauthenticated
+	 * `rewrite_test.css` and `XXX.css` probes.
+	 *
+	 * Each issued probe token becomes its own transient (`<prefix><token>`)
+	 * so concurrent rewrite tests — multiple admins, or one admin running
+	 * back-to-back tests — cannot clobber each other's tokens. Only
+	 * requests presenting a matching token via `X-W3TC-Minify-Probe` may
+	 * trigger the probe responses.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_PREFIX = 'w3tc_minify_probe_';
+
+	/**
+	 * Lifetime (seconds) of an issued probe token. Probes are server-to-self
+	 * within a single admin request, so a short window suffices.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const PROBE_TOKEN_TTL = 60;
+
+	/**
+	 * HTTP header carrying the probe token from the issuing admin request to
+	 * the (unauthenticated) `init`-hook minify handler.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_HEADER = 'X-W3TC-Minify-Probe';
+
+	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
 	 *
 	 * Initializes the configuration object.
@@ -46,6 +82,101 @@ class Minify_MinifiedFileRequestHandler {
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
+	}
+
+	/**
+	 * Issues a short-lived single-use token authorising the legitimate
+	 * minify rewrite/cache-length probes.
+	 *
+	 * The token is stored as a site transient with a small TTL and is read
+	 * back (and consumed) in {@see consume_probe_token()} when the probe
+	 * request lands. This closes that path: anonymous callers can no longer
+	 * trigger the `rewrite_test.css` / `XXX.css` side channels, while the
+	 * plugin's own admin-side rewrite verification continues to work.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string A 32-character hex token.
+	 */
+	public static function issue_probe_token() {
+		// 16 random bytes -> 32 hex chars; cryptographically strong.
+		try {
+			$token = bin2hex( random_bytes( 16 ) );
+		} catch ( \Exception $e ) {
+			/**
+			 * `random_bytes` only throws if the OS RNG is unavailable. Fall
+			 * back to `wp_generate_password` — but normalise the output so
+			 * it still matches the strict `/^[a-f0-9]{32}$/` consume regex.
+			 * Without `bin2hex`-shaped output the consume side would
+			 * silently reject every probe on hosts without OS RNG.
+			 */
+			$raw   = \wp_generate_password( 16, false, false );
+			$token = strtolower( bin2hex( substr( $raw, 0, 16 ) ) );
+		}
+
+		/**
+		 * Key the transient by token value so each issued token gets its own
+		 * storage slot. Concurrent probes therefore do not overwrite each
+		 * other; each token can be independently consumed.
+		 */
+		\set_site_transient( self::PROBE_TOKEN_PREFIX . $token, '1', self::PROBE_TOKEN_TTL );
+
+		return $token;
+	}
+
+	/**
+	 * Validates the inbound probe token and consumes it on success so it
+	 * cannot be replayed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool True if the request presents a matching probe token.
+	 */
+	private function consume_probe_token() {
+		$header_key = 'HTTP_' . strtoupper( str_replace( '-', '_', self::PROBE_TOKEN_HEADER ) );
+		if ( empty( $_SERVER[ $header_key ] ) ) {
+			return false;
+		}
+
+		$presented = trim( (string) \wp_unslash( $_SERVER[ $header_key ] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- value normalized by strict /^[a-f0-9]{32}$/ regex on the next non-comment line.
+		// Defensive: strict format match for a 32-char hex token.
+		if ( ! preg_match( '/^[a-f0-9]{32}$/', $presented ) ) {
+			return false;
+		}
+
+		/**
+		 * Token IS the transient key. Lookup is the validation: a missing
+		 * transient (false) means the token is invalid, expired, or already
+		 * consumed. The 32-char hex format check above bounds the lookup
+		 * keyspace; the unguessable random token bounds the probability that
+		 * a guess collides with a live issued token.
+		 */
+		$key   = self::PROBE_TOKEN_PREFIX . $presented;
+		$valid = \get_site_transient( $key );
+		if ( false === $valid ) {
+			return false;
+		}
+
+		// One-shot: clear so this token cannot be replayed.
+		\delete_site_transient( $key );
+
+		return true;
+	}
+
+	/**
+	 * Sends a 404-style response and exits. Used to suppress the
+	 * unauthenticated probe side-channels.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function reject_probe() {
+		if ( ! headers_sent() ) {
+			\status_header( 404 );
+			\nocache_headers();
+		}
+		exit();
 	}
 
 	/**
@@ -62,12 +193,27 @@ class Minify_MinifiedFileRequestHandler {
 		// Check for rewrite test request.
 		$rewrite_marker = 'rewrite_test.css';
 		if ( substr( $file, strlen( $file ) - strlen( $rewrite_marker ) ) === $rewrite_marker ) {
+			/**
+			 * gate the probe behind a single-use token so anonymous
+			 * callers cannot use it to fingerprint the handler.
+			 */
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			echo 'Minify OK';
 			exit();
 		}
 
 		$filelength_test_marker = 'XXX.css';
 		if ( substr( $file, strlen( $file ) - strlen( $filelength_test_marker ) ) === $filelength_test_marker ) {
+			/**
+			 * this probe writes request-supplied content to the
+			 * minify cache directory. Require an issued probe token so only
+			 * the plugin's own admin-side environment check can drive it.
+			 */
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			$cache = $this->_get_cache();
 			header( 'Content-type: text/css' );
 
@@ -192,8 +338,22 @@ class Minify_MinifiedFileRequestHandler {
 			$_GET['f_array'] = $this->minify_filename_to_filenames_for_minification( $hash, $type );
 			$_GET['ext']     = $type;
 		} else {
-			$_GET['g']                         = $location;
-			$serve_options['minApp']['groups'] = $this->get_groups( $theme, $template, $type );
+			/**
+			 * Manual mode (empty hash): the file list is derived server-side
+			 * from the configured minify groups and served through the `g`
+			 * group path. `f_array` is an auto-mode-only transport that is
+			 * populated from the hash lookup above; a manual request must never
+			 * carry one. With a manual-format filename the hash is empty, so
+			 * without this an attacker-supplied `f_array[]=wp-config.php` would
+			 * survive untouched into MinApp::setupSources() and be served as an
+			 * arbitrary docroot file read (CVE-2026-9282). Drop any caller-
+			 * supplied `f_array` and force groups-only resolution so the file
+			 * read loop is never reachable in manual mode.
+			 */
+			unset( $_GET['f_array'] );
+			$_GET['g']                             = $location;
+			$serve_options['minApp']['groups']     = $this->get_groups( $theme, $template, $type );
+			$serve_options['minApp']['groupsOnly'] = true;
 		}
 
 		// Set minifier.
@@ -1130,12 +1290,14 @@ class Minify_MinifiedFileRequestHandler {
 		if ( isset( $data['content'] ) ) {
 			$value = @unserialize( $data['content'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-			// `allowed_classes => false` returns `__PHP_Incomplete_Class` for
-			// crafted object payloads. Callers of _cache_get() expect either
-			// `false` (miss) or a legitimate scalar / array; treating an
-			// incomplete-object result as a miss keeps the downstream paths
-			// well-typed and prevents fatal-on-array-access if a future caller
-			// dereferences the value.
+			/**
+			 * `allowed_classes => false` returns `__PHP_Incomplete_Class` for
+			 * any serialised object input. Callers of _cache_get() expect either
+			 * `false` (miss) or a legitimate scalar / array; treating an
+			 * incomplete-object result as a miss keeps the downstream paths
+			 * well-typed and prevents fatal-on-array-access if a future caller
+			 * dereferences the value.
+			 */
 			if ( is_object( $value ) ) {
 				return false;
 			}

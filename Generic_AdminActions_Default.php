@@ -59,11 +59,35 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
+	 * Defence-in-depth capability gate for every public action method
+	 * dispatched through Root_AdminActions. Calls wp_die on failure.
+	 *
+	 * Even though Generic_Plugin_Admin::load() now floors the dispatcher
+	 * at manage_options, this per-handler check guarantees that any
+	 * future caller (custom AJAX route, programmatic invocation) cannot
+	 * bypass the cap gate.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function _require_admin_cap() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+	}
+
+	/**
 	 * Enables preview mode and redirects to the home URL.
 	 *
 	 * @return void
 	 */
 	public function w3tc_default_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( true );
 		Util_Environment::redirect( get_home_url() );
 	}
@@ -74,6 +98,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_stop_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( false );
 		Util_Admin::redirect( array(), true );
 	}
@@ -86,6 +111,7 @@ class Generic_AdminActions_Default {
 	 * @throws \Exception If saving the license key or configuration fails.
 	 */
 	public function w3tc_default_save_license_key() {
+		$this->_require_admin_cap();
 		$license = Util_Request::get_string( 'license_key' );
 		try {
 			$old_config = new Config();
@@ -112,6 +138,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note() {
+		$this->_require_admin_cap();
 		$note    = Util_Request::get_string( 'note' );
 		$setting = sprintf( 'notes.%s', $note );
 
@@ -125,11 +152,22 @@ class Generic_AdminActions_Default {
 	/**
 	 * Updates a specified configuration state value and saves the changes.
 	 *
+	 * The state-key namespace is shared with restricted-write config
+	 * keys (`license.*`, `common.*`, dismissable-notice flags), so
+	 * the writable set is restricted to {@see ConfigKeysSchema::is_known_state_key()}.
+	 * Unknown keys are silently refused without writing.
+	 *
 	 * @return void
 	 */
 	public function w3tc_default_config_state() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$config_state = Dispatcher::config_state_master();
 		$config_state->set( $key, $value );
@@ -143,8 +181,14 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_master() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$config_state = Dispatcher::config_state_master();
 		$config_state->set( $key, $value );
@@ -159,8 +203,14 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_note() {
+		$this->_require_admin_cap();
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$s = Dispatcher::config_state_note();
 		$s->set( $key, $value );
@@ -174,6 +224,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note_custom() {
+		$this->_require_admin_cap();
 		$note = Util_Request::get_string( 'note' );
 		do_action( "w3tc_hide_button_custom-{$note}" );
 		Util_Admin::redirect( array(), true );
@@ -185,6 +236,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_purgelog_clear() {
+		$this->_require_admin_cap();
 		$module       = Util_Request::get_label( 'module' );
 		$log_filename = Util_Debug::log_filename( $module . '-purge' );
 
@@ -208,10 +260,13 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_remove_add_in() {
+		$this->_require_admin_cap();
 		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
-		// in the case of missing permissions to delete
-		// environment will use that to try to override addin via ftp.
+		/**
+		 * in the case of missing permissions to delete
+		 * environment will use that to try to override addin via ftp.
+		 */
 		set_transient( 'w3tc_remove_add_in_' . $module, 'yes', 600 );
 
 		switch ( $module ) {
@@ -221,8 +276,38 @@ class Generic_AdminActions_Default {
 				$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
 				try {
 					Util_WpFile::copy_file( $src, $dst );
-				} catch ( Util_WpFile_FilesystemOperationException $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// missing exception handle?
+				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+					/**
+					 * previously an empty catch silently
+					 * dropped a copy failure here, then fell through
+					 * to the success redirect. The drop-in was left
+					 * missing while the admin saw "add-in removed"
+					 * (false audit trail). Surface the failure to
+					 * both the audit hook and the admin notice so
+					 * operators learn the drop-in needs manual
+					 * restoration.
+					 */
+					Util_Debug::audit_log(
+						'addin_install_failed',
+						array(
+							'module'  => 'pgcache',
+							'source'  => $src,
+							'dest'    => $dst,
+							'message' => $ex->getMessage(),
+						)
+					);
+					Util_Debug::log( 'admin', 'advanced-cache.php restore failed: ' . $ex->getMessage() );
+					Util_Admin::redirect_with_custom_messages(
+						array(),
+						array(
+							sprintf(
+								// translators: %s = filesystem operation error message.
+								__( 'Could not restore advanced-cache.php: %s. The page-cache drop-in needs manual restoration.', 'w3-total-cache' ),
+								$ex->getMessage()
+							),
+						)
+					);
+					return;
 				}
 				break;
 			case 'dbcache':
@@ -246,6 +331,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_save_options() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 		Util_Admin::redirect_with_custom_messages2( $redirect_data );
 	}
@@ -256,6 +342,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_save_and_flush() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 
 		$f = Dispatcher::component( 'CacheFlush' );
@@ -292,8 +379,14 @@ class Generic_AdminActions_Default {
 			$data['response_query_string']['action']    = Util_Request::get_string( 'action' );
 		}
 
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot lower the gate below admin.
+		 *
+		 * @since X.X.X
+		 */
 		$capability = apply_filters( 'w3tc_capability_config_save', 'manage_options' );
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! \current_user_can( 'manage_options' ) || empty( $capability ) || ! \current_user_can( $capability ) ) {
 			wp_die( esc_html__( 'You do not have the rights to perform this action.', 'w3-total-cache' ) );
 		}
 
@@ -467,14 +560,6 @@ class Generic_AdminActions_Default {
 			}
 
 			switch ( $this->_config->get_string( 'cdn.engine' ) ) {
-				case 'akamai':
-					$config->set( 'cdn.akamai.domain', $cdn_domains );
-					break;
-
-				case 'att':
-					$config->set( 'cdn.att.domain', $cdn_domains );
-					break;
-
 				case 'azure':
 					$config->set( 'cdn.azure.cname', $cdn_domains );
 					break;
@@ -489,14 +574,6 @@ class Generic_AdminActions_Default {
 
 				case 'cf2':
 					$config->set( 'cdn.cf2.cname', $cdn_domains );
-					break;
-
-				case 'cotendo':
-					$config->set( 'cdn.cotendo.domain', $cdn_domains );
-					break;
-
-				case 'edgecast':
-					$config->set( 'cdn.edgecast.domain', $cdn_domains );
 					break;
 
 				case 'ftp':
@@ -742,14 +819,24 @@ class Generic_AdminActions_Default {
 	/**
 	 * Reads configuration settings from a request and updates the configuration object.
 	 *
+	 * The schema in `ConfigKeys.php` (queried via {@see ConfigKeysSchema})
+	 * is treated as an allowlist:
+	 *
+	 *  - Request keys that do not map to a known schema entry are dropped
+	 *    silently. Previously every request key was written into config
+	 *    regardless of whether ConfigKeys.php declared it.
+	 *  - Compound keys (`extension__<id>__<sub>`) — written through the
+	 *    `w3tc_config_key_descriptor` filter by extensions — are still
+	 *    accepted; their gate is the extension's own filter.
+	 *  - Values are type-coerced from the schema before write, so a
+	 *    boolean-typed key always becomes `true`/`false`.
+	 *
 	 * @param object $config Configuration object to update.
 	 *
 	 * @return void
 	 */
 	public function read_request( $config ) {
 		$request = Util_Request::get_request();
-
-		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.
 
 		foreach ( $request as $request_key => $request_value ) {
 			/**
@@ -781,11 +868,7 @@ class Generic_AdminActions_Default {
 			}
 
 			$key        = Util_Ui::config_key_from_http_name( $request_key );
-			$descriptor = null;
-
-			if ( ! is_array( $key ) && array_key_exists( $key, $keys ) ) {
-				$descriptor = $keys[ $key ];
-			}
+			$descriptor = ConfigKeysSchema::descriptor( $key );
 
 			/**
 			 * This filter is needed for compound keys to set the appropirate data type to save as.
@@ -798,6 +881,52 @@ class Generic_AdminActions_Default {
 			 * @param array $key        Key to match on.
 			*/
 			$descriptor = apply_filters( 'w3tc_config_key_descriptor', $descriptor, $key );
+
+			/**
+			 * Strict allowlist gate: a key reaches `$config->set()` only if
+			 * either (a) it's a compound extension key (the extension owns its
+			 * own gate via the filter above), or (b) the schema knows it or
+			 * the filter supplied a descriptor for it.
+			 */
+			if ( ! is_array( $key ) && null === $descriptor && ! ConfigKeysSchema::is_known( $key ) ) {
+				continue;
+			}
+
+			/**
+			 * rt9-210: Page-boundary discipline for high-impact CDN
+			 * credential namespaces.
+			 *
+			 * The strict-allowlist gate above stops *unknown* keys from
+			 * landing in config, but every per-engine CDN credential key
+			 * (S3, CloudFront, Azure, FTP, RackSpace, Google Drive, etc.)
+			 * IS in the schema — so a known-key allowlist alone lets an
+			 * admin viewing any W3TC submenu (General, Page Cache, Object
+			 * Cache, …) POST `cdn__s3__secret=foo` along with their save
+			 * and silently overwrite the configured CDN credentials. The
+			 * proof for this finding lit up 8/8 CDN engines from the
+			 * General page POST.
+			 *
+			 * The fix is a namespace → page-slug map. When the key falls
+			 * into one of the per-engine CDN credential namespaces, the
+			 * write is only accepted if `$this->_page` matches the
+			 * legitimate page where that engine's form lives. The CDN
+			 * Settings UI lives at `w3tc_cdn`; the full-site-delivery
+			 * variant at `w3tc_cdnfsd`. Top-level keys like `cdn.enabled`
+			 * / `cdn.engine` (toggled from General) are not prefixed by
+			 * an engine slug and stay writable as before — only the
+			 * `cdn.<engine>.*` / `cdnfsd.<engine>.*` subtree is gated.
+			 *
+			 * The check sits AFTER the allowlist (so an attacker can't
+			 * smuggle an unknown key past it) and BEFORE the secret /
+			 * type-coercion paths (so a cross-page write is dropped
+			 * before any sensitive transformation runs).
+			 */
+			if ( is_string( $key ) ) {
+				$expected_page = self::_credential_namespace_page( $key );
+				if ( null !== $expected_page && $expected_page !== $this->_page ) {
+					continue;
+				}
+			}
 
 			if ( isset( $descriptor['type'] ) ) {
 				if ( 'array' === $descriptor['type'] ) {
@@ -828,7 +957,7 @@ class Generic_AdminActions_Default {
 				 * `Util_Ui::secret_input()` for the rendering side.
 				 * Checked BEFORE the empty-POST-preserves-secret rule
 				 * below so admins can drop a credential (e.g. revoke a
-				 * Pro license, rotate out a leaked S3 key) without
+				 * Pro license, replace an S3 key after rotation) without
 				 * needing to type a placeholder value first.
 				 *
 				 * The downstream `Config::save()` then fires the usual
@@ -857,5 +986,61 @@ class Generic_AdminActions_Default {
 
 			$config->set( $key, $request_value );
 		}
+	}
+
+	/**
+	 * Map a CDN-engine credential namespace to the admin page slug
+	 * that legitimately renders the form for those keys. Returns
+	 * `null` for keys outside the gated namespaces — the caller treats
+	 * `null` as "no page-boundary requirement, write normally".
+	 *
+	 * Each entry is an exact-prefix match against the dotted config
+	 * key. `cdn.s3.*` keys (S3 Access Key, Secret, Bucket, CNAME, …)
+	 * map to `w3tc_cdn`; `cdnfsd.cloudfront.*` keys (full-site
+	 * delivery CloudFront access/secret) map to `w3tc_cdnfsd`. New
+	 * engines added to the schema MUST be added here too — the rule
+	 * is positive-list, not derived from the schema, so a future
+	 * engine without an entry would default to the previous unsafe
+	 * "any logged-in admin on any W3TC page can write the
+	 * credentials" behaviour. A short test of `w3tc_cdn_test` /
+	 * `w3tc_cdn_credentials_required` confirms missing engines.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $key Dotted config key.
+	 *
+	 * @return string|null Expected admin page slug, or null if no
+	 *                    page-boundary constraint applies.
+	 */
+	private static function _credential_namespace_page( $key ) {
+		static $map = null;
+		if ( null === $map ) {
+			$map = array(
+				// Standard CDN engines (Settings → CDN).
+				'cdn.ftp.'               => 'w3tc_cdn',
+				'cdn.google_drive.'      => 'w3tc_cdn',
+				'cdn.s3.'                => 'w3tc_cdn',
+				'cdn.s3_compatible.'     => 'w3tc_cdn',
+				'cdn.cf.'                => 'w3tc_cdn',
+				'cdn.cf2.'               => 'w3tc_cdn',
+				'cdn.rscf.'              => 'w3tc_cdn',
+				'cdn.rackspace_cdn.'     => 'w3tc_cdn',
+				'cdn.azure.'             => 'w3tc_cdn',
+				'cdn.azuremi.'           => 'w3tc_cdn',
+				'cdn.bunnycdn.'          => 'w3tc_cdn',
+				'cdn.transparentcdn.'    => 'w3tc_cdn',
+
+				// Full-site-delivery CDN engines (Settings → CDN FSD).
+				'cdnfsd.cloudfront.'     => 'w3tc_cdnfsd',
+				'cdnfsd.bunnycdn.'       => 'w3tc_cdnfsd',
+				'cdnfsd.transparentcdn.' => 'w3tc_cdnfsd',
+			);
+		}
+		foreach ( $map as $prefix => $page ) {
+			if ( 0 === \strpos( $key, $prefix ) ) {
+				return $page;
+			}
+		}
+		return null;
 	}
 }

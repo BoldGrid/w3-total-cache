@@ -190,6 +190,20 @@ class BrowserCache_Environment_Nginx {
 	private function security_rules() {
 		$rules = array();
 
+		/**
+		 * Local shorthand: render-time strip set for every admin-set
+		 * security-header string before it lands inside a quoted
+		 * `add_header` value. Matches the Apache renderer in
+		 * `BrowserCache_Environment::security_rules()` so an admin-set
+		 * value carrying a CR/LF / NUL / `<` / `>` / `"` cannot start
+		 * a fresh directive on the next line, regardless of the server
+		 * flavour being emitted.
+		 */
+		$c = $this->c;
+		$g = function ( $key ) use ( $c ) {
+			return Util_Rule::sanitize_directive_value( $c->get_string( $key ) );
+		};
+
 		if ( $this->c->get_boolean( 'browsercache.hsts' ) ||
 			$this->c->get_boolean( 'browsercache.security.xfo' ) ||
 			$this->c->get_boolean( 'browsercache.security.xss' ) ||
@@ -203,21 +217,21 @@ class BrowserCache_Environment_Nginx {
 			$lifetime = $this->c->get_integer( 'browsercache.other.lifetime' );
 
 			if ( $this->c->get_boolean( 'browsercache.hsts' ) ) {
-				$dir     = $this->c->get_string( 'browsercache.security.hsts.directive' );
+				$dir     = $g( 'browsercache.security.hsts.directive' );
 				$rules[] = "add_header Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir, "inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\";";
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.xfo' ) ) {
-				$dir = $this->c->get_string( 'browsercache.security.xfo.directive' );
-				$url = trim( $this->c->get_string( 'browsercache.security.xfo.allow' ) );
+				$dir = $g( 'browsercache.security.xfo.directive' );
+				$url = trim( $g( 'browsercache.security.xfo.allow' ) );
 				if ( empty( $url ) ) {
-					$url = Util_Environment::home_url_maybe_https();
+					$url = Util_Rule::sanitize_directive_value( Util_Environment::home_url_maybe_https() );
 				}
 				$rules[] = "add_header X-Frame-Options \"" . ( 'same' === $dir ? "SAMEORIGIN" : ( 'deny' === $dir ? "DENY" : "ALLOW-FROM $url" ) ) . "\";";
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.xss' ) ) {
-				$dir     = $this->c->get_string( 'browsercache.security.xss.directive' );
+				$dir     = $g( 'browsercache.security.xss.directive' );
 				$rules[] = "add_header X-XSS-Protection \"" . ( 'block' === $dir ? "1; mode=block" : $dir ) . "\";";
 			}
 
@@ -226,41 +240,41 @@ class BrowserCache_Environment_Nginx {
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.pkp' ) ) {
-				$pin      = trim( $this->c->get_string( 'browsercache.security.pkp.pin' ) );
-				$pinbak   = trim( $this->c->get_string( 'browsercache.security.pkp.pin.backup' ) );
-				$extra    = $this->c->get_string( 'browsercache.security.pkp.extra' );
-				$url      = trim( $this->c->get_string( 'browsercache.security.pkp.report.url' ) );
-				$rep_only = '1' === $this->c->get_string( 'browsercache.security.pkp.report.only' ) ? true : false;
+				$pin      = trim( $g( 'browsercache.security.pkp.pin' ) );
+				$pinbak   = trim( $g( 'browsercache.security.pkp.pin.backup' ) );
+				$extra    = $g( 'browsercache.security.pkp.extra' );
+				$url      = trim( $g( 'browsercache.security.pkp.report.url' ) );
+				$rep_only = '1' === $g( 'browsercache.security.pkp.report.only' ) ? true : false;
 				$rules[]  = "add_header " . ( $rep_only ? "Public-Key-Pins-Report-Only" : "Public-Key-Pins" ) . " 'pin-sha256=\"$pin\"; pin-sha256=\"$pinbak\"; max-age=$lifetime" . ( strpos( $extra, "inc" ) ? "; includeSubDomains" : "" ) . ( ! empty( $url ) ? "; report-uri=\"$url\"" : "" ) . "';";
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.referrer.policy' ) ) {
-				$dir     = $this->c->get_string( 'browsercache.security.referrer.policy.directive' );
+				$dir     = $g( 'browsercache.security.referrer.policy.directive' );
 				$rules[] = "add_header Referrer-Policy \"" . ( '0' === $dir ? "" : $dir ) . "\";";
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.csp' ) ) {
-				$base            = trim( $this->c->get_string( 'browsercache.security.csp.base' ) );
-				$frame           = trim( $this->c->get_string( 'browsercache.security.csp.frame' ) );
-				$connect         = trim( $this->c->get_string( 'browsercache.security.csp.connect' ) );
-				$font            = trim( $this->c->get_string( 'browsercache.security.csp.font' ) );
-				$script          = trim( $this->c->get_string( 'browsercache.security.csp.script' ) );
-				$style           = trim( $this->c->get_string( 'browsercache.security.csp.style' ) );
-				$img             = trim( $this->c->get_string( 'browsercache.security.csp.img' ) );
-				$media           = trim( $this->c->get_string( 'browsercache.security.csp.media' ) );
-				$object          = trim( $this->c->get_string( 'browsercache.security.csp.object' ) );
-				$plugin          = trim( $this->c->get_string( 'browsercache.security.csp.plugin' ) );
-				$form            = trim( $this->c->get_string( 'browsercache.security.csp.form' ) );
-				$frame_ancestors = trim( $this->c->get_string( 'browsercache.security.csp.frame.ancestors' ) );
-				$sandbox         = trim( $this->c->get_string( 'browsercache.security.csp.sandbox' ) );
-				$child           = trim( $this->c->get_string( 'browsercache.security.csp.child' ) );
-				$manifest        = trim( $this->c->get_string( 'browsercache.security.csp.manifest' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
-				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
-				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
-				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
-				$default         = trim( $this->c->get_string( 'browsercache.security.csp.default' ) );
+				$base            = trim( $g( 'browsercache.security.csp.base' ) );
+				$frame           = trim( $g( 'browsercache.security.csp.frame' ) );
+				$connect         = trim( $g( 'browsercache.security.csp.connect' ) );
+				$font            = trim( $g( 'browsercache.security.csp.font' ) );
+				$script          = trim( $g( 'browsercache.security.csp.script' ) );
+				$style           = trim( $g( 'browsercache.security.csp.style' ) );
+				$img             = trim( $g( 'browsercache.security.csp.img' ) );
+				$media           = trim( $g( 'browsercache.security.csp.media' ) );
+				$object          = trim( $g( 'browsercache.security.csp.object' ) );
+				$plugin          = trim( $g( 'browsercache.security.csp.plugin' ) );
+				$form            = trim( $g( 'browsercache.security.csp.form' ) );
+				$frame_ancestors = trim( $g( 'browsercache.security.csp.frame.ancestors' ) );
+				$sandbox         = trim( $g( 'browsercache.security.csp.sandbox' ) );
+				$child           = trim( $g( 'browsercache.security.csp.child' ) );
+				$manifest        = trim( $g( 'browsercache.security.csp.manifest' ) );
+				$scriptelem      = trim( $g( 'browsercache.security.csp.scriptelem' ) );
+				$scriptattr      = trim( $g( 'browsercache.security.csp.scriptattr' ) );
+				$styleelem       = trim( $g( 'browsercache.security.csp.styleelem' ) );
+				$styleattr       = trim( $g( 'browsercache.security.csp.styleattr' ) );
+				$worker          = trim( $g( 'browsercache.security.csp.worker' ) );
+				$default         = trim( $g( 'browsercache.security.csp.default' ) );
 
 				$dir = rtrim(
 					( ! empty( $base ) ? "base-uri $base; " : '' ) .
@@ -292,30 +306,30 @@ class BrowserCache_Environment_Nginx {
 				}
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $this->c->get_string( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $this->c->get_string( 'browsercache.security.cspro.reportto' ) ) ) ) {
-				$base            = trim( $this->c->get_string( 'browsercache.security.cspro.base' ) );
-				$reporturi       = trim( $this->c->get_string( 'browsercache.security.cspro.reporturi' ) );
-				$reportto        = trim( $this->c->get_string( 'browsercache.security.cspro.reportto' ) );
-				$frame           = trim( $this->c->get_string( 'browsercache.security.cspro.frame' ) );
-				$connect         = trim( $this->c->get_string( 'browsercache.security.cspro.connect' ) );
-				$font            = trim( $this->c->get_string( 'browsercache.security.cspro.font' ) );
-				$script          = trim( $this->c->get_string( 'browsercache.security.cspro.script' ) );
-				$style           = trim( $this->c->get_string( 'browsercache.security.cspro.style' ) );
-				$img             = trim( $this->c->get_string( 'browsercache.security.cspro.img' ) );
-				$media           = trim( $this->c->get_string( 'browsercache.security.cspro.media' ) );
-				$object          = trim( $this->c->get_string( 'browsercache.security.cspro.object' ) );
-				$plugin          = trim( $this->c->get_string( 'browsercache.security.cspro.plugin' ) );
-				$form            = trim( $this->c->get_string( 'browsercache.security.cspro.form' ) );
-				$frame_ancestors = trim( $this->c->get_string( 'browsercache.security.cspro.frame.ancestors' ) );
-				$sandbox         = trim( $this->c->get_string( 'browsercache.security.cspro.sandbox' ) );
-				$child           = trim( $this->c->get_string( 'browsercache.security.csp.child' ) );
-				$manifest        = trim( $this->c->get_string( 'browsercache.security.csp.manifest' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
-				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
-				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
-				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
-				$default         = trim( $this->c->get_string( 'browsercache.security.cspro.default' ) );
+			if ( $this->c->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $g( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $g( 'browsercache.security.cspro.reportto' ) ) ) ) {
+				$base            = trim( $g( 'browsercache.security.cspro.base' ) );
+				$reporturi       = trim( $g( 'browsercache.security.cspro.reporturi' ) );
+				$reportto        = trim( $g( 'browsercache.security.cspro.reportto' ) );
+				$frame           = trim( $g( 'browsercache.security.cspro.frame' ) );
+				$connect         = trim( $g( 'browsercache.security.cspro.connect' ) );
+				$font            = trim( $g( 'browsercache.security.cspro.font' ) );
+				$script          = trim( $g( 'browsercache.security.cspro.script' ) );
+				$style           = trim( $g( 'browsercache.security.cspro.style' ) );
+				$img             = trim( $g( 'browsercache.security.cspro.img' ) );
+				$media           = trim( $g( 'browsercache.security.cspro.media' ) );
+				$object          = trim( $g( 'browsercache.security.cspro.object' ) );
+				$plugin          = trim( $g( 'browsercache.security.cspro.plugin' ) );
+				$form            = trim( $g( 'browsercache.security.cspro.form' ) );
+				$frame_ancestors = trim( $g( 'browsercache.security.cspro.frame.ancestors' ) );
+				$sandbox         = trim( $g( 'browsercache.security.cspro.sandbox' ) );
+				$child           = trim( $g( 'browsercache.security.csp.child' ) );
+				$manifest        = trim( $g( 'browsercache.security.csp.manifest' ) );
+				$scriptelem      = trim( $g( 'browsercache.security.csp.scriptelem' ) );
+				$scriptattr      = trim( $g( 'browsercache.security.csp.scriptattr' ) );
+				$styleelem       = trim( $g( 'browsercache.security.csp.styleelem' ) );
+				$styleattr       = trim( $g( 'browsercache.security.csp.styleattr' ) );
+				$worker          = trim( $g( 'browsercache.security.csp.worker' ) );
+				$default         = trim( $g( 'browsercache.security.cspro.default' ) );
 
 				$dir = rtrim(
 					( ! empty( $base ) ? "base-uri $base; " : '' ) .
@@ -356,7 +370,17 @@ class BrowserCache_Environment_Nginx {
 				$permission_v = array();
 				foreach ( $fp_values as $key => $value ) {
 					if ( ! empty( $value ) ) {
-						$value = str_replace( array( '"', "'" ), '', $value );
+						/**
+						 * Strip the existing quote pair AND any directive-
+						 * terminating bytes (CR/LF/NUL/<>/") so a config
+						 * value carrying a `\n"` cannot close the
+						 * `add_header X "..."` argument and start a fresh
+						 * Nginx directive on the next line. Matches the
+						 * Apache renderer at
+						 * `BrowserCache_Environment::security_rules()`.
+						 */
+						$key   = Util_Rule::sanitize_directive_value( (string) $key );
+						$value = Util_Rule::sanitize_directive_value( str_replace( array( '"', "'" ), '', $value ) );
 
 						$feature_v[]    = "$key '$value'";
 						$permission_v[] = "$key=($value)";
@@ -408,8 +432,10 @@ class BrowserCache_Environment_Nginx {
 				$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
 			}
 
-			// Add rules for the Image Service extension, if active.
-			// These must be at the same level as the parent location block, not nested.
+			/**
+			 * Add rules for the Image Service extension, if active.
+			 * These must be at the same level as the parent location block, not nested.
+			 */
 			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
 				// Exclude image extensions from the parent location block.
 				$image_extensions = array( 'avif', 'avifs', 'webp', 'jpg', 'jpeg', 'jpe', 'png', 'gif' );

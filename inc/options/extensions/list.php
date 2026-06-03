@@ -27,6 +27,16 @@ if ( ! defined( 'W3TC' ) ) {
 
 	<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
 		<div class="alignleft actions">
+			<?php
+			/**
+			 * Bulk activate/deactivate nonce. Verified
+			 * by Extensions_Plugin_Admin::change_extensions_status() via
+			 * Util_Nonce::verify_admin( 'w3tc_extensions_bulk' ).
+			 *
+			 * @since X.X.X
+			 */
+			wp_nonce_field( 'w3tc_extensions_bulk' );
+			?>
 			<select name="action">
 				<option value="-1" selected="selected"><?php esc_html_e( 'Bulk Actions', 'w3-total-cache' ); ?></option>
 				<option value="activate-selected"><?php esc_html_e( 'Activate', 'w3-total-cache' ); ?></option>
@@ -129,7 +139,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
 								<?php echo $links ? ' | ' : ''; ?>
 								<span class="deactivate">
-									<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=deactivate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Deactivate this extension', 'w3-total-cache' ); ?> ">
+									<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=deactivate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc_extension_deactivate_' . $extension ) ); ?>" title="<?php esc_attr_e( 'Deactivate this extension', 'w3-total-cache' ); ?> ">
 										<?php esc_html_e( 'Deactivate', 'w3-total-cache' ); ?>
 									</a>
 								</span>
@@ -138,7 +148,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<span class="activate">
 								<?php if ( $meta['enabled'] ) : ?>
 									<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
-										<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=activate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Activate this extension', 'w3-total-cache' ); ?> ">
+										<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=activate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc_extension_activate_' . $extension ) ); ?>" title="<?php esc_attr_e( 'Activate this extension', 'w3-total-cache' ); ?> ">
 											<?php esc_html_e( 'Activate', 'w3-total-cache' ); ?>
 										</a>
 									<?php endif ?>

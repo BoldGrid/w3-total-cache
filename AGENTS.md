@@ -6,7 +6,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 ## Coding Standards
 - Follow the coding standards defined in the ./phpcs.xml file.
 - This is a WordPress plugin, so the coding standards must adhere to the WordPress coding standards.
-- This plugin must be compatible with PHP 7.2.5 through 8.3, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
+- This plugin must be compatible with PHP 7.4 through 8.5, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
 - This plugin must be compatible with WordPress 5.3 and up, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
 - Do not use spaces for indentation; use 4-space tabs instead.
 - Use single quotes for strings unless double quotes are necessary (e.g., when using variables inside the string).
@@ -65,8 +65,8 @@ Every GHSA created against this repo, and every PR opened inside a GHSA's tempor
 The operational details (how to PATCH an advisory, how to rename a TPF PR, how to make the rename idempotent when the source title already carries a prefix) are encoded in `.claude/skills/move-pr-to-private-ghsa/SKILL.md` caveat #18 and its Phase 2 / Phase 5 snippets. Read that skill before creating a new GHSA or amending an existing one.
 
 ## Dependency Management
-- Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.2.5–8.3 constraint declared in `composer.json`.
-- When running Composer directly, keep `composer update --with-all-dependencies` targeted at the repo root so the generated lock file honors the configured PHP platform (7.2.5).
+- Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.4–8.5 constraint declared in `composer.json`.
+- When running Composer directly, keep `composer update --with-all-dependencies` targeted at the repo root so the generated lock file honors the configured PHP platform (7.4).
 
 ## Working Files
 - For ad-hoc agent scratch files (PR-comment bodies, JSON payloads for `gh api`, draft patches, intermediate tool output, etc.), write to `.cursor/working/` — it is covered by `.gitignore` (`.cursor/working/`).

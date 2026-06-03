@@ -3,6 +3,10 @@
 /**
  * Other mime types
  */
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 return array(
 	'asf|asx|wax|wmv|wmx'  => 'video/asf',
 	'avi'                  => 'video/avi',

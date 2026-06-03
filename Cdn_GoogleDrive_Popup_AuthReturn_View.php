@@ -16,6 +16,15 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-googledrive-clientid', 'client_id', $client_id );
 	Util_Ui::hidden( 'w3tc-googledrive-access-token', 'access_token', $access_token );
 	Util_Ui::hidden( 'w3tc-googledrive-refresh-token', 'refresh_token', $refresh_token );
+	/**
+	 * rt9-233: Carry the session-bound OAuth state token through the
+	 * auth-set POST so the config-write handler can re-validate.
+	 */
+	Util_Ui::hidden(
+		'w3tc-googledrive-oauth-state',
+		Cdn_GoogleDrive_OAuthState::STATE_PARAM,
+		$oauth_state
+	);
 	echo wp_kses(
 		Util_Ui::nonce_field( 'w3tc' ),
 		array(

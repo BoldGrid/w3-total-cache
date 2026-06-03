@@ -14,11 +14,11 @@ notifications:
 matrix:
   include:
     -
-      php: 7.2
-      dist: bionic
+      php: 7.4
+      dist: focal
       before_install:
-        - nvm install 16
-        - nvm use 16
+        - nvm install 20
+        - nvm use 20
       before_deploy:
         # Fix Ruby Gems for GitHub Releases deployment.
         - yes | gem update --system --force
@@ -27,12 +27,28 @@ matrix:
         - gem install uri
         - gem install logger
 
+    # Travis's phpenv does not currently provide a PHP 8.5 build (jammy tops out
+    # at 8.4 as of 2026), so we bypass Travis's PHP language setup with
+    # `language: ruby` and install PHP 8.5 from the ondrej/php PPA. Side-effect:
+    # TRAVIS_PHP_VERSION is unset for this job, which is exactly what we want --
+    # the codecov / release-deploy gates below key off "7.4" and naturally skip
+    # this job.
     -
-      php: 8.3
+      name: "PHP: 8.5"
+      language: ruby
       dist: jammy
       before_install:
         - nvm install 20
         - nvm use 20
+        - sudo add-apt-repository -y ppa:ondrej/php
+        - sudo apt-get update -q
+        - sudo apt-get install -y php8.5-cli php8.5-common php8.5-mbstring php8.5-xml php8.5-mysql php8.5-curl php8.5-zip
+        - sudo update-alternatives --set php /usr/bin/php8.5
+        - php -v
+        # `language: ruby` skips Travis's phpenv composer shim; install composer ourselves.
+        - curl -sS https://getcomposer.org/installer | php
+        - sudo mv composer.phar /usr/local/bin/composer
+        - composer --version
 
 install:
   - composer self-update
@@ -41,7 +57,7 @@ install:
 
 script:
   # PHPUnit: Run unit tests.
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
   # PHPCS
   #- phpcs --standard=phpcs.xml .
   # JavaScript lint.
@@ -52,8 +68,8 @@ script:
   - find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
 after_success:
-  # Codecov: Create a code coverage report for PHP 7.2.
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
+  # Codecov: Create a code coverage report for PHP 7.4.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
 
 deploy:
   - provider: script
@@ -61,11 +77,11 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      php: 7.2
+      php: 7.4
   - provider: releases
     api_key: "${GITHUB_TOKEN}"
     file: "w3-total-cache.zip"
     skip_cleanup: true
     on:
       tags: true
-      php: 7.2
+      php: 7.4

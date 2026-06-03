@@ -86,7 +86,7 @@ class Minify_HTML {
 			$this->_jsMinifier = $options['jsMinifier'];
 		}
 
-		$this->_stripCrlf = (isset($options['stripCrlf']) ? (boolean) $options['stripCrlf'] : false) ;
+		$this->_stripCrlf = (isset($options['stripCrlf']) ? (bool) $options['stripCrlf'] : false) ;
 		$this->_ignoredComments = (isset($options['ignoredComments']) ? (array) $options['ignoredComments'] : array());
 	}
 
@@ -140,8 +140,10 @@ class Minify_HTML {
 			,array($this, '_removeTextareaCB')
 			,$this->_html);
 
-		// trim each line.
-		// @todo take into account attribute values that span multiple lines.
+		/**
+		 * trim each line.
+		 * @todo take into account attribute values that span multiple lines.
+		 */
 		$this->_html = preg_replace('/^\\s+|\\s+$/m', '', $this->_html);
 
 		// remove ws around block/undisplayed elements
@@ -197,8 +199,10 @@ class Minify_HTML {
 			,$this->_html
 		);
 
-		// in HTML5, type attribute is unnecessary for JavaScript resources
-		// in HTML5, type attribute for style element is not needed and should be omitted
+		/**
+		 * in HTML5, type attribute is unnecessary for JavaScript resources
+		 * in HTML5, type attribute for style element is not needed and should be omitted
+		 */
 		if (false !== stripos($this->_html, '<!doctype html>')) {
 			$this->_html = preg_replace(
 				'/<(script|style)([^>]*)\\stype=[\'"]?(text\\/javascript|text\\/css|application\\/javascript)[\'"]?([^>]*)>/i'
@@ -373,13 +377,17 @@ class Minify_HTML {
 			return $m[1] . $m[4];
 		}
 
-		// 1. <a href=bla/>hi</a> is sometimes (XHTML? HTML5 specs doesnt allow that)
-		// parsed as <a href=bla></a>hi</a> by browsers
-		// avoid that by turning it to <a href=bla/ >hi</a>
+		/**
+		 * 1. <a href=bla/>hi</a> is sometimes (XHTML? HTML5 specs doesnt allow that)
+		 * parsed as <a href=bla></a>hi</a> by browsers
+		 * avoid that by turning it to <a href=bla/ >hi</a>
+		 */
 
-		// 2. auto-closing tags without space at the end e.g. <div data-value="aa"/>
-		// should have space after value <div data-value=aa />
-		// otherwise some browsers assume data-value="aa/"
+		/**
+		 * 2. auto-closing tags without space at the end e.g. <div data-value="aa"/>
+		 * should have space after value <div data-value=aa />
+		 * otherwise some browsers assume data-value="aa/"
+		 */
 		if ( /* 1 */ $m[4] == '/>' ||
 			/* 2 */ ( $m[4] == '>' && substr( $m[3], -1, 1 ) == '/' ) ) {
 			return $m[1] . '=' . $m[3] . ' ' . $m[4];

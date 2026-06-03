@@ -96,7 +96,19 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$theme    = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
 				$enabled  = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
 				$redirect = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$agents   = isset( $group_config['agents'] ) ? Util_Environment::textarea_to_array( $group_config['agents'] ) : array();
+
+				/**
+				 * Strip WP's `magic-quotes`-style slashes on the raw
+				 * $_POST agents textarea BEFORE the value reaches the
+				 * `w3tc_mobile_groups` filter. Plugins hooking that
+				 * filter pass back ordinary regex strings (e.g.
+				 * `google\.com`) — running `wp_unslash` later inside
+				 * `clean_values()` would strip that legitimate
+				 * backslash and change the match semantics.
+				 */
+				$agents = isset( $group_config['agents'] )
+					? Util_Environment::textarea_to_array( wp_unslash( (string) $group_config['agents'] ) )
+					: array();
 
 				$mobile_groups[ $group ] = array(
 					'theme'    => $theme,
@@ -176,10 +188,19 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 			$group = trim( $group, '_' );
 
 			if ( $group ) {
-				$theme     = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
-				$enabled   = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
-				$redirect  = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$referrers = isset( $group_config['referrers'] ) ? Util_Environment::textarea_to_array( $group_config['referrers'] ) : array();
+				$theme    = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
+				$enabled  = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
+				$redirect = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
+
+				/**
+				 * Same pre-filter unslash as the mobile branch above.
+				 * Filter callers (`w3tc_referrer_groups`) pass ordinary
+				 * regex strings; `clean_values()` must NOT unslash them
+				 * again or `google\.com` becomes `google.com`.
+				 */
+				$referrers = isset( $group_config['referrers'] )
+					? Util_Environment::textarea_to_array( wp_unslash( (string) $group_config['referrers'] ) )
+					: array();
 
 				$referrer_groups[ $group ] = array(
 					'theme'     => $theme,
@@ -223,9 +244,8 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		$config->set( 'referrer.rgroups', $referrer_groups );
 
 		// * Cookie groups.
-		$mobile_groups        = array();
-		$cached_mobile_groups = array();
-		$cookie_groups        = Util_Request::get_array( 'cookiegroups' );
+		$cookiegroups  = array();
+		$cookie_groups = Util_Request::get_array( 'cookiegroups' );
 
 		foreach ( $cookie_groups as $group => $group_config ) {
 			$group = strtolower( $group );
@@ -264,14 +284,33 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 	/**
 	 * Clean entries.
 	 *
+	 * Callers are responsible for stripping WP magic-quotes-style
+	 * slashes BEFORE handing values to this helper. That keeps
+	 * legitimate regex backslashes (`google\.com`, `foo\ bar`)
+	 * intact when the value originates from a `w3tc_mobile_groups`
+	 * / `w3tc_referrer_groups` filter callback rather than from a
+	 * raw $_POST textarea. The request-side write paths in
+	 * `w3tc_config_ui_save_w3tc_cachegroups` do the `wp_unslash`
+	 * at the textarea-parse step, before the filter runs.
+	 *
+	 * `sanitize_text_field` strips tags + control characters at
+	 * the storage boundary so a stored value (whether from raw
+	 * request or filter-provided) cannot carry an HTML tag or
+	 * embedded NUL into the persisted User-Agent / referrer
+	 * match string. Every render path already escapes on output,
+	 * but the strip on the way in is defence-in-depth and the
+	 * persisted store stays free of tag-shaped bytes.
+	 *
 	 * @static
 	 *
-	 * @param array $values Values.
+	 * @param array $values Values (already wp_unslash'd by caller).
 	 */
 	public static function clean_values( $values ) {
 		return array_unique(
 			array_map(
 				function ( $value ) {
+					$value = sanitize_text_field( (string) $value );
+
 					return preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', strtolower( $value ) );
 				},
 				$values
