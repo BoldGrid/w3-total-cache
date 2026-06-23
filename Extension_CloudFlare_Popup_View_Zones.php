@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -40,11 +41,11 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<td><?php esc_html_e( 'Zone:', 'w3-total-cache' ); ?></td>
 				<td>
-					<?php foreach ( $details['zones'] as $z ) : ?>
+					<?php foreach ( $details['zones'] as $w3tc_z ) : ?>
 						<label>
 							<input name="zone_id" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $z['id'] ); ?>" />
-							<?php echo esc_html( $z['name'] ); ?>
+								value="<?php echo esc_attr( $w3tc_z['id'] ); ?>" />
+							<?php echo esc_html( $w3tc_z['name'] ); ?>
 						</label><br />
 					<?php endforeach ?>
 				</td>
@@ -54,11 +55,11 @@ if ( ! defined( 'W3TC' ) ) {
 				<td>
 					<?php
 					if ( $details['total_pages'] > 1 ) :
-						for ( $curren_page = 1; $curren_page <= $details['total_pages']; $curren_page++ ) :
-							if ( $curren_page === $details['page'] ) :
-								echo esc_html( $curren_page );
+						for ( $w3tc_curren_page = 1; $w3tc_curren_page <= $details['total_pages']; $w3tc_curren_page++ ) :
+							if ( $w3tc_curren_page === $details['page'] ) :
+								echo esc_html( $w3tc_curren_page );
 							else :
-								echo '<a href="#" class="w3tc_cloudflare_zone_page" data-page="' . esc_attr( $curren_page ) . '">' . esc_html( $curren_page ) . '</a>';
+								echo '<a href="#" class="w3tc_cloudflare_zone_page" data-page="' . esc_attr( $w3tc_curren_page ) . '">' . esc_html( $w3tc_curren_page ) . '</a>';
 							endif;
 							echo '&nbsp;';
 						endfor;

@@ -22,7 +22,7 @@
  * Exit code 0 = all pass, non-zero = failures.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.0
  */
 
 /**

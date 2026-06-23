@@ -10,49 +10,276 @@ namespace W3TC;
 /**
  * Class: Util_Nonce
  *
- * Centralised nonce-verification helpers for W3 Total Cache.
+ * Centralised nonce minting and verification for W3 Total Cache admin
+ * dispatcher handlers and AJAX hub sub-actions.
  *
- * Historically, the plugin shared a single nonce action string `'w3tc'` across
- * roughly 60 minters (`wp_create_nonce( 'w3tc' )`) and ~10 verifiers
- * (`wp_verify_nonce( $n, 'w3tc' )` / `check_ajax_referer( 'w3tc', ... )`).
+ * Admin handlers mint and verify against `w3tc_admin_action_{handler}`
+ * keys (see {@see self::admin_action()}). AJAX hub calls mint and verify
+ * against `w3tc_ajax_{sub_action}` keys (see {@see self::ajax_action()}).
  *
- * That made the `'w3tc'` token a bearer credential: a nonce minted for one
- * surface (e.g. a CDN test popup) was valid for every other admin-action and
- * AJAX dispatcher entry point. A value visible in an HTML
- * `class="... nonce: 'X' ..."` attribute or a localized `w3tc_nonce` global
- * could be reused against unrelated handlers.
+ * The legacy shared `'w3tc'` action remains available only when callers pass
+ * `$allow_legacy = true` to {@see self::verify_admin()} or
+ * {@see self::verify_ajax()}. New minters should use
+ * {@see self::create_admin()} / {@see self::create_ajax()} and admin JS
+ * should read tokens from the localized `w3tc_admin_nonces` /
+ * `w3tc_ajax_nonces` maps via `pub/js/w3tc-nonce.js`.
  *
- * The fix is to scope nonces per handler. To avoid breaking the (very large)
- * minter surface in a single drop, the verifier helpers below accept the new
- * per-action key as the primary, AND the legacy `'w3tc'` token as a
- * back-compat fallback. Capability checks added by the prior
- * `missing-auth-capability-checks` group already enforce `manage_options` on
- * every public surface, so the legacy fallback only widens the
- * cross-action-replay window for already-authorised admins -- not
- * unauthenticated users. The fallback SHOULD be removed in a follow-up
- * release once the minter surface is fully migrated to per-action nonces.
- *
- * TODO(follow-up release): flip the `$allow_legacy` default to `false` and
- * remove the LEGACY_ACTION branch in verify_admin() once every
- * `wp_create_nonce('w3tc')` minter (~60 call sites across admin views,
- * Util_Ui::nonce_field(), Util_AdminLinks, inc/options/extensions/list.php,
- * etc.) has been migrated to per-action keys. Until then per-action
- * enforcement is best-effort: existing minters still produce LEGACY_ACTION
- * tokens and pass via the fallback, so the practical security improvement is
- * only realised once the minters move too.
- *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Util_Nonce {
 
 	/**
 	 * Legacy nonce action used as a back-compat fallback.
 	 *
-	 * @since X.X.X
+	 * Remaining `wp_nonce_url( ..., 'w3tc' )` minters not yet on per-handler keys
+	 * still mint this action; pass `$allow_legacy = true` to verify those tokens.
+	 *
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
 	const LEGACY_ACTION = 'w3tc';
+
+	/**
+	 * Build the admin-action nonce key for a dispatcher handler.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action Handler request key (e.g. `w3tc_flush_all`).
+	 *
+	 * @return string
+	 */
+	public static function admin_action( $action ) {
+		if ( 0 === \strpos( $action, 'w3tc_admin_action_' ) ) {
+			return $action;
+		}
+
+		return 'w3tc_admin_action_' . $action;
+	}
+
+	/**
+	 * Build the AJAX hub nonce key for a sub-action.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action AJAX sub-action (e.g. `faq`).
+	 *
+	 * @return string
+	 */
+	public static function ajax_action( $action ) {
+		if ( 0 === \strpos( $action, 'w3tc_ajax_' ) ) {
+			return $action;
+		}
+
+		return 'w3tc_ajax_' . $action;
+	}
+
+	/**
+	 * Mint a nonce for an admin dispatcher handler.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action Handler request key.
+	 *
+	 * @return string
+	 */
+	public static function create_admin( $action ) {
+		return \wp_create_nonce( self::admin_action( $action ) );
+	}
+
+	/**
+	 * Mint a nonce for a `w3tc_ajax` hub sub-action.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action AJAX sub-action.
+	 *
+	 * @return string
+	 */
+	public static function create_ajax( $action ) {
+		return \wp_create_nonce( self::ajax_action( $action ) );
+	}
+
+	/**
+	 * Append a per-handler admin nonce to a URL.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $url    Admin URL (relative or absolute).
+	 * @param string $action Dispatcher handler request key.
+	 *
+	 * @return string
+	 */
+	public static function admin_nonce_url( $url, $action ) {
+		return \wp_nonce_url( $url, self::admin_action( $action ) );
+	}
+
+	/**
+	 * Mint admin nonces for a list of dispatcher handler keys.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string[] $actions Handler request keys.
+	 *
+	 * @return array<string,string> Map of action => nonce.
+	 */
+	public static function create_admin_map( array $actions ) {
+		$map = array();
+
+		foreach ( $actions as $action ) {
+			if ( ! \is_string( $action ) || '' === $action ) {
+				continue;
+			}
+			$map[ $action ] = self::create_admin( $action );
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Mint AJAX hub nonces for a list of sub-actions.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string[] $actions AJAX sub-actions.
+	 *
+	 * @return array<string,string> Map of action => nonce.
+	 */
+	public static function create_ajax_map( array $actions ) {
+		$map = array();
+
+		foreach ( $actions as $action ) {
+			if ( ! \is_string( $action ) || '' === $action ) {
+				continue;
+			}
+			$map[ $action ] = self::create_ajax( $action );
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Register the shared admin nonce script handle.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function register_script() {
+		if ( \wp_script_is( 'w3tc-nonce', 'registered' ) ) {
+			return;
+		}
+
+		// Dashboard widgets and admin notices may enqueue before load_scripts() runs.
+		\wp_register_script(
+			'w3tc-nonce',
+			\plugins_url( 'pub/js/w3tc-nonce.js', W3TC_FILE ),
+			array( 'jquery' ),
+			W3TC_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Enqueue the nonce script with AJAX sub-action nonces.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string[] $actions AJAX sub-actions.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_ajax_nonces( array $actions ) {
+		self::register_script();
+		\wp_enqueue_script( 'w3tc-nonce' );
+		\wp_localize_script(
+			'w3tc-nonce',
+			'w3tc_ajax_nonces',
+			self::create_ajax_map( $actions )
+		);
+	}
+
+	/**
+	 * Enqueue the nonce script with admin dispatcher nonces.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string[] $actions Admin handler request keys.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_admin_nonces( array $actions ) {
+		self::register_script();
+		\wp_enqueue_script( 'w3tc-nonce' );
+		\wp_localize_script(
+			'w3tc-nonce',
+			'w3tc_admin_nonces',
+			self::create_admin_map( $actions )
+		);
+	}
+
+	/**
+	 * AJAX hub sub-actions that mint dedicated nonces in admin JS.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string[]
+	 */
+	public static function known_ajax_actions() {
+		return array(
+			'browsercache_quick_reference',
+			'faq',
+			'get_notices',
+			'dismiss_notice',
+			'ustats_get',
+			'pagespeed_data',
+			'pagespeed_widgetdata',
+			'objectcache_diskpopup',
+			'minify_help',
+			'newrelic_widgetdata_basic',
+			'newrelic_widgetdata_pageloads',
+			'newrelic_widgetdata_webtransactions',
+			'newrelic_widgetdata_dbtimes',
+			'newrelic_popup',
+			'newrelic_list_applications',
+			'newrelic_apply_configuration',
+			'cdn_bunnycdn_intro',
+			'cdn_bunnycdn_list_pull_zones',
+			'cdn_bunnycdn_configure_pull_zone',
+			'cdn_bunnycdn_deauthorization',
+			'cdn_bunnycdn_deauthorize',
+			'cdn_bunnycdn_purge_url',
+			'cdn_bunnycdn_widgetdata',
+			'cdn_bunnycdn_fsd_intro',
+			'cdn_bunnycdn_fsd_list_pull_zones',
+			'cdn_bunnycdn_fsd_configure_pull_zone',
+			'cdn_bunnycdn_fsd_deauthorization',
+			'cdn_bunnycdn_fsd_deauthorize',
+			'cdn_cloudfront_fsd_intro',
+			'cdn_cloudfront_fsd_list_distributions',
+			'cdn_cloudfront_fsd_view_distribution',
+			'cdn_cloudfront_fsd_configure_distribution',
+			'cdn_cloudfront_fsd_configure_distribution_skip',
+			'cdn_rackspace_intro',
+			'cdn_rackspace_intro_done',
+			'cdn_rackspace_regions_done',
+			'cdn_rackspace_services_done',
+			'cdn_rackspace_service_create_done',
+			'cdn_rackspace_service_get_state',
+			'cdn_rackspace_service_created_done',
+			'cdn_rackspace_service_actualize_done',
+			'cdn_rackspace_configure_domains',
+			'cdn_rackspace_configure_domains_done',
+			'cdn_rackspace_authenticate',
+			'cdn_rackspace_containers_done',
+			'extension_cloudflare_intro',
+			'extension_cloudflare_intro_done',
+			'extension_cloudflare_zones_done',
+			'extension_alwayscached_process_queue_item',
+			'extension_alwayscached_queue',
+			'extension_alwayscached_queue_filter',
+		);
+	}
 
 	/**
 	 * Read the nonce value from $_REQUEST as a scalar string.
@@ -61,7 +288,7 @@ class Util_Nonce {
 	 * (`_wpnonce[]=foo` causing `wp_verify_nonce` to receive an array and
 	 * short-circuit through type juggling).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $field Request field name. Default `_wpnonce`.
 	 *
@@ -72,20 +299,19 @@ class Util_Nonce {
 		if ( ! is_scalar( $raw ) ) {
 			return '';
 		}
-		$value = \sanitize_text_field( \wp_unslash( (string) $raw ) );
-		return is_string( $value ) ? $value : '';
+		$w3tc_value = \sanitize_text_field( \wp_unslash( (string) $raw ) );
+		return is_string( $w3tc_value ) ? $w3tc_value : '';
 	}
 
 	/**
 	 * Verify an admin-action nonce.
 	 *
 	 * Accepts the per-action key as the primary nonce action. When
-	 * `$allow_legacy` is true (default), the legacy shared `'w3tc'` action
-	 * is also accepted for back-compat with admin tabs opened before the
-	 * deploy. Caller MUST still enforce `current_user_can()` separately --
+	 * `$allow_legacy` is true, the legacy shared `'w3tc'` action is also
+	 * accepted. Caller MUST still enforce `current_user_can()` separately --
 	 * a passing nonce never authorises by itself.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $action       Per-action nonce key (e.g. `w3tc_extension_activate_<slug>`).
 	 * @param string $field        Request field name. Default `_wpnonce`.
@@ -94,7 +320,7 @@ class Util_Nonce {
 	 * @return bool True when verification passes against either the primary
 	 *              or (if enabled) legacy action.
 	 */
-	public static function verify_admin( $action, $field = '_wpnonce', $allow_legacy = true ) {
+	public static function verify_admin( $action, $field = '_wpnonce', $allow_legacy = false ) {
 		$nonce = self::read_nonce( $field );
 		if ( '' === $nonce ) {
 			return false;
@@ -114,7 +340,7 @@ class Util_Nonce {
 	 * On failure, terminates with HTTP 403 via `wp_die()` (same as
 	 * `check_ajax_referer( $action, $field, true )`).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $action       Per-action nonce key.
 	 * @param string $field        Request field name. Default `_wpnonce`.
@@ -122,7 +348,7 @@ class Util_Nonce {
 	 *
 	 * @return bool True on success. Calls `wp_die()` on failure.
 	 */
-	public static function verify_ajax( $action, $field = '_wpnonce', $allow_legacy = true ) {
+	public static function verify_ajax( $action, $field = '_wpnonce', $allow_legacy = false ) {
 		if ( self::verify_admin( $action, $field, $allow_legacy ) ) {
 			return true;
 		}

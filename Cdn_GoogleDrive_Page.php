@@ -30,30 +30,30 @@ class Cdn_GoogleDrive_Page {
 		);
 
 		/**
-		 * rt9-233: Mint a session-bound state token and embed it in
+		 * RT9-233: Mint a session-bound state token and embed it in
 		 * the OAuth return URL. The external w3-edge proxy preserves
 		 * the return_url's query string when redirecting the browser
 		 * back, so the token round-trips through to the callback. See
 		 * Cdn_GoogleDrive_OAuthState for the threat model.
 		 */
-		$state      = Cdn_GoogleDrive_OAuthState::issue();
-		$path       = 'admin.php?page=w3tc_cdn';
+		$state = Cdn_GoogleDrive_OAuthState::issue();
+		$path  = 'admin.php?page=w3tc_cdn';
 		if ( '' !== $state ) {
 			$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM
 				. '=' . rawurlencode( $state );
 		}
-		$return_url = self_admin_url( $path );
+		$w3tc_return_url = self_admin_url( $path );
 
 		wp_localize_script(
 			'w3tc_cdn_google_drive',
 			'w3tc_cdn_google_drive_url',
-			array( W3TC_GOOGLE_DRIVE_AUTHORIZE_URL . '?return_url=' . rawurlencode( $return_url ) )
+			array( W3TC_GOOGLE_DRIVE_AUTHORIZE_URL . '?return_url=' . rawurlencode( $w3tc_return_url ) )
 		);
 
 		// it's return from google oauth.
 		if ( ! empty( Util_Request::get_string( 'oa_client_id' ) ) ) {
 			/**
-			 * rt9-233: Refuse to enqueue the auto-opening popup
+			 * RT9-233: Refuse to enqueue the auto-opening popup
 			 * unless the submitted state token matches the one this
 			 * session issued. Without this gate, an attacker who
 			 * holds valid OAuth tokens for an attacker-owned Google
@@ -66,15 +66,15 @@ class Cdn_GoogleDrive_Page {
 				return;
 			}
 
-			$path = wp_nonce_url( 'admin.php', 'w3tc' ) .
+			$path = Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_cdn_google_drive_auth_return' ) .
 				'&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return';
-			foreach ( $_GET as $key => $value ) { // phpcs:ignore
-				if ( substr( $key, 0, 3 ) === 'oa_' ) {
-					$path .= '&' . rawurlencode( $key ) . '=' . rawurlencode( Util_Request::get_string( $key ) );
+			foreach ( $_GET as $w3tc_key => $w3tc_value ) { // phpcs:ignore
+				if ( substr( $w3tc_key, 0, 3 ) === 'oa_' ) {
+					$path .= '&' . rawurlencode( $w3tc_key ) . '=' . rawurlencode( Util_Request::get_string( $w3tc_key ) );
 				}
 			}
 			/**
-			 * rt9-233: Forward the validated state into the popup URL
+			 * RT9-233: Forward the validated state into the popup URL
 			 * so the AuthReturn handler can re-validate independently
 			 * (defense in depth — popup URL is reachable by URL alone
 			 * and shouldn't trust the upstream Page-level check).
@@ -102,7 +102,7 @@ class Cdn_GoogleDrive_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_cdn_boxarea_configuration() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		require W3TC_DIR . '/Cdn_GoogleDrive_Page_View.php';
 	}
 }

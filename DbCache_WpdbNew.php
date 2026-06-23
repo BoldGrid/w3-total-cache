@@ -10,7 +10,7 @@ namespace W3TC;
 /**
  * Class DbCache_WpdbNew
  *
- * Database access mediator, for WordPress >= 5.3
+ * Database access mediator
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
@@ -74,8 +74,8 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 		$this->active_processor        = $processors[0];
 		$this->active_processor_number = 0;
 
-		$c           = Dispatcher::config();
-		$this->debug = $c->get_boolean( 'dbcache.debug' );
+		$w3tc_c      = Dispatcher::config();
+		$this->debug = $w3tc_c->get_boolean( 'dbcache.debug' );
 
 		if ( $this->debug ) {
 			$this->_request_time_start = microtime( true );
@@ -88,14 +88,14 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * @return void
 	 */
 	public function on_w3tc_plugins_loaded() {
-		$o = $this;
+		$w3tc_o = $this;
 
 		if ( $this->debug ) {
-			add_action( 'shutdown', array( $o, 'debug_shutdown' ) );
+			add_action( 'shutdown', array( $w3tc_o, 'debug_shutdown' ) );
 		}
 
-		add_filter( 'w3tc_footer_comment', array( $o, 'w3tc_footer_comment' ) );
-		add_action( 'w3tc_usage_statistics_of_request', array( $o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+		add_filter( 'w3tc_footer_comment', array( $w3tc_o, 'w3tc_footer_comment' ) );
+		add_action( 'w3tc_usage_statistics_of_request', array( $w3tc_o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
 	}
 
 	/**
@@ -125,16 +125,16 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 
 		$request_time_total = microtime( true ) - $this->request_time_start;
 
-		$data = sprintf(
+		$w3tc_data = sprintf(
 			"\n[%s] [%s] [%s]\n",
 			gmdate( 'r' ),
 			isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
 			round( $request_time_total, 4 )
 		) . implode( "\n", $strings ) . "\n";
-		$data = strtr( $data, '<>', '..' );
+		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'dbcache' );
-		@file_put_contents( $filename, $data, FILE_APPEND );
+		@file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 	}
 
 	/**
@@ -195,14 +195,14 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * Inserts data into a specified table.
 	 *
 	 * @param string     $table  The table name to insert data into.
-	 * @param array      $data   The data to insert into the table.
+	 * @param array      $w3tc_data   The data to insert into the table.
 	 * @param array|null $format Optional format for the data values.
 	 *
 	 * @return mixed The result of the insert operation.
 	 */
-	public function insert( $table, $data, $format = null ) {
-		do_action( 'w3tc_db_insert', $table, $data, $format );
-		return $this->active_processor->insert( $table, $data, $format );
+	public function insert( $table, $w3tc_data, $format = null ) {
+		do_action( 'w3tc_db_insert', $table, $w3tc_data, $format );
+		return $this->active_processor->insert( $table, $w3tc_data, $format );
 	}
 
 	/**
@@ -219,12 +219,12 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Escapes a string for safe use in SQL queries.
 	 *
-	 * @param string $data The data to escape.
+	 * @param string $w3tc_data The data to escape.
 	 *
 	 * @return string The escaped string.
 	 */
-	public function _escape( $data ) {
-		return $this->active_processor->_escape( $data );
+	public function _escape( $w3tc_data ) {
+		return $this->active_processor->_escape( $w3tc_data );
 	}
 
 	/**
@@ -242,7 +242,7 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Returns the array of dbcache processors attached to this wpdb wrapper.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return array
 	 */
@@ -254,30 +254,30 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * Replaces data in a specified table.
 	 *
 	 * @param string     $table  The table name to replace data in.
-	 * @param array      $data   The data to replace.
+	 * @param array      $w3tc_data   The data to replace.
 	 * @param array|null $format Optional format for the data values.
 	 *
 	 * @return mixed The result of the replace operation.
 	 */
-	public function replace( $table, $data, $format = null ) {
-		do_action( 'w3tc_db_replace', $table, $data, $format );
-		return $this->active_processor->replace( $table, $data, $format );
+	public function replace( $table, $w3tc_data, $format = null ) {
+		do_action( 'w3tc_db_replace', $table, $w3tc_data, $format );
+		return $this->active_processor->replace( $table, $w3tc_data, $format );
 	}
 
 	/**
 	 * Updates data in a specified table.
 	 *
 	 * @param string     $table        The table name to update.
-	 * @param array      $data         The data to update.
+	 * @param array      $w3tc_data         The data to update.
 	 * @param array      $where        The conditions for the update.
 	 * @param array|null $format       Optional format for the data values.
 	 * @param array|null $where_format Optional format for the where conditions.
 	 *
 	 * @return mixed The result of the update operation.
 	 */
-	public function update( $table, $data, $where, $format = null, $where_format = null ) {
-		do_action( 'w3tc_db_update', $table, $data, $where, $format, $where_format );
-		return $this->active_processor->update( $table, $data, $where, $format, $where_format );
+	public function update( $table, $w3tc_data, $where, $format = null, $where_format = null ) {
+		do_action( 'w3tc_db_update', $table, $w3tc_data, $where, $format, $where_format );
+		return $this->active_processor->update( $table, $w3tc_data, $where, $format, $where_format );
 	}
 
 	/**
@@ -394,13 +394,13 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * Inserts data into a table using the default database connection.
 	 *
 	 * @param string     $table  The table name to insert data into.
-	 * @param array      $data   The data to insert into the table.
+	 * @param array      $w3tc_data   The data to insert into the table.
 	 * @param array|null $format Optional format for the data values.
 	 *
 	 * @return mixed The result of the insert operation.
 	 */
-	public function default_insert( $table, $data, $format = null ) {
-		return parent::insert( $table, $data, $format );
+	public function default_insert( $table, $w3tc_data, $format = null ) {
+		return parent::insert( $table, $w3tc_data, $format );
 	}
 
 	/**
@@ -417,12 +417,12 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Escapes a string for safe use in SQL queries using the default connection.
 	 *
-	 * @param string $data The data to escape.
+	 * @param string $w3tc_data The data to escape.
 	 *
 	 * @return string The escaped string.
 	 */
-	public function default__escape( $data ) {
-		return parent::_escape( $data );
+	public function default__escape( $w3tc_data ) {
+		return parent::_escape( $w3tc_data );
 	}
 
 	/**
@@ -441,28 +441,28 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * Replaces data in a table using the default connection.
 	 *
 	 * @param string     $table  The table name to replace data in.
-	 * @param array      $data   The data to replace.
+	 * @param array      $w3tc_data   The data to replace.
 	 * @param array|null $format Optional format for the data values.
 	 *
 	 * @return mixed The result of the replace operation.
 	 */
-	public function default_replace( $table, $data, $format = null ) {
-		return parent::replace( $table, $data, $format );
+	public function default_replace( $table, $w3tc_data, $format = null ) {
+		return parent::replace( $table, $w3tc_data, $format );
 	}
 
 	/**
 	 * Updates data in a table using the default connection.
 	 *
 	 * @param string     $table        The table name to update.
-	 * @param array      $data         The data to update.
+	 * @param array      $w3tc_data         The data to update.
 	 * @param array      $where        The conditions for the update.
 	 * @param array|null $format       Optional format for the data values.
 	 * @param array|null $where_format Optional format for the where conditions.
 	 *
 	 * @return mixed The result of the update operation.
 	 */
-	public function default_update( $table, $data, $where, $format = null, $where_format = null ) {
-		return parent::update( $table, $data, $where, $format, $where_format );
+	public function default_update( $table, $w3tc_data, $where, $format = null, $where_format = null ) {
+		return parent::update( $table, $w3tc_data, $where, $format, $where_format );
 	}
 
 	/**
@@ -568,12 +568,12 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Switches the active processor based on the provided offset.
 	 *
-	 * @param int $offset The offset by which to switch the active processor.
+	 * @param int $w3tc_offset The offset by which to switch the active processor.
 	 *
 	 * @return int The change in processor number.
 	 */
-	public function switch_active_processor( $offset ) {
-		$new_processor_number = $this->active_processor_number + $offset;
+	public function switch_active_processor( $w3tc_offset ) {
+		$new_processor_number = $this->active_processor_number + $w3tc_offset;
 		if ( $new_processor_number <= 0 ) {
 			$new_processor_number = 0;
 		} elseif ( $new_processor_number >= count( $this->processors ) ) {
@@ -627,10 +627,10 @@ class _CallUnderlying {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->initialize();
+			$w3tc_r = $this->wpdb_mixin->initialize();
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -648,10 +648,10 @@ class _CallUnderlying {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->flush();
+			$w3tc_r = $this->wpdb_mixin->flush();
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -671,10 +671,10 @@ class _CallUnderlying {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->query( $query );
+			$w3tc_r = $this->wpdb_mixin->query( $query );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -684,20 +684,20 @@ class _CallUnderlying {
 	/**
 	 * Escapes data for use in a database query.
 	 *
-	 * @param mixed $data Data to be escaped.
+	 * @param mixed $w3tc_data Data to be escaped.
 	 *
 	 * @return mixed Escaped data.
 	 *
 	 * @throws \Exception If escaping fails.
 	 */
-	public function _escape( $data ) {
+	public function _escape( $w3tc_data ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->_escape( $data );
+			$w3tc_r = $this->wpdb_mixin->_escape( $w3tc_data );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -718,10 +718,10 @@ class _CallUnderlying {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->prepare( $query, ...$args );
+			$w3tc_r = $this->wpdb_mixin->prepare( $query, ...$args );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -732,21 +732,21 @@ class _CallUnderlying {
 	 * Inserts a row into a database table.
 	 *
 	 * @param string $table  Name of the table.
-	 * @param array  $data   Associative array of data to insert.
+	 * @param array  $w3tc_data   Associative array of data to insert.
 	 * @param mixed  $format Optional. Data format.
 	 *
 	 * @return mixed Result of the insertion.
 	 *
 	 * @throws \Exception If insertion fails.
 	 */
-	public function insert( $table, $data, $format = null ) {
+	public function insert( $table, $w3tc_data, $format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->insert( $table, $data, $format );
+			$w3tc_r = $this->wpdb_mixin->insert( $table, $w3tc_data, $format );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -757,21 +757,21 @@ class _CallUnderlying {
 	 * Replaces a row in a database table.
 	 *
 	 * @param string $table  Name of the table.
-	 * @param array  $data   Associative array of data to replace.
+	 * @param array  $w3tc_data   Associative array of data to replace.
 	 * @param mixed  $format Optional. Data format.
 	 *
 	 * @return mixed Result of the replacement.
 	 *
 	 * @throws \Exception If replacement fails.
 	 */
-	public function replace( $table, $data, $format = null ) {
+	public function replace( $table, $w3tc_data, $format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->replace( $table, $data, $format );
+			$w3tc_r = $this->wpdb_mixin->replace( $table, $w3tc_data, $format );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -782,7 +782,7 @@ class _CallUnderlying {
 	 * Updates rows in a database table.
 	 *
 	 * @param string $table        Name of the table.
-	 * @param array  $data         Associative array of data to update.
+	 * @param array  $w3tc_data         Associative array of data to update.
 	 * @param array  $where        Associative array of conditions for the update.
 	 * @param mixed  $format       Optional. Data format.
 	 * @param mixed  $where_format Optional. Format for where clause.
@@ -791,14 +791,14 @@ class _CallUnderlying {
 	 *
 	 * @throws \Exception If update fails.
 	 */
-	public function update( $table, $data, $where, $format = null, $where_format = null ) {
+	public function update( $table, $w3tc_data, $where, $format = null, $where_format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->update( $table, $data, $where, $format, $where_format );
+			$w3tc_r = $this->wpdb_mixin->update( $table, $w3tc_data, $where, $format, $where_format );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;
@@ -820,10 +820,10 @@ class _CallUnderlying {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
 
 		try {
-			$r = $this->wpdb_mixin->delete( $table, $where, $where_format );
+			$w3tc_r = $this->wpdb_mixin->delete( $table, $where, $where_format );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
-			return $r;
+			return $w3tc_r;
 		} catch ( \Exception $e ) {
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			throw $e;

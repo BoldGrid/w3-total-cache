@@ -61,7 +61,10 @@ describe('AlwaysCached extension settings form-save', function() {
 		await w3tc.activateExtension(adminPage, 'alwayscached')
 			.catch((e) => log.log('activate-extension result: ' + e.message));
 
-		let settingsUrl = env.adminUrl +
+		// networkAdminUrl: w3tc_extensions is not visible_always, so on
+		// multisite (default common.force_master) env.adminUrl serves WP's
+		// "not allowed" page. Single-site: same URL.
+		let settingsUrl = env.networkAdminUrl +
 			'admin.php?page=w3tc_extensions&extension=alwayscached&action=view';
 		await adminPage.goto(settingsUrl, {waitUntil: 'domcontentloaded'});
 
@@ -75,7 +78,7 @@ describe('AlwaysCached extension settings form-save', function() {
 	});
 
 	it('save and read back AlwaysCached cron settings', async function() {
-		let settingsUrl = env.adminUrl +
+		let settingsUrl = env.networkAdminUrl +
 			'admin.php?page=w3tc_extensions&extension=alwayscached&action=view';
 		await adminPage.goto(settingsUrl, {waitUntil: 'domcontentloaded'});
 		let html = await adminPage.content();
@@ -127,7 +130,7 @@ describe('AlwaysCached extension settings form-save', function() {
 	});
 
 	it('AlwaysCached queue UI renders', async function() {
-		let settingsUrl = env.adminUrl +
+		let settingsUrl = env.networkAdminUrl +
 			'admin.php?page=w3tc_extensions&extension=alwayscached&action=view';
 		await adminPage.goto(settingsUrl, {waitUntil: 'domcontentloaded'});
 

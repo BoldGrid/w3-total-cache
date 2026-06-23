@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -37,7 +37,7 @@ use W3TC\Util_Crypto;
  *
  * The tests below pin both behaviors.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 
@@ -46,7 +46,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 * gates the entire envelope path, so on hosts without AES-256-CBC
 	 * there is nothing to assert against.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -68,7 +68,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 * `$_data` and asserting that the lazy-read still works (which is
 	 * the externally visible behavior callers depend on).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 * the Dispatcher Config singleton built in `advanced-cache.php`
 	 * permanently shows empty secrets to every later admin caller.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -153,7 +153,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 * (matching the eager-decrypt failure mode) rather than leaking the
 	 * envelope string through to callers expecting a credential.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -192,7 +192,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 	 * lazy-decrypt fast path with zero mutation — `Config::_get()` is
 	 * a hot path called for every config read.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */

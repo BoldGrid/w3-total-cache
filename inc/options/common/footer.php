@@ -9,11 +9,12 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
 do_action( 'w3tc-dashboard-footer' );
 ?>
@@ -45,8 +46,8 @@ do_action( 'w3tc-dashboard-footer' );
 				</h2>
 			</a>
 			<?php
-			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_licensing_upgrade' ) ) . '\'}"
 					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
 			}
 			?>

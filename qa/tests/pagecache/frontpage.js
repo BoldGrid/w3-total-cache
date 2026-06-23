@@ -5,6 +5,7 @@ function requireRoot(p) {
 const expect = require('chai').expect;
 const log = require('mocha-logger');
 
+const diskEnhanced = requireRoot('lib/disk-enhanced');
 const env = requireRoot('lib/environment');
 const sys = requireRoot('lib/sys');
 const w3tc = requireRoot('lib/w3tc');
@@ -71,6 +72,14 @@ describe('', function() {
 
 async function expectHomeUrlCached() {
 	await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+	await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+
+	if (env.cacheEngineLabel === 'file_generic') {
+		await diskEnhanced.warmCache(env.homeUrl);
+		await diskEnhanced.waitForFile(env.homeUrl, 10000);
+	}
+
+	w3tc.expectPageCachingMethod(await page.content(), env.cacheEngineName);
 
 	// trying to write a dummy word into the cached file
 	await w3tc.pageCacheEntryChange(page);

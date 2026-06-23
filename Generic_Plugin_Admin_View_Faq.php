@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -36,9 +37,9 @@ if ( ! defined( 'W3TC' ) ) {
 		?>
 	</p>
 	<ul>
-		<?php foreach ( $entries as $entry ) : ?>
+		<?php foreach ( $entries as $w3tc_entry ) : ?>
 			<li>
-				<a href="<?php echo esc_url( $entry['a'] ); ?>" target="_blank"><?php echo esc_html( $entry['q'] ); ?></a>
+				<a href="<?php echo esc_url( $w3tc_entry['a'] ); ?>" target="_blank"><?php echo esc_html( $w3tc_entry['q'] ); ?></a>
 			</li>
 		<?php endforeach; ?>
 	</ul>

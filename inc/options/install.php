@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: install.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -245,18 +252,18 @@ if ( ! defined( 'W3TC' ) ) {
 	<hr />
 	<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
 		<h3 id="rules"><?php esc_html_e( 'Rewrite Rules (based on active settings)', 'w3-total-cache' ); ?></h3>
-		<?php foreach ( $rewrite_rules_descriptors as $descriptor ) : ?>
-			<p><strong><?php echo esc_html( $descriptor['filename'] ); ?>:</strong></p>
-			<pre class="code"><?php echo esc_html( $descriptor['content'] ); ?></pre>
+		<?php foreach ( $rewrite_rules_descriptors as $w3tc_descriptor ) : ?>
+			<p><strong><?php echo esc_html( $w3tc_descriptor['filename'] ); ?>:</strong></p>
+			<pre class="code"><?php echo esc_html( $w3tc_descriptor['content'] ); ?></pre>
 		<?php endforeach; ?>
 		<hr />
 	<?php endif; ?>
 	<?php if ( count( $other_areas ) ) : ?>
 		<h3 id="other"><?php esc_html_e( 'Other', 'w3-total-cache' ); ?></h3>
-		<?php foreach ( $other_areas as $area => $descriptors ) : ?>
-			<?php foreach ( $descriptors as $descriptor ) : ?>
-				<p><strong><?php echo esc_html( $descriptor['title'] ); ?>:</strong></p>
-				<pre class="code"><?php echo esc_html( $descriptor['content'] ); ?></pre>
+		<?php foreach ( $other_areas as $w3tc_area => $w3tc_descriptors ) : ?>
+			<?php foreach ( $w3tc_descriptors as $w3tc_descriptor ) : ?>
+				<p><strong><?php echo esc_html( $w3tc_descriptor['title'] ); ?>:</strong></p>
+				<pre class="code"><?php echo esc_html( $w3tc_descriptor['content'] ); ?></pre>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
 		<hr />

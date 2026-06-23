@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -68,7 +69,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				Util_Ui::url(
 					array(
 						'w3tc_default_purgelog_clear' => 'y',
-						'module'                      => $module,
+						'module'                      => $w3tc_module,
 					)
 				)
 			),
@@ -89,42 +90,42 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 <p>
 	Available logs:
-	<?php foreach ( $purgelog_modules as $module ) : ?>
-		<a href="admin.php?page=w3tc_general&view=purge_log&module=<?php echo esc_attr( $module['label'] ); ?>"><?php echo esc_html( $module['name'] ); ?></a>
-		<?php echo esc_html( $module['postfix'] ); ?>
+	<?php foreach ( $purgelog_modules as $w3tc_module ) : ?>
+		<a href="admin.php?page=w3tc_general&view=purge_log&module=<?php echo esc_attr( $w3tc_module['label'] ); ?>"><?php echo esc_html( $w3tc_module['name'] ); ?></a>
+		<?php echo esc_html( $w3tc_module['postfix'] ); ?>
 	<?php endforeach ?>
 </p>
 <p>
 	Filename: <?php echo esc_html( $log_filename ); ?> (<?php echo esc_html( $log_filefize ); ?>)
 </p>
 
-<?php foreach ( $lines as $line ) : ?>
+<?php foreach ( $lines as $w3tc_line ) : ?>
 	<div class="w3tc_purge_log_table">
 		<div class="w3tc_purge_log_label">Date</div>
-		<div><?php echo esc_html( $line['date'] ); ?></div>
+		<div><?php echo esc_html( $w3tc_line['date'] ); ?></div>
 
 		<div class="w3tc_purge_log_label">Action</div>
-		<div class="w3tc_purge_log_message"><?php echo esc_html( $line['message'] ); ?></div>
+		<div class="w3tc_purge_log_message"><?php echo esc_html( $w3tc_line['message'] ); ?></div>
 
 		<div class="w3tc_purge_log_label">User</div>
-		<div class="w3tc_purge_log_message"><?php echo esc_html( $line['username'] ); ?></div>
+		<div class="w3tc_purge_log_message"><?php echo esc_html( $w3tc_line['username'] ); ?></div>
 
-		<?php if ( ! empty( $line['urls'] ) ) : ?>
+		<?php if ( ! empty( $w3tc_line['urls'] ) ) : ?>
 			<div class="w3tc_purge_log_label">Pages Flushed</div>
 			<div class="w3tc_purge_log_urls">
-				<?php foreach ( $line['urls'] as $url ) : ?>
-					<div><?php echo esc_html( $url ); ?></div>
+				<?php foreach ( $w3tc_line['urls'] as $w3tc_url ) : ?>
+					<div><?php echo esc_html( $w3tc_url ); ?></div>
 				<?php endforeach ?>
 			</div>
 		<?php endif ?>
 
 		<div class="w3tc_purge_log_label">Stack Trace</div>
 		<table class="w3tc_purge_log_backtrace">
-			<?php foreach ( $line['backtrace'] as $backtrace_line ) : ?>
+			<?php foreach ( $w3tc_line['backtrace'] as $w3tc_backtrace_line ) : ?>
 				<tr>
-					<td><?php echo esc_html( $backtrace_line['number'] ); ?></td>
-					<td><?php echo $this->esc_filename( $backtrace_line['filename'] ); // phpcs:ignore ?></td>
-					<td><?php echo esc_html( $backtrace_line['function'] ); ?></td>
+					<td><?php echo esc_html( $w3tc_backtrace_line['number'] ); ?></td>
+					<td><?php echo $this->esc_filename( $w3tc_backtrace_line['filename'] ); // phpcs:ignore ?></td>
+					<td><?php echo esc_html( $w3tc_backtrace_line['function'] ); ?></td>
 				</tr>
 			<?php endforeach ?>
 		</table>

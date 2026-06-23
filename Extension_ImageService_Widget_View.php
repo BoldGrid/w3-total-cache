@@ -9,20 +9,21 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
-if ( $config->is_extension_active( 'imageservice' ) ) {
+if ( $w3tc_config->is_extension_active( 'imageservice' ) ) {
 	?>
 	<div id="w3tc-webp-widget-stats-container">
 		<h3 class="w3tc-webp-widget-stats-title"><?php esc_html_e( 'Status', 'w3-total-cache' ); ?></h3>
 		<div id="counts_chart"></div>
 		<h3 class="w3tc-webp-widget-stats-title"><?php esc_html_e( 'API Use Limits', 'w3-total-cache' ); ?></h3>
 		<div id="api_charts"></div>
-		<?php if ( ! Util_Environment::is_w3tc_pro( $config ) ) : ?>
+		<?php if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) : ?>
 			<div class="notice notice-info" style="margin: 0;">
 				<p><?php esc_html_e( 'Need higher API limits? Upgrade to Pro for significantly higher hourly limits and no monthly cap!', 'w3-total-cache' ); ?></p>
 				<p><input type="button" class="button-primary button-buy-plugin" data-src="account_widget" value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ); ?>" /></p>

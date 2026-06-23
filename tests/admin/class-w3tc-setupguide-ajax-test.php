@@ -25,7 +25,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -35,7 +35,7 @@ use W3TC\SetupGuide_Plugin_Admin;
 /**
  * Class: W3tc_Setupguide_Ajax_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 
@@ -57,7 +57,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * matches the WP_Ajax_UnitTestCase pattern without dragging in the
 	 * rest of its setup.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return callable
 	 */
@@ -74,7 +74,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * handler so `wp_send_json_error` raises WPDieException instead of
 	 * exiting the test runner.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -86,7 +86,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * Reset request state and current user.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function tear_down() {
 		\remove_filter( 'wp_die_ajax_handler', array( __CLASS__, 'ajax_die_handler' ) );
@@ -100,7 +100,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * Helper: read the private `$template` static property via reflection so we
 	 * can assert that `set_template()` did or didn't instantiate it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return mixed Current value of `SetupGuide_Plugin_Admin::$template`.
 	 */
@@ -114,7 +114,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * Helper: clear the private `$template` static so each test starts clean.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	private function clear_template_static() {
 		$ref  = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
@@ -126,7 +126,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * Helper: read the private `$nonce_actions` static via reflection.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array
 	 */
@@ -142,7 +142,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * template is never instantiated, so subsequent AJAX hooks that the
 	 * template would have registered are not present.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_set_template_short_circuits_for_subscriber() {
 		$this->clear_template_static();
@@ -169,7 +169,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * `set_template()` instantiates the wizard template for an admin caller.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_set_template_runs_for_admin() {
 		$this->clear_template_static();
@@ -198,7 +198,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * `load()` (the wizard page entrypoint) dies with a 403-shaped message
 	 * for a non-admin caller, even if the static template is somehow set.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_load_dies_for_subscriber() {
 		$subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -216,7 +216,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * The AJAX `skip` handler refuses subscriber callers regardless of nonce,
 	 * because `verify_ajax_request()` checks capability before the nonce.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_skip_handler_refuses_subscriber() {
 		$subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -240,7 +240,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * in the global config, so subscriber reach would be a config-write
 	 * privilege escalation.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_set_tos_choice_refuses_subscriber() {
 		$subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -260,7 +260,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * (Capability check is BEFORE the nonce check; the nonce isn't even
 	 * inspected before the capability gate fails.)
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_skip_handler_refuses_subscriber_without_nonce() {
 		$subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -279,7 +279,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * Each value must be distinct so a leak of one nonce cannot replay
 	 * against a different surface.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_per_action_nonce_map_covers_all_surfaces() {
 		$map = $this->get_nonce_actions_map();
@@ -336,7 +336,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	 * cached wizard pages (rendered before this release) continue to function
 	 * for admins. Closing the legacy fallback is a follow-up release.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_get_nonce_action_falls_back_to_legacy_for_unknown() {
 		$ref    = new \ReflectionClass( SetupGuide_Plugin_Admin::class );

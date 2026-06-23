@@ -73,7 +73,7 @@ class W3TCG_Google_IO_Stream extends W3TCG_Google_IO_Abstract
         $default_options['ssl'] : array();
 
     if (!array_key_exists("cafile", $requestSslContext)) {
-      $requestSslContext["cafile"] = dirname(__FILE__) . '/cacerts.pem';
+      $requestSslContext["cafile"] = __DIR__ . '/cacerts.pem';
     }
 
     $options = array(

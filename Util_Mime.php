@@ -16,14 +16,14 @@ class Util_Mime {
 	/**
 	 * Returns file mime type
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return string
 	 */
-	public static function get_mime_type( $file ) {
+	public static function get_mime_type( $w3tc_file ) {
 		static $cache = array();
 
-		if ( ! isset( $cache[ $file ] ) ) {
+		if ( ! isset( $cache[ $w3tc_file ] ) ) {
 			$mime_type = false;
 
 			/**
@@ -31,8 +31,8 @@ class Util_Mime {
 			 */
 			$mime_types = include W3TC_INC_DIR . '/mime/all.php';
 
-			foreach ( $mime_types as $extension => $type ) {
-				if ( preg_match( '~\.(' . $extension . ')$~i', $file ) ) {
+			foreach ( $mime_types as $w3tc_extension => $type ) {
+				if ( preg_match( '~\.(' . $w3tc_extension . ')$~i', $w3tc_file ) ) {
 					if ( is_array( $type ) ) {
 						$mime_type = array_pop( $type );
 					} else {
@@ -54,7 +54,7 @@ class Util_Mime {
 				}
 
 				if ( $finfo ) {
-					$mime_type = @finfo_file( $finfo, $file );
+					$mime_type = @finfo_file( $finfo, $w3tc_file );
 
 					if ( $mime_type ) {
 						$extra_mime_type_info = strpos( $mime_type, '; ' );
@@ -76,7 +76,7 @@ class Util_Mime {
 			 * Try to detect using mime type function
 			 */
 			if ( ! $mime_type && function_exists( 'mime_content_type' ) ) {
-				$mime_type = @mime_content_type( $file );
+				$mime_type = @mime_content_type( $w3tc_file );
 			}
 
 			/**
@@ -86,10 +86,10 @@ class Util_Mime {
 				$mime_type = 'application/octet-stream';
 			}
 
-			$cache[ $file ] = $mime_type;
+			$cache[ $w3tc_file ] = $mime_type;
 		}
 
-		return $cache[ $file ];
+		return $cache[ $w3tc_file ];
 	}
 
 	/**

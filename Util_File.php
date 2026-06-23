@@ -176,21 +176,21 @@ class Util_File {
 		$dir = @\opendir( $path );
 
 		if ( $dir ) {
-			$entry = @\readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @\readdir( $dir );
+			$w3tc_entry = @\readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @\readdir( $dir );
 					continue;
 				}
 
 				foreach ( $exclude as $mask ) {
-					if ( \fnmatch( $mask, \basename( $entry ) ) ) {
-						$entry = @\readdir( $dir );
+					if ( \fnmatch( $mask, \basename( $w3tc_entry ) ) ) {
+						$w3tc_entry = @\readdir( $dir );
 						continue 2;
 					}
 				}
 
-				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
+				$full_path = $path . DIRECTORY_SEPARATOR . $w3tc_entry;
 
 				if ( @\is_dir( $full_path ) ) {
 					self::rmdir( $full_path, $exclude );
@@ -198,7 +198,7 @@ class Util_File {
 					@\unlink( $full_path );
 				}
 
-				$entry = @\readdir( $dir );
+				$w3tc_entry = @\readdir( $dir );
 			}
 
 			@\closedir( $dir );
@@ -224,20 +224,20 @@ class Util_File {
 	/**
 	 * Check if file is write-able
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return boolean
 	 */
-	public static function is_writable( $file ) {
-		$exists = file_exists( $file );
+	public static function is_writable( $w3tc_file ) {
+		$exists = file_exists( $w3tc_file );
 
-		$fp = @fopen( $file, 'a' );
+		$fp = @fopen( $w3tc_file, 'a' );
 
 		if ( $fp ) {
 			fclose( $fp );
 
 			if ( ! $exists ) {
-				@unlink( $file );
+				@unlink( $w3tc_file );
 			}
 
 			return true;
@@ -254,9 +254,9 @@ class Util_File {
 	 * @return boolean
 	 */
 	public static function is_writable_dir( $dir ) {
-		$file = $dir . '/' . uniqid( mt_rand() ) . '.tmp';
+		$w3tc_file = $dir . '/' . uniqid( mt_rand() ) . '.tmp';
 
-		return self::is_writable( $file );
+		return self::is_writable( $w3tc_file );
 	}
 
 	/**
@@ -316,16 +316,16 @@ class Util_File {
 	public static function get_open_basedirs() {
 		$open_basedir_ini = ini_get( 'open_basedir' );
 		$open_basedirs    = ( W3TC_WIN ? preg_split( '~[;,]~', $open_basedir_ini ) : explode( ':', $open_basedir_ini ) );
-		$result           = array();
+		$w3tc_result      = array();
 
-		foreach ( $open_basedirs as $open_basedir ) {
-			$open_basedir = trim( $open_basedir );
-			if ( ! empty( $open_basedir ) && '' !== $open_basedir ) {
-				$result[] = Util_Environment::realpath( $open_basedir );
+		foreach ( $open_basedirs as $w3tc_open_basedir ) {
+			$w3tc_open_basedir = trim( $w3tc_open_basedir );
+			if ( ! empty( $w3tc_open_basedir ) && '' !== $w3tc_open_basedir ) {
+				$w3tc_result[] = Util_Environment::realpath( $w3tc_open_basedir );
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -343,8 +343,8 @@ class Util_File {
 			return true;
 		}
 
-		foreach ( $open_basedirs as $open_basedir ) {
-			if ( strstr( $path, $open_basedir ) !== false ) {
+		foreach ( $open_basedirs as $w3tc_open_basedir ) {
+			if ( strstr( $path, $w3tc_open_basedir ) !== false ) {
 				return true;
 			}
 		}
@@ -355,16 +355,16 @@ class Util_File {
 	/**
 	 * Get the octal file permission number of a file or directory.
 	 *
-	 * @param string $file File path.
+	 * @param string $w3tc_file File path.
 	 *
 	 * @return int
 	 */
-	public static function get_file_permissions( $file ) {
-		if ( function_exists( 'fileperms' ) && $fileperms = @fileperms( $file ) ) { // phpcs:ignore
+	public static function get_file_permissions( $w3tc_file ) {
+		if ( function_exists( 'fileperms' ) && $fileperms = @fileperms( $w3tc_file ) ) { // phpcs:ignore
 			$fileperms = 0777 & $fileperms;
 		} else {
 			clearstatcache();
-			$stat = @stat( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$stat = @stat( $w3tc_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( $stat ) {
 				$fileperms = 0777 & $stat['mode'];
@@ -378,18 +378,18 @@ class Util_File {
 	/**
 	 * Get file owner
 	 *
-	 * @param string $file File path.
+	 * @param string $w3tc_file File path.
 	 *
 	 * @return string
 	 */
-	public static function get_file_owner( $file = '' ) {
+	public static function get_file_owner( $w3tc_file = '' ) {
 		$fileowner = 'unknown';
 		$filegroup = 'unknown';
 
-		if ( $file ) {
+		if ( $w3tc_file ) {
 			if ( function_exists( 'fileowner' ) && function_exists( 'fileowner' ) ) {
-				$fileowner = @fileowner( $file );
-				$filegroup = @filegroup( $file );
+				$fileowner = @fileowner( $w3tc_file );
+				$filegroup = @filegroup( $w3tc_file );
 				if ( function_exists( 'posix_getpwuid' ) && function_exists( 'posix_getgrgid' ) ) {
 					$fileowner = @posix_getpwuid( $fileowner );
 					$fileowner = $fileowner['name'];
@@ -499,76 +499,76 @@ class Util_File {
 	/**
 	 * Takes a W3TC settings array and formats it to a PHP String
 	 *
-	 * @param unknown $data Data.
+	 * @param unknown $w3tc_data Data.
 	 *
 	 * @return string
 	 */
-	public static function format_data_as_settings_file( $data ) {
-		$config = "<?php\r\n\r\nreturn array(\r\n";
-		foreach ( $data as $key => $value ) {
-			$config .= self::format_array_entry_as_settings_file_entry( 1, $key, $value );
+	public static function format_data_as_settings_file( $w3tc_data ) {
+		$w3tc_config = "<?php\r\n\r\nreturn array(\r\n";
+		foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+			$w3tc_config .= self::format_array_entry_as_settings_file_entry( 1, $w3tc_key, $w3tc_value );
 		}
 
-		$config .= ');';
+		$w3tc_config .= ');';
 
-		return $config;
+		return $w3tc_config;
 	}
 
 	/**
 	 * Writes array item to file
 	 *
 	 * @param int    $tabs  Tabs.
-	 * @param string $key   Key.
-	 * @param mixed  $value Value.
+	 * @param string $w3tc_key   Key.
+	 * @param mixed  $w3tc_value Value.
 	 *
 	 * @return string
 	 */
-	public static function format_array_entry_as_settings_file_entry( $tabs, $key, $value ) {
-		$item = str_repeat( "\t", $tabs );
+	public static function format_array_entry_as_settings_file_entry( $tabs, $w3tc_key, $w3tc_value ) {
+		$w3tc_item = str_repeat( "\t", $tabs );
 
-		if ( is_numeric( $key ) && (string) (int) $key === (string) $key ) {
-			$item .= sprintf( '%d => ', $key );
+		if ( is_numeric( $w3tc_key ) && (string) (int) $w3tc_key === (string) $w3tc_key ) {
+			$w3tc_item .= sprintf( '%d => ', $w3tc_key );
 		} else {
-			$item .= sprintf( "'%s' => ", addcslashes( $key, "'\\" ) );
+			$w3tc_item .= sprintf( "'%s' => ", addcslashes( $w3tc_key, "'\\" ) );
 		}
 
-		switch ( gettype( $value ) ) {
+		switch ( gettype( $w3tc_value ) ) {
 			case 'object':
 			case 'array':
-				$item .= "array(\r\n";
-				foreach ( (array) $value as $k => $v ) {
-					$item .= self::format_array_entry_as_settings_file_entry( $tabs + 1, $k, $v );
+				$w3tc_item .= "array(\r\n";
+				foreach ( (array) $w3tc_value as $k => $v ) {
+					$w3tc_item .= self::format_array_entry_as_settings_file_entry( $tabs + 1, $k, $v );
 				}
 
-				$item .= sprintf( "%s),\r\n", str_repeat( "\t", $tabs ) );
+				$w3tc_item .= sprintf( "%s),\r\n", str_repeat( "\t", $tabs ) );
 
-				return $item;
+				return $w3tc_item;
 
 			case 'integer':
-				$data = (string) $value;
+				$w3tc_data = (string) $w3tc_value;
 				break;
 
 			case 'double':
-				$data = (string) $value;
+				$w3tc_data = (string) $w3tc_value;
 				break;
 
 			case 'boolean':
-				$data = ( $value ? 'true' : 'false' );
+				$w3tc_data = ( $w3tc_value ? 'true' : 'false' );
 				break;
 
 			case 'NULL':
-				$data = 'null';
+				$w3tc_data = 'null';
 				break;
 
 			default:
 			case 'string':
-				$data = "'" . addcslashes( $value, "'\\" ) . "'";
+				$w3tc_data = "'" . addcslashes( $w3tc_value, "'\\" ) . "'";
 				break;
 		}
 
-		$item .= $data . ",\r\n";
+		$w3tc_item .= $w3tc_data . ",\r\n";
 
-		return $item;
+		return $w3tc_item;
 	}
 
 	/**

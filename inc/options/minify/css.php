@@ -1,11 +1,18 @@
 <?php
+/**
+ * File: css.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$is_pro = Util_Environment::is_w3tc_pro( $this->_config );
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 
 ?>
 
@@ -19,7 +26,7 @@ Util_Ui::config_item_pro(
 		'key'               => 'minify.css.embed',
 		'control'           => 'checkbox',
 		'checkbox_label'    => __( 'Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Transfer Protocol">HTTP</acronym> body', 'w3-total-cache' ),
-		'disabled'          => ( $is_pro ? null : true ),
+		'disabled'          => ( $w3tc_is_pro ? null : true ),
 		'label_class'       => 'w3tc_no_trtd',
 		'excerpt'           => __( 'Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature.', 'w3-total-cache' ),
 		'description'       => array(

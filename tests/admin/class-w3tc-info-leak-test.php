@@ -12,7 +12,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -23,7 +23,7 @@ use W3TC\Util_Environment;
 /**
  * Class: W3tc_Info_Leak_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Info_Leak_Test extends WP_UnitTestCase {
 
@@ -32,7 +32,7 @@ class W3tc_Info_Leak_Test extends WP_UnitTestCase {
 	 * `&`, `]`, or whitespace. The old pattern (`[^&\]]+`) ran on past
 	 * whitespace and preserved the nonce value in adjacent log context.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_wpnonce_stops_at_whitespace() {
 		$cases = array(
@@ -53,7 +53,7 @@ class W3tc_Info_Leak_Test extends WP_UnitTestCase {
 	 * to `'REDACTED'`. Other `define()` calls (e.g. WP_DEBUG) are not
 	 * touched.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_secrets_strips_wp_config_keys() {
 		$blob = <<<PHP
@@ -100,7 +100,7 @@ PHP;
 	 * Non-string input — null, arrays — returns an empty string
 	 * rather than blowing up; scalars are stringified.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_secrets_non_string_input() {
 		$this->assertSame( '', Util_Debug::redact_secrets( null ) );
@@ -113,7 +113,7 @@ PHP;
 	 * still appears (for legitimate support/identification), but the
 	 * `/<version>` suffix that used to be appended is gone.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_w3tc_header_omits_version() {
 		$header = Util_Environment::w3tc_header();

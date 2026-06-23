@@ -128,12 +128,17 @@ describe('rt9-98 Util_Admin::redirect open-redirect regression', function() {
 		log.log('off-host redirect landed at ' + finalUrl);
 		expect(finalUrl).not.contains(EVIL_HOST);
 		/**
-		 * `wp_validate_redirect()` falls back to admin_url(), so the
-		 * final URL must be on the WP install host (i.e. share host
-		 * with `env.adminUrl`).
+		 * `wp_validate_redirect()` falls back to `admin_url()`, so the
+		 * final URL must be on the WP install host. The flush_all
+		 * admin-bar link points at `network_admin_url()`, so the action
+		 * runs — and `admin_url()` resolves — on the network/primary
+		 * host. On subdomain multisite that differs from `env.adminUrl`
+		 * (the per-blog host, e.g. b2.wp.sandbox), so assert against the
+		 * trigger URL's host, which is where the redirect originates.
+		 * Single-site and subdir collapse to the same host either way.
 		 */
-		let installHost = new URL(env.adminUrl).host;
-		expect(new URL(finalUrl).host).equals(installHost);
+		let expectedHost = new URL(triggerUrl).host;
+		expect(new URL(finalUrl).host).equals(expectedHost);
 	});
 
 	/**

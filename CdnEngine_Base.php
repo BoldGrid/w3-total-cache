@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * W3 CDN Base class
  */
@@ -51,10 +52,10 @@ class CdnEngine_Base {
 	/**
 	 * Constructor method for initializing the CdnEngine_Base object with configuration settings.
 	 *
-	 * @param array $config Optional. An array of configuration options to override default values.
+	 * @param array $w3tc_config Optional. An array of configuration options to override default values.
 	 *                      Defaults include 'debug', 'ssl', 'compression', and 'headers'.
 	 */
-	public function __construct( $config = array() ) {
+	public function __construct( $w3tc_config = array() ) {
 		$this->_config = array_merge(
 			array(
 				'debug'       => false,
@@ -62,7 +63,7 @@ class CdnEngine_Base {
 				'compression' => false,
 				'headers'     => array(),
 			),
-			$config
+			$w3tc_config
 		);
 	}
 
@@ -165,10 +166,10 @@ class CdnEngine_Base {
 	 * @return string|false The selected domain or false if no domain is found.
 	 */
 	public function get_domain( $path = '' ) {
-		$domains = $this->get_domains();
-		$count   = count( $domains );
+		$domains    = $this->get_domains();
+		$w3tc_count = count( $domains );
 
-		if ( $count ) {
+		if ( $w3tc_count ) {
 			switch ( true ) {
 				/**
 				 * Reserved CSS
@@ -207,7 +208,7 @@ class CdnEngine_Base {
 							return isset( $domains['http_default'] ) ? $domains['http_default'] :
 								$domains['https_default'];
 						}
-					} elseif ( $count > 4 ) {
+					} elseif ( $w3tc_count > 4 ) {
 						$domain = $this->_get_domain( array_slice( $domains, 4 ), $path );
 					} else {
 						$domain = $this->_get_domain( $domains, $path );
@@ -269,18 +270,18 @@ class CdnEngine_Base {
 	 * @return string|false The formatted URL or false on failure.
 	 */
 	public function format_url( $path ) {
-		$url = $this->_format_url( $path );
+		$w3tc_url = $this->_format_url( $path );
 
-		if ( $url && $this->_config['compression'] && ( isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ? stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ), 'gzip' ) !== false : false ) && $this->_may_gzip( $path ) ) {
-			$qpos = strpos( $url, '?' );
+		if ( $w3tc_url && $this->_config['compression'] && ( isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ? stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ), 'gzip' ) !== false : false ) && $this->_may_gzip( $path ) ) {
+			$qpos = strpos( $w3tc_url, '?' );
 			if ( false !== $qpos ) {
-				$url = substr_replace( $url, $this->_gzip_extension, $qpos, 0 );
+				$w3tc_url = substr_replace( $w3tc_url, $this->_gzip_extension, $qpos, 0 );
 			} else {
-				$url .= $this->_gzip_extension;
+				$w3tc_url .= $this->_gzip_extension;
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -294,10 +295,10 @@ class CdnEngine_Base {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain ) {
-			$scheme = $this->_get_scheme();
-			$url    = sprintf( '%s://%s', $scheme, $domain );
+			$scheme   = $this->_get_scheme();
+			$w3tc_url = sprintf( '%s://%s', $scheme, $domain );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -314,10 +315,10 @@ class CdnEngine_Base {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain ) {
-			$scheme = $this->_get_scheme();
-			$url    = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+			$scheme   = $this->_get_scheme();
+			$w3tc_url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -327,29 +328,29 @@ class CdnEngine_Base {
 	 * Get results for a set of files.
 	 *
 	 * @param array  $files  The files for which results are generated.
-	 * @param string $result Optional. The result status. Default is W3TC_CDN_RESULT_OK.
+	 * @param string $w3tc_result Optional. The result status. Default is W3TC_CDN_RESULT_OK.
 	 * @param string $error  Optional. The error message. Default is 'OK'.
 	 *
 	 * @return array An array of results for each file.
 	 */
-	public function _get_results( $files, $result = W3TC_CDN_RESULT_OK, $error = 'OK' ) {
+	public function _get_results( $files, $w3tc_result = W3TC_CDN_RESULT_OK, $error = 'OK' ) {
 		$results = array();
 
-		foreach ( $files as $key => $file ) {
-			if ( is_array( $file ) ) {
-				$local_path  = $file['local_path'];
-				$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_key => $w3tc_file ) {
+			if ( is_array( $w3tc_file ) ) {
+				$local_path  = $w3tc_file['local_path'];
+				$remote_path = $w3tc_file['remote_path'];
 			} else {
-				$local_path  = $key;
-				$remote_path = $file;
+				$local_path  = $w3tc_key;
+				$remote_path = $w3tc_file;
 			}
 
 			$results[] = $this->_get_result(
 				$local_path,
 				$remote_path,
-				$result,
+				$w3tc_result,
 				$error,
-				$file
+				$w3tc_file
 			);
 		}
 
@@ -361,13 +362,13 @@ class CdnEngine_Base {
 	 *
 	 * @param string     $local_path  The local file path.
 	 * @param string     $remote_path The remote file path.
-	 * @param int        $result      The result status (default is W3TC_CDN_RESULT_OK).
+	 * @param int        $w3tc_result      The result status (default is W3TC_CDN_RESULT_OK).
 	 * @param string     $error       The error message (default is 'OK').
-	 * @param mixed|null $descriptor  Additional descriptor (default is null).
+	 * @param mixed|null $w3tc_descriptor  Additional descriptor (default is null).
 	 *
 	 * @return array The result array containing local path, remote path, result, error, and descriptor.
 	 */
-	public function _get_result( $local_path, $remote_path, $result = W3TC_CDN_RESULT_OK, $error = 'OK', $descriptor = null ) {
+	public function _get_result( $local_path, $remote_path, $w3tc_result = W3TC_CDN_RESULT_OK, $error = 'OK', $w3tc_descriptor = null ) {
 		if ( $this->_config['debug'] ) {
 			$this->_log( $local_path, $remote_path, $error );
 		}
@@ -375,9 +376,9 @@ class CdnEngine_Base {
 		return array(
 			'local_path'  => $local_path,
 			'remote_path' => $remote_path,
-			'result'      => $result,
+			'result'      => $w3tc_result,
 			'error'       => $error,
-			'descriptor'  => $descriptor,
+			'descriptor'  => $w3tc_descriptor,
 		);
 	}
 
@@ -389,8 +390,8 @@ class CdnEngine_Base {
 	 * @return bool True if any result is an error, otherwise false.
 	 */
 	public function _is_error( $results ) {
-		foreach ( $results as $result ) {
-			if ( W3TC_CDN_RESULT_OK !== $result['result'] ) {
+		foreach ( $results as $w3tc_result ) {
+			if ( W3TC_CDN_RESULT_OK !== $w3tc_result['result'] ) {
 				return true;
 			}
 		}
@@ -401,16 +402,16 @@ class CdnEngine_Base {
 	/**
 	 * Retrieves the HTTP headers for a given file.
 	 *
-	 * @param array $file      The file data array containing local path and original URL.
+	 * @param array $w3tc_file      The file data array containing local path and original URL.
 	 * @param array $whitelist Optional whitelist for specific headers (default is empty).
 	 *
 	 * @return array The HTTP headers for the file.
 	 */
-	public function get_headers_for_file( $file, $whitelist = array() ) {
-		$local_path = $file['local_path'];
+	public function get_headers_for_file( $w3tc_file, $whitelist = array() ) {
+		$local_path = $w3tc_file['local_path'];
 		$mime_type  = Util_Mime::get_mime_type( $local_path );
 
-		$link = $file['original_url'];
+		$link = $w3tc_file['original_url'];
 
 		$headers = array(
 			'Content-Type'                => $mime_type,
@@ -442,20 +443,20 @@ class CdnEngine_Base {
 	/**
 	 * Determines whether a file may be compressed using Gzip.
 	 *
-	 * @param string $file The file path.
+	 * @param string $w3tc_file The file path.
 	 *
 	 * @return bool True if the file may be gzipped, otherwise false.
 	 */
-	public function _may_gzip( $file ) {
+	public function _may_gzip( $w3tc_file ) {
 		/**
 		 * Remove query string
 		 */
-		$file = preg_replace( '~\?.*$~', '', $file );
+		$w3tc_file = preg_replace( '~\?.*$~', '', $w3tc_file );
 
 		/**
 		 * Check by file extension
 		 */
-		if ( preg_match( '~\.(ico|js|css|xml|xsd|xsl|svg|htm|html|txt)$~i', $file ) ) {
+		if ( preg_match( '~\.(ico|js|css|xml|xsd|xsl|svg|htm|html|txt)$~i', $w3tc_file ) ) {
 			return true;
 		}
 
@@ -486,17 +487,17 @@ class CdnEngine_Base {
 				$matches = null;
 
 				if ( preg_match( '~^([a-z0-9\-\.]*)~i', $_domain, $matches ) ) {
-					$hostname = $matches[1];
+					$w3tc_hostname = $matches[1];
 				} else {
-					$hostname = $_domain;
+					$w3tc_hostname = $_domain;
 				}
 
-				if ( empty( $hostname ) ) {
+				if ( empty( $w3tc_hostname ) ) {
 					continue;
 				}
 
-				if ( gethostbyname( $hostname ) === $hostname ) {
-					$error = sprintf( 'Unable to resolve hostname: %s.', $hostname );
+				if ( gethostbyname( $w3tc_hostname ) === $w3tc_hostname ) {
+					$error = sprintf( 'Unable to resolve hostname: %s.', $w3tc_hostname );
 
 					return false;
 				}
@@ -559,21 +560,21 @@ class CdnEngine_Base {
 	 * @return string|false The selected domain or false if no domain is found.
 	 */
 	public function _get_domain( $domains, $path ) {
-		$count = count( $domains );
+		$w3tc_count = count( $domains );
 		if ( isset( $domains['http_default'] ) ) {
-			--$count;
+			--$w3tc_count;
 		}
 
 		if ( isset( $domains['https_default'] ) ) {
-			--$count;
+			--$w3tc_count;
 		}
 
-		if ( $count ) {
+		if ( $w3tc_count ) {
 			/**
 			 * Use for equal URLs same host to allow caching by browser
 			 */
 			$hash   = $this->_get_hash( $path );
-			$domain = $domains[ $hash % $count ];
+			$domain = $domains[ $hash % $w3tc_count ];
 
 			return $domain;
 		}
@@ -584,12 +585,12 @@ class CdnEngine_Base {
 	/**
 	 * Generates a hash from a given key.
 	 *
-	 * @param string $key The key to hash.
+	 * @param string $w3tc_key The key to hash.
 	 *
 	 * @return int The generated hash value.
 	 */
-	public function _get_hash( $key ) {
-		$hash = abs( crc32( $key ) );
+	public function _get_hash( $w3tc_key ) {
+		$hash = abs( crc32( $w3tc_key ) );
 
 		return $hash;
 	}
@@ -632,12 +633,12 @@ class CdnEngine_Base {
 	 * @return int|false The number of bytes written to the log file, or false on failure.
 	 */
 	public function _log( $local_path, $remote_path, $error ) {
-		$data = sprintf( "[%s] [%s => %s] %s\n", gmdate( 'r' ), $local_path, $remote_path, $error );
-		$data = strtr( $data, '<>', '..' );
+		$w3tc_data = sprintf( "[%s] [%s => %s] %s\n", gmdate( 'r' ), $local_path, $remote_path, $error );
+		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'cdn' );
 
-		return @file_put_contents( $filename, $data, FILE_APPEND );
+		return @file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 	}
 
 	/**

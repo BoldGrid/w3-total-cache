@@ -40,27 +40,39 @@ describe('NewRelic extension settings + Configure popup', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('activate NewRelic extension', async() => {
+	it('activate NewRelic extension', async function() {
 		await w3tc.activateExtension(adminPage, 'newrelic')
 			.catch((e) => log.log('activate result: ' + e.message));
 
-		/**
-		 * NewRelic settings page slug is `w3tc_monitoring` per
-		 * the codebase (not the generic extension URL).
-		 */
-		let url = env.adminUrl + 'admin.php?page=w3tc_monitoring';
+		// networkAdminUrl: w3tc_* pages are not visible_always, so on
+		// multisite (default common.force_master) env.adminUrl serves WP's
+		// "not allowed" page. Single-site: same URL.
+		let urls = [
+			env.networkAdminUrl + 'admin.php?page=w3tc_general#monitoring',
+			env.networkAdminUrl + 'admin.php?page=w3tc_monitoring',
+			env.networkAdminUrl +
+				'admin.php?page=w3tc_extensions&extension=newrelic&action=view',
+		];
+		let url = urls[0];
 		await adminPage.goto(url, {waitUntil: 'domcontentloaded'});
 
 		let html = await adminPage.content();
 		if (html.indexOf('newrelic') === -1 &&
 			html.indexOf('NewRelic') === -1 &&
 			html.indexOf('New Relic') === -1) {
-			// Try the generic extension URL as fallback.
-			url = env.adminUrl +
-				'admin.php?page=w3tc_extensions&extension=newrelic&action=view';
-			await adminPage.goto(url, {waitUntil: 'domcontentloaded'});
-			html = await adminPage.content();
-			if (html.indexOf('newrelic') === -1 && html.indexOf('NewRelic') === -1) {
+			for (let i = 1; i < urls.length; i++) {
+				url = urls[i];
+				await adminPage.goto(url, {waitUntil: 'domcontentloaded'});
+				html = await adminPage.content();
+				if (html.indexOf('newrelic') !== -1 ||
+					html.indexOf('NewRelic') !== -1 ||
+					html.indexOf('New Relic') !== -1) {
+					break;
+				}
+			}
+			if (html.indexOf('newrelic') === -1 &&
+				html.indexOf('NewRelic') === -1 &&
+				html.indexOf('New Relic') === -1) {
 				log.log('SKIP: NewRelic settings page did not render');
 				this.skip();
 				return;
@@ -69,10 +81,10 @@ describe('NewRelic extension settings + Configure popup', function() {
 		log.success('NewRelic settings page rendered at ' + url);
 	});
 
-	it('monitoring_type round-trip', async() => {
+	it('monitoring_type round-trip', async function() {
 		await w3tc.setOptionInternal(adminPage, ['newrelic', 'monitoring_type'], 'browser');
 
-		let url = env.adminUrl + 'admin.php?page=w3tc_monitoring';
+		let url = env.networkAdminUrl + 'admin.php?page=w3tc_general#monitoring';
 		await adminPage.goto(url, {waitUntil: 'domcontentloaded'});
 
 		/**

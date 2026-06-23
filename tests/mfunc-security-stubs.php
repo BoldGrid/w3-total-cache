@@ -13,7 +13,7 @@
  * standalone-CLI test path; PHPUnit/WordPress runs use the real classes).
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.0
  */
 
 namespace W3TC;

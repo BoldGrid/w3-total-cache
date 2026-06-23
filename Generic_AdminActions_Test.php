@@ -51,7 +51,7 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	private function require_post_request() {
-		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) : '';
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared to a literal HTTP method only.
 		if ( 'POST' !== $method ) {
 			\status_header( 405 );
 			\header( 'Allow: POST' );
@@ -77,8 +77,8 @@ class Generic_AdminActions_Test {
 		 * Read directly from $_POST (bypassing Util_Request, which merges $_GET)
 		 * so this stays correct even if the POST-only gate is ever relaxed.
 		 */
-		$password = isset( $_POST['password'] )
-			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- password is opaque secret used only as the auth credential to memcached; nonce verified upstream by the admin-action dispatcher.
+		$password = isset( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified upstream by the admin-action dispatcher.
+			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- password is opaque secret used only as the auth credential to memcached; nonce verified upstream by the admin-action dispatcher.
 			: '';
 
 		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
@@ -98,8 +98,8 @@ class Generic_AdminActions_Test {
 		$dbid                    = Util_Request::get_integer( 'dbid', 0 );
 
 		// Read password directly from $_POST (see w3tc_test_memcached for rationale).
-		$password = isset( $_POST['password'] )
-			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- password is opaque secret used only as the auth credential to redis; nonce verified upstream by the admin-action dispatcher.
+		$password = isset( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified upstream by the admin-action dispatcher.
+			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- password is opaque secret used only as the auth credential to redis; nonce verified upstream by the admin-action dispatcher.
 			: '';
 
 		if ( empty( $servers ) ) {
@@ -169,14 +169,14 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	public function w3tc_test_minifier() {
-		$engine    = Util_Request::get_string( 'engine' );
-		$path_java = Util_Request::get_string( 'path_java' );
-		$path_jar  = Util_Request::get_string( 'path_jar' );
+		$w3tc_engine = Util_Request::get_string( 'engine' );
+		$path_java   = Util_Request::get_string( 'path_java' );
+		$path_jar    = Util_Request::get_string( 'path_jar' );
 
-		$result = false;
-		$error  = '';
+		$w3tc_result = false;
+		$error       = '';
 
-		if ( 'googleccjs' !== $engine ) {
+		if ( 'googleccjs' !== $w3tc_engine ) {
 			if ( ! $path_java ) {
 				$error = __( 'Empty JAVA executable path.', 'w3-total-cache' );
 			} elseif ( ! $path_jar ) {
@@ -192,10 +192,10 @@ class Generic_AdminActions_Test {
 		 * passed to exec(), so without this validator the value
 		 * would not be escaped at the boundary.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		$validated_java = '';
-		if ( empty( $error ) && 'googleccjs' !== $engine ) {
+		if ( empty( $error ) && 'googleccjs' !== $w3tc_engine ) {
 			$validated_java = Util_Java::validate_with_log( $path_java, 'test_minifier' );
 			if ( false === $validated_java ) {
 				$error = sprintf(
@@ -208,13 +208,13 @@ class Generic_AdminActions_Test {
 		}
 
 		if ( empty( $error ) ) {
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'yuijs':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
 					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
-					$result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
+					$w3tc_result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
 					break;
 
 				case 'yuicss':
@@ -222,7 +222,7 @@ class Generic_AdminActions_Test {
 					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
 
-					$result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
+					$w3tc_result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
 					break;
 
 				case 'ccjs':
@@ -230,11 +230,11 @@ class Generic_AdminActions_Test {
 					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $validated_java;
 					\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $path_jar;
 
-					$result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
+					$w3tc_result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
 					break;
 
 				case 'googleccjs':
-					$result = \W3TCL\Minify\Minify_JS_ClosureCompiler::test( $error );
+					$w3tc_result = \W3TCL\Minify\Minify_JS_ClosureCompiler::test( $error );
 					break;
 
 				default:
@@ -250,10 +250,10 @@ class Generic_AdminActions_Test {
 		 * text is plain text. The full fix on the dashboard renderer
 		 * is tracked in the user-experience group's own change.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		$response = array(
-			'result' => $result,
+			'result' => $w3tc_result,
 			'error'  => is_string( $error ) ? \esc_html( $error ) : '',
 		);
 

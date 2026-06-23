@@ -34,16 +34,16 @@ class UsageStatistics_Sources_Memcached {
 	public function __construct( $server_descriptors ) {
 		$this->servers = array();
 
-		foreach ( $server_descriptors as $i ) {
-			foreach ( $i['servers'] as $host_port ) {
+		foreach ( $server_descriptors as $w3tc_i ) {
+			foreach ( $w3tc_i['servers'] as $host_port ) {
 				if ( ! isset( $this->servers[ $host_port ] ) ) {
 					$this->servers[ $host_port ] = array(
-						'username'     => $i['username'],
-						'password'     => $i['password'],
-						'module_names' => array( $i['name'] ),
+						'username'     => $w3tc_i['username'],
+						'password'     => $w3tc_i['password'],
+						'module_names' => array( $w3tc_i['name'] ),
 					);
 				} else {
-					$this->servers[ $host_port ]['module_names'][] = $i['name'];
+					$this->servers[ $host_port ]['module_names'][] = $w3tc_i['name'];
 				}
 			}
 		}
@@ -64,13 +64,13 @@ class UsageStatistics_Sources_Memcached {
 		$get_calls = 0;
 		$get_hits  = 0;
 
-		foreach ( $this->servers as $host_port => $i ) {
+		foreach ( $this->servers as $host_port => $w3tc_i ) {
 			$cache = Cache::instance(
 				'memcached',
 				array(
 					'servers'  => array( $host_port ),
-					'username' => $i['username'],
-					'password' => $i['password'],
+					'username' => $w3tc_i['username'],
+					'password' => $w3tc_i['password'],
 				)
 			);
 
@@ -110,19 +110,19 @@ class UsageStatistics_Sources_Memcached {
 			'uptime'        => 0,
 		);
 
-		foreach ( $this->servers as $host_port => $i ) {
+		foreach ( $this->servers as $host_port => $w3tc_i ) {
 			$cache = Cache::instance(
 				'memcached',
 				array(
 					'servers'  => array( $host_port ),
-					'username' => $i['username'],
-					'password' => $i['password'],
+					'username' => $w3tc_i['username'],
+					'password' => $w3tc_i['password'],
 				)
 			);
 
 			$stats = $cache->get_statistics();
 
-			$sum['module_names']   = array_merge( $sum['module_names'], $i['module_names'] );
+			$sum['module_names']   = array_merge( $sum['module_names'], $w3tc_i['module_names'] );
 			$sum['size_used']     += Util_UsageStatistics::v3( $stats, 'bytes' );
 			$sum['size_maxbytes'] += Util_UsageStatistics::v3( $stats, 'limit_maxbytes' );
 			$sum['get_total']     += Util_UsageStatistics::v3( $stats, 'cmd_get' );

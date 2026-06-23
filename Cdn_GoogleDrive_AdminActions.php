@@ -50,7 +50,7 @@ class Cdn_GoogleDrive_AdminActions {
 			);
 		}
 		/**
-		 * rt9-233: Validate the session-bound OAuth state token before
+		 * RT9-233: Validate the session-bound OAuth state token before
 		 * rendering the folder picker. The popup URL is reachable to
 		 * anyone holding the current admin's session cookie via a
 		 * crafted `?oa_*=...` payload — without state validation,
@@ -85,7 +85,7 @@ class Cdn_GoogleDrive_AdminActions {
 		 * Hard admin gate: only manage_options users may bind a Google
 		 * Drive OAuth token to the site CDN config.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			wp_die(
@@ -96,7 +96,7 @@ class Cdn_GoogleDrive_AdminActions {
 		}
 
 		/**
-		 * rt9-233: OAuth state-to-session binding. The hidden state
+		 * RT9-233: OAuth state-to-session binding. The hidden state
 		 * input rendered by Cdn_GoogleDrive_Popup_AuthReturn_View must
 		 * match the token this admin's session issued at authorize-
 		 * link-click time. Without this gate, an admin tricked into
@@ -107,7 +107,7 @@ class Cdn_GoogleDrive_AdminActions {
 		 * Single-use: consume the transient after a successful match
 		 * so the same state cannot replay a second config write.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		if ( ! Cdn_GoogleDrive_OAuthState::verify( Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM ) ) ) {
 			wp_die(
@@ -119,26 +119,26 @@ class Cdn_GoogleDrive_AdminActions {
 		Cdn_GoogleDrive_OAuthState::consume();
 
 		// thanks wp core for wp_magic_quotes hell.
-		$client_id     = Util_Request::get_string( 'client_id' );
-		$access_token  = Util_Request::get_string( 'access_token' );
-		$refresh_token = Util_Request::get_string( 'refresh_token' );
+		$client_id          = Util_Request::get_string( 'client_id' );
+		$w3tc_access_token  = Util_Request::get_string( 'access_token' );
+		$w3tc_refresh_token = Util_Request::get_string( 'refresh_token' );
 
 		$client = new \W3TCG_Google_Client();
 		$client->setClientId( $client_id );
-		$client->setAccessToken( $access_token );
+		$client->setAccessToken( $w3tc_access_token );
 
 		// get folder details.
-		$service = new \W3TCG_Google_Service_Drive( $client );
+		$w3tc_service = new \W3TCG_Google_Service_Drive( $client );
 
 		if ( empty( Util_Request::get_string( 'folder' ) ) ) {
-			$file = new \W3TCG_Google_Service_Drive_DriveFile(
+			$w3tc_file = new \W3TCG_Google_Service_Drive_DriveFile(
 				array(
 					'title'    => Util_Request::get_string( 'folder_new' ),
 					'mimeType' => 'application/vnd.google-apps.folder',
 				)
 			);
 
-			$created_file   = $service->files->insert( $file );
+			$created_file   = $w3tc_service->files->insert( $w3tc_file );
 			$used_folder_id = $created_file->id;
 		} else {
 			$used_folder_id = Util_Request::get_string( 'folder' );
@@ -149,21 +149,21 @@ class Cdn_GoogleDrive_AdminActions {
 		$permission->setType( 'anyone' );
 		$permission->setRole( 'reader' );
 
-		$service->permissions->insert( $used_folder_id, $permission );
+		$w3tc_service->permissions->insert( $used_folder_id, $permission );
 
-		$used_folder = $service->files->get( $used_folder_id );
+		$used_folder = $w3tc_service->files->get( $used_folder_id );
 
 		// save new configuration.
 		delete_transient( 'w3tc_cdn_google_drive_folder_ids' );
 		$this->_config->set( 'cdn.google_drive.client_id', $client_id );
-		$this->_config->set( 'cdn.google_drive.refresh_token', $refresh_token );
+		$this->_config->set( 'cdn.google_drive.refresh_token', $w3tc_refresh_token );
 		$this->_config->set( 'cdn.google_drive.folder.id', $used_folder->id );
 		$this->_config->set( 'cdn.google_drive.folder.title', $used_folder->title );
 		$this->_config->set( 'cdn.google_drive.folder.url', $used_folder->webViewLink ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$this->_config->save();
 
 		$cs = Dispatcher::config_state();
-		$cs->set( 'cdn.google_drive.access_token', $access_token );
+		$cs->set( 'cdn.google_drive.access_token', $w3tc_access_token );
 		$cs->save();
 
 		wp_safe_redirect( 'admin.php?page=w3tc_cdn', false );

@@ -4,6 +4,8 @@
  *
  * W3 Total Cache advanced cache module.
  *
+ * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+ *
  * @package W3TC
  */
 
@@ -38,8 +40,8 @@ if ( ! defined( 'W3TC_IN_MINIFY' ) ) {
 
 			$w3tc_config = \W3TC\Dispatcher::config();
 			if ( $w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
-				$o = \W3TC\Dispatcher::component( 'PgCache_ContentGrabber' );
-				$o->process();
+				$w3tc_o = \W3TC\Dispatcher::component( 'PgCache_ContentGrabber' );
+				$w3tc_o->process();
 			}
 		}
 	}

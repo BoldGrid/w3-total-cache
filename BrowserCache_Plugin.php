@@ -223,20 +223,20 @@ class BrowserCache_Plugin {
 	 * @return string
 	 */
 	public function link_replace_callback( $matches ) {
-		list ( $match, $attr, $quote, $url, , , , , $extension ) = $matches;
+		list ( $w3tc_match, $attr, $quote, $w3tc_url, , , , , $w3tc_extension ) = $matches;
 
-		$ops = $this->_get_url_mutation_operations( $url, $extension );
+		$ops = $this->_get_url_mutation_operations( $w3tc_url, $w3tc_extension );
 		if ( is_null( $ops ) ) {
-			return $match;
+			return $w3tc_match;
 		}
 
-		$url = $this->mutate_url( $url, $ops, ! $this->browsercache_rewrite );
+		$w3tc_url = $this->mutate_url( $w3tc_url, $ops, ! $this->browsercache_rewrite );
 
 		if ( 'w3tc_load_js(' !== $attr ) {
-			return $attr . '=' . $quote . $url . $quote;
+			return $attr . '=' . $quote . $w3tc_url . $quote;
 		}
 
-		return sprintf( '%s\'%s\'', $attr, $url );
+		return sprintf( '%s\'%s\'', $attr, $w3tc_url );
 	}
 
 	/**
@@ -247,96 +247,96 @@ class BrowserCache_Plugin {
 	 * @return string
 	 */
 	public function link_replace_callback_noquote( $matches ) {
-		list ( $match, $attr, $url, , , , , $extension, , $delimiter ) = $matches;
+		list ( $w3tc_match, $attr, $w3tc_url, , , , , $w3tc_extension, , $delimiter ) = $matches;
 
-		$ops = $this->_get_url_mutation_operations( $url, $extension );
+		$ops = $this->_get_url_mutation_operations( $w3tc_url, $w3tc_extension );
 		if ( is_null( $ops ) ) {
-			return $match;
+			return $w3tc_match;
 		}
 
-		$url = $this->mutate_url( $url, $ops, ! $this->browsercache_rewrite );
+		$w3tc_url = $this->mutate_url( $w3tc_url, $ops, ! $this->browsercache_rewrite );
 
-		return $attr . '=' . $url . $delimiter;
+		return $attr . '=' . $w3tc_url . $delimiter;
 	}
 
 	/**
 	 * Mutate http/2 header links
 	 *
-	 * @param array $data Data.
+	 * @param array $w3tc_data Data.
 	 *
 	 * @return array
 	 */
-	public function w3tc_minify_http2_preload_url( $data ) {
-		if ( isset( $data['browsercache_processed'] ) ) {
-			return $data;
+	public function w3tc_minify_http2_preload_url( $w3tc_data ) {
+		if ( isset( $w3tc_data['browsercache_processed'] ) ) {
+			return $w3tc_data;
 		}
 
-		$data['browsercache_processed'] = '*';
-		$url                            = $data['result_link'];
+		$w3tc_data['browsercache_processed'] = '*';
+		$w3tc_url                            = $w3tc_data['result_link'];
 
 		// decouple extension.
 		$matches = array();
-		if ( ! preg_match( '/\.([a-zA-Z0-9]+)($|[\?])/', $url, $matches ) ) {
-			return $data;
+		if ( ! preg_match( '/\.([a-zA-Z0-9]+)($|[\?])/', $w3tc_url, $matches ) ) {
+			return $w3tc_data;
 		}
-		$extension = $matches[1];
+		$w3tc_extension = $matches[1];
 
-		$ops = $this->_get_url_mutation_operations( $url, $extension );
+		$ops = $this->_get_url_mutation_operations( $w3tc_url, $w3tc_extension );
 		if ( is_null( $ops ) ) {
-			return $data;
+			return $w3tc_data;
 		}
 
 		$mutate_by_querystring = ! $this->browsercache_rewrite;
 
-		$url                 = $this->mutate_url( $url, $ops, $mutate_by_querystring );
-		$data['result_link'] = $url;
+		$w3tc_url                 = $this->mutate_url( $w3tc_url, $ops, $mutate_by_querystring );
+		$w3tc_data['result_link'] = $w3tc_url;
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
 	 * Link replace for CDN url
 	 *
-	 * @param string $url           URL.
+	 * @param string $w3tc_url           URL.
 	 * @param string $original_url  Original URL.
 	 * @param bool   $is_cdn_mirror Is CDN mirror.
 	 *
 	 * @return string
 	 */
-	public function w3tc_cdn_url( $url, $original_url, $is_cdn_mirror ) {
+	public function w3tc_cdn_url( $w3tc_url, $original_url, $is_cdn_mirror ) {
 		// decouple extension.
 		$matches = array();
 		if ( ! preg_match( '/\.([a-zA-Z0-9]+)($|[\?])/', $original_url, $matches ) ) {
-			return $url;
+			return $w3tc_url;
 		}
-		$extension = $matches[1];
+		$w3tc_extension = $matches[1];
 
-		$ops = $this->_get_url_mutation_operations( $original_url, $extension );
+		$ops = $this->_get_url_mutation_operations( $original_url, $w3tc_extension );
 		if ( is_null( $ops ) ) {
-			return $url;
+			return $w3tc_url;
 		}
 
 		// for push cdns each flush would require manual reupload of files.
 		$mutate_by_querystring = ! $this->browsercache_rewrite || ! $is_cdn_mirror;
 
-		$url = $this->mutate_url( $url, $ops, $mutate_by_querystring );
+		$w3tc_url = $this->mutate_url( $w3tc_url, $ops, $mutate_by_querystring );
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
 	 * Mutate url
 	 *
-	 * @param string $url                   URL.
+	 * @param string $w3tc_url                   URL.
 	 * @param array  $ops                   Operations data.
 	 * @param bool   $mutate_by_querystring Mutate by querystring flag.
 	 *
 	 * @return string
 	 */
-	private function mutate_url( $url, $ops, $mutate_by_querystring ) {
-		$query_pos = strpos( $url, '?' );
+	private function mutate_url( $w3tc_url, $ops, $mutate_by_querystring ) {
+		$query_pos = strpos( $w3tc_url, '?' );
 		if ( isset( $ops['querystring'] ) && false !== $query_pos ) {
-			$url       = substr( $url, 0, $query_pos );
+			$w3tc_url  = substr( $w3tc_url, 0, $query_pos );
 			$query_pos = false;
 		}
 
@@ -345,43 +345,43 @@ class BrowserCache_Plugin {
 
 			if ( $mutate_by_querystring ) {
 				if ( false !== $query_pos ) {
-					$url = substr( $url, 0, $query_pos + 1 ) . $id . '&amp;' . substr( $url, $query_pos + 1 );
+					$w3tc_url = substr( $w3tc_url, 0, $query_pos + 1 ) . $id . '&amp;' . substr( $w3tc_url, $query_pos + 1 );
 				} else {
-					$tag_pos = strpos( $url, '#' );
+					$tag_pos = strpos( $w3tc_url, '#' );
 					if ( false === $tag_pos ) {
-						$url .= '?' . $id;
+						$w3tc_url .= '?' . $id;
 					} else {
-						$url = substr( $url, 0, $tag_pos ) . '?' . $id . substr( $url, $tag_pos );
+						$w3tc_url = substr( $w3tc_url, 0, $tag_pos ) . '?' . $id . substr( $w3tc_url, $tag_pos );
 					}
 				}
 			} else {
 				// add $id to url before extension.
 				$url_query = '';
 				if ( false !== $query_pos ) {
-					$url_query = substr( $url, $query_pos );
-					$url       = substr( $url, 0, $query_pos );
+					$url_query = substr( $w3tc_url, $query_pos );
+					$w3tc_url  = substr( $w3tc_url, 0, $query_pos );
 				}
 
-				$ext_pos   = strrpos( $url, '.' );
-				$extension = substr( $url, $ext_pos );
+				$ext_pos        = strrpos( $w3tc_url, '.' );
+				$w3tc_extension = substr( $w3tc_url, $ext_pos );
 
-				$url = substr( $url, 0, strlen( $url ) - strlen( $extension ) ) .
-					'.' . $id . $extension . $url_query;
+				$w3tc_url = substr( $w3tc_url, 0, strlen( $w3tc_url ) - strlen( $w3tc_extension ) ) .
+					'.' . $id . $w3tc_extension . $url_query;
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
 	 * Get mutatation url operations
 	 *
-	 * @param string $url       URL.
-	 * @param string $extension Operations data.
+	 * @param string $w3tc_url       URL.
+	 * @param string $w3tc_extension Operations data.
 	 *
 	 * @return string
 	 */
-	public function _get_url_mutation_operations( $url, $extension ) {
+	public function _get_url_mutation_operations( $w3tc_url, $w3tc_extension ) {
 		static $extensions = null;
 		if ( null === $extensions ) {
 			$core       = Dispatcher::component( 'BrowserCache_Core' );
@@ -393,11 +393,11 @@ class BrowserCache_Plugin {
 			$exceptions = $this->_config->get_array( 'browsercache.replace.exceptions' );
 		}
 
-		if ( ! isset( $extensions[ $extension ] ) ) {
+		if ( ! isset( $extensions[ $w3tc_extension ] ) ) {
 			return null;
 		}
 
-		$test_url = Util_Environment::remove_query( $url );
+		$test_url = Util_Environment::remove_query( $w3tc_url );
 		foreach ( $exceptions as $exception ) {
 			$escaped = str_replace( '~', '\~', $exception );
 			if ( trim( $exception ) && preg_match( '~' . $escaped . '~', $test_url ) ) {
@@ -405,7 +405,7 @@ class BrowserCache_Plugin {
 			}
 		}
 
-		return $extensions[ $extension ];
+		return $extensions[ $w3tc_extension ];
 	}
 
 	/**
@@ -417,14 +417,14 @@ class BrowserCache_Plugin {
 		static $cache_id = null;
 
 		if ( null === $cache_id ) {
-			$value = get_option( 'w3tc_browsercache_flush_timestamp' );
+			$w3tc_value = get_option( 'w3tc_browsercache_flush_timestamp' );
 
-			if ( empty( $value ) ) {
-				$value = wp_rand( 10000, 99999 ) . '';
-				update_option( 'w3tc_browsercache_flush_timestamp', $value );
+			if ( empty( $w3tc_value ) ) {
+				$w3tc_value = wp_rand( 10000, 99999 ) . '';
+				update_option( 'w3tc_browsercache_flush_timestamp', $w3tc_value );
 			}
 
-			$cache_id = substr( $value, 0, 5 );
+			$cache_id = substr( $w3tc_value, 0, 5 );
 		}
 
 		return 'x' . $cache_id;
@@ -450,11 +450,11 @@ class BrowserCache_Plugin {
 				'id'     => 'w3tc_flush_browsercache',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Browser Cache', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_browser_cache'
 					),
-					'w3tc'
+					'w3tc_flush_browser_cache'
 				),
 			);
 		}
@@ -474,17 +474,17 @@ class BrowserCache_Plugin {
 	/**
 	 * Returns headers config for CDN
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return Config
 	 */
-	public function w3tc_cdn_config_headers( $config ) {
+	public function w3tc_cdn_config_headers( $w3tc_config ) {
 		$sections = Util_Mime::sections_to_mime_types_map();
 		foreach ( $sections as $section => $v ) {
-			$config[ $section ] = $this->w3tc_cdn_config_headers_section( $section );
+			$w3tc_config[ $section ] = $this->w3tc_cdn_config_headers_section( $section );
 		}
 
-		return $config;
+		return $w3tc_config;
 	}
 
 	/**
@@ -495,18 +495,18 @@ class BrowserCache_Plugin {
 	 * @return Config
 	 */
 	private function w3tc_cdn_config_headers_section( $section ) {
-		$c        = $this->_config;
+		$w3tc_c   = $this->_config;
 		$prefix   = 'browsercache.' . $section;
-		$lifetime = $c->get_integer( $prefix . '.lifetime' );
+		$lifetime = $w3tc_c->get_integer( $prefix . '.lifetime' );
 
 		$headers = array();
 
-		if ( $c->get_boolean( $prefix . '.w3tc' ) ) {
+		if ( $w3tc_c->get_boolean( $prefix . '.w3tc' ) ) {
 			$headers['X-Powered-By'] = Util_Environment::w3tc_header();
 		}
 
-		if ( $c->get_boolean( $prefix . '.cache.control' ) ) {
-			switch ( $c->get_string( $prefix . '.cache.policy' ) ) {
+		if ( $w3tc_c->get_boolean( $prefix . '.cache.control' ) ) {
+			switch ( $w3tc_c->get_string( $prefix . '.cache.policy' ) ) {
 				case 'cache':
 					$headers['Pragma']        = 'public';
 					$headers['Cache-Control'] = 'public';
@@ -555,8 +555,8 @@ class BrowserCache_Plugin {
 		}
 
 		return array(
-			'etag'     => $c->get_boolean( $prefix . 'etag' ),
-			'expires'  => $c->get_boolean( $prefix . '.expires' ),
+			'etag'     => $w3tc_c->get_boolean( $prefix . 'etag' ),
+			'expires'  => $w3tc_c->get_boolean( $prefix . '.expires' ),
 			'lifetime' => $lifetime,
 			'static'   => $headers,
 		);
@@ -581,7 +581,7 @@ class BrowserCache_Plugin {
 	/**
 	 * Admin notice for Content-Security-Policy-Report-Only that displays if the feature is enabled and the report-uri/to isn't defined.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.1
 	 */
 	public function admin_notices() {
 		// Check if the current user is a contributor or higher.
@@ -591,7 +591,7 @@ class BrowserCache_Plugin {
 			empty( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ) &&
 			empty( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) )
 		) {
-			$message = '<p>' . sprintf(
+			$w3tc_message = '<p>' . sprintf(
 				// translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
 				esc_html__(
 					'The Content Security Policy - Report Only requires the "report-uri" and/or "report-to" directives. Please define one or both of these directives %1$shere%2$s.',
@@ -600,7 +600,7 @@ class BrowserCache_Plugin {
 				'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache#browsercache__security__cspro' ) . '" target="_blank" alt="' . esc_attr__( 'Browser Cache Content-Security-Policy-Report-Only Settings', 'w3-total-cache' ) . '">',
 				'</a>'
 			);
-			Util_Ui::error_box( $message );
+			Util_Ui::error_box( $w3tc_message );
 		}
 	}
 }

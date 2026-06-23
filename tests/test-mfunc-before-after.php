@@ -15,7 +15,7 @@
  * Exit code 0 = after-fix tests all pass (patch verified).
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.9.2
  */
 
 // Only run when invoked directly (php tests/test-mfunc-before-after.php).

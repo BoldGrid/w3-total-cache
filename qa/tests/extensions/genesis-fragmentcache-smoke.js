@@ -33,12 +33,16 @@ describe('Genesis + FragmentCache extension smoke', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('Genesis extension activates without crashing', async() => {
+	it('Genesis extension activates without crashing', async function() {
 		// Genesis extension id is `genesis.theme`.
 		await w3tc.activateExtension(adminPage, 'genesis.theme')
 			.catch((e) => log.log('activate result: ' + e.message));
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_extensions',
+		// networkAdminUrl: w3tc_extensions is not visible_always, so on
+		// multisite (default common.force_master) env.adminUrl serves WP's
+		// "not allowed" page and this spec would always this.skip(),
+		// silently losing coverage. Single-site: same URL.
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions',
 			{waitUntil: 'domcontentloaded'});
 
 		let html = await adminPage.content();
@@ -55,11 +59,13 @@ describe('Genesis + FragmentCache extension smoke', function() {
 		log.success('Genesis extension activation surface renders cleanly');
 	});
 
-	it('FragmentCache extension activates and General page renders #fragmentcache', async() => {
+	it('FragmentCache extension activates and General page renders #fragmentcache', async function() {
 		await w3tc.activateExtension(adminPage, 'fragmentcache')
 			.catch((e) => log.log('activate result: ' + e.message));
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_general',
+		// networkAdminUrl: see the note above — w3tc_general is not
+		// visible_always either, so the per-site admin would 'not allow' it.
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
 			{waitUntil: 'domcontentloaded'});
 
 		let html = await adminPage.content();

@@ -109,29 +109,29 @@ class Base_Page_Settings {
 	 * Prints checkbox with config option value.
 	 *
 	 * @param string $option_id    Option ID.
-	 * @param bool   $disabled     Disabled flag.
+	 * @param bool   $w3tc_disabled     Disabled flag.
 	 * @param string $class_prefix Class prefix.
-	 * @param bool   $label        Label.
-	 * @param bool   $force_value  Override value.
+	 * @param bool   $w3tc_label        Label.
+	 * @param bool   $w3tc_force_value  Override value.
 	 *
 	 * @return void
 	 */
-	protected function checkbox( $option_id, $disabled = false, $class_prefix = '', $label = true, $force_value = null ) {
-		$disabled = $disabled || $this->_config->is_sealed( $option_id );
-		$name     = Util_Ui::config_key_to_http_name( $option_id );
+	protected function checkbox( $option_id, $w3tc_disabled = false, $class_prefix = '', $w3tc_label = true, $w3tc_force_value = null ) {
+		$w3tc_disabled = $w3tc_disabled || $this->_config->is_sealed( $option_id );
+		$w3tc_name     = Util_Ui::config_key_to_http_name( $option_id );
 
-		if ( ! $disabled ) {
-			echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="0" />';
+		if ( ! $w3tc_disabled ) {
+			echo '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="0" />';
 		}
 
-		if ( $label ) {
+		if ( $w3tc_label ) {
 			echo '<label>';
 		}
 
-		echo '<input class="' . esc_attr( $class_prefix ) . 'enabled" type="checkbox" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="1" ';
+		echo '<input class="' . esc_attr( $class_prefix ) . 'enabled" type="checkbox" id="' . esc_attr( $w3tc_name ) . '" name="' . esc_attr( $w3tc_name ) . '" value="1" ';
 
-		if ( ! is_null( $force_value ) ) {
-			checked( $force_value, true );
+		if ( ! is_null( $w3tc_force_value ) ) {
+			checked( $w3tc_force_value, true );
 		} elseif ( 'cdn.flush_manually' === $option_id ) {
 			checked(
 				$this->_config->get_boolean(
@@ -144,7 +144,7 @@ class Base_Page_Settings {
 			checked( $this->_config->get_boolean( $option_id ), true );
 		}
 
-		if ( $disabled ) {
+		if ( $w3tc_disabled ) {
 			echo 'disabled="disabled" ';
 		}
 
@@ -155,28 +155,28 @@ class Base_Page_Settings {
 	 * Prints a radio button and if config value matches value
 	 *
 	 * @param string  $option_id    Option id.
-	 * @param unknown $value        Value.
-	 * @param bool    $disabled     Disabled flag.
+	 * @param unknown $w3tc_value        Value.
+	 * @param bool    $w3tc_disabled     Disabled flag.
 	 * @param string  $class_prefix Class prefix.
 	 *
 	 * @return void
 	 */
-	protected function radio( $option_id, $value, $disabled = false, $class_prefix = '' ) {
-		if ( is_bool( $value ) ) {
-			$r_value = $value ? '1' : '0';
+	protected function radio( $option_id, $w3tc_value, $w3tc_disabled = false, $class_prefix = '' ) {
+		if ( is_bool( $w3tc_value ) ) {
+			$r_value = $w3tc_value ? '1' : '0';
 		} else {
-			$r_value = $value;
+			$r_value = $w3tc_value;
 		}
 
-		$disabled = $disabled || $this->_config->is_sealed( $option_id );
-		$name     = Util_Ui::config_key_to_http_name( $option_id );
+		$w3tc_disabled = $w3tc_disabled || $this->_config->is_sealed( $option_id );
+		$w3tc_name     = Util_Ui::config_key_to_http_name( $option_id );
 
 		echo '<label>';
-		echo '<input class="' . esc_attr( $class_prefix ) . 'enabled" type="radio" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $r_value ) . '" ';
+		echo '<input class="' . esc_attr( $class_prefix ) . 'enabled" type="radio" id="' . esc_attr( $w3tc_name ) . '" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $r_value ) . '" ';
 
-		checked( $this->_config->get_boolean( $option_id ), $value );
+		checked( $this->_config->get_boolean( $option_id ), $w3tc_value );
 
-		if ( $disabled ) {
+		if ( $w3tc_disabled ) {
 			echo 'disabled="disabled" ';
 		}
 
@@ -199,19 +199,19 @@ class Base_Page_Settings {
 			$section_enabled = $this->_config->get_boolean( $section . '.enabled' );
 		}
 
-		$disabled = $this->_config->is_sealed( $option_id ) || ! $section_enabled;
-		$name     = Util_Ui::config_key_to_http_name( $option_id );
+		$w3tc_disabled = $this->_config->is_sealed( $option_id ) || ! $section_enabled;
+		$w3tc_name     = Util_Ui::config_key_to_http_name( $option_id );
 
-		if ( ! $disabled ) {
-			echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="0" />';
+		if ( ! $w3tc_disabled ) {
+			echo '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="0" />';
 		}
 
 		echo '<label>';
-		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="1" ';
+		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $w3tc_name ) . '" name="' . esc_attr( $w3tc_name ) . '" value="1" ';
 
 		checked( $this->_config->get_boolean( $option_id ) && $section_enabled, true );
 
-		if ( $disabled ) {
+		if ( $w3tc_disabled ) {
 			echo 'disabled="disabled" ';
 		}
 
@@ -222,12 +222,12 @@ class Base_Page_Settings {
 	 * Prints checkbox for debug option for pro.
 	 *
 	 * @param string  $option_id Option ID.
-	 * @param unknown $label     Label.
+	 * @param unknown $w3tc_label     Label.
 	 * @param unknown $label_pro Pro label.
 	 *
 	 * @return void
 	 */
-	protected function checkbox_debug_pro( $option_id, $label, $label_pro ) {
+	protected function checkbox_debug_pro( $option_id, $w3tc_label, $label_pro ) {
 		if ( is_array( $option_id ) ) {
 			$section         = $option_id[0];
 			$section_enabled = $this->_config->is_extension_active_frontend( $section );
@@ -236,27 +236,27 @@ class Base_Page_Settings {
 			$section_enabled = $this->_config->get_boolean( $section . '.enabled' );
 		}
 
-		$is_pro   = Util_Environment::is_w3tc_pro( $this->_config );
-		$disabled = $this->_config->is_sealed( $option_id ) || ! $section_enabled || ! $is_pro;
-		$name     = Util_Ui::config_key_to_http_name( $option_id );
+		$w3tc_is_pro   = Util_Environment::is_w3tc_pro( $this->_config );
+		$w3tc_disabled = $this->_config->is_sealed( $option_id ) || ! $section_enabled || ! $w3tc_is_pro;
+		$w3tc_name     = Util_Ui::config_key_to_http_name( $option_id );
 
-		if ( ! $disabled ) {
-			echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="0" />';
+		if ( ! $w3tc_disabled ) {
+			echo '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="0" />';
 		}
 
 		echo '<label>';
-		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="1" ';
+		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $w3tc_name ) . '" name="' . esc_attr( $w3tc_name ) . '" value="1" ';
 
-		checked( $this->_config->get_boolean( $option_id ) && $is_pro, true );
+		checked( $this->_config->get_boolean( $option_id ) && $w3tc_is_pro, true );
 
-		if ( $disabled ) {
+		if ( $w3tc_disabled ) {
 			echo 'disabled="disabled" ';
 		}
 
 		echo ' />';
-		echo esc_html( $label );
+		echo esc_html( $w3tc_label );
 
-		if ( $is_pro ) {
+		if ( $w3tc_is_pro ) {
 			echo wp_kses(
 				$label_pro,
 				array(
@@ -276,13 +276,13 @@ class Base_Page_Settings {
 	 * Prints checkbox for debug option for pro.
 	 *
 	 * @param string  $option_id           Option ID.
-	 * @param bool    $disabled            Disabled flag.
+	 * @param bool    $w3tc_disabled            Disabled flag.
 	 * @param unknown $value_when_disabled Override value when disabled.
 	 *
 	 * @return void
 	 */
-	protected function value_with_disabled( $option_id, $disabled, $value_when_disabled ) {
-		if ( $disabled ) {
+	protected function value_with_disabled( $option_id, $w3tc_disabled, $value_when_disabled ) {
+		if ( $w3tc_disabled ) {
 			echo 'value="' . esc_attr( $value_when_disabled ) . '" disabled="disabled" ';
 		} else {
 			echo 'value="' . esc_attr( $this->_config->get_string( $option_id ) ) . '" ';

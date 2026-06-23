@@ -90,8 +90,15 @@ describe('Setup Guide wizard happy path', function() {
 		 * The wizard loads when the user hits the setup-guide
 		 * page. Some matrix variants auto-redirect from the
 		 * dashboard on first visit; we go direct.
+		 *
+		 * Use `networkAdminUrl`: `w3tc_setup_guide` is not
+		 * `visible_always`, so on multisite with the default
+		 * `common.force_master` it is not registered on the
+		 * per-site admin (`env.adminUrl`) — that URL would serve
+		 * WP's "not allowed" page and `#w3tc-wizard-container`
+		 * below would never mount. Single-site: same URL.
 		 */
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_setup_guide',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_setup_guide',
 			{waitUntil: 'networkidle0', timeout: 60000});
 
 		// First slide must mount.

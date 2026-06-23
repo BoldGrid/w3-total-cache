@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 namespace W3TC;
@@ -35,7 +35,7 @@ namespace W3TC;
  * from the application tier. This class documents the gap rather
  * than hiding it.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Util_Url {
 
@@ -56,22 +56,22 @@ class Util_Url {
 	 *    above checks directly (so `http://127.0.0.1/`, `http://[::1]/`,
 	 *    and `http://10.0.0.5/` are refused without a DNS lookup)
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $url Candidate URL.
+	 * @param string $w3tc_url Candidate URL.
 	 *
 	 * @return bool
 	 */
-	public static function is_public_host( $url ) {
-		if ( ! \is_string( $url ) || '' === $url ) {
+	public static function is_public_host( $w3tc_url ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
 			return false;
 		}
 
-		if ( ! self::is_valid_http_scheme( $url ) ) {
+		if ( ! self::is_valid_http_scheme( $w3tc_url ) ) {
 			return false;
 		}
 
-		$host = \wp_parse_url( $url, PHP_URL_HOST );
+		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
 		if ( ! \is_string( $host ) || '' === $host ) {
 			return false;
 		}
@@ -149,22 +149,63 @@ class Util_Url {
 	}
 
 	/**
+	 * Returns true when the URL has an http/https scheme and its host
+	 * matches this installation's own home or site host.
+	 *
+	 * The comparison is a case-insensitive host-string match — no DNS
+	 * lookup. Requests the plugin issues to its own front-end (e.g.
+	 * priming this site's own minify cache files) must keep working on
+	 * installs whose hostname resolves to an internal address
+	 * (intranet, staging, split-horizon DNS), where a resolution-based
+	 * check like {@see self::is_public_host()} would refuse them.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return bool
+	 */
+	public static function is_self_host_url( $w3tc_url ) {
+		if ( ! self::is_valid_http_scheme( $w3tc_url ) ) {
+			return false;
+		}
+
+		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$self_hosts = array(
+			\wp_parse_url( \home_url(), PHP_URL_HOST ),
+			\wp_parse_url( \site_url(), PHP_URL_HOST ),
+		);
+
+		foreach ( $self_hosts as $self_host ) {
+			if ( \is_string( $self_host ) && '' !== $self_host && 0 === \strcasecmp( $host, $self_host ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true for an http or https URL; refuses every other
 	 * scheme. `gopher`, `file`, `php`, `data`, etc. each open
 	 * out-of-band fetch paths in their own right and have no place
 	 * in a `wp_remote_*` call.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $url Candidate URL.
+	 * @param string $w3tc_url Candidate URL.
 	 *
 	 * @return bool
 	 */
-	public static function is_valid_http_scheme( $url ) {
-		if ( ! \is_string( $url ) || '' === $url ) {
+	public static function is_valid_http_scheme( $w3tc_url ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
 			return false;
 		}
-		$scheme = \wp_parse_url( $url, PHP_URL_SCHEME );
+		$scheme = \wp_parse_url( $w3tc_url, PHP_URL_SCHEME );
 		return 'http' === $scheme || 'https' === $scheme;
 	}
 
@@ -181,7 +222,7 @@ class Util_Url {
 	 * PHP's filter sometimes lets these through depending on version,
 	 * and unwrapping the embedded v4 lets us re-run the v4 check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $ip IP literal (v4 or v6).
 	 *
@@ -231,7 +272,7 @@ class Util_Url {
 	 * a private-network host but a forged config value pointing at
 	 * cloud metadata or `127.0.0.1:6379` must be refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $ip IP literal (v4 or v6).
 	 *
@@ -271,7 +312,7 @@ class Util_Url {
 	 * The caller is responsible for any scheme / port / path validation
 	 * separately — this method takes a hostname or literal, not a URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $host Hostname or IP literal (no scheme, no port).
 	 *
@@ -335,26 +376,26 @@ class Util_Url {
 	 * matched by a `rackspacecloud.com` suffix on an attacker-owned
 	 * `foorackspacecloud.com.evil.example`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $url               Candidate URL.
+	 * @param string $w3tc_url               Candidate URL.
 	 * @param array  $allowed_suffixes  Host suffixes such as
 	 *                                   `array( '.rackspacecloud.com',
 	 *                                   '.rackcdn.com' )`.
 	 *
 	 * @return bool
 	 */
-	public static function is_https_public_host_with_suffix( $url, array $allowed_suffixes ) {
-		if ( ! \is_string( $url ) || '' === $url ) {
+	public static function is_https_public_host_with_suffix( $w3tc_url, array $allowed_suffixes ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
 			return false;
 		}
-		if ( 'https' !== \wp_parse_url( $url, PHP_URL_SCHEME ) ) {
+		if ( 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ) {
 			return false;
 		}
-		if ( ! self::is_public_host( $url ) ) {
+		if ( ! self::is_public_host( $w3tc_url ) ) {
 			return false;
 		}
-		$host = \wp_parse_url( $url, PHP_URL_HOST );
+		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
 		if ( ! \is_string( $host ) || '' === $host ) {
 			return false;
 		}

@@ -19,7 +19,7 @@
  * Exit code 0 = all pass, non-zero = failures.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.0
  */
 
 // Only run when invoked directly; bail under PHPUnit auto-discovery.
@@ -59,7 +59,7 @@ require_once __DIR__ . '/../Util_Rule.php';
 
 /**
  * ---------------------------------------------------------------------------
- * rt9-30 — safe_simplexml_load_string() XXE protections.
+ * RT9-30 — safe_simplexml_load_string() XXE protections.
  * ---------------------------------------------------------------------------
  */
 
@@ -113,7 +113,7 @@ srh_assert(
 
 /**
  * ---------------------------------------------------------------------------
- * rt9-209 — is_valid_custom_rules_path() containment.
+ * RT9-209 — is_valid_custom_rules_path() containment.
  * ---------------------------------------------------------------------------
  */
 
@@ -139,7 +139,7 @@ srh_assert( '[16] rejects non-string value', false === $valid_path( array( 'x' )
 
 /**
  * ---------------------------------------------------------------------------
- * rt9-32 — vendored S3Compatible XML parser hardened (source-level guard).
+ * RT9-32 — vendored S3Compatible XML parser hardened (source-level guard).
  * The call is buried in the cURL request/response flow, so we assert the
  * hardening is present in source rather than constructing a full S3 response.
  * ---------------------------------------------------------------------------

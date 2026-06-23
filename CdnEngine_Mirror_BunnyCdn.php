@@ -11,7 +11,7 @@ namespace W3TC;
 /**
  * Class: CdnEngine_Mirror_BunnyCdn
  *
- * @since 2.6.0
+ * @since 2.6.1
  *
  * @extends CdnEngine_Mirror
  */
@@ -19,18 +19,18 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 	/**
 	 * Constructor.
 	 *
-	 * @param array $config {
+	 * @param array $w3tc_config {
 	 *     Configuration.
 	 *
-	 *     @type string $account_api_key Account API key.
+	 *     @type string $w3tc_account_api_key Account API key.
 	 *     @type string $storage_api_key Storage API key.
 	 *     @type string $stream_api_key  Steam API key.
 	 *     @type int    $pull_zone_id    Pull zone id.
-	 *     @type string $cdn_hostname    CDN hostname.
+	 *     @type string $w3tc_cdn_hostname    CDN hostname.
 	 * }
 	 */
-	public function __construct( array $config = array() ) {
-		$config = \array_merge(
+	public function __construct( array $w3tc_config = array() ) {
+		$w3tc_config = \array_merge(
 			array(
 				'account_api_key' => '',
 				'storage_api_key' => '',
@@ -38,10 +38,10 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 				'pull_zone_id'    => null,
 				'domain'          => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 	}
 
 	/**
@@ -74,10 +74,10 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 		try {
 			$items = array();
 
-			foreach ( $files as $file ) {
+			foreach ( $files as $w3tc_file ) {
 				foreach ( $url_prefixes as $prefix ) {
 					$items[] = array(
-						'url'       => $prefix . '/' . $file['remote_path'],
+						'url'       => $prefix . '/' . $w3tc_file['remote_path'],
 						'recursive' => true,
 					);
 				}
@@ -111,15 +111,15 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 
 		// Purge active pull zones: CDN & CDNFSD.
 		$active_zone_ids = array();
-		$config          = Dispatcher::config();
-		$cdn_zone_id     = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
+		$w3tc_config     = Dispatcher::config();
+		$cdn_zone_id     = $w3tc_config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
+		$cdnfsd_zone_id  = $w3tc_config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
 
-		if ( $config->get_boolean( 'cdn.enabled' ) && 'bunnycdn' === $config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
+		if ( $w3tc_config->get_boolean( 'cdn.enabled' ) && 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
 			$active_ids[] = $cdn_zone_id;
 		}
 
-		if ( $config->get_boolean( 'cdnfsd.enabled' ) && 'bunnycdn' === $config->get_string( 'cdnfsd.engine' ) && $cdnfsd_zone_id ) {
+		if ( $w3tc_config->get_boolean( 'cdnfsd.enabled' ) && 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' ) && $cdnfsd_zone_id ) {
 			$active_ids[] = $cdnfsd_zone_id;
 		}
 

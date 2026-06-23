@@ -29,7 +29,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -40,7 +40,7 @@ use W3TC\PgCache_ContentGrabber;
 /**
  * Class: W3tc_File_Inclusion_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 
@@ -53,7 +53,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	private $tempfiles_to_unlink = array();
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function tear_down() {
 		foreach ( $this->tempfiles_to_unlink as $path ) {
@@ -82,7 +82,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * the process, so a later assertion can confirm the include happened
 	 * without the test file needing to set globals or echo.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $path     Absolute file path to write.
 	 * @param string $constant Constant name to define inside the file.
@@ -105,7 +105,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * Empty `pgcache.bad_behavior_path` is the default — `_bad_behavior()`
 	 * must short-circuit cleanly without inspecting the filesystem.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_empty_path_short_circuits() {
 		$config = Dispatcher::config();
@@ -124,7 +124,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * `realpath()` returns false for a missing file, which makes the early
 	 * return fire.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_nonexistent_path_is_rejected() {
 		$config = Dispatcher::config();
@@ -143,7 +143,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * config key to that path. The fix is exactly the "must live under
 	 * WP_PLUGIN_DIR" check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_path_outside_plugin_dir_is_rejected() {
 		$evil_path = \sys_get_temp_dir() . '/w3tc-file-inclusion-evil-' . uniqid() . '.php';
@@ -168,7 +168,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * the validator failed we'd hit a parse error, but the test fails on the
 	 * assertion before that.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_etc_passwd_is_rejected() {
 		if ( ! \is_readable( '/etc/passwd' ) ) {
@@ -195,7 +195,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * input passes a naive string check, `realpath()` normalises `..` segments
 	 * and the prefix test runs against the *resolved* path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_path_traversal_is_rejected_after_realpath() {
 		if ( ! \defined( 'WP_PLUGIN_DIR' ) ) {
@@ -234,7 +234,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * still load. We write a sentinel file under WP_PLUGIN_DIR/w3tc-test-bb
 	 * to confirm the include path runs.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_path_inside_plugin_dir_is_included() {
 		if ( ! \defined( 'WP_PLUGIN_DIR' ) || ! \is_dir( WP_PLUGIN_DIR ) || ! \is_writable( WP_PLUGIN_DIR ) ) {
@@ -269,7 +269,7 @@ class W3tc_File_Inclusion_Test extends WP_UnitTestCase {
 	 * second realpath-side check after canonicalisation, so a config value
 	 * pointing at a directory does not trip on `require_once <dir>`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_directory_is_rejected() {
 		if ( ! \defined( 'WP_PLUGIN_DIR' ) ) {

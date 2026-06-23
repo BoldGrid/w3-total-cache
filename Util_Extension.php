@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 namespace W3TC;
@@ -28,7 +28,7 @@ namespace W3TC;
  * accepted at read time via convert_legacy_entries() -- unknown slugs
  * (and unknown reverse-mapped paths) are dropped, not loaded.
  *
- * @since X.X.X
+ * @since 2.10.0
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
@@ -46,7 +46,7 @@ class Util_Extension {
 	 * not listed here cannot be loaded by Root_Loader::run_extensions or
 	 * PgCache_ContentGrabber::run_extensions_dropin.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var array<string,string>
 	 */
@@ -71,7 +71,7 @@ class Util_Extension {
 	/**
 	 * Returns the slug -> relative-path allowlist.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array<string,string>
 	 */
@@ -99,12 +99,12 @@ class Util_Extension {
 	 *            the resolved file MUST live under W3TC_EXTENSION_DIR
 	 *            regardless of which lookup source produced it. The
 	 *            trust posture matches `Extensions_Util::activate_extension()`,
-	 *            which already accepts `$meta['path']` from the same
+	 *            which already accepts `$w3tc_meta['path']` from the same
 	 *            filter source — but unlike that older code, this
 	 *            validator never concatenates the raw value into an
 	 *            include without the realpath + prefix check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $slug Extension slug.
 	 *
@@ -148,7 +148,7 @@ class Util_Extension {
 	 * up at both sites or at neither — there is no path where the
 	 * legacy-converter accepts a slug that the resolver later refuses.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $slug Extension slug.
 	 *
@@ -164,29 +164,39 @@ class Util_Extension {
 		 * Filter-driven fallback (third-party extension API). The
 		 * `w3tc_extensions` filter is fired by `Extensions_Util::get_extensions()`
 		 * and aggregates registrations from every loaded extension's
-		 * `_Plugin_Admin::w3tc_extensions` callback. We only consult it
-		 * when WordPress is loaded (otherwise the filter machinery is
-		 * unavailable) and when a `Dispatcher::config()` is reachable.
-		 * In the page-cache pre-bootstrap path neither holds, so the
-		 * fallback is a no-op there — the hard-coded map above is the
-		 * only source.
+		 * `_Plugin_Admin::w3tc_extensions` callback. Those callbacks are not
+		 * registered until `plugins_loaded`, so consulting the filter any
+		 * earlier yields nothing useful.
+		 *
+		 * We therefore gate on `did_action( 'plugins_loaded' )` rather than the
+		 * mere presence of `apply_filters()`. The page-cache drop-in
+		 * (advanced-cache.php) is included from wp-settings.php *after*
+		 * plugin.php (which defines `apply_filters()`) but *before*
+		 * functions.php (which defines core helpers such as
+		 * `__return_empty_array()` used inside `get_extensions()`). A
+		 * presence-of-`apply_filters` check therefore passes during that
+		 * pre-bootstrap window and faults on the not-yet-loaded core helper.
+		 * Before `plugins_loaded` this fallback is a true no-op — the
+		 * hard-coded map above is the only source. The leading
+		 * `function_exists( 'did_action' )` guard keeps the check itself safe
+		 * if it is ever reached before the hook API is loaded.
 		 */
-		if ( ! \function_exists( 'apply_filters' ) || ! \class_exists( '\W3TC\Dispatcher' ) || ! \class_exists( '\W3TC\Extensions_Util' ) ) {
+		if ( ! \function_exists( 'did_action' ) || ! \did_action( 'plugins_loaded' ) || ! \class_exists( '\W3TC\Dispatcher' ) || ! \class_exists( '\W3TC\Extensions_Util' ) ) {
 			return false;
 		}
 
-		$config = Dispatcher::config();
-		if ( null === $config ) {
+		$w3tc_config = Dispatcher::config();
+		if ( null === $w3tc_config ) {
 			return false;
 		}
 
-		$all = Extensions_Util::get_extensions( $config );
+		$all = Extensions_Util::get_extensions( $w3tc_config );
 		if ( ! \is_array( $all ) || ! isset( $all[ $slug ] ) ) {
 			return false;
 		}
 
-		$meta = $all[ $slug ];
-		if ( ! \is_array( $meta ) || empty( $meta['path'] ) || ! \is_string( $meta['path'] ) ) {
+		$w3tc_meta = $all[ $slug ];
+		if ( ! \is_array( $w3tc_meta ) || empty( $w3tc_meta['path'] ) || ! \is_string( $w3tc_meta['path'] ) ) {
 			return false;
 		}
 
@@ -198,17 +208,17 @@ class Util_Extension {
 		 * platform resolving `..` segments in a way the prefix check
 		 * misses.
 		 */
-		if ( false !== \strpos( $meta['path'], '..' ) ) {
+		if ( false !== \strpos( $w3tc_meta['path'], '..' ) ) {
 			return false;
 		}
 
-		return \str_replace( '\\', '/', \trim( $meta['path'], '/' ) );
+		return \str_replace( '\\', '/', \trim( $w3tc_meta['path'], '/' ) );
 	}
 
 	/**
 	 * Loads an extension file by slug, gated by resolve().
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $slug Extension slug.
 	 *
@@ -252,7 +262,7 @@ class Util_Extension {
 	 * master.php. Existing installs continue to work; unknown legacy entries
 	 * simply don't load anymore.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $active Raw `extensions.active*` array from Config.
 	 *
@@ -267,8 +277,8 @@ class Util_Extension {
 
 		$out = array();
 
-		foreach ( $active as $key => $value ) {
-			if ( ! \is_string( $key ) || '' === $key ) {
+		foreach ( $active as $w3tc_key => $w3tc_value ) {
+			if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key ) {
 				continue;
 			}
 
@@ -281,11 +291,11 @@ class Util_Extension {
 			 * and a falsy value reads as "deactivated" at every other
 			 * call site.
 			 */
-			if ( false === $value || null === $value || 0 === $value ) {
+			if ( false === $w3tc_value || null === $w3tc_value || 0 === $w3tc_value ) {
 				continue;
 			}
 
-			$expected = self::expected_relative_path( $key );
+			$expected = self::expected_relative_path( $w3tc_key );
 			if ( false === $expected ) {
 				continue;
 			}
@@ -297,14 +307,14 @@ class Util_Extension {
 			 * produces `slug => ''` and treating it as accept would skip
 			 * the path-shape check entirely.
 			 */
-			if ( \is_string( $value ) && '*' !== $value ) {
-				$normalized = \str_replace( '\\', '/', \trim( $value, '/' ) );
+			if ( \is_string( $w3tc_value ) && '*' !== $w3tc_value ) {
+				$normalized = \str_replace( '\\', '/', \trim( $w3tc_value, '/' ) );
 				if ( $normalized !== $expected ) {
 					continue;
 				}
 			}
 
-			$out[ $key ] = $expected;
+			$out[ $w3tc_key ] = $expected;
 		}
 
 		return $out;

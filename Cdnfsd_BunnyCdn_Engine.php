@@ -21,17 +21,17 @@ class Cdnfsd_BunnyCdn_Engine {
 	 *
 	 * @var array
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $config CDN configuration.
+	 * @param array $w3tc_config CDN configuration.
 	 */
-	public function __construct( array $config = array() ) {
-		$this->config = $config;
+	public function __construct( array $w3tc_config = array() ) {
+		$this->w3tc_config = $w3tc_config;
 	}
 
 	/**
@@ -44,16 +44,16 @@ class Cdnfsd_BunnyCdn_Engine {
 	 * @return void
 	 */
 	public function flush_urls( array $urls ) {
-		if ( empty( $this->config['account_api_key'] ) ) {
+		if ( empty( $this->w3tc_config['account_api_key'] ) ) {
 			throw new \Exception( \esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
 		}
 
-		$api   = new Cdn_BunnyCdn_Api( $this->config );
+		$api   = new Cdn_BunnyCdn_Api( $this->w3tc_config );
 		$items = array();
 
-		foreach ( $urls as $url ) {
+		foreach ( $urls as $w3tc_url ) {
 			$items[] = array(
-				'url'       => $url,
+				'url'       => $w3tc_url,
 				'recursive' => true,
 			);
 		}
@@ -77,18 +77,18 @@ class Cdnfsd_BunnyCdn_Engine {
 	 * @throws \Exception Exception.
 	 */
 	public function flush_all() {
-		if ( empty( $this->config['account_api_key'] ) ) {
+		if ( empty( $this->w3tc_config['account_api_key'] ) ) {
 			throw new \Exception( \esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $this->config['pull_zone_id'] ) || ! \is_int( $this->config['pull_zone_id'] ) ) {
+		if ( empty( $this->w3tc_config['pull_zone_id'] ) || ! \is_int( $this->w3tc_config['pull_zone_id'] ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		$api = new Cdn_BunnyCdn_Api( $this->config );
+		$api = new Cdn_BunnyCdn_Api( $this->w3tc_config );
 
 		try {
-			$r = $api->purge_pull_zone();
+			$w3tc_r = $api->purge_pull_zone();
 		} catch ( \Exception $ex ) {
 			throw new \Exception( \esc_html( \__( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ) );
 		}

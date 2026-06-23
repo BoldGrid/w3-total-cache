@@ -32,7 +32,7 @@ class Extension_CloudFlare_Page {
 			wp_enqueue_script(
 				'w3tc_extension_cloudflare',
 				plugins_url( 'Extension_CloudFlare_Page_View.js', W3TC_FILE ),
-				array( 'jquery' ),
+				array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ),
 				'1.0',
 				false
 			);
@@ -56,21 +56,21 @@ class Extension_CloudFlare_Page {
 	 * @throws \Exception If an error occurs while retrieving Cloudflare settings.
 	 */
 	public static function w3tc_extension_page_cloudflare() {
-		$c   = Dispatcher::config();
-		$api = Extension_CloudFlare_SettingsForUi::api();
+		$w3tc_c = Dispatcher::config();
+		$api    = Extension_CloudFlare_SettingsForUi::api();
 
-		$email   = $c->get_string( array( 'cloudflare', 'email' ) );
-		$key     = $c->get_string( array( 'cloudflare', 'key' ) );
-		$zone_id = $c->get_string( array( 'cloudflare', 'zone_id' ) );
+		$email    = $w3tc_c->get_string( array( 'cloudflare', 'email' ) );
+		$w3tc_key = $w3tc_c->get_string( array( 'cloudflare', 'key' ) );
+		$zone_id  = $w3tc_c->get_string( array( 'cloudflare', 'zone_id' ) );
 
-		if ( empty( $zone_id ) || ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
+		if ( empty( $zone_id ) || ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $w3tc_key ) ) {
 			$state = 'not_configured';
 		} else {
-			$settings = array();
+			$w3tc_settings = array();
 
 			try {
-				$settings = Extension_CloudFlare_SettingsForUi::settings_get( $api );
-				$state    = 'available';
+				$w3tc_settings = Extension_CloudFlare_SettingsForUi::settings_get( $api );
+				$state         = 'available';
 			} catch ( \Exception $ex ) {
 				$state         = 'not_available';
 				$error_message = $ex->getMessage();
@@ -78,7 +78,7 @@ class Extension_CloudFlare_Page {
 			}
 		}
 
-		$config = $c;
+		$w3tc_config = $w3tc_c;
 
 		include W3TC_DIR . '/Extension_CloudFlare_Page_View.php';
 	}
@@ -86,30 +86,30 @@ class Extension_CloudFlare_Page {
 	/**
 	 * Renders a checkbox input for the Cloudflare settings.
 	 *
-	 * @param array $settings The current Cloudflare settings.
-	 * @param array $data     Metadata for the checkbox input (key, label, description, etc.).
+	 * @param array $w3tc_settings The current Cloudflare settings.
+	 * @param array $w3tc_data     Metadata for the checkbox input (key, label, description, etc.).
 	 *
 	 * @return void
 	 */
-	private static function cloudflare_checkbox( $settings, $data ) {
-		if ( ! isset( $settings[ $data['key'] ] ) ) {
+	private static function cloudflare_checkbox( $w3tc_settings, $w3tc_data ) {
+		if ( ! isset( $w3tc_settings[ $w3tc_data['key'] ] ) ) {
 			return;
 		}
 
-		$value    = ( 'on' === $settings[ $data['key'] ]['value'] );
-		$disabled = ! $settings[ $data['key'] ]['editable'];
+		$w3tc_value    = ( 'on' === $w3tc_settings[ $w3tc_data['key'] ]['value'] );
+		$w3tc_disabled = ! $w3tc_settings[ $w3tc_data['key'] ]['editable'];
 
 		Util_Ui::table_tr(
 			array(
-				'id'          => $data['key'],
-				'label'       => $data['label'],
+				'id'          => $w3tc_data['key'],
+				'label'       => $w3tc_data['label'],
 				'checkbox'    => array(
-					'name'     => 'cloudflare_api_' . $data['key'],
-					'value'    => $value,
-					'disabled' => $disabled,
+					'name'     => 'cloudflare_api_' . $w3tc_data['key'],
+					'value'    => $w3tc_value,
+					'disabled' => $w3tc_disabled,
 					'label'    => 'Enable',
 				),
-				'description' => $data['description'],
+				'description' => $w3tc_data['description'],
 			)
 		);
 	}
@@ -117,30 +117,30 @@ class Extension_CloudFlare_Page {
 	/**
 	 * Renders a select box input for the Cloudflare settings.
 	 *
-	 * @param array $settings The current Cloudflare settings.
-	 * @param array $data     Metadata for the select box input (key, label, values, etc.).
+	 * @param array $w3tc_settings The current Cloudflare settings.
+	 * @param array $w3tc_data     Metadata for the select box input (key, label, values, etc.).
 	 *
 	 * @return void
 	 */
-	private static function cloudflare_selectbox( $settings, $data ) {
-		if ( ! isset( $settings[ $data['key'] ] ) ) {
+	private static function cloudflare_selectbox( $w3tc_settings, $w3tc_data ) {
+		if ( ! isset( $w3tc_settings[ $w3tc_data['key'] ] ) ) {
 			return;
 		}
 
-		$value    = $settings[ $data['key'] ]['value'];
-		$disabled = ! $settings[ $data['key'] ]['editable'];
+		$w3tc_value    = $w3tc_settings[ $w3tc_data['key'] ]['value'];
+		$w3tc_disabled = ! $w3tc_settings[ $w3tc_data['key'] ]['editable'];
 
 		Util_Ui::table_tr(
 			array(
-				'id'          => $data['key'],
-				'label'       => $data['label'],
+				'id'          => $w3tc_data['key'],
+				'label'       => $w3tc_data['label'],
 				'selectbox'   => array(
-					'name'     => 'cloudflare_api_' . $data['key'],
-					'value'    => $value,
-					'disabled' => $disabled,
-					'values'   => $data['values'],
+					'name'     => 'cloudflare_api_' . $w3tc_data['key'],
+					'value'    => $w3tc_value,
+					'disabled' => $w3tc_disabled,
+					'values'   => $w3tc_data['values'],
 				),
-				'description' => $data['description'],
+				'description' => $w3tc_data['description'],
 			)
 		);
 	}
@@ -148,29 +148,29 @@ class Extension_CloudFlare_Page {
 	/**
 	 * Renders a text input box for the Cloudflare settings.
 	 *
-	 * @param array $settings The current Cloudflare settings.
-	 * @param array $data     Metadata for the text input box (key, label, description, etc.).
+	 * @param array $w3tc_settings The current Cloudflare settings.
+	 * @param array $w3tc_data     Metadata for the text input box (key, label, description, etc.).
 	 *
 	 * @return void
 	 */
-	private static function cloudflare_textbox( $settings, $data ) {
-		if ( ! isset( $settings[ $data['key'] ] ) ) {
+	private static function cloudflare_textbox( $w3tc_settings, $w3tc_data ) {
+		if ( ! isset( $w3tc_settings[ $w3tc_data['key'] ] ) ) {
 			return;
 		}
 
-		$value    = $settings[ $data['key'] ]['value'];
-		$disabled = ! $settings[ $data['key'] ]['editable'];
+		$w3tc_value    = $w3tc_settings[ $w3tc_data['key'] ]['value'];
+		$w3tc_disabled = ! $w3tc_settings[ $w3tc_data['key'] ]['editable'];
 
 		Util_Ui::table_tr(
 			array(
-				'id'          => $data['key'],
-				'label'       => $data['label'],
+				'id'          => $w3tc_data['key'],
+				'label'       => $w3tc_data['label'],
 				'textbox'     => array(
-					'name'     => 'cloudflare_api_' . $data['key'],
-					'value'    => $value,
-					'disabled' => $disabled,
+					'name'     => 'cloudflare_api_' . $w3tc_data['key'],
+					'value'    => $w3tc_value,
+					'disabled' => $w3tc_disabled,
 				),
-				'description' => $data['description'],
+				'description' => $w3tc_data['description'],
 			)
 		);
 	}

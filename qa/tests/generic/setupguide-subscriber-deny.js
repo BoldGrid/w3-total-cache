@@ -93,11 +93,25 @@ describe('sec-missing-auth-setupguide-ajax subscriber-deny regression', function
 
 	it('subscriber session is denied every SetupGuide AJAX action', async() => {
 		/**
-		 * Create a subscriber via the existing helper. The
-		 * returned password lets us log in.
+		 * On multisite, `userSignUp` creates the user via the
+		 * invitation flow and reads the activation link out of
+		 * wp-content/mail.txt, so capture outbound mail there first.
+		 * (Single-site signup reads the password from the form and
+		 * ignores mail.txt; copying the catcher is harmless there.)
+		 */
+		await sys.copyPhpToPath('../../plugins/user-signup.php',
+			env.wpContentPath + 'mu-plugins');
+
+		/**
+		 * Create a subscriber via the existing helper. The returned
+		 * password lets us log in. The login MUST be [a-z0-9] only:
+		 * multisite `wpmu_validate_user_signup()` rejects underscores
+		 * and uppercase, whereas single-site `edit_user()` is
+		 * permissive — which is why `sgsub_<ts>` passed on single-site
+		 * but errored on the network add-user form (no #message div).
 		 */
 		const suffix = Date.now();
-		const userLogin = 'sgsub_' + suffix;
+		const userLogin = 'sgsub' + suffix;
 		const userEmail = 'sgsub' + suffix + '@example.com';
 		let subPassword = await wp.userSignUp(adminPage, {
 			user_login: userLogin,
@@ -105,10 +119,9 @@ describe('sec-missing-auth-setupguide-ajax subscriber-deny regression', function
 			role:       'subscriber'
 		});
 		/**
-		 * `userSignUp` on multisite returns the subscriber's
-		 * password from the activation email. `login` (used by
-		 * sys.beforeDefault) is hardcoded to 'admin' so we use a
-		 * manual login here.
+		 * `userSignUp` on multisite returns a wp-cli-set
+		 * password. `login` (used by sys.beforeDefault) is
+		 * hardcoded to 'admin' so we use a manual login here.
 		 */
 		await loginAsSubscriber(userLogin, subPassword)
 			.catch(async (e) => {

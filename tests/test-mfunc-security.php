@@ -10,7 +10,7 @@
  * Exit code 0 = all pass, non-zero = failures.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.9.2
  */
 
 /**
@@ -841,7 +841,7 @@ assert_true(
 );
 
 /**
- * ── 4q. _doing_it_wrong is called with esc_html($kind) and 'X.X.X' version
+ * ── 4q. _doing_it_wrong is called with esc_html($kind) and '2.10.0' version
  * ──   ($kind is internal but PHPCS flags it; X.X.X is the build placeholder)
  */
 $GLOBALS['__test_did_wrong']  = array();
@@ -856,7 +856,7 @@ assert_true(
 assert_true(
 	'[4q.version] _doing_it_wrong version is X.X.X (build placeholder)',
 	isset( $GLOBALS['__test_did_wrong'][0]['ver'] )
-		&& 'X.X.X' === $GLOBALS['__test_did_wrong'][0]['ver'],
+		&& '2.10.0' === $GLOBALS['__test_did_wrong'][0]['ver'],
 	'ver: ' . ( $GLOBALS['__test_did_wrong'][0]['ver'] ?? '<unset>' )
 );
 

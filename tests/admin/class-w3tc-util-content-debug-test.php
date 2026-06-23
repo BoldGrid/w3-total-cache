@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -15,13 +15,13 @@ use W3TC\Util_Debug;
 /**
  * Class: Util_Content_Debug_Test
  *
- * @since X.X.X
+ * @since 2.8.11
  */
 class W3tc_Util_Content_Debug_Test extends WP_UnitTestCase {
 	/**
 	 * Test HTML detection helpers.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.11
 	 */
 	public function test_is_html_and_xml() {
 		$html = "<!DOCTYPE html><html><body>Hi</body></html>";
@@ -37,7 +37,7 @@ class W3tc_Util_Content_Debug_Test extends WP_UnitTestCase {
 	/**
 	 * Test escaping and http date formatting.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.11
 	 */
 	public function test_escape_and_http_date() {
 		$comment = 'This -- should be escaped';
@@ -51,7 +51,7 @@ class W3tc_Util_Content_Debug_Test extends WP_UnitTestCase {
 	/**
 	 * Test endpoint parsing utility.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.11
 	 */
 	public function test_endpoint_to_host_port() {
 		$this->assertSame( array( '127.0.0.1', 80 ), Util_Content::endpoint_to_host_port( '127.0.0.1:80' ) );
@@ -62,7 +62,7 @@ class W3tc_Util_Content_Debug_Test extends WP_UnitTestCase {
 	/**
 	 * Test debug logging creates file in defined directory.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.11
 	 *
 	 * Ensure constant definition does not leak to other tests.
 	 *

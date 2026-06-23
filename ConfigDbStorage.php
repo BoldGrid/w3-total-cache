@@ -28,11 +28,11 @@ class ConfigDbStorage {
 	 * @return array|null Array of configuration settings or null if none exist.
 	 */
 	public static function util_array_from_storage( $blog_id, $preview ) {
-		$content = self::load_content( $blog_id, $preview );
-		$config  = @json_decode( $content, true );
+		$content     = self::load_content( $blog_id, $preview );
+		$w3tc_config = @json_decode( $content, true );
 
-		if ( is_array( $config ) ) {
-			return $config;
+		if ( is_array( $w3tc_config ) ) {
+			return $w3tc_config;
 		}
 
 		return null;
@@ -95,15 +95,15 @@ class ConfigDbStorage {
 	 *
 	 * @param int          $blog_id Blog ID to save the configuration for.
 	 * @param bool         $preview Whether to save as a preview configuration.
-	 * @param string|array $data    Configuration data to save, either as a string or an array.
+	 * @param string|array $w3tc_data    Configuration data to save, either as a string or an array.
 	 *
 	 * @return void
 	 */
-	public static function save_item( $blog_id, $preview, $data ) {
-		if ( is_string( $data ) ) {
-			$config = $data;
+	public static function save_item( $blog_id, $preview, $w3tc_data ) {
+		if ( is_string( $w3tc_data ) ) {
+			$w3tc_config = $w3tc_data;
 		} else {
-			$config = wp_json_encode( $data );
+			$w3tc_config = wp_json_encode( $w3tc_data );
 		}
 
 		$table       = self::get_table( $blog_id );
@@ -116,7 +116,7 @@ class ConfigDbStorage {
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE $table SET option_value = %s WHERE option_name = %s",
-					$config,
+					$w3tc_config,
 					$option_name
 				)
 			);
@@ -125,7 +125,7 @@ class ConfigDbStorage {
 				$wpdb->prepare(
 					"INSERT INTO $table (option_name, option_value) VALUES (%s, %s)",
 					$option_name,
-					$config
+					$w3tc_config
 				)
 			);
 		}
@@ -333,7 +333,7 @@ class _WpdbEssentials {
 	 * @var    \mysqli_result|false
 	 * @access private
 	 */
-	private $result;
+	private $w3tc_result;
 
 	/**
 	 * Initializes the database connection.
@@ -380,7 +380,7 @@ class _WpdbEssentials {
 		 * path uses, so callers see a consistent "not connected"
 		 * shape regardless of which leg failed.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		if ( ! ( $this->dbh instanceof \mysqli ) ) {
 			$this->dbh        = null;
@@ -562,12 +562,12 @@ class _WpdbEssentials {
 
 		$num_rows          = 0;
 		$this->last_result = array();
-		if ( $this->result instanceof \mysqli_result ) {
-			$row = mysqli_fetch_object( $this->result );
+		if ( $this->w3tc_result instanceof \mysqli_result ) {
+			$row = mysqli_fetch_object( $this->w3tc_result );
 			while ( false !== $row && null !== $row ) {
 				$this->last_result[ $num_rows ] = $row;
 				++$num_rows;
-				$row = mysqli_fetch_object( $this->result );
+				$row = mysqli_fetch_object( $this->w3tc_result );
 			}
 		}
 
@@ -587,7 +587,7 @@ class _WpdbEssentials {
 	 */
 	private function _do_query( $query ) {
 		if ( $this->dbh instanceof \mysqli ) {
-			$this->result = mysqli_query( $this->dbh, $query );
+			$this->w3tc_result = mysqli_query( $this->dbh, $query );
 		}
 	}
 

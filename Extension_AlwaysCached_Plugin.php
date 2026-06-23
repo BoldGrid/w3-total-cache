@@ -11,6 +11,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * AlwaysCached Plugin.
  *
@@ -61,7 +62,7 @@ class Extension_AlwaysCached_Plugin {
 	 * @return void
 	 */
 	public function init() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['w3tc_alwayscached'] ) ) {
@@ -70,16 +71,16 @@ class Extension_AlwaysCached_Plugin {
 			wp_die();
 		}
 
-		$enabled  = $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
-		$time     = $c->get_string( array( 'alwayscached', 'wp_cron_time' ) );
-		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
+		$w3tc_enabled = $w3tc_c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+		$time         = $w3tc_c->get_string( array( 'alwayscached', 'wp_cron_time' ) );
+		$interval     = $w3tc_c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
 
 		// Retrieve stored previous time and interval.
 		$prev_time     = get_option( 'w3tc_alwayscached_wp_cron_time', '' );
 		$prev_interval = get_option( 'w3tc_alwayscached_wp_cron_interval', '' );
 
 		// Check if cron needs updating or scheduling.
-		if ( $enabled && ! empty( $time ) && ! empty( $interval ) ) {
+		if ( $w3tc_enabled && ! empty( $time ) && ! empty( $interval ) ) {
 			// If no event is scheduled or the time/interval have changed, update the cron.
 			if ( ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) || $time !== $prev_time || $interval !== $prev_interval ) {
 				// Clear existing scheduled event.
@@ -95,7 +96,7 @@ class Extension_AlwaysCached_Plugin {
 				update_option( 'w3tc_alwayscached_wp_cron_time', $time );
 				update_option( 'w3tc_alwayscached_wp_cron_interval', $interval );
 			}
-		} elseif ( ! $enabled ) {
+		} elseif ( ! $w3tc_enabled ) {
 			// Clear the cron job if it's disabled.
 			wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
 
@@ -122,12 +123,12 @@ class Extension_AlwaysCached_Plugin {
 				'id'     => 'w3tc_flush_current_page',
 				'parent' => 'w3tc',
 				'title'  => __( 'Regenerate Current Page', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page .
 						'&amp;w3tc_alwayscached_regenerate&amp;post_id=' . Util_Environment::detect_post_id()
 					),
-					'w3tc'
+					'w3tc_alwayscached_regenerate'
 				),
 			);
 		}
@@ -154,21 +155,21 @@ class Extension_AlwaysCached_Plugin {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $o Page data.
+	 * @param array $w3tc_o Page data.
 	 *
 	 * @return void
 	 */
-	public function w3tc_pagecache_before_set( $o ) {
-		if ( empty( $o['page_key_extension']['alwayscached'] ) ) {
+	public function w3tc_pagecache_before_set( $w3tc_o ) {
+		if ( empty( $w3tc_o['page_key_extension']['alwayscached'] ) ) {
 			return;
 		}
 
-		$url = ( empty( $o['page_key_extension']['encryption'] ) ? 'http://' : 'https://' ) .
-			$o['request_url_fragments']['host'] .
-			$o['request_url_fragments']['path'] .
-			$o['request_url_fragments']['querystring'];
+		$w3tc_url = ( empty( $w3tc_o['page_key_extension']['encryption'] ) ? 'http://' : 'https://' ) .
+			$w3tc_o['request_url_fragments']['host'] .
+			$w3tc_o['request_url_fragments']['path'] .
+			$w3tc_o['request_url_fragments']['querystring'];
 
-		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
+		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $w3tc_url );
 
 		if ( ! empty( $queue_item ) ) {
 			$decoded = @unserialize( $queue_item['extension'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
@@ -191,22 +192,22 @@ class Extension_AlwaysCached_Plugin {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $data Page data.
+	 * @param array $w3tc_data Page data.
 	 *
 	 * @return array
 	 */
-	public function w3tc_pagecache_set( $data ) {
+	public function w3tc_pagecache_set( $w3tc_data ) {
 		// in a case of alwayscached-regeneration request - apply cache's "ahead generation extension" data.
 		if ( ! empty( $this->request_queue_item_extension ) ) {
 			$keys_to_store = array( 'key_version', 'key_version_at_creation' );
 			foreach ( $keys_to_store as $k ) {
 				if ( isset( $this->request_queue_item_extension[ $k ] ) ) {
-					$data[ $k ] = $this->request_queue_item_extension[ $k ];
+					$w3tc_data[ $k ] = $this->request_queue_item_extension[ $k ];
 				}
 			}
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -227,39 +228,39 @@ class Extension_AlwaysCached_Plugin {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $data Data for flush request.
+	 * @param array $w3tc_data Data for flush request.
 	 *
 	 * @return array
 	 */
-	public function w3tc_pagecache_flush_url( $data ) {
+	public function w3tc_pagecache_flush_url( $w3tc_data ) {
 		// no support for mobile_groups, referrer_groups, cookies, group atm.
-		foreach ( $data['encryptions'] as $encryption ) {
+		foreach ( $w3tc_data['encryptions'] as $encryption ) {
 			$page_key_extension = array(
-				'useragent'   => $data['mobile_groups'][0],
-				'referrer'    => $data['referrer_groups'][0],
-				'cookie'      => $data['cookies'][0],
+				'useragent'   => $w3tc_data['mobile_groups'][0],
+				'referrer'    => $w3tc_data['referrer_groups'][0],
+				'cookie'      => $w3tc_data['cookies'][0],
 				'encryption'  => $encryption,
 				'compression' => false,
-				'group'       => $data['group'],
+				'group'       => $w3tc_data['group'],
 			);
 
-			$page_key = $data['parent']->_get_page_key( $page_key_extension, $data['url'] );
+			$page_key = $w3tc_data['parent']->_get_page_key( $page_key_extension, $w3tc_data['url'] );
 
 			// If the URL is excluded, store the data for later flushing.
-			if ( self::is_excluded( $data['url'] ) ) {
-				$excluded_data = $data;
+			if ( self::is_excluded( $w3tc_data['url'] ) ) {
+				$excluded_data = $w3tc_data;
 				continue;
 			}
 
 			// If cache key doesn't exist, skip to the next iteration.
-			if ( ! $data['cache']->exists( $page_key, $data['group'] ) ) {
+			if ( ! $w3tc_data['cache']->exists( $page_key, $w3tc_data['group'] ) ) {
 				continue;
 			}
 
 			// Queue the URL for later processing if it's not excluded and exists in cache.
 			Extension_AlwaysCached_Queue::add(
-				$data['url'],
-				array( 'group' => $data['group'] )
+				$w3tc_data['url'],
+				array( 'group' => $w3tc_data['group'] )
 			);
 		}
 
@@ -281,35 +282,35 @@ class Extension_AlwaysCached_Plugin {
 	 * @return array
 	 */
 	public function w3tc_pagecache_flush_all_groups( $groups ) {
-		$c             = Dispatcher::config();
+		$w3tc_c        = Dispatcher::config();
 		$excluded_data = array();
 
 		// Flush all action will purge the queue as any queued changes will now be live.
-		if ( ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
+		if ( ! $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
 			Extension_AlwaysCached_Queue::empty();
 			return $groups;
 		}
 
-		if ( in_array( '', $groups, true ) && $c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
-			$o             = Dispatcher::component( 'PgCache_Flush' );
-			$extension     = $o->get_ahead_generation_extension( '' );
-			$no_cache_vals = array( 'no-cache', 'no-store', 'must-revalidate', 'private' );
+		if ( in_array( '', $groups, true ) && $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
+			$w3tc_o         = Dispatcher::component( 'PgCache_Flush' );
+			$w3tc_extension = $w3tc_o->get_ahead_generation_extension( '' );
+			$no_cache_vals  = array( 'no-cache', 'no-store', 'must-revalidate', 'private' );
 
-			if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
+			if ( $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
 				$home_url         = rtrim( home_url(), '/' ) . '/';
 				$response_headers = wp_remote_head( $home_url );
 
 				if ( ! is_wp_error( $response_headers ) ) {
 					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
 					if ( ! self::is_excluded( $home_url ) && ! array_intersect( $no_cache_vals, $cache_control_vals ) ) {
-						Extension_AlwaysCached_Queue::add( $home_url, $extension );
+						Extension_AlwaysCached_Queue::add( $home_url, $w3tc_extension );
 					} else {
-						$o->flush_url( $home_url );
+						$w3tc_o->flush_url( $home_url );
 					}
 				}
 			}
 
-			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) ) ?? 15;
+			$posts_count = $w3tc_c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) ) ?? 15;
 			if ( $posts_count > 0 ) {
 				$posts = get_posts(
 					array(
@@ -334,14 +335,14 @@ class Extension_AlwaysCached_Plugin {
 					}
 
 					if ( ! self::is_excluded( $permalink ) ) {
-						Extension_AlwaysCached_Queue::add( $permalink, $extension );
+						Extension_AlwaysCached_Queue::add( $permalink, $w3tc_extension );
 					} else {
-						$o->flush_url( $permalink );
+						$w3tc_o->flush_url( $permalink );
 					}
 				}
 			}
 
-			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) ) ?? 15;
+			$pages_count = $w3tc_c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) ) ?? 15;
 			if ( $pages_count > 0 ) {
 				$posts = get_posts(
 					array(
@@ -366,9 +367,9 @@ class Extension_AlwaysCached_Plugin {
 					}
 
 					if ( ! self::is_excluded( $permalink ) ) {
-						Extension_AlwaysCached_Queue::add( $permalink, $extension );
+						Extension_AlwaysCached_Queue::add( $permalink, $w3tc_extension );
 					} else {
-						$o->flush_url( $permalink );
+						$w3tc_o->flush_url( $permalink );
 					}
 				}
 			}
@@ -385,9 +386,9 @@ class Extension_AlwaysCached_Plugin {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		$config            = Dispatcher::config();
-		$extensions_active = $config->get_array( 'extensions.active' );
-		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'alwayscached', $extensions_active );
+		$w3tc_config       = Dispatcher::config();
+		$extensions_active = $w3tc_config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $w3tc_config ) && array_key_exists( 'alwayscached', $extensions_active );
 	}
 
 	/**
@@ -436,7 +437,7 @@ class Extension_AlwaysCached_Plugin {
 	 * directly and never reach this gate; those paths remain the
 	 * recommended automation entry points.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -489,7 +490,7 @@ class Extension_AlwaysCached_Plugin {
 	 * under all SAPIs, so we fall back through the well-known
 	 * `$_SERVER` slots.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return string Bearer token value (without the `Bearer `
 	 *                prefix), or empty string if not present.
@@ -534,17 +535,17 @@ class Extension_AlwaysCached_Plugin {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param mixed $descriptor Descriptor.
-	 * @param mixed $key Compound key array.
+	 * @param mixed $w3tc_descriptor Descriptor.
+	 * @param mixed $w3tc_key Compound key array.
 	 *
 	 * @return array
 	 */
-	public function w3tc_config_key_descriptor( $descriptor, $key ) {
-		if ( is_array( $key ) && 'alwayscached.exclusions' === implode( '.', $key ) ) {
-			$descriptor = array( 'type' => 'array' );
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) && 'alwayscached.exclusions' === implode( '.', $w3tc_key ) ) {
+			$w3tc_descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+		return $w3tc_descriptor;
 	}
 
 	/**
@@ -552,16 +553,16 @@ class Extension_AlwaysCached_Plugin {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return bool
 	 */
-	private function is_excluded( $url ) {
-		$c          = Dispatcher::config();
-		$exclusions = $c->get_array( array( 'alwayscached', 'exclusions' ) );
+	private function is_excluded( $w3tc_url ) {
+		$w3tc_c     = Dispatcher::config();
+		$exclusions = $w3tc_c->get_array( array( 'alwayscached', 'exclusions' ) );
 
 		// Normalize the URL to handle trailing slashes and parse the path.
-		$parsed_url     = rtrim( wp_parse_url( $url, PHP_URL_PATH ), '/' );
+		$parsed_url     = rtrim( wp_parse_url( $w3tc_url, PHP_URL_PATH ), '/' );
 		$url_with_slash = $parsed_url . '/';
 
 		foreach ( $exclusions as $exclusion ) {
@@ -575,10 +576,10 @@ class Extension_AlwaysCached_Plugin {
 	}
 }
 
-$p = new Extension_AlwaysCached_Plugin();
-$p->run();
+$w3tc_p = new Extension_AlwaysCached_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_AlwaysCached_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_AlwaysCached_Plugin_Admin();
+	$w3tc_p->run();
 }

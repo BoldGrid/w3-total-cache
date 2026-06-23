@@ -168,7 +168,15 @@ def run_file(filename, environment_name, command_prefix, output_path)
     # cleanup
     success = true
     http_errlog_filename = ENV['W3D_HTTP_SERVER_ERROR_LOG_FILENAME']
-    if !File.exists?(http_errlog_filename)
+    if http_errlog_filename.nil? || http_errlog_filename.empty?
+        if output_path.nil?
+            puts 'no http server error log configured'
+        else
+            system 'no http server error log configured >>' + log_filename
+        end
+
+        success = false
+    elsif !File.directory?(File.dirname(http_errlog_filename))
         if output_path.nil?
             puts 'no http server error log found'
         else
@@ -176,8 +184,9 @@ def run_file(filename, environment_name, command_prefix, output_path)
         end
 
         success = false
+    else
+        File.open(http_errlog_filename, 'w') {}
     end
-    File.open(http_errlog_filename, 'w') {}
 
     # do the work
     if success

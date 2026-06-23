@@ -71,12 +71,19 @@ describe('Nginx plugin-dir deny rule emission', function() {
 		}
 
 		/**
-		 * Trigger the environment writer. Loading any admin page
-		 * causes Root_Environment::fix_on_wpadmin_request() to run,
-		 * which calls Generic_Environment::get_required_rules() and
-		 * writes the resulting block to nginx.conf via Util_Rule.
+		 * Trigger the environment writer. fix_in_wpadmin() ->
+		 * Root_Environment::fix_on_wpadmin_request() runs from the
+		 * admin_notices hook of a *rendered* W3TC page and writes
+		 * the block to nginx.conf via Util_Rule.
+		 *
+		 * Must be `networkAdminUrl`: `w3tc_general` is not
+		 * `visible_always`, so on multisite with the default
+		 * `common.force_master` it is not registered on the
+		 * per-site admin — `env.adminUrl` would serve WP's "not
+		 * allowed" page, which never fires admin_notices, so the
+		 * rules below would never be written. Single-site: same URL.
 		 */
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_general',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
 			{waitUntil: 'domcontentloaded'});
 
 		/**

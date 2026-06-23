@@ -67,7 +67,7 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 	 * current WP / W3TC build.
 	 */
 	it('benign user-agent group saves and re-renders', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_cachegroups',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups',
 			{waitUntil: 'domcontentloaded'});
 
 		// Skip the wizard if present.
@@ -76,7 +76,7 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 				adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
 				adminPage.waitForNavigation({timeout: 300000})
 			]);
-			await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_cachegroups',
+			await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups',
 				{waitUntil: 'domcontentloaded'});
 		}
 
@@ -101,10 +101,10 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 				method: 'POST', body: body, credentials: 'include', redirect: 'follow'
 			});
 			return r.status;
-		}, env.adminUrl, nonce);
+		}, env.networkAdminUrl, nonce);
 		log.log('benign save returned ' + r1);
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_cachegroups',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups',
 			{waitUntil: 'domcontentloaded'});
 
 		let benignAgents = await adminPage.$eval('#mobile_groups_benign_agents',
@@ -121,7 +121,7 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 	 * reached the DOM.
 	 */
 	it('<script> payload in agent body is stripped + escaped on render', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_cachegroups',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups',
 			{waitUntil: 'domcontentloaded'});
 		let nonce = await adminPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
@@ -138,7 +138,7 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 				method: 'POST', body: body, credentials: 'include', redirect: 'follow'
 			});
 			return r.status;
-		}, env.adminUrl, nonce, XSS_AGENT_PAYLOAD, XSS_GROUP_NAME);
+		}, env.networkAdminUrl, nonce, XSS_AGENT_PAYLOAD, XSS_GROUP_NAME);
 		log.log('xss-payload save returned ' + r1);
 
 		/**
@@ -146,7 +146,7 @@ describe('sec-xss CacheGroups UserAgent regression', function() {
 		 * echoed unescaped, the inline <script> would execute here
 		 * and set window.__w3tc_cachegroups_xss_fired.
 		 */
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_cachegroups',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups',
 			{waitUntil: 'domcontentloaded'});
 
 		let xssFired = await adminPage.evaluate(

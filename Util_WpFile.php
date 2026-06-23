@@ -187,7 +187,7 @@ class Util_WpFile {
 	 * first, then falls back to using the WordPress filesystem API if necessary. If the operation fails, it requests filesystem
 	 * credentials and retries the creation process. If that also fails, an exception is thrown.
 	 *
-	 * @param string $folder       The path to the folder to be created.
+	 * @param string $w3tc_folder       The path to the folder to be created.
 	 * @param string $from_folder  The path from which the folder creation is initiated (used for safe creation).
 	 *
 	 * @throws Util_WpFile_FilesystemMkdirException If the folder creation fails and filesystem credentials cannot be resolved.
@@ -199,12 +199,12 @@ class Util_WpFile {
 	 * @uses WP_Filesystem()
 	 * @uses is_dir()
 	 */
-	private static function create_folder( $folder, $from_folder ) {
-		if ( @is_dir( $folder ) ) {
+	private static function create_folder( $w3tc_folder, $from_folder ) {
+		if ( @is_dir( $w3tc_folder ) ) {
 			return;
 		}
 
-		if ( Util_File::mkdir_from_safe( $folder, $from_folder ) ) {
+		if ( Util_File::mkdir_from_safe( $w3tc_folder, $from_folder ) ) {
 			return;
 		}
 
@@ -214,16 +214,16 @@ class Util_WpFile {
 			throw new Util_WpFile_FilesystemMkdirException(
 				$ex->getMessage(),
 				$ex->credentials_form(),
-				$folder
+				$w3tc_folder
 			);
 		}
 
 		global $wp_filesystem;
-		if ( ! $wp_filesystem->mkdir( $folder, FS_CHMOD_DIR ) ) {
+		if ( ! $wp_filesystem->mkdir( $w3tc_folder, FS_CHMOD_DIR ) ) {
 			throw new Util_WpFile_FilesystemMkdirException(
-				'FTP credentials don\'t allow to create folder <strong>' . $folder . '</strong>',
+				'FTP credentials don\'t allow to create folder <strong>' . $w3tc_folder . '</strong>',
 				self::get_filesystem_credentials_form(),
-				$folder
+				$w3tc_folder
 			);
 		}
 	}
@@ -235,7 +235,7 @@ class Util_WpFile {
 	 * set the folder's permissions using an array of potential permission levels (0755, 0775, 0777). It will apply each
 	 * permission level in sequence until the folder is writable, or until all permission levels have been tried.
 	 *
-	 * @param string $folder       The path to the folder to be created and made writable.
+	 * @param string $w3tc_folder       The path to the folder to be created and made writable.
 	 * @param string $from_folder  The path from which the folder creation is initiated (used for safe creation).
 	 *
 	 * @throws Util_WpFile_FilesystemMkdirException If the folder creation fails and filesystem credentials cannot be resolved.
@@ -247,18 +247,18 @@ class Util_WpFile {
 	 * @uses self::chmod()
 	 * @uses is_writable()
 	 */
-	public static function create_writeable_folder( $folder, $from_folder ) {
-		self::create_folder( $folder, $from_folder );
+	public static function create_writeable_folder( $w3tc_folder, $from_folder ) {
+		self::create_folder( $w3tc_folder, $from_folder );
 
 		$permissions = array( 0755, 0775, 0777 );
 
-		$count = count( $permissions );
-		for ( $set_index = 0; $set_index < $count; $set_index++ ) {
-			if ( is_writable( $folder ) ) {
+		$w3tc_count = count( $permissions );
+		for ( $set_index = 0; $set_index < $w3tc_count; $set_index++ ) {
+			if ( is_writable( $w3tc_folder ) ) {
 				break;
 			}
 
-			self::chmod( $folder, $permissions[ $set_index ] );
+			self::chmod( $w3tc_folder, $permissions[ $set_index ] );
 		}
 	}
 
@@ -269,7 +269,7 @@ class Util_WpFile {
 	 * method. If the deletion fails, it requests filesystem credentials and tries again using the WordPress filesystem
 	 * API (`WP_Filesystem`). If the credentials are insufficient to delete the folder, an exception is thrown.
 	 *
-	 * @param string $folder The path to the folder to be deleted.
+	 * @param string $w3tc_folder The path to the folder to be deleted.
 	 *
 	 * @throws Util_WpFile_FilesystemRmdirException If the folder cannot be deleted due to insufficient permissions.
 	 *
@@ -279,13 +279,13 @@ class Util_WpFile {
 	 * @uses Util_File::rmdir()
 	 * @uses $wp_filesystem->rmdir()
 	 */
-	public static function delete_folder( $folder ) {
-		if ( ! @is_dir( $folder ) ) {
+	public static function delete_folder( $w3tc_folder ) {
+		if ( ! @is_dir( $w3tc_folder ) ) {
 			return;
 		}
 
-		Util_File::rmdir( $folder );
-		if ( ! @is_dir( $folder ) ) {
+		Util_File::rmdir( $w3tc_folder );
+		if ( ! @is_dir( $w3tc_folder ) ) {
 			return;
 		}
 
@@ -295,16 +295,16 @@ class Util_WpFile {
 			throw new Util_WpFile_FilesystemRmdirException(
 				$ex->getMessage(),
 				$ex->credentials_form(),
-				$folder
+				$w3tc_folder
 			);
 		}
 
 		global $wp_filesystem;
-		if ( ! $wp_filesystem->rmdir( $folder ) ) {
+		if ( ! $wp_filesystem->rmdir( $w3tc_folder ) ) {
 			throw new Util_WpFile_FilesystemRmdirException(
-				__( 'FTP credentials don\'t allow to delete folder ', 'w3-total-cache' ) . '<strong>' . $folder . '</strong>',
+				__( 'FTP credentials don\'t allow to delete folder ', 'w3-total-cache' ) . '<strong>' . $w3tc_folder . '</strong>',
 				self::get_filesystem_credentials_form(),
-				$folder
+				$w3tc_folder
 			);
 		}
 	}
@@ -406,7 +406,7 @@ class Util_WpFile {
 	 * error message and form for user input.
 	 *
 	 * @param string $method  Optional. Filesystem access method (e.g., 'ftp', 'ssh2'). Default is an empty string.
-	 * @param string $url     Optional. The URL to redirect to after credentials are entered. Defaults to the current request URI.
+	 * @param string $w3tc_url     Optional. The URL to redirect to after credentials are entered. Defaults to the current request URI.
 	 * @param string $context Optional. The directory for which credentials are required. Default is false.
 	 *
 	 * @throws Util_WpFile_FilesystemOperationException If credentials cannot be retrieved or validated.
@@ -414,12 +414,12 @@ class Util_WpFile {
 	 * @uses request_filesystem_credentials()
 	 * @uses WP_Filesystem()
 	 */
-	private static function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
-		if ( strlen( $url ) <= 0 ) {
-			$url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+	private static function request_filesystem_credentials( $method = '', $w3tc_url = '', $context = false ) {
+		if ( strlen( $w3tc_url ) <= 0 ) {
+			$w3tc_url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 
-		$url = preg_replace( '/&w3tc_note=([^&]+)/', '', $url );
+		$w3tc_url = preg_replace( '/&w3tc_note=([^&]+)/', '', $w3tc_url );
 
 		// Ensure request_filesystem_credentials() is available.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -427,7 +427,7 @@ class Util_WpFile {
 
 		$success = true;
 		ob_start();
-		$creds = request_filesystem_credentials( $url, $method, false, $context, array() );
+		$creds = request_filesystem_credentials( $w3tc_url, $method, false, $context, array() );
 		if ( false === $creds ) {
 			$success = false;
 		}
@@ -437,7 +437,7 @@ class Util_WpFile {
 		ob_start();
 		// If first check failed try again and show error message.
 		if ( ! WP_Filesystem( $creds ) && $success ) {
-			request_filesystem_credentials( $url, $method, true, false, array() );
+			request_filesystem_credentials( $w3tc_url, $method, true, false, array() );
 			$success = false;
 			$form    = ob_get_contents();
 		}
@@ -462,21 +462,21 @@ class Util_WpFile {
 	 * customizes the form for compatibility with W3 Total Cache.
 	 *
 	 * @param string $method  Optional. Filesystem access method (e.g., 'ftp', 'ssh2'). Default is an empty string.
-	 * @param string $url     Optional. The URL to redirect to after credentials are entered. Defaults to the current request URI.
+	 * @param string $w3tc_url     Optional. The URL to redirect to after credentials are entered. Defaults to the current request URI.
 	 * @param string $context Optional. The directory for which credentials are required. Default is false.
 	 *
 	 * @return string The generated HTML form for filesystem credentials input.
 	 *
 	 * @uses request_filesystem_credentials()
 	 */
-	private static function get_filesystem_credentials_form( $method = '', $url = '', $context = false ) {
+	private static function get_filesystem_credentials_form( $method = '', $w3tc_url = '', $context = false ) {
 		// Ensure request_filesystem_credentials() is available.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/template.php';
 
 		ob_start();
 		// If first check failed try again and show error message.
-		request_filesystem_credentials( $url, $method, true, false, array() );
+		request_filesystem_credentials( $w3tc_url, $method, true, false, array() );
 		$success = false;
 		$form    = ob_get_contents();
 

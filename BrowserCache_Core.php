@@ -17,23 +17,23 @@ class BrowserCache_Core {
 	/**
 	 * Returns replace extensions
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return array
 	 */
-	public function get_replace_extensions( $config ) {
+	public function get_replace_extensions( $w3tc_config ) {
 		$types      = array();
 		$extensions = array();
 
-		if ( $config->get_boolean( 'browsercache.cssjs.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.cssjs.replace' ) ) {
 			$types = array_merge( $types, array_keys( $this->_get_cssjs_types() ) );
 		}
 
-		if ( $config->get_boolean( 'browsercache.html.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.html.replace' ) ) {
 			$types = array_merge( $types, array_keys( $this->_get_html_types() ) );
 		}
 
-		if ( $config->get_boolean( 'browsercache.other.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.other.replace' ) ) {
 			$types = array_merge( $types, array_keys( $this->_get_other_types() ) );
 		}
 
@@ -47,34 +47,34 @@ class BrowserCache_Core {
 	/**
 	 * Returns replace extensions
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return array
 	 */
-	public function get_replace_querystring_extensions( $config ) {
+	public function get_replace_querystring_extensions( $w3tc_config ) {
 		$extensions = array();
 
-		if ( $config->get_boolean( 'browsercache.cssjs.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.cssjs.replace' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_cssjs_types(), 'replace' );
 		}
 
-		if ( $config->get_boolean( 'browsercache.html.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.html.replace' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_html_types(), 'replace' );
 		}
 
-		if ( $config->get_boolean( 'browsercache.other.replace' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.other.replace' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_other_types(), 'replace' );
 		}
 
-		if ( $config->get_boolean( 'browsercache.cssjs.querystring' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.cssjs.querystring' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_cssjs_types(), 'querystring' );
 		}
 
-		if ( $config->get_boolean( 'browsercache.html.querystring' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.html.querystring' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_html_types(), 'querystring' );
 		}
 
-		if ( $config->get_boolean( 'browsercache.other.querystring' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.other.querystring' ) ) {
 			$this->_fill_extensions( $extensions, $this->_get_other_types(), 'querystring' );
 		}
 
@@ -93,12 +93,12 @@ class BrowserCache_Core {
 	private function _fill_extensions( &$extensions, $types, $operation ) {
 		foreach ( array_keys( $types ) as $type ) {
 			$type_extensions = explode( '|', $type );
-			foreach ( $type_extensions as $ext ) {
-				if ( ! isset( $extensions[ $ext ] ) ) {
-					$extensions[ $ext ] = array();
+			foreach ( $type_extensions as $w3tc_ext ) {
+				if ( ! isset( $extensions[ $w3tc_ext ] ) ) {
+					$extensions[ $w3tc_ext ] = array();
 				}
 
-				$extensions[ $ext ][ $operation ] = true;
+				$extensions[ $w3tc_ext ][ $operation ] = true;
 			}
 		}
 	}

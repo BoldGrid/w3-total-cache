@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -20,14 +20,14 @@ use W3TC\ConfigKeysSchema;
  * read_request, overloaded toggles) consults it, so regressions here
  * translate directly to re-opened mass-assignment primitives.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 
 	/**
 	 * The schema array loads successfully and contains real keys.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_get_keys_loads_schema() {
 		$keys = ConfigKeysSchema::get_keys();
@@ -42,7 +42,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * is_known() distinguishes documented keys from unknown ones, and
 	 * accepts compound keys unconditionally (extensions own their gate).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_known_distinguishes_documented_keys() {
 		$this->assertTrue( ConfigKeysSchema::is_known( 'pgcache.enabled' ) );
@@ -69,7 +69,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * Runs in a separate process so the static `$extension_ids` cache
 	 * inside ConfigKeysSchema does not leak across tests.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -114,7 +114,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	/**
 	 * descriptor() returns the type/default block, or null.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_descriptor_returns_type_and_default() {
 		$d = ConfigKeysSchema::descriptor( 'pgcache.enabled' );
@@ -134,7 +134,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * High-impact keys flagged `no_import` are refused at the import
 	 * boundary even when they're known to the schema.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_can_import_blocks_no_import_keys() {
 		$no_import_keys = array(
@@ -169,7 +169,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	/**
 	 * Ordinary known keys may be imported.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_can_import_allows_ordinary_keys() {
 		$this->assertTrue( ConfigKeysSchema::can_import( 'pgcache.enabled' ) );
@@ -180,7 +180,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	/**
 	 * Unknown keys can NOT be imported.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_can_import_rejects_unknown_keys() {
 		$this->assertFalse( ConfigKeysSchema::can_import( 'totally.made.up.key' ) );
@@ -198,7 +198,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * Runs in a separate process so the static `$extension_ids` cache
 	 * inside ConfigKeysSchema does not leak across tests.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -244,7 +244,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * coerce() collapses every type's invalid payloads to the type's
 	 * safe default, regardless of the incoming PHP type.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_coerce_collapses_invalid_payloads_to_type_default() {
 		/**
@@ -292,7 +292,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	/**
 	 * coerce() with no descriptor / unknown type falls through unchanged.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_coerce_passthrough_for_unknown_type() {
 		$this->assertSame( 'x', ConfigKeysSchema::coerce( 'x', array() ) );
@@ -306,7 +306,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * round-1 review is pinned here so the structural gate doesn't
 	 * drift away from what the UI actually submits.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_known_state_key_accepts_dismiss_notice_callers() {
 		$accepted = array(
@@ -346,7 +346,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	 * never reached through the gated handlers), malformed shapes, and
 	 * traversal-shaped payloads.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_known_state_key_rejects_non_notice_shapes() {
 		$rejected = array(

@@ -42,34 +42,6 @@ const w3tc = requireRoot('lib/w3tc');
 
 const PEEK_PASSWORD = 'PEEK_ME_THIS_MUST_NOT_LAND_IN_RESPONSE';
 
-/**
- * Load the W3TC dashboard and return the legacy `'w3tc'` nonce minted for
- * the logged-in admin session (`Util_Ui::nonce_field( 'w3tc' )`).
- *
- * Fresh installs redirect to the Setup Guide wizard, whose
- * `w3tc_wizard` nonce is the first `input[name=_wpnonce]` on that page
- * and fails admin-action verification (403). Skip the wizard first.
- *
- * @return {Promise<string>}
- */
-async function dashboardLegacyNonce() {
-	await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard',
-		{waitUntil: 'domcontentloaded'});
-
-	if (await adminPage.$('#w3tc-wizard-skip') != null) {
-		await Promise.all([
-			adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
-			adminPage.waitForNavigation({timeout: 300000}),
-		]);
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard',
-			{waitUntil: 'domcontentloaded'});
-	}
-
-	let nonce = await adminPage.$eval('input[name="_wpnonce"]', (e) => e.value);
-	expect(nonce).not.empty;
-	return nonce;
-}
-
 describe('rt9-12 memcached/redis test-handler entry-method regression', function() {
 	this.timeout(sys.suiteTimeout);
 	before(sys.beforeDefault);
@@ -84,7 +56,9 @@ describe('rt9-12 memcached/redis test-handler entry-method regression', function
 	 * to run on every cache engine matrix entry).
 	 */
 	it('admin POST to w3tc_test_memcached returns JSON test result', async() => {
-		let nonce = await dashboardLegacyNonce();
+		// Any W3TC admin screen localizes w3tc_admin_nonces; dbcache is a stable entry point.
+		let nonce = await w3tc.adminActionNonce(
+			adminPage, 'w3tc_test_memcached', env.networkAdminUrl, 'w3tc_dbcache');
 
 		let result = await adminPage.evaluate(async function(networkAdminUrl, nonce) {
 			let body = new URLSearchParams();
@@ -115,7 +89,8 @@ describe('rt9-12 memcached/redis test-handler entry-method regression', function
 	 * must NOT contain the password string.
 	 */
 	it('GET ?w3tc_test_memcached=1&password=... returns 405 with Allow: POST and no password echo', async() => {
-		let nonce = await dashboardLegacyNonce();
+		let nonce = await w3tc.adminActionNonce(
+			adminPage, 'w3tc_test_memcached', env.networkAdminUrl, 'w3tc_dbcache');
 
 		let probeUrl = env.networkAdminUrl + 'admin.php?page=w3tc_dashboard' +
 			'&w3tc_test_memcached=1' +
@@ -133,7 +108,8 @@ describe('rt9-12 memcached/redis test-handler entry-method regression', function
 	});
 
 	it('GET ?w3tc_test_redis=1&password=... returns 405 with Allow: POST and no password echo', async() => {
-		let nonce = await dashboardLegacyNonce();
+		let nonce = await w3tc.adminActionNonce(
+			adminPage, 'w3tc_test_redis', env.networkAdminUrl, 'w3tc_dbcache');
 
 		let probeUrl = env.networkAdminUrl + 'admin.php?page=w3tc_dashboard' +
 			'&w3tc_test_redis=1' +

@@ -134,13 +134,13 @@ class DbCache_Plugin {
 	 * @return array Modified array of cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
-		$c               = $this->_config;
-		$dbcache_enabled = $c->get_boolean( 'dbcache.enabled' );
-		$engine          = $c->get_string( 'dbcache.engine' );
+		$w3tc_c          = $this->_config;
+		$dbcache_enabled = $w3tc_c->get_boolean( 'dbcache.enabled' );
+		$w3tc_engine     = $w3tc_c->get_string( 'dbcache.engine' );
 
-		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$interval                        = $c->get_integer( 'dbcache.file.gc' );
-			$display                         = \sprintf(
+		if ( $dbcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$interval = $w3tc_c->get_integer( 'dbcache.file.gc' );
+			$display  = \sprintf(
 				'[W3TC] Database Cache file GC (every %d seconds)',
 				$interval
 			);
@@ -271,11 +271,11 @@ class DbCache_Plugin {
 			'id'     => 'w3tc_flush_dbcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Database', 'w3-total-cache' ),
-			'href'   => wp_nonce_url(
+			'href'   => Util_Nonce::admin_nonce_url(
 				admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_dbcache'
 				),
-				'w3tc'
+				'w3tc_flush_dbcache'
 			),
 		);
 
@@ -292,8 +292,8 @@ class DbCache_Plugin {
 	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
-		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
-		$o->w3tc_usage_statistics_of_request( $storage );
+		$w3tc_o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+		$w3tc_o->w3tc_usage_statistics_of_request( $storage );
 	}
 
 	/**
@@ -323,25 +323,25 @@ class DbCache_Plugin {
 	 * @return array Modified array of sources.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
-		$c = Dispatcher::config();
-		if ( 'apc' === $c->get_string( 'dbcache.engine' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( 'apc' === $w3tc_c->get_string( 'dbcache.engine' ) ) {
 			$sources['apc_servers']['dbcache'] = array(
 				'name' => __( 'Database Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'memcached' === $c->get_string( 'dbcache.engine' ) ) {
+		} elseif ( 'memcached' === $w3tc_c->get_string( 'dbcache.engine' ) ) {
 			$sources['memcached_servers']['dbcache'] = array(
-				'servers'  => $c->get_array( 'dbcache.memcached.servers' ),
-				'username' => $c->get_string( 'dbcache.memcached.username' ),
-				'password' => $c->get_string( 'dbcache.memcached.password' ),
+				'servers'  => $w3tc_c->get_array( 'dbcache.memcached.servers' ),
+				'username' => $w3tc_c->get_string( 'dbcache.memcached.username' ),
+				'password' => $w3tc_c->get_string( 'dbcache.memcached.password' ),
 				'name'     => __( 'Database Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'redis' === $c->get_string( 'dbcache.engine' ) ) {
+		} elseif ( 'redis' === $w3tc_c->get_string( 'dbcache.engine' ) ) {
 			$sources['redis_servers']['dbcache'] = array(
-				'servers'                 => $c->get_array( 'dbcache.redis.servers' ),
-				'verify_tls_certificates' => $c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
-				'username'                => $c->get_boolean( 'dbcache.redis.username' ),
-				'dbid'                    => $c->get_integer( 'dbcache.redis.dbid' ),
-				'password'                => $c->get_string( 'dbcache.redis.password' ),
+				'servers'                 => $w3tc_c->get_array( 'dbcache.redis.servers' ),
+				'verify_tls_certificates' => $w3tc_c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
+				'username'                => $w3tc_c->get_boolean( 'dbcache.redis.username' ),
+				'dbid'                    => $w3tc_c->get_integer( 'dbcache.redis.dbid' ),
+				'password'                => $w3tc_c->get_string( 'dbcache.redis.password' ),
 				'name'                    => __( 'Database Cache', 'w3-total-cache' ),
 			);
 		}

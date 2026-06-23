@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die;
 
 ?>
@@ -48,7 +49,7 @@ defined( 'W3TC' ) || die;
 			),
 			'control'        => 'checkbox',
 			'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-			'disabled'       => ( $is_pro ? null : true ),
+			'disabled'       => ( $w3tc_is_pro ? null : true ),
 			'excerpt'        => __( 'Deliver visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript.', 'w3-total-cache' ),
 			'description'    => array(
 				__( 'Want even faster speeds? The full site delivery Content Delivery Network will speed up your website by over 60% to increase conversions, revenue and reach your website visitors globally. With a Full Site Content Delivery Network (CDN), your website and all its assets will be available instantly to your visitors all over the world at blazing fast speeds.', 'w3-total-cache' ),
@@ -96,8 +97,8 @@ defined( 'W3TC' ) || die;
 			),
 			'control'          => 'selectbox',
 			'selectbox_values' => $cdnfsd_engine_values,
-			'value'            => $cdnfsd_engine,
-			'disabled'         => ( $is_pro ? null : true ),
+			'value'            => $w3tc_cdnfsd_engine,
+			'disabled'         => ( $w3tc_is_pro ? null : true ),
 			'description'      => wp_kses(
 				sprintf(
 					// translators: 1 opening HTML acronym tag, closing HTML acronym tag,

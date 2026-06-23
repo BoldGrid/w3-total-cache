@@ -76,15 +76,15 @@ class Config {
 		}
 
 		// config cache enabled.
-		$config = ConfigCache::util_array_from_storage( $blog_id, $preview );
-		if ( ! is_null( $config ) ) {
-			return $config;
+		$w3tc_config = ConfigCache::util_array_from_storage( $blog_id, $preview );
+		if ( ! is_null( $w3tc_config ) ) {
+			return $w3tc_config;
 		}
 
-		$config = self::_util_array_from_storage( $blog_id, $preview );
-		ConfigCache::save_item( $blog_id, $preview, $config );
+		$w3tc_config = self::_util_array_from_storage( $blog_id, $preview );
+		ConfigCache::save_item( $blog_id, $preview, $w3tc_config );
 
-		return $config;
+		return $w3tc_config;
 	}
 
 	/**
@@ -103,14 +103,14 @@ class Config {
 		$filename = self::util_config_filename( $blog_id, $preview );
 		if ( file_exists( $filename ) && is_readable( $filename ) ) {
 			/**
-			 * including file directly instead of read+eval causes constant problems with APC, ZendCache, and
+			 * Including file directly instead of read+eval causes constant problems with APC, ZendCache, and
 			 * WSOD in a case of broken config file.
 			 */
-			$content = @file_get_contents( $filename );
-			$config  = @json_decode( substr( $content, 14 ), true );
+			$content     = @file_get_contents( $filename );
+			$w3tc_config = @json_decode( substr( $content, 14 ), true );
 
-			if ( is_array( $config ) ) {
-				return $config;
+			if ( is_array( $w3tc_config ) ) {
+				return $w3tc_config;
 			}
 		}
 
@@ -190,13 +190,13 @@ class Config {
 	/**
 	 * Retrieves a configuration value for a given key or returns cached/uncached default value if not found.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param mixed  $default_value The default value to return if the key is not found.
 	 *
 	 * @return mixed The configuration value, or the default if not found.
 	 */
-	public function get( $key, $default_value = null ) {
-		$v = $this->_get( $this->_data, $key );
+	public function get( $w3tc_key, $default_value = null ) {
+		$v = $this->_get( $this->_data, $w3tc_key );
 		if ( ! is_null( $v ) ) {
 			return $v;
 		}
@@ -212,7 +212,7 @@ class Config {
 			$default_values = apply_filters( 'w3tc_config_default_values', array() );
 		}
 
-		$v = $this->_get( $default_values, $key );
+		$v = $this->_get( $default_values, $w3tc_key );
 		if ( ! is_null( $v ) ) {
 			return $v;
 		}
@@ -220,7 +220,7 @@ class Config {
 		// update default values.
 		$default_values = apply_filters( 'w3tc_config_default_values', array() );
 
-		$v = $this->_get( $default_values, $key );
+		$v = $this->_get( $default_values, $w3tc_key );
 		if ( ! is_null( $v ) ) {
 			return $v;
 		}
@@ -231,24 +231,24 @@ class Config {
 	/**
 	 * Retrieves a configuration value for a given key.
 	 *
-	 * @param array  $a   The array to search in.
-	 * @param string $key The key to look up in the array.
+	 * @param array  $w3tc_a   The array to search in.
+	 * @param string $w3tc_key The key to look up in the array.
 	 *
 	 * @return mixed The configuration value, or null if not found.
 	 */
-	private function _get( &$a, $key ) {
-		if ( is_array( $key ) ) {
-			$key0 = $key[0];
-			if ( isset( $a[ $key0 ] ) ) {
-				$key1 = $key[1];
-				if ( isset( $a[ $key0 ][ $key1 ] ) ) {
-					self::_maybe_lazy_decrypt( $a[ $key0 ][ $key1 ] );
-					return $a[ $key0 ][ $key1 ];
+	private function _get( &$w3tc_a, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) ) {
+			$key0 = $w3tc_key[0];
+			if ( isset( $w3tc_a[ $key0 ] ) ) {
+				$key1 = $w3tc_key[1];
+				if ( isset( $w3tc_a[ $key0 ][ $key1 ] ) ) {
+					self::_maybe_lazy_decrypt( $w3tc_a[ $key0 ][ $key1 ] );
+					return $w3tc_a[ $key0 ][ $key1 ];
 				}
 			}
-		} elseif ( isset( $a[ $key ] ) ) {
-			self::_maybe_lazy_decrypt( $a[ $key ] );
-			return $a[ $key ];
+		} elseif ( isset( $w3tc_a[ $w3tc_key ] ) ) {
+			self::_maybe_lazy_decrypt( $w3tc_a[ $w3tc_key ] );
+			return $w3tc_a[ $w3tc_key ];
 		}
 
 		return null;
@@ -266,215 +266,215 @@ class Config {
 	 * different key than `wp_salt('secure_auth')` and would HMAC-fail every
 	 * secret, collapsing each one to `''` for the rest of the request.
 	 *
-	 * By the time admin / settings / CDN code calls `$config->get_string()`,
+	 * By the time admin / settings / CDN code calls `$w3tc_config->get_string()`,
 	 * `wp_salt()` has loaded, so we decrypt then and cache the plaintext
 	 * back into `$_data` so subsequent reads are plain hash lookups.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param mixed $value Value to inspect; mutated in place when an
+	 * @param mixed $w3tc_value Value to inspect; mutated in place when an
 	 *                     envelope is successfully decrypted (or collapsed
 	 *                     to '' on HMAC tamper).
 	 *
 	 * @return void
 	 */
-	private static function _maybe_lazy_decrypt( &$value ) {
-		if ( ! is_string( $value ) || 0 !== strncmp( $value, 'enc:v1:', 7 ) ) {
+	private static function _maybe_lazy_decrypt( &$w3tc_value ) {
+		if ( ! is_string( $w3tc_value ) || 0 !== strncmp( $w3tc_value, 'enc:v1:', 7 ) ) {
 			return;
 		}
 		if ( ! \function_exists( 'wp_salt' ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
 			return;
 		}
-		$plain = Util_Crypto::envelope_decrypt( $value );
-		$value = ( false === $plain ) ? '' : $plain;
+		$plain      = Util_Crypto::envelope_decrypt( $w3tc_value );
+		$w3tc_value = ( false === $plain ) ? '' : $plain;
 	}
 
 	/**
 	 * Retrieves a string configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param string $default_value The default string value to return if the key is not found.
 	 * @param bool   $trim          Whether to trim the value.
 	 *
 	 * @return string The configuration value as a string.
 	 */
-	public function get_string( $key, $default_value = '', $trim = true ) {
-		$value = (string) $this->get( $key, $default_value );
+	public function get_string( $w3tc_key, $default_value = '', $trim = true ) {
+		$w3tc_value = (string) $this->get( $w3tc_key, $default_value );
 
-		return $trim ? trim( $value ) : $value;
+		return $trim ? trim( $w3tc_value ) : $w3tc_value;
 	}
 
 	/**
 	 * Retrieves an integer configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param int    $default_value The default integer value to return if the key is not found.
 	 *
 	 * @return int The configuration value as an integer.
 	 */
-	public function get_integer( $key, $default_value = 0 ) {
-		return (int) $this->get( $key, $default_value );
+	public function get_integer( $w3tc_key, $default_value = 0 ) {
+		return (int) $this->get( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves a boolean configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param bool   $default_value The default boolean value to return if the key is not found.
 	 *
 	 * @return bool The configuration value as a boolean.
 	 */
-	public function get_boolean( $key, $default_value = false ) {
-		return (bool) $this->get( $key, $default_value );
+	public function get_boolean( $w3tc_key, $default_value = false ) {
+		return (bool) $this->get( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves an array configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param array  $default_value The default array value to return if the key is not found.
 	 *
 	 * @return array The configuration value as an array.
 	 */
-	public function get_array( $key, $default_value = array() ) {
-		return (array) $this->get( $key, $default_value );
+	public function get_array( $w3tc_key, $default_value = array() ) {
+		return (array) $this->get( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param mixed  $default_value The default value to return if the key is not found.
 	 *
 	 * @return mixed The configuration value, potentially filtered.
 	 */
-	public function getf( $key, $default_value = null ) {
-		$v = $this->get( $key, $default_value );
-		return apply_filters( 'w3tc_config_item_' . $key, $v );
+	public function getf( $w3tc_key, $default_value = null ) {
+		$v = $this->get( $w3tc_key, $default_value );
+		return apply_filters( 'w3tc_config_item_' . $w3tc_key, $v );
 	}
 
 	/**
 	 * Retrieves a filtered string configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param string $default_value The default string value to return if the key is not found.
 	 * @param bool   $trim          Whether to trim the value.
 	 *
 	 * @return string The filtered configuration value as a string.
 	 */
-	public function getf_string( $key, $default_value = '', $trim = true ) {
-		$value = (string) $this->getf( $key, $default_value );
+	public function getf_string( $w3tc_key, $default_value = '', $trim = true ) {
+		$w3tc_value = (string) $this->getf( $w3tc_key, $default_value );
 
-		return $trim ? trim( $value ) : $value;
+		return $trim ? trim( $w3tc_value ) : $w3tc_value;
 	}
 
 	/**
 	 * Retrieves a filtered integer configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param int    $default_value The default integer value to return if the key is not found.
 	 *
 	 * @return int The filtered configuration value as an integer.
 	 */
-	public function getf_integer( $key, $default_value = 0 ) {
-		return (int) $this->getf( $key, $default_value );
+	public function getf_integer( $w3tc_key, $default_value = 0 ) {
+		return (int) $this->getf( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered boolean configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param bool   $default_value The default boolean value to return if the key is not found.
 	 *
 	 * @return bool The filtered configuration value as a boolean.
 	 */
-	public function getf_boolean( $key, $default_value = false ) {
-		return (bool) $this->getf( $key, $default_value );
+	public function getf_boolean( $w3tc_key, $default_value = false ) {
+		return (bool) $this->getf( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered array configuration value for a given key.
 	 *
-	 * @param string $key           The key to look up in the configuration.
+	 * @param string $w3tc_key           The key to look up in the configuration.
 	 * @param array  $default_value The default array value to return if the key is not found.
 	 *
 	 * @return array The filtered configuration value as an array.
 	 */
-	public function getf_array( $key, $default_value = array() ) {
-		return (array) $this->getf( $key, $default_value );
+	public function getf_array( $w3tc_key, $default_value = array() ) {
+		return (array) $this->getf( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Checks if a specific extension is active in the configuration.
 	 *
-	 * @param string $extension The extension to check.
+	 * @param string $w3tc_extension The extension to check.
 	 *
 	 * @return bool True if the extension is active, false otherwise.
 	 */
-	public function is_extension_active( $extension ) {
+	public function is_extension_active( $w3tc_extension ) {
 		$extensions = $this->get_array( 'extensions.active' );
-		return isset( $extensions[ $extension ] );
+		return isset( $extensions[ $w3tc_extension ] );
 	}
 
 	/**
 	 * Checks if a specific extension is active on the frontend.
 	 *
-	 * @param string $extension The extension to check.
+	 * @param string $w3tc_extension The extension to check.
 	 *
 	 * @return bool True if the extension is active on the frontend, false otherwise.
 	 */
-	public function is_extension_active_frontend( $extension ) {
+	public function is_extension_active_frontend( $w3tc_extension ) {
 		$extensions = $this->get_array( 'extensions.active_frontend' );
-		return isset( $extensions[ $extension ] );
+		return isset( $extensions[ $w3tc_extension ] );
 	}
 
 	/**
 	 * Sets the active frontend extension.
 	 *
-	 * @param string $extension         The extension key to be set as active.
+	 * @param string $w3tc_extension         The extension key to be set as active.
 	 * @param bool   $is_active_frontend Whether the extension should be active on the frontend.
 	 *
 	 * @return void
 	 */
-	public function set_extension_active_frontend( $extension, $is_active_frontend ) {
-		$a = $this->get_array( 'extensions.active_frontend' );
+	public function set_extension_active_frontend( $w3tc_extension, $is_active_frontend ) {
+		$w3tc_a = $this->get_array( 'extensions.active_frontend' );
 		if ( ! $is_active_frontend ) {
-			unset( $a[ $extension ] );
+			unset( $w3tc_a[ $w3tc_extension ] );
 		} else {
-			$a[ $extension ] = '*';
+			$w3tc_a[ $w3tc_extension ] = '*';
 		}
 
-		$this->set( 'extensions.active_frontend', $a );
+		$this->set( 'extensions.active_frontend', $w3tc_a );
 	}
 
 	/**
 	 * Sets the active dropin extension.
 	 *
-	 * @param string $extension        The extension key to be set as active dropin.
+	 * @param string $w3tc_extension        The extension key to be set as active dropin.
 	 * @param bool   $is_active_dropin Whether the extension should be active as a dropin.
 	 *
 	 * @return void
 	 */
-	public function set_extension_active_dropin( $extension, $is_active_dropin ) {
-		$a = $this->get_array( 'extensions.active_dropin' );
+	public function set_extension_active_dropin( $w3tc_extension, $is_active_dropin ) {
+		$w3tc_a = $this->get_array( 'extensions.active_dropin' );
 		if ( ! $is_active_dropin ) {
-			unset( $a[ $extension ] );
+			unset( $w3tc_a[ $w3tc_extension ] );
 		} else {
-			$a[ $extension ] = '*';
+			$w3tc_a[ $w3tc_extension ] = '*';
 		}
 
-		$this->set( 'extensions.active_dropin', $a );
+		$this->set( 'extensions.active_dropin', $w3tc_a );
 	}
 
 	/**
 	 * Sets a key-value pair in the configuration data.
 	 *
-	 * @param string|array $key   The key or array of keys to set.
-	 * @param mixed        $value The value to set.
+	 * @param string|array $w3tc_key   The key or array of keys to set.
+	 * @param mixed        $w3tc_value The value to set.
 	 *
 	 * @return mixed The value that was set.
 	 */
-	public function set( $key, $value ) {
+	public function set( $w3tc_key, $w3tc_value ) {
 		/**
 		 * Strip directive-terminating bytes from values bound for keys whose
 		 * stored string (or stored array of strings) is later concatenated
@@ -488,12 +488,12 @@ class Config {
 		 * this is the upstream defence-in-depth half so the bad bytes
 		 * never enter master.php in the first place.
 		 */
-		if ( ! is_array( $key ) && '' !== $value ) {
-			$desc = self::directive_string_descriptor( $key );
+		if ( ! is_array( $w3tc_key ) && '' !== $w3tc_value ) {
+			$desc = self::directive_string_descriptor( $w3tc_key );
 			if ( null !== $desc ) {
-				if ( is_string( $value ) ) {
-					$value = Util_Rule::sanitize_directive_value( $value );
-				} elseif ( is_array( $value ) ) {
+				if ( is_string( $w3tc_value ) ) {
+					$w3tc_value = Util_Rule::sanitize_directive_value( $w3tc_value );
+				} elseif ( is_array( $w3tc_value ) ) {
 					/**
 					 * Directive-bound array keys (`pgcache.reject.cookie`,
 					 * `pgcache.reject.ua`, `mobile.rgroups`, etc.) each
@@ -504,7 +504,7 @@ class Config {
 					 * fully-stripped entry doesn't widen an `implode( '|', ... )`
 					 * regex into a match-everything alternative).
 					 */
-					$value = array_values(
+					$w3tc_value = array_values(
 						array_filter(
 							array_map(
 								function ( $v ) {
@@ -512,7 +512,7 @@ class Config {
 										? Util_Rule::sanitize_directive_value( (string) $v )
 										: '';
 								},
-								$value
+								$w3tc_value
 							),
 							function ( $v ) {
 								return '' !== $v;
@@ -523,23 +523,23 @@ class Config {
 			}
 		}
 
-		$value = self::enforce_enum( $key, $value, $this );
+		$w3tc_value = self::enforce_enum( $w3tc_key, $w3tc_value, $this );
 
-		if ( ! is_array( $key ) ) {
-			$this->_data[ $key ] = $value;
+		if ( ! is_array( $w3tc_key ) ) {
+			$this->_data[ $w3tc_key ] = $w3tc_value;
 		} else {
 			// set extension's key.
-			$key0 = $key[0];
-			$key1 = $key[1];
+			$key0 = $w3tc_key[0];
+			$key1 = $w3tc_key[1];
 
 			if ( ! isset( $this->_data[ $key0 ] ) || ! is_array( $this->_data[ $key0 ] ) ) {
 				$this->_data[ $key0 ] = array();
 			}
 
-			$this->_data[ $key0 ][ $key1 ] = $value;
+			$this->_data[ $key0 ][ $key1 ] = $w3tc_value;
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -555,18 +555,18 @@ class Config {
 	 * Only top-level string keys are supported; compound
 	 * `array( 'extension', 'sub' )` keys are rejected.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $key Config key to remove.
+	 * @param string $w3tc_key Config key to remove.
 	 *
 	 * @return bool True if the key was present and removed; false otherwise.
 	 */
-	public function unset_key( $key ) {
-		if ( ! is_string( $key ) || ! isset( $this->_data[ $key ] ) ) {
+	public function unset_key( $w3tc_key ) {
+		if ( ! is_string( $w3tc_key ) || ! isset( $this->_data[ $w3tc_key ] ) ) {
 			return false;
 		}
 
-		unset( $this->_data[ $key ] );
+		unset( $this->_data[ $w3tc_key ] );
 
 		return true;
 	}
@@ -583,39 +583,39 @@ class Config {
 	 * would widen this file's `ConfigKeys.php` surface without a
 	 * second consumer to justify it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $key Single-string config key.
+	 * @param string $w3tc_key Single-string config key.
 	 *
 	 * @return true|null  `true` when the key is flagged; `null` otherwise.
 	 */
-	private static function directive_string_descriptor( $key ) {
+	private static function directive_string_descriptor( $w3tc_key ) {
 		static $set = null;
 
 		if ( null === $set ) {
-			$set  = array();
-			$keys = array();
+			$set       = array();
+			$w3tc_keys = array();
 			include W3TC_DIR . '/ConfigKeys.php';
-			if ( is_array( $keys ) ) {
-				foreach ( $keys as $name => $descriptor ) {
+			if ( is_array( $w3tc_keys ) ) {
+				foreach ( $w3tc_keys as $w3tc_name => $w3tc_descriptor ) {
 					if (
-						is_array( $descriptor )
-						&& isset( $descriptor['flags'] )
-						&& is_array( $descriptor['flags'] )
-						&& ! empty( $descriptor['flags']['directive_string'] )
+						is_array( $w3tc_descriptor )
+						&& isset( $w3tc_descriptor['flags'] )
+						&& is_array( $w3tc_descriptor['flags'] )
+						&& ! empty( $w3tc_descriptor['flags']['directive_string'] )
 					) {
-						$set[ $name ] = true;
+						$set[ $w3tc_name ] = true;
 					}
 				}
 			}
 		}
 
-		return isset( $set[ $key ] ) ? true : null;
+		return isset( $set[ $w3tc_key ] ) ? true : null;
 	}
 
 	/**
-	 * Constrains scalar `$value` to the enum declared in
-	 * {@see ConfigKeys.php} for `$key`, when present.
+	 * Constrains scalar `$w3tc_value` to the enum declared in
+	 * {@see ConfigKeys.php} for `$w3tc_key`, when present.
 	 *
 	 * Schema declares an enum like:
 	 *
@@ -627,8 +627,8 @@ class Config {
 	 *
 	 * Behavior:
 	 *
-	 *  * If the key has no `enum` entry, return `$value` unchanged.
-	 *  * If `$value` is in the enum, return it unchanged.
+	 *  * If the key has no `enum` entry, return `$w3tc_value` unchanged.
+	 *  * If `$w3tc_value` is in the enum, return it unchanged.
 	 *  * Otherwise, retain the value already stored under that key
 	 *    (or the schema `default`) and emit an audit-log entry. The
 	 *    invalid value never reaches `$this->_data`, so downstream
@@ -640,25 +640,25 @@ class Config {
 	 * keys skip enforcement); the schema doesn't currently declare
 	 * enums on extension subkeys.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string|array $key    Config key (string for top-level, array for extension subkey).
-	 * @param mixed        $value  The candidate value.
-	 * @param Config       $config Config instance, used to look up the prior value as fallback.
+	 * @param string|array $w3tc_key    Config key (string for top-level, array for extension subkey).
+	 * @param mixed        $w3tc_value  The candidate value.
+	 * @param Config       $w3tc_config Config instance, used to look up the prior value as fallback.
 	 *
 	 * @return mixed The original value if allowed, otherwise the prior stored value (or schema default).
 	 */
-	private static function enforce_enum( $key, $value, Config $config ) {
-		if ( ! \is_string( $key ) ) {
-			return $value;
+	private static function enforce_enum( $w3tc_key, $w3tc_value, Config $w3tc_config ) {
+		if ( ! \is_string( $w3tc_key ) ) {
+			return $w3tc_value;
 		}
 
 		$schema = self::config_keys_schema();
-		if ( ! isset( $schema[ $key ]['enum'] ) || ! \is_array( $schema[ $key ]['enum'] ) ) {
-			return $value;
+		if ( ! isset( $schema[ $w3tc_key ]['enum'] ) || ! \is_array( $schema[ $w3tc_key ]['enum'] ) ) {
+			return $w3tc_value;
 		}
 
-		$enum = $schema[ $key ]['enum'];
+		$enum = $schema[ $w3tc_key ]['enum'];
 
 		/**
 		 * Non-scalar values are an immediate reject path. The earlier
@@ -669,8 +669,8 @@ class Config {
 		 * prior value. Route non-scalars straight to the fallback
 		 * branch below so they never normalise to an allowed slug.
 		 */
-		if ( \is_scalar( $value ) ) {
-			$value_string = (string) $value;
+		if ( \is_scalar( $w3tc_value ) ) {
+			$value_string = (string) $w3tc_value;
 
 			if ( \in_array( $value_string, $enum, true ) ) {
 				/**
@@ -691,10 +691,10 @@ class Config {
 		 * bearing value, or a buggy filter widening the surface).
 		 */
 		$fallback = '';
-		if ( isset( $config->_data[ $key ] ) ) {
-			$fallback = $config->_data[ $key ];
-		} elseif ( isset( $schema[ $key ]['default'] ) ) {
-			$fallback = $schema[ $key ]['default'];
+		if ( isset( $w3tc_config->_data[ $w3tc_key ] ) ) {
+			$fallback = $w3tc_config->_data[ $w3tc_key ];
+		} elseif ( isset( $schema[ $w3tc_key ]['default'] ) ) {
+			$fallback = $schema[ $w3tc_key ]['default'];
 		}
 
 		/**
@@ -709,7 +709,7 @@ class Config {
 				'config',
 				\sprintf(
 					'Rejected out-of-enum write to %s; retained prior value. Allowed: %s',
-					$key,
+					$w3tc_key,
 					\implode( ',', $enum )
 				)
 			);
@@ -721,11 +721,11 @@ class Config {
 	/**
 	 * Lazy-load the {@see ConfigKeys.php} schema once per request.
 	 *
-	 * `ConfigKeys.php` populates a local `$keys` variable; we
+	 * `ConfigKeys.php` populates a local `$w3tc_keys` variable; we
 	 * import the file inside an isolated scope and cache the
 	 * result so per-write enum lookups don't re-include the file.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
@@ -736,9 +736,9 @@ class Config {
 			$schema = array();
 
 			$loader = static function () {
-				$keys = array();
+				$w3tc_keys = array();
 				include W3TC_DIR . '/ConfigKeys.php';
-				return $keys;
+				return $w3tc_keys;
 			};
 
 			$schema = (array) $loader();
@@ -780,8 +780,8 @@ class Config {
 	 * @return void
 	 */
 	public function set_defaults() {
-		$c           = new ConfigCompiler( $this->_blog_id, $this->_preview );
-		$this->_data = $c->get_data();
+		$w3tc_c      = new ConfigCompiler( $this->_blog_id, $this->_preview );
+		$this->_data = $w3tc_c->get_data();
 	}
 
 	/**
@@ -794,25 +794,25 @@ class Config {
 			do_action( 'w3tc_config_save', $this );
 		}
 
-		$c = new ConfigCompiler( $this->_blog_id, $this->_preview );
-		$c->apply_data( $this->_data );
-		$c->save();
+		$w3tc_c = new ConfigCompiler( $this->_blog_id, $this->_preview );
+		$w3tc_c->apply_data( $this->_data );
+		$w3tc_c->save();
 	}
 
 	/**
 	 * Checks if a configuration key is sealed (immutable).
 	 *
-	 * @param string $key The configuration key to check.
+	 * @param string $w3tc_key The configuration key to check.
 	 *
 	 * @return bool True if the key is sealed, false otherwise.
 	 */
-	public function is_sealed( $key ) {
+	public function is_sealed( $w3tc_key ) {
 		if ( $this->is_master() ) {
 			return false;
 		}
 
 		// better to use master config data here, but its faster and preciese enough for UI.
-		return ConfigCompiler::child_key_sealed( $key, $this->_data, $this->_data );
+		return ConfigCompiler::child_key_sealed( $w3tc_key, $this->_data, $this->_data );
 	}
 
 	/**
@@ -821,6 +821,15 @@ class Config {
 	 * @return string The configuration data as a JSON string.
 	 */
 	public function export() {
+		$export_data = $this->_data;
+
+		// Export files are often copied between environments; omit stored credential values.
+		foreach ( \array_keys( self::secret_keys() ) as $w3tc_key ) {
+			if ( isset( $export_data[ $w3tc_key ] ) && '' !== $export_data[ $w3tc_key ] ) {
+				$export_data[ $w3tc_key ] = '';
+			}
+		}
+
 		/**
 		 * JSON_HEX_TAG / HEX_AMP / HEX_APOS / HEX_QUOT escape `<` `&` `'`
 		 * `"` to their `\uXXXX` forms. The export endpoint serves this
@@ -832,13 +841,16 @@ class Config {
 		 * what an admin saved in config — closes that path without
 		 * changing the JSON semantics (JSON parsers decode `<` back
 		 * to `<` transparently).
+		 *
+		 * Secret-flagged keys are blanked in the export copy so
+		 * credential material is not written into a downloadable file.
 		 */
 		$flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 		if ( defined( 'JSON_PRETTY_PRINT' ) ) {
 			$flags |= JSON_PRETTY_PRINT;
 		}
 
-		return wp_json_encode( $this->_data, $flags );
+		return wp_json_encode( $export_data, $flags );
 	}
 
 	/**
@@ -881,39 +893,39 @@ class Config {
 				$content = \substr( $content, 14 );
 			}
 
-			$data = @json_decode( $content, true );
+			$w3tc_data = @json_decode( $content, true );
 
-			if ( \is_array( $data ) ) {
-				if ( ! isset( $data['version'] ) || W3TC_VERSION !== $data['version'] ) {
-					$c = new ConfigCompiler( $this->_blog_id, false );
-					$c->load( $data );
-					$data = $c->get_data();
+			if ( \is_array( $w3tc_data ) ) {
+				if ( ! isset( $w3tc_data['version'] ) || W3TC_VERSION !== $w3tc_data['version'] ) {
+					$w3tc_c = new ConfigCompiler( $this->_blog_id, false );
+					$w3tc_c->load( $w3tc_data );
+					$w3tc_data = $w3tc_c->get_data();
 				}
 
 				$rejected_unknown = 0;
 				$rejected_locked  = 0;
 				$applied          = 0;
 
-				foreach ( $data as $key => $value ) {
+				foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
 					// `version` is metadata, not a settable key.
-					if ( 'version' === $key ) {
+					if ( 'version' === $w3tc_key ) {
 						continue;
 					}
 
-					if ( ! ConfigKeysSchema::is_known( $key ) ) {
+					if ( ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
 						++$rejected_unknown;
 						continue;
 					}
 
-					if ( ! ConfigKeysSchema::can_import( $key ) ) {
+					if ( ! ConfigKeysSchema::can_import( $w3tc_key ) ) {
 						++$rejected_locked;
 						continue;
 					}
 
-					$descriptor = ConfigKeysSchema::descriptor( $key );
-					$value      = ConfigKeysSchema::coerce( $value, $descriptor );
+					$w3tc_descriptor = ConfigKeysSchema::descriptor( $w3tc_key );
+					$w3tc_value      = ConfigKeysSchema::coerce( $w3tc_value, $w3tc_descriptor );
 
-					$this->set( $key, $value );
+					$this->set( $w3tc_key, $w3tc_value );
 					++$applied;
 				}
 
@@ -957,10 +969,10 @@ class Config {
 	 * @return void
 	 */
 	public function load() {
-		$data = self::util_array_from_storage( 0, $this->_preview );
+		$w3tc_data = self::util_array_from_storage( 0, $this->_preview );
 
 		// config file assumed is not up to date, use slow version.
-		if ( ! isset( $data['version'] ) || W3TC_VERSION !== $data['version'] ) {
+		if ( ! isset( $w3tc_data['version'] ) || W3TC_VERSION !== $w3tc_data['version'] ) {
 			$this->load_full();
 			return;
 		}
@@ -969,20 +981,20 @@ class Config {
 			$child_data = self::util_array_from_storage( $this->_blog_id, $this->_preview );
 
 			if ( ! is_null( $child_data ) ) {
-				if ( ! isset( $data['version'] ) || W3TC_VERSION !== $data['version'] ) {
+				if ( ! isset( $w3tc_data['version'] ) || W3TC_VERSION !== $w3tc_data['version'] ) {
 					$this->load_full();
 					return;
 				}
 
-				foreach ( $child_data as $key => $value ) {
-					$data[ $key ] = $value;
+				foreach ( $child_data as $w3tc_key => $w3tc_value ) {
+					$w3tc_data[ $w3tc_key ] = $w3tc_value;
 				}
 			}
 		}
 
-		self::decrypt_secrets( $data );
+		self::decrypt_secrets( $w3tc_data );
 
-		$this->_data     = $data;
+		$this->_data     = $w3tc_data;
 		$this->_compiled = false;
 	}
 
@@ -992,11 +1004,11 @@ class Config {
 	 * @return void
 	 */
 	private function load_full() {
-		$c = new ConfigCompiler( $this->_blog_id, $this->_preview );
-		$c->load();
-		$data = $c->get_data();
-		self::decrypt_secrets( $data );
-		$this->_data     = $data;
+		$w3tc_c = new ConfigCompiler( $this->_blog_id, $this->_preview );
+		$w3tc_c->load();
+		$w3tc_data = $w3tc_c->get_data();
+		self::decrypt_secrets( $w3tc_data );
+		$this->_data     = $w3tc_data;
 		$this->_compiled = true;
 	}
 
@@ -1008,7 +1020,7 @@ class Config {
 	 * The schema include is cached for the request, so this is cheap
 	 * to call from both the load and save paths.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array<string,true> Map of secret key name → true.
 	 */
@@ -1019,19 +1031,19 @@ class Config {
 			return $cache;
 		}
 
-		$keys = array();
+		$w3tc_keys = array();
 		include W3TC_DIR . '/ConfigKeys.php';
 
 		$cache = array();
-		if ( is_array( $keys ) ) {
-			foreach ( $keys as $name => $descriptor ) {
+		if ( is_array( $w3tc_keys ) ) {
+			foreach ( $w3tc_keys as $w3tc_name => $w3tc_descriptor ) {
 				if (
-					is_array( $descriptor )
-					&& isset( $descriptor['flags'] )
-					&& is_array( $descriptor['flags'] )
-					&& ! empty( $descriptor['flags']['secret'] )
+					is_array( $w3tc_descriptor )
+					&& isset( $w3tc_descriptor['flags'] )
+					&& is_array( $w3tc_descriptor['flags'] )
+					&& ! empty( $w3tc_descriptor['flags']['secret'] )
 				) {
-					$cache[ $name ] = true;
+					$cache[ $w3tc_name ] = true;
 				}
 			}
 		}
@@ -1040,7 +1052,7 @@ class Config {
 	}
 
 	/**
-	 * Decrypts every secret-flagged key in-place inside `$data`.
+	 * Decrypts every secret-flagged key in-place inside `$w3tc_data`.
 	 *
 	 * Legacy plaintext values pass through unchanged (the envelope
 	 * helper is a no-op on non-`enc:v1:` strings), so an existing
@@ -1053,14 +1065,14 @@ class Config {
 	 * literal `false` (which `get_string()` would coerce to `""` anyway
 	 * but via a non-obvious code path).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param array $data Configuration data (modified in place).
+	 * @param array $w3tc_data Configuration data (modified in place).
 	 *
 	 * @return void
 	 */
-	public static function decrypt_secrets( &$data ) {
-		if ( ! is_array( $data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+	public static function decrypt_secrets( &$w3tc_data ) {
+		if ( ! is_array( $w3tc_data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
 			return;
 		}
 
@@ -1090,35 +1102,35 @@ class Config {
 			return;
 		}
 
-		foreach ( $secret_keys as $key => $_ ) {
-			if ( ! isset( $data[ $key ] ) || ! is_string( $data[ $key ] ) ) {
+		foreach ( $secret_keys as $w3tc_key => $_ ) {
+			if ( ! isset( $w3tc_data[ $w3tc_key ] ) || ! is_string( $w3tc_data[ $w3tc_key ] ) ) {
 				continue;
 			}
-			$plain = Util_Crypto::envelope_decrypt( $data[ $key ] );
+			$plain = Util_Crypto::envelope_decrypt( $w3tc_data[ $w3tc_key ] );
 			if ( false === $plain ) {
-				$data[ $key ] = '';
+				$w3tc_data[ $w3tc_key ] = '';
 			} else {
-				$data[ $key ] = $plain;
+				$w3tc_data[ $w3tc_key ] = $plain;
 			}
 		}
 	}
 
 	/**
-	 * Encrypts every secret-flagged key in-place inside `$data`.
+	 * Encrypts every secret-flagged key in-place inside `$w3tc_data`.
 	 *
 	 * Called by {@see ConfigCompiler::save()} before writing
 	 * `master.php`. Non-secret keys are untouched. Already-enveloped
 	 * values are not double-wrapped (the envelope helper detects its
 	 * own prefix and short-circuits).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param array $data Configuration data (modified in place).
+	 * @param array $w3tc_data Configuration data (modified in place).
 	 *
 	 * @return void
 	 */
-	public static function encrypt_secrets( &$data ) {
-		if ( ! is_array( $data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+	public static function encrypt_secrets( &$w3tc_data ) {
+		if ( ! is_array( $w3tc_data ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
 			return;
 		}
 
@@ -1127,11 +1139,11 @@ class Config {
 			return;
 		}
 
-		foreach ( $secret_keys as $key => $_ ) {
-			if ( ! isset( $data[ $key ] ) || ! is_string( $data[ $key ] ) || '' === $data[ $key ] ) {
+		foreach ( $secret_keys as $w3tc_key => $_ ) {
+			if ( ! isset( $w3tc_data[ $w3tc_key ] ) || ! is_string( $w3tc_data[ $w3tc_key ] ) || '' === $w3tc_data[ $w3tc_key ] ) {
 				continue;
 			}
-			$data[ $key ] = Util_Crypto::envelope_encrypt( $data[ $key ] );
+			$w3tc_data[ $w3tc_key ] = Util_Crypto::envelope_encrypt( $w3tc_data[ $w3tc_key ] );
 		}
 	}
 }

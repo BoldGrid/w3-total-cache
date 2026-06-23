@@ -35,11 +35,11 @@ class Extension_NewRelic_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_save_new_relic() {
-		$service                       = Dispatcher::component( 'Extension_NewRelic_Service' );
+		$w3tc_service                  = Dispatcher::component( 'Extension_NewRelic_Service' );
 		$application                   = Util_Request::get_array( 'application' );
 		$application['alerts_enabled'] = empty( $application['alerts_enabled'] ) ? 'false' : 'true';
 		$application['rum_enabled']    = empty( $application['rum_enabled'] ) ? 'false' : 'true';
-		$result                        = $service->update_application_settings( $application );
+		$w3tc_result                   = $w3tc_service->update_application_settings( $application );
 		Util_Admin::redirect(
 			array(
 				'w3tc_note' => 'new_relic_save',

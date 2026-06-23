@@ -35,11 +35,15 @@ describe('ImageService extension activation smoke', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('activate ImageService extension', async() => {
+	it('activate ImageService extension', async function() {
 		await w3tc.activateExtension(adminPage, 'imageservice')
 			.catch((e) => log.log('activate result: ' + e.message));
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_extensions',
+		// networkAdminUrl: w3tc_extensions is not visible_always, so on
+		// multisite (default common.force_master) env.adminUrl serves WP's
+		// "not allowed" page and this spec would always this.skip(),
+		// silently losing coverage. Single-site: same URL.
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions',
 			{waitUntil: 'domcontentloaded'});
 
 		let html = await adminPage.content();

@@ -59,12 +59,12 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	/**
 	 * Initializes the CdnEngine_RackSpaceCloudFiles class with configuration.
 	 *
-	 * @param array $config Configuration options for the class.
+	 * @param array $w3tc_config Configuration options for the class.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'user_name'    => '',
 				'api_key'      => '',
@@ -73,14 +73,14 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 				'cname'        => array(),
 				'access_state' => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		$this->_container                 = $config['container'];
-		$this->_new_access_state_callback = $config['new_access_state_callback'];
+		$this->_container                 = $w3tc_config['container'];
+		$this->_new_access_state_callback = $w3tc_config['new_access_state_callback'];
 
 		// init access state.
-		$this->_access_state = @json_decode( $config['access_state'], true );
+		$this->_access_state = @json_decode( $w3tc_config['access_state'], true );
 		if ( ! is_array( $this->_access_state ) ) {
 			$this->_access_state = array();
 		}
@@ -95,7 +95,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 			$this->_access_state
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 		$this->_create_api(
 			array( $this, '_on_new_access_requested_api_files' ),
 			array( $this, '_on_new_access_requested_api_cdn' )
@@ -156,14 +156,14 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	 * @throws \Exception If authentication fails or the region is not found.
 	 */
 	private function _on_new_access_requested() {
-		$r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
-		if ( ! isset( $r['access_token'] ) || ! isset( $r['services'] ) ) {
+		$w3tc_r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
+		if ( ! isset( $w3tc_r['access_token'] ) || ! isset( $w3tc_r['services'] ) ) {
 			throw new \Exception( \esc_html__( 'Authentication failed.', 'w3-total-cache' ) );
 		}
 
-		$r['regions'] = Cdn_RackSpace_Api_Tokens::cloudfiles_services_by_region( $r['services'] );
+		$w3tc_r['regions'] = Cdn_RackSpace_Api_Tokens::cloudfiles_services_by_region( $w3tc_r['services'] );
 
-		if ( ! isset( $r['regions'][ $this->_config['region'] ] ) ) {
+		if ( ! isset( $w3tc_r['regions'][ $this->_config['region'] ] ) ) {
 			throw new \Exception(
 				\esc_html(
 					sprintf(
@@ -175,18 +175,18 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 			);
 		}
 
-		$this->_access_state['access_token']             = $r['access_token'];
-		$this->_access_state['access_region_descriptor'] = $r['regions'][ $this->_config['region'] ];
+		$this->_access_state['access_token']             = $w3tc_r['access_token'];
+		$this->_access_state['access_region_descriptor'] = $w3tc_r['regions'][ $this->_config['region'] ];
 
 		$this->_create_api(
 			array( $this, '_on_new_access_requested_second_time' ),
 			array( $this, '_on_new_access_requested_second_time' )
 		);
 
-		$c = $this->_api_cdn->container_get( $this->_config['container'] );
+		$w3tc_c = $this->_api_cdn->container_get( $this->_config['container'] );
 
-		$this->_access_state['host_http']  = substr( $c['x-cdn-uri'], 7 );
-		$this->_access_state['host_https'] = substr( $c['x-cdn-ssl-uri'], 8 );
+		$this->_access_state['host_http']  = substr( $w3tc_c['x-cdn-uri'], 7 );
+		$this->_access_state['host_https'] = substr( $w3tc_c['x-cdn-ssl-uri'], 8 );
 
 		call_user_func( $this->_new_access_state_callback, wp_json_encode( $this->_access_state ) );
 	}
@@ -216,10 +216,10 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 			$scheme = $this->_get_scheme();
 
 			// it does not support '+', requires '%2B'.
-			$path = str_replace( '+', '%2B', $path );
-			$url  = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+			$path     = str_replace( '+', '%2B', $path );
+			$w3tc_url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -236,9 +236,9 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	 * @return bool True on success, false on error.
 	 */
 	public function upload( $files, &$results, $force_rewrite = false, $timeout_time = null ) {
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			// process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) && ! is_null( $timeout_time ) && time() > $timeout_time ) {
@@ -251,7 +251,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					'Source file not found.',
-					$file
+					$w3tc_file
 				);
 
 				continue;
@@ -273,7 +273,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_ERROR,
 						sprintf( 'Unable to check object (%s).', $exception->getMessage() ),
-						$file
+						$w3tc_file
 					);
 					$do_write  = false;
 				}
@@ -287,7 +287,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 							$remote_path,
 							W3TC_CDN_RESULT_OK,
 							'Object up-to-date.',
-							$file
+							$w3tc_file
 						);
 						$do_write  = false;
 					}
@@ -309,7 +309,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_OK,
 						'OK',
-						$file
+						$w3tc_file
 					);
 				} catch ( \Exception $exception ) {
 					$results[] = $this->_get_result(
@@ -317,7 +317,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_ERROR,
 						sprintf( 'Unable to create object (%s).', $exception->getMessage() ),
-						$file
+						$w3tc_file
 					);
 				}
 			}
@@ -335,9 +335,9 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	 * @return bool True on success, false on error.
 	 */
 	public function delete( $files, &$results ) {
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			try {
 				$this->_api_files->object_delete( $this->_container, $remote_path );
@@ -346,7 +346,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_OK,
 					'OK',
-					$file
+					$w3tc_file
 				);
 			} catch ( \Exception $exception ) {
 				$results[] = $this->_get_result(
@@ -354,7 +354,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete object (%s).', $exception->getMessage() ),
-					$file
+					$w3tc_file
 				);
 			}
 		}
@@ -386,27 +386,27 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 			return false;
 		}
 
-		$result = true;
+		$w3tc_result = true;
 		try {
-			$r = wp_remote_get( 'http://' . $this->get_host_http() . '/' . $filename );
+			$w3tc_r = wp_remote_get( 'http://' . $this->get_host_http() . '/' . $filename );
 
-			if ( $r['body'] !== $filename ) {
-				$error  = 'Failed to retrieve object after storing.';
-				$result = false;
+			if ( $w3tc_r['body'] !== $filename ) {
+				$error       = 'Failed to retrieve object after storing.';
+				$w3tc_result = false;
 			}
 		} catch ( \Exception $exception ) {
-			$error  = sprintf( 'Unable to read object (%s).', $exception->getMessage() );
-			$result = false;
+			$error       = sprintf( 'Unable to read object (%s).', $exception->getMessage() );
+			$w3tc_result = false;
 		}
 
 		try {
 			$this->_api_files->object_delete( $this->_container, $filename );
 		} catch ( \Exception $exception ) {
-			$error  = sprintf( 'Unable to delete object (%s).', $exception->getMessage() );
-			$result = false;
+			$error       = sprintf( 'Unable to delete object (%s).', $exception->getMessage() );
+			$w3tc_result = false;
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**

@@ -16,7 +16,7 @@
  * which cannot be mixed with the test's top-level (global-namespace) body.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.0
  */
 
 namespace W3TC {

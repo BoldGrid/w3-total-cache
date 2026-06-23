@@ -28,22 +28,22 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Constructor.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
-	 * @param array $config Configuration.
+	 * @param array $w3tc_config Configuration.
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'user'      => (string) getenv( 'STORAGE_ACCOUNT_NAME' ),
 				'client_id' => (string) getenv( 'ENTRA_CLIENT_ID' ),
 				'container' => (string) getenv( 'BLOB_CONTAINER_NAME' ),
 				'cname'     => empty( getenv( 'BLOB_STORAGE_URL' ) ) ? array() : array( (string) getenv( 'BLOB_STORAGE_URL' ) ),
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 
 		// Load the Composer autoloader.
 		require_once W3TC_DIR . '/vendor/autoload.php';
@@ -52,7 +52,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Initialize storage client object.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param string $error Error message.
 	 * @return bool
@@ -80,7 +80,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Upload files to Azure Blob Storage.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param array    $files         Files.
 	 * @param array    $results       Results.
@@ -97,7 +97,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
+		foreach ( $files as $w3tc_file ) {
 			// Process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) ) {
 				if ( ! is_null( $timeout_time ) && time() > $timeout_time ) {
@@ -106,7 +106,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 				}
 			}
 
-			$results[] = $this->_upload( $file, $force_rewrite );
+			$results[] = $this->_upload( $w3tc_file, $force_rewrite );
 		}
 
 		return ! $this->_is_error( $results );
@@ -115,18 +115,18 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Upload file to Azure Blob Storage.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
-	 * @param string $file File path.
+	 * @param string $w3tc_file File path.
 	 * @param bool   $force_rewrite Force rewrite.
 	 * @return array
 	 */
-	public function _upload( $file, $force_rewrite = false ) {
-		$local_path  = $file['local_path'];
-		$remote_path = $file['remote_path'];
+	public function _upload( $w3tc_file, $force_rewrite = false ) {
+		$local_path  = $w3tc_file['local_path'];
+		$remote_path = $w3tc_file['remote_path'];
 
 		if ( ! file_exists( $local_path ) ) {
-			return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_ERROR, 'Source file not found.', $file );
+			return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_ERROR, 'Source file not found.', $w3tc_file );
 		}
 
 		$contents    = @file_get_contents( $local_path );
@@ -135,7 +135,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		if ( ! $force_rewrite ) {
 			try {
-				$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
+				$w3tc_p = CdnEngine_Azure_MI_Utility::get_blob_properties(
 					$this->_config['client_id'],
 					$this->_config['user'],
 					$this->_config['container'],
@@ -144,15 +144,15 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 				$local_size = @filesize( $local_path );
 
-				// Check if Content-Length is available in $p array.
-				if ( isset( $p['Content-Length'] ) && (int) $local_size === (int) $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
-					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
+				// Check if Content-Length is available in $w3tc_p array.
+				if ( isset( $w3tc_p['Content-Length'] ) && (int) $local_size === (int) $w3tc_p['Content-Length'] && isset( $w3tc_p['Content-MD5'] ) && $content_md5 === $w3tc_p['Content-MD5'] ) {
+					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $w3tc_file );
 				}
 			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 		}
 
-		$headers = $this->get_headers_for_file( $file );
+		$headers = $this->get_headers_for_file( $w3tc_file );
 
 		try {
 			$content_type  = isset( $headers['Content-Type'] ) ? $headers['Content-Type'] : 'application/octet-stream';
@@ -175,17 +175,17 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				sprintf( 'Unable to put blob (%1$s).', $exception->getMessage() ),
-				$file
+				$w3tc_file
 			);
 		}
 
-		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
+		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $w3tc_file );
 	}
 
 	/**
 	 * Delete files from Azure Blob Storage.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param array $files   Files.
 	 * @param array $results Results.
@@ -200,9 +200,9 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			try {
 				CdnEngine_Azure_MI_Utility::delete_blob(
@@ -212,14 +212,14 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 					$remote_path
 				);
 
-				$results[] = $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
+				$results[] = $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $w3tc_file );
 			} catch ( \Exception $exception ) {
 				$results[] = $this->_get_result(
 					$local_path,
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete blob (%1$s).', $exception->getMessage() ),
-					$file
+					$w3tc_file
 				);
 			}
 		}
@@ -230,7 +230,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Test Azure Blob Storage.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param string $error Error message.
 	 * @return bool
@@ -256,16 +256,16 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			return false;
 		}
 
-		$container = null;
+		$w3tc_container = null;
 
 		foreach ( $containers as $_container ) {
 			if ( $_container['Name'] === $this->_config['container'] ) {
-				$container = $_container;
+				$w3tc_container = $_container;
 				break;
 			}
 		}
 
-		if ( ! $container ) {
+		if ( ! $w3tc_container ) {
 			$error = sprintf( 'Container doesn\'t exist: %1$s.', $this->_config['container'] );
 			return false;
 		}
@@ -285,15 +285,15 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
+			$w3tc_p = CdnEngine_Azure_MI_Utility::get_blob_properties(
 				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
 				$string
 			);
 
-			$size = isset( $p['Content-Length'] ) ? (int) $p['Content-Length'] : -1;
-			$md5  = isset( $p['Content-MD5'] ) ? $p['Content-MD5'] : '';
+			$size = isset( $w3tc_p['Content-Length'] ) ? (int) $w3tc_p['Content-Length'] : -1;
+			$md5  = isset( $w3tc_p['Content-MD5'] ) ? $w3tc_p['Content-MD5'] : '';
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to get blob properties (%1$s).', $exception->getMessage() );
 			return false;
@@ -323,13 +323,13 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 				$string
 			);
 
-			$data = isset( $blob_response['data'] ) ? $blob_response['data'] : '';
+			$w3tc_data = isset( $blob_response['data'] ) ? $blob_response['data'] : '';
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to get blob data (%1$s).', $exception->getMessage() );
 			return false;
 		}
 
-		if ( $data !== $string ) {
+		if ( $w3tc_data !== $string ) {
 			try {
 				CdnEngine_Azure_MI_Utility::delete_blob(
 					$this->_config['client_id'],
@@ -363,7 +363,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Returns CDN domains.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @return array
 	 */
@@ -381,7 +381,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Returns via string.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
@@ -392,7 +392,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Create an Azure Blob Storage container/bucket.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @return bool
 	 * @throws \Exception Exception.
@@ -420,7 +420,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$result = CdnEngine_Azure_MI_Utility::create_container(
+			$w3tc_result = CdnEngine_Azure_MI_Utility::create_container(
 				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container']
@@ -436,7 +436,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Return Content-MD5 header value.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param string $md5 MD5 hash.
 	 * @return string Base64-encoded packed (hex string, high nibble first, repeating to the end of the input data) data from the input MD% string.
@@ -448,7 +448,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Format object URL.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param string $path Path.
 	 * @return string|false
@@ -457,10 +457,10 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain && ! empty( $this->_config['container'] ) ) {
-			$scheme = $this->_get_scheme();
-			$url    = sprintf( '%1$s://%2$s/%3$s/%4$s', $scheme, $domain, $this->_config['container'], $path );
+			$scheme   = $this->_get_scheme();
+			$w3tc_url = sprintf( '%1$s://%2$s/%3$s/%4$s', $scheme, $domain, $this->_config['container'], $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -469,7 +469,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * How and if headers should be set.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, or W3TC_CDN_HEADER_MIRRORING.
 	 */
@@ -480,7 +480,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Get prepend path.
 	 *
-	 * @since 2.7.7
+	 * @since 2.8.0
 	 *
 	 * @param string $path Path.
 	 * @return string

@@ -230,9 +230,6 @@ def generate_box_descriptors(image_name)
 				# wp doesnt allow networks on non-default ports
 				'8080',
 				'captial',   # no reason to test subdomain, single enough
-				'xcache-wp431',
-				'xcache-wp47',
-				'xcache-wp48',
 				'litespeed'
 			]
 		},
@@ -247,9 +244,6 @@ def generate_box_descriptors(image_name)
 				# wp doesnt allow networks on non-default ports
 				'8080',
 				'captial',   # no reason to test subdomain, single enough
-				'xcache-wp431',
-				'xcache-wp47',
-				'xcache-wp48',
 				'litespeed'
 			]
 		}

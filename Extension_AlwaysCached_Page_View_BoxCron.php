@@ -11,13 +11,14 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c                = Dispatcher::config();
-$pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' );
-$wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+$w3tc_c                = Dispatcher::config();
+$w3tc_pgcache_disabled = ! $w3tc_c->get_boolean( 'pgcache.enabled' );
+$w3tc_wp_cron_disabled = ! $w3tc_c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 
 ?>
 <div class="metabox-holder">
@@ -35,17 +36,17 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
 				'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will process the queue and regenerate cache files. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc alwayscached_process".', 'w3-total-cache' ),
-				'disabled'       => $pgcache_disabled,
+				'disabled'       => $w3tc_pgcache_disabled,
 			)
 		);
 
-		$time_options = array();
-		for ( $hour = 0; $hour < 24; $hour++ ) {
-			foreach ( array( '00', '30' ) as $minute ) {
-				$time_value                  = $hour * 60 + intval( $minute );
-				$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-				$time_label                  = $scheduled_time->format( 'g:i a' );
-				$time_options[ $time_value ] = $time_label;
+		$w3tc_time_options = array();
+		for ( $w3tc_hour = 0; $w3tc_hour < 24; $w3tc_hour++ ) {
+			foreach ( array( '00', '30' ) as $w3tc_minute ) {
+				$w3tc_time_value                       = $w3tc_hour * 60 + intval( $w3tc_minute );
+				$w3tc_scheduled_time                   = new \DateTime( "{$w3tc_hour}:{$w3tc_minute}", wp_timezone() );
+				$w3tc_time_label                       = $w3tc_scheduled_time->format( 'g:i a' );
+				$w3tc_time_options[ $w3tc_time_value ] = $w3tc_time_label;
 			}
 		}
 
@@ -57,9 +58,9 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				),
 				'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 				'control'          => 'selectbox',
-				'selectbox_values' => $time_options,
+				'selectbox_values' => $w3tc_time_options,
 				'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
+				'disabled'         => $w3tc_pgcache_disabled || $w3tc_wp_cron_disabled,
 			)
 		);
 
@@ -78,7 +79,7 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 					'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 				),
 				'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
+				'disabled'         => $w3tc_pgcache_disabled || $w3tc_wp_cron_disabled,
 			)
 		);
 		?>

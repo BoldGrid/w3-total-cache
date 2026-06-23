@@ -63,12 +63,11 @@
 }
 
 .w3tcps_range {
-    font-family: unset;
     font-size: 14px;
     display: inline-flex;
     vertical-align: middle;
     align-items: center;
-    font-family: 'Roboto Mono', 'Menlo', 'dejavu sans mono', 'Consolas', 'Lucida Console', monospace;
+    font-family: 'Roboto Mono', Menlo, 'dejavu sans mono', Consolas, 'Lucida Console', monospace;
 }
 
 .w3tcps_range::before {
@@ -80,7 +79,7 @@
 }
 
 .w3tcps_fail::before {
-    width: 0px;
+    width: 0;
     margin: -14px 14px 0 6px;
     border-left: calc(14px / 2) solid transparent;
     border-right: calc(14px / 2) solid transparent;
@@ -116,7 +115,7 @@
     margin: 0 10px;
 }
 
-.gauge:before{
+.gauge::before{
     content: "";
     display: block;
     padding-top: 50%;
@@ -129,7 +128,7 @@
     bottom: 0;
     top: 40%;
 
-    background-color: #ffffff;
+    background-color: #fff;
     border-radius: 50%/100% 100% 0 0;
 }
 
@@ -154,12 +153,14 @@
 }
 
 @media only screen and (max-width: 1200px) {
+
 	.w3tcps_metric {
 		width: 50%;
 	}
 }
 
 @media only screen and (max-width: 782px) {
+
 	.w3tcps_metric {
 		width: 50%;
 	}

@@ -18,16 +18,16 @@ class Generic_Environment {
 	/**
 	 * Fixes environment
 	 *
-	 * @param Config $config           Config.
+	 * @param Config $w3tc_config           Config.
 	 * @param bool   $force_all_checks Force checks flag.
 	 *
 	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
 
 		// create add-ins.
-		$this->create_required_files( $config, $exs );
+		$this->create_required_files( $w3tc_config, $exs );
 
 		// create folders.
 		$this->create_required_folders( $exs );
@@ -49,9 +49,9 @@ class Generic_Environment {
 			$f  = ConfigUtil::is_item_exists( 0, false );
 			$f2 = file_exists( Config::util_config_filename_legacy_v2( 0, false ) );
 
-			$c = Dispatcher::config_master();
-			if ( ( $f || $f2 ) && $c->is_compiled() ) {
-				$c->save();
+			$w3tc_c = Dispatcher::config_master();
+			if ( ( $f || $f2 ) && $w3tc_c->is_compiled() ) {
+				$w3tc_c->save();
 				$f = ConfigUtil::is_item_exists( 0, false );
 			}
 
@@ -68,13 +68,13 @@ class Generic_Environment {
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @param Config      $config     Config.
+	 * @param Config      $w3tc_config     Config.
 	 * @param string      $event      Event.
 	 * @param null|Config $old_config Old Config.
 	 *
 	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
 	}
 
 	/**
@@ -124,14 +124,14 @@ class Generic_Environment {
 	 * to replace the block on upgrade without rewriting the whole
 	 * `nginx.conf`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return array|null Array of `{filename, content}` descriptors,
 	 *                    or null when no environment rules are needed.
 	 */
-	public function get_required_rules( $config ) {
+	public function get_required_rules( $w3tc_config ) {
 		if ( Util_Environment::is_nginx() ) {
 			return array(
 				array(
@@ -183,7 +183,7 @@ class Generic_Environment {
 	 * (the default layout); a cache directory relocated outside the
 	 * docroot is not web-reachable and needs no rule.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return string Nginx config fragment delimited by the
 	 *                W3TC_MARKER_BEGIN_PLUGIN_DIR_DENY /
@@ -244,7 +244,7 @@ class Generic_Environment {
 	 * for operators we anchor it near the top of the file when no
 	 * earlier W3TC block exists.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param Util_Environment_Exceptions $exs Environment exceptions accumulator.
 	 *
@@ -271,7 +271,7 @@ class Generic_Environment {
 	 * Passing empty content to `Util_Rule::add_rules()` puts the
 	 * helper into removal mode (its documented contract).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param Util_Environment_Exceptions $exs Environment exceptions accumulator.
 	 *
@@ -291,12 +291,12 @@ class Generic_Environment {
 	/**
 	 * Checks if addins in wp-content is available and correct version.
 	 *
-	 * @param unknown                     $config Config.
+	 * @param unknown                     $w3tc_config Config.
 	 * @param Util_Environment_Exceptions $exs    Enfironment exceptions.
 	 *
 	 * @return void
 	 */
-	private function create_required_files( $config, $exs ) {
+	private function create_required_files( $w3tc_config, $exs ) {
 		$src = W3TC_INSTALL_FILE_ADVANCED_CACHE;
 		$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
 
@@ -323,7 +323,7 @@ class Generic_Environment {
 							),
 							Util_Ui::button_link(
 								__( 'Yes, remove it for me', 'w3-total-cache' ),
-								wp_nonce_url( $remove_url, 'w3tc' )
+								Util_Nonce::admin_nonce_url( $remove_url, 'w3tc_default_remove_add_in' )
 							)
 						)
 					)

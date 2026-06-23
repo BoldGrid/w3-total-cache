@@ -36,11 +36,14 @@ describe('AMP extension settings form-save', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('activate AMP and round-trip url_type + url_postfix', async() => {
+	it('activate AMP and round-trip url_type + url_postfix', async function() {
 		await w3tc.activateExtension(adminPage, 'amp')
 			.catch((e) => log.log('activate result: ' + e.message));
 
-		let settingsUrl = env.adminUrl +
+		// networkAdminUrl: w3tc_extensions is not visible_always, so on
+		// multisite (default common.force_master) env.adminUrl serves WP's
+		// "not allowed" page. Single-site: same URL.
+		let settingsUrl = env.networkAdminUrl +
 			'admin.php?page=w3tc_extensions&extension=amp&action=view';
 		await adminPage.goto(settingsUrl, {waitUntil: 'domcontentloaded'});
 

@@ -82,11 +82,11 @@ class Extensions_Plugin_Admin {
 			return $menu;
 		}
 
-		$extension_val = Util_Request::get_string( 'extension' );
-		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
-		$page_title    = '';
+		$extension_val  = Util_Request::get_string( 'extension' );
+		$w3tc_extension = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$page_title     = '';
 
-		switch ( $extension ) {
+		switch ( $w3tc_extension ) {
 			case 'alwayscached':
 				$page_title = __( 'Always Cached Extension Settings', 'w3-total-cache' );
 				break;
@@ -122,21 +122,21 @@ class Extensions_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_settings_page_w3tc_extensions() {
-		$o = new Extensions_Page();
-		$o->render_content();
+		$w3tc_o = new Extensions_Page();
+		$w3tc_o->render_content();
 	}
 
 	/**
 	 * Pre-processes the update of the active plugins option.
 	 *
-	 * @param mixed $o Option value to be updated.
+	 * @param mixed $w3tc_o Option value to be updated.
 	 *
 	 * @return mixed Modified option value.
 	 */
-	public function pre_update_option_active_plugins( $o ) {
+	public function pre_update_option_active_plugins( $w3tc_o ) {
 		delete_option( 'w3tc_extensions_hooks' );
 
-		return $o;
+		return $w3tc_o;
 	}
 
 	/**
@@ -150,30 +150,30 @@ class Extensions_Plugin_Admin {
 		}
 
 		// Used to load even inactive extensions if they want to.
-		$s     = get_option( 'w3tc_extensions_hooks' );
-		$hooks = @json_decode( $s, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$s          = get_option( 'w3tc_extensions_hooks' );
+		$w3tc_hooks = @json_decode( $s, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-		if ( ! isset( $hooks['next_check_date'] ) ||
-			$hooks['next_check_date'] < time() ) {
-			$hooks = array(
+		if ( ! isset( $w3tc_hooks['next_check_date'] ) ||
+			$w3tc_hooks['next_check_date'] < time() ) {
+			$w3tc_hooks = array(
 				'actions'         => array(),
 				'filters'         => array(),
 				'next_check_date' => time() + 24 * 60 * 60,
 			);
 
-			$hooks = apply_filters( 'w3tc_extensions_hooks', $hooks );
+			$w3tc_hooks = apply_filters( 'w3tc_extensions_hooks', $w3tc_hooks );
 
-			update_option( 'w3tc_extensions_hooks', wp_json_encode( $hooks ) );
+			update_option( 'w3tc_extensions_hooks', wp_json_encode( $w3tc_hooks ) );
 		}
 
-		if ( isset( $hooks['actions'] ) ) {
-			foreach ( $hooks['actions'] as $hook => $actions_to_call ) {
+		if ( isset( $w3tc_hooks['actions'] ) ) {
+			foreach ( $w3tc_hooks['actions'] as $w3tc_hook => $actions_to_call ) {
 				if ( is_array( $actions_to_call ) ) {
 					add_action(
-						$hook,
+						$w3tc_hook,
 						function () use ( $actions_to_call ) {
 							foreach ( $actions_to_call as $action ) {
-								do_action( $action );
+								do_action( $action ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 							}
 						}
 					);
@@ -181,14 +181,14 @@ class Extensions_Plugin_Admin {
 			}
 		}
 
-		if ( isset( $hooks['filters'] ) ) {
-			foreach ( $hooks['filters'] as $hook => $filters_to_call ) {
+		if ( isset( $w3tc_hooks['filters'] ) ) {
+			foreach ( $w3tc_hooks['filters'] as $w3tc_hook => $filters_to_call ) {
 				if ( is_array( $filters_to_call ) ) {
 					add_filter(
-						$hook,
+						$w3tc_hook,
 						function ( $v ) use ( $filters_to_call ) {
 							foreach ( $filters_to_call as $filter ) {
-								$v = apply_filters( $filter, $v );
+								$v = apply_filters( $filter, $v ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 							}
 
 							return $v;
@@ -214,10 +214,8 @@ class Extensions_Plugin_Admin {
 		 * nonce verification at all. Verify a
 		 * per-action nonce keyed `w3tc_extensions_bulk` rendered by the
 		 * bulk-action form in `inc/options/extensions/list.php`.
-		 * Util_Nonce accepts the legacy shared `'w3tc'` action as a
-		 * back-compat fallback.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		if ( ! Util_Nonce::verify_admin( 'w3tc_extensions_bulk' ) ) {
 			\wp_die(
@@ -227,29 +225,29 @@ class Extensions_Plugin_Admin {
 			);
 		}
 
-		$message    = '';
-		$extensions = Util_Request::get_array( 'checked' );
-		$action     = Util_Request::get( 'action' );
+		$w3tc_message = '';
+		$extensions   = Util_Request::get_array( 'checked' );
+		$action       = Util_Request::get( 'action' );
 
 		if ( '-1' === $action ) {
 			$action = Util_Request::get( 'action2' );   // Dropdown at bottom.
 		}
 
 		if ( 'activate-selected' === $action ) {
-			foreach ( $extensions as $extension ) {
-				if ( Extensions_Util::activate_extension( $extension, $this->_config ) ) {
-					$message .= '&activated=' . $extension;
+			foreach ( $extensions as $w3tc_extension ) {
+				if ( Extensions_Util::activate_extension( $w3tc_extension, $this->_config ) ) {
+					$w3tc_message .= '&activated=' . $w3tc_extension;
 				}
 			}
-			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $message ) ) );
+			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $w3tc_message ) ) );
 			exit;
 		} elseif ( 'deactivate-selected' === $action ) {
-			foreach ( $extensions as $extension ) {
-				if ( Extensions_Util::deactivate_extension( $extension, $this->_config ) ) {
-					$message .= '&deactivated=' . $extension;
+			foreach ( $extensions as $w3tc_extension ) {
+				if ( Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config ) ) {
+					$w3tc_message .= '&deactivated=' . $w3tc_extension;
 				}
 			}
-			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $message ) ) );
+			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $w3tc_message ) ) );
 			exit;
 		} else {
 			wp_safe_redirect( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) );
@@ -267,22 +265,18 @@ class Extensions_Plugin_Admin {
 			return;
 		}
 
-		$action    = Util_Request::get_string( 'action' );
-		$extension = Util_Request::get_string( 'extension' );
+		$action         = Util_Request::get_string( 'action' );
+		$w3tc_extension = Util_Request::get_string( 'extension' );
 
 		/**
-		 * Per-action nonce keyed `w3tc_extension_<action>_<slug>`
-		 *. The single-link minters in
-		 * `inc/options/extensions/list.php` historically used
-		 * `wp_nonce_url(..., 'w3tc')`; Util_Nonce accepts that legacy
-		 * shared action as a back-compat fallback. Drop the fallback in
-		 * a follow-up release once the link templates render the
-		 * per-action nonce.
+		 * Per-action nonce keyed `w3tc_extension_<action>_<slug>`.
+		 * Single-link minters in `inc/options/extensions/list.php` render
+		 * the matching per-action token via `Util_Nonce::admin_nonce_url()`.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
-		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) && '' !== $extension ) {
-			$primary_action = 'w3tc_extension_' . $action . '_' . $extension;
+		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) && '' !== $w3tc_extension ) {
+			$primary_action = 'w3tc_extension_' . $action . '_' . $w3tc_extension;
 			if ( ! Util_Nonce::verify_admin( $primary_action ) ) {
 				\wp_die(
 					\esc_html__( 'Nonce verification failed for extension action.', 'w3-total-cache' ),
@@ -292,12 +286,12 @@ class Extensions_Plugin_Admin {
 			}
 
 			if ( 'activate' === $action ) {
-				Extensions_Util::activate_extension( $extension, $this->_config );
-				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&activated=%s', $extension ) ) );
+				Extensions_Util::activate_extension( $w3tc_extension, $this->_config );
+				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&activated=%s', $w3tc_extension ) ) );
 				exit;
 			} elseif ( 'deactivate' === $action ) {
-				Extensions_Util::deactivate_extension( $extension, $this->_config );
-				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&deactivated=%s', $extension ) ) );
+				Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config );
+				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&deactivated=%s', $w3tc_extension ) ) );
 				exit;
 			}
 		}

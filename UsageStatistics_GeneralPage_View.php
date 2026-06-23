@@ -7,12 +7,13 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c      = Dispatcher::config();
-$is_pro = Util_Environment::is_w3tc_pro( $c );
+$w3tc_c      = Dispatcher::config();
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
 
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Statistics', 'w3-total-cache' ),
@@ -39,7 +40,7 @@ Util_Ui::config_item_pro(
 		'label'          => esc_html__( 'Cache usage statistics', 'w3-total-cache' ),
 		'control'        => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-		'disabled'       => ( $is_pro ? null : true ),
+		'disabled'       => ( $w3tc_is_pro ? null : true ),
 		'excerpt'        => __( 'Enable statistics collection. Note that this consumes additional resources and is not recommended to be run continuously.', 'w3-total-cache' ),
 		'description'    => array(
 			__( 'Statistics provides near-complete transparency into the behavior of your caching performance, allowing you to identify opportunities to further improve your website speed and ensure operations are working as expected. Includes metrics like cache sizes, object lifetimes, hit vs miss ratio, etc across every caching method configured in your settings.', 'w3-total-cache' ),
@@ -93,7 +94,7 @@ Util_Ui::config_item(
 		'key'            => 'stats.access_log.enabled',
 		'control'        => 'checkbox',
 		'checkbox_label' => __( 'Parse server access log', 'w3-total-cache' ),
-		'disabled'       => ( $is_pro ? null : true ),
+		'disabled'       => ( $w3tc_is_pro ? null : true ),
 		'description'    => __( 'Enable collecting statistics from an Access Log.  This provides much more precise statistics.', 'w3-total-cache' ),
 		'show_in_free'   => false,
 	)
@@ -158,7 +159,7 @@ jQuery('#ustats_access_log_format_reset').click(function() {
 jQuery('#ustats_access_log_test').click(function() {
 	var params = {
 		action: 'ustats_access_log_test',
-		_wpnonce: w3tc_nonce,
+		_wpnonce: w3tcGetAdminNonce('w3tc_ustats_access_log_test'),
 		w3tc_action: 'ustats_access_log_test',
 		filename: jQuery('#stats__access_log__filename').val()
 	};

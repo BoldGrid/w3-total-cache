@@ -20,18 +20,18 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since 2.2.0
 	 *
-	 * @param Config $config           Configuration.
+	 * @param Config $w3tc_config           Configuration.
 	 * @param bool   $force_all_checks Force all checks.
 	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
 
-		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
-			$extensions_active = $config->get_array( 'extensions.active' );
+		if ( $w3tc_config->get_boolean( 'config.check' ) || $force_all_checks ) {
+			$extensions_active = $w3tc_config->get_array( 'extensions.active' );
 
 			if ( array_key_exists( 'imageservice', $extensions_active ) ) {
-				$this->rules_add( $config, $exs );
+				$this->rules_add( $w3tc_config, $exs );
 			} else {
 				$this->rules_remove( $exs );
 			}
@@ -47,11 +47,11 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since 2.2.0
 	 *
-	 * @param Config $config     Config object.
+	 * @param Config $w3tc_config     Config object.
 	 * @param mixed  $event      Event.
 	 * @param Config $old_config Old config object.
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
 	}
 
 	/**
@@ -76,10 +76,10 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since 2.2.0
 	 *
-	 * @param Config $config Configuration object.
+	 * @param Config $w3tc_config Configuration object.
 	 * @return array
 	 */
-	public function get_required_rules( $config ) {
+	public function get_required_rules( $w3tc_config ) {
 		return array(
 			array(
 				'filename' => Util_Rule::get_browsercache_rules_cache_path(),
@@ -93,12 +93,12 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since 2.2.0
 	 *
-	 * @param Config                      $config Configuration.
+	 * @param Config                      $w3tc_config Configuration.
 	 * @param Util_Environment_Exceptions $exs    Exceptions.
 	 *
 	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
-	private function rules_add( $config, $exs ) {
+	private function rules_add( $w3tc_config, $exs ) {
 		// Remove existing rules first to ensure correct positioning on re-add.
 		// This is necessary because add_rules replaces in place when rules exist.
 		Util_Rule::remove_rules(
@@ -150,7 +150,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Generate AVIF rewrite rules (higher priority).
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @see Dispatcher::nginx_rules_for_browsercache_section()
 	 *
@@ -183,15 +183,15 @@ class Extension_ImageService_Environment {
 ';
 
 			case Util_Environment::is_nginx():
-				$config = Dispatcher::config();
+				$w3tc_config = Dispatcher::config();
 
 				/*
 				 * Add Nginx rules only if Browser Cache is disabled.
 				 * Otherwise, the rules are added in "BrowserCache_Environment_Nginx.php".
 				 * @see BrowserCache_Environment_Nginx::generate_section()
 				 */
-				if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
-					if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
+					if ( $w3tc_config->get_boolean( 'browsercache.no404wp' ) ) {
 						$fallback = '=404';
 					} else {
 						$fallback = '/index.php$is_args$args';
@@ -200,7 +200,7 @@ class Extension_ImageService_Environment {
 					return '
 # BEGIN W3TC AVIF
 location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
-    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
+    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $w3tc_config, 'other' ) ) . '
 
     add_header Vary Accept;
 
@@ -266,7 +266,7 @@ location ~* \.(avif|avifs)$ {
 	/**
 	 * Generate WebP rewrite rules (lower priority than AVIF).
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @see Dispatcher::nginx_rules_for_browsercache_section()
 	 *
@@ -299,15 +299,15 @@ location ~* \.(avif|avifs)$ {
 ';
 
 			case Util_Environment::is_nginx():
-				$config = Dispatcher::config();
+				$w3tc_config = Dispatcher::config();
 
 				/*
 				 * Add Nginx rules only if Browser Cache is disabled.
 				 * Otherwise, the rules are added in "BrowserCache_Environment_Nginx.php".
 				 * @see BrowserCache_Environment_Nginx::generate_section()
 				 */
-				if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
-					if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
+					if ( $w3tc_config->get_boolean( 'browsercache.no404wp' ) ) {
 						$fallback = '=404';
 					} else {
 						$fallback = '/index.php?$args';

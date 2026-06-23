@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_import_library.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -9,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <script type="text/javascript">/*<![CDATA[*/
 jQuery(function() {
-	W3tc_Popup_Cdn_Import_Library.nonce = '<?php echo esc_html( wp_create_nonce( 'w3tc' ) ); ?>';
+	W3tc_Popup_Cdn_Import_Library.nonce = '<?php echo esc_html( Util_Nonce::create_admin( 'w3tc_cdn_import_library_process' ) ); ?>';
 	W3tc_Popup_Cdn_Import_Library.cdn_host = '<?php echo esc_html( $cdn_host ); ?>';
 	W3tc_Popup_Cdn_Import_Library.init();
 });
@@ -69,8 +76,8 @@ jQuery(function() {
 	</tr>
 		<tr>
 			<td colspan="2">
-				<?php $config_state = Dispatcher::config_state(); ?>
-				<label><input id="cdn_import_external" type="checkbox" name="cdn.import.external" <?php checked( $config_state->get_boolean( 'cdn.import.external' ), true ); ?>/> <?php Util_Ui::e_config_label( 'cdn.import.external' ); ?></label>
+				<?php $w3tc_config_state = Dispatcher::config_state(); ?>
+				<label><input id="cdn_import_external" type="checkbox" name="cdn.import.external" <?php checked( $w3tc_config_state->get_boolean( 'cdn.import.external' ), true ); ?>/> <?php Util_Ui::e_config_label( 'cdn.import.external' ); ?></label>
 			</td>
 		</tr>
 </table>

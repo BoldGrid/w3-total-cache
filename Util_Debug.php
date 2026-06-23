@@ -32,12 +32,12 @@ class Util_Debug {
 	 * 2) WP_DEBUG_LOG
 	 * 3) W3TC_CACHE_DIR
 	 *
-	 * @param unknown $module  Module.
+	 * @param unknown $w3tc_module  Module.
 	 * @param null    $blog_id Blog ID.
 	 *
 	 * @return string
 	 */
-	public static function log_filename( $module, $blog_id = null ) {
+	public static function log_filename( $w3tc_module, $blog_id = null ) {
 		if ( is_null( $blog_id ) ) {
 			$blog_id = Util_Environment::blog_id();
 		}
@@ -70,7 +70,7 @@ class Util_Debug {
 		$salt    = defined( 'NONCE_SALT' ) ? NONCE_SALT : '';
 		$postfix = hash( 'crc32b', W3TC_DIR . $salt ) . '-' . $postfix;
 
-		$filename = $dir_path . '/' . $postfix . '/' . $module . '.log';
+		$filename = $dir_path . '/' . $postfix . '/' . $w3tc_module . '.log';
 		if ( ! is_dir( dirname( $filename ) ) ) {
 			Util_File::mkdir_from_safe( dirname( $filename ), $from_dir );
 		}
@@ -116,7 +116,7 @@ class Util_Debug {
 	 *
 	 * Designed to be cheap and safe to call from any handler path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $event   Event identifier (snake_case).
 	 * @param array  $context Optional event context. String values
@@ -155,7 +155,7 @@ class Util_Debug {
 	 * URIs, exception strings, HTTP bodies) verbatim. The
 	 * old implementation stripped `<` and `>` only — not enough to
 	 * keep a single entry on a single physical line. A newline or
-	 * carriage return in `$message` would close the current entry
+	 * carriage return in `$w3tc_message` would close the current entry
 	 * and let the remainder of the value appear as a fabricated
 	 * additional line (different timestamp, different "user"),
 	 * which would confuse incident response.
@@ -169,19 +169,19 @@ class Util_Debug {
 	 *  * Keep the existing `<>` → `.` swap so logs are HTML-safe if
 	 *    rendered in a browser-based viewer.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param unknown $module  Module.
-	 * @param string  $message Message.
+	 * @param unknown $w3tc_module  Module.
+	 * @param string  $w3tc_message Message.
 	 *
 	 * @return int|false       Bytes written, or false on failure.
 	 */
-	public static function log( $module, $message ) {
-		$message = self::sanitize_log_message( $message );
+	public static function log( $w3tc_module, $w3tc_message ) {
+		$w3tc_message = self::sanitize_log_message( $w3tc_message );
 
-		$filename = self::log_filename( $module );
+		$filename = self::log_filename( $w3tc_module );
 
-		return @file_put_contents( $filename, '[' . gmdate( 'r' ) . '] ' . $message . "\n", FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		return @file_put_contents( $filename, '[' . gmdate( 'r' ) . '] ' . $w3tc_message . "\n", FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 	}
 
 	/**
@@ -208,15 +208,15 @@ class Util_Debug {
 	 *  - `\t`       → space  so column-aligned readers can't be tricked.
 	 *  - `\0`       → ''     since some terminal pagers truncate on NUL.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param mixed $message Anything stringifiable.
+	 * @param mixed $w3tc_message Anything stringifiable.
 	 *
 	 * @return string Sanitised single-line message.
 	 */
-	public static function sanitize_log_message( $message ) {
+	public static function sanitize_log_message( $w3tc_message ) {
 		return strtr(
-			(string) $message,
+			(string) $w3tc_message,
 			array(
 				'<'  => '.',
 				'>'  => '.',
@@ -231,14 +231,14 @@ class Util_Debug {
 	/**
 	 * Log cache purge event
 	 *
-	 * @param unknown $module           Module.
-	 * @param string  $message          Message.
+	 * @param unknown $w3tc_module           Module.
+	 * @param string  $w3tc_message          Message.
 	 * @param array   $parameters       Parameters.
 	 * @param array   $explicit_postfix Explicit postfix.
 	 *
 	 * @return bool
 	 */
-	public static function log_purge( $module, $message, $parameters = null, $explicit_postfix = null ) {
+	public static function log_purge( $w3tc_module, $w3tc_message, $parameters = null, $explicit_postfix = null ) {
 		$backtrace       = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		$backtrace_count = count( $backtrace );
 		$backtrace_lines = array();
@@ -249,29 +249,29 @@ class Util_Debug {
 				continue;
 			}
 
-			$i        = $backtrace[ $n ];
-			$filename = isset( $i['file'] ) ? $i['file'] : '';
+			$w3tc_i   = $backtrace[ $n ];
+			$filename = isset( $w3tc_i['file'] ) ? $w3tc_i['file'] : '';
 			$filename = str_replace( ABSPATH, '', $filename );
 
-			$line = isset( $i['line'] ) ? $i['line'] : '';
+			$w3tc_line = isset( $w3tc_i['line'] ) ? $w3tc_i['line'] : '';
 
-			$method            = ( ! empty( $i['class'] ) ? $i['class'] . '--' : '' ) . $i['function'];
-			$args              = ' ' . self::encode_params( $i['args'] );
-			$backtrace_lines[] = "\t#" . ( $pos ) . ' ' . $filename . '(' . $line . '): ' . $method . $args;
+			$method            = ( ! empty( $w3tc_i['class'] ) ? $w3tc_i['class'] . '--' : '' ) . $w3tc_i['function'];
+			$args              = ' ' . self::encode_params( $w3tc_i['args'] );
+			$backtrace_lines[] = "\t#" . ( $pos ) . ' ' . $filename . '(' . $w3tc_line . '): ' . $method . $args;
 			++$pos;
 		}
 
-		$message = $message;
+		$w3tc_message = $w3tc_message;
 		if ( ! is_null( $parameters ) ) {
-			$message .= self::encode_params( $parameters );
+			$w3tc_message .= self::encode_params( $parameters );
 		}
 
-		$user     = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
-		$username = ( empty( $user ) ? 'anonymous' : $user->user_login );
-		$message .= "\n\tusername:$username";
+		$user          = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
+		$username      = ( empty( $user ) ? 'anonymous' : $user->user_login );
+		$w3tc_message .= "\n\tusername:$username";
 
 		/**
-		 * rt9-56: Enrich the purge audit-log line with the source IP,
+		 * RT9-56: Enrich the purge audit-log line with the source IP,
 		 * user-agent, request method+URI, the user's primary role, and
 		 * a per-request correlation ID so coordinated flush attacks or
 		 * unauthorised purges can be traced to attacker tooling.
@@ -294,14 +294,14 @@ class Util_Debug {
 		 * before WordPress fully loads) we fall back to `uniqid()`,
 		 * also alphanum.
 		 */
-		$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-		$ua       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : '';
-		$uri      = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
-		$method   = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) $_SERVER['REQUEST_METHOD'] : '';
-		$role     = ( ! empty( $user ) && ! empty( $user->roles ) && \is_array( $user->roles ) )
+		$ip      = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : ''; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.
+		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
+		$uri     = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
+		$method  = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.
+		$role    = ( ! empty( $user ) && ! empty( $user->roles ) && \is_array( $user->roles ) )
 			? (string) $user->roles[0]
 			: 'anonymous';
-		$corr_id  = '';
+		$corr_id = '';
 		if ( \function_exists( 'wp_generate_password' ) ) {
 			$corr_id = wp_generate_password( 16, false, false );
 		} else {
@@ -309,20 +309,20 @@ class Util_Debug {
 			$corr_id = \preg_replace( '/[^A-Za-z0-9]/', '', $corr_id );
 		}
 
-		$message .= "\n\tip:" . self::log_purge_field_clean( $ip, 45 );
-		$message .= "\n\tua:" . self::log_purge_field_clean( $ua, 256 );
-		$message .= "\n\tmethod:" . self::log_purge_field_clean( $method, 16 );
-		$message .= "\n\turi:" . self::log_purge_field_clean( $uri, 256 );
-		$message .= "\n\trole:" . self::log_purge_field_clean( $role, 32 );
-		$message .= "\n\tpurge_id:" . self::log_purge_field_clean( $corr_id, 32 );
+		$w3tc_message .= "\n\tip:" . self::log_purge_field_clean( $ip, 45 );
+		$w3tc_message .= "\n\tua:" . self::log_purge_field_clean( $ua, 256 );
+		$w3tc_message .= "\n\tmethod:" . self::log_purge_field_clean( $method, 16 );
+		$w3tc_message .= "\n\turi:" . self::log_purge_field_clean( $uri, 256 );
+		$w3tc_message .= "\n\trole:" . self::log_purge_field_clean( $role, 32 );
+		$w3tc_message .= "\n\tpurge_id:" . self::log_purge_field_clean( $corr_id, 32 );
 
 		if ( is_array( $explicit_postfix ) ) {
-			$message .= "\n\t" . implode( "\n\t", $explicit_postfix );
+			$w3tc_message .= "\n\t" . implode( "\n\t", $explicit_postfix );
 		}
 
-		$message .= "\n" . implode( "\n", $backtrace_lines );
+		$w3tc_message .= "\n" . implode( "\n", $backtrace_lines );
 
-		return self::log( $module . '-purge', $message );
+		return self::log( $w3tc_module . '-purge', $w3tc_message );
 	}
 
 	/**
@@ -335,19 +335,19 @@ class Util_Debug {
 	 * the worst legitimate UA / URI and prevents an 8KB User-Agent
 	 * from ballooning every purge entry.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $value Field value (already wp_unslash'd by caller).
+	 * @param string $w3tc_value Field value (already wp_unslash'd by caller).
 	 * @param int    $max   Maximum length in bytes after cleaning.
 	 *
 	 * @return string
 	 */
-	private static function log_purge_field_clean( $value, $max ) {
-		if ( ! \is_string( $value ) || '' === $value ) {
+	private static function log_purge_field_clean( $w3tc_value, $max ) {
+		if ( ! \is_string( $w3tc_value ) || '' === $w3tc_value ) {
 			return '';
 		}
-		$value = \strtr(
-			$value,
+		$w3tc_value = \strtr(
+			$w3tc_value,
 			array(
 				"\r" => ' ',
 				"\n" => ' ',
@@ -357,10 +357,10 @@ class Util_Debug {
 				'>'  => '.',
 			)
 		);
-		if ( \strlen( $value ) > $max ) {
-			$value = \substr( $value, 0, $max );
+		if ( \strlen( $w3tc_value ) > $max ) {
+			$w3tc_value = \substr( $w3tc_value, 0, $max );
 		}
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -422,18 +422,18 @@ class Util_Debug {
 	/**
 	 * Clean debug output with label headers.
 	 *
-	 * @param string $label Label.
-	 * @param array  $data  Data.
+	 * @param string $w3tc_label Label.
+	 * @param array  $w3tc_data  Data.
 	 *
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
 	 */
-	public static function debug( $label, $data ) {
+	public static function debug( $w3tc_label, $w3tc_data ) {
 		error_log(
-			"\n\n" . '===============Debug ' . $label . ' Start===============' . "\n" .
+			"\n\n" . '===============Debug ' . $w3tc_label . ' Start===============' . "\n" .
 			'Microtime: ' . microtime( true ) . "\n" .
-			'Content  : ' . print_r( $data, true ) . "\n" .
-			'===============Debug ' . $label . ' End===============' . "\n"
+			'Content  : ' . print_r( $w3tc_data, true ) . "\n" .
+			'===============Debug ' . $w3tc_label . ' End===============' . "\n"
 		);
 	}
 
@@ -441,7 +441,7 @@ class Util_Debug {
 	 * Redacts the value of every `_wpnonce` / bare `nonce` parameter
 	 * in a log line.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param  string $log_line The log line containing the nonce parameter.
 	 * @return string The log line with every nonce value redacted to `REDACTED`.
@@ -453,7 +453,7 @@ class Util_Debug {
 	/**
 	 * General-purpose log-content redactor.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param mixed $blob Anything stringifiable.
 	 * @return string Redacted text.
@@ -491,7 +491,7 @@ class Util_Debug {
 	/**
 	 * Back-compat alias for {@see self::redact()}.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param mixed $blob Raw text that may contain secrets.
 	 * @return string Redacted text.

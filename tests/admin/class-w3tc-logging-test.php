@@ -12,7 +12,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -22,7 +22,7 @@ use W3TC\Util_Debug;
 /**
  * Class: W3tc_Logging_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Logging_Test extends WP_UnitTestCase {
 
@@ -35,7 +35,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * that drops one of the strip pairs causes this test to fail
 	 * immediately instead of passing trivially.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_log_sanitizes_control_chars() {
 		$input    = "user-controlled\r\nfake-entry\tand a <tag> and a \0 nul";
@@ -56,7 +56,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * `_wpnonce` / bare `nonce` values are redacted up to the next
 	 * `&` or whitespace.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_wpnonce_stops_at_whitespace() {
 		$cases = array(
@@ -75,7 +75,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * `redact` strips nonces, common secret-bearing query params,
 	 * `Authorization` header values, and wp-config secret defines.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_covers_all_patterns() {
 		$blob = "GET /a?_wpnonce=N0NCE&password=hunter2&api_key=AKIA-XYZ HTTP/1.1\r\n"
@@ -109,7 +109,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * Non-string input — null, arrays — returns an empty string
 	 * instead of raising a TypeError.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_non_string_input() {
 		$this->assertSame( '', Util_Debug::redact( null ) );
@@ -121,7 +121,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * `redact` is idempotent — calling it on already-redacted text
 	 * leaves it unchanged.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_redact_idempotent() {
 		$blob  = "_wpnonce=abc password=def Authorization: Bearer tok";
@@ -135,7 +135,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * `audit_log` fires the `w3tc_audit_log` action; subscribers see
 	 * the redacted context with auto-populated `user_id`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_audit_log_fires_with_redacted_context() {
 		$received = array();
@@ -173,7 +173,7 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	 * Calling `audit_log` with a non-string or empty event short-
 	 * circuits without firing the action.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_audit_log_rejects_invalid_event() {
 		$fired = 0;

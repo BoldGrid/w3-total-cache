@@ -57,12 +57,12 @@ class Minify_ContentMinifier {
 	/**
 	 * Checks if a minifier engine is available.
 	 *
-	 * @param string $engine The minifier engine to check.
+	 * @param string $w3tc_engine The minifier engine to check.
 	 *
 	 * @return bool True if the engine exists, false otherwise.
 	 */
-	public function exists( $engine ) {
-		return isset( $this->_minifiers[ $engine ] );
+	public function exists( $w3tc_engine ) {
+		return isset( $this->_minifiers[ $w3tc_engine ] );
 	}
 
 	/**
@@ -76,12 +76,12 @@ class Minify_ContentMinifier {
 	 * actually stops a rejected `path.java` from being used by an
 	 * `init()` whose return value the caller ignores.
 	 *
-	 * @param string $engine The minifier engine to check.
+	 * @param string $w3tc_engine The minifier engine to check.
 	 *
 	 * @return bool True if the engine is available, false otherwise.
 	 */
-	public function available( $engine ) {
-		switch ( $engine ) {
+	public function available( $w3tc_engine ) {
+		switch ( $w3tc_engine ) {
 			case 'yuijs':
 				$path_java = $this->_config->get_string( 'minify.yuijs.path.java' );
 				$path_jar  = $this->_config->get_string( 'minify.yuijs.path.jar' );
@@ -108,19 +108,19 @@ class Minify_ContentMinifier {
 				return class_exists( 'tidy' );
 		}
 
-		return $this->exists( $engine );
+		return $this->exists( $w3tc_engine );
 	}
 
 	/**
 	 * Retrieves the specified minifier engine.
 	 *
-	 * @param string $engine The minifier engine to retrieve.
+	 * @param string $w3tc_engine The minifier engine to retrieve.
 	 *
 	 * @return mixed|null The minifier engine or null if not found.
 	 */
-	public function get_minifier( $engine ) {
-		if ( isset( $this->_minifiers[ $engine ] ) ) {
-			return $this->_minifiers[ $engine ];
+	public function get_minifier( $w3tc_engine ) {
+		if ( isset( $this->_minifiers[ $w3tc_engine ] ) ) {
+			return $this->_minifiers[ $w3tc_engine ];
 		}
 
 		return null;
@@ -141,13 +141,13 @@ class Minify_ContentMinifier {
 	 * avoids double-logging the same rejection from `available()` and
 	 * `init()` on the rare path where both run.
 	 *
-	 * @param string $engine The minifier engine to initialize.
+	 * @param string $w3tc_engine The minifier engine to initialize.
 	 *
 	 * @return bool True on success, false if a Java-backed engine was
 	 *              rejected by the allowlist.
 	 */
-	public function init( $engine ) {
-		switch ( $engine ) {
+	public function init( $w3tc_engine ) {
+		switch ( $w3tc_engine ) {
 			case 'yuijs':
 				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuijs.path.java' ) );
 				if ( false === $java ) {
@@ -185,14 +185,14 @@ class Minify_ContentMinifier {
 	/**
 	 * Retrieves the options for a specific minifier engine.
 	 *
-	 * @param string $engine The minifier engine to retrieve options for.
+	 * @param string $w3tc_engine The minifier engine to retrieve options for.
 	 *
 	 * @return array The options for the given engine.
 	 */
-	public function get_options( $engine ) {
+	public function get_options( $w3tc_engine ) {
 		$options = array();
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'js':
 				$options = array(
 					'preserveComments' => ! $this->_config->get_boolean( 'minify.js.strip.comments' ),

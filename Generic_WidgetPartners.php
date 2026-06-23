@@ -22,9 +22,9 @@ class Generic_WidgetPartners {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o = new Generic_WidgetPartners();
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 290 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 290 );
+		$w3tc_o = new Generic_WidgetPartners();
+		add_action( 'w3tc_widget_setup', array( $w3tc_o, 'wp_dashboard_setup' ), 290 );
+		add_action( 'w3tc_network_dashboard_setup', array( $w3tc_o, 'wp_dashboard_setup' ), 290 );
 	}
 
 	/**

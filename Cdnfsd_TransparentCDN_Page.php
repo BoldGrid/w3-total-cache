@@ -12,7 +12,7 @@ namespace W3TC;
 /**
  * Class: Cdnfsd_TransparentCDN_Page
  *
- * @since 0.15.0
+ * @since 2.0.0
  */
 class Cdnfsd_TransparentCDN_Page {
 	/**
@@ -59,7 +59,7 @@ class Cdnfsd_TransparentCDN_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		require W3TC_DIR . '/Cdnfsd_TransparentCDN_Page_View.php';
 	}
 }

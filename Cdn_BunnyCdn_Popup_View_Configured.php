@@ -8,6 +8,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>

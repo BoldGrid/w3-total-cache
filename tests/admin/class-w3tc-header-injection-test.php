@@ -12,7 +12,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -23,14 +23,14 @@ use W3TC\Util_Response;
 /**
  * Class: W3tc_Header_Injection_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Header_Injection_Test extends WP_UnitTestCase {
 
 	/**
 	 * Allowlisted slugs round-trip through Config::set untouched.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_cdn_engine_enum_accepts_known_slugs() {
 		$config = new Config();
@@ -45,7 +45,7 @@ class W3tc_Header_Injection_Test extends WP_UnitTestCase {
 	 * Out-of-enum writes retain the previously stored value and
 	 * never reach the data array.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_cdn_engine_enum_rejects_unknown_slug() {
 		$config = new Config();
@@ -66,7 +66,7 @@ class W3tc_Header_Injection_Test extends WP_UnitTestCase {
 	 * A schema-less key is not enum-enforced (no regression for
 	 * the 99% of config keys that don't declare an enum).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_non_enum_keys_pass_through() {
 		$config = new Config();
@@ -82,7 +82,7 @@ class W3tc_Header_Injection_Test extends WP_UnitTestCase {
 	 * `sanitize_header_value` strips CR / LF / NUL by returning the
 	 * empty string; otherwise it round-trips the input.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_header_value() {
 		$this->assertSame( 'bunnycdn', Util_Response::sanitize_header_value( 'bunnycdn' ) );
@@ -99,7 +99,7 @@ class W3tc_Header_Injection_Test extends WP_UnitTestCase {
 	 * empty names, and refuses names that fail the RFC 7230 token
 	 * check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_header_rejects_invalid_inputs() {
 		/**

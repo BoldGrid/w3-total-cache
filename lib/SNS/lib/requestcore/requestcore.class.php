@@ -632,7 +632,7 @@ class RequestCore
 		// chmod the file as 0755
 		if ($this->cacert_location === true)
 		{
-			curl_setopt($curl_handle, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
+			curl_setopt($curl_handle, CURLOPT_CAINFO, __DIR__ . '/cacert.pem');
 		}
 		elseif (is_string($this->cacert_location))
 		{

@@ -28,40 +28,40 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url        URL.
+	 * @param string $w3tc_url        URL.
 	 * @param array  $params     Parameters.
 	 * @param bool   $skip_empty Skip empty.
 	 * @param string $separator  Separate.
 	 *
 	 * @return string
 	 */
-	public static function url_format( $url = '', $params = array(), $skip_empty = false, $separator = '&' ) {
-		if ( ! empty( $url ) ) {
-			$parse_url = @parse_url( $url ); // phpcs:ignore
-			$url       = '';
+	public static function url_format( $w3tc_url = '', $params = array(), $skip_empty = false, $separator = '&' ) {
+		if ( ! empty( $w3tc_url ) ) {
+			$parse_url = @parse_url( $w3tc_url ); // phpcs:ignore
+			$w3tc_url  = '';
 
 			if ( ! empty( $parse_url['scheme'] ) ) {
-				$url .= $parse_url['scheme'] . '://';
+				$w3tc_url .= $parse_url['scheme'] . '://';
 
 				if ( ! empty( $parse_url['user'] ) ) {
-					$url .= $parse_url['user'];
+					$w3tc_url .= $parse_url['user'];
 
 					if ( ! empty( $parse_url['pass'] ) ) {
-						$url .= ':' . $parse_url['pass'];
+						$w3tc_url .= ':' . $parse_url['pass'];
 					}
 				}
 
 				if ( ! empty( $parse_url['host'] ) ) {
-					$url .= $parse_url['host'];
+					$w3tc_url .= $parse_url['host'];
 				}
 
 				if ( ! empty( $parse_url['port'] ) && 80 !== $parse_url['port'] ) {
-					$url .= ':' . (int) $parse_url['port'];
+					$w3tc_url .= ':' . (int) $parse_url['port'];
 				}
 			}
 
 			if ( ! empty( $parse_url['path'] ) ) {
-				$url .= $parse_url['path'];
+				$w3tc_url .= $parse_url['path'];
 			}
 
 			if ( ! empty( $parse_url['query'] ) ) {
@@ -74,21 +74,21 @@ class Util_Environment {
 			$query = self::url_query( $params );
 
 			if ( ! empty( $query ) ) {
-				$url .= '?' . $query;
+				$w3tc_url .= '?' . $query;
 			}
 
 			if ( ! empty( $parse_url['fragment'] ) ) {
-				$url .= '#' . $parse_url['fragment'];
+				$w3tc_url .= '#' . $parse_url['fragment'];
 			}
 		} else {
 			$query = self::url_query( $params, $skip_empty, $separator );
 
 			if ( ! empty( $query ) ) {
-				$url = '?' . $query;
+				$w3tc_url = '?' . $query;
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -106,25 +106,25 @@ class Util_Environment {
 		$str          = '';
 		static $stack = array();
 
-		foreach ( (array) $params as $key => $value ) {
-			if ( $skip_empty && empty( $value ) ) {
+		foreach ( (array) $params as $w3tc_key => $w3tc_value ) {
+			if ( $skip_empty && empty( $w3tc_value ) ) {
 				continue;
 			}
 
-			array_push( $stack, $key );
+			array_push( $stack, $w3tc_key );
 
-			if ( is_array( $value ) ) {
-				if ( count( $value ) ) {
+			if ( is_array( $w3tc_value ) ) {
+				if ( count( $w3tc_value ) ) {
 					$str .= ( ! empty( $str ) ? '&' : '' ) .
-						self::url_query( $value, $skip_empty, $separator );
+						self::url_query( $w3tc_value, $skip_empty, $separator );
 				}
 			} else {
-				$name = '';
+				$w3tc_name = '';
 
-				foreach ( $stack as $key ) {
-					$name .= ( ! empty( $name ) ? '[' . $key . ']' : $key );
+				foreach ( $stack as $w3tc_key ) {
+					$w3tc_name .= ( ! empty( $w3tc_name ) ? '[' . $w3tc_key . ']' : $w3tc_key );
 				}
-				$str .= ( ! empty( $str ) ? $separator : '' ) . $name . '=' . rawurlencode( $value );
+				$str .= ( ! empty( $str ) ? $separator : '' ) . $w3tc_name . '=' . rawurlencode( $w3tc_value );
 			}
 
 			array_pop( $stack );
@@ -167,10 +167,10 @@ class Util_Environment {
 			$uri_from_location = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_location );
 		}
 
-		$url = content_url( $uri_from_location );
-		$url = apply_filters( 'w3tc_filename_to_url', $url );
+		$w3tc_url = content_url( $uri_from_location );
+		$w3tc_url = apply_filters( 'w3tc_filename_to_url', $w3tc_url );
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -178,17 +178,17 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return bool
 	 */
-	public static function is_dbcluster( $config = null ) {
-		if ( is_null( $config ) ) {
+	public static function is_dbcluster( $w3tc_config = null ) {
+		if ( is_null( $w3tc_config ) ) {
 			// fallback for compatibility with older wp-content/db.php.
-			$config = \W3TC\Dispatcher::config();
+			$w3tc_config = \W3TC\Dispatcher::config();
 		}
 
-		if ( ! self::is_w3tc_pro( $config ) ) {
+		if ( ! self::is_w3tc_pro( $w3tc_config ) ) {
 			return false;
 		}
 
@@ -266,7 +266,7 @@ class Util_Environment {
 	 * Returns header W3TC adds to responses powered by itself.
 	 *
 	 * Previously this returned `W3 Total Cache/<W3TC_VERSION>`
-	 *, which placed the exact plugin version in every
+	 * , which placed the exact plugin version in every
 	 * `X-Powered-By` response header (and in every emitted `.htaccess`
 	 * / nginx.conf `add_header` rule). The brand alone is enough for
 	 * support and legitimate identification; the build version belongs
@@ -285,12 +285,12 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return bool
 	 */
-	public static function is_url( $url ) {
-		return preg_match( '~^(https?:)?//~', $url );
+	public static function is_url( $w3tc_url ) {
+		return preg_match( '~^(https?:)?//~', $w3tc_url );
 	}
 
 	/**
@@ -429,15 +429,15 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function url_to_host( $url ) {
-		$a = parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+	public static function url_to_host( $w3tc_url ) {
+		$w3tc_a = parse_url( $w3tc_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 
-		if ( isset( $a['host'] ) ) {
-			return $a['host'];
+		if ( isset( $w3tc_a['host'] ) ) {
+			return $w3tc_a['host'];
 		}
 
 		return '';
@@ -448,10 +448,10 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 */
-	public static function url_to_uri( $url ) {
-		$uri = @wp_parse_url( $url, PHP_URL_PATH );
+	public static function url_to_uri( $w3tc_url ) {
+		$uri = @wp_parse_url( $w3tc_url, PHP_URL_PATH );
 
 		// Convert FALSE and other return values to string.
 		if ( empty( $uri ) ) {
@@ -469,26 +469,26 @@ class Util_Environment {
 	 * @return int
 	 */
 	public static function blog_id() {
-		global $w3_current_blog_id;
+		global $w3tc_w3_current_blog_id;
 
-		if ( ! is_null( $w3_current_blog_id ) ) {
-			return $w3_current_blog_id;
+		if ( ! is_null( $w3tc_w3_current_blog_id ) ) {
+			return $w3tc_w3_current_blog_id;
 		}
 
 		if ( ! self::is_wpmu() || is_network_admin() ) {
-			$w3_current_blog_id = 0;
-			return $w3_current_blog_id;
+			$w3tc_w3_current_blog_id = 0;
+			return $w3tc_w3_current_blog_id;
 		}
 
 		$blog_data = Util_WpmuBlogmap::get_current_blog_data();
 
 		if ( ! is_null( $blog_data ) ) {
-			$w3_current_blog_id = substr( $blog_data, 1 );
+			$w3tc_w3_current_blog_id = substr( $blog_data, 1 );
 		} else {
-			$w3_current_blog_id = 0;
+			$w3tc_w3_current_blog_id = 0;
 		}
 
-		return $w3_current_blog_id;
+		return $w3tc_w3_current_blog_id;
 	}
 
 	/**
@@ -565,7 +565,7 @@ class Util_Environment {
 	 */
 	public static function cache_blog_minify_dir() {
 		/**
-		 * when minify manual used with a shared config - shared
+		 * When minify manual used with a shared config - shared
 		 * minify urls has to be used too, since CDN upload is possible
 		 * only from network admin.
 		 */
@@ -583,15 +583,15 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function get_url_regexp( $url ) {
-		$url = preg_replace( '~(https?:)?//~i', '', $url );
-		$url = preg_replace( '~^www\.~i', '', $url );
+	public static function get_url_regexp( $w3tc_url ) {
+		$w3tc_url = preg_replace( '~(https?:)?//~i', '', $w3tc_url );
+		$w3tc_url = preg_replace( '~^www\.~i', '', $w3tc_url );
 
-		$regexp = '(https?:)?//(www\.)?' . self::preg_quote( $url );
+		$regexp = '(https?:)?//(www\.)?' . self::preg_quote( $w3tc_url );
 
 		return $regexp;
 	}
@@ -601,16 +601,16 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function url_to_maybe_https( $url ) {
+	public static function url_to_maybe_https( $w3tc_url ) {
 		if ( self::is_https() ) {
-			$url = str_replace( 'http://', 'https://', $url );
+			$w3tc_url = str_replace( 'http://', 'https://', $w3tc_url );
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -738,8 +738,8 @@ class Util_Environment {
 			return $document_root;
 		}
 
-		$c           = Dispatcher::config();
-		$docroot_fix = $c->get_boolean( 'docroot_fix.enable' );
+		$w3tc_c      = Dispatcher::config();
+		$docroot_fix = $w3tc_c->get_boolean( 'docroot_fix.enable' );
 
 		if ( $docroot_fix ) {
 			$document_root = untrailingslashit( ABSPATH );
@@ -979,25 +979,25 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $file File path.
+	 * @param string $w3tc_file File path.
 	 *
 	 * @return string
 	 */
-	public static function normalize_file( $file ) {
-		if ( self::is_url( $file ) ) {
-			if ( strstr( $file, '?' ) === false ) {
+	public static function normalize_file( $w3tc_file ) {
+		if ( self::is_url( $w3tc_file ) ) {
+			if ( strstr( $w3tc_file, '?' ) === false ) {
 				$home_url_regexp = '~' . self::home_url_regexp() . '~i';
-				$file            = preg_replace( $home_url_regexp, '', $file );
+				$w3tc_file       = preg_replace( $home_url_regexp, '', $w3tc_file );
 			}
 		}
 
-		if ( ! self::is_url( $file ) ) {
-			$file = self::normalize_path( $file );
-			$file = str_replace( self::site_root(), '', $file );
-			$file = ltrim( $file, '/' );
+		if ( ! self::is_url( $w3tc_file ) ) {
+			$w3tc_file = self::normalize_path( $w3tc_file );
+			$w3tc_file = str_replace( self::site_root(), '', $w3tc_file );
+			$w3tc_file = ltrim( $w3tc_file, '/' );
 		}
 
-		return $file;
+		return $w3tc_file;
 	}
 
 	/**
@@ -1007,25 +1007,25 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return string
 	 */
-	public static function normalize_file_minify( $file ) {
-		if ( self::is_url( $file ) ) {
-			if ( strstr( $file, '?' ) === false ) {
+	public static function normalize_file_minify( $w3tc_file ) {
+		if ( self::is_url( $w3tc_file ) ) {
+			if ( strstr( $w3tc_file, '?' ) === false ) {
 				$domain_url_regexp = '~' . self::home_domain_root_url_regexp() . '~i';
-				$file              = preg_replace( $domain_url_regexp, '', $file );
+				$w3tc_file         = preg_replace( $domain_url_regexp, '', $w3tc_file );
 			}
 		}
 
-		if ( ! self::is_url( $file ) ) {
-			$file = self::normalize_path( $file );
-			$file = str_replace( self::document_root(), '', $file );
-			$file = ltrim( $file, '/' );
+		if ( ! self::is_url( $w3tc_file ) ) {
+			$w3tc_file = self::normalize_path( $w3tc_file );
+			$w3tc_file = str_replace( self::document_root(), '', $w3tc_file );
+			$w3tc_file = ltrim( $w3tc_file, '/' );
 		}
 
-		return $file;
+		return $w3tc_file;
 	}
 
 	/**
@@ -1034,20 +1034,20 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function url_to_docroot_filename( $url ) {
-		$data = array(
+	public static function url_to_docroot_filename( $w3tc_url ) {
+		$w3tc_data = array(
 			'home_url' => get_home_url(),
-			'url'      => $url,
+			'url'      => $w3tc_url,
 		);
 
-		$data = apply_filters( 'w3tc_url_to_docroot_filename', $data );
+		$w3tc_data = apply_filters( 'w3tc_url_to_docroot_filename', $w3tc_data );
 
-		$home_url       = $data['home_url'];
-		$normalized_url = $data['url'];
+		$home_url       = $w3tc_data['home_url'];
+		$normalized_url = $w3tc_data['url'];
 		$normalized_url = self::remove_query_all( $normalized_url );
 
 		// Cut protocol.
@@ -1117,14 +1117,14 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function remove_query( $url ) {
-		$url = preg_replace( '~(\?|&amp;|&#038;|&)+ver=[a-z0-9-_\.]+~i', '', $url );
+	public static function remove_query( $w3tc_url ) {
+		$w3tc_url = preg_replace( '~(\?|&amp;|&#038;|&)+ver=[a-z0-9-_\.]+~i', '', $w3tc_url );
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -1132,17 +1132,17 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function remove_query_all( $url ) {
-		$pos = strpos( $url, '?' );
+	public static function remove_query_all( $w3tc_url ) {
+		$pos = strpos( $w3tc_url, '?' );
 		if ( false === $pos ) {
-			return $url;
+			return $w3tc_url;
 		}
 
-		return substr( $url, 0, $pos );
+		return substr( $w3tc_url, 0, $pos );
 	}
 
 	/**
@@ -1211,7 +1211,7 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $xml_string XML document.
 	 *
@@ -1316,18 +1316,18 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url    URL.
+	 * @param string $w3tc_url    URL.
 	 * @param array  $params Parameters.
 	 *
 	 * @return void
 	 */
-	public static function redirect( $url = '', $params = array() ) {
-		$url = self::url_format( $url, $params );
+	public static function redirect( $w3tc_url = '', $params = array() ) {
+		$w3tc_url = self::url_format( $w3tc_url, $params );
 		if ( function_exists( 'do_action' ) ) {
 			do_action( 'w3tc_redirect' );
 		}
 
-		@header( 'Location: ' . $url ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@header( 'Location: ' . $w3tc_url ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		exit();
 	}
 
@@ -1336,14 +1336,14 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url           URL.
+	 * @param string $w3tc_url           URL.
 	 * @param array  $params        Parameters.
 	 * @param bool   $safe_redirect Safe redirect or not.
 	 *
 	 * @return void
 	 */
-	public static function safe_redirect_temp( $url = '', $params = array(), $safe_redirect = false ) {
-		$url = self::url_format( $url, $params );
+	public static function safe_redirect_temp( $w3tc_url = '', $params = array(), $safe_redirect = false ) {
+		$w3tc_url = self::url_format( $w3tc_url, $params );
 
 		if ( function_exists( 'do_action' ) ) {
 			do_action( 'w3tc_redirect' );
@@ -1370,7 +1370,7 @@ class Util_Environment {
 		);
 
 		@header( 'Cache-Control: no-cache' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		wp_safe_redirect( $url, $status_code );
+		wp_safe_redirect( $w3tc_url, $status_code );
 		exit();
 	}
 
@@ -1379,11 +1379,11 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function wp_safe_redirect_fallback( $url ) {
+	public static function wp_safe_redirect_fallback( $w3tc_url ) {
 		return home_url( '?w3tc_repeat=invalid' );
 	}
 
@@ -1429,8 +1429,8 @@ class Util_Environment {
 		static $instance_id;
 
 		if ( ! isset( $instance_id ) ) {
-			$config      = Dispatcher::config();
-			$instance_id = $config->get_integer( 'common.instance_id', 0 );
+			$w3tc_config = Dispatcher::config();
+			$instance_id = $w3tc_config->get_integer( 'common.instance_id', 0 );
 		}
 
 		return $instance_id;
@@ -1441,16 +1441,16 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return string
 	 */
-	public static function w3tc_edition( $config = null ) {
-		if ( self::is_w3tc_pro( $config ) && self::is_w3tc_pro_dev() ) {
+	public static function w3tc_edition( $w3tc_config = null ) {
+		if ( self::is_w3tc_pro( $w3tc_config ) && self::is_w3tc_pro_dev() ) {
 			return 'pro development';
 		}
 
-		if ( self::is_w3tc_pro( $config ) ) {
+		if ( self::is_w3tc_pro( $w3tc_config ) ) {
 			return 'pro';
 		}
 
@@ -1462,13 +1462,13 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return bool
 	 */
-	public static function is_w3tc_pro( $config = null ) {
-		if ( is_object( $config ) ) {
-			$plugin_type = $config->get_string( 'plugin.type' );
+	public static function is_w3tc_pro( $w3tc_config = null ) {
+		if ( is_object( $w3tc_config ) ) {
+			$plugin_type = $w3tc_config->get_string( 'plugin.type' );
 
 			if ( 'pro' === $plugin_type || 'pro_dev' === $plugin_type ) {
 				return true;
@@ -1496,11 +1496,11 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return bool
 	 */
-	public static function is_pro_constant( $config = null ) {
+	public static function is_pro_constant( $w3tc_config = null ) {
 		return ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE );
 	}
 
@@ -1540,18 +1540,18 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param mixed $value Value.
+	 * @param mixed $w3tc_value Value.
 	 *
 	 * @return mixed
 	 */
-	public static function stripslashes( $value ) {
-		if ( is_string( $value ) ) {
-			return stripslashes( $value );
-		} elseif ( is_array( $value ) ) {
-			$value = array_map( array( '\W3TC\Util_Environment', 'stripslashes' ), $value );
+	public static function stripslashes( $w3tc_value ) {
+		if ( is_string( $w3tc_value ) ) {
+			return stripslashes( $w3tc_value );
+		} elseif ( is_array( $w3tc_value ) ) {
+			$w3tc_value = array_map( array( '\W3TC\Util_Environment', 'stripslashes' ), $w3tc_value );
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -1560,12 +1560,12 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param object $post Post object.
-	 * @param string $module Which cache module to check against (pgcache, varnish, dbcache or objectcache).
-	 * @param Config $config Config.
+	 * @param string $w3tc_module Which cache module to check against (pgcache, varnish, dbcache or objectcache).
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return bool
 	 */
-	public static function is_flushable_post( $post, $module, $config ) {
+	public static function is_flushable_post( $post, $w3tc_module, $w3tc_config ) {
 		if ( is_numeric( $post ) ) {
 			$post = get_post( $post );
 		}
@@ -1577,16 +1577,16 @@ class Util_Environment {
 		 * its child of the post and is flushed always when post is published, while not changed in fact.
 		 */
 		$post_type = array( 'revision', 'attachment' );
-		switch ( $module ) {
+		switch ( $w3tc_module ) {
 			case 'pgcache':
 			case 'varnish':
 			case 'posts':   // Means html content of post pages.
-				if ( ! $config->get_boolean( 'pgcache.reject.logged' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'pgcache.reject.logged' ) ) {
 					$post_status[] = 'private';
 				}
 				break;
 			case 'dbcache':
-				if ( ! $config->get_boolean( 'dbcache.reject.logged' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'dbcache.reject.logged' ) ) {
 					$post_status[] = 'private';
 				}
 				break;
@@ -1594,7 +1594,7 @@ class Util_Environment {
 
 		$flushable = is_object( $post ) && ! in_array( $post->post_type, $post_type, true ) && in_array( $post->post_status, $post_status, true );
 
-		return apply_filters( 'w3tc_flushable_post', $flushable, $post, $module );
+		return apply_filters( 'w3tc_flushable_post', $flushable, $post, $w3tc_module );
 	}
 
 	/**
@@ -1629,13 +1629,13 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param mixed $value Value.
+	 * @param mixed $w3tc_value Value.
 	 *
 	 * @return bool
 	 */
-	public static function to_boolean( $value ) {
-		if ( is_string( $value ) ) {
-			switch ( strtolower( $value ) ) {
+	public static function to_boolean( $w3tc_value ) {
+		if ( is_string( $w3tc_value ) ) {
+			switch ( strtolower( $w3tc_value ) ) {
 				case '+':
 				case '1':
 				case 'y':
@@ -1656,7 +1656,7 @@ class Util_Environment {
 			}
 		}
 
-		return (bool) $value;
+		return (bool) $w3tc_value;
 	}
 
 	/**
@@ -1683,20 +1683,20 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	public static function is_rest_request( $url ) {
+	public static function is_rest_request( $w3tc_url ) {
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 			return true;
 		}
 
 		/**
-		 * in case when called before constant is set
+		 * In case when called before constant is set
 		 * wp filters are not available in that case.
 		 */
-		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $url );
+		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $w3tc_url );
 	}
 
 	/**
@@ -1707,8 +1707,8 @@ class Util_Environment {
 	 * @return void
 	 */
 	public static function reset_microcache() {
-		global $w3_current_blog_id;
-		$w3_current_blog_id = null;
+		global $w3tc_w3_current_blog_id;
+		$w3tc_w3_current_blog_id = null;
 
 		self::$is_using_master_config = null;
 	}
@@ -1744,18 +1744,18 @@ class Util_Environment {
 	 *
 	 * @since 2.4.3
 	 *
-	 * @param string $value Value.
+	 * @param string $w3tc_value Value.
 	 *
 	 * @return array
 	 */
-	public static function textarea_to_array( $value ) {
+	public static function textarea_to_array( $w3tc_value ) {
 		$values_array = array();
 
-		if ( ! empty( $value ) ) {
+		if ( ! empty( $w3tc_value ) ) {
 			$values_array = self::clean_array(
 				preg_split(
 					'/\R/',
-					$value,
+					$w3tc_value,
 					0,
 					PREG_SPLIT_NO_EMPTY
 				)
@@ -1836,12 +1836,12 @@ class Util_Environment {
 		$current_time_wp = new \DateTime( 'now', wp_timezone() );
 
 		// Convert the selected cron time into hours and minutes.
-		$hour   = floor( $cron_time / 60 );
-		$minute = $cron_time % 60;
+		$w3tc_hour   = floor( $cron_time / 60 );
+		$w3tc_minute = $cron_time % 60;
 
 		// Create a DateTime for today at the specified hour and minute in the user's timezone.
 		$scheduled_time_user = new \DateTime( 'today', wp_timezone() );
-		$scheduled_time_user->setTime( $hour, $minute );
+		$scheduled_time_user->setTime( $w3tc_hour, $w3tc_minute );
 
 		// Convert the user's scheduled time to UTC for WordPress.
 		$scheduled_time_utc = clone $scheduled_time_user;
@@ -1890,14 +1890,14 @@ class Util_Environment {
 			return false;
 		}
 
-		$code    = wp_remote_retrieve_response_code( $spawn );
-		$message = wp_remote_retrieve_response_message( $spawn );
+		$code         = wp_remote_retrieve_response_code( $spawn );
+		$w3tc_message = wp_remote_retrieve_response_message( $spawn );
 
 		if ( 200 === $code ) {
 			// WP-Cron spawning is working as expected.
 			return true;
 		} else {
-			$errormsg = sprintf( 'WP-Cron spawn returned HTTP status code: %1$s %2$s', $code, $message );
+			$errormsg = sprintf( 'WP-Cron spawn returned HTTP status code: %1$s %2$s', $code, $w3tc_message );
 			return false;
 		}
 	}
@@ -1913,14 +1913,10 @@ class Util_Environment {
 	 *
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L57-L91
 	 *
-	 * @global $wp_version WordPress version string.
-	 *
 	 * @return WP_Error|array The response or WP_Error on failure.
 	 */
 	protected static function get_cron_spawn() {
-		global $wp_version;
-
-		$sslverify     = version_compare( $wp_version, 4.0, '<' );
+		$sslverify     = false;
 		$doing_wp_cron = sprintf( '%.22F', microtime( true ) );
 
 		$cron_request_array = array(
@@ -1940,9 +1936,9 @@ class Util_Environment {
 		// Enforce a blocking request in case something that's hooked onto the 'cron_request' filter sets it to false.
 		$cron_request['args']['blocking'] = true;
 
-		$result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
+		$w3tc_result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**

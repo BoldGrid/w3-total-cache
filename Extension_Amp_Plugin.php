@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_Amp_Plugin
  *
@@ -36,26 +37,26 @@ class Extension_Amp_Plugin {
 	 * @return void
 	 */
 	public static function w3tc_extension_load() {
-		$o = new Extension_Amp_Plugin();
+		$w3tc_o = new Extension_Amp_Plugin();
 
-		add_filter( 'w3tc_minify_js_enable', array( $o, 'w3tc_minify_jscss_enable' ) );
-		add_filter( 'w3tc_minify_css_enable', array( $o, 'w3tc_minify_jscss_enable' ) );
-		add_filter( 'w3tc_lazyload_can_process', array( $o, 'w3tc_lazyload_can_process' ) );
-		add_filter( 'w3tc_footer_comment', array( $o, 'w3tc_footer_comment' ) );
-		add_filter( 'w3tc_newrelic_should_disable_auto_rum', array( $o, 'w3tc_newrelic_should_disable_auto_rum' ) );
-		add_filter( 'pgcache_flush_post_queued_urls', array( $o, 'x_flush_post_queued_urls' ) );
-		add_filter( 'varnish_flush_post_queued_urls', array( $o, 'x_flush_post_queued_urls' ) );
-		add_filter( 'w3tc_pagecache_set', array( $o, 'w3tc_pagecache_set' ) );
-		add_filter( 'w3tc_config_default_values', array( $o, 'w3tc_config_default_values' ) );
+		add_filter( 'w3tc_minify_js_enable', array( $w3tc_o, 'w3tc_minify_jscss_enable' ) );
+		add_filter( 'w3tc_minify_css_enable', array( $w3tc_o, 'w3tc_minify_jscss_enable' ) );
+		add_filter( 'w3tc_lazyload_can_process', array( $w3tc_o, 'w3tc_lazyload_can_process' ) );
+		add_filter( 'w3tc_footer_comment', array( $w3tc_o, 'w3tc_footer_comment' ) );
+		add_filter( 'w3tc_newrelic_should_disable_auto_rum', array( $w3tc_o, 'w3tc_newrelic_should_disable_auto_rum' ) );
+		add_filter( 'w3tc_pgcache_flush_post_queued_urls', array( $w3tc_o, 'x_flush_post_queued_urls' ) );
+		add_filter( 'w3tc_varnish_flush_post_queued_urls', array( $w3tc_o, 'x_flush_post_queued_urls' ) );
+		add_filter( 'w3tc_pagecache_set', array( $w3tc_o, 'w3tc_pagecache_set' ) );
+		add_filter( 'w3tc_config_default_values', array( $w3tc_o, 'w3tc_config_default_values' ) );
 
 		// rules generation.
-		add_filter( 'w3tc_pagecache_rules_apache_accept_qs', array( $o, 'w3tc_pagecache_rules_x_accept_qs' ) );
-		add_filter( 'w3tc_pagecache_rules_apache_accept_qs_rules', array( $o, 'w3tc_pagecache_rules_apache_accept_qs_rules' ), 10, 2 );
-		add_filter( 'w3tc_pagecache_rules_apache_uri_prefix', array( $o, 'w3tc_pagecache_rules_apache_uri_prefix' ) );
+		add_filter( 'w3tc_pagecache_rules_apache_accept_qs', array( $w3tc_o, 'w3tc_pagecache_rules_x_accept_qs' ) );
+		add_filter( 'w3tc_pagecache_rules_apache_accept_qs_rules', array( $w3tc_o, 'w3tc_pagecache_rules_apache_accept_qs_rules' ), 10, 2 );
+		add_filter( 'w3tc_pagecache_rules_apache_uri_prefix', array( $w3tc_o, 'w3tc_pagecache_rules_apache_uri_prefix' ) );
 
-		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs', array( $o, 'w3tc_pagecache_rules_x_accept_qs' ) );
-		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs_rules', array( $o, 'w3tc_pagecache_rules_nginx_accept_qs_rules' ), 10, 2 );
-		add_filter( 'w3tc_pagecache_rules_nginx_uri_prefix', array( $o, 'w3tc_pagecache_rules_nginx_uri_prefix' ) );
+		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs', array( $w3tc_o, 'w3tc_pagecache_rules_x_accept_qs' ) );
+		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs_rules', array( $w3tc_o, 'w3tc_pagecache_rules_nginx_accept_qs_rules' ), 10, 2 );
+		add_filter( 'w3tc_pagecache_rules_nginx_uri_prefix', array( $w3tc_o, 'w3tc_pagecache_rules_nginx_uri_prefix' ) );
 	}
 
 	/**
@@ -81,17 +82,17 @@ class Extension_Amp_Plugin {
 	/**
 	 * Enables or disables minification of JS and CSS for AMP endpoints.
 	 *
-	 * @param bool $enabled Whether minification is enabled.
+	 * @param bool $w3tc_enabled Whether minification is enabled.
 	 *
 	 * @return bool False if AMP endpoint, otherwise the original enabled value.
 	 */
-	public function w3tc_minify_jscss_enable( $enabled ) {
+	public function w3tc_minify_jscss_enable( $w3tc_enabled ) {
 		if ( $this->is_amp_endpoint() ) {
 			// amp has own rules for CSS and JS files, don't touch them by default.
 			return false;
 		}
 
-		return $enabled;
+		return $w3tc_enabled;
 	}
 
 	/**
@@ -135,16 +136,16 @@ class Extension_Amp_Plugin {
 	 */
 	public function x_flush_post_queued_urls( $queued_urls ) {
 		$amp_urls    = array();
-		$c           = Dispatcher::config();
-		$url_postfix = $c->get_string( array( 'amp', 'url_postfix' ) );
+		$w3tc_c      = Dispatcher::config();
+		$url_postfix = $w3tc_c->get_string( array( 'amp', 'url_postfix' ) );
 
-		if ( 'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) ) {
-			foreach ( $queued_urls as $url ) {
-				$amp_urls[] = $url . '?' . $url_postfix;
+		if ( 'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) ) {
+			foreach ( $queued_urls as $w3tc_url ) {
+				$amp_urls[] = $w3tc_url . '?' . $url_postfix;
 			}
 		} else {
-			foreach ( $queued_urls as $url ) {
-				$amp_urls[] = trailingslashit( $url ) . $url_postfix;
+			foreach ( $queued_urls as $w3tc_url ) {
+				$amp_urls[] = trailingslashit( $w3tc_url ) . $url_postfix;
 			}
 		}
 
@@ -171,17 +172,17 @@ class Extension_Amp_Plugin {
 	/**
 	 * Modifies page cache set data for AMP pages.
 	 *
-	 * @param array $data The data to be cached.
+	 * @param array $w3tc_data The data to be cached.
 	 *
 	 * @return array Modified cache data.
 	 */
-	public function w3tc_pagecache_set( $data ) {
+	public function w3tc_pagecache_set( $w3tc_data ) {
 		if ( $this->is_amp_endpoint() ) {
 			// workaround to prevent Link headers from parent page to appear in amp page coming from it's .htaccess.
-			$c = Dispatcher::config();
-			if ( $c->getf_boolean( 'minify.css.http2push' ) ||
-					$c->getf_boolean( 'minify.js.http2push' ) ) {
-				$data['headers'][] = array(
+			$w3tc_c = Dispatcher::config();
+			if ( $w3tc_c->getf_boolean( 'minify.css.http2push' ) ||
+					$w3tc_c->getf_boolean( 'minify.js.http2push' ) ) {
+				$w3tc_data['headers'][] = array(
 					'n'           => 'Link',
 					'v'           => '',
 					'files_match' => '\\.html[_a-z]*$',
@@ -191,7 +192,7 @@ class Extension_Amp_Plugin {
 			}
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -248,11 +249,11 @@ class Extension_Amp_Plugin {
 	 * @return array Modified URL fragments.
 	 */
 	public static function pagecache_normalize_url_fragments( $url_fragments ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) ) {
+		if ( 'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) ) {
 			if ( ! empty( $url_fragments['querystring'] ) ) {
-				$qs = $c->get_string( array( 'amp', 'url_postfix' ) );
+				$qs = $w3tc_c->get_string( array( 'amp', 'url_postfix' ) );
 
 				$url_qs = substr( $url_fragments['querystring'], 1 ); // cut off "?".
 
@@ -275,19 +276,19 @@ class Extension_Amp_Plugin {
 	/**
 	 * Modifies the page cache key for AMP pages.
 	 *
-	 * @param array $o The original page cache data.
+	 * @param array $w3tc_o The original page cache data.
 	 *
 	 * @return array Modified page cache data.
 	 */
-	public static function pagecache_page_key( $o ) {
-		$c = Dispatcher::config();
+	public static function pagecache_page_key( $w3tc_o ) {
+		$w3tc_c = Dispatcher::config();
 
-		if ( isset( $o['url_fragments']['amp_extension'] ) ) {
-			$o['key'][1] .= '_amp';
+		if ( isset( $w3tc_o['url_fragments']['amp_extension'] ) ) {
+			$w3tc_o['key'][1] .= '_amp';
 
 		}
 
-		return $o;
+		return $w3tc_o;
 	}
 
 	/**
@@ -298,10 +299,10 @@ class Extension_Amp_Plugin {
 	 * @return array Modified query strings.
 	 */
 	public function w3tc_pagecache_rules_x_accept_qs( $query_strings ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) ) {
-			$query_strings[] = $c->get_string( array( 'amp', 'url_postfix' ) );
+		if ( 'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) ) {
+			$query_strings[] = $w3tc_c->get_string( array( 'amp', 'url_postfix' ) );
 		}
 
 		return $query_strings;
@@ -316,11 +317,11 @@ class Extension_Amp_Plugin {
 	 * @return array Modified query rules.
 	 */
 	public function w3tc_pagecache_rules_apache_accept_qs_rules( $query_rules, $query ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		if (
-			'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) &&
-			$query === $c->get_string( array( 'amp', 'url_postfix' ) )
+			'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) &&
+			$query === $w3tc_c->get_string( array( 'amp', 'url_postfix' ) )
 		) {
 			$query_rules[1] = str_replace( '[E=', '[E=W3TC_AMP:_amp,E=', $query_rules[1] );
 		}
@@ -336,9 +337,9 @@ class Extension_Amp_Plugin {
 	 * @return string Modified URI prefix.
 	 */
 	public function w3tc_pagecache_rules_apache_uri_prefix( $uri_prefix ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) ) {
+		if ( 'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) ) {
 			$uri_prefix .= '%{ENV:W3TC_AMP}';
 		}
 
@@ -354,11 +355,11 @@ class Extension_Amp_Plugin {
 	 * @return array Modified query rules.
 	 */
 	public function w3tc_pagecache_rules_nginx_accept_qs_rules( $query_rules, $query ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		if (
-			'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) &&
-			$query === $c->get_string( array( 'amp', 'url_postfix' ) )
+			'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) &&
+			$query === $w3tc_c->get_string( array( 'amp', 'url_postfix' ) )
 		) {
 			array_splice( $query_rules, 1, 0, '    set $w3tc_amp "_amp";' );
 			array_unshift( $query_rules, 'set $w3tc_amp "";' );
@@ -375,9 +376,9 @@ class Extension_Amp_Plugin {
 	 * @return string Modified URI prefix.
 	 */
 	public function w3tc_pagecache_rules_nginx_uri_prefix( $uri_prefix ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'querystring' === $c->get_string( array( 'amp', 'url_type' ) ) ) {
+		if ( 'querystring' === $w3tc_c->get_string( array( 'amp', 'url_type' ) ) ) {
 			$uri_prefix .= '$w3tc_amp';
 		}
 

@@ -52,12 +52,12 @@ class PgCache_Plugin {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
 		add_action( 'w3tc_pgcache_purge_wpcron', array( $this, 'w3tc_pgcache_purge_wpcron' ) );
 
-		$o = Dispatcher::component( 'PgCache_ContentGrabber' );
+		$w3tc_o = Dispatcher::component( 'PgCache_ContentGrabber' );
 
-		add_filter( 'w3tc_footer_comment', array( $o, 'w3tc_footer_comment' ) );
+		add_filter( 'w3tc_footer_comment', array( $w3tc_o, 'w3tc_footer_comment' ) );
 
 		// usage statistics handling.
-		add_action( 'w3tc_usage_statistics_of_request', array( $o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+		add_action( 'w3tc_usage_statistics_of_request', array( $w3tc_o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
 		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
 
@@ -82,8 +82,8 @@ class PgCache_Plugin {
 			$this->_config->get_boolean( 'pgcache.late_caching' ) ) &&
 			! is_admin()
 		) {
-			$o = Dispatcher::component( 'PgCache_ContentGrabber' );
-			add_action( 'init', array( $o, 'delayed_cache_print' ), 99999 );
+			$w3tc_o = Dispatcher::component( 'PgCache_ContentGrabber' );
+			add_action( 'init', array( $w3tc_o, 'delayed_cache_print' ), 99999 );
 		}
 
 		if (
@@ -108,11 +108,11 @@ class PgCache_Plugin {
 	/**
 	 * Handles REST API authentication errors.
 	 *
-	 * @param mixed $result The result of the authentication attempt.
+	 * @param mixed $w3tc_result The result of the authentication attempt.
 	 *
 	 * @return \WP_Error Authentication error message.
 	 */
-	public function rest_authentication_errors( $result ) {
+	public function rest_authentication_errors( $w3tc_result ) {
 		$error_message = __( 'REST API disabled.', 'w3-total-cache' );
 
 		return new \WP_Error( 'rest_disabled', $error_message, array( 'status' => rest_authorization_required_code() ) );
@@ -153,12 +153,12 @@ class PgCache_Plugin {
 	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
-		$c               = $this->_config;
-		$pgcache_enabled = $c->get_boolean( 'pgcache.enabled' );
-		$engine          = $c->get_string( 'pgcache.engine' );
+		$w3tc_c          = $this->_config;
+		$pgcache_enabled = $w3tc_c->get_boolean( 'pgcache.enabled' );
+		$w3tc_engine     = $w3tc_c->get_string( 'pgcache.engine' );
 
-		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$interval                        = $c->get_integer( 'pgcache.file.gc' );
+		if ( $pgcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$interval                        = $w3tc_c->get_integer( 'pgcache.file.gc' );
 			$schedules['w3_pgcache_cleanup'] = array(
 				'interval' => $interval,
 				'display'  => sprintf(
@@ -169,8 +169,8 @@ class PgCache_Plugin {
 			);
 		}
 
-		if ( $pgcache_enabled && $c->get_boolean( 'pgcache.prime.enabled' ) ) {
-			$interval                      = $c->get_integer( 'pgcache.prime.interval' );
+		if ( $pgcache_enabled && $w3tc_c->get_boolean( 'pgcache.prime.enabled' ) ) {
+			$interval                      = $w3tc_c->get_integer( 'pgcache.prime.interval' );
 			$schedules['w3_pgcache_prime'] = array(
 				'interval' => $interval,
 				'display'  => sprintf(
@@ -346,25 +346,25 @@ class PgCache_Plugin {
 	 * @return array Modified sources array with added page cache engine information.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
-		$c = Dispatcher::config();
-		if ( 'apc' === $c->get_string( 'pgcache.engine' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( 'apc' === $w3tc_c->get_string( 'pgcache.engine' ) ) {
 			$sources['apc_servers']['pgcache'] = array(
 				'name' => __( 'Page Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'memcached' === $c->get_string( 'pgcache.engine' ) ) {
+		} elseif ( 'memcached' === $w3tc_c->get_string( 'pgcache.engine' ) ) {
 			$sources['memcached_servers']['pgcache'] = array(
-				'servers'         => $c->get_array( 'pgcache.memcached.servers' ),
-				'username'        => $c->get_string( 'pgcache.memcached.username' ),
-				'password'        => $c->get_string( 'pgcache.memcached.password' ),
-				'binary_protocol' => $c->get_boolean( 'pgcache.memcached.binary_protocol' ),
+				'servers'         => $w3tc_c->get_array( 'pgcache.memcached.servers' ),
+				'username'        => $w3tc_c->get_string( 'pgcache.memcached.username' ),
+				'password'        => $w3tc_c->get_string( 'pgcache.memcached.password' ),
+				'binary_protocol' => $w3tc_c->get_boolean( 'pgcache.memcached.binary_protocol' ),
 				'name'            => __( 'Page Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'redis' === $c->get_string( 'pgcache.engine' ) ) {
+		} elseif ( 'redis' === $w3tc_c->get_string( 'pgcache.engine' ) ) {
 			$sources['redis_servers']['pgcache'] = array(
-				'servers'                 => $c->get_array( 'pgcache.redis.servers' ),
-				'verify_tls_certificates' => $c->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
-				'dbid'                    => $c->get_integer( 'pgcache.redis.dbid' ),
-				'password'                => $c->get_string( 'pgcache.redis.password' ),
+				'servers'                 => $w3tc_c->get_array( 'pgcache.redis.servers' ),
+				'verify_tls_certificates' => $w3tc_c->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
+				'dbid'                    => $w3tc_c->get_integer( 'pgcache.redis.dbid' ),
+				'password'                => $w3tc_c->get_string( 'pgcache.redis.password' ),
 				'name'                    => __( 'Page Cache', 'w3-total-cache' ),
 			);
 		}
@@ -386,11 +386,11 @@ class PgCache_Plugin {
 			'id'     => 'w3tc_flush_pgcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Page Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url(
+			'href'   => Util_Nonce::admin_nonce_url(
 				admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_pgcache'
 				),
-				'w3tc'
+				'w3tc_flush_pgcache'
 			),
 		);
 
@@ -399,12 +399,12 @@ class PgCache_Plugin {
 				'id'     => 'w3tc_pgcache_flush_post',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Page Cache: Current Page', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_post&amp;post_id=' .
 							Util_Environment::detect_post_id() . '&amp;force=true'
 					),
-					'w3tc'
+					'w3tc_flush_post'
 				),
 			);
 		}
@@ -415,18 +415,18 @@ class PgCache_Plugin {
 	/**
 	 * Flushes the specified page cache group.
 	 *
-	 * @param string $group  The group to flush.
+	 * @param string $w3tc_group  The group to flush.
 	 * @param array  $extras Optional extra parameters.
 	 *
 	 * @return mixed Result of the flush operation.
 	 */
-	public function w3tc_flush_group( $group, $extras = array() ) {
+	public function w3tc_flush_group( $w3tc_group, $extras = array() ) {
 		if ( isset( $extras['only'] ) && 'pagecache' !== (string) $extras['only'] ) {
 			return;
 		}
 
 		$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
-		$v            = $pgcacheflush->flush_group( $group );
+		$v            = $pgcacheflush->flush_group( $w3tc_group );
 
 		return $v;
 	}
@@ -467,13 +467,13 @@ class PgCache_Plugin {
 	/**
 	 * Flushes the page cache for a specific URL.
 	 *
-	 * @param string $url URL to flush.
+	 * @param string $w3tc_url URL to flush.
 	 *
 	 * @return mixed Result of the flush operation.
 	 */
-	public function w3tc_flush_url( $url ) {
+	public function w3tc_flush_url( $w3tc_url ) {
 		$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
-		$v            = $pgcacheflush->flush_url( $url );
+		$v            = $pgcacheflush->flush_url( $w3tc_url );
 
 		return $v;
 	}

@@ -8,7 +8,7 @@
  *
  * @package W3TC\QA
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 if ( ! empty( $_SERVER['HTTP_X_W3TC_QA'] ) && 'no-buffer' === $_SERVER['HTTP_X_W3TC_QA'] && ! headers_sent() ) {

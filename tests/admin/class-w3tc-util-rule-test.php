@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -22,7 +22,7 @@ use W3TC\Config;
  * of `master.php` in the first place so subsequent reads from any
  * consumer return clean data.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 
@@ -30,7 +30,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	 * Every character the directive sanitiser is supposed to strip
 	 * actually drops out of the result, in every position.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_directive_value_strips_forbidden_bytes() {
 		$inputs = array(
@@ -58,7 +58,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	/**
 	 * Legitimate directive content survives the sanitiser unchanged.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_directive_value_preserves_legitimate_input() {
 		$cases = array(
@@ -78,7 +78,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	/**
 	 * Non-string inputs collapse to '' (never throw, never warn).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_directive_value_handles_non_strings() {
 		$this->assertSame( '', Util_Rule::sanitize_directive_value( null ) );
@@ -95,7 +95,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	 * the sanitiser at a new Header concat site, the stored value
 	 * has already been cleaned.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_config_set_strips_directive_string_keys() {
 		$config = new Config();
@@ -121,7 +121,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	 * trip through `Config::set` unchanged. The write-time strip
 	 * targets only the flagged subset.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_config_set_leaves_non_directive_keys_untouched() {
 		$config = new Config();
@@ -151,7 +151,7 @@ class W3tc_Util_Rule_Test extends WP_UnitTestCase {
 	 * exercises the array sanitisation path even though the key's
 	 * declared type is `string`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_config_set_sanitises_directive_flagged_arrays() {
 		$config = new Config();

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -41,11 +42,11 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<td>Region:</td>
 				<td>
-					<?php foreach ( $details['region_descriptors'] as $region => $region_details ) : ?>
+					<?php foreach ( $details['region_descriptors'] as $w3tc_region => $w3tc_region_details ) : ?>
 						<label>
 							<input name="region" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $region ); ?>" />
-							<?php echo esc_html( $region_details['name'] ); ?>
+								value="<?php echo esc_attr( $w3tc_region ); ?>" />
+							<?php echo esc_html( $w3tc_region_details['name'] ); ?>
 						</label><br />
 					<?php endforeach; ?>
 				</td>

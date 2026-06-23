@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -14,13 +14,13 @@ use W3TC\Util_Environment;
 /**
  * Class: Util_Environment_Url_Test
  *
- * @since X.X.X
+ * @since 2.8.11
  */
 class W3tc_Util_Environment_Url_Test extends WP_UnitTestCase {
 	/**
 	* Test url_format() with basic parameters.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_url_format_basic() {
 		$url = Util_Environment::url_format( 'https://example.com/test.php', array( 'a' => 1, 'b' => 'two' ) );
@@ -30,7 +30,7 @@ class W3tc_Util_Environment_Url_Test extends WP_UnitTestCase {
 	/**
 	* Test url_query() with nested arrays and skip empty parameters.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_url_query_nested_skip_empty() {
 		$params = array(
@@ -46,7 +46,7 @@ class W3tc_Util_Environment_Url_Test extends WP_UnitTestCase {
 	/**
 	* Test url_format() merges existing query parameters.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_url_format_merges_query() {
 		$url = Util_Environment::url_format( 'https://example.com/path?foo=1', array( 'bar' => array( 'baz' => 2 ) ) );
@@ -56,7 +56,7 @@ class W3tc_Util_Environment_Url_Test extends WP_UnitTestCase {
 	/**
 	* Test filename_to_url() for different locations.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_filename_to_url_locations() {
 		// File in WP_CONTENT_DIR.

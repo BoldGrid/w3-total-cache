@@ -38,7 +38,7 @@ class SetupGuide_Plugin_Admin {
 	 * Replaces the previous shared `w3tc_wizard` nonce so a nonce minted for one
 	 * wizard step cannot be replayed against a different step's handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var array
 	 */
@@ -54,6 +54,8 @@ class SetupGuide_Plugin_Admin {
 		'w3tc_get_objcache_settings'     => 'w3tc_wizard_get_objcache_settings',
 		'w3tc_test_objcache'             => 'w3tc_wizard_test_objcache',
 		'w3tc_config_objcache'           => 'w3tc_wizard_config_objcache',
+		'w3tc_get_browsercache_settings' => 'w3tc_wizard_get_browsercache_settings',
+		'w3tc_config_browsercache'       => 'w3tc_wizard_config_browsercache',
 		'w3tc_get_imageservice_settings' => 'w3tc_wizard_get_imageservice_settings',
 		'w3tc_config_imageservice'       => 'w3tc_wizard_config_imageservice',
 		'w3tc_get_lazyload_settings'     => 'w3tc_wizard_get_lazyload_settings',
@@ -110,7 +112,7 @@ class SetupGuide_Plugin_Admin {
 	 * wizard pages (still posting a shared nonce) don't break for admins
 	 * mid-session.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
 	 *
@@ -130,7 +132,7 @@ class SetupGuide_Plugin_Admin {
 	 * Performs the inner capability check first (defense-in-depth) and then
 	 * checks the per-action nonce. Sends a JSON error and dies on failure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
 	 *
@@ -219,15 +221,15 @@ class SetupGuide_Plugin_Admin {
 		);
 
 		if ( in_array( $choice, $allowed_choices, true ) ) {
-			$config = new Config();
+			$w3tc_config = new Config();
 
-			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+			if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 				$state_master = Dispatcher::config_state_master();
 				$state_master->set( 'license.community_terms', $choice );
 				$state_master->save();
 
-				$config->set( 'common.track_usage', ( 'accept' === $choice ) );
-				$config->save();
+				$w3tc_config->set( 'common.track_usage', ( 'accept' === $choice ) );
+				$w3tc_config->save();
 			}
 
 			wp_send_json_success();
@@ -241,11 +243,11 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $url URL.
+	 * @param  string $w3tc_url URL.
 	 * @return string
 	 */
-	public function abbreviate_url( $url ) {
-		$url = untrailingslashit(
+	public function abbreviate_url( $w3tc_url ) {
+		$w3tc_url = untrailingslashit(
 			str_replace(
 				array(
 					'https://',
@@ -253,15 +255,15 @@ class SetupGuide_Plugin_Admin {
 					'www.',
 				),
 				'',
-				$url
+				$w3tc_url
 			)
 		);
 
-		if ( strlen( $url ) > 35 ) {
-			$url = substr( $url, 0, 10 ) . '&hellip;' . substr( $url, -20 );
+		if ( strlen( $w3tc_url ) > 35 ) {
+			$w3tc_url = substr( $w3tc_url, 0, 10 ) . '&hellip;' . substr( $w3tc_url, -20 );
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -275,30 +277,30 @@ class SetupGuide_Plugin_Admin {
 	public function test_pgcache() {
 		$this->verify_ajax_request( 'w3tc_test_pgcache' );
 
-		$nocache = ! empty( Util_Request::get_string( 'nocache' ) );
-		$url     = site_url();
-		$results = array(
+		$nocache  = ! empty( Util_Request::get_string( 'nocache' ) );
+		$w3tc_url = site_url();
+		$results  = array(
 			'nocache'  => $nocache,
-			'url'      => $url,
-			'urlshort' => $this->abbreviate_url( $url ),
+			'url'      => $w3tc_url,
+			'urlshort' => $this->abbreviate_url( $w3tc_url ),
 			'ttfb'     => null,
 		);
 
 		if ( $nocache ) {
-			$ttfb = Util_Http::ttfb( $url, true );
+			$ttfb = Util_Http::ttfb( $w3tc_url, true );
 			if ( false !== $ttfb ) {
 				$results['ttfb'] = $ttfb;
 			}
 		} else {
 			// Warm the cache once before the timed request.
-			Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
+			Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
 
-			$ttfb = Util_Http::ttfb( $url, false );
+			$ttfb = Util_Http::ttfb( $w3tc_url, false );
 			if ( false !== $ttfb ) {
 				$results['ttfb'] = $ttfb;
 			}
 
-			$ttfb_uncached = Util_Http::ttfb( $url, true );
+			$ttfb_uncached = Util_Http::ttfb( $w3tc_url, true );
 			if ( false !== $ttfb_uncached && null === $results['ttfb'] ) {
 				$results['ttfb'] = $ttfb_uncached;
 			}
@@ -318,12 +320,12 @@ class SetupGuide_Plugin_Admin {
 	public function get_pgcache_settings() {
 		$this->verify_ajax_request( 'w3tc_get_pgcache_settings' );
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		wp_send_json_success(
 			array(
-				'enabled' => $config->get_boolean( 'pgcache.enabled' ),
-				'engine'  => $config->get_string( 'pgcache.engine' ),
+				'enabled' => $w3tc_config->get_boolean( 'pgcache.enabled' ),
+				'engine'  => $w3tc_config->get_string( 'pgcache.engine' ),
 			)
 		);
 	}
@@ -335,7 +337,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
-	 * @see \W3TC\Util_Installed::$engine()
+	 * @see \W3TC\Util_Installed::$w3tc_engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
 	 * @see \W3TC\Dispatcher::component()
@@ -345,12 +347,12 @@ class SetupGuide_Plugin_Admin {
 		$this->verify_ajax_request( 'w3tc_config_pgcache' );
 
 		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$w3tc_engine     = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 		$is_updating     = false;
 		$success         = false;
-		$config          = new Config();
-		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
-		$pgcache_engine  = $config->get_string( 'pgcache.engine' );
+		$w3tc_config     = new Config();
+		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
+		$pgcache_engine  = $w3tc_config->get_string( 'pgcache.engine' );
 		$allowed_engines = array(
 			'',
 			'file',
@@ -364,50 +366,50 @@ class SetupGuide_Plugin_Admin {
 			'wincache',
 		);
 
-		if ( in_array( $engine, $allowed_engines, true ) ) {
-			if ( empty( $engine ) || 'file' === $engine || 'file_generic' === $engine || Util_Installed::$engine() ) {
+		if ( in_array( $w3tc_engine, $allowed_engines, true ) ) {
+			if ( empty( $w3tc_engine ) || 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine || Util_Installed::$w3tc_engine() ) {
 				if ( $pgcache_enabled !== $enable ) {
-					$config->set( 'pgcache.enabled', $enable );
+					$w3tc_config->set( 'pgcache.enabled', $enable );
 					$is_updating = true;
 				}
 
-				if ( ! empty( $engine ) && $pgcache_engine !== $engine ) {
-					$config->set( 'pgcache.engine', $engine );
+				if ( ! empty( $w3tc_engine ) && $pgcache_engine !== $w3tc_engine ) {
+					$w3tc_config->set( 'pgcache.engine', $w3tc_engine );
 					$is_updating = true;
 				}
 
 				if ( $is_updating ) {
-					$config->save();
+					$w3tc_config->save();
 
 					$f = Dispatcher::component( 'CacheFlush' );
 					$f->flush_posts();
 
 					$e = Dispatcher::component( 'PgCache_Environment' );
-					$e->fix_on_wpadmin_request( $config, true );
+					$e->fix_on_wpadmin_request( $w3tc_config, true );
 				}
 
-				if ( $config->get_boolean( 'pgcache.enabled' ) === $enable &&
-					( ! $enable || $config->get_string( 'pgcache.engine' ) === $engine ) ) {
-						$success = true;
-						$message = __( 'Settings updated', 'w3-total-cache' );
+				if ( $w3tc_config->get_boolean( 'pgcache.enabled' ) === $enable &&
+					( ! $enable || $w3tc_config->get_string( 'pgcache.engine' ) === $w3tc_engine ) ) {
+						$success      = true;
+						$w3tc_message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Settings not updated', 'w3-total-cache' );
+					$w3tc_message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+				$w3tc_message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
 		} else {
-			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+			$w3tc_message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
 
 		wp_send_json_success(
 			array(
 				'success'          => $success,
-				'message'          => $message,
+				'message'          => $w3tc_message,
 				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
-				'current_engine'   => $config->get_string( 'pgcache.engine' ),
+				'engine'           => $w3tc_engine,
+				'current_enabled'  => $w3tc_config->get_boolean( 'pgcache.enabled' ),
+				'current_engine'   => $w3tc_config->get_string( 'pgcache.engine' ),
 				'previous_enabled' => $pgcache_enabled,
 				'previous_engine'  => $pgcache_engine,
 			)
@@ -427,10 +429,10 @@ class SetupGuide_Plugin_Admin {
 	public function test_dbcache() {
 		$this->verify_ajax_request( 'w3tc_test_dbcache' );
 
-		$config  = new Config();
-		$results = array(
-			'enabled' => $config->get_boolean( 'dbcache.enabled' ),
-			'engine'  => $config->get_string( 'dbcache.engine' ),
+		$w3tc_config = new Config();
+		$results     = array(
+			'enabled' => $w3tc_config->get_boolean( 'dbcache.enabled' ),
+			'engine'  => $w3tc_config->get_string( 'dbcache.engine' ),
 			'elapsed' => null,
 		);
 
@@ -438,7 +440,7 @@ class SetupGuide_Plugin_Admin {
 
 		// Ensure db.php drop-in is present before testing.
 		$env = new DbCache_Environment();
-		$env->fix_on_wpadmin_request( $config, true );
+		$env->fix_on_wpadmin_request( $w3tc_config, true );
 
 		// Temporarily mimic a front-end request so dbcache isn't rejected by admin context.
 		$original_referer = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -504,12 +506,12 @@ class SetupGuide_Plugin_Admin {
 	public function get_dbcache_settings() {
 		$this->verify_ajax_request( 'w3tc_get_dbcache_settings' );
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		wp_send_json_success(
 			array(
-				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
-				'engine'  => $config->get_string( 'dbcache.engine' ),
+				'enabled' => $w3tc_config->get_boolean( 'dbcache.enabled' ),
+				'engine'  => $w3tc_config->get_string( 'dbcache.engine' ),
 			)
 		);
 	}
@@ -521,7 +523,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
-	 * @see \W3TC\Util_Installed::$engine()
+	 * @see \W3TC\Util_Installed::$w3tc_engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
 	 * @see \W3TC\Dispatcher::component()
@@ -531,12 +533,12 @@ class SetupGuide_Plugin_Admin {
 		$this->verify_ajax_request( 'w3tc_config_dbcache' );
 
 		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$w3tc_engine     = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 		$is_updating     = false;
 		$success         = false;
-		$config          = new Config();
-		$old_enabled     = $config->get_boolean( 'dbcache.enabled' );
-		$old_engine      = $config->get_string( 'dbcache.engine' );
+		$w3tc_config     = new Config();
+		$old_enabled     = $w3tc_config->get_boolean( 'dbcache.enabled' );
+		$old_engine      = $w3tc_config->get_string( 'dbcache.engine' );
 		$allowed_engines = array(
 			'',
 			'file',
@@ -548,55 +550,55 @@ class SetupGuide_Plugin_Admin {
 			'wincache',
 		);
 
-		if ( in_array( $engine, $allowed_engines, true ) ) {
-			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+		if ( in_array( $w3tc_engine, $allowed_engines, true ) ) {
+			if ( empty( $w3tc_engine ) || 'file' === $w3tc_engine || Util_Installed::$w3tc_engine() ) {
 				if ( $old_enabled !== $enable ) {
-					$config->set( 'dbcache.enabled', $enable );
+					$w3tc_config->set( 'dbcache.enabled', $enable );
 					$is_updating = true;
 				}
 
-				if ( ! empty( $engine ) && $old_engine !== $engine ) {
-					$config->set( 'dbcache.engine', $engine );
+				if ( ! empty( $w3tc_engine ) && $old_engine !== $w3tc_engine ) {
+					$w3tc_config->set( 'dbcache.engine', $w3tc_engine );
 					$is_updating = true;
 				}
 
 				if ( $is_updating ) {
-					$config->save();
+					$w3tc_config->save();
 
 					// Flush Database Cache.
 					$f = Dispatcher::component( 'CacheFlush' );
 					$f->dbcache_flush();
 
 					// Fix environment on event. Only instates cron if needed.
-					Util_Admin::fix_on_event( $config, 'setupguide_dbcache' );
+					Util_Admin::fix_on_event( $w3tc_config, 'setupguide_dbcache' );
 
 					// Ensure db.php drop-in is updated immediately for the next request.
 					$env = new DbCache_Environment();
-					$env->fix_on_wpadmin_request( $config, true );
+					$env->fix_on_wpadmin_request( $w3tc_config, true );
 				}
 
-				if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
-					( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
-						$success = true;
-						$message = __( 'Settings updated', 'w3-total-cache' );
+				if ( $w3tc_config->get_boolean( 'dbcache.enabled' ) === $enable &&
+					( ! $enable || $w3tc_config->get_string( 'dbcache.engine' ) === $w3tc_engine ) ) {
+						$success      = true;
+						$w3tc_message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Settings not updated', 'w3-total-cache' );
+					$w3tc_message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+				$w3tc_message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
 		} else {
-			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+			$w3tc_message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
 
 		wp_send_json_success(
 			array(
 				'success'          => $success,
-				'message'          => $message,
+				'message'          => $w3tc_message,
 				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
-				'current_engine'   => $config->get_string( 'dbcache.engine' ),
+				'engine'           => $w3tc_engine,
+				'current_enabled'  => $w3tc_config->get_boolean( 'dbcache.enabled' ),
+				'current_engine'   => $w3tc_config->get_string( 'dbcache.engine' ),
 				'previous_enabled' => $old_enabled,
 				'previous_engine'  => $old_engine,
 			)
@@ -616,20 +618,20 @@ class SetupGuide_Plugin_Admin {
 
 		global $wp_object_cache;
 
-		$config  = new Config();
-		$results = array(
-			'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
-			'engine'  => $config->get_string( 'objectcache.engine' ),
+		$w3tc_config = new Config();
+		$results     = array(
+			'enabled' => $w3tc_config->getf_boolean( 'objectcache.enabled' ),
+			'engine'  => $w3tc_config->get_string( 'objectcache.engine' ),
 			'elapsed' => null,
 		);
 
 		// Ensure object-cache.php drop-in is present before testing.
 		$oc_env = new ObjectCache_Environment();
-		$oc_env->fix_on_wpadmin_request( $config, true );
+		$oc_env->fix_on_wpadmin_request( $w3tc_config, true );
 
 		// Temporarily mimic a front-end request and allow writes in admin-ajax.
-		$original_enabled_for_admin = $config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
-		$config->set( 'objectcache.enabled_for_wp_admin', true );
+		$original_enabled_for_admin = $w3tc_config->getf_boolean( 'objectcache.enabled_for_wp_admin' );
+		$w3tc_config->set( 'objectcache.enabled_for_wp_admin', true );
 		$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
 		$_SERVER['REQUEST_URI'] = '/';
@@ -688,7 +690,7 @@ class SetupGuide_Plugin_Admin {
 			wp_suspend_cache_addition( true );
 		}
 
-		$config->set( 'objectcache.enabled_for_wp_admin', $original_enabled_for_admin );
+		$w3tc_config->set( 'objectcache.enabled_for_wp_admin', $original_enabled_for_admin );
 
 		wp_send_json_success( $results );
 	}
@@ -704,12 +706,12 @@ class SetupGuide_Plugin_Admin {
 	public function get_objcache_settings() {
 		$this->verify_ajax_request( 'w3tc_get_objcache_settings' );
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		wp_send_json_success(
 			array(
-				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
-				'engine'  => $config->get_string( 'objectcache.engine' ),
+				'enabled' => $w3tc_config->getf_boolean( 'objectcache.enabled' ),
+				'engine'  => $w3tc_config->get_string( 'objectcache.engine' ),
 			)
 		);
 	}
@@ -721,7 +723,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
-	 * @see \W3TC\Util_Installed::$engine()
+	 * @see \W3TC\Util_Installed::$w3tc_engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
 	 * @see \W3TC\Dispatcher::component()
@@ -731,12 +733,12 @@ class SetupGuide_Plugin_Admin {
 		$this->verify_ajax_request( 'w3tc_config_objcache' );
 
 		$enable          = ! empty( Util_Request::get_string( 'enable' ) );
-		$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
+		$w3tc_engine     = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 		$is_updating     = false;
 		$success         = false;
-		$config          = new Config();
-		$old_enabled     = $config->getf_boolean( 'objectcache.enabled' );
-		$old_engine      = $config->get_string( 'objectcache.engine' );
+		$w3tc_config     = new Config();
+		$old_enabled     = $w3tc_config->getf_boolean( 'objectcache.enabled' );
+		$old_engine      = $w3tc_config->get_string( 'objectcache.engine' );
 		$allowed_engines = array(
 			'',
 			'file',
@@ -748,62 +750,138 @@ class SetupGuide_Plugin_Admin {
 			'wincache',
 		);
 
-		if ( in_array( $engine, $allowed_engines, true ) ) {
-			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+		if ( in_array( $w3tc_engine, $allowed_engines, true ) ) {
+			if ( empty( $w3tc_engine ) || 'file' === $w3tc_engine || Util_Installed::$w3tc_engine() ) {
 				if ( $old_enabled !== $enable ) {
-					$config->set( 'objectcache.enabled', $enable );
+					$w3tc_config->set( 'objectcache.enabled', $enable );
 					$is_updating = true;
 				}
 
-				if ( ! empty( $engine ) && $old_engine !== $engine ) {
-					$config->set( 'objectcache.engine', $engine );
+				if ( ! empty( $w3tc_engine ) && $old_engine !== $w3tc_engine ) {
+					$w3tc_config->set( 'objectcache.engine', $w3tc_engine );
 					$is_updating = true;
 				}
 
 				if ( $is_updating ) {
-					$config->save();
+					$w3tc_config->save();
 
 					// Flush Object Cache.
 					$f = Dispatcher::component( 'CacheFlush' );
 					$f->objectcache_flush();
 
 					// Fix environment on event. Only instates cron if needed.
-					Util_Admin::fix_on_event( $config, 'setupguide_objectcache' );
+					Util_Admin::fix_on_event( $w3tc_config, 'setupguide_objectcache' );
 
 					// Ensure object-cache.php drop-in is updated immediately for the next request.
 					$oc_env = new ObjectCache_Environment();
-					$oc_env->fix_on_wpadmin_request( $config, true );
+					$oc_env->fix_on_wpadmin_request( $w3tc_config, true );
 				}
 
 				if (
-					$config->getf_boolean( 'objectcache.enabled' ) === $enable
+					$w3tc_config->getf_boolean( 'objectcache.enabled' ) === $enable
 					&& (
 						! $enable
-						|| $config->get_string( 'objectcache.engine' ) === $engine
+						|| $w3tc_config->get_string( 'objectcache.engine' ) === $w3tc_engine
 					)
 				) {
-					$success = true;
-					$message = __( 'Settings updated', 'w3-total-cache' );
+					$success      = true;
+					$w3tc_message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
-					$message = __( 'Settings not updated', 'w3-total-cache' );
+					$w3tc_message = __( 'Settings not updated', 'w3-total-cache' );
 				}
 			} else {
-				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+				$w3tc_message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 			}
 		} else {
-			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+			$w3tc_message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 		}
 
 		wp_send_json_success(
 			array(
 				'success'          => $success,
-				'message'          => $message,
+				'message'          => $w3tc_message,
 				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->getf_boolean( 'objectcache.enabled' ),
-				'current_engine'   => $config->get_string( 'objectcache.engine' ),
+				'engine'           => $w3tc_engine,
+				'current_enabled'  => $w3tc_config->getf_boolean( 'objectcache.enabled' ),
+				'current_engine'   => $w3tc_config->get_string( 'objectcache.engine' ),
 				'previous_enabled' => $old_enabled,
 				'previous_engine'  => $old_engine,
+			)
+		);
+	}
+
+	/**
+	 * Admin-Ajax: Get the browser cache settings.
+	 *
+	 * @since  2.0.0
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_browsercache_settings() {
+		$this->verify_ajax_request( 'w3tc_get_browsercache_settings' );
+
+		$w3tc_config = new Config();
+
+		wp_send_json_success(
+			array(
+				'enabled'             => $w3tc_config->get_boolean( 'browsercache.enabled' ),
+				'cssjs.cache.control' => $w3tc_config->get_boolean( 'browsercache.cssjs.cache.control' ),
+				'cssjs.cache.policy'  => $w3tc_config->get_string( 'browsercache.cssjs.cache.policy' ),
+				'html.cache.control'  => $w3tc_config->get_boolean( 'browsercache.html.cache.control' ),
+				'html.cache.policy'   => $w3tc_config->get_string( 'browsercache.html.cache.policy' ),
+				'other.cache.control' => $w3tc_config->get_boolean( 'browsercache.other.cache.control' ),
+				'other.cache.policy'  => $w3tc_config->get_string( 'browsercache.other.cache.policy' ),
+			)
+		);
+	}
+
+	/**
+	 * Admin-Ajax: Configure the browser cache settings.
+	 *
+	 * @since  2.0.0
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\CacheFlush::browsercache_flush()
+	 * @see \W3TC\BrowserCache_Environment::fix_on_wpadmin_request()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_browsercache() {
+		$this->verify_ajax_request( 'w3tc_config_browsercache' );
+
+		$enable               = ! empty( Util_Request::get_string( 'enable' ) );
+		$w3tc_config          = new Config();
+		$browsercache_enabled = $w3tc_config->get_boolean( 'browsercache.enabled' );
+
+		if ( $browsercache_enabled !== $enable ) {
+			$w3tc_config->set( 'browsercache.enabled', $enable );
+			$w3tc_config->set( 'browsercache.cssjs.cache.control', true );
+			$w3tc_config->set( 'browsercache.cssjs.cache.policy', 'cache_public_maxage' );
+			$w3tc_config->set( 'browsercache.html.cache.control', true );
+			$w3tc_config->set( 'browsercache.html.cache.policy', 'cache_public_maxage' );
+			$w3tc_config->set( 'browsercache.other.cache.control', true );
+			$w3tc_config->set( 'browsercache.other.cache.policy', 'cache_public_maxage' );
+			$w3tc_config->save();
+
+			$f = Dispatcher::component( 'CacheFlush' );
+			$f->browsercache_flush();
+
+			$e = Dispatcher::component( 'BrowserCache_Environment' );
+			$e->fix_on_wpadmin_request( $w3tc_config, true );
+		}
+
+		$is_enabled = $w3tc_config->get_boolean( 'browsercache.enabled' );
+
+		wp_send_json_success(
+			array(
+				'success'               => $is_enabled === $enable,
+				'enable'                => $enable,
+				'browsercache_enabled'  => $w3tc_config->get_boolean( 'browsercache.enabled' ),
+				'browsercache_previous' => $browsercache_enabled,
 			)
 		);
 	}
@@ -820,15 +898,15 @@ class SetupGuide_Plugin_Admin {
 	public function get_lazyload_settings() {
 		$this->verify_ajax_request( 'w3tc_get_lazyload_settings' );
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		wp_send_json_success(
 			array(
-				'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
-				'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
-				'process_background' => $config->get_boolean( 'lazyload_process_background' ),
-				'exclude'            => $config->get_array( 'lazyload.exclude' ), // phpcs:ignore WordPressVIPMinimum
-				'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
+				'enabled'            => $w3tc_config->get_boolean( 'lazyload.enabled' ),
+				'process_img'        => $w3tc_config->get_boolean( 'lazyload.process_img' ),
+				'process_background' => $w3tc_config->get_boolean( 'lazyload_process_background' ),
+				'exclude'            => $w3tc_config->get_array( 'lazyload.exclude' ), // phpcs:ignore WordPressVIPMinimum
+				'embed_method'       => $w3tc_config->get_string( 'lazyload.embed_method' ),
 			)
 		);
 	}
@@ -851,30 +929,30 @@ class SetupGuide_Plugin_Admin {
 		$this->verify_ajax_request( 'w3tc_config_lazyload' );
 
 		$enable           = ! empty( Util_Request::get_string( 'enable' ) );
-		$config           = new Config();
-		$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
+		$w3tc_config      = new Config();
+		$lazyload_enabled = $w3tc_config->get_boolean( 'lazyload.enabled' );
 
 		if ( $lazyload_enabled !== $enable ) {
-			$config->set( 'lazyload.enabled', $enable );
-			$config->set( 'lazyload.process_img', true );
-			$config->set( 'lazyload_process_background', true );
-			$config->set( 'lazyload.embed_method', 'async_head' );
-			$config->save();
+			$w3tc_config->set( 'lazyload.enabled', $enable );
+			$w3tc_config->set( 'lazyload.process_img', true );
+			$w3tc_config->set( 'lazyload_process_background', true );
+			$w3tc_config->set( 'lazyload.embed_method', 'async_head' );
+			$w3tc_config->save();
 
 			$f = Dispatcher::component( 'CacheFlush' );
 			$f->flush_posts();
 
 			$e = Dispatcher::component( 'PgCache_Environment' );
-			$e->fix_on_wpadmin_request( $config, true );
+			$e->fix_on_wpadmin_request( $w3tc_config, true );
 		}
 
-		$is_enabled = $config->get_boolean( 'lazyload.enabled' );
+		$is_enabled = $w3tc_config->get_boolean( 'lazyload.enabled' );
 
 		wp_send_json_success(
 			array(
 				'success'           => $is_enabled === $enable,
 				'enable'            => $enable,
-				'lazyload_enabled'  => $config->get_boolean( 'lazyload.enabled' ),
+				'lazyload_enabled'  => $w3tc_config->get_boolean( 'lazyload.enabled' ),
 				'lazyload_previous' => $lazyload_enabled,
 			)
 		);
@@ -883,7 +961,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the imageservice settings.
 	 *
-	 * @since  2.3.4
+	 * @since  2.4.0
 	 *
 	 * @see \W3TC\Config::is_extension_active()
 	 * @see \W3TC\Config::get_string()
@@ -891,12 +969,12 @@ class SetupGuide_Plugin_Admin {
 	public function get_imageservice_settings() {
 		$this->verify_ajax_request( 'w3tc_get_imageservice_settings' );
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		wp_send_json_success(
 			array(
-				'enabled'  => $config->is_extension_active( 'imageservice' ),
-				'settings' => $this->get_imageservice_settings_with_defaults( $config ),
+				'enabled'  => $w3tc_config->is_extension_active( 'imageservice' ),
+				'settings' => $this->get_imageservice_settings_with_defaults( $w3tc_config ),
 			)
 		);
 	}
@@ -904,7 +982,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure image converter.
 	 *
-	 * @since 2.3.4
+	 * @since 2.4.0
 	 *
 	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
@@ -918,37 +996,37 @@ class SetupGuide_Plugin_Admin {
 	public function config_imageservice() {
 		$this->verify_ajax_request( 'w3tc_config_imageservice' );
 
-		$enable = ! empty( Util_Request::get_string( 'enable' ) );
-		$config = new Config();
+		$enable      = ! empty( Util_Request::get_string( 'enable' ) );
+		$w3tc_config = new Config();
 
 		// Merge stored values with defaults so new settings are always present.
-		$settings = $this->get_imageservice_settings_with_defaults( $config );
+		$w3tc_settings = $this->get_imageservice_settings_with_defaults( $w3tc_config );
 
 		// Update settings from the request, defaulting to current values if absent.
-		$request_settings        = Util_Request::get_array( 'settings', array() );
-		$settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $settings['compression'];
-		$settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $settings['auto'];
-		$settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $settings['visibility'];
-		$settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $settings['webp'];
-		$settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $settings['avif'];
+		$request_settings             = Util_Request::get_array( 'settings', array() );
+		$w3tc_settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $w3tc_settings['compression'];
+		$w3tc_settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $w3tc_settings['auto'];
+		$w3tc_settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $w3tc_settings['visibility'];
+		$w3tc_settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $w3tc_settings['webp'];
+		$w3tc_settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $w3tc_settings['avif'];
 
-		$config->set( 'imageservice', $settings );
-		$config->save();
+		$w3tc_config->set( 'imageservice', $w3tc_settings );
+		$w3tc_config->save();
 
 		if ( ! empty( $enable ) ) {
-			Extensions_Util::activate_extension( 'imageservice', $config );
+			Extensions_Util::activate_extension( 'imageservice', $w3tc_config );
 		} else {
-			Extensions_Util::deactivate_extension( 'imageservice', $config );
+			Extensions_Util::deactivate_extension( 'imageservice', $w3tc_config );
 		}
 
-		$is_enabled = $config->is_extension_active( 'imageservice' );
+		$is_enabled = $w3tc_config->is_extension_active( 'imageservice' );
 
 		wp_send_json_success(
 			array(
 				'success'               => $is_enabled === $enable,
 				'enable'                => $enable,
 				'imageservice_enabled'  => $is_enabled,
-				'imageservice_settings' => $settings,
+				'imageservice_settings' => $w3tc_settings,
 			)
 		);
 	}
@@ -956,12 +1034,12 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Provide Image Service settings merged with defaults.
 	 *
-	 * @since 2.10.0
+	 * @since 2.9.0
 	 *
-	 * @param Config $config Configuration object.
+	 * @param Config $w3tc_config Configuration object.
 	 * @return array
 	 */
-	private function get_imageservice_settings_with_defaults( Config $config ) {
+	private function get_imageservice_settings_with_defaults( Config $w3tc_config ) {
 		$defaults = array(
 			'compression' => 'lossy',
 			'auto'        => 'enabled',
@@ -970,7 +1048,7 @@ class SetupGuide_Plugin_Admin {
 			'avif'        => true,
 		);
 
-		return array_merge( $defaults, (array) $config->get_array( 'imageservice' ) );
+		return array_merge( $defaults, (array) $w3tc_config->get_array( 'imageservice' ) );
 	}
 
 	/**
@@ -985,8 +1063,8 @@ class SetupGuide_Plugin_Admin {
 	 * @return bool
 	 */
 	private function maybe_ask_tos() {
-		$config = new Config();
-		if ( Util_Environment::is_w3tc_pro( $config ) ) {
+		$w3tc_config = new Config();
+		if ( Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 			return false;
 		}
 
@@ -998,7 +1076,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Build the SQL statements used for database cache benchmarking.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param \wpdb $wpdb WordPress database object.
 	 *
@@ -1018,7 +1096,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Execute a repeatable set of read-heavy queries to measure cache performance.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param \wpdb $wpdb       WordPress database object.
 	 * @param array $queries    List of SQL queries to execute.
@@ -1029,7 +1107,7 @@ class SetupGuide_Plugin_Admin {
 	private function run_dbcache_benchmark( $wpdb, array $queries, $iterations ) {
 		$start_time = microtime( true );
 
-		for ( $i = 0; $i < $iterations; $i++ ) {
+		for ( $w3tc_i = 0; $w3tc_i < $iterations; $w3tc_i++ ) {
 			foreach ( $queries as $sql ) {
 				$wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 			}
@@ -1041,7 +1119,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Clear runtime caches to reduce contamination between timed runs.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
@@ -1056,7 +1134,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Clear dbcache reject state for the current request so tests can evaluate with fresh context.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
@@ -1066,16 +1144,16 @@ class SetupGuide_Plugin_Admin {
 		/**
 		 * DbCache wpdb wrapper instance, when available.
 		 *
-		 * @var DbCache_WpdbNew|DbCache_WpdbLegacy|null
+		 * @var DbCache_WpdbNew|null
 		 */
 		$dbcache_wpdb = null;
-		if ( $wpdb instanceof DbCache_WpdbNew || $wpdb instanceof DbCache_WpdbLegacy ) {
+		if ( $wpdb instanceof DbCache_WpdbNew ) {
 			$dbcache_wpdb = $wpdb;
 		} elseif ( class_exists( '\W3TC\DbCache_Wpdb' ) ) {
 			$dbcache_wpdb = DbCache_Wpdb::instance();
 		}
 
-		if ( $dbcache_wpdb instanceof DbCache_WpdbNew || $dbcache_wpdb instanceof DbCache_WpdbLegacy ) {
+		if ( $dbcache_wpdb instanceof DbCache_WpdbNew ) {
 			$processors = $dbcache_wpdb->get_processors();
 
 			foreach ( $processors as $processor ) {
@@ -1089,7 +1167,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Collect a set of post IDs to be used when benchmarking the object cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return array
 	 */
@@ -1121,7 +1199,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Run a representative workload that should benefit from a persistent object cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param array  $post_ids    IDs to request in the query.
 	 * @param string $payload_key Cache key used to check persistence.
@@ -1133,7 +1211,7 @@ class SetupGuide_Plugin_Admin {
 		$posts_per_page = max( 1, count( $post_ids ) );
 		$start_time     = microtime( true );
 
-		for ( $i = 0; $i < $iterations; $i++ ) {
+		for ( $w3tc_i = 0; $w3tc_i < $iterations; $w3tc_i++ ) {
 			$query = new \WP_Query(
 				array(
 					'post__in'               => $post_ids,
@@ -1169,7 +1247,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Clear runtime object cache data while preserving persistent stores when possible.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return string Which flush method was used.
 	 */
@@ -1209,12 +1287,12 @@ class SetupGuide_Plugin_Admin {
 	private function get_config() {
 		global $wp_version, $wpdb;
 
-		$config               = new Config();
-		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
-		$is_pro               = Util_Environment::is_w3tc_pro( $config );
+		$w3tc_config          = new Config();
+		$browsercache_enabled = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$w3tc_is_pro          = Util_Environment::is_w3tc_pro( $w3tc_config );
 		$page                 = Util_Request::get_string( 'page' );
 		$state                = Dispatcher::config_state();
-		$force_master_config  = $config->get_boolean( 'common.force_master' );
+		$force_master_config  = $w3tc_config->get_boolean( 'common.force_master' );
 		$image_service_limits = array(
 			'free_hourly'  => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
 			'free_monthly' => number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
@@ -1260,16 +1338,16 @@ class SetupGuide_Plugin_Admin {
 							'home_url_host'     => Util_Environment::home_url_host(),
 							'install_version'   => esc_attr( $state->get_string( 'common.install_version' ) ),
 							'w3tc_install_date' => get_option( 'w3tc_install_date' ),
-							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
+							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $w3tc_config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
-							'w3tc_pro'          => $is_pro,
-							'w3tc_has_key'      => $config->get_string( 'plugin.license_key' ),
+							'w3tc_pro'          => $w3tc_is_pro,
+							'w3tc_has_key'      => $w3tc_config->get_string( 'plugin.license_key' ),
 							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
 							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
-							'w3tc_plugin_type'  => esc_attr( $config->get_string( 'plugin.type' ) ),
+							'w3tc_plugin_type'  => esc_attr( $w3tc_config->get_string( 'plugin.type' ) ),
 							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 							'tos_choice'        => Licensing_Core::get_tos_choice(),
-							'track_usage'       => $config->get_boolean( 'common.track_usage' ),
+							'track_usage'       => $w3tc_config->get_boolean( 'common.track_usage' ),
 							'test_complete_msg' => __(
 								'Testing complete.  Click Next to advance to the section and see the results.',
 								'w3-total-cache'
@@ -1290,7 +1368,7 @@ class SetupGuide_Plugin_Admin {
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
 							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
-							'objcache_disabled' => ( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ),
+							'objcache_disabled' => ( ! $w3tc_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ),
 							'warning_disk'      => __(
 								'Warning: Using disk storage for this setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.',
 								'w3-total-cache'
@@ -1382,6 +1460,20 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'config_objcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_get_browsercache_settings',
+					'function' => array(
+						$this,
+						'get_browsercache_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_browsercache',
+					'function' => array(
+						$this,
+						'config_browsercache',
 					),
 				),
 				array(
@@ -1601,7 +1693,7 @@ class SetupGuide_Plugin_Admin {
 							'Individual test runs can vary. Run the test a few times and use the Average column to choose the best option for your site.',
 							'w3-total-cache'
 						) . '</p>' .
-						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
+						( ! $w3tc_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
 						( ! has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p>
 							<input id="w3tc-test-objcache" class="button-primary" type="button" value="' . esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
 							<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
@@ -1650,8 +1742,8 @@ class SetupGuide_Plugin_Admin {
 							</p>
 						</div>
 						<div class="w3tc-io-rate-grid">
-							<div class="w3tc-io-rate-card' . ( $is_pro ? '' : ' w3tc-io-rate-current' ) . '">
-								' . ( $is_pro ? '' : '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' ) . '
+							<div class="w3tc-io-rate-card' . ( $w3tc_is_pro ? '' : ' w3tc-io-rate-current' ) . '">
+								' . ( $w3tc_is_pro ? '' : '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' ) . '
 								<span class="w3tc-io-rate-label">' . esc_html__( 'Free', 'w3-total-cache' ) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									// translators: 1: Number of conversions per hour.
@@ -1664,8 +1756,8 @@ class SetupGuide_Plugin_Admin {
 									esc_html( $image_service_limits['free_monthly'] )
 								) . '</span>
 							</div>
-							<div class="w3tc-io-rate-card w3tc-io-rate-pro' . ( $is_pro ? ' w3tc-io-rate-current' : '' ) . '">
-								' . ( $is_pro ? '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' : '' ) . '
+							<div class="w3tc-io-rate-card w3tc-io-rate-pro' . ( $w3tc_is_pro ? ' w3tc-io-rate-current' : '' ) . '">
+								' . ( $w3tc_is_pro ? '<span class="w3tc-io-rate-badge">' . esc_html__( 'Your rate limits', 'w3-total-cache' ) . '</span>' : '' ) . '
 								<span class="w3tc-io-rate-label">' . esc_html__( 'Pro', 'w3-total-cache' ) . '</span>
 								<span class="w3tc-io-rate">' . sprintf(
 									// translators: 1: Number of conversions per hour.
@@ -1679,7 +1771,7 @@ class SetupGuide_Plugin_Admin {
 								) . '</span>
 							</div>
 						</div>' .
-						( $is_pro ? '' : '<div class="w3tc-gopro-manual-wrap">
+						( $w3tc_is_pro ? '' : '<div class="w3tc-gopro-manual-wrap">
 							<div class="w3tc-io-upsell w3tc-gopro">
 								<div class="w3tc-gopro-ribbon"><span>★ PRO</span></div>
 								<div class="w3tc-gopro-content">
@@ -1751,7 +1843,7 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p>' .
 							(
-								! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' )
+								! $w3tc_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' )
 								?
 								sprintf(
 									// translators: 1: HTML strong open tag, 2: HTML strong close tag.

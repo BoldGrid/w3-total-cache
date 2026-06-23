@@ -66,8 +66,8 @@ class PgCache_Plugin_Admin {
 	 */
 	public function cleanup() {
 		// We check to see if we're dealing with a cluster.
-		$config     = Dispatcher::config();
-		$is_cluster = $config->get_boolean( 'cluster.messagebus.enabled' );
+		$w3tc_config = Dispatcher::config();
+		$is_cluster  = $w3tc_config->get_boolean( 'cluster.messagebus.enabled' );
 
 		// If we are, we notify the subscribers. If not, we just cleanup in here.
 		if ( $is_cluster ) {
@@ -93,9 +93,9 @@ class PgCache_Plugin_Admin {
 	 * @return void
 	 */
 	public function cleanup_local() {
-		$engine = $this->_config->get_string( 'pgcache.engine' );
+		$w3tc_engine = $this->_config->get_string( 'pgcache.engine' );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'file':
 				$w3_cache_file_cleaner = new Cache_File_Cleaner(
 					array(
@@ -134,12 +134,12 @@ class PgCache_Plugin_Admin {
 	 * Primes the cache based on a sitemap or other criteria.
 	 *
 	 * @param int|null      $start        The starting point for priming, or null to use the default.
-	 * @param int|null      $limit        The limit for how many pages to prime, or null for the default limit.
+	 * @param int|null      $w3tc_limit        The limit for how many pages to prime, or null for the default limit.
 	 * @param callable|null $log_callback A callback function for logging progress, or null to disable logging.
 	 *
 	 * @return void
 	 */
-	public function prime( $start = null, $limit = null, $log_callback = null ) {
+	public function prime( $start = null, $w3tc_limit = null, $log_callback = null ) {
 		if ( is_null( $start ) ) {
 			$start = get_option( 'w3tc_pgcache_prime_offset' );
 		}
@@ -149,19 +149,19 @@ class PgCache_Plugin_Admin {
 		}
 
 		$interval = $this->_config->get_integer( 'pgcache.prime.interval' );
-		if ( is_null( $limit ) ) {
-			$limit = $this->_config->get_integer( 'pgcache.prime.limit' );
+		if ( is_null( $w3tc_limit ) ) {
+			$w3tc_limit = $this->_config->get_integer( 'pgcache.prime.limit' );
 		}
 
-		if ( $limit < 1 ) {
-			$limit = 1;
+		if ( $w3tc_limit < 1 ) {
+			$w3tc_limit = 1;
 		}
 
 		$sitemap = $this->_config->get_string( 'pgcache.prime.sitemap' );
 
 		if ( ! is_null( $log_callback ) ) {
 			$log_callback(
-				'Priming from sitemap ' . $sitemap . ' entries ' . ( $start + 1 ) . '..' . ( $start + $limit )
+				'Priming from sitemap ' . $sitemap . ' entries ' . ( $start + 1 ) . '..' . ( $start + $w3tc_limit )
 			);
 		}
 
@@ -169,10 +169,10 @@ class PgCache_Plugin_Admin {
 		$urls = $this->parse_sitemap( $sitemap );
 
 		// Queue URLs.
-		$queue = array_slice( $urls, $start, $limit );
+		$queue = array_slice( $urls, $start, $w3tc_limit );
 
-		if ( count( $urls ) > ( $start + $limit ) ) {
-			$next_offset = $start + $limit;
+		if ( count( $urls ) > ( $start + $w3tc_limit ) ) {
+			$next_offset = $start + $w3tc_limit;
 		} else {
 			$next_offset = 0;
 		}
@@ -183,11 +183,11 @@ class PgCache_Plugin_Admin {
 		 * Make HTTP requests and prime cache.
 		 * Use 'WordPress' since by default we use W3TC-powered by which blocks caching.
 		 */
-		foreach ( $queue as $url ) {
-			Util_Http::get( $url, array( 'user-agent' => 'WordPress' ) );
+		foreach ( $queue as $w3tc_url ) {
+			Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress' ) );
 
 			if ( ! is_null( $log_callback ) ) {
-				$log_callback( 'Priming ' . $url );
+				$log_callback( 'Priming ' . $w3tc_url );
 			}
 		}
 	}
@@ -211,16 +211,16 @@ class PgCache_Plugin_Admin {
 	 *     sitemap that points at itself, or a deeply nested index, can
 	 *     no longer DOS the worker.
 	 *
-	 * @param string      $url           The URL of the sitemap to parse.
+	 * @param string      $w3tc_url           The URL of the sitemap to parse.
 	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
 	 *                                   fetches must match. Auto-populated.
 	 * @param int         $depth         Internal: current recursion depth (0-based).
 	 *
 	 * @return array The list of URLs parsed from the sitemap.
 	 */
-	public function parse_sitemap( $url, $origin_host = null, $depth = 0 ) {
-		if ( ! Util_Environment::is_url( $url ) ) {
-			$url = home_url( $url );
+	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0 ) {
+		if ( ! Util_Environment::is_url( $w3tc_url ) ) {
+			$w3tc_url = home_url( $w3tc_url );
 		}
 
 		/**
@@ -228,7 +228,7 @@ class PgCache_Plugin_Admin {
 		 * increment. Three levels is enough to cover a sitemap index
 		 * → child sitemap → URL list shape, the deepest WordPress
 		 * emits in practice. Refusal returns the empty array, NOT
-		 * `array( $url )` — the caller (`prime()`) iterates the
+		 * `array( $w3tc_url )` — the caller (`prime()`) iterates the
 		 * returned list and calls `Util_Http::get()` on each entry, so
 		 * returning the rejected URL would defeat the depth cap
 		 * (the URL would still be fetched, just not recursed into).
@@ -241,12 +241,12 @@ class PgCache_Plugin_Admin {
 		 * Per-hop public-host check. Refused URLs are dropped from the
 		 * fetch list for the same reason as above.
 		 */
-		if ( ! Util_Url::is_public_host( $url ) ) {
+		if ( ! Util_Url::is_public_host( $w3tc_url ) ) {
 			return array();
 		}
 
 		// First call sets the origin host for the rest of the recursion.
-		$current_host = \wp_parse_url( $url, PHP_URL_HOST );
+		$current_host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
 		if ( null === $origin_host ) {
 			$origin_host = $current_host;
 		} elseif ( strcasecmp( $origin_host, (string) $current_host ) !== 0 ) {
@@ -257,8 +257,8 @@ class PgCache_Plugin_Admin {
 			return array();
 		}
 
-		$urls     = array( $url );
-		$response = Util_Http::get( $url );
+		$urls     = array( $w3tc_url );
+		$response = Util_Http::get( $w3tc_url );
 
 		if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
 			$url_matches     = null;
@@ -291,10 +291,10 @@ class PgCache_Plugin_Admin {
 			} elseif ( $xml->getName() === 'urlset' ) {
 				$locs = array();
 
-				foreach ( $xml->url as $url ) {
-					if ( $url->loc ) {
-						$priority                   = isset( $url->priority ) ? (float) $url->priority : 0.5;
-						$locs[ (string) $url->loc ] = $priority;
+				foreach ( $xml->url as $w3tc_url ) {
+					if ( $w3tc_url->loc ) {
+						$priority                        = isset( $w3tc_url->priority ) ? (float) $w3tc_url->priority : 0.5;
+						$locs[ (string) $w3tc_url->loc ] = $priority;
 					}
 				}
 
@@ -302,9 +302,9 @@ class PgCache_Plugin_Admin {
 
 				$urls = array_merge( $urls, array_keys( $locs ) );
 			} elseif ( $xml->getName() === 'rss' ) {
-				foreach ( $xml->channel->item as $item ) {
-					if ( $item->link ) {
-						$urls[] = (string) $item->link;
+				foreach ( $xml->channel->item as $w3tc_item ) {
+					if ( $w3tc_item->link ) {
+						$urls[] = (string) $w3tc_item->link;
 					}
 				}
 			}
@@ -324,9 +324,9 @@ class PgCache_Plugin_Admin {
 		$post_urls = Util_PageUrls::get_post_urls( $post_id );
 
 		// Make HTTP requests and prime cache.
-		foreach ( $post_urls as $url ) {
-			$result = Util_Http::get( $url, array( 'user-agent' => 'WordPress' ) );
-			if ( is_wp_error( $result ) ) {
+		foreach ( $post_urls as $w3tc_url ) {
+			$w3tc_result = Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress' ) );
+			if ( is_wp_error( $w3tc_result ) ) {
 				return false;
 			}
 		}
@@ -337,13 +337,13 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Saves configuration options and triggers actions based on changes.
 	 *
-	 * @param array $data The configuration data containing both new and old configurations.
+	 * @param array $w3tc_data The configuration data containing both new and old configurations.
 	 *
 	 * @return array The updated configuration data.
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		if ( $new_config->get_boolean( 'pgcache.cache.feed' ) ) {
 			$new_config->set( 'pgcache.cache.nginx_handle_xml', true );
@@ -398,7 +398,7 @@ class PgCache_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -409,13 +409,13 @@ class PgCache_Plugin_Admin {
 	 * @return array The updated array of errors.
 	 */
 	public function w3tc_errors( $errors ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'memcached' === $c->get_string( 'pgcache.engine' ) ) {
-			$memcached_servers         = $c->get_array( 'pgcache.memcached.servers' );
-			$memcached_binary_protocol = $c->get_boolean( 'pgcache.memcached.binary_protocol' );
-			$memcached_username        = $c->get_string( 'pgcache.memcached.username' );
-			$memcached_password        = $c->get_string( 'pgcache.memcached.password' );
+		if ( 'memcached' === $w3tc_c->get_string( 'pgcache.engine' ) ) {
+			$memcached_servers         = $w3tc_c->get_array( 'pgcache.memcached.servers' );
+			$memcached_binary_protocol = $w3tc_c->get_boolean( 'pgcache.memcached.binary_protocol' );
+			$memcached_username        = $w3tc_c->get_string( 'pgcache.memcached.username' );
+			$memcached_password        = $w3tc_c->get_string( 'pgcache.memcached.password' );
 
 			if (
 				! Util_Installed::is_memcache_available(
@@ -503,8 +503,9 @@ class PgCache_Plugin_Admin {
 			}
 
 			if ( isset( $summary['access_log'] ) ) {
+				$php_requests_v            = isset( $summary['php']['php_requests_v'] ) ? $summary['php']['php_requests_v'] : 0;
 				$pagecache['requests']     = $summary['access_log']['dynamic_requests_total_v'];
-				$pagecache['requests_hit'] = $pagecache['requests'] - $summary['php']['php_requests_v'];
+				$pagecache['requests_hit'] = $pagecache['requests'] - $php_requests_v;
 				if ( $pagecache['requests_hit'] < 0 ) {
 					$pagecache['requests_hit'] = 0;
 				}

@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 namespace W3TC;
@@ -14,7 +14,7 @@ namespace W3TC;
  *
  * Read-only accessor for the configuration-key schema in `ConfigKeys.php`.
  *
- * The schema file itself is a flat `$keys` array — every legitimate W3TC
+ * The schema file itself is a flat `$w3tc_keys` array — every legitimate W3TC
  * configuration key, with its declared type, default value, and (since the
  * import-allowlist pass) optional `flags` map. Treat the file as the
  * source of truth: any inbound write that originates from user input MUST
@@ -44,7 +44,7 @@ namespace W3TC;
  * `read_request()`, the dbcluster-save handler, and the overloaded
  * toggle endpoints — where the trust changes.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class ConfigKeysSchema {
 	/**
@@ -58,21 +58,21 @@ class ConfigKeysSchema {
 	/**
 	 * Returns the full configuration-key schema.
 	 *
-	 * Loaded from `ConfigKeys.php` (which defines a flat `$keys` array)
+	 * Loaded from `ConfigKeys.php` (which defines a flat `$w3tc_keys` array)
 	 * once per request. The result is identical to the legacy
-	 * `include W3TC_DIR . '/ConfigKeys.php'; // defines $keys` pattern
+	 * `include W3TC_DIR . '/ConfigKeys.php'; // defines $w3tc_keys` pattern
 	 * used in `read_request()` and elsewhere — callers can replace
 	 * scattered `include`s with a single call here.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array<string,array>
 	 */
 	public static function get_keys() {
 		if ( null === self::$cache ) {
-			$keys = array();
+			$w3tc_keys = array();
 			include __DIR__ . '/ConfigKeys.php';
-			self::$cache = \is_array( $keys ) ? $keys : array();
+			self::$cache = \is_array( $w3tc_keys ) ? $w3tc_keys : array();
 		}
 
 		return self::$cache;
@@ -109,24 +109,24 @@ class ConfigKeysSchema {
 	 * with a `_Plugin_Admin::w3tc_extensions` callback are admitted
 	 * automatically.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string|array $key Single-string or [parent, child] compound key.
+	 * @param string|array $w3tc_key Single-string or [parent, child] compound key.
 	 *
 	 * @return bool
 	 */
-	public static function is_known( $key ) {
-		if ( \is_array( $key ) ) {
+	public static function is_known( $w3tc_key ) {
+		if ( \is_array( $w3tc_key ) ) {
 			return true;
 		}
 
-		if ( ! \is_string( $key ) || '' === $key ) {
+		if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key ) {
 			return false;
 		}
 
-		$keys = self::get_keys();
+		$w3tc_keys = self::get_keys();
 
-		if ( \array_key_exists( $key, $keys ) ) {
+		if ( \array_key_exists( $w3tc_key, $w3tc_keys ) ) {
 			return true;
 		}
 
@@ -134,8 +134,8 @@ class ConfigKeysSchema {
 		 * Extension-prefix branch: `extension.<id>` (enable flag) and
 		 * `extension.<id>.<...>` (per-extension settings).
 		 */
-		if ( 0 === \strpos( $key, 'extension.' ) ) {
-			$rest = \substr( $key, \strlen( 'extension.' ) );
+		if ( 0 === \strpos( $w3tc_key, 'extension.' ) ) {
+			$rest = \substr( $w3tc_key, \strlen( 'extension.' ) );
 			if ( '' === $rest ) {
 				return false;
 			}
@@ -159,7 +159,7 @@ class ConfigKeysSchema {
 	 * through to "unknown" in that case, which is the same behaviour as
 	 * before this widening, so nothing that worked before regresses.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $id Candidate extension id.
 	 *
@@ -174,9 +174,9 @@ class ConfigKeysSchema {
 			self::$extension_ids = array();
 
 			if ( \class_exists( '\W3TC\Dispatcher' ) && \class_exists( '\W3TC\Extensions_Util' ) ) {
-				$config = Dispatcher::config();
-				if ( null !== $config ) {
-					$all = Extensions_Util::get_extensions( $config );
+				$w3tc_config = Dispatcher::config();
+				if ( null !== $w3tc_config ) {
+					$all = Extensions_Util::get_extensions( $w3tc_config );
 					if ( \is_array( $all ) ) {
 						foreach ( $all as $registered_id => $_meta ) {
 							if ( \is_string( $registered_id ) && '' !== $registered_id ) {
@@ -194,18 +194,18 @@ class ConfigKeysSchema {
 	/**
 	 * Returns the descriptor for a key, or null if not present.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string|array $key Single-string or [parent, child] compound key.
+	 * @param string|array $w3tc_key Single-string or [parent, child] compound key.
 	 *
 	 * @return array|null
 	 */
-	public static function descriptor( $key ) {
-		if ( ! self::is_known( $key ) || \is_array( $key ) ) {
+	public static function descriptor( $w3tc_key ) {
+		if ( ! self::is_known( $w3tc_key ) || \is_array( $w3tc_key ) ) {
 			return null;
 		}
 
-		$keys = self::get_keys();
+		$w3tc_keys = self::get_keys();
 
 		/**
 		 * `is_known()` returns true for `extension.<id>...` prefix keys
@@ -215,7 +215,7 @@ class ConfigKeysSchema {
 		 * treat a null descriptor as "no static schema entry — pass the
 		 * value through unchanged".
 		 */
-		return \array_key_exists( $key, $keys ) ? $keys[ $key ] : null;
+		return \array_key_exists( $w3tc_key, $w3tc_keys ) ? $w3tc_keys[ $w3tc_key ] : null;
 	}
 
 	/**
@@ -234,14 +234,14 @@ class ConfigKeysSchema {
 	 * The legitimate way to change these keys is through their dedicated
 	 * UI page, where the page-specific validator runs.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string|array $key Single-string or [parent, child] compound key.
+	 * @param string|array $w3tc_key Single-string or [parent, child] compound key.
 	 *
 	 * @return bool
 	 */
-	public static function can_import( $key ) {
-		if ( \is_array( $key ) ) {
+	public static function can_import( $w3tc_key ) {
+		if ( \is_array( $w3tc_key ) ) {
 			/**
 			 * Compound (extension) keys are not part of the bulk-import
 			 * blob; importers shouldn't reach this branch with one.
@@ -253,12 +253,12 @@ class ConfigKeysSchema {
 		 * An unknown key cannot be imported regardless of descriptor
 		 * presence.
 		 */
-		if ( ! self::is_known( $key ) ) {
+		if ( ! self::is_known( $w3tc_key ) ) {
 			return false;
 		}
 
-		$descriptor = self::descriptor( $key );
-		if ( null === $descriptor ) {
+		$w3tc_descriptor = self::descriptor( $w3tc_key );
+		if ( null === $w3tc_descriptor ) {
 			/**
 			 * `is_known()` returned true but no static descriptor exists.
 			 * The only path to that combination today is the
@@ -272,8 +272,8 @@ class ConfigKeysSchema {
 			return true;
 		}
 
-		if ( isset( $descriptor['flags'] ) && \is_array( $descriptor['flags'] ) ) {
-			if ( ! empty( $descriptor['flags']['no_import'] ) ) {
+		if ( isset( $w3tc_descriptor['flags'] ) && \is_array( $w3tc_descriptor['flags'] ) ) {
+			if ( ! empty( $w3tc_descriptor['flags']['no_import'] ) ) {
 				return false;
 			}
 		}
@@ -297,16 +297,16 @@ class ConfigKeysSchema {
 	 * already validated the key against the allowlist, so this should
 	 * never happen with a well-formed schema).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param mixed $value      Raw value (request or imported JSON).
-	 * @param array $descriptor Descriptor as returned by `descriptor()`.
+	 * @param mixed $w3tc_value      Raw value (request or imported JSON).
+	 * @param array $w3tc_descriptor Descriptor as returned by `descriptor()`.
 	 *
 	 * @return mixed Coerced value.
 	 */
-	public static function coerce( $value, $descriptor ) {
-		if ( ! \is_array( $descriptor ) || ! isset( $descriptor['type'] ) ) {
-			return $value;
+	public static function coerce( $w3tc_value, $w3tc_descriptor ) {
+		if ( ! \is_array( $w3tc_descriptor ) || ! isset( $w3tc_descriptor['type'] ) ) {
+			return $w3tc_value;
 		}
 
 		/**
@@ -316,10 +316,10 @@ class ConfigKeysSchema {
 		 * `__toString`, so an unexpected object value would otherwise
 		 * become a fatal instead of a silent drop.
 		 */
-		$is_object = \is_object( $value );
-		$is_array  = \is_array( $value );
+		$is_object = \is_object( $w3tc_value );
+		$is_array  = \is_array( $w3tc_value );
 
-		switch ( $descriptor['type'] ) {
+		switch ( $w3tc_descriptor['type'] ) {
 			case 'boolean':
 				/**
 				 * Boolean keys accept only scalars. `(bool) ['x'=>1]`
@@ -329,22 +329,22 @@ class ConfigKeysSchema {
 				if ( $is_object || $is_array ) {
 					return false;
 				}
-				return (bool) $value;
+				return (bool) $w3tc_value;
 
 			case 'integer':
 				if ( $is_object || $is_array ) {
 					return 0;
 				}
-				return (int) $value;
+				return (int) $w3tc_value;
 
 			case 'string':
-				return \is_scalar( $value ) ? (string) $value : '';
+				return \is_scalar( $w3tc_value ) ? (string) $w3tc_value : '';
 
 			case 'array':
-				return $is_array ? $value : array();
+				return $is_array ? $w3tc_value : array();
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -368,22 +368,22 @@ class ConfigKeysSchema {
 	 * never reach this handler, so admitting them would only widen the
 	 * attack surface without enabling any legitimate flow.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $key Candidate state key.
+	 * @param string $w3tc_key Candidate state key.
 	 *
 	 * @return bool
 	 */
-	public static function is_known_state_key( $key ) {
-		if ( ! \is_string( $key ) || '' === $key ) {
+	public static function is_known_state_key( $w3tc_key ) {
+		if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key ) {
 			return false;
 		}
 
-		if ( 1 !== \preg_match( '/^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){1,3}$/', $key ) ) {
+		if ( 1 !== \preg_match( '/^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){1,3}$/', $w3tc_key ) ) {
 			return false;
 		}
 
-		return false !== \strpos( $key, 'hide_note' )
-			|| false !== \strpos( $key, 'show_note' );
+		return false !== \strpos( $w3tc_key, 'hide_note' )
+			|| false !== \strpos( $w3tc_key, 'show_note' );
 	}
 }

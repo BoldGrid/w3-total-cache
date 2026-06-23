@@ -28,7 +28,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -38,7 +38,7 @@ use W3TC\Root_AdminActions;
 /**
  * Class: W3tc_Root_Adminactions_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 
@@ -47,7 +47,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * coverage of the prefix-match logic without needing `execute()` to
 	 * actually run a handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param Root_AdminActions $instance Dispatcher under test.
 	 * @param string            $action   Action string to resolve.
@@ -66,7 +66,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * class. This pins the post-filter shape against accidental regression in
 	 * a refactor that swaps two entries.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_shipped_prefixes_resolve_to_documented_classes() {
 		$instance = new Root_AdminActions();
@@ -99,7 +99,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * Google Drive handler, not the bare `cdn` handler. A bug here would
 	 * mean a request intended for one handler routes into another.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_longest_prefix_wins() {
 		$instance = new Root_AdminActions();
@@ -120,7 +120,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * `w3tc_save_<prefix>` and `w3tc_<prefix>` both route to the same handler.
 	 * Pin the save-shape so we don't accidentally drop the alias.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_save_prefix_alias() {
 		$instance = new Root_AdminActions();
@@ -141,7 +141,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * `w3tc_default_*`. Removing this branch would break the save-options
 	 * form for everyone.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_save_options_short_circuit() {
 		$instance = new Root_AdminActions();
@@ -157,7 +157,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * false. Without this, a fabricated action would silently flow through
 	 * the dispatcher into a possibly-existing method on a non-target handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_unknown_action_does_not_exist() {
 		$instance = new Root_AdminActions();
@@ -177,13 +177,43 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Prefix-only stubs must not be treated as dispatchable actions even though
+	 * `exists()` matches them — otherwise a stray `w3tc_flush` query key on a
+	 * dashboard GET trips the nonce gate and the page dies with
+	 * `wp_nonce_ays()`.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_prefix_only_stubs_are_not_dispatchable() {
+		$instance = new Root_AdminActions();
+
+		foreach ( array( 'w3tc_flush', 'w3tc_cdn', 'w3tc_config', 'w3tc_default' ) as $action ) {
+			$this->assertTrue( $instance->exists( $action ), $action . ' should still match exists().' );
+			$this->assertFalse( $instance->is_dispatchable( $action ), $action . ' must not be dispatchable.' );
+		}
+	}
+
+	/**
+	 * Real handler methods are dispatchable.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_real_actions_are_dispatchable() {
+		$instance = new Root_AdminActions();
+
+		$this->assertTrue( $instance->is_dispatchable( 'w3tc_flush_all' ) );
+		$this->assertTrue( $instance->is_dispatchable( 'w3tc_default_hide_note' ) );
+		$this->assertFalse( $instance->is_dispatchable( 'w3tc_totally_made_up' ) );
+	}
+
+	/**
 	 * `execute()` raises an Exception for an action whose handler class
 	 * exists but does not define the requested method. The caller
 	 * (`Generic_Plugin_Admin::load`) converts the exception into a
 	 * `redirect_with_custom_messages` admin notice — we just need to confirm
 	 * the dispatcher does not silently no-op on unknown methods.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_execute_throws_for_unknown_method_on_known_handler() {
 		$instance = new Root_AdminActions();
@@ -217,7 +247,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	 * prefix and have it dispatched. We don't test the destructive path
 	 * because removing shipped handlers is an out-of-contract use.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_filter_can_add_new_prefix() {
 		$callback = static function ( $handlers ) {

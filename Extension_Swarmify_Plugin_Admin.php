@@ -17,11 +17,11 @@ class Extension_Swarmify_Plugin_Admin {
 	 * Adds Swarmify extension details to the extensions list.
 	 *
 	 * @param array  $extensions Array of current extensions to which Swarmify details will be added.
-	 * @param object $config     Configuration object.
+	 * @param object $w3tc_config     Configuration object.
 	 *
 	 * @return array Updated array of extensions with Swarmify details.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$extensions['swarmify'] = array(
 			'name'                        => 'Swarmify',
 			'author'                      => 'W3 EDGE',
@@ -78,15 +78,15 @@ class Extension_Swarmify_Plugin_Admin {
 	/**
 	 * Saves the Swarmify configuration to the settings.
 	 *
-	 * @param object $config Configuration object to be saved.
+	 * @param object $w3tc_config Configuration object to be saved.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_save( $config ) {
+	public function w3tc_config_save( $w3tc_config ) {
 		// frontend activity.
-		$api_key   = $config->get_string( array( 'swarmify', 'api_key' ) );
+		$api_key   = $w3tc_config->get_string( array( 'swarmify', 'api_key' ) );
 		$is_filled = ! empty( $api_key );
 
-		$config->set_extension_active_frontend( 'swarmify', $is_filled );
+		$w3tc_config->set_extension_active_frontend( 'swarmify', $is_filled );
 	}
 }

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,8 +15,8 @@ if ( ! defined( 'W3TC' ) ) {
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <?php
-$page_cache_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/page-caching/';
-$page_cache_learn_more_link     = static function ( $anchor, $setting_label ) use ( $page_cache_doc_url ) {
+$w3tc_page_cache_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/page-caching/';
+$w3tc_page_cache_learn_more_link     = static function ( $anchor, $setting_label ) use ( $w3tc_page_cache_doc_url ) {
 	if ( empty( $anchor ) || empty( $setting_label ) ) {
 		return '';
 	}
@@ -26,28 +27,28 @@ $page_cache_learn_more_link     = static function ( $anchor, $setting_label ) us
 		$setting_label
 	);
 
-	return ' <a target="_blank" href="' . esc_url( $page_cache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+	return ' <a target="_blank" href="' . esc_url( $w3tc_page_cache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
 };
-$page_cache_label_text          = static function ( $config_key ) {
-	$label = Util_Ui::config_label( $config_key );
+$w3tc_page_cache_label_text          = static function ( $config_key ) {
+	$w3tc_label = Util_Ui::config_label( $config_key );
 
-	return $label ? wp_strip_all_tags( $label ) : '';
+	return $w3tc_label ? wp_strip_all_tags( $w3tc_label ) : '';
 };
-$page_cache_setting_learn_more  = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $page_cache_learn_more_link, $page_cache_label_text ) {
-	$label = $custom_label;
+$w3tc_page_cache_setting_learn_more  = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $w3tc_page_cache_learn_more_link, $w3tc_page_cache_label_text ) {
+	$w3tc_label = $custom_label;
 
-	if ( ! $label && $config_key ) {
-		$label = $page_cache_label_text( $config_key );
+	if ( ! $w3tc_label && $config_key ) {
+		$w3tc_label = $w3tc_page_cache_label_text( $config_key );
 	}
 
-	if ( ! $label ) {
+	if ( ! $w3tc_label ) {
 		return '';
 	}
 
-	return $page_cache_learn_more_link( $anchor, $label );
+	return $w3tc_page_cache_learn_more_link( $anchor, $w3tc_label );
 };
-$page_cache_home_anchor         = ( 'posts' === get_option( 'show_on_front' ) ) ? 'cache-front-page' : 'cache-posts-page';
-$page_cache_anchor_allowed_tags = array(
+$w3tc_page_cache_home_anchor         = ( 'posts' === get_option( 'show_on_front' ) ) ? 'cache-front-page' : 'cache-posts-page';
+$w3tc_page_cache_anchor_allowed_tags = array(
 	'a'    => array(
 		'class'  => array(),
 		'href'   => array(),
@@ -58,8 +59,8 @@ $page_cache_anchor_allowed_tags = array(
 		'class' => array(),
 	),
 );
-$page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $page_cache_setting_learn_more ) {
-	return $page_cache_setting_learn_more( $anchor, $config_key, $custom_label );
+$w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $w3tc_page_cache_setting_learn_more ) {
+	return $w3tc_page_cache_setting_learn_more( $anchor, $config_key, $custom_label );
 };
 ?>
 
@@ -87,11 +88,11 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 
 <p>
 	<?php
-	$alwayscached_enabled = Extension_AlwaysCached_Plugin::is_enabled();
-	$status_class         = $alwayscached_enabled ? 'w3tc-enabled' : 'w3tc-disabled';
-	$status_label         = $alwayscached_enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' );
-	$manage_label         = $alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
-	$manage_link          = $alwayscached_enabled ? Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) : Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' );
+	$w3tc_alwayscached_enabled = Extension_AlwaysCached_Plugin::is_enabled();
+	$w3tc_status_class         = $w3tc_alwayscached_enabled ? 'w3tc-enabled' : 'w3tc-disabled';
+	$w3tc_status_label         = $w3tc_alwayscached_enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' );
+	$w3tc_manage_label         = $w3tc_alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
+	$w3tc_manage_link          = $w3tc_alwayscached_enabled ? Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) : Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' );
 	echo wp_kses(
 		sprintf(
 			// translators: 1 HTML span tag containing Always Cached extension enabled/disabled, 2 manage queue label, 3 HTML a tag to enable feature or manage settings.
@@ -99,9 +100,9 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 				'Always Cached extension is currently %1$s. %2$s %3$s.',
 				'w3-total-cache'
 			),
-			'<span class="' . $status_class . '">' . $status_label . '</span>',
-			$manage_label,
-			'<a href="' . esc_url( $manage_link ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+			'<span class="' . $w3tc_status_class . '">' . $w3tc_status_label . '</span>',
+			$w3tc_manage_label,
+			'<a href="' . esc_url( $w3tc_manage_link ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 		),
 		array(
 			'span' => array(
@@ -125,7 +126,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.cache.home' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.home' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'For many blogs this is your most visited page, it is recommended that you cache it.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( $page_cache_home_anchor, 'pgcache.cache.home' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( $w3tc_page_cache_home_anchor, 'pgcache.cache.home' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -135,7 +136,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						<?php $this->checkbox( 'pgcache.reject.front_page' ); ?> <?php Util_Ui::e_config_label( 'pgcache.reject.front_page' ); ?></label>
 						<p class="description">
 							<?php esc_html_e( 'By default the front page is cached when using static front page in reading settings.', 'w3-total-cache' ); ?>
-							<?php echo wp_kses( $page_cache_learn_more_output( 'dont-cache-front-page', 'pgcache.reject.front_page' ), $page_cache_anchor_allowed_tags ); ?>
+							<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'dont-cache-front-page', 'pgcache.reject.front_page' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 						</p>
 					</th>
 				</tr>
@@ -145,7 +146,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.cache.feed' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.feed' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'cache-feeds-site-categories-tags-comments', 'pgcache.cache.feed' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'cache-feeds-site-categories-tags-comments', 'pgcache.cache.feed' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -172,7 +173,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 								)
 							);
 							?>
-							<?php echo wp_kses( $page_cache_learn_more_output( 'handle-xml-mime-type', 'pgcache.cache.nginx_handle_xml' ), $page_cache_anchor_allowed_tags ); ?>
+							<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'handle-xml-mime-type', 'pgcache.cache.nginx_handle_xml' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 						</p>
 					</th>
 				</tr>
@@ -199,7 +200,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'cache-ssl-https-requests', 'pgcache.cache.ssl' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'cache-ssl-https-requests', 'pgcache.cache.ssl' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -217,7 +218,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php Util_Ui::e_config_label( 'pgcache.cache.query', 'settings' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Search result (and similar) pages will be cached if enabled.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'cache-uris-with-query-string-variables', 'pgcache.cache.query' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'cache-uris-with-query-string-variables', 'pgcache.cache.query' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -226,7 +227,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.cache.404' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.404' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Reduce server load by caching 404 pages. If the disk enhanced method of disk caching is used, 404 pages will be returned with a 200 response code. Use at your own risk.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'cache-404-not-found-pages', 'pgcache.cache.404' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'cache-404-not-found-pages', 'pgcache.cache.404' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -235,7 +236,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.reject.logged' ); ?> <?php Util_Ui::e_config_label( 'pgcache.reject.logged' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Unauthenticated users may view a cached version of the last authenticated user\'s view of a given page. Disabling this option is not recommended.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'dont-cache-pages-for-logged-in-users', 'pgcache.reject.logged' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'dont-cache-pages-for-logged-in-users', 'pgcache.reject.logged' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -244,15 +245,15 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.reject.logged_roles' ); ?> <?php Util_Ui::e_config_label( 'pgcache.reject.logged_roles' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Select user roles that should not receive cached pages:', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'dont-cache-pages-for-the-following-user-roles', 'pgcache.reject.logged_roles' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'dont-cache-pages-for-the-following-user-roles', 'pgcache.reject.logged_roles' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 
 					<div id="pgcache_reject_roles" class="w3tc_reject_roles">
-						<?php $saved_roles = $this->_config->get_array( 'pgcache.reject.roles' ); ?>
+						<?php $w3tc_saved_roles = $this->_config->get_array( 'pgcache.reject.roles' ); ?>
 						<input type="hidden" name="pgcache__reject__roles" value="" /><br />
-						<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-							<input type="checkbox" name="pgcache__reject__roles[]" value="<?php echo esc_attr( $role_name ); ?>" <?php checked( in_array( $role_name, $saved_roles, true ) ); ?> id="role_<?php echo esc_attr( $role_name ); ?>" />
-							<label for="role_<?php echo esc_attr( $role_name ); ?>"><?php echo esc_html( $role_data['name'] ); ?></label>
+						<?php foreach ( get_editable_roles() as $w3tc_role_name => $w3tc_role_data ) : ?>
+							<input type="checkbox" name="pgcache__reject__roles[]" value="<?php echo esc_attr( $w3tc_role_name ); ?>" <?php checked( in_array( $w3tc_role_name, $w3tc_saved_roles, true ) ); ?> id="role_<?php echo esc_attr( $w3tc_role_name ); ?>" />
+							<label for="role_<?php echo esc_attr( $w3tc_role_name ); ?>"><?php echo esc_html( $w3tc_role_data['name'] ); ?></label>
 						<?php endforeach; ?>
 					</div>
 				</th>
@@ -278,9 +279,9 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 								'If the same WordPress content is accessed from different domains. %1$s',
 								'w3-total-cache'
 							),
-							$page_cache_learn_more_output( 'cache-alias-hostnames', 'pgcache.mirrors.enabled' )
+							$w3tc_page_cache_learn_more_output( 'cache-alias-hostnames', 'pgcache.mirrors.enabled' )
 						),
-						$page_cache_anchor_allowed_tags
+						$w3tc_page_cache_anchor_allowed_tags
 					),
 				)
 			);
@@ -303,7 +304,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							'<br />',
 							'<br />',
 							'<br />',
-							$page_cache_learn_more_output( 'additional-home-urls', 'pgcache.mirrors.home_urls' )
+							$w3tc_page_cache_learn_more_output( 'additional-home-urls', 'pgcache.mirrors.home_urls' )
 						),
 						array_merge(
 							array(
@@ -312,7 +313,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 								),
 								'br'      => array(),
 							),
-							$page_cache_anchor_allowed_tags
+							$w3tc_page_cache_anchor_allowed_tags
 						)
 					),
 				)
@@ -329,7 +330,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.prime.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.enabled' ); ?></label><br />
 					<p class="description">
 						<?php esc_html_e( 'Automatically primes the page cache using the settings configured below.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'automatic-priming-of-the-page-cache', 'pgcache.prime.enabled' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'automatic-priming-of-the-page-cache', 'pgcache.prime.enabled' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -343,7 +344,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						value="<?php echo esc_attr( $this->_config->get_integer( 'pgcache.prime.interval' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'The number of seconds to wait before creating another set of cached pages.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'update-interval', 'pgcache.prime.interval' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'update-interval', 'pgcache.prime.interval' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -357,7 +358,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						value="<?php echo esc_attr( $this->_config->get_integer( 'pgcache.prime.limit' ) ); ?>" size="8" />
 					<p class="description">
 						<?php esc_html_e( 'Limit the number of pages to create per batch. Fewer pages may be better for under-powered servers.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'pages-per-interval', 'pgcache.prime.limit' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'pages-per-interval', 'pgcache.prime.limit' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -395,7 +396,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'sitemap-url', 'pgcache.prime.sitemap' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'sitemap-url', 'pgcache.prime.sitemap' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -404,7 +405,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Only applies to pages, posts, and custom post types whose status transitioned from a non-published status to the "published" status.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'preload-the-post-cache-upon-publishing-events', 'pgcache.prime.post.enabled' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'preload-the-post-cache-upon-publishing-events', 'pgcache.prime.post.enabled' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -413,7 +414,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<?php $this->checkbox( 'pgcache.prime.post.update.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.update.enabled' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Applies after updating any page, post, or custom post type with the final status being "published".', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'preload-the-post-cache-upon-publishing-events', 'pgcache.prime.post.update.enabled' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'preload-the-post-cache-upon-publishing-events', 'pgcache.prime.post.update.enabled' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -422,24 +423,24 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		$modules = array();
+		$w3tc_modules = array();
 		if ( $pgcache_enabled ) {
-			$modules[] = 'Page Cache';
+			$w3tc_modules[] = 'Page Cache';
 		}
 		if ( $varnish_enabled ) {
-			$modules [] = 'Reverse Proxy';
+			$w3tc_modules [] = 'Reverse Proxy';
 		}
-		if ( $cdnfsd_enabled ) {
-			$modules[] = 'CDN';
+		if ( $w3tc_cdnfsd_enabled ) {
+			$w3tc_modules[] = 'CDN';
 		}
-		Util_Ui::postbox_header( esc_html__( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', ', $modules ), '', 'purge_policy' );
+		Util_Ui::postbox_header( esc_html__( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', ', $w3tc_modules ), '', 'purge_policy' );
 		?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
 					<p class="description">
 						<?php esc_html_e( 'Specify the pages and feeds to purge when posts are created, edited, or comments posted. The defaults are recommended because additional options may reduce server performance:', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'specify-pages-and-feeds-to-purge', '', esc_html__( 'Specify pages and feeds to purge', 'w3-total-cache' ) ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'specify-pages-and-feeds-to-purge', '', esc_html__( 'Specify pages and feeds to purge', 'w3-total-cache' ) ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 					<table border="0" cellpadding="0" cellspacing="0">
 						<tr>
@@ -476,18 +477,18 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<label for="pgcache_purge_feed_types"><?php Util_Ui::e_config_label( 'pgcache.purge.feed.types' ); ?></label><br />
 					<p class="description">
 						<?php esc_html_e( 'Choose which feed types should be automatically purged.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'specify-the-feed-types-to-purge', 'pgcache.purge.feed.types' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'specify-the-feed-types-to-purge', 'pgcache.purge.feed.types' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 					<input type="hidden" name="pgcache__purge__feed__types" value="" />
-					<?php foreach ( $feeds as $feed ) : ?>
+					<?php foreach ( $feeds as $w3tc_feed ) : ?>
 						<label>
 							<input type="checkbox" name="pgcache__purge__feed__types[]"
-								value="<?php echo esc_attr( $feed ); ?>"
-								<?php checked( in_array( $feed, $this->_config->get_array( 'pgcache.purge.feed.types' ), true ), true ); ?>
+								value="<?php echo esc_attr( $w3tc_feed ); ?>"
+								<?php checked( in_array( $w3tc_feed, $this->_config->get_array( 'pgcache.purge.feed.types' ), true ), true ); ?>
 								<?php Util_Ui::sealing_disabled( 'pgcache.' ); ?>
 								/>
-						<?php echo esc_html( $feed ); ?>
-						<?php echo $feed === $default_feed ? '(default)' : ''; ?></label><br />
+						<?php echo esc_html( $w3tc_feed ); ?>
+						<?php echo $w3tc_feed === $default_feed ? '(default)' : ''; ?></label><br />
 					<?php endforeach; ?>
 				</th>
 			</tr>
@@ -513,7 +514,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'purge-limit', 'pgcache.purge.postpages_limit' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'purge-limit', 'pgcache.purge.postpages_limit' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -527,7 +528,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.purge.pages' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Specify additional pages to purge. Including parent page in path. Ex: parent/posts.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'additional-pages', 'pgcache.purge.pages' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'additional-pages', 'pgcache.purge.pages' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -539,7 +540,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<input id="pgcache_purge_sitemap_regex" name="pgcache__purge__sitemap_regex" <?php Util_Ui::sealing_disabled( 'pgcache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ); ?>" type="text" />
 					<p class="description">
 						<?php esc_html_e( 'Specify a regular expression that matches your sitemaps.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'purge-sitemaps', 'pgcache.purge.sitemap_regex' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'purge-sitemaps', 'pgcache.purge.sitemap_regex' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -593,7 +594,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					),
 				)
 			);
-			echo wp_kses( $page_cache_learn_more_output( 'rest-api', '', esc_html__( 'REST API', 'w3-total-cache' ) ), $page_cache_anchor_allowed_tags );
+			echo wp_kses( $w3tc_page_cache_learn_more_output( 'rest-api', '', esc_html__( 'REST API', 'w3-total-cache' ) ), $w3tc_page_cache_anchor_allowed_tags );
 			?>
 		</p>
 
@@ -661,7 +662,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<label><input id="pgcache_late_init" type="checkbox" name="pgcache__late_init" value="1"<?php checked( 'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) && $this->_config->get_boolean( 'pgcache.late_init' ) ); ?> <?php disabled( $this->_config->get_string( 'pgcache.engine' ), 'file_generic' ); ?> /> <?php esc_html_e( 'Enable', 'w3-total-cache' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Enables support for WordPress functionality in fragment caching for the page caching engine. Use of this feature may increase response times.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'late-initialization', '', esc_html__( 'Late initialization', 'w3-total-cache' ) ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'late-initialization', '', esc_html__( 'Late initialization', 'w3-total-cache' ) ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -674,16 +675,16 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					<label><input id="pgcache_late_caching" type="checkbox" name="pgcache__late_caching" value="1"<?php checked( 'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) && $this->_config->get_boolean( 'pgcache.late_caching' ) ); ?> <?php disabled( $this->_config->get_string( 'pgcache.engine' ), 'file_generic' ); ?> /> <?php esc_html_e( 'Enable', 'w3-total-cache' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Overwrites key of page caching via custom filters by postponing entry extraction during the init action.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'late-caching', '', esc_html__( 'Late caching', 'w3-total-cache' ) ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'late-caching', '', esc_html__( 'Late caching', 'w3-total-cache' ) ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'pgcache.engine' ) || 'nginx_memcached' === $this->_config->get_string( 'pgcache.engine' ) ) {
-				$module = 'pgcache';
+				$w3tc_module = 'pgcache';
 				include W3TC_INC_DIR . '/options/parts/memcached.php';
 			} elseif ( 'redis' === $this->_config->get_string( 'pgcache.engine' ) ) {
-				$module = 'pgcache';
+				$w3tc_module = 'pgcache';
 				include W3TC_INC_DIR . '/options/parts/redis.php';
 			}
 			?>
@@ -696,7 +697,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						<?php $this->checkbox( 'pgcache.compatibility' ); ?> <?php Util_Ui::e_config_label( 'pgcache.compatibility' ); ?></label>
 						<p class="description">
 							<?php esc_html_e( 'Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. Enable this option if you experience issues with the Apache rules.', 'w3-total-cache' ); ?>
-							<?php echo wp_kses( $page_cache_learn_more_output( 'compatibility-mode', 'pgcache.compatibility' ), $page_cache_anchor_allowed_tags ); ?>
+							<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'compatibility-mode', 'pgcache.compatibility' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 						</p>
 					</td>
 				</tr>
@@ -709,7 +710,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							<?php $this->checkbox( 'pgcache.remove_charset' ); ?> <?php Util_Ui::e_config_label( 'pgcache.remove_charset' ); ?></label>
 							<p class="description">
 								<?php esc_html_e( 'Resolve issues incorrect odd character encoding that may appear in cached pages.', 'w3-total-cache' ); ?>
-								<?php echo wp_kses( $page_cache_learn_more_output( 'charset', 'pgcache.remove_charset' ), $page_cache_anchor_allowed_tags ); ?>
+								<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'charset', 'pgcache.remove_charset' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 							</p>
 						</td>
 					</tr>
@@ -745,7 +746,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 								)
 							);
 							?>
-							<?php echo wp_kses( $page_cache_learn_more_output( 'reject-head-requests', 'pgcache.reject.request_head' ), $page_cache_anchor_allowed_tags ); ?>
+							<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'reject-head-requests', 'pgcache.reject.request_head' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 						</p>
 					</td>
 				</tr>
@@ -784,7 +785,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						value="<?php echo esc_attr( $this->_config->get_integer( 'pgcache.file.gc' ) ); ?>" size="8"<?php echo ( 'file' !== $this->_config->get_string( 'pgcache.engine' ) && 'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ) ? ' disabled="disabled"' : ''; ?> /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'garbage-collection-interval', 'pgcache.file.gc' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'garbage-collection-interval', 'pgcache.file.gc' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -816,7 +817,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'comment-cookies', 'pgcache.comment_cookie_ttl' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'comment-cookies', 'pgcache.comment_cookie_ttl' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -848,7 +849,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							)
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'accepted-query-strings', 'pgcache.accept.qs' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'accepted-query-strings', 'pgcache.accept.qs' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -862,7 +863,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.ua' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Never send cache pages for these user agents.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'rejected-user-agents', 'pgcache.reject.ua' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'rejected-user-agents', 'pgcache.reject.ua' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -876,7 +877,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.cookie' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Never cache pages that use the specified cookies.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'rejected-cookies', 'pgcache.reject.cookie' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'rejected-cookies', 'pgcache.reject.cookie' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -891,7 +892,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.uri' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore the specified pages / directories. Supports regular expressions.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'never-cache-the-following-pages', 'pgcache.reject.uri' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'never-cache-the-following-pages', 'pgcache.reject.uri' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -905,7 +906,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.categories' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore all pages filed under the specified category slugs.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.categories' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.categories' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -919,7 +920,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.tags' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore all pages filed under the specified tag slugs.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.tags' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.tags' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -933,7 +934,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.authors' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore all pages filed under the specified author usernames.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.authors' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.authors' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -947,7 +948,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.custom' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore all pages filed under the specified custom fields. Separate name-value pairs with an equals sign (i.e., name=value).', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.custom' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'never-cache-pages-associated-with-these-categories-tags-authors-or-custom-fields', 'pgcache.reject.custom' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -967,11 +968,11 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							'w3-total-cache'
 						);
 						?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'cache-exception-list', 'pgcache.accept.files' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'cache-exception-list', 'pgcache.accept.files' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
-			<?php if ( substr( $permalink_structure, -1 ) === '/' ) : ?>
+			<?php if ( substr( $w3tc_permalink_structure, -1 ) === '/' ) : ?>
 				<tr>
 					<th>
 						<label for="pgcache_accept_uri"><?php Util_Ui::e_config_label( 'pgcache.accept.uri' ); ?></label>
@@ -983,7 +984,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 							cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.uri' ) ) ); ?></textarea>
 						<p class="description">
 							<?php esc_html_e( 'Cache the specified pages even if they don\'t have trailing slash.', 'w3-total-cache' ); ?>
-							<?php echo wp_kses( $page_cache_learn_more_output( 'non-trailing-slash-pages', 'pgcache.accept.uri' ), $page_cache_anchor_allowed_tags ); ?>
+							<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'non-trailing-slash-pages', 'pgcache.accept.uri' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 						</p>
 					</td>
 				</tr>
@@ -998,7 +999,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						cols="40" rows="5"<?php echo 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ? ' disabled="disabled"' : ''; ?>><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.cache.headers' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Specify additional page headers to cache.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $page_cache_learn_more_output( 'specify-page-headers', 'pgcache.cache.headers' ), $page_cache_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_page_cache_learn_more_output( 'specify-page-headers', 'pgcache.cache.headers' ), $w3tc_page_cache_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1021,11 +1022,11 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 				</a>
 			</p>
 			<?php
-			$c           = Dispatcher::config();
-			$disabled    = ! $c->get_boolean( 'pgcache.enabled' );
-			$wp_disabled = ! $c->get_boolean( 'pgcache.wp_cron' );
+			$w3tc_c           = Dispatcher::config();
+			$w3tc_disabled    = ! $w3tc_c->get_boolean( 'pgcache.enabled' );
+			$w3tc_wp_disabled = ! $w3tc_c->get_boolean( 'pgcache.wp_cron' );
 
-			if ( $disabled ) {
+			if ( $w3tc_disabled ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
@@ -1054,17 +1055,17 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'disabled'       => $disabled,
+					'disabled'       => $w3tc_disabled,
 				)
 			);
 
-			$time_options = array();
-			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-					$time_label                  = $scheduled_time->format( 'g:i a' );
-					$time_options[ $time_value ] = $time_label;
+			$w3tc_time_options = array();
+			for ( $w3tc_hour = 0; $w3tc_hour < 24; $w3tc_hour++ ) {
+				foreach ( array( '00', '30' ) as $w3tc_minute ) {
+					$w3tc_time_value                       = $w3tc_hour * 60 + intval( $w3tc_minute );
+					$w3tc_scheduled_time                   = new \DateTime( "{$w3tc_hour}:{$w3tc_minute}", wp_timezone() );
+					$w3tc_time_label                       = $w3tc_scheduled_time->format( 'g:i a' );
+					$w3tc_time_options[ $w3tc_time_value ] = $w3tc_time_label;
 				}
 			}
 
@@ -1073,9 +1074,9 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 					'key'              => 'pgcache.wp_cron_time',
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
-					'selectbox_values' => $time_options,
+					'selectbox_values' => $w3tc_time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => $w3tc_disabled || $w3tc_wp_disabled,
 				)
 			);
 
@@ -1091,7 +1092,7 @@ $page_cache_learn_more_output   = static function ( $anchor, $config_key = '', $
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => $w3tc_disabled || $w3tc_wp_disabled,
 				)
 			);
 			?>

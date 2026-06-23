@@ -37,7 +37,7 @@ describe('UsageStatistics page render variants', function() {
 	after(sys.after);
 
 	it('?page=w3tc_stats renders without fatal error', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_stats',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_stats',
 			{waitUntil: 'domcontentloaded'});
 
 		// Wizard skip if present.
@@ -46,7 +46,7 @@ describe('UsageStatistics page render variants', function() {
 				adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
 				adminPage.waitForNavigation({timeout: 300000})
 			]);
-			await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_stats',
+			await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_stats',
 				{waitUntil: 'domcontentloaded'});
 		}
 
@@ -89,7 +89,7 @@ describe('UsageStatistics page render variants', function() {
 		 */
 		await w3tc.setOptionInternal(adminPage, 'stats.enabled', false);
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_stats',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_stats',
 			{waitUntil: 'domcontentloaded'});
 
 		let pageHtml = await adminPage.content();

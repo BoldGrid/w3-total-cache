@@ -7,11 +7,12 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Fragment Cache', 'w3-total-cache' ),
@@ -25,7 +26,7 @@ Util_Ui::postbox_header_tabs(
 	),
 	'',
 	'fragmentcache',
-	Util_Environment::is_w3tc_pro( $config ) ? Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' ) : ''
+	Util_Environment::is_w3tc_pro( $w3tc_config ) ? Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' ) : ''
 );
 
 ?>
@@ -45,18 +46,18 @@ Util_Ui::postbox_header_tabs(
 		</p>
 	</div>
 	<?php
-	$fragmentcache_config = array(
+	$w3tc_fragmentcache_config = array(
 		'key'         => array( 'fragmentcache', 'engine' ),
 		'label'       => __( 'Fragment Cache Method:', 'w3-total-cache' ),
 		'empty_value' => true,
 		'pro'         => true,
 	);
 
-	if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
-		$fragmentcache_config['disabled'] = true;
+	if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+		$w3tc_fragmentcache_config['disabled'] = true;
 	}
 
-	Util_Ui::config_item_engine( $fragmentcache_config );
+	Util_Ui::config_item_engine( $w3tc_fragmentcache_config );
 	?>
 </table>
 

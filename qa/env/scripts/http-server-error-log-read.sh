@@ -22,7 +22,8 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
 	grep -Fv 'favicon.ico' |\
 	grep -Fv 'Cron unschedule event error for hook' |\
 	grep -Ev 'Theme without (header|footer).php' |\
-	grep -Ev 'AH01630.*w3-total-cache/(pub|ini)'
+	grep -Ev 'AH01630.*w3-total-cache/(pub|ini)' |\
+	grep -v 'php-cli-tools/lib/cli/Colors.php'
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	cat "${W3D_WP_CONTENT_PATH}debug.log" |\
@@ -47,7 +48,8 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 		grep -Fv 'favicon.ico' |\
 		grep -Fv 'Cron unschedule event error for hook' |\
 		grep -Ev 'Theme without (header|footer).php' |\
-		grep -Ev 'AH01630.*w3-total-cache/(pub|ini)'
+		grep -Ev 'AH01630.*w3-total-cache/(pub|ini)' |\
+		grep -v 'php-cli-tools/lib/cli/Colors.php'
 fi
 # esc_attr in eval - pagecache/late-init test
 # in php7.0-fpm call stack is printed so should be eliminated

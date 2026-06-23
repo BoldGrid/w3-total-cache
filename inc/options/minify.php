@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,8 +15,8 @@ if ( ! defined( 'W3TC' ) ) {
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <?php
-$minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
-$minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $minify_doc_url ) {
+$w3tc_minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
+$w3tc_minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $w3tc_minify_doc_url ) {
 	if ( empty( $anchor ) || empty( $setting_label ) ) {
 		return '';
 	}
@@ -26,14 +27,14 @@ $minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( 
 		$setting_label
 	);
 
-	return ' <a target="_blank" href="' . esc_url( $minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+	return ' <a target="_blank" href="' . esc_url( $w3tc_minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
 };
-$minify_config_label_text   = static function ( $config_key ) {
-	$label = Util_Ui::config_label( $config_key );
+$w3tc_minify_config_label_text   = static function ( $config_key ) {
+	$w3tc_label = Util_Ui::config_label( $config_key );
 
-	return $label ? wp_strip_all_tags( $label ) : '';
+	return $w3tc_label ? wp_strip_all_tags( $w3tc_label ) : '';
 };
-$minify_anchor_allowed_tags = array(
+$w3tc_minify_anchor_allowed_tags = array(
 	'a'    => array(
 		'class'  => array(),
 		'href'   => array(),
@@ -44,27 +45,27 @@ $minify_anchor_allowed_tags = array(
 		'class' => array(),
 	),
 );
-$minify_learn_more_output   = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $minify_learn_more_link, $minify_config_label_text, $minify_anchor_allowed_tags ) {
-	$label = $custom_label;
+$w3tc_minify_learn_more_output   = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $w3tc_minify_learn_more_link, $w3tc_minify_config_label_text, $w3tc_minify_anchor_allowed_tags ) {
+	$w3tc_label = $custom_label;
 
-	if ( ! $label && $config_key ) {
-		$label = $minify_config_label_text( $config_key );
+	if ( ! $w3tc_label && $config_key ) {
+		$w3tc_label = $w3tc_minify_config_label_text( $config_key );
 	}
 
-	if ( empty( $label ) ) {
+	if ( empty( $w3tc_label ) ) {
 		return '';
 	}
 
-	return $minify_learn_more_link( $anchor, $label );
+	return $w3tc_minify_learn_more_link( $anchor, $w3tc_label );
 };
 ?>
 
 <script type="text/javascript">/*<![CDATA[*/
 	var minify_templates = {};
-	<?php foreach ( $templates as $theme_key => $theme_templates ) : ?>
-		minify_templates['<?php echo esc_html( addslashes( $theme_key ) ); ?>'] = {};
-		<?php foreach ( $theme_templates as $theme_template_key => $theme_template_name ) : ?>
-			minify_templates['<?php echo esc_html( addslashes( $theme_key ) ); ?>']['<?php echo esc_html( addslashes( $theme_template_key ) ); ?>'] = '<?php echo esc_html( addslashes( $theme_template_name ) ); ?>';
+	<?php foreach ( $w3tc_templates as $w3tc_theme_key => $w3tc_theme_templates ) : ?>
+		minify_templates['<?php echo esc_html( addslashes( $w3tc_theme_key ) ); ?>'] = {};
+		<?php foreach ( $w3tc_theme_templates as $w3tc_theme_template_key => $w3tc_theme_template_name ) : ?>
+			minify_templates['<?php echo esc_html( addslashes( $w3tc_theme_key ) ); ?>']['<?php echo esc_html( addslashes( $w3tc_theme_template_key ) ); ?>'] = '<?php echo esc_html( addslashes( $w3tc_theme_template_name ) ); ?>';
 		<?php endforeach; ?>
 	<?php endforeach; ?>
 /*]]>*/</script>
@@ -93,7 +94,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 	<p>
 		<?php if ( ! $auto ) : ?>
 			<?php esc_html_e( 'Get minify hints using the', 'w3-total-cache' ); ?>
-			<input type="button" class="button button-minify-recommendations {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" value="<?php esc_attr_e( 'help', 'w3-total-cache' ); ?>" />
+			<input type="button" class="button button-minify-recommendations {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_test_minify_recommendations' ) ); ?>'}" value="<?php esc_attr_e( 'help', 'w3-total-cache' ); ?>" />
 			<?php esc_html_e( 'wizard.', 'w3-total-cache' ); ?>
 		<?php endif; ?>
 		<?php
@@ -158,7 +159,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 							)
 						);
 						?>
-						<?php echo wp_kses( $minify_learn_more_output( 'rewrite-url-structure', 'minify.rewrite' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'rewrite-url-structure', 'minify.rewrite' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -167,7 +168,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					<?php $this->checkbox( 'minify.reject.logged' ); ?> <?php Util_Ui::e_config_label( 'minify.reject.logged' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Authenticated users will not receive minified pages if this option is enabled.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'disable-minify-for-logged-in-users', 'minify.reject.logged' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'disable-minify-for-logged-in-users', 'minify.reject.logged' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -182,7 +183,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						'email'       => esc_html__( 'Email Notification', 'w3-total-cache' ),
 						'admin,email' => esc_html__( 'Both Admin &amp; Email Notification', 'w3-total-cache' ),
 					),
-					'description'      => esc_html__( 'Notify when minify cache creation errors occur.', 'w3-total-cache' ) . $minify_learn_more_output( 'minify-error-notification', 'minify.error.notification' ),
+					'description'      => esc_html__( 'Notify when minify cache creation errors occur.', 'w3-total-cache' ) . $w3tc_minify_learn_more_output( 'minify-error-notification', 'minify.error.notification' ),
 				)
 			);
 			?>
@@ -243,22 +244,22 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					<?php $this->checkbox( 'minify.html.inline.js', false, 'html_' ); ?> <?php Util_Ui::e_config_label( 'minify.html.inline.js' ); ?></label><br />
 					<?php $this->checkbox( 'minify.html.reject.feed', false, 'html_' ); ?> <?php Util_Ui::e_config_label( 'minify.html.reject.feed' ); ?></label><br />
 					<?php
-					$html_engine_file = '';
+					$w3tc_html_engine_file = '';
 
 					switch ( $html_engine ) {
 						case 'html':
 						case 'htmltidy':
-							$html_engine_file = W3TC_INC_DIR . '/options/minify/' . $html_engine . '.php';
+							$w3tc_html_engine_file = W3TC_INC_DIR . '/options/minify/' . $html_engine . '.php';
 							break;
 					}
 
-					if ( file_exists( $html_engine_file ) ) {
-						include $html_engine_file;
+					if ( file_exists( $w3tc_html_engine_file ) ) {
+						include $w3tc_html_engine_file;
 					}
 					?>
 					<p class="description">
 						<?php esc_html_e( 'Enable HTML minification and optionally remove whitespace from inline CSS, JS, and feeds.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'html-minify-settings', 'minify.html.enable' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'html-minify-settings', 'minify.html.enable' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -270,22 +271,22 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						name="minify__html__comments__ignore" class="html_enabled" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.html.comments.ignore' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Do not remove comments that contain these terms.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'ignored-comment-stems', 'minify.html.comments.ignore' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'ignored-comment-stems', 'minify.html.comments.ignore' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
 			<?php
-			$html_engine_file2 = '';
+			$w3tc_html_engine_file2 = '';
 
-			switch ( $html_engine_file2 ) {
+			switch ( $w3tc_html_engine_file2 ) {
 				case 'html':
 				case 'htmltidy':
-					$html_engine_file = W3TC_INC_DIR . '/options/minify/' . $html_engine . '2.php';
+					$w3tc_html_engine_file = W3TC_INC_DIR . '/options/minify/' . $html_engine . '2.php';
 					break;
 			}
 
-			if ( file_exists( $html_engine_file2 ) ) {
-				include $html_engine_file2;
+			if ( file_exists( $w3tc_html_engine_file2 ) ) {
+				include $w3tc_html_engine_file2;
 			}
 			?>
 		</table>
@@ -323,7 +324,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					),
 					'control'        => 'checkbox',
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => esc_html__( 'Minify enqueued and inline JavaScript files according to the settings below.', 'w3-total-cache' ) . $minify_learn_more_output( 'js-minify-settings', 'minify.js.enable' ),
+					'description'    => esc_html__( 'Minify enqueued and inline JavaScript files according to the settings below.', 'w3-total-cache' ) . $w3tc_minify_learn_more_output( 'js-minify-settings', 'minify.js.enable' ),
 				)
 			);
 			?>
@@ -345,7 +346,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 								'label' => esc_html__( 'Combine only', 'w3-total-cache' ),
 							),
 						),
-						'description'      => esc_html__( 'Choose how JavaScript files should be combined or minified when using automatic mode.', 'w3-total-cache' ) . $minify_learn_more_output( 'minify-method', 'minify.js.method' ),
+						'description'      => esc_html__( 'Choose how JavaScript files should be combined or minified when using automatic mode.', 'w3-total-cache' ) . $w3tc_minify_learn_more_output( 'minify-method', 'minify.js.method' ),
 					)
 				);
 			endif;
@@ -442,41 +443,41 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					</fieldset>
 
 					<?php
-					$js_engine_file = '';
+					$w3tc_js_engine_file = '';
 
 					switch ( $js_engine ) {
 						case 'js':
 						case 'yuijs':
 						case 'ccjs':
-							$js_engine_file = W3TC_INC_DIR . '/options/minify/' . $js_engine . '.php';
+							$w3tc_js_engine_file = W3TC_INC_DIR . '/options/minify/' . $js_engine . '.php';
 							break;
 					}
 
-					if ( file_exists( $js_engine_file ) ) {
-						include $js_engine_file;
+					if ( file_exists( $w3tc_js_engine_file ) ) {
+						include $w3tc_js_engine_file;
 					}
 					?>
 
 					<p class="description">
 						<?php esc_html_e( 'Control where scripts are placed and whether they stay blocking or load asynchronously for each template area.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'minify-engine-settings', 'minify.js.header.embed_type' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'minify-engine-settings', 'minify.js.header.embed_type' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
 			<?php
-			$js_engine_file2 = '';
+			$w3tc_js_engine_file2 = '';
 
 			switch ( $js_engine ) {
 				case 'js':
 				case 'yuijs':
 				case 'ccjs':
 				case 'googleccjs':
-					$js_engine_file2 = W3TC_INC_DIR . '/options/minify/' . $js_engine . '2.php';
+					$w3tc_js_engine_file2 = W3TC_INC_DIR . '/options/minify/' . $js_engine . '2.php';
 					break;
 			}
 
-			if ( file_exists( $js_engine_file2 ) ) {
-				include $js_engine_file2;
+			if ( file_exists( $w3tc_js_engine_file2 ) ) {
+				include $w3tc_js_engine_file2;
 			}
 			?>
 			<?php if ( ! $auto ) : ?>
@@ -507,11 +508,11 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 								<?php esc_html_e( 'Theme:', 'w3-total-cache' ); ?>
 								<select id="js_themes" class="js_enabled" name="js_theme"
 									<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-									<?php foreach ( $themes as $theme_key => $theme_name ) : ?>
-										<option value="<?php echo esc_attr( $theme_key ); ?>"<?php selected( $theme_key, $js_theme ); ?>>
+									<?php foreach ( $themes as $w3tc_theme_key => $w3tc_theme_name ) : ?>
+										<option value="<?php echo esc_attr( $w3tc_theme_key ); ?>"<?php selected( $w3tc_theme_key, $w3tc_js_theme ); ?>>
 											<?php
-											echo esc_html( $theme_name );
-											if ( $theme_key === $js_theme ) {
+											echo esc_html( $w3tc_theme_name );
+											if ( $w3tc_theme_key === $w3tc_js_theme ) {
 												echo ' (active)';
 											}
 											?>
@@ -523,14 +524,14 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						</p>
 						<ul id="js_files" class="minify-files">
 						<?php
-						foreach ( $js_groups as $js_theme => $js_templates ) :
-							if ( isset( $templates[ $js_theme ] ) ) :
-								$index = 0;
-								foreach ( $js_templates as $js_template => $js_locations ) :
-									foreach ( (array) $js_locations as $js_location => $js_config ) :
-										if ( ! empty( $js_config['files'] ) ) :
-											foreach ( (array) $js_config['files'] as $js_file ) :
-												++$index;
+						foreach ( $js_groups as $w3tc_js_theme => $w3tc_js_templates ) :
+							if ( isset( $w3tc_templates[ $w3tc_js_theme ] ) ) :
+								$w3tc_index = 0;
+								foreach ( $w3tc_js_templates as $w3tc_js_template => $w3tc_js_locations ) :
+									foreach ( (array) $w3tc_js_locations as $w3tc_js_location => $w3tc_js_config ) :
+										if ( ! empty( $w3tc_js_config['files'] ) ) :
+											foreach ( (array) $w3tc_js_config['files'] as $w3tc_js_file ) :
+												++$w3tc_index;
 												?>
 												<li>
 													<table>
@@ -541,27 +542,27 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 															<th colspan="3"><?php esc_html_e( 'Embed Location:', 'w3-total-cache' ); ?></th>
 														</tr>
 														<tr>
-															<td><?php echo esc_html( $index ); ?>.</td>
+															<td><?php echo esc_html( $w3tc_index ); ?>.</td>
 															<td>
 																<input class="js_enabled" type="text" <?php Util_Ui::sealing_disabled( 'minify.' ); ?>
-																	name="js_files[<?php echo esc_attr( $js_theme ); ?>][<?php echo esc_attr( $js_template ); ?>][<?php echo esc_attr( $js_location ); ?>][]"
-																	value="<?php echo esc_attr( $js_file );  /* search w3tc-url-escaping */ ?>"
+																	name="js_files[<?php echo esc_attr( $w3tc_js_theme ); ?>][<?php echo esc_attr( $w3tc_js_template ); ?>][<?php echo esc_attr( $w3tc_js_location ); ?>][]"
+																	value="<?php echo esc_attr( $w3tc_js_file );  /* search w3tc-url-escaping */ ?>"
 																	size="70" />
 															</td>
 															<td>
 																<select class="js_file_template js_enabled" <?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-																	<?php foreach ( $templates[ $js_theme ] as $theme_template_key => $theme_template_name ) : ?>
-																		<option value="<?php echo esc_attr( $theme_template_key ); ?>"<?php selected( $theme_template_key, $js_template ); ?>>
-																			<?php echo esc_attr( $theme_template_name ); ?>
+																	<?php foreach ( $w3tc_templates[ $w3tc_js_theme ] as $w3tc_theme_template_key => $w3tc_theme_template_name ) : ?>
+																		<option value="<?php echo esc_attr( $w3tc_theme_template_key ); ?>"<?php selected( $w3tc_theme_template_key, $w3tc_js_template ); ?>>
+																			<?php echo esc_attr( $w3tc_theme_template_name ); ?>
 																		</option>
 																	<?php endforeach; ?>
 																</select>
 															</td>
 															<td>
 																<select class="js_file_location js_enabled" <?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-																	<option value="include" <?php selected( $js_location, 'include' ); ?>><?php esc_html_e( 'Embed in &lt;head&gt;', 'w3-total-cache' ); ?></option>
-																	<option value="include-body" <?php selected( $js_location, 'include-body' ); ?>><?php esc_html_e( 'Embed after &lt;body&gt;', 'w3-total-cache' ); ?></option>
-																	<option value="include-footer" <?php selected( $js_location, 'include-footer' ); ?>><?php esc_html_e( 'Embed before &lt;/body&gt;', 'w3-total-cache' ); ?></option>
+																	<option value="include" <?php selected( $w3tc_js_location, 'include' ); ?>><?php esc_html_e( 'Embed in &lt;head&gt;', 'w3-total-cache' ); ?></option>
+																	<option value="include-body" <?php selected( $w3tc_js_location, 'include-body' ); ?>><?php esc_html_e( 'Embed after &lt;body&gt;', 'w3-total-cache' ); ?></option>
+																	<option value="include-footer" <?php selected( $w3tc_js_location, 'include-footer' ); ?>><?php esc_html_e( 'Embed before &lt;/body&gt;', 'w3-total-cache' ); ?></option>
 																</select>
 															</td>
 															<td>
@@ -644,7 +645,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 								'b'  => array(),
 							)
 						)
-					) . $minify_learn_more_output( 'http2-push', 'minify.js.http2push' ),
+					) . $w3tc_minify_learn_more_output( 'http2-push', 'minify.js.http2push' ),
 				)
 			);
 			?>
@@ -690,7 +691,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					),
 					'control'        => 'checkbox',
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => esc_html__( 'Minify stylesheets and inline CSS snippets declared in the queues below.', 'w3-total-cache' ) . $minify_learn_more_output( 'css-minify-settings', 'minify.css.enable' ),
+					'description'    => esc_html__( 'Minify stylesheets and inline CSS snippets declared in the queues below.', 'w3-total-cache' ) . $w3tc_minify_learn_more_output( 'css-minify-settings', 'minify.css.enable' ),
 				)
 			);
 			?>
@@ -711,7 +712,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 							'label' => esc_html__( 'Combine only', 'w3-total-cache' ),
 						),
 					),
-					'description'      => esc_html__( 'Choose how stylesheets should be combined or minified when using automatic mode.', 'w3-total-cache' ) . $minify_learn_more_output( 'minify-method', 'minify.css.method' ),
+					'description'      => esc_html__( 'Choose how stylesheets should be combined or minified when using automatic mode.', 'w3-total-cache' ) . $w3tc_minify_learn_more_output( 'minify-method', 'minify.css.method' ),
 				)
 			);
 			?>
@@ -721,23 +722,23 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 				</th>
 				<td>
 					<?php
-					$css_engine_file = '';
+					$w3tc_css_engine_file = '';
 
 					switch ( $css_engine ) {
 						case 'css':
 						case 'yuicss':
 						case 'csstidy':
-							$css_engine_file = W3TC_INC_DIR . '/options/minify/' . $css_engine . '.php';
+							$w3tc_css_engine_file = W3TC_INC_DIR . '/options/minify/' . $css_engine . '.php';
 							break;
 					}
 
-					if ( file_exists( $css_engine_file ) ) {
-						include $css_engine_file;
+					if ( file_exists( $w3tc_css_engine_file ) ) {
+						include $w3tc_css_engine_file;
 					}
 					?>
 					<p class="description">
 						<?php esc_html_e( 'Decide where CSS is placed and whether it should load synchronously or asynchronously for each template area.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'minify-engine-settings', 'minify.css.engine' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'minify-engine-settings', 'minify.css.engine' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -746,31 +747,31 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 				<td>
 					<select id="minify_css_import" class="css_enabled" name="minify__css__imports"
 						<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-						<?php foreach ( $css_imports_values as $css_imports_key => $css_imports_value ) : ?>
-							<option value="<?php echo esc_attr( $css_imports_key ); ?>"<?php selected( $css_imports, $css_imports_key ); ?>>
-								<?php echo esc_html( $css_imports_value ); ?>
+						<?php foreach ( $css_imports_values as $w3tc_css_imports_key => $w3tc_css_imports_value ) : ?>
+							<option value="<?php echo esc_attr( $w3tc_css_imports_key ); ?>"<?php selected( $css_imports, $w3tc_css_imports_key ); ?>>
+								<?php echo esc_html( $w3tc_css_imports_value ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
 					<p class="description">
 						<?php esc_html_e( 'Control how @import rules are handled when combining and minifying stylesheets.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'import-handling', 'minify.css.imports' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'import-handling', 'minify.css.imports' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
 			<?php
-			$css_engine_file2 = '';
+			$w3tc_css_engine_file2 = '';
 
 			switch ( $css_engine ) {
 				case 'css':
 				case 'yuicss':
 				case 'csstidy':
-					$css_engine_file2 = W3TC_INC_DIR . '/options/minify/' . $css_engine . '2.php';
+					$w3tc_css_engine_file2 = W3TC_INC_DIR . '/options/minify/' . $css_engine . '2.php';
 					break;
 			}
 
-			if ( file_exists( $css_engine_file2 ) ) {
-				include $css_engine_file2;
+			if ( file_exists( $w3tc_css_engine_file2 ) ) {
+				include $w3tc_css_engine_file2;
 			}
 			?>
 			<?php if ( ! $auto ) : ?>
@@ -801,11 +802,11 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 								<?php esc_html_e( 'Theme:', 'w3-total-cache' ); ?>
 								<select id="css_themes" class="css_enabled" name="css_theme"
 									<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-									<?php foreach ( $themes as $theme_key => $theme_name ) : ?>
-										<option value="<?php echo esc_attr( $theme_key ); ?>"<?php selected( $theme_key, $css_theme ); ?>>
+									<?php foreach ( $themes as $w3tc_theme_key => $w3tc_theme_name ) : ?>
+										<option value="<?php echo esc_attr( $w3tc_theme_key ); ?>"<?php selected( $w3tc_theme_key, $w3tc_css_theme ); ?>>
 											<?php
-											echo esc_html( $theme_name );
-											if ( $theme_key === $css_theme ) {
+											echo esc_html( $w3tc_theme_name );
+											if ( $w3tc_theme_key === $w3tc_css_theme ) {
 												echo ' (active)';
 											}
 											?>
@@ -817,14 +818,14 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						</p>
 						<ul id="css_files" class="minify-files">
 							<?php
-							foreach ( $css_groups as $css_theme => $css_templates ) :
-								if ( isset( $templates[ $css_theme ] ) ) :
-									$index = 0;
-									foreach ( $css_templates as $css_template => $css_locations ) :
-										foreach ( (array) $css_locations as $css_location => $css_config ) :
-											if ( ! empty( $css_config['files'] ) ) :
-												foreach ( (array) $css_config['files'] as $css_file ) :
-													++$index;
+							foreach ( $css_groups as $w3tc_css_theme => $w3tc_css_templates ) :
+								if ( isset( $w3tc_templates[ $w3tc_css_theme ] ) ) :
+									$w3tc_index = 0;
+									foreach ( $w3tc_css_templates as $w3tc_css_template => $w3tc_css_locations ) :
+										foreach ( (array) $w3tc_css_locations as $w3tc_css_location => $w3tc_css_config ) :
+											if ( ! empty( $w3tc_css_config['files'] ) ) :
+												foreach ( (array) $w3tc_css_config['files'] as $w3tc_css_file ) :
+													++$w3tc_index;
 													?>
 													<li>
 														<table>
@@ -834,18 +835,18 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 																<th colspan="2"><?php esc_html_e( 'Template:', 'w3-total-cache' ); ?></th>
 															</tr>
 															<tr>
-																<td><?php echo esc_html( $index ); ?>.</td>
+																<td><?php echo esc_html( $w3tc_index ); ?>.</td>
 																<td>
 																	<input class="css_enabled" type="text" <?php Util_Ui::sealing_disabled( 'minify.' ); ?>
-																		name="css_files[<?php echo esc_attr( $css_theme ); ?>][<?php echo esc_attr( $css_template ); ?>][<?php echo esc_attr( $css_location ); ?>][]"
-																		value="<?php echo esc_html( $css_file );  /* search w3tc-url-escaping */ ?>"
+																		name="css_files[<?php echo esc_attr( $w3tc_css_theme ); ?>][<?php echo esc_attr( $w3tc_css_template ); ?>][<?php echo esc_attr( $w3tc_css_location ); ?>][]"
+																		value="<?php echo esc_html( $w3tc_css_file );  /* search w3tc-url-escaping */ ?>"
 																		size="70" /><br />
 																</td>
 																<td>
 																	<select class="css_file_template css_enabled" <?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-																	<?php foreach ( $templates[ $css_theme ] as $theme_template_key => $theme_template_name ) : ?>
-																		<option value="<?php echo esc_attr( $theme_template_key ); ?>"<?php selected( $theme_template_key, $css_template ); ?>>
-																			<?php echo esc_attr( $theme_template_name ); ?>
+																	<?php foreach ( $w3tc_templates[ $w3tc_css_theme ] as $w3tc_theme_template_key => $w3tc_theme_template_name ) : ?>
+																		<option value="<?php echo esc_attr( $w3tc_theme_template_key ); ?>"<?php selected( $w3tc_theme_template_key, $w3tc_css_template ); ?>>
+																			<?php echo esc_attr( $w3tc_theme_template_name ); ?>
 																		</option>
 																	<?php endforeach; ?>
 																	</select>
@@ -931,7 +932,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 								'b'  => array(),
 							)
 						)
-					) . $minify_learn_more_output( 'http2-push', 'minify.css.http2push' ),
+					) . $w3tc_minify_learn_more_output( 'http2-push', 'minify.css.http2push' ),
 				)
 			);
 			?>
@@ -943,10 +944,10 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'minify.engine' ) ) {
-				$module = 'minify';
+				$w3tc_module = 'minify';
 				include W3TC_INC_DIR . '/options/parts/memcached.php';
 			} elseif ( 'redis' === $this->_config->get_string( 'minify.engine' ) ) {
-				$module = 'minify';
+				$w3tc_module = 'minify';
 				include W3TC_INC_DIR . '/options/parts/redis.php';
 			}
 			?>
@@ -958,7 +959,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						value="<?php echo esc_attr( $this->_config->get_integer( 'minify.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'Specify the interval between download and update of external files in the minify cache. Hint: 6 hours is 21600 seconds. 12 hours is 43200 seconds. 24 hours is 86400 seconds.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'update-external-files-every', 'minify.lifetime' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'update-external-files-every', 'minify.lifetime' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -976,7 +977,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						/> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'garbage-collection-interval', 'minify.file.gc' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'garbage-collection-interval', 'minify.file.gc' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 					<p class="description">
 						<?php
@@ -1002,7 +1003,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						<?php Util_Ui::sealing_disabled( 'minify.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.reject.uri' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Always ignore the specified pages / directories. Use relative paths. Omit: protocol, hostname, leading forward slash and query strings.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.uri' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.uri' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1030,7 +1031,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 							)
 						);
 						?>
-						<?php echo wp_kses( $minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.files.js' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.files.js' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1058,7 +1059,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 							)
 						);
 						?>
-						<?php echo wp_kses( $minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.files.css' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'never-minify-the-following-files', 'minify.reject.files.css' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1070,7 +1071,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.reject.ua' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Specify user agents that will never receive minified content.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'rejected-user-agents', 'minify.reject.ua' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'rejected-user-agents', 'minify.reject.ua' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1081,7 +1082,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					<textarea id="minify_cache_files" name="minify__cache__files"<?php Util_Ui::sealing_disabled( 'minify.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.cache.files' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Specify external files/libraries that should be combined.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'include-external-fileslibraries', 'minify.cache.files' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'include-external-fileslibraries', 'minify.cache.files' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -1091,7 +1092,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					<?php Util_Ui::e_config_label( 'minify.cache.files_regexp' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'If external script file names vary, use regular expressions in the "Include external files/libraries" field to simplify matching.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $minify_learn_more_output( 'use-regular-expressions-for-file-name-matching-if-file-names-vary', 'minify.cache.files_regexp' ), $minify_anchor_allowed_tags ); ?>
+						<?php echo wp_kses( $w3tc_minify_learn_more_output( 'use-regular-expressions-for-file-name-matching-if-file-names-vary', 'minify.cache.files_regexp' ), $w3tc_minify_anchor_allowed_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -1115,11 +1116,11 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 				</a>
 			</p>
 			<?php
-			$c           = Dispatcher::config();
-			$disabled    = ! $c->get_boolean( 'minify.enabled' );
-			$wp_disabled = ! $c->get_boolean( 'minify.wp_cron' );
+			$w3tc_c           = Dispatcher::config();
+			$w3tc_disabled    = ! $w3tc_c->get_boolean( 'minify.enabled' );
+			$w3tc_wp_disabled = ! $w3tc_c->get_boolean( 'minify.wp_cron' );
 
-			if ( $disabled ) {
+			if ( $w3tc_disabled ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
@@ -1148,17 +1149,17 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					'label'          => Util_Ui::config_label( 'minify.wp_cron' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'disabled'       => $disabled,
+					'disabled'       => $w3tc_disabled,
 				)
 			);
 
-			$time_options = array();
-			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-					$time_label                  = $scheduled_time->format( 'g:i a' );
-					$time_options[ $time_value ] = $time_label;
+			$w3tc_time_options = array();
+			for ( $w3tc_hour = 0; $w3tc_hour < 24; $w3tc_hour++ ) {
+				foreach ( array( '00', '30' ) as $w3tc_minute ) {
+					$w3tc_time_value                       = $w3tc_hour * 60 + intval( $w3tc_minute );
+					$w3tc_scheduled_time                   = new \DateTime( "{$w3tc_hour}:{$w3tc_minute}", wp_timezone() );
+					$w3tc_time_label                       = $w3tc_scheduled_time->format( 'g:i a' );
+					$w3tc_time_options[ $w3tc_time_value ] = $w3tc_time_label;
 				}
 			}
 
@@ -1167,9 +1168,9 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 					'key'              => 'minify.wp_cron_time',
 					'label'            => Util_Ui::config_label( 'minify.wp_cron_time' ),
 					'control'          => 'selectbox',
-					'selectbox_values' => $time_options,
+					'selectbox_values' => $w3tc_time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => $w3tc_disabled || $w3tc_wp_disabled,
 				)
 			);
 
@@ -1185,7 +1186,7 @@ $minify_learn_more_output   = static function ( $anchor, $config_key = '', $cust
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => $w3tc_disabled || $w3tc_wp_disabled,
 				)
 			);
 			?>

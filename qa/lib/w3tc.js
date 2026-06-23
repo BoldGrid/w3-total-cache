@@ -11,28 +11,91 @@ async function setOptions_loadPage(pPage, queryPage) {
 	await sys.repeatOnFailure(pPage, async() => {
 		log.log('opening options page ' + queryPage);
 
-		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
-			{waitUntil: 'domcontentloaded'});
-
-		// Skip the Setup Guide wizard.
-		if (await pPage.$('#w3tc-wizard-skip') != null) {
-			log.log('Encountered the Setup Guide wizard; skipping...');
-
-			let wizardSkip = '#w3tc-wizard-skip';
-			let skipped = await Promise.all([
-				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout: 300000}),
-			]);
-
-			expect(skipped).is.not.null;
-		}
-
-		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
-			{waitUntil: 'domcontentloaded'});
+		await exports.loadW3tcPage(pPage, env.networkAdminUrl, queryPage);
 
 		let nonce = await pPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
 	});
+};
+
+/**
+ * Open a W3TC admin page and skip the setup wizard when present.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} queryPage W3TC page slug.
+ * @return {Promise<void>}
+ */
+exports.loadW3tcPage = async function(pPage, adminUrlBase, queryPage) {
+	await pPage.goto(adminUrlBase + 'admin.php?page=' + queryPage,
+		{waitUntil: 'domcontentloaded'});
+
+	if (await pPage.$('#w3tc-wizard-skip') != null) {
+		log.log('Encountered the Setup Guide wizard; skipping...');
+
+		await Promise.all([
+			pPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
+			pPage.waitForNavigation({timeout: 300000}),
+		]);
+
+		await pPage.goto(adminUrlBase + 'admin.php?page=' + queryPage,
+			{waitUntil: 'domcontentloaded'});
+	}
+};
+
+/**
+ * Return a per-handler admin nonce from the localized w3tc_admin_nonces map.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} action Dispatcher handler key.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} [queryPage=w3tc_dashboard] W3TC page slug.
+ * @return {Promise<string>}
+ */
+exports.adminActionNonce = async function(pPage, action, adminUrlBase, queryPage) {
+	if (!queryPage) {
+		queryPage = 'w3tc_dashboard';
+	}
+
+	await exports.loadW3tcPage(pPage, adminUrlBase, queryPage);
+
+	// Token must come from the logged-in browser document (wp eval runs as user 0).
+	let nonce = await pPage.evaluate((act) => {
+		if (typeof w3tcGetAdminNonce === 'function') {
+			let n = w3tcGetAdminNonce(act);
+			if (n) {
+				return n;
+			}
+		}
+		if (typeof w3tc_admin_nonces !== 'undefined' && w3tc_admin_nonces[act]) {
+			return w3tc_admin_nonces[act];
+		}
+		return '';
+	}, action);
+
+	expect(nonce).not.empty;
+	return nonce;
+};
+
+/**
+ * Read a nonce embedded in a button class via the metadata {nonce: '...'} token.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} selector CSS selector for the button.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} queryPage W3TC page slug.
+ * @return {Promise<string>}
+ */
+exports.buttonMetadataNonce = async function(pPage, selector, adminUrlBase, queryPage) {
+	await exports.loadW3tcPage(pPage, adminUrlBase, queryPage);
+
+	let nonce = await pPage.$eval(selector, (el) => {
+		let m = el.className.match(/\{nonce:\s*'([^']+)'\}/);
+		return m ? m[1] : '';
+	});
+
+	expect(nonce).not.empty;
+	return nonce;
 };
 
 exports.setOptions = async function(pPage, queryPage, values) {
@@ -233,10 +296,10 @@ exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel
 };
 
 exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
-	let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
+	let response = await pPage.goto(url, {waitUntil: 'load'});
 	if (pPage.url().indexOf("repeat=w3tc") >= 0) {
 		log.log('repeat=w3tc found, doing one more request');
-		let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
+		response = await pPage.goto(url, {waitUntil: 'load'});
 	}
 
 	return response;
@@ -272,7 +335,7 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 			'&url=' + encodeURIComponent(url) +
 			'&page_key_postfix=' + pageKeyPostfix +
 			'&engine=' + cacheEngineLabel,
-		{waitUntil: 'domcontentloaded'});
+		{waitUntil: 'load'});
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 };
 

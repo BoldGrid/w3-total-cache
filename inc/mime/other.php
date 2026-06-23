@@ -1,8 +1,11 @@
 <?php
-
 /**
- * Other mime types
+ * Other mime types.
+ *
+ * @package W3TC
  */
+
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die;
 }

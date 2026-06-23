@@ -39,7 +39,7 @@ class PageSpeed_Page {
 		wp_register_script(
 			'w3tc-pagespeed',
 			esc_url( plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ) ),
-			array(),
+			array( 'w3tc-nonce' ),
 			W3TC_VERSION,
 			true
 		);
@@ -71,7 +71,7 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function render() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		require W3TC_DIR . '/PageSpeed_Page_View.php';
 	}
@@ -85,7 +85,7 @@ class PageSpeed_Page {
 	 */
 	public function w3tc_ajax_pagespeed_data() {
 		$encoded_url        = Util_Request::get( 'url' );
-		$url                = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
+		$w3tc_url           = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
 		$api_response       = null;
 		$api_response_error = null;
 
@@ -98,10 +98,10 @@ class PageSpeed_Page {
 		}
 
 		if ( is_null( $api_response ) ) {
-			$config       = Dispatcher::config();
-			$access_token = ! empty( $config->get_string( 'widget.pagespeed.access_token' ) ) ? $config->get_string( 'widget.pagespeed.access_token' ) : null;
+			$w3tc_config       = Dispatcher::config();
+			$w3tc_access_token = ! empty( $w3tc_config->get_string( 'widget.pagespeed.access_token' ) ) ? $w3tc_config->get_string( 'widget.pagespeed.access_token' ) : null;
 
-			if ( empty( $access_token ) ) {
+			if ( empty( $w3tc_access_token ) ) {
 				echo wp_json_encode(
 					array(
 						'missing_token' => sprintf(
@@ -117,13 +117,13 @@ class PageSpeed_Page {
 				return;
 			}
 
-			$w3_pagespeed = new PageSpeed_Api( $access_token );
-			$api_response = $w3_pagespeed->analyze( $url );
+			$w3tc_w3_pagespeed = new PageSpeed_Api( $w3tc_access_token );
+			$api_response      = $w3tc_w3_pagespeed->analyze( $w3tc_url );
 
 			if ( ! $api_response ) {
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>',
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>',
 				);
 				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} elseif ( ! empty( $api_response['error'] ) ) {
@@ -132,7 +132,7 @@ class PageSpeed_Page {
 
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
 						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
 						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
 				);
@@ -145,7 +145,7 @@ class PageSpeed_Page {
 
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
 						<p>' . esc_html__( 'Mobile response Code : ', 'w3-total-cache' ) . $mobile_error_code . '</p>
 						<p>' . esc_html__( 'Mobile response Message : ', 'w3-total-cache' ) . $mobile_error_message . '</p>
 						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
@@ -165,7 +165,7 @@ class PageSpeed_Page {
 		ob_end_clean();
 		echo wp_json_encode(
 			array(
-				'w3tcps_domain'                   => $url,
+				'w3tcps_domain'                   => $w3tc_url,
 				'w3tcps_score'                    => array(
 					'mobile'  => $api_response['mobile']['score'],
 					'desktop' => $api_response['desktop']['score'],

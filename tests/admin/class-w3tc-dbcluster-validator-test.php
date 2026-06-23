@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -19,7 +19,7 @@ use W3TC\Generic_AdminActions_Config;
  * `require`'d, so regressions here re-open the arbitrary-PHP-write →
  * RCE primitive that  /  closed.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 
@@ -27,7 +27,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * The shipped sample config (`ini/dbcluster-config-sample.php`) is
 	 * what a fresh operator will paste back in — it MUST validate.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_accepts_shipped_sample() {
 		$sample = file_get_contents( dirname( __DIR__, 2 ) . '/ini/dbcluster-config-sample.php' );
@@ -38,7 +38,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	/**
 	 * A minimal accept: just `<?php $w3tc_dbcluster_config = array(...);`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_accepts_minimal_assignment() {
 		$src = '<?php $w3tc_dbcluster_config = array( "persistent" => false );';
@@ -49,7 +49,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * `global $w3tc_dbcluster_config;` declaration is allowed (the
 	 * sample uses it).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_accepts_global_keyword() {
 		$src = "<?php\nglobal \$w3tc_dbcluster_config;\n\$w3tc_dbcluster_config = array();";
@@ -59,7 +59,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	/**
 	 * Every shell-execution / code-execution primitive is refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_code_execution_primitives() {
 		$payloads = array(
@@ -90,7 +90,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * tag) must be refused. The validated file is `require`'d, so any
 	 * literal HTML in it would be printed to the response.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_html_output_side_effects() {
 		$payloads = array(
@@ -117,7 +117,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * "the variable name appears anywhere"; this verifies the gate now
 	 * looks for an actual assignment.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_requires_actual_assignment_to_target_variable() {
 		$err = Generic_AdminActions_Config::validate_dbcluster_content( '<?php $w3tc_dbcluster_config;' );
@@ -161,7 +161,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * earlier validator during round-2 review — they must reject
 	 * after this fix.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_value_as_callable_invocations() {
 		$payloads = array(
@@ -186,7 +186,7 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	/**
 	 * Empty / no-php-tag / non-assigning files are refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_malformed_files() {
 		$this->assertIsString( Generic_AdminActions_Config::validate_dbcluster_content( '' ) );

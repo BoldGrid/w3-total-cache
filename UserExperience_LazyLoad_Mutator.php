@@ -16,7 +16,7 @@ class UserExperience_LazyLoad_Mutator {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Tracks whether the content was modified during processing.
@@ -42,13 +42,13 @@ class UserExperience_LazyLoad_Mutator {
 	/**
 	 * Constructor for UserExperience_LazyLoad_Mutator.
 	 *
-	 * @param array $config       Configuration settings for lazy loading.
+	 * @param array $w3tc_config       Configuration settings for lazy loading.
 	 * @param array $posts_by_url Map of post URLs to their corresponding post IDs.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config, $posts_by_url ) {
-		$this->config       = $config;
+	public function __construct( $w3tc_config, $posts_by_url ) {
+		$this->w3tc_config  = $w3tc_config;
 		$this->posts_by_url = $posts_by_url;
 	}
 
@@ -60,22 +60,22 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified buffer with lazy loading applied.
 	 */
 	public function run( $buffer ) {
-		$this->excludes = apply_filters( 'w3tc_lazyload_excludes', $this->config->get_array( 'lazyload.exclude' ) );
+		$this->excludes = apply_filters( 'w3tc_lazyload_excludes', $this->w3tc_config->get_array( 'lazyload.exclude' ) );
 
-		$r              = apply_filters(
+		$w3tc_r         = apply_filters(
 			'w3tc_lazyload_mutator_before',
 			array(
 				'buffer'   => $buffer,
 				'modified' => $this->modified,
 			)
 		);
-		$buffer         = $r['buffer'];
-		$this->modified = $r['modified'];
+		$buffer         = $w3tc_r['buffer'];
+		$this->modified = $w3tc_r['modified'];
 
 		$unmutable = new UserExperience_LazyLoad_Mutator_Unmutable();
 		$buffer    = $unmutable->remove_unmutable( $buffer );
 
-		if ( $this->config->get_boolean( 'lazyload.process_img' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.process_img' ) ) {
 			$buffer = preg_replace_callback(
 				'~<picture(\s[^>]+)*>(.*?)</picture>~is',
 				array( $this, 'tag_picture' ),
@@ -88,7 +88,7 @@ class UserExperience_LazyLoad_Mutator {
 			);
 		}
 
-		if ( $this->config->get_boolean( 'lazyload.process_background' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.process_background' ) ) {
 			$buffer = preg_replace_callback(
 				'~<[^>]+background(-image)?:\s*url[^>]+>~is',
 				array( $this, 'tag_with_background' ),
@@ -158,16 +158,16 @@ class UserExperience_LazyLoad_Mutator {
 	 */
 	public function tag_img_content_replace( $content, $dim ) {
 		// do replace.
-		$count   = 0;
-		$content = preg_replace(
+		$w3tc_count = 0;
+		$content    = preg_replace(
 			'~(\s)src=~is',
 			'$1src="' . $this->placeholder( $dim['w'], $dim['h'] ) . '" data-src=',
 			$content,
 			-1,
-			$count
+			$w3tc_count
 		);
 
-		if ( $count > 0 ) {
+		if ( $w3tc_count > 0 ) {
 			$content = preg_replace(
 				'~(\s)(srcset|sizes)=~is',
 				'$1data-$2=',
@@ -216,11 +216,11 @@ class UserExperience_LazyLoad_Mutator {
 			return $dim;
 		}
 
-		$url = ( ! empty( $m[4] ) ? $m[4] : ( ( ! empty( $m[3] ) ? $m[3] : $m[2] ) ) );
+		$w3tc_url = ( ! empty( $m[4] ) ? $m[4] : ( ( ! empty( $m[3] ) ? $m[3] : $m[2] ) ) );
 
 		// full url found.
-		if ( isset( $this->posts_by_url[ $url ] ) ) {
-			$post_id = $this->posts_by_url[ $url ];
+		if ( isset( $this->posts_by_url[ $w3tc_url ] ) ) {
+			$post_id = $this->posts_by_url[ $w3tc_url ];
 
 			$image = wp_get_attachment_image_src( $post_id, 'full' );
 			if ( $image ) {
@@ -238,8 +238,8 @@ class UserExperience_LazyLoad_Mutator {
 		}
 
 		if (
-			substr( $url, 0, strlen( $base_url ) ) === $base_url &&
-			preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~is', $url, $m )
+			substr( $w3tc_url, 0, strlen( $base_url ) ) === $base_url &&
+			preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~is', $w3tc_url, $m )
 		) {
 			$dim['w'] = (int) $m[2];
 			$dim['h'] = (int) $m[3];
@@ -269,16 +269,16 @@ class UserExperience_LazyLoad_Mutator {
 
 		$quote = $quote_match[1];
 
-		$count   = 0;
-		$content = preg_replace_callback(
+		$w3tc_count = 0;
+		$content    = preg_replace_callback(
 			'~(\s+)(style\s*=\s*[' . $quote . '])(.*?)([' . $quote . '])~is',
 			array( $this, 'style_offload_background' ),
 			$content,
 			-1,
-			$count
+			$w3tc_count
 		);
 
-		if ( $count > 0 ) {
+		if ( $w3tc_count > 0 ) {
 			$content        = $this->add_class_lazy( $content );
 			$this->modified = true;
 		}
@@ -294,7 +294,7 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified style attribute with lazy loading applied.
 	 */
 	public function style_offload_background( $matches ) {
-		list( $match, $v1, $v2, $v, $quote ) = $matches;
+		list( $w3tc_match, $v1, $v2, $v, $quote ) = $matches;
 
 		$url_match = null;
 
@@ -320,16 +320,16 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified content with the "lazy" class applied.
 	 */
 	private function add_class_lazy( $content ) {
-		$count   = 0;
-		$content = preg_replace_callback(
+		$w3tc_count = 0;
+		$content    = preg_replace_callback(
 			'~(\s+)(class=)([\"\'])(.*?)([\"\'])~is',
 			array( $this, 'class_process' ),
 			$content,
 			-1,
-			$count
+			$w3tc_count
 		);
 
-		if ( $count <= 0 ) {
+		if ( $w3tc_count <= 0 ) {
 			$content = preg_replace(
 				'~<(\S+)(\s+)~is',
 				'<$1$2class="lazy" ',
@@ -363,9 +363,9 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified class attribute.
 	 */
 	public function class_process( $matches ) {
-		list( $match, $v1, $v2, $quote, $v ) = $matches;
+		list( $w3tc_match, $v1, $v2, $quote, $v ) = $matches;
 		if ( preg_match( '~(^|\\s)lazy(\\s|$)~is', $v ) ) {
-			return $match;
+			return $w3tc_match;
 		}
 
 		$v .= ' lazy';

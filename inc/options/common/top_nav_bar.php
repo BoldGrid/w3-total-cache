@@ -7,13 +7,14 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
-$menu_array = array(
+$w3tc_menu_array = array(
 	'settings' => array(
 		0 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
@@ -62,7 +63,7 @@ $menu_array = array(
 			'text' => __( 'Statistics', 'w3-total-cache' ),
 		),
 		2 => array(
-			'url'  => $config->is_extension_active( 'imageservice' )
+			'url'  => $w3tc_config->is_extension_active( 'imageservice' )
 				? Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
 				: Util_Ui::admin_url( 'admin.php?page=w3tc_general#image_service' ),
 			'text' => __( 'Image Converter', 'w3-total-cache' ),
@@ -103,14 +104,14 @@ $menu_array = array(
 	),
 );
 
-if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
-	$menu_array['settings'][8] = array(
+if ( $w3tc_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+	$w3tc_menu_array['settings'][8] = array(
 		'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ),
 		'text' => __( 'Fragment Cache', 'w3-total-cache' ),
 	);
 }
 
-ksort( $menu_array['settings'] );
+ksort( $w3tc_menu_array['settings'] );
 
 do_action( 'w3tc_dashboard_top_nav_bar' );
 ?>
@@ -149,18 +150,18 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</a>
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $menu_array['settings'] as $index => $entry ) {
-						$output = sprintf(
+					foreach ( $w3tc_menu_array['settings'] as $w3tc_index => $w3tc_entry ) {
+						$w3tc_output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
-							esc_url( $entry['url'] ),
-							esc_attr( $entry['text'] ),
-							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
-							esc_html( $entry['text'] ),
-							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+							! empty( $w3tc_entry['class'] ) ? ' class="' . esc_attr( $w3tc_entry['class'] ) . '" ' : '',
+							esc_url( $w3tc_entry['url'] ),
+							esc_attr( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['target'] ) ? ' target="' . esc_attr( $w3tc_entry['target'] ) . '"' : '' ),
+							esc_html( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['dashicon'] ) ? $w3tc_entry['dashicon'] : '' )
 						);
-						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
+						echo wp_kses( $w3tc_output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_output ) );
 					}
 					?>
 				</div>
@@ -171,18 +172,18 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</a>
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $menu_array['tools'] as $entry ) {
-						$output = sprintf(
+					foreach ( $w3tc_menu_array['tools'] as $w3tc_entry ) {
+						$w3tc_output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
-							esc_url( $entry['url'] ),
-							esc_attr( $entry['text'] ),
-							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
-							esc_html( $entry['text'] ),
-							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+							! empty( $w3tc_entry['class'] ) ? ' class="' . esc_attr( $w3tc_entry['class'] ) . '" ' : '',
+							esc_url( $w3tc_entry['url'] ),
+							esc_attr( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['target'] ) ? ' target="' . esc_attr( $w3tc_entry['target'] ) . '"' : '' ),
+							esc_html( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['dashicon'] ) ? $w3tc_entry['dashicon'] : '' )
 						);
-						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
+						echo wp_kses( $w3tc_output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_output ) );
 					}
 					?>
 				</div>
@@ -193,18 +194,18 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</a>
 				<div id="w3tc-top-nav-info-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $menu_array['info'] as $entry ) {
-						$output = sprintf(
+					foreach ( $w3tc_menu_array['info'] as $w3tc_entry ) {
+						$w3tc_output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
-							esc_url( $entry['url'] ),
-							esc_attr( $entry['text'] ),
-							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
-							esc_html( $entry['text'] ),
-							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+							! empty( $w3tc_entry['class'] ) ? ' class="' . esc_attr( $w3tc_entry['class'] ) . '" ' : '',
+							esc_url( $w3tc_entry['url'] ),
+							esc_attr( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['target'] ) ? ' target="' . esc_attr( $w3tc_entry['target'] ) . '"' : '' ),
+							esc_html( $w3tc_entry['text'] ),
+							( ! empty( $w3tc_entry['dashicon'] ) ? $w3tc_entry['dashicon'] : '' )
 						);
-						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
+						echo wp_kses( $w3tc_output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_output ) );
 					}
 					?>
 				</div>
@@ -213,8 +214,8 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<?php esc_html_e( 'Support', 'w3-total-cache' ); ?>
 			</a>
 			<?php
-			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+				echo '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_licensing_upgrade' ) ) . '\'}"
 					data-src="top_nav_bar" value="' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '" />';
 			}
 			?>

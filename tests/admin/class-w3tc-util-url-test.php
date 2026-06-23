@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -21,7 +21,7 @@ use W3TC\Util_Url;
  * private-range address (loopback, RFC1918, link-local, IPv4-mapped
  * IPv6).
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Util_Url_Test extends WP_UnitTestCase {
 
@@ -29,7 +29,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * Bare IP literals — no DNS lookup needed — must be refused for
 	 * every private / loopback / link-local / reserved range.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_host_refuses_private_ipv4_literals() {
 		$inputs = array(
@@ -57,7 +57,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * unique-local (`fc00::/7`), and the IPv4-mapped form
 	 * (`::ffff:127.0.0.1`) that would otherwise sneak past a v6 check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_host_refuses_private_ipv6_literals() {
 		$inputs = array(
@@ -82,7 +82,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * when expressed by name. The literal-IP fast-path doesn't run for
 	 * names; this exercises the gethostbynamel() branch.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_host_refuses_loopback_named_host() {
 		// `localhost` resolves to 127.0.0.1 on every supported host.
@@ -94,7 +94,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * `data://`, etc. each open out-of-band fetch paths and have no
 	 * place in a `wp_remote_*` call.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_host_refuses_non_http_schemes() {
 		$inputs = array(
@@ -116,7 +116,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * Malformed / empty / non-string inputs are refused without
 	 * tripping a warning.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_host_refuses_malformed_input() {
 		$this->assertFalse( Util_Url::is_public_host( '' ) );
@@ -130,7 +130,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
 	 * `is_valid_http_scheme()` accepts http and https only.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_valid_http_scheme_accepts_http_and_https() {
 		$this->assertTrue( Util_Url::is_valid_http_scheme( 'http://example.com/' ) );
@@ -148,7 +148,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * the literal-IP fast-path in `is_public_host()` and the
 	 * post-DNS-lookup loop.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_public_ip_classifies_ranges_correctly() {
 		// Known-public IPs (Google DNS, Cloudflare DNS).

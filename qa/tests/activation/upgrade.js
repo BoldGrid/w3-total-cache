@@ -67,18 +67,10 @@ describe('', function() {
 
 	it('take old w3tc', async() => {
 		let old = {
-			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.0.9.5.zip',
-		 	output: '/share/w3tc-9-5.zip',
-			content: "'0.9.5'"
+			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip',
+			output: '/share/w3tc-2-8-8.zip',
+			content: "'2.8.8'"
 		};
-
-		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
-			old = {
-				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip',
-				output: '/share/w3tc-2-8-8.zip',
-				content: "'2.8.8'"
-			};
-		}
 
 		log.log('Installing old W3TC (' + old.content + ')...');
 
@@ -95,6 +87,14 @@ describe('', function() {
 		if (parseFloat(env.wpVersion) >= 6.1) {
 			log.log('Fixing DbCache_WpdbBase.php for WP >= 6.1 (' + env.wpVersion + ')...');
 			await exec('cp -pf /share/w3tc/DbCache_WpdbBase.php ' + env.wpPluginsPath + 'w3-total-cache/');
+		}
+	});
+
+	it('Fix Util_Request.php for PHP >= 8.5', async() => {
+		// Prevent (double) cast deprecation on older W3TC releases under PHP 8.5+.
+		if (parseFloat(env.phpVersion) >= 8.5) {
+			log.log('Fixing Util_Request.php for PHP >= 8.5 (' + env.phpVersion + ')...');
+			await exec('cp -pf /share/w3tc/Util_Request.php ' + env.wpPluginsPath + 'w3-total-cache/');
 		}
 	});
 

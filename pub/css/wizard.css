@@ -103,7 +103,6 @@ ul#w3tc-options-menu {
     background-size: 15% !Important;
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, bottom right;
-    background-size: auto, auto 60%;
     min-height: 575px;
     padding-right: 160px;
     position: relative;
@@ -184,7 +183,7 @@ ul#w3tc-options-menu {
     float: none;
     visibility: visible;
     vertical-align: top;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .spinner.spinner-left {
@@ -203,7 +202,7 @@ ul#w3tc-options-menu {
 }
 
 #w3tc-dbcache-recommended {
-    margin: 10px 0px;
+    margin: 10px 0;
 }
 
 

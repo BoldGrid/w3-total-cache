@@ -21,7 +21,7 @@ class UsageStatistics_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		add_action( 'wp_ajax_ustats_access_log_test', array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
@@ -41,13 +41,13 @@ class UsageStatistics_Plugin_Admin {
 	 * If the 'slot_seconds' value has changed in the configuration, this method
 	 * ensures that all existing statistics are flushed to maintain consistency.
 	 *
-	 * @param object $config     The current configuration object.
+	 * @param object $w3tc_config     The current configuration object.
 	 * @param object $old_config The previous configuration object.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_ui_save( $config, $old_config ) {
-		if ( $config->get( 'stats.slot_seconds' ) !== $old_config->get( 'stats.slot_seconds' ) ) {
+	public function w3tc_config_ui_save( $w3tc_config, $old_config ) {
+		if ( $w3tc_config->get( 'stats.slot_seconds' ) !== $old_config->get( 'stats.slot_seconds' ) ) {
 			// flush all stats otherwise will be inconsistent.
 			$storage = new UsageStatistics_StorageWriter();
 			$storage->reset();
@@ -61,16 +61,16 @@ class UsageStatistics_Plugin_Admin {
 	 * note to the WordPress dashboard to inform the user about the resource usage
 	 * and provide options to disable or hide the note.
 	 *
-	 * @param array $notes The current array of notes.
+	 * @param array $w3tc_notes The current array of notes.
 	 *
 	 * @return array The modified array of notes with the statistics-related note added.
 	 */
-	public function w3tc_notes( $notes ) {
-		$c            = Dispatcher::config();
+	public function w3tc_notes( $w3tc_notes ) {
+		$w3tc_c       = Dispatcher::config();
 		$state_master = Dispatcher::config_state_master();
 
-		if ( $c->get_boolean( 'stats.enabled' ) && ! $state_master->get_boolean( 'common.hide_note_stats_enabled' ) ) {
-			$notes['stats_enabled'] = sprintf(
+		if ( $w3tc_c->get_boolean( 'stats.enabled' ) && ! $state_master->get_boolean( 'common.hide_note_stats_enabled' ) ) {
+			$w3tc_notes['stats_enabled'] = sprintf(
 				// Translators: 1 disable statistics button, 2 hide notes stats button.
 				__(
 					'W3 Total Cache: Statistics collection is currently enabled. This consumes additional resources, and is not recommended to be run continuously. %1$s %2$s',
@@ -93,7 +93,7 @@ class UsageStatistics_Plugin_Admin {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -158,13 +158,12 @@ class UsageStatistics_Plugin_Admin {
 		 * `Util_Request::get_array('_wpnonce')[0]` accessor accepted
 		 * the array-shape value verbatim.
 		 *
-		 * Layer 2: per-action nonce key `w3tc_ustats_access_log_test`
-		 *; legacy `'w3tc'` accepted as back-compat fallback
-		 * by Util_Nonce::verify_admin.
+		 * Layer 2: per-action nonce key `w3tc_admin_action_w3tc_ustats_access_log_test`
+		 * (minted by Util_Nonce::create_admin and read by w3tcGetAdminNonce).
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
-		if ( ! Util_Nonce::verify_admin( 'w3tc_ustats_access_log_test' ) ) {
+		if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_ustats_access_log_test' ) ) ) {
 			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
 		}
 
@@ -174,7 +173,7 @@ class UsageStatistics_Plugin_Admin {
 		 * could probe arbitrary filesystem paths via fopen(), turning
 		 * the handler into a file-existence oracle.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			wp_die(
@@ -201,6 +200,7 @@ class UsageStatistics_Plugin_Admin {
 		 * log-bearing directories.
 		 *
 		 * Acceptable resolved paths must live under one of:
+		 *   - /var/log (typical Apache/nginx access-log location)
 		 *   - the WP uploads basedir
 		 *   - W3TC_CACHE_DIR (W3TC's own cache tree)
 		 *   - WP_CONTENT_DIR (covers debug.log + any user-configured
@@ -211,7 +211,7 @@ class UsageStatistics_Plugin_Admin {
 		 * leaked to the client, so the wire shape stays stable for
 		 * legitimate users.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		$validated = self::validate_access_log_path( $filepath );
 
@@ -236,7 +236,7 @@ class UsageStatistics_Plugin_Admin {
 	 * the input is empty, doesn't resolve via realpath(), or escapes the
 	 * permitted root set.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string|null $filepath Raw filepath from the request.
 	 *
@@ -254,6 +254,11 @@ class UsageStatistics_Plugin_Admin {
 		}
 
 		$roots = array();
+
+		$var_log_real = \realpath( '/var/log' );
+		if ( false !== $var_log_real ) {
+			$roots[] = $var_log_real;
+		}
 
 		if ( \function_exists( 'wp_upload_dir' ) ) {
 			$uploads = \wp_upload_dir( null, false );

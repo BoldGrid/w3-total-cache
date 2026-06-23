@@ -28,7 +28,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -36,14 +36,14 @@ declare( strict_types = 1 );
 /**
  * Class: W3tc_Public_Endpoints_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 
 	/**
 	 * Absolute path to pub/sns.php in the plugin checkout.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -52,7 +52,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Absolute path to pub/.htaccess in the plugin checkout.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -61,7 +61,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Verbatim contents of pub/sns.php, loaded once.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -70,7 +70,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Verbatim contents of pub/.htaccess, loaded once.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -79,7 +79,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Cache the file contents once for the whole suite.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
@@ -97,7 +97,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * Fails the calling test on a non-match — the structural assertions below
 	 * are meaningless if the anchor disappears in a refactor.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $needle Literal substring to locate.
 	 *
@@ -115,7 +115,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * pub/sns.php and pub/.htaccess both exist in the plugin checkout.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_pub_files_exist() {
 		$this->assertFileExists( self::$sns_path, 'pub/sns.php must ship with the plugin.' );
@@ -125,7 +125,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * The SNS entrypoint rejects non-POST requests before any further work.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_rejects_non_post_method() {
 		$this->assertStringContainsString(
@@ -144,7 +144,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * The SNS entrypoint requires the `x-amz-sns-message-type` header so generic
 	 * POST scanners are dropped without paying for body reads or autoloading.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_requires_amz_message_type_header() {
 		$this->assertStringContainsString(
@@ -158,7 +158,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * Body size is enforced by a hard byte cap on `stream_get_contents`,
 	 * not just a `Content-Length` check (chunked / proxied requests can lie).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_enforces_body_byte_cap_via_stream_read() {
 		$this->assertStringContainsString( 'stream_get_contents', self::$sns_source );
@@ -170,7 +170,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * The SNS signature validator runs BEFORE WordPress is loaded.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_signature_check_precedes_wp_load() {
 		$validator_call = $this->offset_of( '$w3tc_sns_validator->validate' );
@@ -188,7 +188,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * The autoloader is required from the plugin's own vendor/ directory —
 	 * not from a path joined with attacker input — and before the validator.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_loads_vendor_autoload_before_validator() {
 		$autoload_require = $this->offset_of( "require_once \$w3tc_sns_autoload" );
@@ -211,7 +211,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * file. We scan for any LHS assignment to that superglobal key and
 	 * fail the test if one appears.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_never_writes_http_host_from_request() {
 		/**
@@ -228,7 +228,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * `$w3_current_blog_id` is never set from request input in this file.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_never_writes_current_blog_id_from_request() {
 		$this->assertSame(
@@ -242,7 +242,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * `$_GET`, `$_POST`, `$_REQUEST`, and `$_COOKIE` are never read in this
 	 * file. The only input source is the validated SNS message body.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_never_reads_request_superglobals_for_data() {
 		/**
@@ -264,7 +264,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * `pub/` is therefore unreachable on Apache / LiteSpeed without a
 	 * matching `<Files>` allowlist entry.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_pub_htaccess_default_denies_php() {
 		$this->assertStringContainsString(
@@ -295,7 +295,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * 2.2-era Order/Allow,Deny fallback so the rule actually takes effect on
 	 * older Apache builds that lack mod_authz_core.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_pub_htaccess_blocks_dotfiles_and_supports_apache_22() {
 		$this->assertStringContainsString( '<FilesMatch "^\\.">', self::$htaccess_source );
@@ -308,7 +308,7 @@ class W3tc_Public_Endpoints_Test extends WP_UnitTestCase {
 	 * the structural assertions above (which only `file_get_contents`) would
 	 * silently keep passing for a broken file that 500s in production.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sns_php_parses_cleanly() {
 		$cmd    = \escapeshellcmd( PHP_BINARY ) . ' -l ' . \escapeshellarg( self::$sns_path ) . ' 2>&1';

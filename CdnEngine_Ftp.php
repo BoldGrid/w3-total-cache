@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 define( 'W3TC_CDN_FTP_CONNECT_TIMEOUT', 30 );
 
 /**
@@ -30,12 +31,12 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 	/**
 	 * Class constructor for initializing FTP/SFTP connection settings.
 	 *
-	 * @param array $config Optional configuration array to override default values.
+	 * @param array $w3tc_config Optional configuration array to override default values.
 	 *                      Keys include 'host', 'type', 'user', 'pass', 'default_keys',
 	 *                      'pubkey', 'privkey', 'path', 'pasv', 'domain', and 'docroot'.
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'host'         => '',
 				'type'         => '',
@@ -49,20 +50,20 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 				'domain'       => array(),
 				'docroot'      => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		list( $ip, $port ) = Util_Content::endpoint_to_host_port( $config['host'], 21 );
-		$config['host']    = $ip;
-		$config['port']    = $port;
+		list( $ip, $port )   = Util_Content::endpoint_to_host_port( $w3tc_config['host'], 21 );
+		$w3tc_config['host'] = $ip;
+		$w3tc_config['port'] = $port;
 
-		if ( 'sftp' === $config['type'] && $config['default_keys'] ) {
-			$home              = isset( $_SERVER['HOME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HOME'] ) ) : '';
-			$config['pubkey']  = $home . '/.ssh/id_rsa.pub';
-			$config['privkey'] = $home . '/.ssh/id_rsa';
+		if ( 'sftp' === $w3tc_config['type'] && $w3tc_config['default_keys'] ) {
+			$home                   = isset( $_SERVER['HOME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HOME'] ) ) : '';
+			$w3tc_config['pubkey']  = $home . '/.ssh/id_rsa.pub';
+			$w3tc_config['privkey'] = $home . '/.ssh/id_rsa';
 		}
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 	}
 
 	/**
@@ -266,9 +267,9 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			// process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) ) {
@@ -283,7 +284,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					'Source file not found.',
-					$file
+					$w3tc_file
 				);
 
 				continue;
@@ -302,7 +303,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 							$remote_path,
 							W3TC_CDN_RESULT_ERROR,
 							sprintf( 'Unable to create directory (%s).', $this->_get_last_error() ),
-							$file
+							$w3tc_file
 						);
 
 						continue 2;
@@ -314,7 +315,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 							$remote_path,
 							W3TC_CDN_RESULT_ERROR,
 							sprintf( 'Unable to change directory (%s).', $this->_get_last_error() ),
-							$file
+							$w3tc_file
 						);
 
 						continue 2;
@@ -338,16 +339,16 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_OK,
 						'File up-to-date.',
-						$file
+						$w3tc_file
 					);
 
 					continue;
 				}
 			}
 
-			$result = @ftp_put( $this->_ftp, $remote_file, $local_path, FTP_BINARY );
+			$w3tc_result = @ftp_put( $this->_ftp, $remote_file, $local_path, FTP_BINARY );
 
-			if ( $result ) {
+			if ( $w3tc_result ) {
 				$this->_mdtm( $remote_file, $mtime );
 
 				$results[] = $this->_get_result(
@@ -355,7 +356,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_OK,
 					'OK',
-					$file
+					$w3tc_file
 				);
 			} else {
 				$results[] = $this->_get_result(
@@ -363,7 +364,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to upload file (%s).', $this->_get_last_error() ),
-					$file
+					$w3tc_file
 				);
 			}
 		}
@@ -390,9 +391,9 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 	public function _upload_sftp( $files, $results, $force_rewrite, $timeout_time ) {
 		$sftp = ssh2_sftp( $this->_ftp );
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			// process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) ) {
@@ -407,7 +408,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					'Source file not found.',
-					$file
+					$w3tc_file
 				);
 
 				continue;
@@ -422,7 +423,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_ERROR,
 						sprintf( 'Unable to create directory (%s).', $this->_get_last_error() ),
-						$file
+						$w3tc_file
 					);
 
 					continue;
@@ -441,22 +442,22 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 						$remote_path,
 						W3TC_CDN_RESULT_OK,
 						'File up-to-date.',
-						$file
+						$w3tc_file
 					);
 
 					continue;
 				}
 			}
 
-			$result = @ssh2_scp_send( $this->_ftp, $local_path, $remote_path );
+			$w3tc_result = @ssh2_scp_send( $this->_ftp, $local_path, $remote_path );
 
-			if ( $result ) {
+			if ( $w3tc_result ) {
 				$results[] = $this->_get_result(
 					$local_path,
 					$remote_path,
 					W3TC_CDN_RESULT_OK,
 					'OK',
-					$file
+					$w3tc_file
 				);
 			} else {
 				$results[] = $this->_get_result(
@@ -464,7 +465,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to upload file (%s).', $this->_get_last_error() ),
-					$file
+					$w3tc_file
 				);
 			}
 		}
@@ -498,24 +499,24 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 
 		$this->_set_error_handler();
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			if ( 'sftp' === $this->_config['type'] ) {
-				$sftp   = @ssh2_sftp( $this->_ftp );
-				$result = @ssh2_sftp_unlink( $sftp, $remote_path );
+				$sftp        = @ssh2_sftp( $this->_ftp );
+				$w3tc_result = @ssh2_sftp_unlink( $sftp, $remote_path );
 			} else {
-				$result = @ftp_delete( $this->_ftp, $remote_path );
+				$w3tc_result = @ftp_delete( $this->_ftp, $remote_path );
 			}
 
-			if ( $result ) {
+			if ( $w3tc_result ) {
 				$results[] = $this->_get_result(
 					$local_path,
 					$remote_path,
 					W3TC_CDN_RESULT_OK,
 					'OK',
-					$file
+					$w3tc_file
 				);
 			} else {
 				$results[] = $this->_get_result(
@@ -523,7 +524,7 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete file (%s).', $this->_get_last_error() ),
-					$file
+					$w3tc_file
 				);
 			}
 

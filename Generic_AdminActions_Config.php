@@ -48,14 +48,14 @@ class Generic_AdminActions_Config {
 	public function w3tc_config_import() {
 		$error = '';
 
-		$config = new Config();
+		$w3tc_config = new Config();
 
 		if ( ! isset( $_FILES['config_file']['error'] ) || UPLOAD_ERR_NO_FILE === $_FILES['config_file']['error'] ) {
 			$error = 'config_import_no_file';
 		} elseif ( UPLOAD_ERR_OK !== $_FILES['config_file']['error'] ) {
 			$error = 'config_import_upload';
 		} else {
-			$imported = $config->import(
+			$imported = $w3tc_config->import(
 				isset( $_FILES['config_file']['tmp_name'] ) ?
 				wp_normalize_path( sanitize_text_field( $_FILES['config_file']['tmp_name'] ) ) : ''
 			);
@@ -83,7 +83,7 @@ class Generic_AdminActions_Config {
 		 * event for an import that did not in fact land on disk.
 		 */
 		try {
-			Util_Admin::config_save( $this->_config, $config );
+			Util_Admin::config_save( $this->_config, $w3tc_config );
 		} catch ( \Exception $ex ) {
 			Util_Debug::audit_log(
 				'config_import_failed',
@@ -144,17 +144,17 @@ class Generic_AdminActions_Config {
 		 * later `config_save()` throw (filesystem error, etc.) left
 		 * half-applied.
 		 */
-		$config = new Config();
-		$config->set_defaults();
-		Util_Admin::config_save( $this->_config, $config );
+		$w3tc_config = new Config();
+		$w3tc_config->set_defaults();
+		Util_Admin::config_save( $this->_config, $w3tc_config );
 
-		$config_state = Dispatcher::config_state();
-		$config_state->reset();
-		$config_state->save();
+		$w3tc_config_state = Dispatcher::config_state();
+		$w3tc_config_state->reset();
+		$w3tc_config_state->save();
 
-		$config_state = Dispatcher::config_state_master();
-		$config_state->reset();
-		$config_state->save();
+		$w3tc_config_state = Dispatcher::config_state_master();
+		$w3tc_config_state->reset();
+		$w3tc_config_state->save();
 
 		Util_Debug::audit_log( 'config_reset', array() );
 
@@ -324,7 +324,7 @@ class Generic_AdminActions_Config {
 	 *     messages distinguish "bareword call" from "callable-shape
 	 *     call" for operators editing the file by hand.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $content Raw submitted PHP source.
 	 *
@@ -381,7 +381,6 @@ class Generic_AdminActions_Config {
 			T_INCLUDE_ONCE,
 			T_REQUIRE,
 			T_REQUIRE_ONCE,
-			T_EXIT,
 			T_HALT_COMPILER,
 			T_NEW,
 			T_DOUBLE_COLON,
@@ -412,8 +411,8 @@ class Generic_AdminActions_Config {
 
 		$has_assignment_to_target = false;
 
-		for ( $i = 0, $n = \count( $tokens ); $i < $n; $i++ ) {
-			$tok = $tokens[ $i ];
+		for ( $w3tc_i = 0, $n = \count( $tokens ); $w3tc_i < $n; $w3tc_i++ ) {
+			$tok = $tokens[ $w3tc_i ];
 
 			// String tokens (single chars like `;`, `=`, `(`, etc.).
 			if ( \is_string( $tok ) ) {
@@ -433,7 +432,7 @@ class Generic_AdminActions_Config {
 				 * only gate `T_STRING + (`.
 				 */
 				if ( '(' === $tok ) {
-					$prev = self::previous_significant_token( $tokens, $i );
+					$prev = self::previous_significant_token( $tokens, $w3tc_i );
 					if ( null !== $prev ) {
 						if ( \is_string( $prev ) && \in_array( $prev, array( ')', ']', '}' ), true ) ) {
 							return \__( 'Calls on values (string, variable, expression, subscript) are not allowed in the configuration file.', 'w3-total-cache' );
@@ -459,17 +458,36 @@ class Generic_AdminActions_Config {
 				);
 			}
 
+			/*
+			 * `exit` / `die` (T_EXIT) halt execution. Allow only the
+			 * WordPress direct-access guard: `defined( … ) || exit`.
+			 */
+			if ( T_EXIT === $tid ) {
+				$prev                 = self::previous_significant_token( $tokens, $w3tc_i );
+				$exit_guard_operators = array( T_BOOLEAN_OR, T_BOOLEAN_AND, T_LOGICAL_OR, T_LOGICAL_AND );
+				$is_exit_guard        = ( \is_string( $prev ) && \in_array( $prev, array( '||', '&&' ), true ) )
+					|| ( \is_array( $prev ) && \in_array( $prev[0], $exit_guard_operators, true ) );
+				if ( ! $is_exit_guard ) {
+					return \sprintf(
+						/* translators: %s: token name. */
+						\__( 'Disallowed PHP construct in configuration file: %s', 'w3-total-cache' ),
+						\token_name( $tid )
+					);
+				}
+				continue;
+			}
+
 			// A bareword followed by `(` is a function call.
 			if ( T_STRING === $tid ) {
 				// Look ahead past whitespace / comments to find the next significant token.
-				for ( $j = $i + 1; $j < $n; $j++ ) {
+				for ( $j = $w3tc_i + 1; $j < $n; $j++ ) {
 					$next = $tokens[ $j ];
 					if ( \is_array( $next ) && \in_array( $next[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
 						continue;
 					}
 					if ( \is_string( $next ) && '(' === $next ) {
-						// Allow only `array(` literal.
-						if ( 'array' !== \strtolower( $tval ) ) {
+						// Allow `array(` literals and the ABSPATH guard.
+						if ( ! \in_array( \strtolower( $tval ), array( 'array', 'defined' ), true ) ) {
 							return \sprintf(
 								/* translators: %s: function name. */
 								\__( 'Function calls are not allowed in the configuration file: %s()', 'w3-total-cache' ),
@@ -490,7 +508,7 @@ class Generic_AdminActions_Config {
 			 * assignment operator (or `[`, which would be a subscript-assignment).
 			 */
 			if ( T_VARIABLE === $tid && '$w3tc_dbcluster_config' === $tval ) {
-				for ( $j = $i + 1; $j < $n; $j++ ) {
+				for ( $j = $w3tc_i + 1; $j < $n; $j++ ) {
 					$next = $tokens[ $j ];
 					if ( \is_array( $next ) && \in_array( $next[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
 						continue;
@@ -518,7 +536,7 @@ class Generic_AdminActions_Config {
 	 * precedes a `(` so it can distinguish "array literal" from
 	 * "function call" from "value-as-callable invocation."
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $tokens Full token array from `token_get_all()`.
 	 * @param int   $pos    Current position; the search starts at `$pos - 1`.
@@ -559,13 +577,13 @@ class Generic_AdminActions_Config {
 
 		if ( $signmeup ) {
 			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
-				$license = 'pro';
+				$w3tc_license = 'pro';
 			} else {
-				$license = 'community';
+				$w3tc_license = 'community';
 			}
 
 			/**
-			 * rt9-218: Bind the mailing-list signup to the currently
+			 * RT9-218: Bind the mailing-list signup to the currently
 			 * authenticated admin's verified WordPress account email,
 			 * rather than trusting whatever address was POSTed. The
 			 * original handler took `email` straight from the request
@@ -589,7 +607,7 @@ class Generic_AdminActions_Config {
 					array(
 						'body' => array(
 							'email'   => $email,
-							'license' => $license,
+							'license' => $w3tc_license,
 						),
 					)
 				);
@@ -635,11 +653,11 @@ class Generic_AdminActions_Config {
 			return;
 		}
 
-		$key = Util_Ui::config_key_from_http_name( $http_key );
+		$w3tc_key = Util_Ui::config_key_from_http_name( $http_key );
 
-		$c = Dispatcher::config();
-		$c->set( $key, false );
-		$c->save();
+		$w3tc_c = Dispatcher::config();
+		$w3tc_c->set( $w3tc_key, false );
+		$w3tc_c->save();
 
 		Util_Admin::redirect( array() );
 	}
@@ -660,11 +678,11 @@ class Generic_AdminActions_Config {
 			return;
 		}
 
-		$key = Util_Ui::config_key_from_http_name( $http_key );
+		$w3tc_key = Util_Ui::config_key_from_http_name( $http_key );
 
-		$c = Dispatcher::config();
-		$c->set( $key, true );
-		$c->save();
+		$w3tc_c = Dispatcher::config();
+		$w3tc_c->set( $w3tc_key, true );
+		$w3tc_c->save();
 
 		Util_Admin::redirect( array() );
 	}
@@ -674,7 +692,7 @@ class Generic_AdminActions_Config {
 	 * boolean config entry that the overloaded-toggle handlers are
 	 * allowed to flip.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $http_key Raw HTTP key from the URL.
 	 *
@@ -685,10 +703,10 @@ class Generic_AdminActions_Config {
 			return false;
 		}
 
-		$key = Util_Ui::config_key_from_http_name( $http_key );
+		$w3tc_key = Util_Ui::config_key_from_http_name( $http_key );
 
 		// Compound (extension) keys are not toggleable here.
-		if ( \is_array( $key ) || ! \is_string( $key ) ) {
+		if ( \is_array( $w3tc_key ) || ! \is_string( $w3tc_key ) ) {
 			return false;
 		}
 
@@ -697,14 +715,14 @@ class Generic_AdminActions_Config {
 		 * `pgcache.configuration_overloaded`, etc. — and nothing else.
 		 */
 		$suffix = '.configuration_overloaded';
-		if ( \strlen( $key ) <= \strlen( $suffix )
-			|| \substr( $key, -\strlen( $suffix ) ) !== $suffix
+		if ( \strlen( $w3tc_key ) <= \strlen( $suffix )
+			|| \substr( $w3tc_key, -\strlen( $suffix ) ) !== $suffix
 		) {
 			return false;
 		}
 
-		$descriptor = ConfigKeysSchema::descriptor( $key );
-		if ( null === $descriptor || ! isset( $descriptor['type'] ) || 'boolean' !== $descriptor['type'] ) {
+		$w3tc_descriptor = ConfigKeysSchema::descriptor( $w3tc_key );
+		if ( null === $w3tc_descriptor || ! isset( $w3tc_descriptor['type'] ) || 'boolean' !== $w3tc_descriptor['type'] ) {
 			return false;
 		}
 

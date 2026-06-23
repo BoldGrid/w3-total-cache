@@ -31,13 +31,13 @@ class Util_WpFile_FilesystemChmodException extends Util_WpFile_FilesystemOperati
 	 * This constructor initializes the class with a message and credentials form using
 	 * the parent class's constructor, and also sets the `filename` and `permission` properties.
 	 *
-	 * @param string $message          The message to initialize the object with.
+	 * @param string $w3tc_message          The message to initialize the object with.
 	 * @param mixed  $credentials_form The credentials form associated with the object.
 	 * @param string $filename         The filename associated with the object.
 	 * @param string $permission       The permission associated with the object.
 	 */
-	public function __construct( $message, $credentials_form, $filename, $permission ) {
-		parent::__construct( $message, $credentials_form );
+	public function __construct( $w3tc_message, $credentials_form, $filename, $permission ) {
+		parent::__construct( $w3tc_message, $credentials_form );
 
 		$this->filename   = $filename;
 		$this->permission = $permission;

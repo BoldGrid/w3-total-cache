@@ -61,8 +61,16 @@ describe('UserExperience: Lazy Load settings round-trip', function() {
 		 * performs the round-trip assertion internally, but here
 		 * we additionally pull from the rendered DOM so a future
 		 * helper refactor cannot hide a regression.
+		 *
+		 * Use `networkAdminUrl` — the same context `setOptions`
+		 * writes to. On multisite with `common.force_master`
+		 * (default on), `Root_AdminMenu::generate()` does not
+		 * register non-`visible_always` settings pages on the
+		 * per-site admin, so `env.adminUrl` would render WP's
+		 * "not allowed" page and every `$eval` below would return
+		 * null. On single-site the two URLs are identical.
 		 */
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_userexperience',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_userexperience',
 			{waitUntil: 'domcontentloaded'});
 
 		let processImg = await adminPage.$eval('#lazyload__process_img',
@@ -100,7 +108,7 @@ describe('UserExperience: Lazy Load settings round-trip', function() {
 			lazyload__enabled: false
 		});
 
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_general',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
 			{waitUntil: 'domcontentloaded'});
 		let enabled = await adminPage.$eval('#lazyload__enabled',
 			(e) => e.checked).catch(() => null);

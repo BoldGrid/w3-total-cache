@@ -77,4 +77,5 @@ a2ensite system-sandbox${W3TC_A2ENSITE_POSTFIX}
 envsubst </share/scripts/init-image/templates/apache-vhost-wp-sandbox.conf >/etc/apache2/sites-available/wp-sandbox.conf
 a2ensite wp-sandbox${W3TC_A2ENSITE_POSTFIX}
 
+/share/scripts/ensure-http-error-log.sh
 service apache2 restart

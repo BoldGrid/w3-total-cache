@@ -31,13 +31,13 @@ class Util_WpFile_FilesystemWriteException extends Util_WpFile_FilesystemOperati
 	 * This constructor sets up the object with the specified message, credentials form,
 	 * filename, and the content of the file. It also invokes the parent class constructor.
 	 *
-	 * @param string $message The message to associate with the object.
+	 * @param string $w3tc_message The message to associate with the object.
 	 * @param string $credentials_form The credentials form content.
 	 * @param string $filename The name or path of the file associated with the object.
 	 * @param string $file_contents The contents of the file.
 	 */
-	public function __construct( $message, $credentials_form, $filename, $file_contents ) {
-		parent::__construct( $message, $credentials_form );
+	public function __construct( $w3tc_message, $credentials_form, $filename, $file_contents ) {
+		parent::__construct( $w3tc_message, $credentials_form );
 
 		$this->filename      = $filename;
 		$this->file_contents = $file_contents;

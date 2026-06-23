@@ -18,38 +18,38 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	/**
 	 * Processes incoming SNS messages and handles subscription confirmation or notification actions.
 	 *
-	 * @param string $message The raw SNS message to be processed.
+	 * @param string $w3tc_message The raw SNS message to be processed.
 	 *
 	 * @return void
 	 *
 	 * @throws \Exception If an error occurs while processing the message.
 	 */
-	public function process_message( $message ) {
+	public function process_message( $w3tc_message ) {
 		$this->_log( 'Received message' );
 
 		try {
-			$message   = new \Aws\Sns\Message( $message );
-			$validator = new \Aws\Sns\MessageValidator();
-			$error     = '';
-			if ( $validator->isValid( $message ) ) {
+			$w3tc_message = new \Aws\Sns\Message( $w3tc_message );
+			$validator    = new \Aws\Sns\MessageValidator();
+			$error        = '';
+			if ( $validator->isValid( $w3tc_message ) ) {
 				$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-				if ( empty( $topic_arn ) || $topic_arn !== $message['TopicArn'] ) {
+				if ( empty( $topic_arn ) || $topic_arn !== $w3tc_message['TopicArn'] ) {
 					throw new \Exception(
 						\esc_html(
 							sprintf(
 								// Translators: 1 Error message.
 								\__( 'Not my Topic. Request came from %1$s.', 'w3-total-cache' ),
-								$message['TopicArn']
+								$w3tc_message['TopicArn']
 							)
 						)
 					);
 				}
 
-				if ( 'SubscriptionConfirmation' === $message['Type'] ) {
-					$this->_subscription_confirmation( $message );
-				} elseif ( 'Notification' === $message['Type'] ) {
-					$this->_notification( $message['Message'] );
+				if ( 'SubscriptionConfirmation' === $w3tc_message['Type'] ) {
+					$this->_subscription_confirmation( $w3tc_message );
+				} elseif ( 'Notification' === $w3tc_message['Type'] ) {
+					$this->_notification( $w3tc_message['Message'] );
 				}
 			} else {
 				$this->_log( 'Error processing message it was not valid.' );
@@ -63,17 +63,17 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	/**
 	 * Handles subscription confirmation for SNS messages.
 	 *
-	 * @param array $message The SNS subscription confirmation message.
+	 * @param array $w3tc_message The SNS subscription confirmation message.
 	 *
 	 * @return void
 	 */
-	private function _subscription_confirmation( $message ) {
+	private function _subscription_confirmation( $w3tc_message ) {
 		$this->_log( 'Issuing confirm_subscription' );
 		$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
 		$response = $this->_get_api()->confirmSubscription(
 			array(
-				'Token'    => $message['Token'],
+				'Token'    => $w3tc_message['Token'],
 				'TopicArn' => $topic_arn,
 			)
 		);
@@ -87,7 +87,7 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	 * The notification body may include a `blog_id` (multisite) and a
 	 * `host` (multisite hostname) so a cluster-wide invalidation message can
 	 * target a specific blog's caches. Earlier versions of the plugin
-	 * applied these fields by mutating `$w3_current_blog_id` and
+	 * applied these fields by mutating `$w3tc_w3_current_blog_id` and
 	 * `$_SERVER['HTTP_HOST']` from `pub/sns.php` *before* signature
 	 * validation, which let an unauthenticated request set the host the
 	 * subsequent WordPress bootstrap saw. The mutation
@@ -95,7 +95,7 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	 * against the actually configured site hostnames, and only when
 	 * WordPress is in multisite mode.
 	 *
-	 * @since X.X.X Moved blog/host switch out of `pub/sns.php`; added host allowlist.
+	 * @since 2.10.0 Moved blog/host switch out of `pub/sns.php`; added host allowlist.
 	 *
 	 * @param string $v The raw SNS notification message in JSON format.
 	 *
@@ -163,8 +163,8 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 			$switched = true;
 		}
 
-		if ( ! defined( 'DOING_SNS' ) ) {
-			define( 'DOING_SNS', true );
+		if ( ! defined( 'W3TC_DOING_SNS' ) ) {
+			define( 'W3TC_DOING_SNS', true );
 		}
 		$this->_log( 'Actions executing' );
 		do_action( 'w3tc_messagebus_message_received' );

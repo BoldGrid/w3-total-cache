@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_purge.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -55,10 +62,10 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <div class="log">
-	<?php foreach ( $results as $result ) : ?>
-		<div class="log-<?php echo W3TC_CDN_RESULT_OK === $result['result'] ? 'success' : 'error'; ?>">
-			<?php echo esc_html( $result['remote_path'] ); ?>
-			<strong><?php echo esc_html( $result['error'] ); ?></strong>
+	<?php foreach ( $results as $w3tc_result ) : ?>
+		<div class="log-<?php echo W3TC_CDN_RESULT_OK === $w3tc_result['result'] ? 'success' : 'error'; ?>">
+			<?php echo esc_html( $w3tc_result['remote_path'] ); ?>
+			<strong><?php echo esc_html( $w3tc_result['error'] ); ?></strong>
 		</div>
 	<?php endforeach; ?>
 </div>

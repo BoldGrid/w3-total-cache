@@ -8,7 +8,7 @@
  * Request-handling order:
  *
  *   - Earlier versions of this file read the request body, decoded the JSON
- *     message, and wrote `$_SERVER['HTTP_HOST']` and `$w3_current_blog_id`
+ *     message, and wrote `$_SERVER['HTTP_HOST']` and `$w3tc_w3_current_blog_id`
  *     directly from request data BEFORE loading WordPress. That let the
  *     request set the host the entire WordPress bootstrap saw (init-phase
  *     URL generation, password-reset links, cookie domains, cache keys) on
@@ -30,7 +30,7 @@
  *   3. Only after the signature is verified, load WordPress and dispatch the
  *      message to `Enterprise_SnsServer::process_message()` for further
  *      authorisation (TopicArn match) and execution.
- *   4. `$_SERVER['HTTP_HOST']` and `$w3_current_blog_id` are NEVER written
+ *   4. `$_SERVER['HTTP_HOST']` and `$w3tc_w3_current_blog_id` are NEVER written
  *      from request input here. Multisite/blog-context handling, if needed,
  *      now happens inside `Enterprise_SnsServer` after validation, using
  *      `switch_to_blog()` against an allowlist derived from configured site
@@ -50,10 +50,12 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 /**
+ * SNS endpoint PHPCS suppressions.
+ *
  * phpcs:disable WordPress.Security.NonceVerification.Missing -- Endpoint authenticated via AWS SNS signature, not a WP nonce.
  * phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Payload is raw JSON from AWS; validated cryptographically before use.
  * phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- See above; AWS SNS payload is signed JSON.
@@ -63,7 +65,7 @@ if ( ! function_exists( 'w3tc_sns_reject' ) ) {
 	/**
 	 * Emit a small text response and terminate.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param int    $status HTTP status code.
 	 * @param string $body   Short response body (single line).
@@ -178,7 +180,7 @@ try {
  * to the existing handler for TopicArn matching and action dispatch.
  *
  * Note: we deliberately do NOT mutate `$_SERVER['HTTP_HOST']` or
- * `$w3_current_blog_id` here. Any multisite/blog-context switching the SNS
+ * `$w3tc_w3_current_blog_id` here. Any multisite/blog-context switching the SNS
  * payload requests is performed inside `Enterprise_SnsServer` AFTER
  * validation, against an allowlist of configured site hostnames.
  */

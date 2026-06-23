@@ -11,7 +11,7 @@
  * @param array $details {
  *     Bunny CDN API configuration details.
  *
- *     @type string $account_api_key Account API key.
+ *     @type string $w3tc_account_api_key Account API key.
  *     @type string $error_message   Error message (optional). Suppliers MUST pass
  *                                    the raw translated string (no `esc_html()`,
  *                                    no `esc_html__()`) — this view is the single
@@ -24,6 +24,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
@@ -51,7 +52,7 @@ defined( 'W3TC' ) || die();
 				<td>
 					<?php
 					/**
-					 * rt9-19: This intro wizard step takes a Bunny CDN
+					 * RT9-19: This intro wizard step takes a Bunny CDN
 					 * Account API key. Render as `type="password"` with
 					 * `autocomplete="new-password"` so browsers don't
 					 * autofill / autosave / display the key, and so a
@@ -62,11 +63,11 @@ defined( 'W3TC' ) || die();
 					 * principle is the same: a credential never wants
 					 * `type="text"` on a settings page.
 					 */
-					$intro_api_key = isset( $details['account_api_key'] ) ? (string) $details['account_api_key'] : '';
+					$w3tc_intro_api_key = isset( $details['account_api_key'] ) ? (string) $details['account_api_key'] : '';
 					?>
 					<input id="w3tc-account-api-key" name="account_api_key" type="password" class="w3tc-ignore-change"
 						style="width: 550px" autocomplete="new-password"
-						value="<?php echo esc_attr( $intro_api_key ); ?>" />
+						value="<?php echo esc_attr( $w3tc_intro_api_key ); ?>" />
 					<p class="description">
 						<?php esc_html_e( 'To obtain your account API key,', 'w3-total-cache' ); ?>
 						<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_SETTINGS_URL ); ?>"><?php esc_html_e( 'click here', 'w3-total-cache' ); ?></a>,

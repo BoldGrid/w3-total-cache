@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 ?>
 <p>
 	<?php esc_html_e( 'Users who upgrade to W3 Total Cache Pro will have access to the new Statistics page, which provides an in-depth view of the performance of your site.', 'w3-total-cache' ); ?>

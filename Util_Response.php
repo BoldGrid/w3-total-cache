@@ -24,7 +24,7 @@ namespace W3TC;
  * we send, and a place future code can hang additional rules
  * (length, character class, well-known header names).
  *
- * @since X.X.X
+ * @since 2.10.0
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
@@ -50,10 +50,10 @@ class Util_Response {
 	 *    started, so callers can distinguish "emitted" from
 	 *    "swallowed because headers were flushed".
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $name    HTTP header name (e.g. `X-W3TC-CDN`).
-	 * @param string $value   HTTP header value.
+	 * @param string $w3tc_name    HTTP header name (e.g. `X-W3TC-CDN`).
+	 * @param string $w3tc_value   HTTP header value.
 	 * @param bool   $replace Replace any existing header of the same name.
 	 *                        Mirrors the third argument of PHP's `header()`.
 	 *
@@ -62,12 +62,12 @@ class Util_Response {
 	 *              when the value was rejected at validation OR when
 	 *              `headers_sent()` was already true.
 	 */
-	public static function header( $name, $value, $replace = true ) {
-		if ( ! \is_string( $name ) || ! \is_string( $value ) ) {
+	public static function header( $w3tc_name, $w3tc_value, $replace = true ) {
+		if ( ! \is_string( $w3tc_name ) || ! \is_string( $w3tc_value ) ) {
 			return false;
 		}
 
-		if ( '' === $name ) {
+		if ( '' === $w3tc_name ) {
 			return false;
 		}
 
@@ -77,7 +77,7 @@ class Util_Response {
 		 * CRLF-bearing value passed through the wrong code path;
 		 * refuse to emit either way.
 		 */
-		if ( ! \preg_match( '/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $name ) ) {
+		if ( ! \preg_match( '/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $w3tc_name ) ) {
 			return false;
 		}
 
@@ -87,7 +87,7 @@ class Util_Response {
 		 * from `header()`; this guard keeps PHP 7.x parity and
 		 * avoids the warning by short-circuiting first.
 		 */
-		if ( false !== \strpbrk( $value, "\r\n\0" ) ) {
+		if ( false !== \strpbrk( $w3tc_value, "\r\n\0" ) ) {
 			return false;
 		}
 
@@ -101,7 +101,7 @@ class Util_Response {
 			return false;
 		}
 
-		@\header( $name . ': ' . $value, $replace );
+		@\header( $w3tc_name . ': ' . $w3tc_value, $replace );
 
 		return true;
 	}
@@ -112,22 +112,22 @@ class Util_Response {
 	 * emit. Convenience accessor for callers that want to test a
 	 * value before deciding whether to fall back to a default.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $value Candidate value.
+	 * @param string $w3tc_value Candidate value.
 	 *
 	 * @return string The original value if it contains no CR / LF /
 	 *                NUL bytes, otherwise an empty string.
 	 */
-	public static function sanitize_header_value( $value ) {
-		if ( ! \is_string( $value ) ) {
+	public static function sanitize_header_value( $w3tc_value ) {
+		if ( ! \is_string( $w3tc_value ) ) {
 			return '';
 		}
 
-		if ( false !== \strpbrk( $value, "\r\n\0" ) ) {
+		if ( false !== \strpbrk( $w3tc_value, "\r\n\0" ) ) {
 			return '';
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 }

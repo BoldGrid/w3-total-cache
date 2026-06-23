@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 namespace W3TC;
@@ -30,7 +30,7 @@ namespace W3TC;
  * collide with the colon in a Windows drive letter. The constant is
  * server-side only — it is never read from web input.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Util_Java {
 	/**
@@ -42,7 +42,7 @@ class Util_Java {
 	 * value, because the vendored wrapper does not escape it at the
 	 * boundary.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $path Candidate path to a Java binary.
 	 *
@@ -125,7 +125,7 @@ class Util_Java {
 	 * to operators via the `minify` debug log so admins can diagnose
 	 * a "minifier stopped working" symptom directly from the log.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $path    Candidate path to a Java binary.
 	 * @param string $context Short tag used in the debug-log entry
@@ -134,8 +134,8 @@ class Util_Java {
 	 * @return string|false Canonical path on success, false on rejection.
 	 */
 	public static function validate_with_log( $path, $context = '' ) {
-		$result = self::validate( $path );
-		if ( false === $result ) {
+		$w3tc_result = self::validate( $path );
+		if ( false === $w3tc_result ) {
 			$tag = '' === $context ? 'java' : $context;
 			/**
 			 * Include the rejected path verbatim in the log line. The metachar
@@ -157,7 +157,7 @@ class Util_Java {
 				)
 			);
 		}
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Util_Java {
 	 * `/opt/openjdk-17/bin` rather than `/opt` — so a future
 	 * world-writable subdirectory cannot turn into an exec sink.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return string[]
 	 */
@@ -232,7 +232,7 @@ class Util_Java {
 	 * any value outside the documented set is dropped, falling
 	 * back to the default.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $options Raw options.
 	 *
@@ -269,7 +269,7 @@ class Util_Java {
 	 * a handful of named options; only well-typed values are
 	 * forwarded.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $options Raw options.
 	 *
@@ -284,9 +284,9 @@ class Util_Java {
 		if ( isset( $options['stack-size'] ) && \is_numeric( $options['stack-size'] ) ) {
 			$out['stack-size'] = (int) $options['stack-size'];
 		}
-		foreach ( array( 'nomunge', 'preserve-semi', 'disable-optimizations' ) as $key ) {
-			if ( isset( $options[ $key ] ) ) {
-				$out[ $key ] = (bool) $options[ $key ];
+		foreach ( array( 'nomunge', 'preserve-semi', 'disable-optimizations' ) as $w3tc_key ) {
+			if ( isset( $options[ $w3tc_key ] ) ) {
+				$out[ $w3tc_key ] = (bool) $options[ $w3tc_key ];
 			}
 		}
 

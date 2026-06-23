@@ -108,10 +108,15 @@ describe('sec-missing-auth-public-endpoints pub/sns.php regression', function() 
 		await sys.beforeDefault();
 		/**
 		 * fix_in_wpadmin (which writes the nginx pub/ deny block) runs
-		 * from admin_notices on W3TC pages only, not the dashboard login
-		 * in beforeDefault.
+		 * from admin_notices on a rendered W3TC page only, not the
+		 * dashboard login in beforeDefault. Use `networkAdminUrl`:
+		 * `w3tc_general` is not `visible_always`, so on multisite
+		 * (default `common.force_master`) it is unregistered on the
+		 * per-site admin and `env.adminUrl` would serve WP's "not
+		 * allowed" page — which never fires admin_notices, so the
+		 * deny block would never be written. Single-site: same URL.
 		 */
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_general',
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
 			{waitUntil: 'domcontentloaded'});
 		await sys.afterRulesChange();
 	});

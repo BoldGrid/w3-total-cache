@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -22,7 +22,7 @@ use W3TC\UsageStatistics_Plugin_Admin;
  *
  * Regressions here re-open the  file-existence oracle.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 
@@ -43,7 +43,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	/**
 	 * Empty / non-string / null inputs return false.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_refuses_empty_or_non_string() {
 		$this->assertFalse( $this->invoke_validator( '' ) );
@@ -55,7 +55,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	/**
 	 * A non-existent path is refused (realpath returns false).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_refuses_nonexistent_path() {
 		$this->assertFalse(
@@ -67,7 +67,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	 * A path that exists but lives outside every allowed root is
 	 * refused — the load-bearing boundary check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_refuses_path_outside_allowed_roots() {
 		/**
@@ -85,7 +85,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	 * refused. `realpath()` normalises away the `..`, so the validator
 	 * is checking the canonical target — not the literal input string.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_refuses_traversal_to_outside_root() {
 		/**
@@ -110,9 +110,48 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A real file under /var/log is accepted (typical access-log location).
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_validator_accepts_file_under_var_log() {
+		$var_log_real = \realpath( '/var/log' );
+		if ( false === $var_log_real ) {
+			$this->markTestSkipped( '/var/log does not exist on this host.' );
+		}
+
+		/**
+		 * Find any readable regular file whose canonical path stays under
+		 * /var/log — a symlink resolving elsewhere would (correctly) be
+		 * refused by the validator, so it is not a usable candidate.
+		 */
+		$candidate = false;
+		foreach ( (array) \glob( '/var/log/*' ) as $file ) {
+			$real = \realpath( $file );
+			if (
+				false !== $real
+				&& \is_file( $real )
+				&& \is_readable( $real )
+				&& 0 === \strpos( $real, $var_log_real . DIRECTORY_SEPARATOR )
+			) {
+				$candidate = $file;
+				break;
+			}
+		}
+
+		if ( false === $candidate ) {
+			$this->markTestSkipped( 'No readable regular file under /var/log on this host.' );
+		}
+
+		$result = $this->invoke_validator( $candidate );
+		$this->assertIsString( $result );
+		$this->assertSame( \realpath( $candidate ), $result );
+	}
+
+	/**
 	 * A real file under WP_CONTENT_DIR is accepted.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_accepts_file_under_wp_content_dir() {
 		if ( ! defined( 'WP_CONTENT_DIR' ) || ! is_dir( WP_CONTENT_DIR ) ) {
@@ -135,7 +174,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	/**
 	 * A real file under the uploads basedir is accepted.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_accepts_file_under_uploads_basedir() {
 		$uploads = wp_upload_dir( null, false );
@@ -159,7 +198,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	/**
 	 * A real file under W3TC_CACHE_DIR is accepted.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_accepts_file_under_w3tc_cache_dir() {
 		if ( ! defined( 'W3TC_CACHE_DIR' ) ) {
@@ -191,7 +230,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	 * A directory (`is_file()` fails) is refused even when it lives
 	 * under an allowed root.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validator_refuses_directory_under_allowed_root() {
 		if ( ! defined( 'WP_CONTENT_DIR' ) || ! is_dir( WP_CONTENT_DIR ) ) {

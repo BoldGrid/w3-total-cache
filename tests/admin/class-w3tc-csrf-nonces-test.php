@@ -17,7 +17,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -27,7 +27,7 @@ use W3TC\Util_Nonce;
 /**
  * Class: W3tc_Csrf_Nonces_Test
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 
@@ -42,7 +42,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	/**
 	 * Set up the request superglobal snapshot.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -52,7 +52,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	/**
 	 * Restore $_REQUEST and reset the current user.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function tear_down() {
 		$_REQUEST = $this->saved_request;
@@ -63,7 +63,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	/**
 	 * `read_nonce()` returns the empty string when the field is absent.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_read_nonce_returns_empty_for_missing_field() {
 		unset( $_REQUEST['_wpnonce'] );
@@ -75,7 +75,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * (`_wpnonce[]=foo`), closing the array-juggle bypass that previously
 	 * tricked `wp_verify_nonce` into returning truthy for an array value.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_read_nonce_rejects_array_shape() {
 		$_REQUEST['_wpnonce'] = array( 'foo' );
@@ -89,7 +89,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	/**
 	 * `read_nonce()` returns the empty string when the field is an object.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_read_nonce_rejects_object_shape() {
 		$_REQUEST['_wpnonce'] = new \stdClass();
@@ -100,7 +100,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * A scalar nonce passes through `read_nonce()` with slashes stripped and
 	 * control characters removed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_read_nonce_returns_scalar_value() {
 		$_REQUEST['_wpnonce'] = 'abcdef0123';
@@ -113,7 +113,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * with the legacy fallback enabled (the fallback only widens to `'w3tc'`,
 	 * not to other per-action keys).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_per_action_nonce_does_not_validate_cross_action() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -137,7 +137,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * `$allow_legacy` is true (the default), but is refused when explicitly
 	 * disabled. This is the bidirectional contract for the back-compat window.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_legacy_nonce_fallback_is_opt_in() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -146,16 +146,14 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 		$legacy_nonce         = wp_create_nonce( 'w3tc' );
 		$_REQUEST['_wpnonce'] = $legacy_nonce;
 
-		// Legacy nonce → per-action key, fallback ON (default): accepted.
-		$this->assertTrue(
+		$this->assertFalse(
 			Util_Nonce::verify_admin( 'w3tc_admin_action_w3tc_flush_all' ),
-			'Legacy w3tc nonce must validate via the back-compat fallback by default.'
+			'Legacy w3tc nonce must not validate against a per-action key by default.'
 		);
 
-		// Legacy nonce → per-action key, fallback OFF: refused.
-		$this->assertFalse(
-			Util_Nonce::verify_admin( 'w3tc_admin_action_w3tc_flush_all', '_wpnonce', false ),
-			'Legacy w3tc nonce must NOT validate against a per-action key when the fallback is disabled.'
+		$this->assertTrue(
+			Util_Nonce::verify_admin( 'w3tc_admin_action_w3tc_flush_all', '_wpnonce', true ),
+			'Legacy w3tc nonce must validate via the back-compat fallback when explicitly enabled.'
 		);
 	}
 
@@ -164,7 +162,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * unrelated admin-action key when the legacy fallback is disabled. This
 	 * encodes the post-migration "scoped per surface" property.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_ajax_nonce_is_not_a_credential_for_admin_action() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -192,7 +190,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * `read_nonce` boundary — the verifier never even calls `wp_verify_nonce`
 	 * with an array value.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_verify_admin_refuses_array_nonce() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -217,7 +215,7 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * because the token is valid, but the caller must independently check
 	 * capability before allowing the privileged action.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_valid_nonce_does_not_authorise_subscriber() {
 		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -239,9 +237,73 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	 * `LEGACY_ACTION` is publicly accessible (so call-sites and tests can
 	 * reference the same constant) and equal to the historical shared string.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_legacy_action_constant() {
 		$this->assertSame( 'w3tc', Util_Nonce::LEGACY_ACTION );
+	}
+
+	/**
+	 * Access-log test AJAX reads its nonce from the localized admin map
+	 * (create_admin → w3tc_admin_action_*); verify must use the same key.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_ustats_access_log_test_nonce_uses_admin_action_prefix() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_ustats_access_log_test' );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_ustats_access_log_test' ) ),
+			'Localized admin nonce must validate against the admin_action key.'
+		);
+		$this->assertFalse(
+			Util_Nonce::verify_admin( 'w3tc_ustats_access_log_test' ),
+			'Bare handler name must not validate a create_admin token.'
+		);
+	}
+
+	/**
+	 * Exit survey AJAX hub mints create_ajax tokens; handlers must verify ajax_action keys.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_exit_survey_render_nonce_uses_ajax_action_prefix() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_ajax( 'exit_survey_render' );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::ajax_action( 'exit_survey_render' ) ),
+			'Exit survey render nonce must validate against the ajax_action key.'
+		);
+		$this->assertFalse(
+			Util_Nonce::verify_admin( 'exit_survey_render' ),
+			'Bare sub-action name must not validate a create_ajax token.'
+		);
+	}
+
+	/**
+	 * Image Service settings save reuses the standard w3tc_save_options admin nonce.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_imageservice_settings_save_uses_w3tc_save_options_nonce() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_save_options' );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_save_options' ) ),
+			'Image Service settings must accept the w3tc_save_options admin nonce.'
+		);
+		$this->assertFalse(
+			Util_Nonce::verify_admin( 'w3tc_imageservice_settings' ),
+			'Legacy bare imageservice settings key must not validate a save_options token.'
+		);
 	}
 }

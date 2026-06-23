@@ -27,18 +27,18 @@ class Extension_Genesis_Plugin_Admin {
 	 * Defines the Genesis extension details and checks requirements.
 	 *
 	 * @param array  $extensions Existing extensions array to append new extensions.
-	 * @param object $config     Configuration object for validating requirements.
+	 * @param object $w3tc_config     Configuration object for validating requirements.
 	 *
 	 * @return array Updated extensions array with Genesis extension details.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$requirements = array();
 
 		if ( ! self::is_theme_found() ) {
 			$requirements[] = 'Optimizes "Genesis Framework" version >= 1.9.0, which is not active';
 		}
 
-		if ( ! $config->is_extension_active( 'fragmentcache' ) ) {
+		if ( ! $w3tc_config->is_extension_active( 'fragmentcache' ) ) {
 			$requirements[] = 'Activate "Fragment Cache" extension first';
 		}
 
@@ -70,9 +70,9 @@ class Extension_Genesis_Plugin_Admin {
 	 * @return array Updated error messages array.
 	 */
 	public function w3tc_errors( $errors ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( ! $c->is_extension_active_frontend( 'fragmentcache' ) ) {
+		if ( ! $w3tc_c->is_extension_active_frontend( 'fragmentcache' ) ) {
 			$errors['genesis_fragmentcache_disabled'] = __( 'Please enable <strong>Fragment Cache</strong> module to make sure <strong>Genesis extension</strong> works properly.', 'w3-total-cache' );
 		}
 
@@ -101,21 +101,21 @@ class Extension_Genesis_Plugin_Admin {
 	/**
 	 * Appends Genesis-related hooks to the list of extension hooks.
 	 *
-	 * @param array $hooks Existing hooks array to append Genesis hooks.
+	 * @param array $w3tc_hooks Existing hooks array to append Genesis hooks.
 	 *
 	 * @return array Updated hooks array with Genesis hooks.
 	 */
-	public static function w3tc_extensions_hooks( $hooks ) {
+	public static function w3tc_extensions_hooks( $w3tc_hooks ) {
 		if ( ! self::show_notice() ) {
-			return $hooks;
+			return $w3tc_hooks;
 		}
 
-		if ( ! isset( $hooks['filters']['w3tc_notes'] ) ) {
-			$hooks['filters']['w3tc_notes'] = array();
+		if ( ! isset( $w3tc_hooks['filters']['w3tc_notes'] ) ) {
+			$w3tc_hooks['filters']['w3tc_notes'] = array();
 		}
 
-		$hooks['filters']['w3tc_notes'][] = 'w3tc_notes_genesis_theme';
-		return $hooks;
+		$w3tc_hooks['filters']['w3tc_notes'][] = 'w3tc_notes_genesis_theme';
+		return $w3tc_hooks;
 	}
 
 	/**
@@ -124,8 +124,8 @@ class Extension_Genesis_Plugin_Admin {
 	 * @return bool True if the notice should be displayed, false otherwise.
 	 */
 	private static function show_notice() {
-		$config = Dispatcher::config();
-		if ( $config->is_extension_active( 'genesis.theme' ) ) {
+		$w3tc_config = Dispatcher::config();
+		if ( $w3tc_config->is_extension_active( 'genesis.theme' ) ) {
 			return false;
 		}
 
@@ -144,18 +144,18 @@ class Extension_Genesis_Plugin_Admin {
 	/**
 	 * Adds a notice suggesting the activation of the Genesis extension.
 	 *
-	 * @param array $notes Existing array of notices to append the Genesis notice.
+	 * @param array $w3tc_notes Existing array of notices to append the Genesis notice.
 	 *
 	 * @return array Updated array of notices with the Genesis suggestion.
 	 */
-	public static function w3tc_notes_genesis_theme( $notes ) {
+	public static function w3tc_notes_genesis_theme( $w3tc_notes ) {
 		if ( ! self::show_notice() ) {
-			return $notes;
+			return $w3tc_notes;
 		}
 
 		$extension_id = 'genesis.theme';
 
-		$notes[ $extension_id ] = sprintf(
+		$w3tc_notes[ $extension_id ] = sprintf(
 			// Translators: 1 opening HTML a tag to W3TC extensions page, 2 closing HTML a tag, 3 opening HTML a tag, 4 button link.
 			__(
 				'Activating the %1$sGenesis Theme%2$s extension for W3 Total Cache may be helpful for your site. %3$sClick here%2$s to try it. %4$s',
@@ -176,6 +176,6 @@ class Extension_Genesis_Plugin_Admin {
 			)
 		);
 
-		return $notes;
+		return $w3tc_notes;
 	}
 }

@@ -9,13 +9,14 @@
  * phpcs:disable Squiz.PHP.CommentedOutCode.Found
  */
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Descriptors of configuration keys for config
  *
  * Reminder: The maximum length of keys cannot exceed 64 chars. This is the limit for the name attribute in form fields.
  */
 
-$keys = array(
+$w3tc_keys = array(
 	'cluster.messagebus.debug'                             => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -1205,8 +1206,8 @@ $keys = array(
 		'default' => '',
 		'flags'   => array( 'no_import' => true ),
 		/**
-		 * cdn.engine is interpolated into the X-W3TC-CDN
-		 * response header by Cdn_Plugin::send_headers. Without an
+		 * The cdn.engine key is interpolated into the X-W3TC-CDN
+		 * Response header by Cdn_Plugin::send_headers. Without an
 		 * allowlist, an admin-settable value could carry CRLF and
 		 * inject arbitrary response headers (defense-in-depth on
 		 * PHP 7.x; PHP 8.3 already rejects raw CRLF in header()).
@@ -2612,7 +2613,7 @@ $keys = array(
 /*
  * Descriptors how sealed configuration keys affect overriding
  */
-$overloading_keys_scope = array(
+$w3tc_overloading_keys_scope = array(
 	array(
 		'key'    => 'browsercache.configuration_overloaded',
 		'prefix' => 'browsercache.',

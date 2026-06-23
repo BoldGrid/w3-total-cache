@@ -1,9 +1,9 @@
 === W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
-Requires at least: 5.3
+Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.9.4
+Stable tag: 2.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -181,7 +181,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, WordPress 6.0 or higher with PHP 7.4 or higher is required.
 
 = Why doesn't minify work for me? =
 
@@ -365,6 +365,16 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.0 =
+* Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
+* Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
+* Security: Strengthened protections against code, command, and file-inclusion injection
+* Security: Hardened processing of dynamic and cached content, including data serialization
+* Security: Restricted outbound server-side requests to mitigate server-side request forgery (SSRF)
+* Security: Restricted configuration changes to prevent unauthorized modification
+* Security: Improved handling of stored credentials, cookies, and generated server-configuration files
+* Security: Reduced potential information disclosure and improved security logging
+
 = 2.9.4 =
 * Fix: Output buffering: Reverted to the previous output buffering from 2.9.1
 * Fix: Cloudflare: Token/Key validation
@@ -526,6 +536,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added Premium Services tabs
 
 == Upgrade Notice ==
+
+= 2.10.0 =
+This is a MAJOR security update that resolves multiple vulnerabilities. All users are strongly urged to update to this version as soon as possible.
 
 = 2.9.4 =
 This is a security update.  Users who implement mfunc/mclude should update to this version.

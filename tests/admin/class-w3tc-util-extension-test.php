@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -20,14 +20,14 @@ use W3TC\Util_Extension;
  * `convert_legacy_entries()` let an attacker who lands a known slug
  * smuggle a malicious path past the read-side normalisation.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 
 	/**
 	 * `known_extensions()` returns a non-empty slug map.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_known_extensions_is_populated() {
 		$known = Util_Extension::known_extensions();
@@ -50,7 +50,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * still runs against CI / staging where the plugin IS at the
 	 * canonical location.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_resolve_accepts_known_slug() {
 		$known    = Util_Extension::known_extensions();
@@ -70,7 +70,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * behaviour is the load-bearing piece of the slug-allowlist
 	 * primitive — without it, attacker-supplied keys would still flow.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_resolve_rejects_unknown_or_malformed_slug() {
 		$this->assertFalse( Util_Extension::resolve( 'totally-not-a-real-extension' ) );
@@ -86,7 +86,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * `convert_legacy_entries()` accepts the four documented legacy
 	 * shapes and normalises them to a slug → expected-path map.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_accepts_documented_shapes() {
 		$known    = Util_Extension::known_extensions();
@@ -127,7 +127,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	/**
 	 * Unknown slugs in the input map are silently dropped.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_drops_unknown_slugs() {
 		$out = Util_Extension::convert_legacy_entries(
@@ -152,7 +152,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * in `extensions.active` (via a config-write surface) from
 	 * substituting a malicious path under the same key.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_drops_alien_path_under_known_slug() {
 		$payloads = array(
@@ -174,7 +174,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	/**
 	 * Non-array input → empty array (the function never throws or warns).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_rejects_non_array() {
 		$this->assertSame( array(), Util_Extension::convert_legacy_entries( null ) );
@@ -186,7 +186,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	/**
 	 * Empty map → empty result; no crash, no warning.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_handles_empty_map() {
 		$this->assertSame( array(), Util_Extension::convert_legacy_entries( array() ) );
@@ -200,7 +200,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * the corrected behaviour so an attacker who lands `slug => ''` via
 	 * a future config-write surface cannot bypass the alien-path check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_drops_empty_string_value() {
 		$out = Util_Extension::convert_legacy_entries( array( 'cloudflare' => '' ) );
@@ -217,7 +217,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * given the first-party deactivate path is `unset()` and a falsy
 	 * value reads as "deactivated" at every other call site.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_drops_falsy_values() {
 		$payloads = array(
@@ -249,7 +249,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * it is guaranteed to exist under `W3TC_EXTENSION_DIR` in any test
 	 * environment where the suite can run at all.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_resolve_accepts_filter_registered_slug() {
 		$known    = Util_Extension::known_extensions();
@@ -284,7 +284,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * the case where an attacker who controls a third-party extension's
 	 * filter callback tries to point W3TC at an arbitrary file.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_resolve_rejects_filter_path_with_traversal() {
 		$cb = function ( $extensions ) {
@@ -312,7 +312,7 @@ class W3tc_Util_Extension_Test extends WP_UnitTestCase {
 	 * i.e. it would still drop every third-party slug at config-read
 	 * time even though `resolve()` itself accepts them.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_convert_legacy_entries_accepts_filter_registered_slug() {
 		$sentinel = 'w3-total-cache/Util_Extension.php';

@@ -42,7 +42,7 @@ namespace W3TC;
  * Each probe class uses its own prefix + header pair so tokens
  * issued for one probe cannot be replayed against another.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Util_ProbeToken {
 	/**
@@ -50,7 +50,7 @@ class Util_ProbeToken {
 	 * server-to-self within a single admin request, so a short window
 	 * suffices.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var int
 	 */
@@ -59,7 +59,7 @@ class Util_ProbeToken {
 	/**
 	 * Issue a fresh single-use probe token under the given prefix.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $prefix Transient-key prefix unique to the probe
 	 *                       endpoint, e.g. `w3tc_pgcache_probe_`.
@@ -74,7 +74,7 @@ class Util_ProbeToken {
 			$token = bin2hex( random_bytes( 16 ) );
 		} catch ( \Exception $e ) {
 			/**
-			 * random_bytes() only throws if the OS RNG is unavailable.
+			 * Random_bytes() only throws if the OS RNG is unavailable.
 			 * Fall back to wp_generate_password but normalise so the
 			 * output still matches the strict /^[a-f0-9]{32}$/ shape
 			 * the consume side requires.
@@ -92,7 +92,7 @@ class Util_ProbeToken {
 	 * Validate the inbound probe token and consume it on success so it
 	 * cannot be replayed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $prefix      Transient-key prefix used at issue
 	 *                            time, e.g. `w3tc_pgcache_probe_`.
@@ -104,13 +104,13 @@ class Util_ProbeToken {
 	 * @return bool True if the request presents a matching probe token.
 	 */
 	public static function consume( $prefix, $header_name ) {
-		$key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header_name ) );
-		if ( empty( $_SERVER[ $key ] ) ) {
+		$w3tc_key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header_name ) );
+		if ( empty( $_SERVER[ $w3tc_key ] ) ) {
 			return false;
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- value is normalised by the strict /^[a-f0-9]{32}$/ regex on the next non-comment line.
-		$presented = trim( (string) \wp_unslash( $_SERVER[ $key ] ) );
+		$presented = trim( (string) \wp_unslash( $_SERVER[ $w3tc_key ] ) );
 		if ( ! preg_match( '/^[a-f0-9]{32}$/', $presented ) ) {
 			return false;
 		}
@@ -138,7 +138,7 @@ class Util_ProbeToken {
 	 * Emit a 404-style response and exit. Standard rejection used by
 	 * probe endpoints when {@see consume()} fails.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */

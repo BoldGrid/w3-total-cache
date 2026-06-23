@@ -43,14 +43,14 @@ class Extension_NewRelic_Service {
 	 * @return void
 	 */
 	public function __construct( $api_key = '' ) {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		if ( $api_key ) {
 			$this->_api_key = $api_key;
 		} else {
-			$this->_api_key = $config->get_string( array( 'newrelic', 'api_key' ) );
+			$this->_api_key = $w3tc_config->get_string( array( 'newrelic', 'api_key' ) );
 		}
 
-		$this->_cache_time = $config->get_integer( array( 'newrelic', 'cache_time' ), 5 );
+		$this->_cache_time = $w3tc_config->get_integer( array( 'newrelic', 'cache_time' ), 5 );
 		if ( $this->_cache_time < 1 ) {
 			$this->_cache_time = 5;
 		}
@@ -144,11 +144,11 @@ class Extension_NewRelic_Service {
 		 * Apache 2.2 or 2.4 via mod_php
 		 * Or any web server that supports FastCGI using php-fpm
 		 */
-		$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
-		$server          = explode( '/', $server_software );
-		$ws_check        = false;
-		$ws_name         = $server_software;
-		$ws_version      = '';
+		$w3tc_server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+		$server               = explode( '/', $w3tc_server_software );
+		$ws_check             = false;
+		$ws_name              = $w3tc_server_software;
+		$ws_version           = '';
 
 		if ( count( $server ) > 1 ) {
 			$ws_name    = $server[0];
@@ -170,7 +170,7 @@ class Extension_NewRelic_Service {
 				break;
 			default:
 				$ws_check   = 'fpm-fcgi' === php_sapi_name();
-				$ws_name    = $server_software;
+				$ws_name    = $w3tc_server_software;
 				$ws_version = '';
 		}
 		$verified[ __( 'Web Server', 'w3-total-cache' ) ] = $ws_check ?
@@ -197,16 +197,16 @@ class Extension_NewRelic_Service {
 	 * @throws \Exception If an error occurs while verifying the configuration.
 	 */
 	public function verify_running() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
 		$error = array();
 		if ( ! $this->get_api_key() ) {
 			$error['api_key'] = __( 'API Key is not configured.', 'w3-total-cache' );
 		}
 
-		if ( 'browser' === $config->get( array( 'newrelic', 'monitoring_type' ) ) ) {
-			$name = $this->get_effective_appname();
-			if ( empty( $name ) ) {
+		if ( 'browser' === $w3tc_config->get( array( 'newrelic', 'monitoring_type' ) ) ) {
+			$w3tc_name = $this->get_effective_appname();
+			if ( empty( $w3tc_name ) ) {
 				$error['application_id'] = __( 'Application ID is not configured. Enter/Select application name.', 'w3-total-cache' );
 			}
 		} else {
@@ -420,12 +420,12 @@ class Extension_NewRelic_Service {
 	 * @return array The application settings.
 	 */
 	public function get_application_settings() {
-		$settings = $this->getAPI()->get_application_settings(
+		$w3tc_settings = $this->getAPI()->get_application_settings(
 			$this->get_account_id(),
 			$this->get_effective_application_id()
 		);
 
-		return $settings;
+		return $w3tc_settings;
 	}
 
 	/**
@@ -436,31 +436,31 @@ class Extension_NewRelic_Service {
 	 * @return bool True on success, false on failure.
 	 */
 	public function update_application_settings( $application ) {
-		$result = $this->getAPI()->update_application_settings(
+		$w3tc_result = $this->getAPI()->update_application_settings(
 			$this->get_account_id(),
 			$this->get_effective_application_id(),
 			$application
 		);
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
 	 * Retrieves metric names based on an optional regular expression filter and limit.
 	 *
 	 * @param string $regex Optional regular expression to filter metric names.
-	 * @param string $limit Optional limit for the number of metrics to retrieve.
+	 * @param string $w3tc_limit Optional limit for the number of metrics to retrieve.
 	 *
 	 * @return array An associative array of metric names and their corresponding metric objects.
 	 */
-	public function get_metric_names( $regex = '', $limit = '' ) {
-		$metric_names_object = $this->getAPI()->get_metric_names( $this->get_effective_application_id(), $regex, $limit );
+	public function get_metric_names( $regex = '', $w3tc_limit = '' ) {
+		$metric_names_object = $this->getAPI()->get_metric_names( $this->get_effective_application_id(), $regex, $w3tc_limit );
 		if ( ! $metric_names_object ) {
 			return array();
 		}
 
 		$metric_names = array();
-		foreach ( $metric_names_object as $metric ) {
-			$metric_names[ $metric->name ] = $metric;
+		foreach ( $metric_names_object as $w3tc_metric ) {
+			$metric_names[ $w3tc_metric->name ] = $w3tc_metric;
 		}
 
 		return $metric_names;
@@ -515,14 +515,14 @@ class Extension_NewRelic_Service {
 		$formatted_data = array();
 
 		if ( $metric_data ) {
-			foreach ( $metric_data as $metric ) {
-				$path  = explode( '/', $metric->name );
-				$group = $path[0];
+			foreach ( $metric_data as $w3tc_metric ) {
+				$path       = explode( '/', $w3tc_metric->name );
+				$w3tc_group = $path[0];
 				if ( $use_subgroup ) {
-					$subgroup                                = isset( $path[1] ) ? ( 'all' === $path[1] ? 0 : $path[1] ) : 0;
-					$formatted_data[ $group ][ $subgroup ][] = $metric;
+					$subgroup                                     = isset( $path[1] ) ? ( 'all' === $path[1] ? 0 : $path[1] ) : 0;
+					$formatted_data[ $w3tc_group ][ $subgroup ][] = $w3tc_metric;
 				} else {
-					$formatted_data[ $group ][] = $metric;
+					$formatted_data[ $w3tc_group ][] = $w3tc_metric;
 				}
 			}
 		}
@@ -556,8 +556,8 @@ class Extension_NewRelic_Service {
 		if ( $metric_data ) {
 			$transactions = $metric_data['EndUser']['WebTransaction'];
 			foreach ( $transactions as $transaction ) {
-				$key             = str_replace( 'EndUser/WebTransaction/WebTransaction', '', $transaction->name );
-				$slowest[ $key ] = $transaction->average_response_time;
+				$w3tc_key             = str_replace( 'EndUser/WebTransaction/WebTransaction', '', $transaction->name );
+				$slowest[ $w3tc_key ] = $transaction->average_response_time;
 			}
 			$slowest = $this->_sort_and_slice( $slowest, 5 );
 		}
@@ -578,8 +578,8 @@ class Extension_NewRelic_Service {
 			$transactions = $metric_data['WebTransaction'];
 			foreach ( $transactions as $transaction ) {
 				foreach ( $transaction as $tr_sub ) {
-					$key             = str_replace( 'WebTransaction', '', $tr_sub->name );
-					$slowest[ $key ] = $tr_sub->average_response_time;
+					$w3tc_key             = str_replace( 'WebTransaction', '', $tr_sub->name );
+					$slowest[ $w3tc_key ] = $tr_sub->average_response_time;
 				}
 			}
 			$slowest = $this->_sort_and_slice( $slowest, 5 );
@@ -594,8 +594,8 @@ class Extension_NewRelic_Service {
 	 */
 	public function get_slowest_database() {
 		// Prefer Datastore metrics (v2); fall back to Database if empty.
-		$metric_names      = $this->get_metric_names( '^Datastore/' );
-		$metric_group_key  = 'Datastore';
+		$metric_names     = $this->get_metric_names( '^Datastore/' );
+		$metric_group_key = 'Datastore';
 		if ( empty( $metric_names ) ) {
 			$metric_names     = $this->get_metric_names( '^Database/' );
 			$metric_group_key = 'Database';
@@ -618,15 +618,15 @@ class Extension_NewRelic_Service {
 			}
 		}
 
-		$slowest     = array();
+		$slowest      = array();
 		$transactions = $metric_data[ $metric_group_key ];
 		foreach ( $transactions as $transaction ) {
-			$key   = str_replace( $metric_group_key, '', $transaction->name );
-			$value = isset( $transaction->average_response_time ) ? $transaction->average_response_time : ( $transaction->average_value ?? null );
-			if ( null === $value ) {
+			$w3tc_key   = str_replace( $metric_group_key, '', $transaction->name );
+			$w3tc_value = isset( $transaction->average_response_time ) ? $transaction->average_response_time : ( $transaction->average_value ?? null );
+			if ( null === $w3tc_value ) {
 				continue;
 			}
-			$slowest[ $key ] = $value;
+			$slowest[ $w3tc_key ] = $w3tc_value;
 		}
 
 		return $this->_sort_and_slice( $slowest, 5 );
@@ -719,10 +719,10 @@ class Extension_NewRelic_Service {
 			update_option( 'w3tc_nr_account_id', wp_json_encode( $ids ) );
 
 			// Persist to config for visibility/use elsewhere.
-			$config = Dispatcher::config();
-			if ( $config->get_integer( array( 'newrelic', 'account_id' ) ) !== $account_id ) {
-				$config->set( array( 'newrelic', 'account_id' ), $account_id );
-				$config->save();
+			$w3tc_config = Dispatcher::config();
+			if ( $w3tc_config->get_integer( array( 'newrelic', 'account_id' ) ) !== $account_id ) {
+				$w3tc_config->set( array( 'newrelic', 'account_id' ), $account_id );
+				$w3tc_config->save();
 			}
 
 			return $account_id;
@@ -744,8 +744,8 @@ class Extension_NewRelic_Service {
 		}
 
 		$apps = $this->get_applications();
-		foreach ( $apps as $id => $name ) {
-			if ( $name === $appname ) {
+		foreach ( $apps as $id => $w3tc_name ) {
+			if ( $w3tc_name === $appname ) {
 				return $id;
 			}
 		}
@@ -758,11 +758,11 @@ class Extension_NewRelic_Service {
 	 * @return int The effective application ID, or 0 if an error occurs.
 	 */
 	public function get_effective_application_id() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$monitoring_type = $config->get_string( array( 'newrelic', 'monitoring_type' ) );
+		$monitoring_type = $w3tc_config->get_string( array( 'newrelic', 'monitoring_type' ) );
 		if ( 'browser' === $monitoring_type ) {
-			return $config->get_string( array( 'newrelic', 'browser.application_id' ) );
+			return $w3tc_config->get_string( array( 'newrelic', 'browser.application_id' ) );
 		}
 
 		$appname    = $this->get_effective_appname();
@@ -772,20 +772,20 @@ class Extension_NewRelic_Service {
 			$ids = array();
 		}
 
-		$key = md5( $this->_api_key . $appname );
-		if ( isset( $ids[ $key ] ) ) {
-			return $ids[ $key ];
+		$w3tc_key = md5( $this->_api_key . $appname );
+		if ( isset( $ids[ $w3tc_key ] ) ) {
+			return $ids[ $w3tc_key ];
 		}
 
 		try {
-			$ids[ $key ] = $this->get_application_id( $appname );
+			$ids[ $w3tc_key ] = $this->get_application_id( $appname );
 		} catch ( \Exception $ex ) {
 			return 0;
 		}
 
 		update_option( 'w3tc_nr_application_id', wp_json_encode( $ids ) );
 
-		return $ids[ $key ];
+		return $ids[ $w3tc_key ];
 	}
 
 	/**
@@ -794,19 +794,19 @@ class Extension_NewRelic_Service {
 	 * @return string The effective application name.
 	 */
 	public function get_effective_appname() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$monitoring_type = $config->get_string( array( 'newrelic', 'monitoring_type' ) );
+		$monitoring_type = $w3tc_config->get_string( array( 'newrelic', 'monitoring_type' ) );
 		if ( 'browser' === $monitoring_type ) {
-			$core = Dispatcher::component( 'Extension_NewRelic_Core' );
-			$a    = $core->get_effective_browser_application();
-			if ( isset( $a['name'] ) ) {
-				return $a['name'];
+			$core   = Dispatcher::component( 'Extension_NewRelic_Core' );
+			$w3tc_a = $core->get_effective_browser_application();
+			if ( isset( $w3tc_a['name'] ) ) {
+				return $w3tc_a['name'];
 			}
 
 			return '?';
 		}
 
-		return $config->get_string( array( 'newrelic', 'apm.application_name' ) );
+		return $w3tc_config->get_string( array( 'newrelic', 'apm.application_name' ) );
 	}
 }

@@ -17,7 +17,7 @@ class Extension_Genesis_Page {
 	 * @return void
 	 */
 	public static function w3tc_extension_page_genesis_theme() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		include W3TC_DIR . '/Extension_Genesis_Page_View.php';
 	}
 }

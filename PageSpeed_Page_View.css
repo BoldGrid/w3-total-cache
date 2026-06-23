@@ -133,7 +133,7 @@
     margin: 0;
     padding: 0;
     display: none;
-    background: #ffffff;
+    background: #fff;
 }
 
 #w3tcps-screenshots .inside {
@@ -233,7 +233,7 @@
 }
 
 .w3tcps_fail::before {
-    width: 0px;
+    width: 0;
     margin: -14px 14px 0 6px;
     border-left: calc(14px / 2) solid transparent;
     border-right: calc(14px / 2) solid transparent;
@@ -262,7 +262,7 @@
     margin: 0 10px;
 }
 
-.gauge:before {
+.gauge::before {
     content: "";
     display: block;
     padding-top: 50%;
@@ -407,12 +407,14 @@
 }
 
 @media only screen and (max-width: 1024px) {
+
     .w3tcps_breakdown_items_container {
         flex-direction: column;
     }
 }
 
 @media only screen and (max-width: 600px) {
+
     .w3tcps_audit_results {
         border-top: 1px solid #ccd0d4;
     }

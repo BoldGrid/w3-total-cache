@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_rename_domain.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -9,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <script type="text/javascript">/*<![CDATA[*/
 jQuery(function() {
-	W3tc_Popup_Cdn_Rename_Domain.nonce = '<?php echo esc_html( wp_create_nonce( 'w3tc' ) ); ?>';
+	W3tc_Popup_Cdn_Rename_Domain.nonce = '<?php echo esc_html( Util_Nonce::create_admin( 'w3tc_cdn_rename_domain_process' ) ); ?>';
 	W3tc_Popup_Cdn_Rename_Domain.init('');
 });
 /*]]>*/</script>

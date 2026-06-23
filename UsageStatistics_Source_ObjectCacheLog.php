@@ -100,30 +100,30 @@ class UsageStatistics_Source_ObjectCacheLog {
 			}
 		}
 
-		$output = array();
-		foreach ( $this->by_group as $group => $data ) {
-			$output[] = array(
-				'group'           => $group,
-				'count_total'     => $data['count_total'],
-				'count_get_total' => $data['count_get_total'],
-				'count_get_hit'   => $data['count_get_hit'],
-				'count_set'       => $data['count_set'],
-				'sum_size'        => $data['sum_size'],
-				'avg_size'        => $data['count_total'] ? (int) ( $data['sum_size'] / $data['count_total'] ) : 0,
-				'sum_time_ms'     => (int) $data['sum_time_ms'],
+		$w3tc_output = array();
+		foreach ( $this->by_group as $w3tc_group => $w3tc_data ) {
+			$w3tc_output[] = array(
+				'group'           => $w3tc_group,
+				'count_total'     => $w3tc_data['count_total'],
+				'count_get_total' => $w3tc_data['count_get_total'],
+				'count_get_hit'   => $w3tc_data['count_get_hit'],
+				'count_set'       => $w3tc_data['count_set'],
+				'sum_size'        => $w3tc_data['sum_size'],
+				'avg_size'        => $w3tc_data['count_total'] ? (int) ( $w3tc_data['sum_size'] / $w3tc_data['count_total'] ) : 0,
+				'sum_time_ms'     => (int) $w3tc_data['sum_time_ms'],
 			);
 		}
 
 		usort(
-			$output,
-			function ( $a, $b ) {
-				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
+			$w3tc_output,
+			function ( $w3tc_a, $b ) {
+				return (int) ( $b[ $this->sort_column ] ) - (int) ( $w3tc_a[ $this->sort_column ] );
 			}
 		);
 
-		$output = array_slice( $output, 0, 200 );
+		$w3tc_output = array_slice( $w3tc_output, 0, 200 );
 
-		return $output;
+		return $w3tc_output;
 	}
 
 	/**
@@ -141,8 +141,8 @@ class UsageStatistics_Source_ObjectCacheLog {
 		$n = 0;
 		if ( $skip_first_line ) {
 			for ( ; $n < $s_length; $n++ ) {
-				$c = substr( $s, $n, 1 );
-				if ( "\r" === $c || "\n" === $c ) {
+				$w3tc_c = substr( $s, $n, 1 );
+				if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 					$unparsed_head = substr( $s, 0, $n + 1 );
 					break;
 				}
@@ -151,8 +151,8 @@ class UsageStatistics_Source_ObjectCacheLog {
 
 		$line_start = $n;
 		for ( ; $n < $s_length; $n++ ) {
-			$c = substr( $s, $n, 1 );
-			if ( "\r" === $c || "\n" === $c ) {
+			$w3tc_c = substr( $s, $n, 1 );
+			if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 				if ( $n > $line_start ) {
 					$this->push_line( substr( $s, $line_start, $n - $line_start ) );
 				}
@@ -167,12 +167,12 @@ class UsageStatistics_Source_ObjectCacheLog {
 	/**
 	 * Processes a single line from the log file, extracting relevant details and updating group statistics.
 	 *
-	 * @param string $line The log line to process.
+	 * @param string $w3tc_line The log line to process.
 	 *
 	 * @return void
 	 */
-	private function push_line( $line ) {
-		$matches = str_getcsv( $line, "\t" );
+	private function push_line( $w3tc_line ) {
+		$matches = str_getcsv( $w3tc_line, "\t" );
 
 		if ( ! $matches ) {
 			return;
@@ -180,7 +180,7 @@ class UsageStatistics_Source_ObjectCacheLog {
 
 		$date_string   = $matches[0];
 		$op            = $matches[1];
-		$group         = $matches[2];
+		$w3tc_group    = $matches[2];
 		$id            = $matches[3];
 		$reason        = $matches[4];
 		$size          = (int) $matches[5];
@@ -197,8 +197,8 @@ class UsageStatistics_Source_ObjectCacheLog {
 			return; // it's not cache-related activity.
 		}
 
-		if ( ! isset( $this->by_group[ $group ] ) ) {
-			$this->by_group[ $group ] = array(
+		if ( ! isset( $this->by_group[ $w3tc_group ] ) ) {
+			$this->by_group[ $w3tc_group ] = array(
 				'count_total'     => 0,
 				'count_get_total' => 0,
 				'count_get_hit'   => 0,
@@ -209,17 +209,17 @@ class UsageStatistics_Source_ObjectCacheLog {
 		}
 
 		if ( 'get' === $op ) {
-			++$this->by_group[ $group ]['count_total'];
-			++$this->by_group[ $group ]['count_get_total'];
+			++$this->by_group[ $w3tc_group ]['count_total'];
+			++$this->by_group[ $w3tc_group ]['count_get_total'];
 			if ( 'from persistent cache' === $reason ) {
-				++$this->by_group[ $group ]['count_get_hit'];
+				++$this->by_group[ $w3tc_group ]['count_get_hit'];
 			}
 		} elseif ( 'set' === $op ) {
-			++$this->by_group[ $group ]['count_total'];
-			++$this->by_group[ $group ]['count_set'];
+			++$this->by_group[ $w3tc_group ]['count_total'];
+			++$this->by_group[ $w3tc_group ]['count_set'];
 		}
 
-		$this->by_group[ $group ]['sum_size']    += $size;
-		$this->by_group[ $group ]['sum_time_ms'] += $time_taken_ms;
+		$this->by_group[ $w3tc_group ]['sum_size']    += $size;
+		$this->by_group[ $w3tc_group ]['sum_time_ms'] += $time_taken_ms;
 	}
 }

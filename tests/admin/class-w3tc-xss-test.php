@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -23,7 +23,7 @@ use W3TC\Config;
  *  - `Config::export()` hex-escapes HTML-significant characters so a
  *    JSON config blob can never carry a literal `<script>`.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Xss_Test extends WP_UnitTestCase {
 
@@ -33,7 +33,7 @@ class W3tc_Xss_Test extends WP_UnitTestCase {
 	 * `esc_textarea` on output, the stored value can never be a
 	 * script tag.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_clean_values_strips_script_payloads() {
 		$cleaned = CacheGroups_Plugin_Admin::clean_values(
@@ -57,7 +57,7 @@ class W3tc_Xss_Test extends WP_UnitTestCase {
 	 * Legitimate UA strings round-trip unchanged through the cleaner
 	 * (modulo the existing lowercase + space-escape transforms).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_clean_values_preserves_legitimate_user_agents() {
 		$cleaned = CacheGroups_Plugin_Admin::clean_values(
@@ -80,7 +80,7 @@ class W3tc_Xss_Test extends WP_UnitTestCase {
 	 * hex escape ensures no literal `<script>` can ever appear in the
 	 * response body regardless of what an admin saved in config.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_config_export_hex_escapes_html_significant_chars() {
 		$config = new Config();
@@ -106,5 +106,24 @@ class W3tc_Xss_Test extends WP_UnitTestCase {
 		$decoded = json_decode( $json, true );
 		$this->assertIsArray( $decoded );
 		$this->assertSame( "tag\\'attr&value", $decoded['pgcache.bad_behavior_path'] );
+	}
+
+	/**
+	 * Secret-flagged config keys are blanked in export output.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_config_export_blanks_secret_keys() {
+		$config = new Config();
+		$config->set( 'cdn.s3.secret', 'super-secret-value' );
+		$config->set( 'pgcache.enabled', true );
+
+		$json    = $config->export();
+		$decoded = json_decode( $json, true );
+
+		$this->assertIsArray( $decoded );
+		$this->assertSame( '', $decoded['cdn.s3.secret'] );
+		$this->assertTrue( $decoded['pgcache.enabled'] );
+		$this->assertStringNotContainsString( 'super-secret-value', $json );
 	}
 }

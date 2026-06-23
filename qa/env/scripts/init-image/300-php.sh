@@ -8,11 +8,12 @@ export | grep LANG
 ## Switch Case Style for PHP to maintain different versions
 case "${W3D_PHP_VERSION}" in
 	# php7.0-xml required by wordpress, fails otherwise on pings
+	# php*-zip required by wp-cli core download (ZipArchive)
 
     "5.6") echo "Installing PHP 5.6"
         add-apt-repository -y ppa:ondrej/php
         apt-get update
-        apt-get install -y php5.6-cli php5.6-mysql php5.6-curl php5.6-xml
+        apt-get install -y php5.6-cli php5.6-mysql php5.6-curl php5.6-xml php5.6-zip
         update-alternatives --set php /usr/bin/php5.6
 
         if [ "$W3D_APC" = "apc" ]; then
@@ -38,7 +39,7 @@ case "${W3D_PHP_VERSION}" in
     "7.0") echo "Installing PHP 7.0"
         add-apt-repository -y ppa:ondrej/php
         apt-get update
-	    apt-get install -y php7.0-common php7.0-cli php7.0-mysql php7.0-curl php7.0-xml
+	    apt-get install -y php7.0-common php7.0-cli php7.0-mysql php7.0-curl php7.0-xml php7.0-zip
         update-alternatives --set php /usr/bin/php7.0
 
 		if [ "$W3D_APC" = "apcu" ]; then
@@ -54,7 +55,8 @@ case "${W3D_PHP_VERSION}" in
 	"7.3") echo "Installing PHP 7.3"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
-        apt-get install -y php7.3-common php7.3-cli php7.3-mysql php7.3-curl php7.3-xml
+        apt-get install -y php7.3-common php7.3-cli php7.3-mysql php7.3-curl php7.3-xml php7.3-zip
+        update-alternatives --set php /usr/bin/php7.3
 
 		if [ "$W3D_APC" = "apcu" ]; then
 	        apt-get install -y php7.3-apcu
@@ -69,7 +71,8 @@ case "${W3D_PHP_VERSION}" in
 	"7.4") echo "Installing PHP 7.4"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
-        apt-get install -y php7.4-common php7.4-cli php7.4-mysql php7.4-curl php7.4-xml
+        apt-get install -y php7.4-common php7.4-cli php7.4-mysql php7.4-curl php7.4-xml php7.4-zip
+        update-alternatives --set php /usr/bin/php7.4
 
 		if [ "$W3D_APC" = "apcu" ]; then
 	        apt-get install -y php7.4-apcu
@@ -84,7 +87,7 @@ case "${W3D_PHP_VERSION}" in
 	"8.0") echo "Installing PHP 8.0"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
-        apt-get install -y php8.0-common php8.0-cli php8.0-mysql php8.0-curl php8.0-xml
+        apt-get install -y php8.0-common php8.0-cli php8.0-mysql php8.0-curl php8.0-xml php8.0-zip
         update-alternatives --set php /usr/bin/php8.0
 
         if [ "$W3D_APC" = "apcu" ]; then
@@ -100,7 +103,7 @@ case "${W3D_PHP_VERSION}" in
 	"8.1") echo "Installing PHP 8.1"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
-        apt-get install -y php8.1-common php8.1-cli php8.1-mysql php8.1-curl php8.1-xml
+        apt-get install -y php8.1-common php8.1-cli php8.1-mysql php8.1-curl php8.1-xml php8.1-zip
         update-alternatives --set php /usr/bin/php8.1
 
         if [ "$W3D_APC" = "apcu" ]; then
@@ -116,7 +119,7 @@ case "${W3D_PHP_VERSION}" in
 	"8.5") echo "Installing PHP 8.5"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
-        apt-get install -y php8.5-common php8.5-cli php8.5-mysql php8.5-curl php8.5-xml
+        apt-get install -y php8.5-common php8.5-cli php8.5-mysql php8.5-curl php8.5-xml php8.5-zip
         update-alternatives --set php /usr/bin/php8.5
 
         if [ "$W3D_APC" = "apcu" ]; then

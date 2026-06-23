@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_Genesis_Plugin
  *
@@ -54,9 +55,9 @@ class Extension_Genesis_Plugin {
 				/**
 				 * Register the caching of content to specific hooks
 				 */
-				foreach ( array( 'genesis_header', 'genesis_footer', 'genesis_sidebar', 'genesis_loop', 'wp_head', 'wp_footer', 'genesis_comments', 'genesis_pings' ) as $hook ) {
-					add_action( $hook, array( $this, 'cache_genesis_start' ), -999999999 );
-					add_action( $hook, array( $this, 'cache_genesis_end' ), 999999999 );
+				foreach ( array( 'genesis_header', 'genesis_footer', 'genesis_sidebar', 'genesis_loop', 'wp_head', 'wp_footer', 'genesis_comments', 'genesis_pings' ) as $w3tc_hook ) {
+					add_action( $w3tc_hook, array( $this, 'cache_genesis_start' ), -999999999 );
+					add_action( $w3tc_hook, array( $this, 'cache_genesis_end' ), 999999999 );
 				}
 				foreach ( array( 'genesis_do_subnav', 'genesis_do_nav' ) as $filter ) {
 					add_filter( $filter, array( $this, 'cache_genesis_filter_start' ), -999999999 );
@@ -116,14 +117,14 @@ class Extension_Genesis_Plugin {
 	 * @return void
 	 */
 	public function cache_genesis_start() {
-		$hook = current_filter();
-		$keys = $this->_get_id_group( $hook );
-		if ( is_null( $keys ) ) {
+		$w3tc_hook = current_filter();
+		$w3tc_keys = $this->_get_id_group( $w3tc_hook );
+		if ( is_null( $w3tc_keys ) ) {
 			return;
 		}
 
-		list( $id, $group ) = $keys;
-		w3tc_fragmentcache_start( $id, $group, $hook );
+		list( $id, $w3tc_group ) = $w3tc_keys;
+		w3tc_fragmentcache_start( $id, $w3tc_group, $w3tc_hook );
 	}
 
 	/**
@@ -132,48 +133,48 @@ class Extension_Genesis_Plugin {
 	 * @return void
 	 */
 	public function cache_genesis_end() {
-		$keys = $this->_get_id_group( current_filter() );
-		if ( is_null( $keys ) ) {
+		$w3tc_keys = $this->_get_id_group( current_filter() );
+		if ( is_null( $w3tc_keys ) ) {
 			return;
 		}
 
-		list( $id, $group ) = $keys;
-		w3tc_fragmentcache_end( $id, $group, $this->_config->get_boolean( array( 'fragmentcache', 'debug' ) ) );
+		list( $id, $w3tc_group ) = $w3tc_keys;
+		w3tc_fragmentcache_end( $id, $w3tc_group, $this->_config->get_boolean( array( 'fragmentcache', 'debug' ) ) );
 	}
 
 	/**
 	 * Starts fragment caching for Genesis navigation-related filters.
 	 *
-	 * @param mixed $data The data to be filtered.
+	 * @param mixed $w3tc_data The data to be filtered.
 	 *
 	 * @return mixed The modified data after applying the filter.
 	 */
-	public function cache_genesis_filter_start( $data ) {
-		$hook = current_filter();
-		$keys = $this->_get_id_group( $hook, strpos( $data, 'current' ) !== false );
-		if ( is_null( $keys ) ) {
-			return $data;
+	public function cache_genesis_filter_start( $w3tc_data ) {
+		$w3tc_hook = current_filter();
+		$w3tc_keys = $this->_get_id_group( $w3tc_hook, strpos( $w3tc_data, 'current' ) !== false );
+		if ( is_null( $w3tc_keys ) ) {
+			return $w3tc_data;
 		}
 
-		list( $id, $group ) = $keys;
-		return w3tc_fragmentcache_filter_start( $id, $group, $hook, $data );
+		list( $id, $w3tc_group ) = $w3tc_keys;
+		return w3tc_fragmentcache_filter_start( $id, $w3tc_group, $w3tc_hook, $w3tc_data );
 	}
 
 	/**
 	 * Ends fragment caching for Genesis navigation-related filters.
 	 *
-	 * @param mixed $data The data to be filtered.
+	 * @param mixed $w3tc_data The data to be filtered.
 	 *
 	 * @return mixed The modified data after applying the filter.
 	 */
-	public function cache_genesis_filter_end( $data ) {
-		$keys = $this->_get_id_group( current_filter(), strpos( $data, 'current' ) !== false );
-		if ( is_null( $keys ) ) {
-			return $data;
+	public function cache_genesis_filter_end( $w3tc_data ) {
+		$w3tc_keys = $this->_get_id_group( current_filter(), strpos( $w3tc_data, 'current' ) !== false );
+		if ( is_null( $w3tc_keys ) ) {
+			return $w3tc_data;
 		}
 
-		list( $id, $group ) = $keys;
-		return w3tc_fragmentcache_filter_end( $id, $group, $data );
+		list( $id, $w3tc_group ) = $w3tc_keys;
+		return w3tc_fragmentcache_filter_end( $id, $w3tc_group, $w3tc_data );
 	}
 
 	/**
@@ -200,31 +201,31 @@ class Extension_Genesis_Plugin {
 	 * phpcs:disable Squiz.PHP.DisallowMultipleAssignments.Found
 	 * phpcs:disable Generic.CodeAnalysis.AssignmentInCondition
 	 *
-	 * @param string $hook         The current hook being processed.
+	 * @param string $w3tc_hook         The current hook being processed.
 	 * @param bool   $current_menu Whether the current menu is relevant to caching.
 	 *
 	 * @return array|null An array containing the ID and group or null if not applicable.
 	 */
-	private function _get_id_group( $hook, $current_menu = false ) {
+	private function _get_id_group( $w3tc_hook, $current_menu = false ) {
 		if ( $this->cannot_cache_current_hook() ) {
 			return null;
 		}
 
 		switch ( true ) {
-			case $keys = $this->generate_sidebar_keys():
-				list( $group, $genesis_id ) = $keys;
+			case $w3tc_keys = $this->generate_sidebar_keys():
+				list( $w3tc_group, $genesis_id ) = $w3tc_keys;
 				break;
-			case $keys = $this->generate_genesis_loop_keys():
-				list( $group, $genesis_id ) = $keys;
+			case $w3tc_keys = $this->generate_genesis_loop_keys():
+				list( $w3tc_group, $genesis_id ) = $w3tc_keys;
 				break;
-			case $keys = $this->generate_genesis_comments_pings_keys():
-				list( $group, $genesis_id ) = $keys;
+			case $w3tc_keys = $this->generate_genesis_comments_pings_keys():
+				list( $w3tc_group, $genesis_id ) = $w3tc_keys;
 				break;
-			case $keys = $this->generate_genesis_navigation_keys( $current_menu ):
-				list( $group, $genesis_id ) = $keys;
+			case $w3tc_keys = $this->generate_genesis_navigation_keys( $current_menu ):
+				list( $w3tc_group, $genesis_id ) = $w3tc_keys;
 				break;
 			default:
-				$group      = $hook;
+				$w3tc_group = $w3tc_hook;
 				$genesis_id = $this->get_page_slug();
 				if ( is_paged() ) {
 					$genesis_id .= $this->get_paged_page_key();
@@ -232,8 +233,8 @@ class Extension_Genesis_Plugin {
 				break;
 		}
 
-		if ( $this->_cache_group( $group ) && ! $this->_exclude_page( $group ) ) {
-			return array( $genesis_id, $this->_genesis_group( $group, true ) );
+		if ( $this->_cache_group( $w3tc_group ) && ! $this->_exclude_page( $w3tc_group ) ) {
+			return array( $genesis_id, $this->_genesis_group( $w3tc_group, true ) );
 		}
 
 		return null;
@@ -242,23 +243,23 @@ class Extension_Genesis_Plugin {
 	/**
 	 * Checks if a group should be cached based on the plugin's configuration.
 	 *
-	 * @param string $group The group name to check.
+	 * @param string $w3tc_group The group name to check.
 	 *
 	 * @return bool True if the group should be cached, false otherwise.
 	 */
-	private function _cache_group( $group ) {
-		return $this->_config->get_string( array( 'genesis.theme', $group ) );
+	private function _cache_group( $w3tc_group ) {
+		return $this->_config->get_string( array( 'genesis.theme', $w3tc_group ) );
 	}
 
 	/**
 	 * Checks if a page should be excluded from caching based on the plugin's configuration.
 	 *
-	 * @param string $group The group name to check.
+	 * @param string $w3tc_group The group name to check.
 	 *
 	 * @return bool True if the page should be excluded, false otherwise.
 	 */
-	private function _exclude_page( $group ) {
-		$reject_uri = $this->_config->get_array( array( 'genesis.theme', "{$group}_excluded" ) );
+	private function _exclude_page( $w3tc_group ) {
+		$reject_uri = $this->_config->get_array( array( 'genesis.theme', "{$w3tc_group}_excluded" ) );
 
 		if ( is_null( $reject_uri ) || ! is_array( $reject_uri ) || empty( $reject_uri ) ) {
 			return false;
@@ -315,8 +316,8 @@ class Extension_Genesis_Plugin {
 			),
 		);
 
-		foreach ( $groups as $group => $actions ) {
-			w3tc_register_fragment_group( $group, $actions, 3600 );
+		foreach ( $groups as $w3tc_group => $actions ) {
+			w3tc_register_fragment_group( $w3tc_group, $actions, 3600 );
 		}
 	}
 
@@ -328,21 +329,21 @@ class Extension_Genesis_Plugin {
 	 * @return void
 	 */
 	public function flush_post_fragment( $post_ID ) {
-		$page_slug = $this->get_page_slug( $post_ID );
-		$urls      = Util_PageUrls::get_post_urls( $post_ID );
-		$hooks     = array( 'genesis_loop', 'genesis_comments', 'genesis_pings' );
-		foreach ( $hooks as $hook ) {
+		$page_slug  = $this->get_page_slug( $post_ID );
+		$urls       = Util_PageUrls::get_post_urls( $post_ID );
+		$w3tc_hooks = array( 'genesis_loop', 'genesis_comments', 'genesis_pings' );
+		foreach ( $w3tc_hooks as $w3tc_hook ) {
 			$genesis_id = $page_slug;
-			$genesis_id = "{$hook}_{$genesis_id}";
+			$genesis_id = "{$w3tc_hook}_{$genesis_id}";
 
 			w3tc_fragmentcache_flush_fragment( $genesis_id, $this->_genesis_group( 'loop_single_logged_in' ) );
 			w3tc_fragmentcache_flush_fragment( $genesis_id, $this->_genesis_group( 'loop_single' ) );
 
-			$count = count( $urls );
-			for ( $page = 0; $page <= $count; $page++ ) {
+			$w3tc_count = count( $urls );
+			for ( $page = 0; $page <= $w3tc_count; $page++ ) {
 				$genesis_id  = $page_slug;
 				$genesis_id .= $this->get_paged_page_key( $page );
-				$genesis_id  = "{$hook}_{$genesis_id}";
+				$genesis_id  = "{$w3tc_hook}_{$genesis_id}";
 
 				w3tc_fragmentcache_flush_fragment( $genesis_id, $this->_genesis_group( 'loop_single_logged_in' ) );
 				w3tc_fragmentcache_flush_fragment( $genesis_id, $this->_genesis_group( 'loop_single' ) );
@@ -370,10 +371,10 @@ class Extension_Genesis_Plugin {
 		if ( is_user_logged_in() && $this->_config->get_boolean( array( 'genesis.theme', 'reject_logged_roles' ) ) ) {
 			$roles = $this->_config->get_array( array( 'genesis.theme', 'reject_roles' ) );
 			if ( $roles ) {
-				$hooks = $this->_config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
-				$hook  = current_filter();
+				$w3tc_hooks = $this->_config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
+				$w3tc_hook  = current_filter();
 				foreach ( $roles as $role ) {
-					if ( $hooks && current_user_can( $role ) && in_array( $hook, $hooks, true ) ) {
+					if ( $w3tc_hooks && current_user_can( $role ) && in_array( $w3tc_hook, $w3tc_hooks, true ) ) {
 						return true;
 					}
 				}
@@ -388,17 +389,17 @@ class Extension_Genesis_Plugin {
 	 * @return array|null An array containing group and Genesis ID or null if not applicable.
 	 */
 	private function generate_genesis_loop_keys() {
-		$hook = current_filter();
-		if ( 'genesis_loop' !== $hook ) {
+		$w3tc_hook = current_filter();
+		if ( 'genesis_loop' !== $w3tc_hook ) {
 			return null;
 		}
 
 		if ( is_front_page() ) {
-			$group = 'loop_front_page';
+			$w3tc_group = 'loop_front_page';
 		} elseif ( is_single() ) {
-			$group = 'loop_single';
+			$w3tc_group = 'loop_single';
 		} else {
-			$group = 'loop_terms';
+			$w3tc_group = 'loop_terms';
 		}
 
 		$genesis_id = $this->get_page_slug();
@@ -406,9 +407,9 @@ class Extension_Genesis_Plugin {
 			$genesis_id .= $this->get_paged_page_key();
 		}
 
-		$genesis_id = "{$hook}_{$genesis_id}";
+		$genesis_id = "{$w3tc_hook}_{$genesis_id}";
 
-		return array( $group, $genesis_id );
+		return array( $w3tc_group, $genesis_id );
 	}
 
 	/**
@@ -417,14 +418,14 @@ class Extension_Genesis_Plugin {
 	 * @return array|null An array containing group and Genesis ID or null if not applicable.
 	 */
 	private function generate_sidebar_keys() {
-		$hook = current_filter();
-		if ( true !== strpos( $hook, 'sidebar' ) ) {
+		$w3tc_hook = current_filter();
+		if ( true !== strpos( $w3tc_hook, 'sidebar' ) ) {
 			return null;
 		}
 
-		$genesis_id = $hook;
-		$group      = 'sidebar';
-		return array( $group, $genesis_id );
+		$genesis_id = $w3tc_hook;
+		$w3tc_group = 'sidebar';
+		return array( $w3tc_group, $genesis_id );
 	}
 
 	/**
@@ -433,21 +434,21 @@ class Extension_Genesis_Plugin {
 	 * @return array|null An array containing group and Genesis ID or null if not applicable.
 	 */
 	private function generate_genesis_comments_pings_keys() {
-		$hook = current_filter();
-		if ( 'genesis_comments' !== $hook ) {
+		$w3tc_hook = current_filter();
+		if ( 'genesis_comments' !== $w3tc_hook ) {
 			return null;
 		}
 
-		$group = 'loop_single';
+		$w3tc_group = 'loop_single';
 
 		$genesis_id = $this->get_page_slug();
 		if ( is_paged() ) {
 			$genesis_id .= $this->get_paged_page_key();
 		}
 
-		$genesis_id = "{$hook}_{$genesis_id}";
+		$genesis_id = "{$w3tc_hook}_{$genesis_id}";
 
-		return array( $group, $genesis_id );
+		return array( $w3tc_group, $genesis_id );
 	}
 
 	/**
@@ -458,8 +459,8 @@ class Extension_Genesis_Plugin {
 	 * @return array|null An array containing group and Genesis ID or null if not applicable.
 	 */
 	private function generate_genesis_navigation_keys( $current_menu ) {
-		$hook = current_filter();
-		if ( ! ( strpos( $hook, '_nav' ) && $current_menu ) ) {
+		$w3tc_hook = current_filter();
+		if ( ! ( strpos( $w3tc_hook, '_nav' ) && $current_menu ) ) {
 			return null;
 		}
 
@@ -468,7 +469,7 @@ class Extension_Genesis_Plugin {
 			$genesis_id .= $this->get_paged_page_key();
 		}
 
-		return array( $hook, $genesis_id );
+		return array( $w3tc_hook, $genesis_id );
 	}
 
 	/**
@@ -508,10 +509,10 @@ class Extension_Genesis_Plugin {
 	}
 }
 
-$p = new Extension_Genesis_Plugin();
-$p->run();
+$w3tc_p = new Extension_Genesis_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_Genesis_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_Genesis_Plugin_Admin();
+	$w3tc_p->run();
 }

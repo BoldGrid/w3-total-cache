@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 // W3TC Referrer detection.
 define( 'W3TC_REFERRER_COOKIE_NAME', 'w3tc_referrer' );
 

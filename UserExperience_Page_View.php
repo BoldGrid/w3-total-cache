@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <p>
 	Lazy loading is currently
-	<?php if ( $c->get_boolean( 'lazyload.enabled' ) ) : ?>
+	<?php if ( $w3tc_c->get_boolean( 'lazyload.enabled' ) ) : ?>
 		<span class="w3tc-enabled">enabled</span>.
 	<?php else : ?>
 		<span class="w3tc-disabled">disabled</span>.

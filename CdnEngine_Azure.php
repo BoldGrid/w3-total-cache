@@ -31,22 +31,22 @@ class CdnEngine_Azure extends CdnEngine_Base {
 	/**
 	 * Constructor for initializing the CdnEngine_Azure object.
 	 *
-	 * @param array $config An associative array of configuration values.
+	 * @param array $w3tc_config An associative array of configuration values.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'user'      => '',
 				'key'       => '',
 				'container' => '',
 				'cname'     => array(),
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 
 		// Load the Composer autoloader.
 		require_once W3TC_DIR . '/vendor/autoload.php';
@@ -110,9 +110,9 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$remote_path = $file['remote_path'];
-			$local_path  = $file['local_path'];
+		foreach ( $files as $w3tc_file ) {
+			$remote_path = $w3tc_file['remote_path'];
+			$local_path  = $w3tc_file['local_path'];
 
 			// process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) ) {
@@ -121,7 +121,7 @@ class CdnEngine_Azure extends CdnEngine_Base {
 				}
 			}
 
-			$results[] = $this->_upload( $file, $force_rewrite );
+			$results[] = $this->_upload( $w3tc_file, $force_rewrite );
 		}
 
 		return ! $this->_is_error( $results );
@@ -130,17 +130,17 @@ class CdnEngine_Azure extends CdnEngine_Base {
 	/**
 	 * Upload a single file to Azure Blob Storage.
 	 *
-	 * @param array $file          An array containing the local and remote file paths.
+	 * @param array $w3tc_file          An array containing the local and remote file paths.
 	 * @param bool  $force_rewrite Whether to force rewrite of existing files (default false).
 	 *
 	 * @return array The result of the upload operation.
 	 */
-	public function _upload( $file, $force_rewrite = false ) {
-		$local_path  = $file['local_path'];
-		$remote_path = $file['remote_path'];
+	public function _upload( $w3tc_file, $force_rewrite = false ) {
+		$local_path  = $w3tc_file['local_path'];
+		$remote_path = $w3tc_file['remote_path'];
 
 		if ( ! file_exists( $local_path ) ) {
-			return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_ERROR, 'Source file not found.', $file );
+			return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_ERROR, 'Source file not found.', $w3tc_file );
 		}
 
 		$contents    = @file_get_contents( $local_path );
@@ -150,18 +150,18 @@ class CdnEngine_Azure extends CdnEngine_Base {
 		if ( ! $force_rewrite ) {
 			try {
 				$properties_result = $this->_client->getBlobProperties( $this->_config['container'], $remote_path );
-				$p                 = $properties_result->getProperties();
+				$w3tc_p            = $properties_result->getProperties();
 
 				$local_size = @filesize( $local_path );
 
-				if ( $local_size === $p->getContentLength() && $content_md5 === $p->getContentMD5() ) {
-					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
+				if ( $local_size === $w3tc_p->getContentLength() && $content_md5 === $w3tc_p->getContentMD5() ) {
+					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $w3tc_file );
 				}
 			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 		}
 
-		$headers = $this->get_headers_for_file( $file );
+		$headers = $this->get_headers_for_file( $w3tc_file );
 
 		try {
 			// $headers
@@ -182,11 +182,11 @@ class CdnEngine_Azure extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				sprintf( 'Unable to put blob (%s).', $exception->getMessage() ),
-				$file
+				$w3tc_file
 			);
 		}
 
-		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
+		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $w3tc_file );
 	}
 
 	/**
@@ -206,20 +206,20 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			try {
-				$r         = $this->_client->deleteBlob( $this->_config['container'], $remote_path );
-				$results[] = $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
+				$w3tc_r    = $this->_client->deleteBlob( $this->_config['container'], $remote_path );
+				$results[] = $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $w3tc_file );
 			} catch ( \Exception $exception ) {
 				$results[] = $this->_get_result(
 					$local_path,
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete blob (%s).', $exception->getMessage() ),
-					$file
+					$w3tc_file
 				);
 			}
 		}
@@ -253,16 +253,16 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			return false;
 		}
 
-		$container = null;
+		$w3tc_container = null;
 
 		foreach ( $containers->getContainers() as $_container ) {
 			if ( $_container->getName() === $this->_config['container'] ) {
-				$container = $_container;
+				$w3tc_container = $_container;
 				break;
 			}
 		}
 
-		if ( ! $container ) {
+		if ( ! $w3tc_container ) {
 			$error = sprintf( 'Container doesn\'t exist: %s.', $this->_config['container'] );
 
 			return false;
@@ -277,9 +277,9 @@ class CdnEngine_Azure extends CdnEngine_Base {
 
 		try {
 			$properties_result = $this->_client->getBlobProperties( $this->_config['container'], $string );
-			$p                 = $properties_result->getProperties();
-			$size              = $p->getContentLength();
-			$md5               = $p->getContentMD5();
+			$w3tc_p            = $properties_result->getProperties();
+			$size              = $w3tc_p->getContentLength();
+			$md5               = $w3tc_p->getContentMD5();
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to get blob properties (%s).', $exception->getMessage() );
 			return false;
@@ -298,13 +298,13 @@ class CdnEngine_Azure extends CdnEngine_Base {
 		try {
 			$get_blob    = $this->_client->getBlob( $this->_config['container'], $string );
 			$data_stream = $get_blob->getContentStream();
-			$data        = stream_get_contents( $data_stream );
+			$w3tc_data   = stream_get_contents( $data_stream );
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to get blob data (%s).', $exception->getMessage() );
 			return false;
 		}
 
-		if ( $data !== $string ) {
+		if ( $w3tc_data !== $string ) {
 			try {
 				$this->_client->deleteBlob( $this->_config['container'], $string );
 			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -410,10 +410,10 @@ class CdnEngine_Azure extends CdnEngine_Base {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain && ! empty( $this->_config['container'] ) ) {
-			$scheme = $this->_get_scheme();
-			$url    = sprintf( '%s://%s/%s/%s', $scheme, $domain, $this->_config['container'], $path );
+			$scheme   = $this->_get_scheme();
+			$w3tc_url = sprintf( '%s://%s/%s/%s', $scheme, $domain, $this->_config['container'], $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;

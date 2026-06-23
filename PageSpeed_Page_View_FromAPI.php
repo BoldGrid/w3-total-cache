@@ -13,6 +13,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -22,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
  *
  * @var string
  */
-$current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile' );
+$w3tc_current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile' );
 
 ?>
 <div id="w3tcps_container">
@@ -52,22 +53,22 @@ $current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile'
 					?>
 					<div id="w3tc" class="wrap">
 						<nav class="nav-tab-wrapper">
-							<a href="#" id="w3tcps_control_mobile" class="nav-tab <?php echo ( 'mobile' === $current_tab ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Mobile', 'w3-total-cache' ); ?></a>
-							<a href="#" id="w3tcps_control_desktop" class="nav-tab <?php echo ( 'desktop' === $current_tab ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Desktop', 'w3-total-cache' ); ?></a>
+							<a href="#" id="w3tcps_control_mobile" class="nav-tab <?php echo ( 'mobile' === $w3tc_current_tab ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Mobile', 'w3-total-cache' ); ?></a>
+							<a href="#" id="w3tcps_control_desktop" class="nav-tab <?php echo ( 'desktop' === $w3tc_current_tab ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Desktop', 'w3-total-cache' ); ?></a>
 						</nav>
 						<div class="metabox-holder">
 							<?php
-							$analysis_types = array(
+							$w3tc_analysis_types = array(
 								'desktop' => 'desktop',
 								'mobile'  => 'smartphone',
 							);
-							foreach ( $analysis_types as $analysis_type => $icon ) {
+							foreach ( $w3tc_analysis_types as $w3tc_analysis_type => $w3tc_icon ) {
 								?>
-								<div id="w3tcps_<?php echo esc_attr( $analysis_type ); ?>" class="tab-content w3tcps_content">
-									<div id="w3tcps_legend_<?php echo esc_attr( $analysis_type ); ?>">
+								<div id="w3tcps_<?php echo esc_attr( $w3tc_analysis_type ); ?>" class="tab-content w3tcps_content">
+									<div id="w3tcps_legend_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Legend', 'w3-total-cache' ), '', 'w3tcps-legend' ); ?>
-										<div class="w3tcps_gauge_<?php echo esc_attr( $analysis_type ); ?>">
-											<?php Util_PageSpeed::print_gauge( $api_response[ $analysis_type ], $icon ); ?>
+										<div class="w3tcps_gauge_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
+											<?php Util_PageSpeed::print_gauge( $api_response[ $w3tc_analysis_type ], $w3tc_icon ); ?>
 										</div>
 										<?php
 										echo wp_kses(
@@ -96,38 +97,38 @@ $current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile'
 										</div>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
-									<div class="w3tcps_metrics_<?php echo esc_attr( $analysis_type ); ?>">
+									<div class="w3tcps_metrics_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'w3tcps-core-metrics' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'speed-index', 'Speed Index' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time' ); ?>
-										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'speed-index', 'Speed Index' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'interactive', 'Time to Interactive' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'total-blocking-time', 'Total Blocking Time' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $w3tc_analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
-									<div class="w3tcps_screenshots_<?php echo esc_attr( $analysis_type ); ?>">
+									<div class="w3tcps_screenshots_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Screenshots', 'w3-total-cache' ), '', 'w3tcps-screenshots' ); ?>
-										<div class="w3tcps_screenshots_other_<?php echo esc_attr( $analysis_type ); ?>">
+										<div class="w3tcps_screenshots_other_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Pageload Thumbnails', 'w3-total-cache' ); ?></h3>
-											<div class="w3tcps_other_screenshot_container"><?php Util_PageSpeed::print_screenshots( $api_response[ $analysis_type ] ); ?></div>
+											<div class="w3tcps_other_screenshot_container"><?php Util_PageSpeed::print_screenshots( $api_response[ $w3tc_analysis_type ] ); ?></div>
 										</div>
-										<div class="w3tcps_screenshots_final_<?php echo esc_attr( $analysis_type ); ?>">
+										<div class="w3tcps_screenshots_final_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Final Screenshot', 'w3-total-cache' ); ?></h3>
-											<div class="w3tcps_final_screenshot_container"><?php Util_PageSpeed::print_final_screenshot( $api_response[ $analysis_type ] ); ?></div>
+											<div class="w3tcps_final_screenshot_container"><?php Util_PageSpeed::print_final_screenshot( $api_response[ $w3tc_analysis_type ] ); ?></div>
 										</div>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
-									<div class="w3tcps_breakdown w3tcps_breakdown_<?php echo esc_attr( $analysis_type ); ?>">
+									<div class="w3tcps_breakdown w3tcps_breakdown_<?php echo esc_attr( $w3tc_analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Audit Results', 'w3-total-cache' ), '', 'w3tcps-audit-results' ); ?>
-										<div id="w3tcps_audit_filters_<?php echo esc_attr( $analysis_type ); ?>" class="nav-tab-wrapper">
+										<div id="w3tcps_audit_filters_<?php echo esc_attr( $w3tc_analysis_type ); ?>" class="nav-tab-wrapper">
 											<a href="#" title="<?php esc_attr_e( 'ALL', 'w3-total-cache' ); ?>" class="w3tcps_audit_filter nav-tab nav-tab-active"><?php esc_html_e( 'ALL', 'w3-total-cache' ); ?></a>
 											<a href="#" title="<?php esc_attr_e( 'First Contentful Paint', 'w3-total-cache' ); ?>" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'FCP', 'w3-total-cache' ); ?></a>
 											<a href="#" title="<?php esc_attr_e( 'Total Blocking Time', 'w3-total-cache' ); ?>" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'TBT', 'w3-total-cache' ); ?></a>
 											<a href="#" title="<?php esc_attr_e( 'Largest Contentful Paint', 'w3-total-cache' ); ?>" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'LCP', 'w3-total-cache' ); ?></a>
 											<a href="#" title="<?php esc_attr_e( 'Cumulative Layout Shift', 'w3-total-cache' ); ?>" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'CLS', 'w3-total-cache' ); ?></a>
 										</div>
-										<?php Util_PageSpeed::print_breakdown( $api_response[ $analysis_type ] ); ?>
+										<?php Util_PageSpeed::print_breakdown( $api_response[ $w3tc_analysis_type ] ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 								</div>

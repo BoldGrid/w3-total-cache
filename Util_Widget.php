@@ -33,7 +33,7 @@ class Util_Widget {
 		global $w3tc_registered_widgets, $w3tc_registered_widget_controls, $w3tc_dashboard_control_callbacks;
 
 		$w3tc_dashboard_control_callbacks = array();
-		$screen                           = get_current_screen();
+		$w3tc_screen                      = get_current_screen();
 		$update                           = false;
 		$widget_options                   = get_option( 'w3tc_dashboard_widget_options' );
 
@@ -51,8 +51,8 @@ class Util_Widget {
 		}
 
 		foreach ( $dashboard_widgets as $widget_id ) {
-			$name = empty( $w3tc_registered_widgets[ $widget_id ]['all_link'] ) ? $w3tc_registered_widgets[ $widget_id ]['name'] : $w3tc_registered_widgets[ $widget_id ]['name'] . " <a href='{$w3tc_registered_widgets[$widget_id]['all_link']}' class='edit-box open-box'>" . __( 'View all', 'w3-total-cache' ) . '</a>';
-			self::add( $widget_id, $name, $w3tc_registered_widgets[ $widget_id ]['callback'], $w3tc_registered_widget_controls[ $widget_id ]['callback'] );
+			$w3tc_name = empty( $w3tc_registered_widgets[ $widget_id ]['all_link'] ) ? $w3tc_registered_widgets[ $widget_id ]['name'] : $w3tc_registered_widgets[ $widget_id ]['name'] . " <a href='{$w3tc_registered_widgets[$widget_id]['all_link']}' class='edit-box open-box'>" . __( 'View all', 'w3-total-cache' ) . '</a>';
+			self::add( $widget_id, $w3tc_name, $w3tc_registered_widgets[ $widget_id ]['callback'], $w3tc_registered_widget_controls[ $widget_id ]['callback'] );
 		}
 
 		/**
@@ -72,7 +72,7 @@ class Util_Widget {
 		 * previously-dead widget POST handling path with an explicit
 		 * nonce check.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.0
 		 */
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) )
@@ -88,8 +88,8 @@ class Util_Widget {
 			update_option( 'w3tc_dashboard_widget_options', $widget_options );
 		}
 
-		do_action( 'do_meta_boxes', $screen->id, 'normal', '' );
-		do_action( 'do_meta_boxes', $screen->id, 'side', '' );
+		do_action( 'do_meta_boxes', $w3tc_screen->id, 'normal', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		do_action( 'do_meta_boxes', $w3tc_screen->id, 'side', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 	}
 
 	/**
@@ -116,7 +116,7 @@ class Util_Widget {
 		$header_text = null,
 		$header_class = ''
 	) {
-		$o = new _Util_Widget_Postponed(
+		$w3tc_o = new _Util_Widget_Postponed(
 			array(
 				'widget_id'        => $widget_id,
 				'widget_name'      => $widget_name,
@@ -130,13 +130,13 @@ class Util_Widget {
 
 		add_action(
 			'w3tc_widget_setup',
-			array( $o, 'wp_dashboard_setup' ),
+			array( $w3tc_o, 'wp_dashboard_setup' ),
 			$priority
 		);
 
 		add_action(
 			'w3tc_network_dashboard_setup',
-			array( $o, 'wp_dashboard_setup' ),
+			array( $w3tc_o, 'wp_dashboard_setup' ),
 			$priority
 		);
 
@@ -165,7 +165,7 @@ class Util_Widget {
 		$header_text = null,
 		$header_class = ''
 	) {
-		$screen = get_current_screen();
+		$w3tc_screen = get_current_screen();
 
 		global $w3tc_dashboard_control_callbacks;
 
@@ -190,8 +190,8 @@ class Util_Widget {
 			$edit_val                                       = Util_Request::get_string( 'edit' );
 
 			if ( ! empty( $edit_val ) && $widget_id === $edit_val ) {
-				list( $url )  = explode( '#', add_query_arg( 'edit', false ), 2 );
-				$widget_name .= ' <span class="postbox-title-action"><a href="' . esc_url( $url ) .
+				list( $w3tc_url ) = explode( '#', add_query_arg( 'edit', false ), 2 );
+				$widget_name     .= ' <span class="postbox-title-action"><a href="' . esc_url( $w3tc_url ) .
 					'">' . __( 'Cancel', 'w3-total-cache' ) . '</a></span>';
 
 				$callback = array(
@@ -199,8 +199,8 @@ class Util_Widget {
 					'_dashboard_control_callback',
 				);
 			} else {
-				list( $url )  = explode( '#', add_query_arg( 'edit', $widget_id ), 2 );
-				$widget_name .= ' <span class="postbox-title-action"><a href="' . esc_url( "$url#$widget_id" ) .
+				list( $w3tc_url ) = explode( '#', add_query_arg( 'edit', $widget_id ), 2 );
+				$widget_name     .= ' <span class="postbox-title-action"><a href="' . esc_url( "$w3tc_url#$widget_id" ) .
 					'" class="edit-box open-box">' . __( 'Configure', 'w3-total-cache' ) . '</a></span>';
 			}
 		}
@@ -209,7 +209,7 @@ class Util_Widget {
 
 		$priority = 'core';
 
-		add_meta_box( $widget_id, $widget_name, $callback, $screen, $location, $priority );
+		add_meta_box( $widget_id, $widget_name, $callback, $w3tc_screen, $location, $priority );
 	}
 
 	/**
@@ -276,15 +276,15 @@ class _Util_Widget_Postponed { // phpcs:ignore
 	 * @var array
 	 * @access private
 	 */
-	private $data = array();
+	private $w3tc_data = array();
 
 	/**
 	 * Constructor.
 	 *
-	 * @param array $data Data.
+	 * @param array $w3tc_data Data.
 	 */
-	public function __construct( $data ) {
-		$this->data = $data;
+	public function __construct( $w3tc_data ) {
+		$this->w3tc_data = $w3tc_data;
 	}
 
 	/**
@@ -292,13 +292,13 @@ class _Util_Widget_Postponed { // phpcs:ignore
 	 */
 	public function wp_dashboard_setup() {
 		Util_Widget::add(
-			$this->data['widget_id'],
-			$this->data['widget_name'],
-			$this->data['callback'],
-			$this->data['control_callback'],
-			$this->data['location'],
-			$this->data['header_text'],
-			$this->data['header_class']
+			$this->w3tc_data['widget_id'],
+			$this->w3tc_data['widget_name'],
+			$this->w3tc_data['callback'],
+			$this->w3tc_data['control_callback'],
+			$this->w3tc_data['location'],
+			$this->w3tc_data['header_text'],
+			$this->w3tc_data['header_class']
 		);
 	}
 }

@@ -54,14 +54,14 @@ namespace W3TC;
  * The TTL is short (15 minutes) because a legitimate OAuth round-trip
  * completes in seconds; anything longer is a stale tab or an attack.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Cdn_GoogleDrive_OAuthState {
 	/**
 	 * Transient key prefix. Concatenated with the current `user_id`
 	 * to scope the state token to a single admin session.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -72,7 +72,7 @@ class Cdn_GoogleDrive_OAuthState {
 	 * OAuth round-trip (Google's consent flow plus the proxy hop
 	 * completes in < 30s) and bounds replay window for stolen state.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var int
 	 */
@@ -83,7 +83,7 @@ class Cdn_GoogleDrive_OAuthState {
 	 * through the return_url → proxy → callback redirect chain, and
 	 * into the auth-set form POST as a hidden input.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -96,7 +96,7 @@ class Cdn_GoogleDrive_OAuthState {
 	 * embed the parameter — there is no session to bind to and the
 	 * OAuth flow itself requires `manage_options`).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return string Token (32 alphanumeric chars) or '' when no user.
 	 */
@@ -121,7 +121,7 @@ class Cdn_GoogleDrive_OAuthState {
 	 * also calls verify() (then consume()). Calling delete here would
 	 * break the multi-step flow.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param mixed $submitted The submitted state token (typically
 	 *                          from `Util_Request::get_string()`).
@@ -148,7 +148,7 @@ class Cdn_GoogleDrive_OAuthState {
 	 * same state value cannot succeed. Called from the auth_set
 	 * handler after a successful config write.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */

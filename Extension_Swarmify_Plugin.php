@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_Swarmify_Plugin
  *
@@ -45,9 +46,9 @@ class Extension_Swarmify_Plugin {
 	public function run() {
 		add_filter( 'w3tc_config_default_values', array( $this, 'w3tc_config_default_values' ) );
 
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		// remainder only when extension is frontend-active.
-		if ( ! $config->is_extension_active_frontend( 'swarmify' ) ) {
+		if ( ! $w3tc_config->is_extension_active_frontend( 'swarmify' ) ) {
 			return;
 		}
 
@@ -88,27 +89,27 @@ class Extension_Swarmify_Plugin {
 			return $buffer;
 		}
 
-		$c       = $this->_config;
-		$api_key = $c->get_string( array( 'swarmify', 'api_key' ) );
+		$w3tc_c  = $this->_config;
+		$api_key = $w3tc_c->get_string( array( 'swarmify', 'api_key' ) );
 		$api_key = preg_replace( '~[^0-9a-zA-Z-]~', '', $api_key ); // make safe.
 
 		$bootstrap_required = false;
 
-		if ( $c->get_boolean( array( 'swarmify', 'handle.htmlvideo' ) ) ) {
-			$count  = 0;
-			$buffer = preg_replace( '~<video([^<>]+)>~i', '<swarmvideo\\1>', $buffer, -1, $count );
+		if ( $w3tc_c->get_boolean( array( 'swarmify', 'handle.htmlvideo' ) ) ) {
+			$w3tc_count = 0;
+			$buffer     = preg_replace( '~<video([^<>]+)>~i', '<swarmvideo\\1>', $buffer, -1, $w3tc_count );
 
-			if ( $count ) {
+			if ( $w3tc_count ) {
 				$buffer             = preg_replace( '~<\\/video>~', '</swarmvideo>', $buffer );
 				$bootstrap_required = true;
 			}
 		}
 
-		if ( $c->get_boolean( array( 'swarmify', 'handle.jwplayer' ) ) ) {
-			$count  = 0;
-			$buffer = preg_replace( '~jwplayer\s*\\(([^)]+)\\)\s*\\.setup\\(~', 'swarmify.jwPlayerEmbed(\\1, ', $buffer, -1, $count );
+		if ( $w3tc_c->get_boolean( array( 'swarmify', 'handle.jwplayer' ) ) ) {
+			$w3tc_count = 0;
+			$buffer     = preg_replace( '~jwplayer\s*\\(([^)]+)\\)\s*\\.setup\\(~', 'swarmify.jwPlayerEmbed(\\1, ', $buffer, -1, $w3tc_count );
 
-			if ( $count ) {
+			if ( $w3tc_count ) {
 				$bootstrap_required = true;
 			}
 		}
@@ -186,10 +187,10 @@ class Extension_Swarmify_Plugin {
 	}
 }
 
-$p = new Extension_Swarmify_Plugin();
-$p->run();
+$w3tc_p = new Extension_Swarmify_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_Swarmify_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_Swarmify_Plugin_Admin();
+	$w3tc_p->run();
 }

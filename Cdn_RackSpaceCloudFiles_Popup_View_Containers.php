@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -40,11 +41,11 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<td>Container:</td>
 				<td>
-					<?php foreach ( $details['containers'] as $container ) : ?>
+					<?php foreach ( $details['containers'] as $w3tc_container ) : ?>
 						<label>
 							<input name="container" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $container['name'] ); ?>" />
-							<?php echo esc_html( $container['name'] ); ?>
+								value="<?php echo esc_attr( $w3tc_container['name'] ); ?>" />
+							<?php echo esc_html( $w3tc_container['name'] ); ?>
 						</label><br />
 					<?php endforeach; ?>
 					<label>

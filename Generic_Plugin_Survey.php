@@ -33,7 +33,7 @@ class Generic_Plugin_Survey {
 	 *
 	 * @var string
 	 */
-	private $license_key = '';
+	private $w3tc_license_key = '';
 
 	/**
 	 * W3TC Pro licensed home URL.
@@ -64,8 +64,8 @@ class Generic_Plugin_Survey {
 		$this->_config = Dispatcher::config();
 
 		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
-			$this->license_key = $this->_config->get_string( 'plugin.license_key' );
-			$this->item_name   = W3TC_PURCHASE_PRODUCT_NAME;
+			$this->w3tc_license_key = $this->_config->get_string( 'plugin.license_key' );
+			$this->item_name        = W3TC_PURCHASE_PRODUCT_NAME;
 		}
 
 		$this->home_url = network_home_url();
@@ -97,7 +97,7 @@ class Generic_Plugin_Survey {
 		}
 
 		// Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
-		if ( ! Util_Nonce::verify_admin( 'w3tc_exit_survey_render' ) ) {
+		if ( ! Util_Nonce::verify_admin( Util_Nonce::ajax_action( 'exit_survey_render' ) ) ) {
 			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 
@@ -120,7 +120,7 @@ class Generic_Plugin_Survey {
 		 * Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
 		 * phpcs:ignore WordPress.Security.NonceVerification.Missing -- Util_Nonce::verify_admin() IS the nonce verifier.
 		 */
-		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_submit' ) ) {
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( Util_Nonce::ajax_action( 'exit_survey_submit' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked via Util_Nonce::verify_admin().
 			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 
@@ -131,26 +131,26 @@ class Generic_Plugin_Survey {
 		$remove_data      = sanitize_text_field( Util_Request::get_string( 'remove' ) );
 
 		// Prepare the data to send to the API.
-		$data = array(
+		$w3tc_data = array(
 			'type'        => 'exit',
-			'license_key' => $this->license_key,
+			'license_key' => $this->w3tc_license_key,
 			'home_url'    => $this->home_url,
 			'item_name'   => $this->item_name,
 			'reason'      => $uninstall_reason,
 		);
 
-		// Add 'email' to $data only if the $email is non-blank.
+		// Add 'email' to $w3tc_data only if the $email is non-blank.
 		if ( ! empty( $email ) ) {
-			$data['email'] = $email;
+			$w3tc_data['email'] = $email;
 		}
 
-		// Add 'other' to $data only $other is non-blank.
+		// Add 'other' to $w3tc_data only $other is non-blank.
 		if ( ! empty( $other ) ) {
-			$data['other'] = $other;
+			$w3tc_data['other'] = $other;
 		}
 
 		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
-			$data['pro_c'] = 1;
+			$w3tc_data['pro_c'] = 1;
 		}
 
 		// Send the data to your API server using wp_remote_post.
@@ -161,7 +161,7 @@ class Generic_Plugin_Survey {
 				'headers' => array(
 					'Content-Type' => 'application/json',
 				),
-				'body'    => wp_json_encode( $data ),
+				'body'    => wp_json_encode( $w3tc_data ),
 			)
 		);
 
@@ -188,7 +188,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Skips the exit survey and processes removing plugin data.
 	 *
-	 * @since 2.8.8
+	 * @since 2.8.7
 	 *
 	 * @return void
 	 */
@@ -201,7 +201,7 @@ class Generic_Plugin_Survey {
 		 * Verify nonce (per-action; legacy 'w3tc' accepted as back-compat).
 		 * phpcs:ignore WordPress.Security.NonceVerification.Missing -- Util_Nonce::verify_admin() IS the nonce verifier.
 		 */
-		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( 'w3tc_exit_survey_skip' ) ) {
+		if ( ! isset( $_POST['_wpnonce'] ) || ! Util_Nonce::verify_admin( Util_Nonce::ajax_action( 'exit_survey_skip' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked via Util_Nonce::verify_admin().
 			\wp_send_json_error( array( 'message' => 'Invalid nonce.' ), 403 );
 		}
 

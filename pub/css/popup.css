@@ -25,12 +25,12 @@ p {
 }
 
 h1 {
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: normal;
+    font-family: HelveticaNeue-Light, "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
     font-size: 23px;
     line-height: 29px;
     margin: 0 0 1em 0;
-    text-shadow: 0 1px 0 #FFFFFF;
+    text-shadow: 0 1px 0 #FFF;
 }
 
 ul {
@@ -84,8 +84,8 @@ a:hover {
 input.button-primary {
     background: url(../img/button-grad.png) repeat-x scroll left top #21759B;
     border-color: #298CBA;
-    color: #FFFFFF;
-    font-weight: bold;
+    color: #FFF;
+    font-weight: 700;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -157,7 +157,7 @@ input.button-primary:hover, button.button-primary:hover, a.button-primary:hover,
 
 .error {
     background-color: #ffebe8;
-    border-color: #cc0000;
+    border-color: #c00;
 }
 
 .updated p, .error p {
@@ -269,12 +269,14 @@ input.button-primary:hover, button.button-primary:hover, a.button-primary:hover,
     overflow: hidden;
     text-align: left;
 }
+
 .media-item {
     min-height: 36px;
     position: relative;
     margin-top: -1px;
     width: 100%;
 }
+
 .progress {
     line-height: 2em;
     padding: 0;

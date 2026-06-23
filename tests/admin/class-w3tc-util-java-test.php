@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -17,7 +17,7 @@ use W3TC\Util_Java;
  * Unit tests for the Java executable path allowlist and minifier
  * option sanitizers in `W3TC\Util_Java`.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Util_Java_Test extends WP_UnitTestCase {
 
@@ -64,7 +64,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	/**
 	 * Non-string / empty inputs must be refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_empty_and_non_string() {
 		$this->assertFalse( Util_Java::validate( '' ) );
@@ -76,7 +76,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	/**
 	 * Shell-metacharacter inputs are refused before realpath() runs.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_shell_metacharacters() {
 		$this->require_valid_binary();
@@ -110,7 +110,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	/**
 	 * A non-existent path must be refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_non_existent_path() {
 		$this->assertFalse( Util_Java::validate( '/usr/bin/nope_this_does_not_exist_xyz_w3tc' ) );
@@ -120,7 +120,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * A real file outside the default allowlist (e.g. in /tmp) is
 	 * refused even when it canonicalizes and is executable.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_rejects_path_outside_allowlist() {
 		$tmp = tempnam( sys_get_temp_dir(), 'w3tc-java-test-' );
@@ -137,7 +137,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	/**
 	 * A real, executable, in-allowlist binary returns its canonical path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_accepts_allowlisted_executable() {
 		$this->require_valid_binary();
@@ -151,7 +151,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * value (the side-effect is a Util_Debug::log entry on rejection,
 	 * which we don't assert on directly here — Util_Debug is best-effort).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_validate_with_log_delegates_to_validate() {
 		$this->require_valid_binary();
@@ -169,7 +169,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * In the default configuration (no override constant), allowed_dirs()
 	 * returns the platform-appropriate default list.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_allowed_dirs_returns_defaults() {
 		if ( defined( 'W3TC_JAVA_BIN_ALLOWED_DIRS' ) ) {
@@ -206,7 +206,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_allowed_dirs_override_constant_uses_path_separator() {
 		$override = '/opt/openjdk-17/bin' . PATH_SEPARATOR . '/usr/lib/jvm/java-17/bin';
@@ -231,7 +231,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_allowed_dirs_override_trims_and_drops_empties() {
 		$override = PATH_SEPARATOR . '  /opt/a  ' . PATH_SEPARATOR . PATH_SEPARATOR . '/opt/b';
@@ -249,7 +249,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * sanitize_ccjs_options() filters compilation_level against the
 	 * documented enum and drops anything else.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_ccjs_options_filters_compilation_level() {
 		$out = Util_Java::sanitize_ccjs_options(
@@ -275,7 +275,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * sanitize_yui_options() coerces numeric line-break to an integer
 	 * and forwards boolean toggles as bool.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_yui_options_coerces_types() {
 		$out = Util_Java::sanitize_yui_options(
@@ -304,7 +304,7 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	 * and drops non-numeric values. Kept in lockstep with the vendored
 	 * Minify_YUICompressor::_getCmd() interpolation of `-Xss<value>`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_sanitize_yui_options_stack_size() {
 		$out = Util_Java::sanitize_yui_options(

@@ -110,12 +110,12 @@ class CacheFlush {
 	/**
 	 * Flushes a specific fragment cache group.
 	 *
-	 * @param string $group The cache group to flush.
+	 * @param string $w3tc_group The cache group to flush.
 	 *
 	 * @return void
 	 */
-	public function fragmentcache_flush_group( $group ) {
-		$this->_executor->fragmentcache_flush_group( $group );
+	public function fragmentcache_flush_group( $w3tc_group ) {
+		$this->_executor->fragmentcache_flush_group( $w3tc_group );
 	}
 
 	/**
@@ -239,16 +239,16 @@ class CacheFlush {
 	/**
 	 * Flushes a specific cache group.
 	 *
-	 * @param string $group  The cache group to flush.
+	 * @param string $w3tc_group  The cache group to flush.
 	 * @param mixed  $extras Additional options or context for the flush.
 	 *
 	 * @return void
 	 */
-	public function flush_group( $group, $extras = null ) {
+	public function flush_group( $w3tc_group, $extras = null ) {
 		static $flushed_groups = array();
-		if ( ! isset( $flushed_groups[ $group ] ) ) {
-			$flushed_groups[ $group ] = '*';
-			$this->_executor->flush_group( $group, $extras );
+		if ( ! isset( $flushed_groups[ $w3tc_group ] ) ) {
+			$flushed_groups[ $w3tc_group ] = '*';
+			$this->_executor->flush_group( $w3tc_group, $extras );
 		}
 	}
 
@@ -257,17 +257,17 @@ class CacheFlush {
 	 *
 	 * This method clears the cache for a single URL, ensuring it is only flushed once per execution.
 	 *
-	 * @param string $url    The URL to flush.
+	 * @param string $w3tc_url    The URL to flush.
 	 * @param mixed  $extras Additional options or context for the flush.
 	 *
 	 * @return bool True on success, false otherwise.
 	 */
-	public function flush_url( $url, $extras = null ) {
+	public function flush_url( $w3tc_url, $extras = null ) {
 		static $flushed_urls = array();
 
-		if ( ! in_array( $url, $flushed_urls, true ) ) {
-			$flushed_urls[] = $url;
-			return $this->_executor->flush_url( $url, $extras );
+		if ( ! in_array( $w3tc_url, $flushed_urls, true ) ) {
+			$flushed_urls[] = $w3tc_url;
+			return $this->_executor->flush_url( $w3tc_url, $extras );
 		}
 		return true;
 	}

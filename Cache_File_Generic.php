@@ -29,14 +29,14 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * PHP5-style constructor
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
 
-		$this->_expire = ( isset( $config['expire'] ) ? (int) $config['expire'] : 0 );
+		$this->_expire = ( isset( $w3tc_config['expire'] ) ? (int) $w3tc_config['expire'] : 0 );
 
 		if ( ! $this->_expire || $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
 			$this->_expire = W3TC_CACHE_FILE_EXPIRE_MAX;
@@ -46,16 +46,16 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Sets data
 	 *
-	 * @param string $key    Key.
-	 * @param string $value  Value.
+	 * @param string $w3tc_key    Key.
+	 * @param string $w3tc_value  Value.
 	 * @param int    $expire Time to expire.
-	 * @param string $group  Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		$key      = $this->get_item_key( $key );
-		$sub_path = $this->_get_path( $key, $group );
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$sub_path = $this->_get_path( $w3tc_key, $w3tc_group );
 		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 
 		$dir = dirname( $path );
@@ -77,7 +77,7 @@ class Cache_File_Generic extends Cache_File {
 			@flock( $fp, LOCK_EX );
 		}
 
-		@fputs( $fp, $value['content'] );
+		@fputs( $fp, $w3tc_value['content'] );
 		@fclose( $fp );
 
 		$chmod = 0644;
@@ -104,10 +104,10 @@ class Cache_File_Generic extends Cache_File {
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
-		if ( Util_Environment::is_apache() && isset( $value['headers'] ) ) {
+		if ( Util_Environment::is_apache() && isset( $w3tc_value['headers'] ) ) {
 			$rules = '';
 
-			if ( isset( $value['headers']['Content-Type'] ) && 'text/xml' === substr( $value['headers']['Content-Type'], 0, 8 ) ) {
+			if ( isset( $w3tc_value['headers']['Content-Type'] ) && 'text/xml' === substr( $w3tc_value['headers']['Content-Type'], 0, 8 ) ) {
 
 				$rules .= "<IfModule mod_mime.c>\n";
 				$rules .= "    RemoveType .html_gzip\n";
@@ -117,9 +117,9 @@ class Cache_File_Generic extends Cache_File {
 				$rules .= "</IfModule>\n";
 			}
 
-			if ( isset( $value['headers'] ) ) {
+			if ( isset( $w3tc_value['headers'] ) ) {
 				$headers = array();
-				foreach ( $value['headers'] as $h ) {
+				foreach ( $w3tc_value['headers'] as $h ) {
 					if ( isset( $h['n'] ) && isset( $h['v'] ) ) {
 						$h2 = apply_filters( 'w3tc_pagecache_set_header', $h, $h, 'file_generic' );
 
@@ -144,11 +144,11 @@ class Cache_File_Generic extends Cache_File {
 				}
 
 				$header_rules = '';
-				foreach ( $headers as $name_escaped => $value ) {
+				foreach ( $headers as $name_escaped => $w3tc_value ) {
 					// Link header doesnt apply to .xml assets.
-					$header_rules .= '    <FilesMatch "' . $value['files_match'] . "\">\n";
+					$header_rules .= '    <FilesMatch "' . $w3tc_value['files_match'] . "\">\n";
 					$header_rules .= "        Header unset $name_escaped\n";
-					$header_rules .= implode( "\n", $value['values'] );
+					$header_rules .= implode( "\n", $w3tc_value['values'] );
 					$header_rules .= "    </FilesMatch>\n";
 				}
 
@@ -209,19 +209,19 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Returns data
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
-		$key          = $this->get_item_key( $key );
-		$path         = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+		$w3tc_key     = $this->get_item_key( $w3tc_key );
+		$path         = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 
-		$data = $this->_read( $path );
-		if ( null !== $data ) {
-			return array( $data, $has_old_data );
+		$w3tc_data = $this->_read( $path );
+		if ( null !== $w3tc_data ) {
+			return array( $w3tc_data, $has_old_data );
 		}
 
 		/**
@@ -315,14 +315,14 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Deletes data
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function delete( $key, $group = '' ) {
-		$key  = $this->get_item_key( $key );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 
 		if ( ! file_exists( $path ) ) {
 			return true;
@@ -363,13 +363,13 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Checks if entry exists
 	 *
-	 * @param string $key Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return boolean true if exists, false otherwise
 	 */
-	public function exists( $key, $group = '' ) {
-		$key  = $this->get_item_key( $key );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function exists( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 
 		return file_exists( $path );
 	}
@@ -377,14 +377,14 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Key to delete, deletes _old and primary if exists.
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 *
 	 * @return bool
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$key            = $this->get_item_key( $key );
-		$path           = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key       = $this->get_item_key( $w3tc_key );
+		$path           = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
@@ -400,27 +400,27 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Flushes all data
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function flush( $group = '' ) {
-		if ( 'sitemaps' === $group ) {
-			$config        = Dispatcher::config();
-			$sitemap_regex = $config->get_string( 'pgcache.purge.sitemap_regex' );
+	public function flush( $w3tc_group = '' ) {
+		if ( 'sitemaps' === $w3tc_group ) {
+			$w3tc_config   = Dispatcher::config();
+			$sitemap_regex = $w3tc_config->get_string( 'pgcache.purge.sitemap_regex' );
 			$this->_flush_based_on_regex( $sitemap_regex );
 		} else {
 			$dir = $this->_flush_dir;
-			if ( ! empty( $group ) ) {
-				$c = new Cache_File_Cleaner_Generic_HardDelete(
+			if ( ! empty( $w3tc_group ) ) {
+				$w3tc_c = new Cache_File_Cleaner_Generic_HardDelete(
 					array(
-						'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $group,
+						'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $w3tc_group,
 						'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 						'clean_timelimit' => $this->_flush_timelimit,
 					)
 				);
 			} else {
-				$c = new Cache_File_Cleaner_Generic(
+				$w3tc_c = new Cache_File_Cleaner_Generic(
 					array(
 						'cache_dir'       => $this->_flush_dir,
 						'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
@@ -429,7 +429,7 @@ class Cache_File_Generic extends Cache_File {
 				);
 			}
 
-			$c->clean();
+			$w3tc_c->clean();
 		}
 
 		return true;
@@ -439,11 +439,11 @@ class Cache_File_Generic extends Cache_File {
 	 * Gets a key extension for "ahead generation" mode.
 	 * Used by AlwaysCached functionality to regenerate content
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
 	 */
-	public function get_ahead_generation_extension( $group ) {
+	public function get_ahead_generation_extension( $w3tc_group ) {
 		return array(
 			'before_time' => time(),
 		);
@@ -452,57 +452,57 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Flushes group with before condition
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
-	 * @param array  $extension Used to set a condition what version to flush.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
+	 * @param array  $w3tc_extension Used to set a condition what version to flush.
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
 		$dir = $this->_flush_dir;
-		if ( ! empty( $group ) ) {
-			$c = new Cache_File_Cleaner_Generic_HardDelete(
+		if ( ! empty( $w3tc_group ) ) {
+			$w3tc_c = new Cache_File_Cleaner_Generic_HardDelete(
 				array(
-					'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $group,
+					'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $w3tc_group,
 					'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid'  => $extension['before_time'],
+					'time_min_valid'  => $w3tc_extension['before_time'],
 				)
 			);
 		} else {
-			$c = new Cache_File_Cleaner_Generic(
+			$w3tc_c = new Cache_File_Cleaner_Generic(
 				array(
 					'cache_dir'       => $this->_flush_dir,
 					'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid'  => $extension['before_time'],
+					'time_min_valid'  => $w3tc_extension['before_time'],
 				)
 			);
 		}
 
-		$c->clean();
+		$w3tc_c->clean();
 	}
 
 	/**
 	 * Returns cache file path by key
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 *
 	 * @return string
 	 */
-	public function _get_path( $key, $group = '' ) {
-		return ( empty( $group ) ? '' : $group . DIRECTORY_SEPARATOR ) . $key;
+	public function _get_path( $w3tc_key, $w3tc_group = '' ) {
+		return ( empty( $w3tc_group ) ? '' : $w3tc_group . DIRECTORY_SEPARATOR ) . $w3tc_key;
 	}
 
 	/**
 	 * Returns item key
 	 *
-	 * @param string $key Key.
+	 * @param string $w3tc_key Key.
 	 *
 	 * @return string
 	 */
-	public function get_item_key( $key ) {
-		return $key;
+	public function get_item_key( $w3tc_key ) {
+		return $w3tc_key;
 	}
 
 	/**
@@ -525,18 +525,18 @@ class Cache_File_Generic extends Cache_File {
 
 		$dir = @opendir( $flush_dir );
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
-				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
-					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
+				if ( preg_match( '~' . $regex . '~', basename( $w3tc_entry ) ) ) {
+					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $w3tc_entry );
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );

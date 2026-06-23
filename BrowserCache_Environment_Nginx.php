@@ -21,17 +21,17 @@ class BrowserCache_Environment_Nginx {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**
@@ -68,9 +68,9 @@ class BrowserCache_Environment_Nginx {
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n";
 
-		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ) {
+		if ( $this->w3tc_c->get_boolean( 'browsercache.rewrite' ) ) {
 			$core       = Dispatcher::component( 'BrowserCache_Core' );
-			$extensions = $core->get_replace_extensions( $this->c );
+			$extensions = $core->get_replace_extensions( $this->w3tc_c );
 
 			$exts = implode( '|', $extensions );
 
@@ -87,8 +87,7 @@ class BrowserCache_Environment_Nginx {
 					$home_uri = W3TC_HOME_URI;
 				} else {
 					$primary_blog_id = get_network()->site_id;
-					$home_uri        = wp_parse_url( get_home_url( $primary_blog_id ), PHP_URL_PATH );
-					$home_uri        = rtrim( $home_uri, '/' );
+					$home_uri        = Util_Environment::url_to_uri( get_home_url( $primary_blog_id ) );
 				}
 
 				$rules .= "if (\$uri ~ '^$home_uri/[_0-9a-zA-Z-]+(?<w3tcbc_base>/wp-.+)\.(x[0-9]{5})(?<w3tcbc_ext>\.($exts))$') {\n";
@@ -102,9 +101,9 @@ class BrowserCache_Environment_Nginx {
 			$rules .= "}\n";
 		}
 
-		$cssjs_brotli = $this->c->get_boolean( 'browsercache.cssjs.brotli' );
-		$html_brotli  = $this->c->get_boolean( 'browsercache.html.brotli' );
-		$other_brotli = $this->c->get_boolean( 'browsercache.other.brotli' );
+		$cssjs_brotli = $this->w3tc_c->get_boolean( 'browsercache.cssjs.brotli' );
+		$html_brotli  = $this->w3tc_c->get_boolean( 'browsercache.html.brotli' );
+		$other_brotli = $this->w3tc_c->get_boolean( 'browsercache.other.brotli' );
 
 		if ( $cssjs_brotli || $html_brotli || $other_brotli ) {
 			$brotli_types = array();
@@ -130,9 +129,9 @@ class BrowserCache_Environment_Nginx {
 			$rules .= 'brotli_types ' . implode( ' ', array_unique( $brotli_types ) ) . ";\n";
 		}
 
-		$cssjs_compression = $this->c->get_boolean( 'browsercache.cssjs.compression' );
-		$html_compression  = $this->c->get_boolean( 'browsercache.html.compression' );
-		$other_compression = $this->c->get_boolean( 'browsercache.other.compression' );
+		$cssjs_compression = $this->w3tc_c->get_boolean( 'browsercache.cssjs.compression' );
+		$html_compression  = $this->w3tc_c->get_boolean( 'browsercache.html.compression' );
+		$other_compression = $this->w3tc_c->get_boolean( 'browsercache.other.compression' );
 
 		if ( $cssjs_compression || $html_compression || $other_compression ) {
 			$compression_types = array();
@@ -158,8 +157,8 @@ class BrowserCache_Environment_Nginx {
 			$rules .= "gzip_types " . implode( ' ', array_unique( $compression_types ) ) . ";\n";
 		}
 
-		if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
-			$exceptions = $this->c->get_array( 'browsercache.no404wp.exceptions' );
+		if ( $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
+			$exceptions = $this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' );
 
 			$impoloded = implode( '|', $exceptions );
 			if ( ! empty( $impoloded ) ) {
@@ -199,61 +198,61 @@ class BrowserCache_Environment_Nginx {
 		 * a fresh directive on the next line, regardless of the server
 		 * flavour being emitted.
 		 */
-		$c = $this->c;
-		$g = function ( $key ) use ( $c ) {
-			return Util_Rule::sanitize_directive_value( $c->get_string( $key ) );
+		$w3tc_c = $this->w3tc_c;
+		$g      = function ( $w3tc_key ) use ( $w3tc_c ) {
+			return Util_Rule::sanitize_directive_value( $w3tc_c->get_string( $w3tc_key ) );
 		};
 
-		if ( $this->c->get_boolean( 'browsercache.hsts' ) ||
-			$this->c->get_boolean( 'browsercache.security.xfo' ) ||
-			$this->c->get_boolean( 'browsercache.security.xss' ) ||
-			$this->c->get_boolean( 'browsercache.security.xcto' ) ||
-			$this->c->get_boolean( 'browsercache.security.pkp' ) ||
-			$this->c->get_boolean( 'browsercache.security.referrer.policy' ) ||
-			$this->c->get_boolean( 'browsercache.security.csp' ) ||
-			$this->c->get_boolean( 'browsercache.security.cspro' ) ||
-			$this->c->get_boolean( 'browsercache.security.fp' )
+		if ( $this->w3tc_c->get_boolean( 'browsercache.hsts' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.xfo' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.xss' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.xcto' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.pkp' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.referrer.policy' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.csp' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.cspro' ) ||
+			$this->w3tc_c->get_boolean( 'browsercache.security.fp' )
 		) {
-			$lifetime = $this->c->get_integer( 'browsercache.other.lifetime' );
+			$lifetime = $this->w3tc_c->get_integer( 'browsercache.other.lifetime' );
 
-			if ( $this->c->get_boolean( 'browsercache.hsts' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.hsts' ) ) {
 				$dir     = $g( 'browsercache.security.hsts.directive' );
 				$rules[] = "add_header Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir, "inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\";";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.xfo' ) ) {
-				$dir = $g( 'browsercache.security.xfo.directive' );
-				$url = trim( $g( 'browsercache.security.xfo.allow' ) );
-				if ( empty( $url ) ) {
-					$url = Util_Rule::sanitize_directive_value( Util_Environment::home_url_maybe_https() );
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xfo' ) ) {
+				$dir      = $g( 'browsercache.security.xfo.directive' );
+				$w3tc_url = trim( $g( 'browsercache.security.xfo.allow' ) );
+				if ( empty( $w3tc_url ) ) {
+					$w3tc_url = Util_Rule::sanitize_directive_value( Util_Environment::home_url_maybe_https() );
 				}
-				$rules[] = "add_header X-Frame-Options \"" . ( 'same' === $dir ? "SAMEORIGIN" : ( 'deny' === $dir ? "DENY" : "ALLOW-FROM $url" ) ) . "\";";
+				$rules[] = "add_header X-Frame-Options \"" . ( 'same' === $dir ? "SAMEORIGIN" : ( 'deny' === $dir ? "DENY" : "ALLOW-FROM $w3tc_url" ) ) . "\";";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.xss' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xss' ) ) {
 				$dir     = $g( 'browsercache.security.xss.directive' );
 				$rules[] = "add_header X-XSS-Protection \"" . ( 'block' === $dir ? "1; mode=block" : $dir ) . "\";";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.xcto' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xcto' ) ) {
 				$rules[] = "add_header X-Content-Type-Options \"nosniff\";";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.pkp' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.pkp' ) ) {
 				$pin      = trim( $g( 'browsercache.security.pkp.pin' ) );
 				$pinbak   = trim( $g( 'browsercache.security.pkp.pin.backup' ) );
 				$extra    = $g( 'browsercache.security.pkp.extra' );
-				$url      = trim( $g( 'browsercache.security.pkp.report.url' ) );
+				$w3tc_url = trim( $g( 'browsercache.security.pkp.report.url' ) );
 				$rep_only = '1' === $g( 'browsercache.security.pkp.report.only' ) ? true : false;
-				$rules[]  = "add_header " . ( $rep_only ? "Public-Key-Pins-Report-Only" : "Public-Key-Pins" ) . " 'pin-sha256=\"$pin\"; pin-sha256=\"$pinbak\"; max-age=$lifetime" . ( strpos( $extra, "inc" ) ? "; includeSubDomains" : "" ) . ( ! empty( $url ) ? "; report-uri=\"$url\"" : "" ) . "';";
+				$rules[]  = "add_header " . ( $rep_only ? "Public-Key-Pins-Report-Only" : "Public-Key-Pins" ) . " 'pin-sha256=\"$pin\"; pin-sha256=\"$pinbak\"; max-age=$lifetime" . ( strpos( $extra, "inc" ) ? "; includeSubDomains" : "" ) . ( ! empty( $w3tc_url ) ? "; report-uri=\"$w3tc_url\"" : "" ) . "';";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.referrer.policy' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.referrer.policy' ) ) {
 				$dir     = $g( 'browsercache.security.referrer.policy.directive' );
 				$rules[] = "add_header Referrer-Policy \"" . ( '0' === $dir ? "" : $dir ) . "\";";
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.csp' ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.csp' ) ) {
 				$base            = trim( $g( 'browsercache.security.csp.base' ) );
 				$frame           = trim( $g( 'browsercache.security.csp.frame' ) );
 				$connect         = trim( $g( 'browsercache.security.csp.connect' ) );
@@ -306,7 +305,7 @@ class BrowserCache_Environment_Nginx {
 				}
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $g( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $g( 'browsercache.security.cspro.reportto' ) ) ) ) {
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $g( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $g( 'browsercache.security.cspro.reportto' ) ) ) ) {
 				$base            = trim( $g( 'browsercache.security.cspro.base' ) );
 				$reporturi       = trim( $g( 'browsercache.security.cspro.reporturi' ) );
 				$reportto        = trim( $g( 'browsercache.security.cspro.reportto' ) );
@@ -363,13 +362,13 @@ class BrowserCache_Environment_Nginx {
 				}
 			}
 
-			if ( $this->c->get_boolean( 'browsercache.security.fp' ) ) {
-				$fp_values = $this->c->get_array( 'browsercache.security.fp.values' );
+			if ( $this->w3tc_c->get_boolean( 'browsercache.security.fp' ) ) {
+				$w3tc_fp_values = $this->w3tc_c->get_array( 'browsercache.security.fp.values' );
 
 				$feature_v    = array();
 				$permission_v = array();
-				foreach ( $fp_values as $key => $value ) {
-					if ( ! empty( $value ) ) {
+				foreach ( $w3tc_fp_values as $w3tc_key => $w3tc_value ) {
+					if ( ! empty( $w3tc_value ) ) {
 						/**
 						 * Strip the existing quote pair AND any directive-
 						 * terminating bytes (CR/LF/NUL/<>/") so a config
@@ -379,11 +378,11 @@ class BrowserCache_Environment_Nginx {
 						 * Apache renderer at
 						 * `BrowserCache_Environment::security_rules()`.
 						 */
-						$key   = Util_Rule::sanitize_directive_value( (string) $key );
-						$value = Util_Rule::sanitize_directive_value( str_replace( array( '"', "'" ), '', $value ) );
+						$w3tc_key   = Util_Rule::sanitize_directive_value( (string) $w3tc_key );
+						$w3tc_value = Util_Rule::sanitize_directive_value( str_replace( array( '"', "'" ), '', $w3tc_value ) );
 
-						$feature_v[]    = "$key '$value'";
-						$permission_v[] = "$key=($value)";
+						$feature_v[]    = "$w3tc_key '$w3tc_value'";
+						$permission_v[] = "$w3tc_key=($w3tc_value)";
 					}
 				}
 
@@ -410,17 +409,17 @@ class BrowserCache_Environment_Nginx {
 	 * @return void
 	 */
 	private function generate_section( &$rules, $mime_types, $section ) {
-		$expires       = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
-		$etag          = $this->c->get_boolean( 'browsercache.' . $section . '.etag' );
-		$cache_control = $this->c->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$w3tc          = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
-		$last_modified = $this->c->get_boolean( 'browsercache.' . $section . '.last_modified' );
+		$expires       = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.expires' );
+		$etag          = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.etag' );
+		$cache_control = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.cache.control' );
+		$w3tc          = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.w3tc' );
+		$last_modified = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.last_modified' );
 
 		if ( $etag || $expires || $cache_control || $w3tc || ! $last_modified ) {
 			$mime_types2 = apply_filters(
 				'w3tc_browsercache_rules_section_extensions',
 				$mime_types,
-				$this->c,
+				$this->w3tc_c,
 				$section
 			);
 			$extensions  = array_keys( $mime_types2 );
@@ -436,14 +435,14 @@ class BrowserCache_Environment_Nginx {
 			 * Add rules for the Image Service extension, if active.
 			 * These must be at the same level as the parent location block, not nested.
 			 */
-			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
+			if ( 'other' === $section && array_key_exists( 'imageservice', $this->w3tc_c->get_array( 'extensions.active' ) ) ) {
 				// Exclude image extensions from the parent location block.
 				$image_extensions = array( 'avif', 'avifs', 'webp', 'jpg', 'jpeg', 'jpe', 'png', 'gif' );
 				$extensions       = array_filter(
 					$extensions,
-					function ( $ext ) use ( $image_extensions ) {
+					function ( $w3tc_ext ) use ( $image_extensions ) {
 						// Check if extension is a single value or pipe-delimited.
-						$ext_parts = explode( '|', $ext );
+						$ext_parts = explode( '|', $w3tc_ext );
 						// Return false if any part matches an image extension (exclude it).
 						foreach ( $ext_parts as $part ) {
 							if ( in_array( $part, $image_extensions, true ) ) {
@@ -460,10 +459,10 @@ class BrowserCache_Environment_Nginx {
 				$rules .= '# Direct AVIF / AVIFS.' . "\n" .
 					'location ~* \.(avif|avifs)$ {' . "\n" .
 					'    default_type image/avif;' . "\n" .
-					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n\n" .
+					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, $section, true ) ) . "\n\n" .
 					'    add_header Vary Accept;' . "\n\n";
 
-				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
 					$rules .= '    try_files $uri =404;' . "\n";
 				} else {
 					$rules .= '    try_files $uri /index.php$is_args$args;' . "\n";
@@ -473,10 +472,10 @@ class BrowserCache_Environment_Nginx {
 					'# Direct WEBP.' . "\n" .
 					'location ~* \.webp$ {' . "\n" .
 					'    default_type image/webp;' . "\n" .
-					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n\n" .
+					'    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, $section, true ) ) . "\n\n" .
 					'    add_header Vary Accept;' . "\n\n";
 
-				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
 					$rules .= '    try_files $uri =404;' . "\n";
 				} else {
 					$rules .= '    try_files $uri /index.php$is_args$args;' . "\n";
@@ -488,7 +487,7 @@ class BrowserCache_Environment_Nginx {
 					'    add_header Vary Accept;' . "\n\n";
 
 				// Add location-level directives (expires, etag, if_modified_since, etc.) and headers.
-				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true );
+				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, $section, true );
 				$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n\n";
 
 				// Initialize all variables.
@@ -532,7 +531,7 @@ class BrowserCache_Environment_Nginx {
 				$rules .= '    }' . "\n\n";
 
 				// Default: serve original file.
-				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
 					$rules .= '    try_files $uri =404;' . "\n";
 				} else {
 					$wp_uri = network_home_url( '', 'relative' );
@@ -547,10 +546,10 @@ class BrowserCache_Environment_Nginx {
 			if ( ! empty( $extensions ) ) {
 				$rules .= 'location ~ \\.(' . implode( '|', $extensions ) . ')$ {' . "\n";
 
-				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
+				$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, $section );
 				$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-				if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				if ( ! $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
 					$wp_uri = network_home_url( '', 'relative' );
 					$wp_uri = rtrim( $wp_uri, '/' );
 					$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
@@ -574,28 +573,28 @@ class BrowserCache_Environment_Nginx {
 	public function section_rules( $section, $extra_add_headers_set = false ) {
 		$rules = array();
 
-		$expires  = $this->c->get_boolean( "browsercache.$section.expires" );
-		$lifetime = $this->c->get_integer( "browsercache.$section.lifetime" );
+		$expires  = $this->w3tc_c->get_boolean( "browsercache.$section.expires" );
+		$lifetime = $this->w3tc_c->get_integer( "browsercache.$section.lifetime" );
 
 		if ( $expires ) {
 			$rules[] = 'expires ' . $lifetime . 's;';
 		}
 		if ( version_compare( Util_Environment::get_server_version(), '1.3.3', '>=' ) ) {
-			if ( $this->c->get_boolean( "browsercache.$section.etag" ) ) {
+			if ( $this->w3tc_c->get_boolean( "browsercache.$section.etag" ) ) {
 				$rules[] = 'etag on;';
 			} else {
 				$rules[] = 'etag off;';
 			}
 		}
-		if ( $this->c->get_boolean( "browsercache.$section.last_modified" ) ) {
+		if ( $this->w3tc_c->get_boolean( "browsercache.$section.last_modified" ) ) {
 			$rules[] = 'if_modified_since exact;';
 		} else {
 			$rules[] = 'if_modified_since off;';
 		}
 
 		$add_header_rules = array();
-		if ( $this->c->get_boolean( "browsercache.$section.cache.control" ) ) {
-			$cache_policy = $this->c->get_string( "browsercache.$section.cache.policy" );
+		if ( $this->w3tc_c->get_boolean( "browsercache.$section.cache.control" ) ) {
+			$cache_policy = $this->w3tc_c->get_string( "browsercache.$section.cache.policy" );
 
 			switch ( $cache_policy ) {
 				case 'cache':
@@ -655,7 +654,7 @@ class BrowserCache_Environment_Nginx {
 			}
 		}
 
-		if ( $this->c->get_boolean( "browsercache.$section.w3tc" ) ) {
+		if ( $this->w3tc_c->get_boolean( "browsercache.$section.w3tc" ) ) {
 			$add_header_rules[] = 'add_header X-Powered-By "' . Util_Environment::w3tc_header() . '";';
 		}
 

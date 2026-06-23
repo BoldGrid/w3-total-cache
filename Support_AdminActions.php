@@ -24,7 +24,7 @@ class Support_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_support_send_details() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		Util_Debug::audit_log(
 			'support_send',
@@ -33,19 +33,19 @@ class Support_AdminActions {
 
 		$post = array();
 
-		foreach ( $_GET as $p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$post[ $p ] = Util_Request::get( $p );
+		foreach ( $_GET as $w3tc_p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$post[ $w3tc_p ] = Util_Request::get( $w3tc_p );
 		}
 
 		$post['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$post['version']    = W3TC_VERSION;
 
 		$license_level = 'community';
-		if ( Util_Environment::is_w3tc_pro( $c ) ) {
+		if ( Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
 			$license_level = 'pro';
 		}
 
-		$post['license_level'] = $license_level . ' ' . $c->get_string( 'plugin.license_key' );
+		$post['license_level'] = $license_level . ' ' . $w3tc_c->get_string( 'plugin.license_key' );
 
 		// Add attachments.
 		$attachments = array();
@@ -62,16 +62,16 @@ class Support_AdminActions {
 		// Attach config files.
 		$handle = opendir( W3TC_CONFIG_DIR );
 		if ( $handle ) {
-			$entry = @readdir( $handle );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry || 'index.html' === $entry ) {
-					$entry = @readdir( $handle );
+			$w3tc_entry = @readdir( $handle );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry || 'index.html' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $handle );
 					continue;
 				}
 
-				$attach_file[] = W3TC_CONFIG_DIR . '/' . $entry;
+				$attach_file[] = W3TC_CONFIG_DIR . '/' . $w3tc_entry;
 
-				$entry = @readdir( $handle );
+				$w3tc_entry = @readdir( $handle );
 			}
 			closedir( $handle );
 		}
@@ -110,7 +110,7 @@ class Support_AdminActions {
 		);
 
 		/**
-		 * phpinfo() output includes the full $_SERVER environment
+		 * Phpinfo() output includes the full $_SERVER environment
 		 * (cookie names, request URIs, loaded module paths) and a number
 		 * of configure-time PHP constants. The support payload already
 		 * includes server_info.txt and the redacted wp-config.php, which
@@ -135,17 +135,17 @@ class Support_AdminActions {
 			W3TC_SUPPORT_REQUEST_URL,
 			array(
 				'body'    => $post,
-				'timeout' => $c->get_integer( 'timelimit.email_send' ),
+				'timeout' => $w3tc_c->get_integer( 'timelimit.email_send' ),
 			)
 		);
 
 		if ( ! is_wp_error( $response ) ) {
-			$result = 200 === $response['response']['code'] && 'ok' === $response['body'];
+			$w3tc_result = 200 === $response['response']['code'] && 'ok' === $response['body'];
 		} else {
-			$result = false;
+			$w3tc_result = false;
 		}
 
-		echo $result ? 'ok' : 'error';
+		echo $w3tc_result ? 'ok' : 'error';
 	}
 
 	/**

@@ -31,24 +31,24 @@ class Licensing_Core {
 	 * existing "request failed" path (the same path
 	 * `is_wp_error($response)` already feeds into).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return string|false Sanitized base URL, or false if the
 	 *                      configured constant is unsafe.
 	 */
 	private static function _license_api_base_url() {
-		$url = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
-		if ( ! \is_string( $url ) || '' === $url ) {
+		$w3tc_url = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
 			return false;
 		}
-		$scheme = \wp_parse_url( $url, PHP_URL_SCHEME );
-		$host   = \wp_parse_url( $url, PHP_URL_HOST );
+		$scheme = \wp_parse_url( $w3tc_url, PHP_URL_SCHEME );
+		$host   = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
 		if ( 'https' !== $scheme || ! \is_string( $host ) || '' === $host ) {
 			return false;
 		}
 		$host_lc = \strtolower( $host );
 		if ( 'w3-edge.com' === $host_lc ) {
-			return $url;
+			return $w3tc_url;
 		}
 		/**
 		 * Subdomain match: leading dot in the suffix prevents an
@@ -58,7 +58,7 @@ class Licensing_Core {
 		$slen   = \strlen( $suffix );
 		$hlen   = \strlen( $host_lc );
 		if ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix ) {
-			return $url;
+			return $w3tc_url;
 		}
 		return false;
 	}
@@ -66,19 +66,19 @@ class Licensing_Core {
 	/**
 	 * Activates a license for the plugin.
 	 *
-	 * @param string $license License key to be activated.
+	 * @param string $w3tc_license License key to be activated.
 	 * @param string $version Version of the plugin being licensed.
 	 *
 	 * @return mixed|false Decoded license data on success, false on failure.
 	 */
-	public static function activate_license( $license, $version ) {
+	public static function activate_license( $w3tc_license, $version ) {
 		$state = Dispatcher::config_state_master();
 
 		// data to send in our API request.
 		$api_params = array(
 			'edd_action'          => 'activate_license',
-			'license'             => $license,   // legacy.
-			'license_key'         => $license,
+			'license'             => $w3tc_license,   // legacy.
+			'license_key'         => $w3tc_license,
 			'home_url'            => network_home_url(),
 			'item_name'           => rawurlencode( W3TC_PURCHASE_PRODUCT_NAME ), // the name of our product in EDD.
 			'plugin_install_date' => gmdate( 'Y-m-d\\TH:i:s\\Z', $state->get_integer( 'common.install' ) ),
@@ -115,16 +115,16 @@ class Licensing_Core {
 	/**
 	 * Deactivates a license for the plugin.
 	 *
-	 * @param string $license License key to be deactivated.
+	 * @param string $w3tc_license License key to be deactivated.
 	 *
 	 * @return object|false Decoded license data on success, false on failure.
 	 */
-	public static function deactivate_license( $license ) {
+	public static function deactivate_license( $w3tc_license ) {
 		// Data to send in our API request.
 		$api_params = array(
 			'edd_action'  => 'deactivate_license',
-			'license'     => $license,   // legacy.
-			'license_key' => $license,
+			'license'     => $w3tc_license,   // legacy.
+			'license_key' => $w3tc_license,
 			'home_url'    => network_home_url(),
 			'item_name'   => rawurlencode( W3TC_PURCHASE_PRODUCT_NAME ), // the name of our product in EDD.
 			'r'           => wp_rand(),
@@ -161,18 +161,18 @@ class Licensing_Core {
 	/**
 	 * Checks the status of a license.
 	 *
-	 * @param string $license License key to be checked.
+	 * @param string $w3tc_license License key to be checked.
 	 * @param string $version Version of the plugin being checked.
 	 *
 	 * @return mixed|false Decoded license data on success, false on failure.
 	 */
-	public static function check_license( $license, $version ) {
+	public static function check_license( $w3tc_license, $version ) {
 		global $wp_version;
 
 		$api_params = array(
 			'edd_action'  => 'check_license',
-			'license'     => $license,   // legacy.
-			'license_key' => $license,
+			'license'     => $w3tc_license,   // legacy.
+			'license_key' => $w3tc_license,
 			'home_url'    => network_home_url(),
 			'item_name'   => rawurlencode( W3TC_PURCHASE_PRODUCT_NAME ),
 			'r'           => wp_rand(),
@@ -207,16 +207,16 @@ class Licensing_Core {
 	/**
 	 * Resets the root URI for a license.
 	 *
-	 * @param string $license License key associated with the reset request.
+	 * @param string $w3tc_license License key associated with the reset request.
 	 * @param string $version Version of the plugin associated with the reset request.
 	 *
 	 * @return mixed|false Decoded status data on success, false on failure.
 	 */
-	public static function reset_rooturi( $license, $version ) {
+	public static function reset_rooturi( $w3tc_license, $version ) {
 		// data to send in our API request.
 		$api_params = array(
 			'edd_action'  => 'reset_rooturi',
-			'license_key' => $license,
+			'license_key' => $w3tc_license,
 			'home_url'    => network_home_url(),
 			'item_name'   => rawurlencode( W3TC_PURCHASE_PRODUCT_NAME ), // the name of our product in EDD.
 			'r'           => wp_rand(),
@@ -255,14 +255,14 @@ class Licensing_Core {
 	 * @return void
 	 */
 	public static function terms_accept() {
-		$c = Dispatcher::config();
-		if ( ! Util_Environment::is_w3tc_pro( $c ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( ! Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
 			$state_master = Dispatcher::config_state_master();
 			$state_master->set( 'license.community_terms', 'accept' );
 			$state_master->save();
 
-			$c->set( 'common.track_usage', true );
-			$c->save();
+			$w3tc_c->set( 'common.track_usage', true );
+			$w3tc_c->save();
 		}
 	}
 
@@ -293,9 +293,9 @@ class Licensing_Core {
 	 * @return string Terms of service choice as stored in the configuration.
 	 */
 	public static function get_tos_choice() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		if ( Util_Environment::is_w3tc_pro( $config ) ) {
+		if ( Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 			$state = Dispatcher::config_state();
 			$terms = $state->get_string( 'license.terms' );
 		} else {

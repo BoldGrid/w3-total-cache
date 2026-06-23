@@ -83,8 +83,8 @@ class FeatureShowcase_Plugin_Admin {
 	 * @see self::get_cards()
 	 */
 	public function load() {
-		$config     = Dispatcher::config();
-		$cards_data = self::get_cards();
+		$w3tc_config = Dispatcher::config();
+		$cards_data  = self::get_cards();
 
 		require W3TC_DIR . '/FeatureShowcase_Plugin_Admin_View.php';
 
@@ -135,9 +135,9 @@ class FeatureShowcase_Plugin_Admin {
 		$cards_data    = self::get_cards();
 		$updated       = false;
 
-		foreach ( $cards_data as $type => $cards ) {
-			foreach ( $cards as $id => $card ) {
-				if ( ! empty( $card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
+		foreach ( $cards_data as $type => $w3tc_cards ) {
+			foreach ( $w3tc_cards as $id => $w3tc_card ) {
+				if ( ! empty( $w3tc_card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
 					$features_seen[] = $id;
 					$updated         = true;
 				}
@@ -168,8 +168,8 @@ class FeatureShowcase_Plugin_Admin {
 	 * @return int
 	 */
 	public static function get_unseen_count() {
-		$config              = Dispatcher::config();
-		$force_master_config = $config->get_boolean( 'common.force_master' );
+		$w3tc_config         = Dispatcher::config();
+		$force_master_config = $w3tc_config->get_boolean( 'common.force_master' );
 
 		if ( is_multisite() && $force_master_config && ! is_super_admin() ) {
 			return 0;
@@ -182,9 +182,9 @@ class FeatureShowcase_Plugin_Admin {
 		$cards_data    = self::get_cards();
 
 		// Iterate through the new features and check if already seen.
-		foreach ( $cards_data as $type => $cards ) {
-			foreach ( $cards as $id => $card ) {
-				if ( ! empty( $card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
+		foreach ( $cards_data as $type => $w3tc_cards ) {
+			foreach ( $w3tc_cards as $id => $w3tc_card ) {
+				if ( ! empty( $w3tc_card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
 					++$unseen_count;
 				}
 			}
@@ -201,13 +201,11 @@ class FeatureShowcase_Plugin_Admin {
 	 * @access private
 	 * @static
 	 *
-	 * @global $wp_version WordPress core version.
-	 *
 	 * @return array
 	 */
 	private static function get_cards() {
-		$c                        = Dispatcher::config();
-		$extensions               = $c->get_array( 'extensions.active' );
+		$w3tc_c                   = Dispatcher::config();
+		$extensions               = $w3tc_c->get_array( 'extensions.active' );
 		$is_imageservice_active   = isset( $extensions['imageservice'] );
 		$imageservice_button_text = $is_imageservice_active ?
 			( is_network_admin() ? __( 'Available in sites', 'w3-total-cache' ) : __( 'Settings', 'w3-total-cache' ) ) :
@@ -216,27 +214,10 @@ class FeatureShowcase_Plugin_Admin {
 			( is_network_admin() ? 'network/sites.php' : 'upload.php?page=w3tc_extension_page_imageservice' ) :
 			( is_network_admin() || ! is_multisite() ? 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice' : '' );
 
-		global $wp_version;
-
 		$imageservice_description = __(
 			'Adds the ability to convert images into the modern formats (like WebP or AVIF) for better performance using our remote API service.',
 			'w3-total-cache'
 		);
-
-		if ( version_compare( $wp_version, '5.8', '<' ) ) {
-			$imageservice_description .= sprintf(
-				// translators: 1: HTML p open tag, 2: WordPress version string, 3: HTML anchor open tag, 4: HTML anchor close tag, 5: HTML p close tag.
-				__(
-					'%1$sThis feature works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.%5$s',
-					'w3-total-cache'
-				),
-				'<p>',
-				$wp_version,
-				'<a href="' . esc_url( admin_url( 'update-core.php' ) ) . '">',
-				'</a>',
-				'</p>'
-			);
-		}
 
 		return array(
 			'new' => array(

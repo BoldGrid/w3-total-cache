@@ -42,26 +42,26 @@ class Util_DebugPurgeLog_Reader {
 	/**
 	 * Read log setup
 	 *
-	 * @param string $module Module.
+	 * @param string $w3tc_module Module.
 	 *
 	 * @return array
 	 */
-	public static function read( $module ) {
-		$o = new Util_DebugPurgeLog_Reader();
-		return $o->_read( $module );
+	public static function read( $w3tc_module ) {
+		$w3tc_o = new Util_DebugPurgeLog_Reader();
+		return $w3tc_o->_read( $w3tc_module );
 	}
 
 	/**
 	 * Read log
 	 *
-	 * @param string $module Module.
+	 * @param string $w3tc_module Module.
 	 *
 	 * @throws \Exception Exception.
 	 *
 	 * @return array
 	 */
-	private function _read( $module ) {
-		$log_filename = Util_Debug::log_filename( $module . '-purge' );
+	private function _read( $w3tc_module ) {
+		$log_filename = Util_Debug::log_filename( $w3tc_module . '-purge' );
 		if ( ! file_exists( $log_filename ) ) {
 			return array();
 		}
@@ -124,8 +124,8 @@ class Util_DebugPurgeLog_Reader {
 		$pos            = $first_unparsed;
 
 		for ( ; $pos >= 0; $pos-- ) {
-			$c = substr( $s, $pos, 1 );
-			if ( "\r" === $c || "\n" === $c ) {
+			$w3tc_c = substr( $s, $pos, 1 );
+			if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 				$this->push_line( substr( $s, $pos + 1, $first_unparsed - $pos - 1 ) );
 				$first_unparsed = $pos;
 			}
@@ -137,17 +137,17 @@ class Util_DebugPurgeLog_Reader {
 	/**
 	 * Push line
 	 *
-	 * @param string $line Line.
+	 * @param string $w3tc_line Line.
 	 *
 	 * @return string
 	 */
-	private function push_line( $line ) {
-		if ( empty( $line ) ) {
+	private function push_line( $w3tc_line ) {
+		if ( empty( $w3tc_line ) ) {
 			return;
 		}
 
-		if ( "\t" === substr( $line, 0, 1 ) ) {
-			array_unshift( $this->current_item, $line );
+		if ( "\t" === substr( $w3tc_line, 0, 1 ) ) {
+			array_unshift( $this->current_item, $w3tc_line );
 			return;
 		}
 
@@ -155,23 +155,23 @@ class Util_DebugPurgeLog_Reader {
 		$postfix   = array();
 		$backtrace = array();
 		$username  = '';
-		foreach ( $this->current_item as $item ) {
-			$item = trim( $item );
-			if ( preg_match( '~^(#[^ ]+) ([^:]+): (.*)~', $item, $m ) ) {
+		foreach ( $this->current_item as $w3tc_item ) {
+			$w3tc_item = trim( $w3tc_item );
+			if ( preg_match( '~^(#[^ ]+) ([^:]+): (.*)~', $w3tc_item, $m ) ) {
 				$backtrace[] = array(
 					'number'   => $m[1],
 					'filename' => $m[2],
 					'function' => $m[3],
 				);
-			} elseif ( preg_match( '~^username:(.*)~', $item, $m ) ) {
+			} elseif ( preg_match( '~^username:(.*)~', $w3tc_item, $m ) ) {
 				$username = $m[1];
 			} else {
-				$postfix[] = $item;
+				$postfix[] = $w3tc_item;
 			}
 		}
 
 		$m = null;
-		if ( preg_match( '~\\[([^\\]]+)\\] (.*)~', $line, $m ) ) {
+		if ( preg_match( '~\\[([^\\]]+)\\] (.*)~', $w3tc_line, $m ) ) {
 			$this->lines[] = array(
 				'date'      => $m[1],
 				'message'   => $m[2],

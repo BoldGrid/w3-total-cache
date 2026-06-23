@@ -19,9 +19,9 @@
 // CORE DEPENDENCIES
 
 // Look for include file in the same directory (e.g. `./config.inc.php`).
-if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php'))
+if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.inc.php'))
 {
-	include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php';
+	include_once __DIR__ . DIRECTORY_SEPARATOR . 'config.inc.php';
 }
 // Fallback to `~/.aws/sdk/config.inc.php`
 elseif (getenv('HOME') && file_exists(getenv('HOME') . DIRECTORY_SEPARATOR . '.aws' . DIRECTORY_SEPARATOR . 'sdk' . DIRECTORY_SEPARATOR . 'config.inc.php'))
@@ -1543,7 +1543,7 @@ class CFLoader
 	 */
 	public static function autoloader($class)
 	{
-		$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+		$path = __DIR__ . DIRECTORY_SEPARATOR;
 
 		// Amazon SDK classes
 		if (strstr($class, 'Amazon'))

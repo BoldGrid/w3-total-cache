@@ -18,19 +18,19 @@ class DbCache_Environment {
 	/**
 	 * Fixes database cache on WordPress admin requests.
 	 *
-	 * @param \W3_Config $config         Configuration object for the application.
+	 * @param \W3_Config $w3tc_config         Configuration object for the application.
 	 * @param bool       $force_all_checks Whether to enforce all environmental checks.
 	 *
 	 * @return void
 	 *
 	 * @throws \Util_Environment_Exceptions If multiple exceptions occur during operations.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs             = new Util_Environment_Exceptions();
-		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+		$dbcache_enabled = $w3tc_config->get_boolean( 'dbcache.enabled' );
 
 		try {
-			if ( $dbcache_enabled || Util_Environment::is_dbcluster( $config ) ) {
+			if ( $dbcache_enabled || Util_Environment::is_dbcluster( $w3tc_config ) ) {
 				$this->create_addin();
 			} else {
 				$this->delete_addin();
@@ -47,18 +47,18 @@ class DbCache_Environment {
 	/**
 	 * Fixes database cache during specific events.
 	 *
-	 * @param \W3_Config      $config     Configuration object for the application.
+	 * @param \W3_Config      $w3tc_config     Configuration object for the application.
 	 * @param string          $event      Name of the event triggering the fix.
 	 * @param \W3_Config|null $old_config Optional previous configuration object.
 	 *
 	 * @return void
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
-		$engine          = $config->get_string( 'dbcache.engine' );
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		$dbcache_enabled = $w3tc_config->get_boolean( 'dbcache.enabled' );
+		$w3tc_engine     = $w3tc_config->get_string( 'dbcache.engine' );
 
-		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'dbcache.file.gc' );
+		if ( $dbcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$new_interval = $w3tc_config->get_integer( 'dbcache.file.gc' );
 			$old_interval = $old_config ? $old_config->get_integer( 'dbcache.file.gc' ) : -1;
 
 			if ( null !== $old_config && $new_interval !== $old_interval ) {
@@ -100,11 +100,11 @@ class DbCache_Environment {
 	/**
 	 * Retrieves required database cache rules based on the configuration.
 	 *
-	 * @param \W3_Config $config Configuration object for the application.
+	 * @param \W3_Config $w3tc_config Configuration object for the application.
 	 *
 	 * @return array|null An array of required rules, or null if none are required.
 	 */
-	public function get_required_rules( $config ) {
+	public function get_required_rules( $w3tc_config ) {
 		return null;
 	}
 
@@ -153,12 +153,16 @@ class DbCache_Environment {
 			} elseif ( ! $this->db_check_old_add_in() ) {
 				$page_val = Util_Request::get_string( 'page' );
 				if ( isset( $page_val ) ) {
-					$url = 'admin.php?page=' . $page_val . '&amp;';
+					$w3tc_url = 'admin.php?page=' . $page_val . '&amp;';
 				} else {
-					$url = basename( Util_Environment::remove_query_all( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) . '?page=w3tc_dashboard&amp;';
+					$w3tc_url = basename( Util_Environment::remove_query_all( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) . '?page=w3tc_dashboard&amp;';
 				}
 
-				$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=dbcache' );
+				$remove_url    = Util_Ui::admin_url( $w3tc_url . 'w3tc_default_remove_add_in=dbcache' );
+				$remove_button = Util_Ui::button_link(
+					__( 'Remove it for me', 'w3-total-cache' ),
+					Util_Nonce::admin_nonce_url( $remove_url, 'w3tc_default_remove_add_in' )
+				);
 				throw new Util_WpFile_FilesystemOperationException(
 					sprintf(
 						// Translators: 1 remove button with link.
@@ -166,7 +170,7 @@ class DbCache_Environment {
 							'The Database add-in file db.php is not a W3 Total Cache drop-in. Remove it or disable Database Caching. %1$s',
 							'w3-total-cache'
 						),
-						wp_kses_post( Util_Ui::button_link( __( 'Remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) )
+						wp_kses( $remove_button, Util_Ui::get_allowed_html_for_wp_kses_from_content( $remove_button ) )
 					)
 				);
 			}

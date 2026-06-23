@@ -4,7 +4,7 @@
  *
  * @package W3TC\Tests
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 use W3TC\Generic_Plugin;
@@ -12,13 +12,13 @@ use W3TC\Generic_Plugin;
 /**
  * Class Generic_Plugin_DynamicFragments_Test.
  *
- * @since X.X.X
+ * @since 2.8.13
  */
 class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Generic plugin instance under test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var Generic_Plugin
 	 */
@@ -27,7 +27,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Original output-buffer callbacks.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var array
 	 */
@@ -36,7 +36,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Output buffer level before each test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var int
 	 */
@@ -45,7 +45,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Sets up test fixtures.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -58,18 +58,18 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 
 		$this->plugin = new Generic_Plugin();
 		$this->initial_ob_level    = ob_get_level();
-		$this->original_ob_callbacks = isset( $GLOBALS['_w3tc_ob_callbacks'] ) ? $GLOBALS['_w3tc_ob_callbacks'] : array();
+		$this->original_ob_callbacks = isset( $GLOBALS['w3tc_ob_callbacks'] ) ? $GLOBALS['w3tc_ob_callbacks'] : array();
 	}
 
 	/**
 	 * Cleans up globals and output buffers after each test.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.2
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
-		$GLOBALS['_w3tc_ob_callbacks'] = $this->original_ob_callbacks;
+		$GLOBALS['w3tc_ob_callbacks'] = $this->original_ob_callbacks;
 
 		while ( ob_get_level() > $this->initial_ob_level ) {
 			ob_end_clean();
@@ -81,7 +81,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Confirms comment preprocessing strips fragment directives and secrets.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -106,7 +106,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	 * could then match and be eval()'d. The fix requires \s+ so no-space tags never
 	 * execute, and \s*\S+ in sanitization so they are stripped before storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.2
 	 *
 	 * @return void
 	 */
@@ -131,7 +131,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Ensures feed filtering removes fragment directives.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Tests REST responses are sanitized outside of edit context.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -177,7 +177,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Ensures edit-context REST responses remain untouched for editors.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -197,7 +197,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Output buffering must not be disabled for a spoofed W3 Total Cache user-agent (mfunc secret leak).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */

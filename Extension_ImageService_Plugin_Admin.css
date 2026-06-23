@@ -1,16 +1,16 @@
-span.w3tc-convert:before {
+span.w3tc-convert::before {
 	content:'\0041';
 	display: inline-block;
 	font-family: 'w3tc';
 	font-size: x-large;
 }
 
-th span.w3tc-convert:before,
+th span.w3tc-convert::before,
 th #w3tc-imageservice-settings {
 	vertical-align: text-bottom;
 }
 
-p span.w3tc-convert:before {
+p span.w3tc-convert::before {
 	vertical-align: middle;
 }
 
@@ -24,7 +24,7 @@ p span.w3tc-convert:before {
 }
 
 .w3tc-disabled > a {
-	color: currentColor;
+	color: currentcolor;
 	display: inline-block;  /* For IE11 / Ms Edge bug */
 	pointer-events: none;
 	text-decoration: none;
@@ -42,6 +42,7 @@ p span.w3tc-convert:before {
 }
 
 @-webkit-keyframes w3tc-animation-rotating {
+
 	from {
 		-webkit-transform: rotate(0deg);
 		-o-transform: rotate(0deg);
@@ -56,6 +57,7 @@ p span.w3tc-convert:before {
   }
 
 @keyframes w3tc-animation-rotating {
+
 	from {
 		-ms-transform: rotate(0deg);
 		-moz-transform: rotate(0deg);
@@ -82,6 +84,7 @@ p span.w3tc-convert:before {
 }
 
 @-webkit-keyframes w3tc-highlight {
+
 	0% {
 		background: #fefefe;
 	}
@@ -96,6 +99,7 @@ p span.w3tc-convert:before {
 }
 
 @keyframes w3tc-highlight {
+
 	0% {
 		background: #fefefe;
 	}

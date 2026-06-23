@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: support.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -19,12 +26,10 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php
 	if ( ! $request_type || ! isset( $this->_request_types[ $request_type ] ) ) {
 		$this->w3tc_support_select();
-	} else {
-		if ( isset( $this->_request_prices[ $request_type ] ) && ! $payment ) {
+	} elseif ( isset( $this->_request_prices[ $request_type ] ) && ! $payment ) {
 			$this->w3tc_support_payment();
-		} else {
-			$this->w3tc_support_form();
-		}
+	} else {
+		$this->w3tc_support_form();
 	}
 	?>
 </div>

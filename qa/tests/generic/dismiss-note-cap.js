@@ -7,8 +7,7 @@
  *
  * These handlers are gated at two layers: the admin-action
  * dispatcher in `Generic_Plugin_Admin::load()` requires a valid
- * `_wpnonce` (per-action key, with the legacy `'w3tc'` token still
- * accepted for back-compat), and each handler calls
+ * per-action `_wpnonce`, and each handler calls
  * `Generic_AdminActions_Default::_require_admin_cap()` which floors
  * at `current_user_can('manage_options')`. Unauthenticated callers
  * fail the cap check; authenticated subscribers fail the cap check
@@ -36,6 +35,7 @@ const execFile = util.promisify(require('child_process').execFile);
 
 const env = requireRoot('lib/environment');
 const sys = requireRoot('lib/sys');
+const w3tc = requireRoot('lib/w3tc');
 
 /**environments: environments('blog') */
 
@@ -84,31 +84,16 @@ async function readNoteFlag(noteKey) {
 }
 
 /**
- * Load the W3TC dashboard and return the legacy `'w3tc'` nonce minted for
- * the logged-in admin session (`Util_Ui::nonce_field( 'w3tc' )`).
+ * Return a per-handler admin nonce from the localized w3tc_admin_nonces map.
  *
- * Do not mint this via `wp eval`: CLI runs outside the browser session and
- * produces a user-0 nonce that fails verification (WP 7+ responds 403 with
- * "The link you followed has expired.").
+ * Loads w3tc_dashboard so w3tc-nonce.js and the admin nonce map are present.
+ * Do not mint via `wp eval`: CLI runs outside the browser session and produces
+ * a user-0 token that WordPress rejects on verification.
  *
  * @return {Promise<string>}
  */
-async function dashboardLegacyNonce() {
-	await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
-		{waitUntil: 'domcontentloaded'});
-
-	if (await adminPage.$('#w3tc-wizard-skip') != null) {
-		await Promise.all([
-			adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
-			adminPage.waitForNavigation({timeout: 300000}),
-		]);
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
-			{waitUntil: 'domcontentloaded'});
-	}
-
-	let nonce = await adminPage.$eval('input[name="_wpnonce"]', (e) => e.value);
-	expect(nonce).not.empty;
-	return nonce;
+async function dashboardAdminNonce(action) {
+	return w3tc.adminActionNonce(adminPage, action, env.adminUrl, 'w3tc_dashboard');
 }
 
 describe('Admin-note dismiss endpoint capability gate', function() {
@@ -123,7 +108,7 @@ describe('Admin-note dismiss endpoint capability gate', function() {
 	 * status report.
 	 */
 	it('admin GET to w3tc_default_hide_note sets notes.<key>=false', async() => {
-		let nonce = await dashboardLegacyNonce();
+		let nonce = await dashboardAdminNonce('w3tc_default_hide_note');
 
 		expect(await readNoteFlag(PROBE_NOTE)).equals(null);
 

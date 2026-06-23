@@ -55,14 +55,14 @@ class Extension_CloudFlare_Api {
 	/**
 	 * Constructs the Cloudflare API client with the provided configuration.
 	 *
-	 * @param array $config Configuration array containing 'key', 'zone_id', and 'timelimit_api_request'.
+	 * @param array $w3tc_config Configuration array containing 'key', 'zone_id', and 'timelimit_api_request'.
 	 *                     'email' is required only for the legacy Global API key (37 characters); API tokens omit it.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->_email   = isset( $config['email'] ) ? trim( (string) $config['email'] ) : '';
-		$this->_key     = isset( $config['key'] ) ? trim( (string) $config['key'] ) : '';
+	public function __construct( $w3tc_config ) {
+		$this->_email = isset( $w3tc_config['email'] ) ? trim( (string) $w3tc_config['email'] ) : '';
+		$this->_key   = isset( $w3tc_config['key'] ) ? trim( (string) $w3tc_config['key'] ) : '';
 
 		/**
 		 * `zone_id` flows into Cloudflare API URLs as a path segment
@@ -71,14 +71,14 @@ class Extension_CloudFlare_Api {
 		 * most rewrite the API path (extra `/`, query separators) —
 		 * the validation is cheap and closes that path.
 		 */
-		$raw_zone_id    = isset( $config['zone_id'] ) ? (string) $config['zone_id'] : '';
+		$raw_zone_id    = isset( $w3tc_config['zone_id'] ) ? (string) $w3tc_config['zone_id'] : '';
 		$this->_zone_id = self::validate_api_path_segment( $raw_zone_id );
 
-		if ( ! isset( $config['timelimit_api_request'] ) ||
-			$config['timelimit_api_request'] < 1 ) {
+		if ( ! isset( $w3tc_config['timelimit_api_request'] ) ||
+			$w3tc_config['timelimit_api_request'] < 1 ) {
 			$this->_timelimit_api_request = 30;
 		} else {
-			$this->_timelimit_api_request = $config['timelimit_api_request'];
+			$this->_timelimit_api_request = $w3tc_config['timelimit_api_request'];
 		}
 	}
 
@@ -88,14 +88,14 @@ class Extension_CloudFlare_Api {
 	 * returns the empty string. Used to gate every external input that
 	 * lands in an API URL path segment.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $value Candidate segment.
+	 * @param string $w3tc_value Candidate segment.
 	 *
 	 * @return string Validated segment, or '' on rejection.
 	 */
-	private static function validate_api_path_segment( $value ) {
-		if ( ! \is_string( $value ) ) {
+	private static function validate_api_path_segment( $w3tc_value ) {
+		if ( ! \is_string( $w3tc_value ) ) {
 			return '';
 		}
 		/**
@@ -104,14 +104,14 @@ class Extension_CloudFlare_Api {
 		 * rejecting those would silently break installs whose stored
 		 * zone_id has a trailing newline / space / tab.
 		 */
-		$value = \trim( $value );
-		if ( '' === $value ) {
+		$w3tc_value = \trim( $w3tc_value );
+		if ( '' === $w3tc_value ) {
 			return '';
 		}
-		if ( ! \preg_match( '/^[A-Za-z0-9._-]+$/', $value ) ) {
+		if ( ! \preg_match( '/^[A-Za-z0-9._-]+$/', $w3tc_value ) ) {
 			return '';
 		}
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -120,16 +120,16 @@ class Extension_CloudFlare_Api {
 	 * Any other length uses Bearer authentication for API tokens (including historical 40-character
 	 * tokens and newer Cloudflare token formats).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string $key Raw key from settings or request.
+	 * @param string $w3tc_key Raw key from settings or request.
 	 *
 	 * @return bool
 	 */
-	public static function is_legacy_global_api_key_string( $key ) {
-		$key = trim( (string) $key );
+	public static function is_legacy_global_api_key_string( $w3tc_key ) {
+		$w3tc_key = trim( (string) $w3tc_key );
 
-		return 37 === \strlen( $key );
+		return 37 === \strlen( $w3tc_key );
 	}
 
 	/**
@@ -137,20 +137,20 @@ class Extension_CloudFlare_Api {
 	 *
 	 * Global API keys require the account email. API tokens only require a non-empty token.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $email Account email (may be empty when using an API token).
-	 * @param string $key   Global API key or API token.
+	 * @param string $w3tc_key   Global API key or API token.
 	 *
 	 * @return bool
 	 */
-	public static function are_api_credentials_usable( $email, $key ) {
-		$key = trim( (string) $key );
-		if ( '' === $key ) {
+	public static function are_api_credentials_usable( $email, $w3tc_key ) {
+		$w3tc_key = trim( (string) $w3tc_key );
+		if ( '' === $w3tc_key ) {
 			return false;
 		}
 
-		if ( self::is_legacy_global_api_key_string( $key ) ) {
+		if ( self::is_legacy_global_api_key_string( $w3tc_key ) ) {
 			return '' !== trim( (string) $email );
 		}
 
@@ -161,19 +161,19 @@ class Extension_CloudFlare_Api {
 	 * Sends an external event notification to Cloudflare.
 	 *
 	 * @param string $type  The event type.
-	 * @param string $value The event value.
+	 * @param string $w3tc_value The event value.
 	 *
 	 * @return mixed|null Decoded response body or null on failure.
 	 */
-	public function external_event( $type, $value ) {
-		$url      = sprintf(
+	public function external_event( $type, $w3tc_value ) {
+		$w3tc_url = sprintf(
 			'https://www.cloudflare.com/ajax/external-event.html?u=%s&tkn=%s&evnt_t=%s&evnt_v=%s',
 			rawurlencode( $this->_email ),
 			rawurlencode( $this->_key ),
 			rawurlencode( $type ),
-			rawurlencode( $value )
+			rawurlencode( $w3tc_value )
 		);
-		$response = Util_Http::get( $url );
+		$response = Util_Http::get( $w3tc_url );
 
 		if ( ! is_wp_error( $response ) ) {
 			return json_decode( $response['body'] );
@@ -188,24 +188,24 @@ class Extension_CloudFlare_Api {
 	 * @return array An array containing 'ip4' and 'ip6' keys with corresponding IP ranges.
 	 */
 	public function get_ip_ranges() {
-		$data     = array();
-		$response = Util_Http::get( 'https://www.cloudflare.com/ips-v4' );
+		$w3tc_data = array();
+		$response  = Util_Http::get( 'https://www.cloudflare.com/ips-v4' );
 
 		if ( ! is_wp_error( $response ) ) {
-			$ip4_data    = $response['body'];
-			$ip4_data    = explode( "\n", $ip4_data );
-			$data['ip4'] = $ip4_data;
+			$ip4_data         = $response['body'];
+			$ip4_data         = explode( "\n", $ip4_data );
+			$w3tc_data['ip4'] = $ip4_data;
 		}
 
 		$response = Util_Http::get( 'https://www.cloudflare.com/ips-v6' );
 
 		if ( ! is_wp_error( $response ) ) {
-			$ip6_data    = $response['body'];
-			$ip6_data    = explode( "\n", $ip6_data );
-			$data['ip6'] = $ip6_data;
+			$ip6_data         = $response['body'];
+			$ip6_data         = explode( "\n", $ip6_data );
+			$w3tc_data['ip6'] = $ip6_data;
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -232,9 +232,9 @@ class Extension_CloudFlare_Api {
 			return array();
 		}
 
-		$a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $id );
+		$w3tc_a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $id );
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
@@ -255,11 +255,11 @@ class Extension_CloudFlare_Api {
 			return array();
 		}
 
-		$a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $this->_zone_id . '/settings' );
+		$w3tc_a = $this->_wp_remote_request( 'GET', self::$_root_uri . '/zones/' . $this->_zone_id . '/settings' );
 
 		$by_id = array();
-		foreach ( $a as $i ) {
-			$by_id[ $i['id'] ] = $i;
+		foreach ( $w3tc_a as $w3tc_i ) {
+			$by_id[ $w3tc_i['id'] ] = $w3tc_i;
 		}
 
 		return $by_id;
@@ -268,32 +268,32 @@ class Extension_CloudFlare_Api {
 	/**
 	 * Updates a specific zone setting.
 	 *
-	 * @param string $name  The name of the setting to update.
-	 * @param mixed  $value The new value for the setting.
+	 * @param string $w3tc_name  The name of the setting to update.
+	 * @param mixed  $w3tc_value The new value for the setting.
 	 *
 	 * @return array The response from the Cloudflare API.
 	 */
-	public function zone_setting_set( $name, $value ) {
+	public function zone_setting_set( $w3tc_name, $w3tc_value ) {
 		/**
-		 * `$name` becomes a path segment. The legacy code spliced any
+		 * `$w3tc_name` becomes a path segment. The legacy code spliced any
 		 * admin-supplied string straight in; restrict to the Cloudflare
 		 * setting-name alphabet so a value like `evil/../foo` can't
 		 * bend the URL.
 		 */
-		$name = self::validate_api_path_segment( (string) $name );
-		if ( '' === $name || '' === $this->_zone_id ) {
+		$w3tc_name = self::validate_api_path_segment( (string) $w3tc_name );
+		if ( '' === $w3tc_name || '' === $this->_zone_id ) {
 			return array();
 		}
 
 		// Convert numeric values to the integer type.
-		if ( is_numeric( $value ) ) {
-			$value = intval( $value );
+		if ( is_numeric( $w3tc_value ) ) {
+			$w3tc_value = intval( $w3tc_value );
 		}
 
 		return $this->_wp_remote_request(
 			'PATCH',
-			self::$_root_uri . '/zones/' . $this->_zone_id . '/settings/' . $name,
-			wp_json_encode( array( 'value' => $value ) )
+			self::$_root_uri . '/zones/' . $this->_zone_id . '/settings/' . $w3tc_name,
+			wp_json_encode( array( 'value' => $w3tc_value ) )
 		);
 	}
 
@@ -390,22 +390,22 @@ class Extension_CloudFlare_Api {
 	 * Sends an HTTP request to the Cloudflare API.
 	 *
 	 * @param string $method The HTTP method ('GET', 'POST', 'PATCH', 'DELETE').
-	 * @param string $url    The API endpoint URL.
+	 * @param string $w3tc_url    The API endpoint URL.
 	 * @param mixed  $body   Optional. The request body.
 	 *
 	 * @return array The decoded response result.
 	 *
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
-	private function _wp_remote_request( $method, $url, $body = array() ) {
+	private function _wp_remote_request( $method, $w3tc_url, $body = array() ) {
 		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
 		$headers = $this->_generate_wp_remote_request_headers();
 
-		$result = wp_remote_request(
-			$url,
+		$w3tc_result = wp_remote_request(
+			$w3tc_url,
 			array(
 				'method'  => $method,
 				'headers' => $headers,
@@ -414,18 +414,18 @@ class Extension_CloudFlare_Api {
 			)
 		);
 
-		if ( is_wp_error( $result ) ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
-		$response_json = @json_decode( $result['body'], true );
+		$response_json = @json_decode( $w3tc_result['body'], true );
 		if ( is_null( $response_json ) || ! isset( $response_json['success'] ) ) {
 			throw new \Exception(
 				\esc_html(
 					sprintf(
 						// Translators: 1 Result body.
 						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-						str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+						str_replace( '<', '.', str_replace( '>', '.', $w3tc_result['body'] ) )
 					)
 				)
 			);
@@ -460,22 +460,22 @@ class Extension_CloudFlare_Api {
 	 * Sends an HTTP request to the Cloudflare API and includes metadata.
 	 *
 	 * @param string $method The HTTP method ('GET', 'POST', 'PATCH', 'DELETE').
-	 * @param string $url    The API endpoint URL.
+	 * @param string $w3tc_url    The API endpoint URL.
 	 * @param mixed  $body   Optional. The request body.
 	 *
 	 * @return array The full response including metadata.
 	 *
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
-	private function _wp_remote_request_with_meta( $method, $url, $body = array() ) {
+	private function _wp_remote_request_with_meta( $method, $w3tc_url, $body = array() ) {
 		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
 		$headers = $this->_generate_wp_remote_request_headers();
 
-		$result = wp_remote_request(
-			$url,
+		$w3tc_result = wp_remote_request(
+			$w3tc_url,
 			array(
 				'method'  => $method,
 				'headers' => $headers,
@@ -484,18 +484,18 @@ class Extension_CloudFlare_Api {
 			)
 		);
 
-		if ( is_wp_error( $result ) ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
-		$response_json = @json_decode( $result['body'], true );
+		$response_json = @json_decode( $w3tc_result['body'], true );
 		if ( is_null( $response_json ) || ! isset( $response_json['success'] ) ) {
 			throw new \Exception(
 				\esc_html(
 					sprintf(
 						// Translators: 1 Response body.
 						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-						$result['body']
+						$w3tc_result['body']
 					)
 				)
 			);
@@ -530,14 +530,14 @@ class Extension_CloudFlare_Api {
 	 * Sends a GraphQL request to the Cloudflare API.
 	 *
 	 * @param string $method The HTTP method ('POST').
-	 * @param string $url    The GraphQL API endpoint URL.
+	 * @param string $w3tc_url    The GraphQL API endpoint URL.
 	 * @param string $body   The GraphQL query string.
 	 *
 	 * @return array The response data from the API.
 	 *
 	 * @throws \Exception If authentication is missing or the request fails.
 	 */
-	private function _wp_remote_request_graphql( $method, $url, $body ) {
+	private function _wp_remote_request_graphql( $method, $w3tc_url, $body ) {
 		if ( ! $this->_credentials_configured() ) {
 			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
@@ -546,8 +546,8 @@ class Extension_CloudFlare_Api {
 
 		$body = preg_replace( '/\s\s+/', ' ', $body );
 
-		$result = wp_remote_request(
-			$url,
+		$w3tc_result = wp_remote_request(
+			$w3tc_url,
 			array(
 				'method'  => $method,
 				'headers' => $headers,
@@ -556,18 +556,18 @@ class Extension_CloudFlare_Api {
 			)
 		);
 
-		if ( is_wp_error( $result ) ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
-		$response_json = @json_decode( $result['body'], true );
+		$response_json = @json_decode( $w3tc_result['body'], true );
 		if ( is_null( $response_json ) ) {
 			throw new \Exception(
 				\esc_html(
 					sprintf(
 						// Translators: 1 Response body.
 						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-						str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+						str_replace( '<', '.', str_replace( '>', '.', $w3tc_result['body'] ) )
 					)
 				)
 			);
@@ -602,7 +602,7 @@ class Extension_CloudFlare_Api {
 	 * Cloudflare Global API keys are 37 characters. API tokens use Bearer auth and are opaque strings
 	 * of varying lengths (including historical 40-character tokens and newer formats).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return bool
 	 */
@@ -615,7 +615,7 @@ class Extension_CloudFlare_Api {
 	 *
 	 * API tokens require only a non-empty key. Legacy global keys also require the account email.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return bool
 	 */

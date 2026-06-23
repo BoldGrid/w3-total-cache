@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: purchase.php
+ *
+ * @package W3TC
+ */
+
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die;
 }

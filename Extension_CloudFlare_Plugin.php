@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * W3 ObjectCache plugin
  */
@@ -134,7 +135,7 @@ class Extension_CloudFlare_Plugin {
 	 * @param array $actions_made {
 	 *     Array of actions performed.
 	 *
-	 *     @type string $module The module that performed the action.
+	 *     @type string $w3tc_module The module that performed the action.
 	 *     @type string $error  (Optional) Error message if an error occurred.
 	 * }
 	 *
@@ -142,13 +143,13 @@ class Extension_CloudFlare_Plugin {
 	 */
 	public function w3tc_flush_execute_delayed_operations( $actions_made ) {
 		if ( $this->flush_operation_requested ) {
-			$c   = Dispatcher::config();
-			$api = new Extension_CloudFlare_Api(
+			$w3tc_c = Dispatcher::config();
+			$api    = new Extension_CloudFlare_Api(
 				array(
-					'email'                 => $c->get_string( array( 'cloudflare', 'email' ) ),
-					'key'                   => $c->get_string( array( 'cloudflare', 'key' ) ),
-					'zone_id'               => $c->get_string( array( 'cloudflare', 'zone_id' ) ),
-					'timelimit_api_request' => $c->get_integer(
+					'email'                 => $w3tc_c->get_string( array( 'cloudflare', 'email' ) ),
+					'key'                   => $w3tc_c->get_string( array( 'cloudflare', 'key' ) ),
+					'zone_id'               => $w3tc_c->get_string( array( 'cloudflare', 'zone_id' ) ),
+					'timelimit_api_request' => $w3tc_c->get_integer(
 						array( 'cloudflare', 'timelimit.api_request' )
 					),
 				)
@@ -185,28 +186,28 @@ class Extension_CloudFlare_Plugin {
 	 */
 	public function set_comment_status( $id, $status ) {
 		if ( 'spam' === $status ) {
-			$comment = get_comment( $id );
-			$value   = array(
+			$comment    = get_comment( $id );
+			$w3tc_value = array(
 				'a'   => $comment->comment_author,
 				'am'  => $comment->comment_author_email,
 				'ip'  => $comment->comment_author_IP,
 				'con' => substr( $comment->comment_content, 0, 100 ),
 			);
 
-			$c   = Dispatcher::config();
-			$api = new Extension_CloudFlare_Api(
+			$w3tc_c = Dispatcher::config();
+			$api    = new Extension_CloudFlare_Api(
 				array(
-					'email'                 => $c->get_string( array( 'cloudflare', 'email' ) ),
-					'key'                   => $c->get_string( array( 'cloudflare', 'key' ) ),
-					'zone_id'               => $c->get_string( array( 'cloudflare', 'zone_id' ) ),
-					'timelimit_api_request' => $c->get_integer(
+					'email'                 => $w3tc_c->get_string( array( 'cloudflare', 'email' ) ),
+					'key'                   => $w3tc_c->get_string( array( 'cloudflare', 'key' ) ),
+					'zone_id'               => $w3tc_c->get_string( array( 'cloudflare', 'zone_id' ) ),
+					'timelimit_api_request' => $w3tc_c->get_integer(
 						array( 'cloudflare', 'timelimit.api_request' )
 					),
 				)
 			);
 
 			try {
-				$api->external_event( 'WP_SPAM', wp_json_encode( $value ) );
+				$api->external_event( 'WP_SPAM', wp_json_encode( $w3tc_value ) );
 			} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 		}
@@ -344,23 +345,23 @@ class Extension_CloudFlare_Plugin {
 				return ( ip2long( $ip ) & $netmask_dec ) === ( ip2long( $range ) & $netmask_dec );
 			} else {
 				// $netmask is a CIDR size block fix the range argument.
-				$x     = explode( '.', $range );
-				$count = count( $x );  // Assign count to a variable.
-				while ( $count < 4 ) {
-					$x[]   = '0';
-					$count = count( $x );  // Update the count after adding a '0'.
+				$x          = explode( '.', $range );
+				$w3tc_count = count( $x );  // Assign count to a variable.
+				while ( $w3tc_count < 4 ) {
+					$x[]        = '0';
+					$w3tc_count = count( $x );  // Update the count after adding a '0'.
 				}
 
-				list( $a, $b, $c, $d ) = $x;
-				$range                 = sprintf(
+				list( $w3tc_a, $b, $w3tc_c, $d ) = $x;
+				$range                           = sprintf(
 					'%u.%u.%u.%u',
-					empty( $a ) ? '0' : $a,
+					empty( $w3tc_a ) ? '0' : $w3tc_a,
 					empty( $b ) ? '0' : $b,
-					empty( $c ) ? '0' : $c,
+					empty( $w3tc_c ) ? '0' : $w3tc_c,
 					empty( $d ) ? '0' : $d
 				);
-				$range_dec             = ip2long( $range );
-				$ip_dec                = ip2long( $ip );
+				$range_dec                       = ip2long( $range );
+				$ip_dec                          = ip2long( $ip );
 
 				// Strategy 1 - Create the netmask with 'netmask' 1s and then fill it to 32 with 0s
 				// $netmask_dec = bindec(str_pad('', $netmask, '1') . str_pad('', 32-$netmask, '0')); phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar.
@@ -439,8 +440,8 @@ class Extension_CloudFlare_Plugin {
 
 		// Pad out the shorthand entries.
 		$main_ip_pieces = explode( ':', $main_ip_piece );
-		foreach ( $main_ip_pieces as $key => $val ) {
-			$main_ip_pieces[ $key ] = str_pad( $main_ip_pieces[ $key ], 4, '0', STR_PAD_LEFT );
+		foreach ( $main_ip_pieces as $w3tc_key => $val ) {
+			$main_ip_pieces[ $w3tc_key ] = str_pad( $main_ip_pieces[ $w3tc_key ], 4, '0', STR_PAD_LEFT );
 		}
 
 		// Check to see if the last IP block (part after ::) is set.
@@ -449,14 +450,14 @@ class Extension_CloudFlare_Plugin {
 			$last_piece = str_pad( $last_ip_piece, 4, '0', STR_PAD_LEFT );
 
 			// Build the full form of the IPV6 address considering the last IP block set.
-			for ( $i = $size; $i < 7; $i++ ) {
-				$main_ip_pieces[ $i ] = '0000';
+			for ( $w3tc_i = $size; $w3tc_i < 7; $w3tc_i++ ) {
+				$main_ip_pieces[ $w3tc_i ] = '0000';
 			}
 			$main_ip_pieces[7] = $last_piece;
 		} else {
 			// Build the full form of the IPV6 address.
-			for ( $i = $size; $i < 8; $i++ ) {
-				$main_ip_pieces[ $i ] = '0000';
+			for ( $w3tc_i = $size; $w3tc_i < 8; $w3tc_i++ ) {
+				$main_ip_pieces[ $w3tc_i ] = '0000';
 			}
 		}
 
@@ -485,13 +486,13 @@ class Extension_CloudFlare_Plugin {
 
 		// Pad out the shorthand entries.
 		$main_ip_pieces = explode( ':', $main_ip_piece );
-		foreach ( $main_ip_pieces as $key => $val ) {
-			$main_ip_pieces[ $key ] = str_pad( $main_ip_pieces[ $key ], 4, '0', STR_PAD_LEFT );
+		foreach ( $main_ip_pieces as $w3tc_key => $val ) {
+			$main_ip_pieces[ $w3tc_key ] = str_pad( $main_ip_pieces[ $w3tc_key ], 4, '0', STR_PAD_LEFT );
 		}
 
 		// Create the first and last pieces that will denote the IPV6 range.
-		$first = $main_ip_pieces;
-		$last  = $main_ip_pieces;
+		$w3tc_first = $main_ip_pieces;
+		$last       = $main_ip_pieces;
 
 		// Check to see if the last IP block (part after ::) is set.
 		$last_piece = '';
@@ -500,33 +501,33 @@ class Extension_CloudFlare_Plugin {
 			$last_piece = str_pad( $last_ip_piece, 4, '0', STR_PAD_LEFT );
 
 			// Build the full form of the IPV6 address considering the last IP block set.
-			for ( $i = $size; $i < 7; $i++ ) {
-				$first[ $i ] = '0000';
-				$last[ $i ]  = 'ffff';
+			for ( $w3tc_i = $size; $w3tc_i < 7; $w3tc_i++ ) {
+				$w3tc_first[ $w3tc_i ] = '0000';
+				$last[ $w3tc_i ]       = 'ffff';
 			}
 
 			$main_ip_pieces[7] = $last_piece;
 		} else {
 			// Build the full form of the IPV6 address.
-			for ( $i = $size; $i < 8; $i++ ) {
-				$first[ $i ] = '0000';
-				$last[ $i ]  = 'ffff';
+			for ( $w3tc_i = $size; $w3tc_i < 8; $w3tc_i++ ) {
+				$w3tc_first[ $w3tc_i ] = '0000';
+				$last[ $w3tc_i ]       = 'ffff';
 			}
 		}
 
 		// Rebuild the final long form IPV6 address.
-		$first    = $this->ip2long6( implode( ':', $first ) );
-		$last     = $this->ip2long6( implode( ':', $last ) );
-		$in_range = ( $ip >= $first && $ip <= $last );
+		$w3tc_first = $this->ip2long6( implode( ':', $w3tc_first ) );
+		$last       = $this->ip2long6( implode( ':', $last ) );
+		$in_range   = ( $ip >= $w3tc_first && $ip <= $last );
 
 		return $in_range;
 	}
 }
 
-$p = new Extension_CloudFlare_Plugin();
-$p->run();
+$w3tc_p = new Extension_CloudFlare_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_CloudFlare_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_CloudFlare_Plugin_Admin();
+	$w3tc_p->run();
 }
