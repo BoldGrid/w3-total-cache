@@ -19,16 +19,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-api-key', 'api_key', $details['api_key'] );
 	Util_Ui::hidden( 'w3tc-rackspace-access-token', 'access_token', $details['access_token'] );
 	Util_Ui::hidden( 'w3tc-rackspace-region-descriptors', 'region_descriptors', $details['region_descriptors_serialized'] );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
