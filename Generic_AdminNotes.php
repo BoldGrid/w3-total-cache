@@ -134,7 +134,10 @@ class Generic_AdminNotes {
 			);
 		}
 
-		if ( $state_master->get_boolean( 'common.show_note.nginx_restart_required' ) ) {
+		if (
+			$state_master->get_boolean( 'common.show_note.nginx_restart_required' ) &&
+			! $state_master->get_boolean( 'common.hide_note_nginx_restart_required' )
+		) {
 			$cf = Dispatcher::component( 'CacheFlush' );
 
 			$w3tc_notes['nginx_restart_required'] = wp_kses(
@@ -147,8 +150,8 @@ class Generic_AdminNotes {
 					Util_Ui::button_hide_note2(
 						array(
 							'w3tc_default_config_state_master' => 'y',
-							'key'   => 'common.show_note.nginx_restart_required',
-							'value' => 'false',
+							'key'   => 'common.hide_note_nginx_restart_required',
+							'value' => 'true',
 						)
 					)
 				),

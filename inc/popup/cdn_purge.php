@@ -47,7 +47,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<p>
 		<?php
 		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
+			Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_cdn_purge_files' ) ),
 			array(
 				'input' => array(
 					'type'  => array(),

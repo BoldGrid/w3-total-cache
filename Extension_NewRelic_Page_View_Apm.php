@@ -131,7 +131,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="submit">
 			<?php
 			echo wp_kses(
-				Util_Ui::nonce_field( 'w3tc' ),
+				Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_save_new_relic' ) ),
 				array(
 					'input' => array(
 						'type'  => array(),
@@ -144,7 +144,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<input type="submit" name="w3tc_save_new_relic"
 				class="w3tc-button-save button-primary"
 				<?php Util_Ui::sealing_disabled( 'newrelic' ); ?>
-				value="<?php esc_attr_e( 'Save New Relic settings', 'w3-total-cache' ); ?>" />
+				value="<?php esc_attr_e( 'Save New Relic settings', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_save_new_relic' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 		</p>
 		<?php elseif ( empty( $application_settings ) ) : ?>
 		<p class="description">

@@ -191,11 +191,71 @@ class Generic_AdminActions_Default {
 			return;
 		}
 
-		$w3tc_config_state = Dispatcher::config_state_master();
-		$w3tc_config_state->set( $w3tc_key, $w3tc_value );
-		$w3tc_config_state->save();
+		if (
+			'common.hide_note_nginx_restart_required' === $w3tc_key &&
+			Util_Environment::to_boolean( $w3tc_value )
+		) {
+			self::record_nginx_restart_notice_dismiss();
+			self::flag_pending_nginx_restart_notice_dismiss();
+		} else {
+			$w3tc_config_state = Dispatcher::config_state_master();
+			$w3tc_config_state->set( $w3tc_key, $w3tc_value );
+			$w3tc_config_state->save();
+		}
 
 		Util_Admin::redirect( array(), true );
+	}
+
+	/**
+	 * Persist an nginx-restart notice dismiss against the current rules file.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function record_nginx_restart_notice_dismiss() {
+		$state = Dispatcher::config_state_master();
+		$state->set( 'common.hide_note_nginx_restart_required', true );
+		$state->set(
+			'common.nginx_rules_dismiss_fingerprint',
+			Util_Rule::nginx_rules_file_fingerprint()
+		);
+		$state->save();
+	}
+
+	/**
+	 * Remember an nginx-restart notice dismiss for the next admin_notices pass.
+	 *
+	 * The dismiss handler runs on `load-{page}` and exits before
+	 * `admin_notices`, but the redirect target always runs the
+	 * environment writer first. That writer can call
+	 * `Util_Rule::after_rules_modified()`, which clears the hide flag.
+	 * Re-applying the dismiss after the writer completes keeps the
+	 * operator's choice on the redirect response.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function flag_pending_nginx_restart_notice_dismiss() {
+		\set_site_transient( 'w3tc_pending_hide_nginx_restart', 1, MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Persist a pending nginx-restart notice dismiss, if any.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function apply_pending_nginx_restart_notice_dismiss() {
+		if ( ! \get_site_transient( 'w3tc_pending_hide_nginx_restart' ) ) {
+			return;
+		}
+
+		\delete_site_transient( 'w3tc_pending_hide_nginx_restart' );
+
+		self::record_nginx_restart_notice_dismiss();
 	}
 
 	/**

@@ -27,7 +27,7 @@ if ( ! defined( 'W3TC' ) ) {
 		$oauth_state
 	);
 	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
+		Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_cdn_google_drive_auth_set' ) ),
 		array(
 			'input' => array(
 				'type'  => array(),
@@ -63,7 +63,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="submit">
 			<input type="submit" name="w3tc_cdn_google_drive_auth_set"
 				class="w3tc-button-save button-primary"
-				value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>" />
+				value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_cdn_google_drive_auth_set' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>

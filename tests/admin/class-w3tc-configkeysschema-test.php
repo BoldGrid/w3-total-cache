@@ -313,6 +313,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 			// Generic_AdminNotes.
 			'common.hide_note_wp_content_permissions',
 			'common.hide_note_no_zlib',
+			'common.hide_note_nginx_restart_required',
 			'common.show_note.nginx_restart_required',
 			'common.show_note.plugins_updated',
 			// Cdn_AdminNotes.

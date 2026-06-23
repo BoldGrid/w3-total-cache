@@ -871,7 +871,13 @@ class Generic_Plugin_Admin {
 					'w3tc_flush_fragmentcache',
 					'w3tc_flush_varnish',
 					'w3tc_cloudflare_flush',
+					'w3tc_cloudflare_flush_all_except_cf',
 					'w3tc_opcache_flush',
+					'w3tc_cdn_purge_files',
+					'w3tc_cdn_google_drive_auth_set',
+					'w3tc_cdn_rackspace_cdn_domains_reload',
+					'w3tc_save_new_relic',
+					'w3tc_config_dbcluster_config_save',
 					'w3tc_test_self',
 					'w3tc_licensing_upgrade',
 					'w3tc_licensing_buy_plugin',
@@ -882,6 +888,7 @@ class Generic_Plugin_Admin {
 					'w3tc_test_memcached',
 					'w3tc_test_redis',
 					'w3tc_default_hide_note',
+					'w3tc_default_config_state_master',
 					'w3tc_config_import',
 					'w3tc_config_export',
 					'w3tc_config_reset',
@@ -1527,6 +1534,8 @@ class Generic_Plugin_Admin {
 				++$n;
 			}
 		}
+
+		Generic_AdminActions_Default::apply_pending_nginx_restart_notice_dismiss();
 
 		$errors     = apply_filters( 'w3tc_errors', $errors );
 		$w3tc_notes = apply_filters( 'w3tc_notes', $w3tc_notes );

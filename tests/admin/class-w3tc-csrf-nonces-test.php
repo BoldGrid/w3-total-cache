@@ -311,6 +311,90 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * License key save uses a distinct handler key from the purchase lightbox.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_save_license_key_nonce_is_not_buy_plugin_nonce() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_licensing_buy_plugin' );
+
+		$this->assertFalse(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_default_save_license_key' ) ),
+			'Purchase lightbox nonce must not authorize license-key save.'
+		);
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_default_save_license_key' );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_default_save_license_key' ) ),
+			'License-key save requires its own admin nonce.'
+		);
+	}
+
+	/**
+	 * Handlers that were migrated off the legacy shared `'w3tc'` form nonce.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function data_handlers_migrated_off_legacy_form_nonce() {
+		return array(
+			'cdn purge files'              => array( 'w3tc_cdn_purge_files' ),
+			'google drive auth set'        => array( 'w3tc_cdn_google_drive_auth_set' ),
+			'rackspace cdn domains reload' => array( 'w3tc_cdn_rackspace_cdn_domains_reload' ),
+			'new relic save'               => array( 'w3tc_save_new_relic' ),
+			'dbcluster config save'        => array( 'w3tc_config_dbcluster_config_save' ),
+			'cloudflare flush except cf'   => array( 'w3tc_cloudflare_flush_all_except_cf' ),
+		);
+	}
+
+	/**
+	 * Legacy shared `'w3tc'` form tokens must not authorize per-action handlers.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $handler Dispatcher handler request key.
+	 *
+	 * @dataProvider data_handlers_migrated_off_legacy_form_nonce
+	 */
+	public function test_handler_rejects_legacy_shared_form_nonce( $handler ) {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = wp_create_nonce( Util_Nonce::LEGACY_ACTION );
+
+		$this->assertFalse(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( $handler ) ),
+			sprintf( 'Legacy shared nonce must not authorize %s.', $handler )
+		);
+	}
+
+	/**
+	 * Each migrated handler accepts a token minted for its own admin_action key.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $handler Dispatcher handler request key.
+	 *
+	 * @dataProvider data_handlers_migrated_off_legacy_form_nonce
+	 */
+	public function test_handler_accepts_per_action_admin_nonce( $handler ) {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( $handler );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( $handler ) ),
+			sprintf( 'Per-action nonce must authorize %s.', $handler )
+		);
+	}
+
+	/**
 	 * Image Service settings save reuses the standard w3tc_save_options admin nonce.
 	 *
 	 * @since 2.10.0

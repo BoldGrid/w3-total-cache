@@ -24,8 +24,9 @@ class Root_Environment {
 	 * @throws Util_Environment_Exceptions If one or more handlers fail during the fix process.
 	 */
 	public function fix_in_wpadmin( $w3tc_config, $force_all_checks = false ) {
-		$exs          = new Util_Environment_Exceptions();
-		$fix_on_event = false;
+		$exs                   = new Util_Environment_Exceptions();
+		$nginx_rules_before_fp = Util_Rule::nginx_rules_file_fingerprint();
+		$fix_on_event          = false;
 		if ( Util_Environment::is_wpmu() && Util_Environment::blog_id() !== 0 ) {
 			$md5_string = $w3tc_config->get_md5();
 			if ( get_transient( 'w3tc_config_changes' ) !== $md5_string ) {
@@ -55,6 +56,8 @@ class Root_Environment {
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
 		}
+
+		Util_Rule::finalize_nginx_restart_notice_after_environment_fix( $nginx_rules_before_fp );
 	}
 
 	/**
@@ -69,7 +72,8 @@ class Root_Environment {
 	 * @throws Util_Environment_Exceptions If one or more handlers fail during the fix process.
 	 */
 	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs                   = new Util_Environment_Exceptions();
+		$nginx_rules_before_fp = Util_Rule::nginx_rules_file_fingerprint();
 
 		// call plugin-related handlers.
 		foreach ( $this->get_handlers() as $h ) {
@@ -89,6 +93,8 @@ class Root_Environment {
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
 		}
+
+		Util_Rule::finalize_nginx_restart_notice_after_environment_fix( $nginx_rules_before_fp );
 	}
 
 	/**

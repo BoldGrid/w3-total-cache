@@ -139,7 +139,7 @@ if ( ! defined( 'W3TC' ) ) {
 								)
 							);
 							?>
-						" />
+						" <?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_cdn_rackspace_cdn_domains_reload' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 				<p class="description">
 					<?php
 					echo wp_kses(

@@ -450,10 +450,28 @@ class Util_Rule {
 			}
 		}
 
+		$w3tc_data_before = $w3tc_data;
+
 		if ( false !== $replace_start ) {
 			$w3tc_data = self::trim_rules( substr_replace( $w3tc_data, $rules, $replace_start, $replace_length ) );
 		} else {
 			$w3tc_data = self::trim_rules( rtrim( $w3tc_data ) . "\n" . $rules );
+		}
+
+		if ( ! $modified && ( $w3tc_data === $w3tc_data_before || self::clean_rules( $w3tc_data_before ) === self::clean_rules( $w3tc_data ) ) ) {
+			return;
+		}
+
+		$nginx_rules_path = self::get_nginx_rules_path();
+		if (
+			! empty( $nginx_rules_path ) &&
+			$path === $nginx_rules_path &&
+			@file_exists( $path )
+		) {
+			$on_disk = @file_get_contents( $path );
+			if ( false !== $on_disk && self::clean_rules( $on_disk ) === self::clean_rules( $w3tc_data ) ) {
+				return;
+			}
 		}
 
 		if ( strpos( $path, W3TC_CACHE_DIR ) === false || Util_Environment::is_nginx() ) {
@@ -523,21 +541,99 @@ class Util_Rule {
 			}
 			@chmod( $path, $chmod );
 		}
+	}
 
-		self::after_rules_modified();
+	/**
+	 * Fingerprint of the W3TC-managed nginx rules file on disk.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string
+	 */
+	public static function nginx_rules_file_fingerprint() {
+		$path = self::get_nginx_rules_path();
+
+		if ( empty( $path ) || ! @file_exists( $path ) ) {
+			return self::nginx_rules_fingerprint( '' );
+		}
+
+		$content = @file_get_contents( $path );
+		if ( false === $content ) {
+			$content = '';
+		}
+
+		return self::nginx_rules_fingerprint( $content );
+	}
+
+	/**
+	 * Fingerprint of nginx rules content for dismiss / re-notify tracking.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $rules_content Raw rules file or block content.
+	 *
+	 * @return string
+	 */
+	public static function nginx_rules_fingerprint( $rules_content ) {
+		return \md5( self::clean_rules( (string) $rules_content ) );
+	}
+
+	/**
+	 * Update nginx-restart notice state once per environment-fix pass.
+	 *
+	 * Individual `add_rules()` calls can touch the same nginx.conf several
+	 * times while handlers run; evaluating notice state after the full pass
+	 * avoids clearing a dismiss when the net file content is unchanged.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $fingerprint_before Fingerprint captured before the fix pass.
+	 *
+	 * @return void
+	 */
+	public static function finalize_nginx_restart_notice_after_environment_fix( $fingerprint_before ) {
+		if ( ! Util_Environment::is_nginx() ) {
+			return;
+		}
+
+		$fingerprint_after = self::nginx_rules_file_fingerprint();
+		$state             = Dispatcher::config_state_master();
+		$dismiss_fp        = $state->get_string( 'common.nginx_rules_dismiss_fingerprint', '' );
+		$hide              = $state->get_boolean( 'common.hide_note_nginx_restart_required' );
+
+		if ( $fingerprint_before === $fingerprint_after ) {
+			if (
+				$hide ||
+				( '' !== $dismiss_fp && $dismiss_fp === $fingerprint_after )
+			) {
+				$state->set( 'common.hide_note_nginx_restart_required', true );
+				$state->save();
+			}
+			return;
+		}
+
+		$state->set( 'common.show_note.nginx_restart_required', true );
+
+		if ( '' === $dismiss_fp || $dismiss_fp !== $fingerprint_after ) {
+			$state->set( 'common.hide_note_nginx_restart_required', false );
+		}
+
+		$state->save();
 	}
 
 	/**
 	 * Called when rules are modified, sets notification
 	 *
+	 * @deprecated 2.10.0 Notice state is finalized in {@see self::finalize_nginx_restart_notice_after_environment_fix()}.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string|null $path         Rules file path that was written.
+	 * @param string|null $new_content  Post-write rules file content.
+	 *
 	 * @return void
 	 */
-	public static function after_rules_modified() {
-		if ( Util_Environment::is_nginx() ) {
-			$state = Dispatcher::config_state_master();
-			$state->set( 'common.show_note.nginx_restart_required', true );
-			$state->save();
-		}
+	public static function after_rules_modified( $path = null, $new_content = null ) {
 	}
 
 	/**

@@ -302,9 +302,10 @@ class Extension_CloudFlare_Plugin_Admin {
 		$can_empty_varnish  = $w3tc_modules->can_empty_varnish();
 
 		$actions[] = sprintf(
-			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s>',
+			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s%3$s>',
 			esc_attr__( 'Empty All Caches Except Cloudflare', 'w3-total-cache' ),
-			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : '',
+			Util_Ui::admin_submit_nonce_attr( 'w3tc_cloudflare_flush_all_except_cf' )
 		);
 
 		return $actions;
