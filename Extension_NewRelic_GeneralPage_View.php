@@ -62,22 +62,22 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		<th>
 			<?php
 			echo wp_kses(
-					sprintf(
+				sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-						__(
-							'%1$sAPI%2$s key:',
-							'w3-total-cache'
-						),
-						'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-						'</acronym>'
+					__(
+						'%1$sAPI%2$s key:',
+						'w3-total-cache'
 					),
-					array(
-						'acronym' => array(
-							'title' => array(),
-						),
-					)
-				);
-				?>
+					'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			);
+			?>
 		</th>
 		<td class="w3tc-td-with-button">
 			<?php

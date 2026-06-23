@@ -792,8 +792,8 @@ class PgCache_Environment {
 			$rules .= "    RewriteCond %{ENV:W3TC_QUERY_STRING} ^&+$\n";
 			$rules .= "    RewriteRule ^ - [E=W3TC_QUERY_STRING]\n";
 
-			$rules .= "    RewriteCond %{REQUEST_URI} ^([^?]*)(\\?.*)?$\n";
-			$rules .= "    RewriteRule ^ - [E=W3TC_REQUEST_URI:%1]\n";
+			$rules          .= "    RewriteCond %{REQUEST_URI} ^([^?]*)(\\?.*)?$\n";
+			$rules          .= "    RewriteRule ^ - [E=W3TC_REQUEST_URI:%1]\n";
 			$env_request_uri = '%{ENV:W3TC_REQUEST_URI}';
 		}
 
@@ -937,11 +937,11 @@ class PgCache_Environment {
 
 		$uri_path_source = ( ! empty( $w3tc_query_strings ) ) ? '%{ENV:W3TC_REQUEST_URI}' : '%{REQUEST_URI}';
 
-		$rules .= '    RewriteCond ' . $uri_path_source . " ^/+$\n";
-		$rules .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:]\n";
-		$rules .= '    RewriteCond ' . $uri_path_source . " !^/+$\n";
-		$rules .= '    RewriteCond ' . $uri_path_source . " ^/+(.+?)/?$\n";
-		$rules .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:%1/]\n";
+		$rules             .= '    RewriteCond ' . $uri_path_source . " ^/+$\n";
+		$rules             .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:]\n";
+		$rules             .= '    RewriteCond ' . $uri_path_source . " !^/+$\n";
+		$rules             .= '    RewriteCond ' . $uri_path_source . " ^/+(.+?)/?$\n";
+		$rules             .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:%1/]\n";
 		$env_uri_path_slash = '%{ENV:W3TC_URI_PATH_SLASH}';
 
 		$use_cache_rules = '';
@@ -1465,13 +1465,13 @@ class PgCache_Environment {
 			$env_w3tc_ext = '.html';
 
 			if ( $has_enc_variant ) {
-				$rules .= 'set $w3tc_disk_suffix ".html' . $env_w3tc_enc . '";' . "\n";
-				$rules .= 'if (!-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
-				$rules .= '    set $w3tc_disk_suffix ".html";' . "\n";
-				$rules .= "}\n";
-				$rules .= 'if (!-f "$document_root' . $uri_prefix . '$w3tc_disk_suffix") {' . "\n";
-				$rules .= '  set $w3tc_rewrite 0;' . "\n";
-				$rules .= "}\n";
+				$rules       .= 'set $w3tc_disk_suffix ".html' . $env_w3tc_enc . '";' . "\n";
+				$rules       .= 'if (!-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
+				$rules       .= '    set $w3tc_disk_suffix ".html";' . "\n";
+				$rules       .= "}\n";
+				$rules       .= 'if (!-f "$document_root' . $uri_prefix . '$w3tc_disk_suffix") {' . "\n";
+				$rules       .= '  set $w3tc_rewrite 0;' . "\n";
+				$rules       .= "}\n";
 				$env_w3tc_ext = '$w3tc_disk_suffix';
 				$rewrite_enc  = '';
 			} else {
@@ -1645,14 +1645,14 @@ class PgCache_Environment {
 		$charset      = get_option( 'blog_charset' );
 		$pingback_url = get_bloginfo( 'pingback_url' );
 
-		$browsercache  = $w3tc_config->get_boolean( 'browsercache.enabled' );
-		$brotli        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
-		$compression   = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
-		$expires       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.expires' ) );
-		$lifetime      = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.html.lifetime' ) : 0 );
-		$cache_control = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.cache.control' ) );
-		$etag          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
-		$w3tc          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.w3tc' ) );
+		$browsercache         = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli               = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
+		$compression          = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
+		$expires              = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.expires' ) );
+		$lifetime             = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.html.lifetime' ) : 0 );
+		$cache_control        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.cache.control' ) );
+		$etag                 = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
+		$w3tc                 = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.w3tc' ) );
 		$compatibility        = $w3tc_config->get_boolean( 'pgcache.compatibility' );
 		$disk_enhanced_apache = (
 			$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
