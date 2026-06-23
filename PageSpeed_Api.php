@@ -165,6 +165,7 @@ class PageSpeed_Api {
 
 		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS constant if defined.
 		$attempts = 0;
+		$response = null;
 
 		while ( ++$attempts <= $this->get_max_attempts() ) {
 			try {
@@ -191,6 +192,18 @@ class PageSpeed_Api {
 
 			// Sleep for a cumulative .5 seconds each attempt.
 			usleep( $attempts * 500000 );
+		}
+
+		// wp_remote_get() returns a WP_Error (it does not throw) on transport failures such as a timeout,
+		// DNS failure, or refused connection. Without this guard the array access below fatals with
+		// "Cannot use object of type WP_Error as array" once the retries are exhausted.
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'error' => array(
+					'code'    => $response->get_error_code(),
+					'message' => $response->get_error_message(),
+				),
+			);
 		}
 
 		if ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
