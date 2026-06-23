@@ -19,16 +19,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-email', 'email', $details['email'] );
 	Util_Ui::hidden( 'w3tc-rackspace-key', 'key', $details['key'] );
 	Util_Ui::hidden( 'w3tc-rackspace-page', 'page', '' );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 	?>
 	<?php
 	if ( isset( $details['error_message'] ) ) {
