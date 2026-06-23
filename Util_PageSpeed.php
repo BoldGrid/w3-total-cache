@@ -126,15 +126,20 @@ class Util_PageSpeed {
 
 		$widget_break = $widget ? '<br/>' : '';
 
+		// A strategy that errored has no metric data; get_value_recursive() returns null for the missing
+		// key and print_barline() bails on it, so a partial failure renders cleanly without notices.
+		$desktop_metric = self::get_value_recursive( $w3tc_data, array( 'desktop', $w3tc_metric ) );
+		$mobile_metric  = self::get_value_recursive( $w3tc_data, array( 'mobile', $w3tc_metric ) );
+
 		?>
 		<div class="w3tcps_metric">
 			<h3 class="w3tcps_metric_title"><?php echo esc_html( $w3tc_name ); ?></h3>
 			<div class="w3tcps_metric_stats">
 				<span class="dashicons dashicons-<?php echo esc_attr( 'desktop' ); ?>"></span>
-				<?php self::print_barline( $w3tc_data['desktop'][ $w3tc_metric ] ); ?>
+				<?php self::print_barline( $desktop_metric ); ?>
 				<?php echo wp_kses( $widget_break, array( 'br' => array() ) ); ?>
 				<span class="dashicons dashicons-<?php echo esc_attr( 'smartphone' ); ?>"></span>
-				<?php self::print_barline( $w3tc_data['mobile'][ $w3tc_metric ] ); ?>
+				<?php self::print_barline( $mobile_metric ); ?>
 			</div>
 		</div>
 		<?php

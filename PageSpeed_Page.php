@@ -163,76 +163,46 @@ class PageSpeed_Page {
 		include __DIR__ . '/PageSpeed_Page_View_FromAPI.php';
 		$content = ob_get_contents();
 		ob_end_clean();
-		echo wp_json_encode(
-			array(
-				'w3tcps_domain'                   => $w3tc_url,
-				'w3tcps_score'                    => array(
-					'mobile'  => $api_response['mobile']['score'],
-					'desktop' => $api_response['desktop']['score'],
-				),
-				'w3tcps_first_contentful_paint'   => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['first-contentful-paint']['score'],
-						'displayValue' => $api_response['mobile']['first-contentful-paint']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['first-contentful-paint']['score'],
-						'displayValue' => $api_response['desktop']['first-contentful-paint']['displayValue'],
-					),
-				),
-				'w3tcps_largest_contentful_paint' => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['largest-contentful-paint']['score'],
-						'displayValue' => $api_response['mobile']['largest-contentful-paint']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['largest-contentful-paint']['score'],
-						'displayValue' => $api_response['desktop']['largest-contentful-paint']['displayValue'],
-					),
-				),
-				'w3tcps_interactive'              => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['interactive']['score'],
-						'displayValue' => $api_response['mobile']['interactive']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['interactive']['score'],
-						'displayValue' => $api_response['desktop']['interactive']['displayValue'],
-					),
-				),
-				'w3tcps_cumulative_layout_shift'  => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['cumulative-layout-shift']['score'],
-						'displayValue' => $api_response['mobile']['cumulative-layout-shift']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['cumulative-layout-shift']['score'],
-						'displayValue' => $api_response['desktop']['cumulative-layout-shift']['displayValue'],
-					),
-				),
-				'w3tcps_total_blocking_time'      => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['total-blocking-time']['score'],
-						'displayValue' => $api_response['mobile']['total-blocking-time']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['total-blocking-time']['score'],
-						'displayValue' => $api_response['desktop']['total-blocking-time']['displayValue'],
-					),
-				),
-				'w3tcps_speed_index'              => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['speed-index']['score'],
-						'displayValue' => $api_response['mobile']['speed-index']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['speed-index']['score'],
-						'displayValue' => $api_response['desktop']['speed-index']['displayValue'],
-					),
-				),
-				'w3tcps_content'                  => $content,
-				'w3tcps_timestamp'                => ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '',
-			)
+
+		/*
+		 * Build the response metric-by-metric. A strategy (mobile/desktop) that errored carries an
+		 * 'error' entry instead of metric data, so reading its keys directly would emit "Undefined index"
+		 * notices that corrupt the JSON payload. Util_PageSpeed::get_value_recursive() returns null for any
+		 * missing key, keeping the response well-formed regardless of partial failures.
+		 */
+		$w3tcps_metrics = array(
+			'w3tcps_first_contentful_paint'   => 'first-contentful-paint',
+			'w3tcps_largest_contentful_paint' => 'largest-contentful-paint',
+			'w3tcps_interactive'              => 'interactive',
+			'w3tcps_cumulative_layout_shift'  => 'cumulative-layout-shift',
+			'w3tcps_total_blocking_time'      => 'total-blocking-time',
+			'w3tcps_speed_index'              => 'speed-index',
 		);
+
+		$w3tcps_response = array(
+			'w3tcps_domain' => $w3tc_url,
+			'w3tcps_score'  => array(
+				'mobile'  => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', 'score' ) ),
+				'desktop' => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', 'score' ) ),
+			),
+		);
+
+		foreach ( $w3tcps_metrics as $w3tcps_key => $w3tcps_metric ) {
+			$w3tcps_response[ $w3tcps_key ] = array(
+				'mobile'  => array(
+					'score'        => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', $w3tcps_metric, 'score' ) ),
+					'displayValue' => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', $w3tcps_metric, 'displayValue' ) ),
+				),
+				'desktop' => array(
+					'score'        => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', $w3tcps_metric, 'score' ) ),
+					'displayValue' => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', $w3tcps_metric, 'displayValue' ) ),
+				),
+			);
+		}
+
+		$w3tcps_response['w3tcps_content']   = $content;
+		$w3tcps_response['w3tcps_timestamp'] = ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '';
+
+		echo wp_json_encode( $w3tcps_response );
 	}
 }
