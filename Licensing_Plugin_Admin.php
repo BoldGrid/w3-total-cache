@@ -682,7 +682,7 @@ class Licensing_Plugin_Admin {
 					),
 					W3TC_POWERED_BY,
 					'<input type="button" class="button button-renew-plugin" data-nonce="' .
-						Util_Nonce::create_admin( 'w3tc_licensing_upgrade' ) . '" data-renew-key="' . esc_attr( $w3tc_license_key ) .
+						Util_Nonce::create_admin( 'w3tc_licensing_buy_plugin' ) . '" data-renew-key="' . esc_attr( $w3tc_license_key ) .
 						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
 				);
 

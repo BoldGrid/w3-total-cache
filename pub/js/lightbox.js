@@ -493,7 +493,12 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 
       jQuery("#w3tc-purchase", lightbox.container).on("click", function () {
         lightbox.close();
-        w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id);
+        w3tc_lightbox_buy_plugin(
+          w3tcGetAdminNonce("w3tc_licensing_buy_plugin"),
+          data_src,
+          renew_key,
+          client_id,
+        );
       });
 
       jQuery("#w3tc-purchase-link", lightbox.container).on(
@@ -643,7 +648,7 @@ jQuery(function () {
     var data_src = jQuery(this).data("src");
     var nonce = jQuery(this).data("nonce");
     if (!nonce) {
-      nonce = w3tcGetAdminNonce("w3tc_licensing_upgrade");
+      nonce = w3tcGetAdminNonce("w3tc_licensing_buy_plugin");
     }
     var renew_key = jQuery(this).data("renew-key");
 

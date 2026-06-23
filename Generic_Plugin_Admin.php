@@ -874,6 +874,7 @@ class Generic_Plugin_Admin {
 					'w3tc_opcache_flush',
 					'w3tc_test_self',
 					'w3tc_licensing_upgrade',
+					'w3tc_licensing_buy_plugin',
 					'w3tc_default_save_license_key',
 					'w3tc_test_minify_recommendations',
 					'w3tc_ustats_access_log_test',

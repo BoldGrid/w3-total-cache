@@ -287,6 +287,30 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Purchase lightbox uses a distinct handler key from the upgrade overlay.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_licensing_buy_plugin_nonce_is_not_upgrade_nonce() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_licensing_upgrade' );
+
+		$this->assertFalse(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_licensing_buy_plugin' ) ),
+			'Upgrade overlay nonce must not authorize the purchase handler.'
+		);
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_admin( 'w3tc_licensing_buy_plugin' );
+
+		$this->assertTrue(
+			Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_licensing_buy_plugin' ) ),
+			'Purchase handler requires its own admin nonce.'
+		);
+	}
+
+	/**
 	 * Image Service settings save reuses the standard w3tc_save_options admin nonce.
 	 *
 	 * @since 2.10.0
