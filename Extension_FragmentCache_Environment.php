@@ -14,14 +14,14 @@ class Extension_FragmentCache_Environment {
 	/**
 	 * Fixes the fragment cache based on the provided event and configuration.
 	 *
-	 * @param object      $config     Configuration object for the fragment cache.
+	 * @param object      $w3tc_config     Configuration object for the fragment cache.
 	 * @param string      $event      The event triggering this method.
 	 * @param object|null $old_config Optional previous configuration object.
 	 *
 	 * @return void
 	 */
-	public static function fix_on_event( $config, $event, $old_config = null ) {
-		if ( 'file' === $config->get_string( array( 'fragmentcache', 'engine' ) ) ) {
+	public static function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		if ( 'file' === $w3tc_config->get_string( array( 'fragmentcache', 'engine' ) ) ) {
 			if ( ! wp_next_scheduled( 'w3_fragmentcache_cleanup' ) ) {
 				wp_schedule_event(
 					time(),
@@ -40,9 +40,9 @@ class Extension_FragmentCache_Environment {
 	 * @return void
 	 */
 	public static function deactivate_extension() {
-		$config = Dispatcher::config();
-		$config->set_extension_active_frontend( 'fragmentcache', false );
-		$config->save();
+		$w3tc_config = Dispatcher::config();
+		$w3tc_config->set_extension_active_frontend( 'fragmentcache', false );
+		$w3tc_config->save();
 
 		self::unschedule();
 	}

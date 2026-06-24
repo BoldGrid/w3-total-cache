@@ -15,24 +15,13 @@ let otherTheme;
 
 log.log('WordPress version number: ' + parseFloat(env.wpVersion));
 
-if (parseFloat(env.wpVersion) < 4.4) {
-	otherTheme = 'twentythirteen/twentythirteen';
-} else if (parseFloat(env.wpVersion) < 4.7) {
-	otherTheme = 'twentyfourteen/twentyfourteen';
-} else if (parseFloat(env.wpVersion) < 5.0) {
-	otherTheme = 'twentyfifteen/twentyfifteen';
-} else if (parseFloat(env.wpVersion) < 5.5) {
-	otherTheme = 'twentysixteen/twentysixteen';
-} else if (parseFloat(env.wpVersion) < 5.9) {
-	otherTheme = 'twentynineteen/twentynineteen';
-} else if (parseFloat(env.wpVersion) < 6.1) {
+if (parseFloat(env.wpVersion) < 6.1) {
 	otherTheme = 'twentytwenty/twentytwenty';
 } else if (parseFloat(env.wpVersion) < 6.4) {
 	otherTheme = 'twentytwentythree/twentytwentythree';
 } else if (parseFloat(env.wpVersion) < 6.7) {
 	otherTheme = 'twentytwentyfour/twentytwentyfour';
 } else {
-	// WP 6.7.
 	otherTheme = 'twentytwentyfive/twentytwentyfive';
 }
 
@@ -58,6 +47,17 @@ describe('', function() {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,
 			pgcache__engine: env.cacheEngineLabel
+		});
+
+		await w3tc.setOptions(adminPage, 'w3tc_pgcache', {
+			pgcache__cache__home: true
+		});
+
+		// Plain page-cache keys (no _gzip segment) so backend probes match runtime writes.
+		await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
+			browsercache__html__etag: false,
+			browsercache__html__last_modified: false,
+			browsercache__html__compression: false
 		});
 	});
 
@@ -108,42 +108,19 @@ describe('', function() {
 
 
 	it('create 2 copies of page', async() => {
-		await page.setUserAgent(
-			'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-			'Chrome/40.0.2214.111');
+		await page.setUserAgent(sys.qaPageCacheUserAgent);
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+		w3tc.expectPageCachingMethod(await page.content(), env.cacheEngineName);
 
-		await page.setUserAgent(
-			'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-			'Safari/537.36');
+		await page.setUserAgent(sys.qaPageCacheSafariUserAgent);
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+		w3tc.expectPageCachingMethod(await page.content(), env.cacheEngineName);
 
 		let theme = otherTheme.split('/');
 
 		let css;
-		if (theme[0] == 'twentythirteen') {
-			css = await page.$eval('#twentythirteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentyfourteen') {
-			css = await page.$eval('#twentyfourteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentyfifteen') {
-		 	css = await page.$eval('#twentyfifteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentysixteen') {
-		 	css = await page.$eval('#twentysixteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentynineteen') {
-			css = await page.$eval('#twentynineteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwenty') {
+		if (theme[0] == 'twentytwenty') {
 			css = await page.$eval('#twentytwenty-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentyone') {
-			css = await page.$eval('#twenty-twenty-one-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentytwo') {
-			css = await page.$eval('#twentytwentytwo-style-css',
 				(e) => e.getAttribute('href'));
 		} else if (theme[0] == 'twentytwentythree') {
 			css = await page.$eval('#wp-webfonts-inline-css',
@@ -174,6 +151,12 @@ describe('', function() {
 		log.log(`opening ${checkUrl}`);
 
 		await page.goto(checkUrl);
-		expect(await page.content()).contains('ok');
+		let content = await page.content();
+
+		if (content.indexOf('ok') < 0) {
+			log.error('probe diagnostics: ' + content);
+		}
+
+		expect(content).contains('ok');
 	});
 });

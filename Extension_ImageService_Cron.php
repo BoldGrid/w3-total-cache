@@ -16,6 +16,20 @@ namespace W3TC;
  */
 class Extension_ImageService_Cron {
 	/**
+	 * Register the custom cron schedule and ensure the event is
+	 * scheduled. Hooked on WordPress `init` because W3TC's extension
+	 * bootstrap runs before `init`, and `add_schedule()` translates
+	 * the display label.
+	 *
+	 * @since 2.10.0
+	 * @static
+	 */
+	public static function register_cron() {
+		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
+		self::add_cron();
+	}
+
+	/**
 	 * Add cron job/event.
 	 *
 	 * @since 2.2.0
@@ -91,8 +105,10 @@ class Extension_ImageService_Cron {
 			$processing_jobs = isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ?
 				$postmeta['processing_jobs'] : array();
 
-			// Backward compatibility: convert old format to new format.
-			// Only do this for items still marked as processing to avoid re-checking completed jobs.
+			/**
+			 * Backward compatibility: convert old format to new format.
+			 * Only do this for items still marked as processing to avoid re-checking completed jobs.
+			 */
 			if ( 'processing' === $status && empty( $processing_jobs ) && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
 				$processing_jobs = array(
 					'webp' => array(
@@ -103,8 +119,10 @@ class Extension_ImageService_Cron {
 				);
 			}
 
-			// Process items that have jobs to check, regardless of overall status.
-			// This ensures we continue processing even if some jobs complete and status changes.
+			/**
+			 * Process items that have jobs to check, regardless of overall status.
+			 * This ensures we continue processing even if some jobs complete and status changes.
+			 */
 			if ( ! empty( $processing_jobs ) ) {
 				// Get the Image Service API object (singlton).
 				$api = Extension_ImageService_Plugin::get_api();
@@ -169,8 +187,10 @@ class Extension_ImageService_Cron {
 						// Get mime_type from job or response.
 						$mime_type = isset( $job['mime_type'] ) ? $job['mime_type'] : ( isset( $response['mime_type'] ) ? $response['mime_type'] : 'image/webp' );
 
-						// Download image for this format using this job's job_id and signature.
-						// Pass mime_type_out to ensure API returns the correct format (e.g. AVIF vs WEBP).
+						/**
+						 * Download image for this format using this job's job_id and signature.
+						 * Pass mime_type_out to ensure API returns the correct format (e.g. AVIF vs WEBP).
+						 */
 						$download_response = $api->download( $job['job_id'], $job['signature'], $mime_type );
 						$download_headers  = wp_remote_retrieve_headers( $download_response );
 						$is_error          = isset( $download_response['error'] );
@@ -181,22 +201,22 @@ class Extension_ImageService_Cron {
 							if ( is_object( $download_headers ) && method_exists( $download_headers, 'getAll' ) ) {
 								// Requests_Utility_CaseInsensitiveDictionary - get all headers.
 								$all_headers = $download_headers->getAll();
-								foreach ( $all_headers as $key => $value ) {
-									$headers_array[ strtolower( $key ) ] = $value;
+								foreach ( $all_headers as $w3tc_key => $w3tc_value ) {
+									$headers_array[ strtolower( $w3tc_key ) ] = $w3tc_value;
 								}
 							} else {
 								// Already an array or other structure.
 								$temp_headers = (array) $download_headers;
-								foreach ( $temp_headers as $key => $value ) {
+								foreach ( $temp_headers as $w3tc_key => $w3tc_value ) {
 									// Skip special WordPress array keys.
-									if ( "\0" !== substr( $key, 0, 1 ) ) {
-										$headers_array[ strtolower( $key ) ] = $value;
+									if ( "\0" !== substr( $w3tc_key, 0, 1 ) ) {
+										$headers_array[ strtolower( $w3tc_key ) ] = $w3tc_value;
 									}
 								}
 								// Also check for the special data structure.
 								if ( isset( $temp_headers["\0*\0data"] ) ) {
-									foreach ( $temp_headers["\0*\0data"] as $key => $value ) {
-										$headers_array[ strtolower( $key ) ] = $value;
+									foreach ( $temp_headers["\0*\0data"] as $w3tc_key => $w3tc_value ) {
+										$headers_array[ strtolower( $w3tc_key ) ] = $w3tc_value;
 									}
 								}
 							}
@@ -218,8 +238,10 @@ class Extension_ImageService_Cron {
 							unset( $post_children[ $format_key_out ] );
 						}
 
-						// Store download information for this format (store normalized headers).
-						// Always store download info, even if there's an error or no size reduction.
+						/**
+						 * Store download information for this format (store normalized headers).
+						 * Always store download info, even if there's an error or no size reduction.
+						 */
 						$downloads[ $format_key_out ] = $is_error ? $download_response['error'] : $headers_array;
 
 						// If the job key doesn't match the actual output, remove any stale entry keyed by the job key.
@@ -245,6 +267,56 @@ class Extension_ImageService_Cron {
 							continue;
 						}
 
+						/**
+						 * RT9-226: Allowlist the output extension AND content-sniff the
+						 * downloaded body before writing to disk. The original code took
+						 * `format_key_out` straight from the API's `x-mime-type-out` /
+						 * `content-type` header, so a compromised or MITM'd upstream
+						 * could yield extensions like `.php` / `.htaccess` and bytes
+						 * matching an arbitrary webshell. Both legs must agree:
+						 *
+						 * - Extension allowlist refuses everything outside the formats
+						 * we actually request — `webp`, `avif`, `jpeg`, `jpg`, `png`,
+						 * `gif`. (`jpg` accepted alongside `jpeg` because some clients
+						 * normalise differently.)
+						 * - Content-sniff via `getimagesizefromstring()` confirms the
+						 * bytes really are an image — PHP source begins `<?php` and
+						 * has no IHDR/SOI marker, so the sniff fails. AVIF is only
+						 * recognised by PHP 8.1+, so for AVIF output on older PHP
+						 * the ISO-BMFF "ftyp" box signature is verified manually
+						 * via `is_avif_body()` instead.
+						 *
+						 * On either failure we drop into the same "error, no write,
+						 * mark job complete" path the surrounding loop already uses.
+						 */
+						$body  = \wp_remote_retrieve_body( $download_response );
+						$allow = array( 'webp', 'avif', 'jpeg', 'jpg', 'png', 'gif' );
+						if ( ! \in_array( $format_key_out, $allow, true ) ) {
+							$has_error                    = true;
+							$all_jobs_ready               = false;
+							$completed_jobs[]             = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: output format not in allowlist (' . $format_key_out . ').';
+							continue;
+						}
+						if ( ! \is_string( $body ) || '' === $body ) {
+							$has_error                    = true;
+							$all_jobs_ready               = false;
+							$completed_jobs[]             = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: empty download body.';
+							continue;
+						}
+						$sniff_ok = false !== @\getimagesizefromstring( $body );
+						if ( ! $sniff_ok && 'avif' === $format_key_out ) {
+							$sniff_ok = self::is_avif_body( $body );
+						}
+						if ( ! $sniff_ok ) {
+							$has_error                    = true;
+							$all_jobs_ready               = false;
+							$completed_jobs[]             = $format_key;
+							$downloads[ $format_key_out ] = 'Refused: download body is not a recognised image.';
+							continue;
+						}
+
 						// Get original file info for saving.
 						$original_filepath = get_attached_file( $post_id );
 						$original_size     = wp_getimagesize( $original_filepath );
@@ -252,14 +324,14 @@ class Extension_ImageService_Cron {
 						$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
 
 						// Save the file.
-						$extension    = $format_key_out;
-						$new_filename = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
-						$new_filepath = $original_filedir . '/' . $new_filename;
+						$w3tc_extension = $format_key_out;
+						$new_filename   = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $w3tc_extension;
+						$new_filepath   = $original_filedir . '/' . $new_filename;
 
 						if ( is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
-							$wp_filesystem->put_contents( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+							$wp_filesystem->put_contents( $new_filepath, $body );
 						} else {
-							Util_File::file_put_contents_atomic( $new_filepath, wp_remote_retrieve_body( $download_response ) );
+							Util_File::file_put_contents_atomic( $new_filepath, $body );
 						}
 
 						// Insert as attachment post.
@@ -292,12 +364,24 @@ class Extension_ImageService_Cron {
 						);
 
 						// In order to filter/hide converted files in the media list, add a meta key.
-						update_post_meta( $attachment_id, 'w3tc_imageservice_file', $extension );
+						update_post_meta( $attachment_id, 'w3tc_imageservice_file', $w3tc_extension );
 
-						// Generate the metadata for the attachment, and update the database record.
+						/**
+						 * Generate the metadata for the attachment, and update the database record.
+						 * On PHP < 8.1 `wp_getimagesize()` does not recognise AVIF, so
+						 * `wp_generate_attachment_metadata()` returns an empty array for AVIF
+						 * files; fall back to the original image dimensions and fill in the
+						 * "file" and "filesize" entries manually.
+						 */
 						$attach_data           = wp_generate_attachment_metadata( $attachment_id, $new_filepath );
 						$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
 						$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
+						if ( empty( $attach_data['file'] ) ) {
+							$attach_data['file'] = _wp_relative_upload_path( $new_filepath );
+						}
+						if ( empty( $attach_data['filesize'] ) ) {
+							$attach_data['filesize'] = \strlen( $body );
+						}
 						wp_update_attachment_metadata( $attachment_id, $attach_data );
 
 						// Job successfully completed - remove from processing_jobs.
@@ -363,5 +447,43 @@ class Extension_ImageService_Cron {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Determine whether a download body is an AVIF image.
+	 *
+	 * `getimagesizefromstring()` only recognises AVIF on PHP 8.1+, so on older
+	 * PHP versions a valid AVIF download fails the content-sniff. Verify the
+	 * ISO-BMFF "ftyp" box signature manually: bytes 4-7 must be "ftyp" and
+	 * "avif"/"avis" must appear as the major brand (bytes 8-11) or among the
+	 * compatible brands within the "ftyp" box.
+	 *
+	 * @since 2.10.0
+	 * @static
+	 *
+	 * @param string $body Download body.
+	 * @return bool
+	 */
+	public static function is_avif_body( $body ) {
+		if ( ! \is_string( $body ) || \strlen( $body ) < 12 || 'ftyp' !== \substr( $body, 4, 4 ) ) {
+			return false;
+		}
+
+		$major = \substr( $body, 8, 4 );
+		if ( 'avif' === $major || 'avis' === $major ) {
+			return true;
+		}
+
+		// Compatible brands follow the 4-byte minor version (offset 12).
+		$box_size = \unpack( 'N', $body )[1];
+		$box_size = \min( $box_size, \strlen( $body ) );
+		for ( $offset = 16; $offset + 4 <= $box_size; $offset += 4 ) {
+			$brand = \substr( $body, $offset, 4 );
+			if ( 'avif' === $brand || 'avis' === $brand ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

@@ -1,50 +1,59 @@
 <?php
+/**
+ * Example extension runtime bootstrap.
+ *
+ * @package W3TCExample
+ */
+
 namespace W3TCExample;
 
+/**
+ * Example extension frontend handler.
+ */
 class Extension_Example {
 	/**
-	 * W3 Total cache config
+	 * W3 Total Cache config.
+	 *
+	 * @var \W3TC\Config
 	 */
-	private $config;
-
-
+	private $w3tc_config;
 
 	/**
-	 * Runs extension
+	 * Runs extension.
+	 *
+	 * @return void
 	 */
-	function run() {
-		// obtain w3tc config
-		$this->config = w3tc_config();
+	public function run() {
+		$this->w3tc_config = w3tc_config();
 
-		// get value of config option and use it
-		if ( $this->config->get_boolean( array( 'example', 'is_title_postfix' ) ) ) {
+		if ( $this->w3tc_config->get_boolean( array( 'example', 'is_title_postfix' ) ) ) {
 			add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
 		}
 	}
 
-
-
 	/**
-	 * the_title filter handler.
-	 * This extension adds specified postfix to each post title if extensions
-	 * is configured so on its settings page
+	 * The_title filter handler.
+	 *
+	 * Adds a configured postfix to each post title.
+	 *
+	 * @param string $title Post title.
+	 * @param int    $id    Post ID.
+	 *
+	 * @return string
 	 */
 	public function the_title( $title, $id ) {
 		return $title .
-			$this->config->get_string( array( 'example', 'title_postfix' ) );
+			$this->w3tc_config->get_string( array( 'example', 'title_postfix' ) );
 	}
 }
 
-
-
 /*
-This file is simply loaded by W3 Total Cache in a case if extension is active.
-Its up to extension what will it do or which way will it do.
-*/
-$p = new Extension_Example();
-$p->run();
+ * Loaded by W3 Total Cache when the extension is active.
+ */
+$w3tc_p = new Extension_Example();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_Example_Admin();
-	$p->run();
+	$w3tc_p = new Extension_Example_Admin();
+	$w3tc_p->run();
 }

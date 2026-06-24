@@ -36,7 +36,7 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Usermeta key for storing dismissed license notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var string
 	 */
@@ -46,7 +46,7 @@ class Licensing_Plugin_Admin {
 	 * Time in seconds after which a dismissed notice can reappear if conditions persist.
 	 * Set to 6 days (automatic license check interval is 5 days).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var int
 	 */
@@ -58,7 +58,7 @@ class Licensing_Plugin_Admin {
 	 * The HLT (Hosted Login Token) in the billing URL is only valid for 19 minutes,
 	 * so we cache for 19 minutes to ensure users always get a valid token with some buffer.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var int
 	 */
@@ -117,7 +117,7 @@ class Licensing_Plugin_Admin {
 						),
 					)
 				),
-				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
+				'href'   => network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ),
 			);
 		}
 
@@ -126,7 +126,7 @@ class Licensing_Plugin_Admin {
 				'id'     => 'w3tc_debug_overlay_upgrade',
 				'parent' => 'w3tc_debug_overlays',
 				'title'  => esc_html__( 'Upgrade', 'w3-total-cache' ),
-				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
+				'href'   => network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ),
 			);
 		}
 
@@ -153,7 +153,7 @@ class Licensing_Plugin_Admin {
 		?>
 		<script type="text/javascript">
 			jQuery(function() {
-				w3tc_lightbox_upgrade(w3tc_nonce, 'topbar_performance');
+				w3tc_lightbox_upgrade(w3tcGetAdminNonce('w3tc_licensing_upgrade'), 'topbar_performance');
 				jQuery('#w3tc-license-instruction').show();
 			});
 		</script>
@@ -163,14 +163,14 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Handles possible state changes for plugin licensing.
 	 *
-	 * @param object $config     Current configuration object.
+	 * @param object $w3tc_config     Current configuration object.
 	 * @param object $old_config Previous configuration object.
 	 *
 	 * @return void
 	 */
-	public function possible_state_change( $config, $old_config ) {
+	public function possible_state_change( $w3tc_config, $old_config ) {
 		$changed     = false;
-		$new_key     = $config->get_string( 'plugin.license_key' );
+		$new_key     = $w3tc_config->get_string( 'plugin.license_key' );
 		$new_key_set = ! empty( $new_key );
 		$old_key     = $old_config->get_string( 'plugin.license_key' );
 		$old_key_set = ! empty( $old_key );
@@ -197,7 +197,7 @@ class Licensing_Plugin_Admin {
 				$activate_result = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
 				$changed         = true;
 				if ( $activate_result ) {
-					$config->set( 'common.track_usage', true );
+					$w3tc_config->set( 'common.track_usage', true );
 				}
 				break;
 
@@ -220,8 +220,8 @@ class Licensing_Plugin_Admin {
 				// Clear dismissed notices for billing update since license is removed.
 				$this->clear_dismissed_notice_for_all_users( 'paypal-billing-update-required' );
 				try {
-					$config->set( 'plugin.type', '' );
-					$config->save();
+					$w3tc_config->set( 'plugin.type', '' );
+					$w3tc_config->save();
 				} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 					// missing exception handle?
 				}
@@ -345,8 +345,10 @@ class Licensing_Plugin_Admin {
 			// Store messages for processing.
 			update_option( 'license_update_messages', $messages );
 
-			// Only force license check if we didn't just activate a license.
-			// If we activated, we already have the status from the activation result.
+			/**
+			 * Only force license check if we didn't just activate a license.
+			 * If we activated, we already have the status from the activation result.
+			 */
 			if ( $new_key_set && ( ! isset( $activate_result ) || ! $activate_result ) ) {
 				// Force immediate license check to get latest status including billing requirements.
 				$this->maybe_update_license_status();
@@ -363,6 +365,17 @@ class Licensing_Plugin_Admin {
 	 */
 	public function admin_init() {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
+
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose license admin notices to non-admins
+		 *.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		$this->maybe_update_license_status();
 
@@ -392,17 +405,17 @@ class Licensing_Plugin_Admin {
 	 * This is called on non-W3TC admin pages where the lightbox isn't already loaded.
 	 * Only enqueues if there's a license status that would display a notice.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
 	private function maybe_enqueue_lightbox_assets() {
-		$state          = Dispatcher::config_state();
-		$license_status = $state->get_string( 'license.status' );
-		$license_key    = $this->get_license_key();
+		$state            = Dispatcher::config_state();
+		$license_status   = $state->get_string( 'license.status' );
+		$w3tc_license_key = $this->get_license_key();
 
 		// Check if we have a license notice to display.
-		$license_message = $this->get_license_notice( $license_status, $license_key );
+		$license_message = $this->get_license_notice( $license_status, $w3tc_license_key );
 
 		if ( $license_message ) {
 			$sanitized_status = $this->sanitize_status_for_id( $license_status );
@@ -417,7 +430,7 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Enqueues lightbox JavaScript and CSS assets.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
@@ -459,7 +472,7 @@ class Licensing_Plugin_Admin {
 	 * (lowercase letters, numbers, hyphens, underscores) and replaces
 	 * dots with hyphens for readability.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param string $status The license status to sanitize.
 	 *
@@ -479,18 +492,20 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function admin_notices() {
-		$state           = Dispatcher::config_state();
-		$license_status  = $state->get_string( 'license.status' );
-		$license_key     = $this->get_license_key();
-		$has_notices     = false;
+		$state            = Dispatcher::config_state();
+		$license_status   = $state->get_string( 'license.status' );
+		$w3tc_license_key = $this->get_license_key();
+		$has_notices      = false;
 
 		$paypal_billing_update_required = $state->get_boolean( 'license.paypal_billing_update_required' );
 		$is_dismissed                   = $this->is_notice_dismissed( 'paypal-billing-update-required' );
 
-		// Check for PayPal billing update requirement (shows on all admin pages).
-		// Only show if there's a license key and the status is not 'no_key'.
-		if ( $paypal_billing_update_required && ! $is_dismissed && ! empty( $license_key ) && 'no_key' !== $license_status ) {
-			$billing_url = $this->get_billing_url( $license_key );
+		/**
+		 * Check for PayPal billing update requirement (shows on all admin pages).
+		 * Only show if there's a license key and the status is not 'no_key'.
+		 */
+		if ( $paypal_billing_update_required && ! $is_dismissed && ! empty( $w3tc_license_key ) && 'no_key' !== $license_status ) {
+			$billing_url = $this->get_billing_url( $w3tc_license_key );
 			if ( $billing_url ) {
 				$billing_message = sprintf(
 					// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag, 4 opening HTML a tag for recheck, 5 closing HTML a tag.
@@ -521,7 +536,7 @@ class Licensing_Plugin_Admin {
 			$has_notices = true;
 		}
 
-		$license_message = $this->get_license_notice( $license_status, $license_key );
+		$license_message = $this->get_license_notice( $license_status, $w3tc_license_key );
 
 		if ( $license_message ) {
 			// Sanitize status for use in HTML ID (only allows a-z, 0-9, -, _).
@@ -559,7 +574,7 @@ class Licensing_Plugin_Admin {
 	 * Called on admin_enqueue_scripts to register the script early,
 	 * which can then be enqueued later when notices are displayed.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
@@ -572,8 +587,13 @@ class Licensing_Plugin_Admin {
 			true // Load in footer.
 		);
 
-		// Add the inline script.
-		$nonce           = wp_create_nonce( 'w3tc' );
+		/**
+		 * Add the inline script. Per-action nonces so that a
+		 * nonce minted for the dismiss endpoint cannot be replayed against
+		 * the recheck endpoint or any other w3tc handler.
+		 */
+		$dismiss_nonce   = wp_create_nonce( 'w3tc_dismiss_license_notice' );
+		$recheck_nonce   = wp_create_nonce( 'w3tc_recheck_license' );
 		$rechecking_text = __( 'Rechecking...', 'w3-total-cache' );
 		$script          = "
 			jQuery(function($) {
@@ -589,7 +609,7 @@ class Licensing_Plugin_Admin {
 						$.post(ajaxurl, {
 							action: 'w3tc_dismiss_license_notice',
 							notice_id: cleanId,
-							_wpnonce: '" . esc_js( $nonce ) . "'
+							_wpnonce: '" . esc_js( $dismiss_nonce ) . "'
 						});
 					}
 				});
@@ -602,7 +622,7 @@ class Licensing_Plugin_Admin {
 
 					$.post(ajaxurl, {
 						action: 'w3tc_recheck_license',
-						_wpnonce: '" . esc_js( $nonce ) . "'
+						_wpnonce: '" . esc_js( $recheck_nonce ) . "'
 					}).always(function() {
 						location.reload();
 					});
@@ -616,17 +636,17 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Generates a license notice based on the provided license status and key.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param string $status The current status of the license (e.g., 'active', 'expired').
-	 * @param string $license_key The license key associated with the plugin.
+	 * @param string $w3tc_license_key The license key associated with the plugin.
 	 *
 	 * @return string The formatted license notice message.
 	 */
-	private function get_license_notice( $status, $license_key ) {
+	private function get_license_notice( $status, $w3tc_license_key ) {
 		switch ( true ) {
 			case $this->_status_is( $status, 'active.dunning' ):
-				$billing_url = $this->get_billing_url( $license_key );
+				$billing_url = $this->get_billing_url( $w3tc_license_key );
 				if ( $billing_url ) {
 					return sprintf(
 						// Translators: 1 Product name, 2 opening HTML a tag to billing portal, 3 closing HTML a tag, 4 opening HTML a tag for recheck, 5 closing HTML a tag.
@@ -662,13 +682,13 @@ class Licensing_Plugin_Admin {
 					),
 					W3TC_POWERED_BY,
 					'<input type="button" class="button button-renew-plugin" data-nonce="' .
-						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $license_key ) .
+						Util_Nonce::create_admin( 'w3tc_licensing_buy_plugin' ) . '" data-renew-key="' . esc_attr( $w3tc_license_key ) .
 						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
 				);
 
 			case $this->_status_is( $status, 'inactive.by_rooturi' ) || $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ):
 				// Only show this notice if there's actually a license key.
-				if ( empty( $license_key ) ) {
+				if ( empty( $w3tc_license_key ) ) {
 					return '';
 				}
 				$reset_url = Util_Ui::url(
@@ -709,7 +729,7 @@ class Licensing_Plugin_Admin {
 				);
 
 			case $this->_status_is( $status, 'invalid' ):
-				$url = is_network_admin()
+				$w3tc_url = is_network_admin()
 					? network_admin_url( 'admin.php?page=w3tc_general#licensing' )
 					: admin_url( 'admin.php?page=w3tc_general#licensing' );
 				return sprintf(
@@ -719,7 +739,7 @@ class Licensing_Plugin_Admin {
 						'w3-total-cache'
 					),
 					W3TC_POWERED_BY,
-					'<a href="' . esc_url( $url ) . '">',
+					'<a href="' . esc_url( $w3tc_url ) . '">',
 					'</a>'
 				);
 
@@ -746,20 +766,20 @@ class Licensing_Plugin_Admin {
 	 * Uses transient caching to avoid making HTTP requests on every page load.
 	 * The URL is cached for 1 hour to balance freshness with performance.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
-	 * @param string $license_key The license key used to generate the billing URL.
+	 * @param string $w3tc_license_key The license key used to generate the billing URL.
 	 *
 	 * @return string The billing URL associated with the provided license key, or
 	 *                an empty string if the request fails or the response is invalid.
 	 */
-	private function get_billing_url( $license_key ) {
-		if ( empty( $license_key ) ) {
+	private function get_billing_url( $w3tc_license_key ) {
+		if ( empty( $w3tc_license_key ) ) {
 			return '';
 		}
 
 		// Generate a unique transient key based on the license key.
-		$transient_key = 'w3tc_billing_url_' . md5( $license_key );
+		$transient_key = 'w3tc_billing_url_' . md5( $w3tc_license_key );
 
 		// Check for cached URL.
 		$cached_url = get_transient( $transient_key );
@@ -768,7 +788,7 @@ class Licensing_Plugin_Admin {
 			return $cached_url;
 		}
 
-		$billing_url = $this->fetch_billing_url_from_api( $license_key );
+		$billing_url = $this->fetch_billing_url_from_api( $w3tc_license_key );
 
 		// Cache the result (including empty string for failed requests to avoid repeated failures).
 		set_transient( $transient_key, $billing_url, self::BILLING_URL_CACHE_DURATION );
@@ -779,21 +799,45 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Fetches the billing URL from the API.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
-	 * @param string $license_key The license key used to generate the billing URL.
+	 * @param string $w3tc_license_key The license key used to generate the billing URL.
 	 *
 	 * @return string The billing URL or empty string on failure.
 	 */
-	private function fetch_billing_url_from_api( $license_key ) {
+	private function fetch_billing_url_from_api( $w3tc_license_key ) {
 		$api_params = array(
 			'edd_action'  => 'get_recurly_hlt_link',
-			'license'     => $license_key,
-			'license_key' => $license_key,
+			'license'     => $w3tc_license_key,
+			'license_key' => $w3tc_license_key,
 		);
 
+		/**
+		 * Mirrors the allowlist in {@see Licensing_Core::_license_api_base_url()}.
+		 * Inlined rather than exposed because this is the only off-class
+		 * caller and the helper is intentionally private.
+		 */
+		$base    = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		$scheme  = \wp_parse_url( $base, PHP_URL_SCHEME );
+		$host    = \wp_parse_url( $base, PHP_URL_HOST );
+		$host_lc = \is_string( $host ) ? \strtolower( $host ) : '';
+		$suffix  = '.w3-edge.com';
+		$slen    = \strlen( $suffix );
+		$hlen    = \strlen( $host_lc );
+		$allowed = (
+			'https' === $scheme
+			&& '' !== $host_lc
+			&& (
+				'w3-edge.com' === $host_lc
+				|| ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix )
+			)
+		);
+		if ( ! $allowed ) {
+			return '';
+		}
+
 		$response = wp_remote_get(
-			add_query_arg( $api_params, W3TC_LICENSE_API_URL ),
+			add_query_arg( $api_params, $base ),
 			array(
 				'timeout'   => 15,
 				'sslverify' => true,
@@ -817,11 +861,11 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Modifies the notes displayed in the W3TC UI.
 	 *
-	 * @param array $notes Existing notes to display.
+	 * @param array $w3tc_notes Existing notes to display.
 	 *
 	 * @return array Modified notes with licensing terms.
 	 */
-	public function w3tc_notes( $notes ) {
+	public function w3tc_notes( $w3tc_notes ) {
 		$terms        = '';
 		$state_master = Dispatcher::config_state_master();
 
@@ -845,11 +889,11 @@ class Licensing_Plugin_Admin {
 			$state = Dispatcher::config_state();
 			$terms = $state->get_string( 'license.terms' );
 
-			$return_url = self_admin_url( Util_Ui::url( array( 'w3tc_licensing_terms_refresh' => 'y' ) ) );
+			$w3tc_return_url = self_admin_url( Util_Ui::url( array( 'w3tc_licensing_terms_refresh' => 'y' ) ) );
 
 			$buttons =
 				sprintf( '<form method="post" action="%s">', W3TC_TERMS_ACCEPT_URL ) .
-				Util_Ui::r_hidden( 'return_url', 'return_url', $return_url ) .
+				Util_Ui::r_hidden( 'return_url', 'return_url', $w3tc_return_url ) .
 				Util_Ui::r_hidden( 'license_key', 'license_key', $this->get_license_key() ) .
 				Util_Ui::r_hidden( 'home_url', 'home_url', home_url() ) .
 				'<input type="submit" class="button" name="answer" value="Accept" />&nbsp;' .
@@ -860,7 +904,7 @@ class Licensing_Plugin_Admin {
 		if ( 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms ) {
 			if ( $state_master->get_integer( 'common.install' ) < 1542029724 ) {
 				/* installed before 2018-11-12 */
-				$notes['licensing_terms'] = sprintf(
+				$w3tc_notes['licensing_terms'] = sprintf(
 					// translators: 1 opening HTML a tag to W3TC Terms page, 2 closing HTML a tag.
 					esc_html__(
 						'Our terms of use and privacy policies have been updated. Please %1$sreview%2$s and accept them.',
@@ -870,7 +914,7 @@ class Licensing_Plugin_Admin {
 					'</a>'
 				) . $buttons;
 			} else {
-				$notes['licensing_terms'] = sprintf(
+				$w3tc_notes['licensing_terms'] = sprintf(
 					// translators: 1: Product name, 2: HTML break tag, 3: Anchor/link open tag, 4: Anchor/link close tag.
 					esc_html__(
 						'By allowing us to collect data about how %1$s is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.%2$sFeel free to review our %3$sterms of use and privacy policy%4$s.',
@@ -885,7 +929,7 @@ class Licensing_Plugin_Admin {
 			}
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -906,7 +950,7 @@ class Licensing_Plugin_Admin {
 		 * `Dispatcher::config()` was carrying a wiped `plugin.license_key`
 		 * (because `advanced-cache.php` triggered `decrypt_secrets()`
 		 * before `wp_salt()` was loaded), this method took the
-		 * `! empty( $license_key )` === false branch below, set
+		 * `! empty( $w3tc_license_key )` === false branch below, set
 		 * `license.status` to `'no_key'`, set `plugin.type` to `''`, and
 		 * cached `license.next_check` ~5 days out. The next-check cache
 		 * then blocks recovery for up to 5 days even after the underlying
@@ -931,19 +975,19 @@ class Licensing_Plugin_Admin {
 		$status                         = '';
 		$terms                          = '';
 		$paypal_billing_update_required = false;
-		$license_key                    = $this->get_license_key();
+		$w3tc_license_key               = $this->get_license_key();
 
 		$old_plugin_type                    = $this->_config->get_string( 'plugin.type' );
 		$old_status                         = $state->get_string( 'license.status' );
 		$old_paypal_billing_update_required = $state->get_boolean( 'license.paypal_billing_update_required' );
 		$plugin_type                        = '';
 
-		if ( ! empty( $license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
-			$license = Licensing_Core::check_license( $license_key, W3TC_VERSION );
+		if ( ! empty( $w3tc_license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
+			$w3tc_license = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
 
-			if ( $license ) {
-				$status = $license->license_status;
-				$terms  = $license->license_terms;
+			if ( $w3tc_license ) {
+				$status = $w3tc_license->license_status;
+				$terms  = $w3tc_license->license_terms;
 				if ( $this->_status_is( $status, 'active' ) ) {
 					$plugin_type = 'pro';
 				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) &&
@@ -953,9 +997,9 @@ class Licensing_Plugin_Admin {
 				}
 
 				// Check for PayPal billing update requirement.
-				if ( isset( $license->paypal_billing_update_required ) ) {
+				if ( isset( $w3tc_license->paypal_billing_update_required ) ) {
 					$paypal_billing_update_required = filter_var(
-						$license->paypal_billing_update_required,
+						$w3tc_license->paypal_billing_update_required,
 						FILTER_VALIDATE_BOOLEAN
 					);
 				}
@@ -1012,11 +1056,11 @@ class Licensing_Plugin_Admin {
 	 * @return string The license key.
 	 */
 	public function get_license_key() {
-		$license_key = $this->_config->get_string( 'plugin.license_key', '' );
-		if ( '' === $license_key ) {
-			$license_key = ini_get( 'w3tc.license_key' );
+		$w3tc_license_key = $this->_config->get_string( 'plugin.license_key', '' );
+		if ( '' === $w3tc_license_key ) {
+			$w3tc_license_key = ini_get( 'w3tc.license_key' );
 		}
-		return $license_key;
+		return $w3tc_license_key;
 	}
 
 	/**
@@ -1024,25 +1068,30 @@ class Licensing_Plugin_Admin {
 	 *
 	 * Saves the dismissal timestamp in usermeta for persistent per-user dismissal.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
 	public function ajax_dismiss_license_notice() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		/**
+		 * Per-action nonce. Legacy 'w3tc' accepted as back-compat
+		 * fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		 * the authoritative authorisation gate.
+		 */
+		Util_Nonce::verify_ajax( 'w3tc_dismiss_license_notice' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$notice_id = isset( $_POST['notice_id'] ) ? sanitize_key( $_POST['notice_id'] ) : '';
+		$notice_id = isset( $_POST['notice_id'] ) ? sanitize_key( wp_unslash( $_POST['notice_id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above via Util_Nonce::verify_ajax().
 
 		if ( empty( $notice_id ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid notice ID' ) );
 		}
 
-		$user_id            = get_current_user_id();
-		$dismissed_notices  = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
+		$user_id           = get_current_user_id();
+		$dismissed_notices = get_user_meta( $user_id, self::NOTICE_DISMISSED_META_KEY, true );
 
 		if ( ! is_array( $dismissed_notices ) ) {
 			$dismissed_notices = array();
@@ -1060,12 +1109,17 @@ class Licensing_Plugin_Admin {
 	 *
 	 * Forces an immediate license check and clears cached billing URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
 	public function ajax_recheck_license() {
-		check_ajax_referer( 'w3tc', '_wpnonce' );
+		/**
+		 * Per-action nonce. Legacy 'w3tc' accepted as back-compat
+		 * fallback via Util_Nonce::verify_ajax. The cap-check below remains
+		 * the authoritative authorisation gate.
+		 */
+		Util_Nonce::verify_ajax( 'w3tc_recheck_license' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
@@ -1077,8 +1131,8 @@ class Licensing_Plugin_Admin {
 		$state->save();
 
 		// Clear cached billing URL so a fresh one is fetched.
-		$license_key   = $this->get_license_key();
-		$transient_key = 'w3tc_billing_url_' . md5( $license_key );
+		$w3tc_license_key = $this->get_license_key();
+		$transient_key    = 'w3tc_billing_url_' . md5( $w3tc_license_key );
 		delete_transient( $transient_key );
 
 		// Perform the license check now.
@@ -1094,7 +1148,7 @@ class Licensing_Plugin_Admin {
 	 * If the reset time has elapsed and the condition still persists, the dismissal
 	 * is cleared and the notice will show again.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param string $notice_id The unique identifier for the notice.
 	 *
@@ -1128,7 +1182,7 @@ class Licensing_Plugin_Admin {
 	 * Uses a targeted query to only retrieve users who have the specific notice dismissed,
 	 * rather than all users with any dismissed notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param string $notice_id The unique identifier for the notice to clear.
 	 *

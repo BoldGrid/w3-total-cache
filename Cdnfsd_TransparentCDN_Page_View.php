@@ -9,12 +9,13 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$key        = $config->get_string( 'cdnfsd.transparentcdn.client_id' );
-$authorized = ! empty( $key );
+$w3tc_key        = $w3tc_config->get_string( 'cdnfsd.transparentcdn.client_id' );
+$w3tc_authorized = ! empty( $w3tc_key );
 
 ?>
 		<?php
@@ -29,7 +30,7 @@ $authorized = ! empty( $key );
 					<input id="cdnfsd_transparentcdn_company_id" class="w3tc-ignore-change" type="text"
 					<?php Util_Ui::sealing_disabled( 'cdnfsd.transparentcdn.company_id' ); ?>
 					name="cdnfsd__transparentcdn__company_id"
-					value="<?php echo esc_attr( $config->get_string( 'cdnfsd.transparentcdn.company_id' ) ); ?>" size="60" />
+					value="<?php echo esc_attr( $w3tc_config->get_string( 'cdnfsd.transparentcdn.company_id' ) ); ?>" size="60" />
 				</td>
 			</tr>
 			<tr>
@@ -38,7 +39,7 @@ $authorized = ! empty( $key );
 					<input id="cdnfsd_transparentcdn_clientid" class="w3tc-ignore-change"
 					<?php Util_Ui::sealing_disabled( 'cdnfsd.transparentcdn.client_id' ); ?> type="text"
 					name="cdnfsd__transparentcdn__client_id"
-					value="<?php echo esc_attr( $config->get_string( 'cdnfsd.transparentcdn.client_id' ) ); ?>" size="60" />
+					value="<?php echo esc_attr( $w3tc_config->get_string( 'cdnfsd.transparentcdn.client_id' ) ); ?>" size="60" />
 				</td>
 			</tr>
 			<tr>
@@ -47,12 +48,12 @@ $authorized = ! empty( $key );
 					<input id="cdnfsd_transparentcdn_clientsecret" class="w3tc-ignore-change"
 					<?php Util_Ui::sealing_disabled( 'cdnfsd.transparentcdn.client_secret' ); ?> type="text"
 					name="cdnfsd__transparentcdn__client_secret"
-					value="<?php echo esc_attr( $config->get_string( 'cdnfsd.transparentcdn.client_secret' ) ); ?>" size="60" />
+					value="<?php echo esc_attr( $w3tc_config->get_string( 'cdnfsd.transparentcdn.client_secret' ) ); ?>" size="60" />
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<span id="transparentcdn_test" class="button {type: 'transparentcdn', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}">
+					<span id="transparentcdn_test" class="button {type: 'transparentcdn', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}">
 						<?php esc_html_e( 'Test TransparentCDN', 'w3-total-cache' ); ?>
 					</span>
 				</td>

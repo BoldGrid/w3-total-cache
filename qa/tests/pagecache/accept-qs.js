@@ -5,6 +5,7 @@ function requireRoot(p) {
 const expect = require('chai').expect;
 const log = require('mocha-logger');
 
+const diskEnhanced = requireRoot('lib/disk-enhanced');
 const env = requireRoot('lib/environment');
 const sys = requireRoot('lib/sys');
 const w3tc = requireRoot('lib/w3tc');
@@ -21,6 +22,7 @@ describe('', function() {
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,
+			browsercache__enabled: false,
 			pgcache__engine: env.cacheEngineLabel
 		});
 		await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
@@ -63,8 +65,17 @@ describe('', function() {
 
 
 async function checkCached(url, isCached) {
+	if (isCached && env.cacheEngineLabel === 'file_generic') {
+		await sys.clearDiskEnhancedHost();
+	}
+
 	log.log('opening ' + url);
-	await page.goto(url);
+	await w3tc.gotoWithPotentialW3TCRepeat(page, url);
+	await w3tc.gotoWithPotentialW3TCRepeat(page, url);
+
+	if (isCached && env.cacheEngineLabel === 'file_generic') {
+		await diskEnhanced.warmCache(url);
+	}
 
 	let content = await page.content();
 	if (isCached) {
@@ -74,7 +85,18 @@ async function checkCached(url, isCached) {
 	}
 
 	log.log('opened ' + url);
-	let response = await page.goto(url);
+
+	let probe = null;
+	if (isCached && env.cacheEngineLabel === 'file_generic') {
+		probe = await diskEnhanced.waitForFile(url, 10000);
+	}
+
+	const httpResponse = await sys.httpGet(url, {
+		headers: {
+			'User-Agent': sys.qaPageCacheUserAgent
+		},
+		followRedirects: true
+	});
 
 	content = await page.content();
 	if (isCached) {
@@ -85,15 +107,34 @@ async function checkCached(url, isCached) {
 
 	if (env.cacheEngineLabel == 'file_generic') {
 		log.log('make sure not passed to PHP fallback and handled by rules');
-		let headers = response.headers();
+		let headers = httpResponse.headers;
 
 		console.log(headers);
-		phpResponse = (headers['w3tc_php'] != null);
+		let phpResponse = (headers['w3tc_php'] != null);
 
 		if (env.boxName.indexOf('php55') >= 0) {
 			log.error('php handled here in apache 2.4.7 - skip it since its apache bug');
 		} else {
 			if (isCached) {
+				if (!probe) {
+					probe = await diskEnhanced.probe(url);
+				}
+				if (probe && probe.variants) {
+					const plainKey = probe.page_key;
+					expect(
+						probe.variants[plainKey],
+						'enhanced cache file missing for ' + plainKey + ' at ' + probe.enhanced_path +
+						'; dir listing: ' + JSON.stringify(probe.enhanced_dir_list) +
+						(probe.stale_old_only ? '; stale_old_only age=' + probe.old_age_sec + 's' : '')
+					).is.true;
+					if (env.boxName.indexOf('apache') >= 0) {
+						// W3TC_URI_PATH_SLASH is written to .htaccess by the apache rules generator only.
+						expect(probe.htaccess_uri, 'stale .htaccess missing W3TC_URI_PATH_SLASH rules').is.true;
+					}
+				}
+				if (phpResponse) {
+					log.error('PHP handled request; probe: ' + JSON.stringify(probe));
+				}
 				expect(phpResponse).is.false;
 			} else {
 				expect(phpResponse).is.true;

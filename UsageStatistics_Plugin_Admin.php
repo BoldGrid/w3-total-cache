@@ -21,7 +21,7 @@ class UsageStatistics_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		add_action( 'wp_ajax_ustats_access_log_test', array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
@@ -41,13 +41,13 @@ class UsageStatistics_Plugin_Admin {
 	 * If the 'slot_seconds' value has changed in the configuration, this method
 	 * ensures that all existing statistics are flushed to maintain consistency.
 	 *
-	 * @param object $config     The current configuration object.
+	 * @param object $w3tc_config     The current configuration object.
 	 * @param object $old_config The previous configuration object.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_ui_save( $config, $old_config ) {
-		if ( $config->get( 'stats.slot_seconds' ) !== $old_config->get( 'stats.slot_seconds' ) ) {
+	public function w3tc_config_ui_save( $w3tc_config, $old_config ) {
+		if ( $w3tc_config->get( 'stats.slot_seconds' ) !== $old_config->get( 'stats.slot_seconds' ) ) {
 			// flush all stats otherwise will be inconsistent.
 			$storage = new UsageStatistics_StorageWriter();
 			$storage->reset();
@@ -61,16 +61,16 @@ class UsageStatistics_Plugin_Admin {
 	 * note to the WordPress dashboard to inform the user about the resource usage
 	 * and provide options to disable or hide the note.
 	 *
-	 * @param array $notes The current array of notes.
+	 * @param array $w3tc_notes The current array of notes.
 	 *
 	 * @return array The modified array of notes with the statistics-related note added.
 	 */
-	public function w3tc_notes( $notes ) {
-		$c            = Dispatcher::config();
+	public function w3tc_notes( $w3tc_notes ) {
+		$w3tc_c       = Dispatcher::config();
 		$state_master = Dispatcher::config_state_master();
 
-		if ( $c->get_boolean( 'stats.enabled' ) && ! $state_master->get_boolean( 'common.hide_note_stats_enabled' ) ) {
-			$notes['stats_enabled'] = sprintf(
+		if ( $w3tc_c->get_boolean( 'stats.enabled' ) && ! $state_master->get_boolean( 'common.hide_note_stats_enabled' ) ) {
+			$w3tc_notes['stats_enabled'] = sprintf(
 				// Translators: 1 disable statistics button, 2 hide notes stats button.
 				__(
 					'W3 Total Cache: Statistics collection is currently enabled. This consumes additional resources, and is not recommended to be run continuously. %1$s %2$s',
@@ -93,7 +93,7 @@ class UsageStatistics_Plugin_Admin {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -150,19 +150,73 @@ class UsageStatistics_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_ajax_ustats_access_log_test() {
-		$nonce_val = Util_Request::get_array( '_wpnonce' )[0];
-		$nonce     = isset( $nonce_val ) ? $nonce_val : false;
-
-		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+		/**
+		 * Layer 3 of the nonce-verification pass: read the nonce as a
+		 * scalar string via Util_Nonce::read_nonce so `_wpnonce[]=foo`
+		 * is rejected at the type boundary before reaching
+		 * wp_verify_nonce. The previous
+		 * `Util_Request::get_array('_wpnonce')[0]` accessor accepted
+		 * the array-shape value verbatim.
+		 *
+		 * Layer 2: per-action nonce key `w3tc_admin_action_w3tc_ustats_access_log_test`
+		 * (minted by Util_Nonce::create_admin and read by w3tcGetAdminNonce).
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_ustats_access_log_test' ) ) ) {
 			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
+		}
+
+		/**
+		 * Subscriber-reachable AJAX route: the nonce alone does not
+		 * establish authorization. Without this gate any logged-in user
+		 * could probe arbitrary filesystem paths via fopen(), turning
+		 * the handler into a file-existence oracle.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
 		}
 
 		$handle       = false;
 		$filename_val = Util_Request::get_string( 'filename' );
-		$filepath     = ! empty( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
+		$filepath     = ! empty( $filename_val ) ? $filename_val : null;
 
-		if ( $filepath ) {
-			$handle = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress
+		/**
+		 * Path-traversal allowlist for the access-log test handler
+		 * (path half). The admin-supplied filename previously
+		 * flowed straight into fopen() with only a `://` -> `/` collapse,
+		 * turning the handler into a file-existence oracle on arbitrary
+		 * host paths (e.g. `/etc/passwd`, `/proc/self/cmdline`).
+		 *
+		 * Defence-in-depth on top of the `manage_options` check above:
+		 * even when an admin account is compromised or the attacker IS
+		 * the admin, the allowlist refuses paths outside the documented
+		 * log-bearing directories.
+		 *
+		 * Acceptable resolved paths must live under one of:
+		 *   - /var/log (typical Apache/nginx access-log location)
+		 *   - the WP uploads basedir
+		 *   - W3TC_CACHE_DIR (W3TC's own cache tree)
+		 *   - WP_CONTENT_DIR (covers debug.log + any user-configured
+		 *     log location inside wp-content)
+		 *
+		 * On rejection we return the same generic 'Failed to open file'
+		 * response as the not-found case -- the rejection reason is not
+		 * leaked to the client, so the wire shape stays stable for
+		 * legitimate users.
+		 *
+		 * @since 2.10.0
+		 */
+		$validated = self::validate_access_log_path( $filepath );
+
+		if ( false !== $validated ) {
+			$handle = @fopen( $validated, 'rb' ); // phpcs:ignore WordPress
 		}
 
 		if ( $handle ) {
@@ -172,5 +226,73 @@ class UsageStatistics_Plugin_Admin {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * Validates a user-supplied filesystem path against the access-log
+	 * test handler's allowlist.
+	 *
+	 * Returns the canonicalized absolute path on success, or false if
+	 * the input is empty, doesn't resolve via realpath(), or escapes the
+	 * permitted root set.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string|null $filepath Raw filepath from the request.
+	 *
+	 * @return string|false Canonical absolute path, or false on rejection.
+	 */
+	private static function validate_access_log_path( $filepath ) {
+		if ( ! \is_string( $filepath ) || '' === $filepath ) {
+			return false;
+		}
+
+		$real = \realpath( $filepath );
+
+		if ( false === $real || ! \is_file( $real ) ) {
+			return false;
+		}
+
+		$roots = array();
+
+		$var_log_real = \realpath( '/var/log' );
+		if ( false !== $var_log_real ) {
+			$roots[] = $var_log_real;
+		}
+
+		if ( \function_exists( 'wp_upload_dir' ) ) {
+			$uploads = \wp_upload_dir( null, false );
+			if ( \is_array( $uploads ) && ! empty( $uploads['basedir'] ) ) {
+				$uploads_real = \realpath( $uploads['basedir'] );
+				if ( false !== $uploads_real ) {
+					$roots[] = $uploads_real;
+				}
+			}
+		}
+
+		if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+			$cache_real = \realpath( W3TC_CACHE_DIR );
+			if ( false !== $cache_real ) {
+				$roots[] = $cache_real;
+			}
+		}
+
+		if ( \defined( 'WP_CONTENT_DIR' ) ) {
+			$content_real = \realpath( WP_CONTENT_DIR );
+			if ( false !== $content_real ) {
+				$roots[] = $content_real;
+			}
+		}
+
+		foreach ( $roots as $root ) {
+			if ( '' === $root ) {
+				continue;
+			}
+			if ( 0 === \strpos( $real, $root . DIRECTORY_SEPARATOR ) ) {
+				return $real;
+			}
+		}
+
+		return false;
 	}
 }

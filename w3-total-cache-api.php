@@ -4,13 +4,13 @@
  *
  * @package W3TC
  *
- * phpcs:disable WordPress.PHP
+ * phpcs:disable WordPress.PHP, WordPress.NamingConventions.PrefixAllGlobals
  */
 
 defined( 'ABSPATH' ) || die;
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.9.4' );
+define( 'W3TC_VERSION', '2.10.0' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -147,6 +147,7 @@ define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
 define( 'W3TC_MARKER_BEGIN_CDN', '# BEGIN W3TC CDN' );
 define( 'W3TC_MARKER_BEGIN_WEBP', '# BEGIN W3TC WEBP' );
 define( 'W3TC_MARKER_BEGIN_AVIF', '# BEGIN W3TC AVIF' );
+define( 'W3TC_MARKER_BEGIN_PLUGIN_DIR_DENY', '# BEGIN W3TC Plugin Dir Deny' );
 
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
 define( 'W3TC_MARKER_END_PGCACHE_CORE', '# END W3TC Page Cache core' );
@@ -161,6 +162,7 @@ define( 'W3TC_MARKER_END_CDN', '# END W3TC CDN' );
 define( 'W3TC_MARKER_END_NEW_RELIC_CORE', '# END W3TC New Relic core' );
 define( 'W3TC_MARKER_END_WEBP', '# END W3TC WEBP' );
 define( 'W3TC_MARKER_END_AVIF', '# END W3TC AVIF' );
+define( 'W3TC_MARKER_END_PLUGIN_DIR_DENY', '# END W3TC Plugin Dir Deny' );
 
 if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
 	define( 'W3TC_EXTENSION_DIR', ( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) );
@@ -176,8 +178,8 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 @ini_set( 'pcre.backtrack_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 @ini_set( 'pcre.recursion_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-global $w3_late_init;
-$w3_late_init = false;
+global $w3tc_w3_late_init;
+$w3tc_w3_late_init = false;
 
 /**
  * Class autoloader.
@@ -198,27 +200,23 @@ function w3tc_class_autoload( $class_value ) {
 			require $filename;
 			return;
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( function_exists( 'esc_html' ) && function_exists( '__' ) ) {
-				echo esc_html(
-					sprintf(
-						// translators: 1 class name, 2 file name.
-						__(
-							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-							'w3-total-cache'
-						),
-						$class_value,
-						$filename
-					)
-				);
-			} else {
-				printf(
-					'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-					$class_value, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					$filename // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
-			}
-
-			debug_print_backtrace();
+			/**
+			 * Previously echoed the class name, the resolved
+			 * filename, and a full backtrace into the response body
+			 * under WP_DEBUG. Route to the PHP error log instead; it
+			 * lands in WP_DEBUG_LOG / php-error.log without ever
+			 * touching the HTTP response. Using error_log here (not
+			 * Util_Debug::log) because Util_Debug.php is itself loaded
+			 * by this autoloader and the missing-class branch must not
+			 * recurse.
+			 */
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf(
+					'W3TC autoload: class %1$s requested but file %2$s missing',
+					$class_value,
+					$filename
+				)
+			);
 		}
 	}
 
@@ -247,10 +245,10 @@ function w3tc_class_autoload( $class_value ) {
 		$class_value = substr( $class_value, 6 );
 
 		// PSR loader.
-		$file = $base . strtr( $class_value, '\\_', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR ) . '.php';
+		$w3tc_file = $base . strtr( $class_value, '\\_', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR ) . '.php';
 
-		if ( file_exists( $file ) ) {
-			require_once $file;
+		if ( file_exists( $w3tc_file ) ) {
+			require_once $w3tc_file;
 		}
 	}
 }
@@ -282,8 +280,8 @@ function w3tc_config() {
 		return new W3_Config();
 	}
 
-	$config = \W3TC\Dispatcher::config();
-	return $config;
+	$w3tc_config = \W3TC\Dispatcher::config();
+	return $w3tc_config;
 }
 
 /**
@@ -292,8 +290,8 @@ function w3tc_config() {
  * @param array $extras Extras.
  */
 function w3tc_flush_all( $extras = null ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_all( $extras );
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->flush_all( $extras );
 }
 
 /**
@@ -304,8 +302,8 @@ function w3tc_flush_all( $extras = null ) {
  * @param array   $extras  Extras.
  */
 function w3tc_flush_post( $post_id, $force = false, $extras = null ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_post( $post_id, $force, $extras );
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->flush_post( $post_id, $force, $extras );
 }
 
 /**
@@ -314,30 +312,30 @@ function w3tc_flush_post( $post_id, $force = false, $extras = null ) {
  * @param array $extras Extras.
  */
 function w3tc_flush_posts( $extras = null ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_posts( $extras );
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->flush_posts( $extras );
 }
 
 /**
  * Purges/Flushes url.
  *
- * @param string $url    URL.
+ * @param string $w3tc_url    URL.
  * @param array  $extras Extras.
  */
-function w3tc_flush_url( $url, $extras = null ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_url( $url, $extras );
+function w3tc_flush_url( $w3tc_url, $extras = null ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->flush_url( $w3tc_url, $extras );
 }
 
 /**
  * Purges/Flushes separate cache group.
  *
- * @param string $group  Group.
+ * @param string $w3tc_group  Group.
  * @param array  $extras Extras.
  */
-function w3tc_flush_group( $group, $extras = null ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_group( $group, $extras );
+function w3tc_flush_group( $w3tc_group, $extras = null ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->flush_group( $w3tc_group, $extras );
 }
 
 
@@ -366,11 +364,11 @@ function w3tc_pgcache_flush_post( $post_id, $force = false ) {
 /**
  * Deprecated.  Shortcut for page post cache flush by url.
  *
- * @param int $url URL.
+ * @param int $w3tc_url URL.
  * @return bool
  */
-function w3tc_pgcache_flush_url( $url ) {
-	return w3tc_flush_url( $url );
+function w3tc_pgcache_flush_url( $w3tc_url ) {
+	return w3tc_flush_url( $w3tc_url );
 }
 
 /**
@@ -379,32 +377,32 @@ function w3tc_pgcache_flush_url( $url ) {
  * @return null
  */
 function w3tc_browsercache_flush() {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	return $o->browsercache_flush();
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	return $w3tc_o->browsercache_flush();
 }
 
 /**
  * Deprecated.  Shortcut for database cache flush.
  */
 function w3tc_dbcache_flush() {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->dbcache_flush();
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->dbcache_flush();
 }
 
 /**
  * Deprecated.  Shortcut for minify cache flush.
  */
 function w3tc_minify_flush() {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->minifycache_flush();
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->minifycache_flush();
 }
 
 /**
  * Deprecated.  Shortcut for objectcache cache flush.
  */
 function w3tc_objectcache_flush() {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->objectcache_flush();
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	$w3tc_o->objectcache_flush();
 }
 
 /**
@@ -414,8 +412,8 @@ function w3tc_objectcache_flush() {
  * @return mixed
  */
 function w3tc_cdn_purge_files( $files ) {
-	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	return $o->cdn_purge_files( $files );
+	$w3tc_o = \W3TC\Dispatcher::component( 'CacheFlush' );
+	return $w3tc_o->cdn_purge_files( $files );
 }
 
 /**
@@ -424,12 +422,12 @@ function w3tc_cdn_purge_files( $files ) {
  * @param string $location Location.
  */
 function w3tc_minify_script_group( $location ) {
-	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
+	$w3tc_o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
 
-	$o->printed_scripts[] = $location;
+	$w3tc_o->printed_scripts[] = $location;
 
-	$r = $o->get_script_group( $location );
-	echo esc_html( $r['body'] );
+	$w3tc_r = $w3tc_o->get_script_group( $location );
+	echo esc_html( $w3tc_r['body'] );
 }
 
 /**
@@ -438,12 +436,12 @@ function w3tc_minify_script_group( $location ) {
  * @param string $location Location.
  */
 function w3tc_minify_style_group( $location ) {
-	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
+	$w3tc_o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
 
-	$o->printed_styles[] = $location;
+	$w3tc_o->printed_styles[] = $location;
 
-	$r = $o->get_style_group( $location );
-	echo esc_html( $r['body'] );
+	$w3tc_r = $w3tc_o->get_style_group( $location );
+	echo esc_html( $w3tc_r['body'] );
 }
 
 /**
@@ -452,9 +450,9 @@ function w3tc_minify_style_group( $location ) {
  * @param string|array $files Files.
  */
 function w3tc_minify_style_custom( $files ) {
-	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
-	$r = $o->get_style_custom( $files );
-	echo esc_html( $r['body'] );
+	$w3tc_o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
+	$w3tc_r = $w3tc_o->get_style_custom( $files );
+	echo esc_html( $w3tc_r['body'] );
 }
 
 /**
@@ -464,32 +462,32 @@ function w3tc_minify_style_custom( $files ) {
  * @param string $theme      The themename default is default theme. For childtheme it should be parentthemename/childthemename.
  * @param string $redirect   Redirect.
  * @param array  $agents     Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.
- * @param bool   $enabled    Enabled.
+ * @param bool   $w3tc_enabled    Enabled.
  */
-function w3tc_save_user_agent_group( $group_name, $theme = 'default', $redirect = '', $agents = array(), $enabled = false ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
-	$o->save_group( $group_name, $theme, $redirect, $agents, $enabled );
+function w3tc_save_user_agent_group( $group_name, $theme = 'default', $redirect = '', $agents = array(), $w3tc_enabled = false ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
+	$w3tc_o->save_group( $group_name, $theme, $redirect, $agents, $w3tc_enabled );
 }
 
 /**
  * Deprecated.
  *
- * @param string $group Group.
+ * @param string $w3tc_group Group.
  */
-function w3tc_delete_user_agent_group( $group ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
-	$o->delete_group( $group );
+function w3tc_delete_user_agent_group( $w3tc_group ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
+	$w3tc_o->delete_group( $w3tc_group );
 }
 
 /**
  * Deprecated.
  *
- * @param string $group Group.
+ * @param string $w3tc_group Group.
  * @return mixed
  */
-function w3tc_get_user_agent_group( $group ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
-	return $o->get_group_values( $group );
+function w3tc_get_user_agent_group( $w3tc_group ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_UserAgent' );
+	return $w3tc_o->get_group_values( $w3tc_group );
 }
 
 /**
@@ -499,32 +497,32 @@ function w3tc_get_user_agent_group( $group ) {
  * @param string $theme      The themename default is default theme. For childtheme it should be parentthemename/childthemename.
  * @param string $redirect   Redirect.
  * @param array  $referrers  Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.
- * @param bool   $enabled    Enabled.
+ * @param bool   $w3tc_enabled    Enabled.
  */
-function w3tc_save_referrer_group( $group_name, $theme = 'default', $redirect = '', $referrers = array(), $enabled = false ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
-	$o->save_group( $group_name, $theme, $redirect, $referrers, $enabled );
+function w3tc_save_referrer_group( $group_name, $theme = 'default', $redirect = '', $referrers = array(), $w3tc_enabled = false ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
+	$w3tc_o->save_group( $group_name, $theme, $redirect, $referrers, $w3tc_enabled );
 }
 
 /**
  * Deprecated.
  *
- * @param string $group Group.
+ * @param string $w3tc_group Group.
  */
-function w3tc_delete_referrer_group( $group ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
-	$o->delete_group( $group );
+function w3tc_delete_referrer_group( $w3tc_group ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
+	$w3tc_o->delete_group( $w3tc_group );
 }
 
 /**
  * Deprecated.
  *
- * @param string $group Group.
+ * @param string $w3tc_group Group.
  * @return mixed
  */
-function w3tc_get_referrer_group( $group ) {
-	$o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
-	return $o->get_group_values( $group );
+function w3tc_get_referrer_group( $w3tc_group ) {
+	$w3tc_o = \W3TC\Dispatcher::component( 'Mobile_Referrer' );
+	return $w3tc_o->get_group_values( $w3tc_group );
 }
 
 /**
@@ -554,37 +552,37 @@ if ( defined( 'W3TC_CONFIG_HIDE' ) && W3TC_CONFIG_HIDE ) {
 		/**
 		 * Get string.
 		 *
-		 * @param string  $key           Key.
+		 * @param string  $w3tc_key           Key.
 		 * @param string  $default_value Default.
 		 * @param boolean $trim          Trim.
 		 *
 		 * @return string
 		 */
-		public function get_string( $key, $default_value = '', $trim = true ) {
+		public function get_string( $w3tc_key, $default_value = '', $trim = true ) {
 			return '';
 		}
 
 		/**
 		 * Get integer.
 		 *
-		 * @param string $key           Key.
+		 * @param string $w3tc_key           Key.
 		 * @param int    $default_value Default.
 		 *
 		 * @return int
 		 */
-		public function get_integer( $key, $default_value = 0 ) {
+		public function get_integer( $w3tc_key, $default_value = 0 ) {
 			return 0;
 		}
 
 		/**
 		 * Get boolean.
 		 *
-		 * @param string $key           Key.
+		 * @param string $w3tc_key           Key.
 		 * @param bool   $default_value Default.
 		 *
 		 * @return bool
 		 */
-		public function get_boolean( $key, $default_value = false ) {
+		public function get_boolean( $w3tc_key, $default_value = false ) {
 			return false;
 		}
 	}
@@ -686,11 +684,11 @@ function w3_instance( $class_value ) {
 /**
  * Print a localized string.
  *
- * @param string $key           Key name.
+ * @param string $w3tc_key           Key name.
  * @param mixed  $default_value Default value.
  */
-function w3tc_e( $key, $default_value ) {
-	$content = w3tc_er( $key, $default_value );
+function w3tc_e( $w3tc_key, $default_value ) {
+	$content = w3tc_er( $w3tc_key, $default_value );
 
 	echo wp_kses(
 		$content,
@@ -701,10 +699,10 @@ function w3tc_e( $key, $default_value ) {
 /**
  * Get a localized string.
  *
- * @param string $key           Key name.
+ * @param string $w3tc_key           Key name.
  * @param mixed  $default_value Default value.
  */
-function w3tc_er( $key, $default_value ) {
+function w3tc_er( $w3tc_key, $default_value ) {
 	$v = get_site_option( 'w3tc_generic_widgetservices' );
 
 	try {
@@ -728,11 +726,11 @@ function w3tc_er( $key, $default_value ) {
 		}
 	}
 
-	if ( isset( $v[ "ui_strings.$w3tc_locale" ][ $key ] ) ) {
-		return $v[ "ui_strings.$w3tc_locale" ][ $key ];
+	if ( isset( $v[ "ui_strings.$w3tc_locale" ][ $w3tc_key ] ) ) {
+		return $v[ "ui_strings.$w3tc_locale" ][ $w3tc_key ];
 	}
-	if ( isset( $v['ui_strings'][ $key ] ) ) {
-		return $v['ui_strings'][ $key ];
+	if ( isset( $v['ui_strings'][ $w3tc_key ] ) ) {
+		return $v['ui_strings'][ $w3tc_key ];
 	}
 
 	return $default_value;
@@ -743,27 +741,27 @@ $w3tc_actions = array();
 /**
  * An add_action alternative used by W3TC when WP core is not available.
  *
- * @param string   $hook     Hook/action name.
+ * @param string   $w3tc_hook     Hook/action name.
  * @param Callable $callback Callback function.
  */
-function w3tc_add_action( $hook, $callback ) {
+function w3tc_add_action( $w3tc_hook, $callback ) {
 	global $w3tc_actions;
-	if ( ! isset( $w3tc_actions[ $hook ] ) ) {
-		$w3tc_actions[ $hook ] = array();
+	if ( ! isset( $w3tc_actions[ $w3tc_hook ] ) ) {
+		$w3tc_actions[ $w3tc_hook ] = array();
 	}
 
-	$w3tc_actions[ $hook ][] = $callback;
+	$w3tc_actions[ $w3tc_hook ][] = $callback;
 }
 
 /**
  * A do_action alternative used by W3TC when WP core is not available.
  *
- * @param string $hook Hook/action name.
+ * @param string $w3tc_hook Hook/action name.
  */
-function w3tc_do_action( $hook ) {
+function w3tc_do_action( $w3tc_hook ) {
 	global $w3tc_actions;
-	if ( ! empty( $w3tc_actions[ $hook ] ) ) {
-		foreach ( $w3tc_actions[ $hook ] as $callback ) {
+	if ( ! empty( $w3tc_actions[ $w3tc_hook ] ) ) {
+		foreach ( $w3tc_actions[ $w3tc_hook ] as $callback ) {
 			call_user_func_array( $callback, array() );
 		}
 	}
@@ -772,20 +770,20 @@ function w3tc_do_action( $hook ) {
 /**
  * An apply_filters alternative used by W3TC when WP core is not available.
  *
- * @param string $hook  Hook/filter name.
- * @param mixed  $value Value.
+ * @param string $w3tc_hook  Hook/filter name.
+ * @param mixed  $w3tc_value Value.
  */
-function w3tc_apply_filters( $hook, $value ) {
+function w3tc_apply_filters( $w3tc_hook, $w3tc_value ) {
 	$args = func_get_args();
 	array_shift( $args );
 
 	global $w3tc_actions;
-	if ( ! empty( $w3tc_actions[ $hook ] ) ) {
-		foreach ( $w3tc_actions[ $hook ] as $callback ) {
-			$value   = call_user_func_array( $callback, $args );
-			$args[0] = $value;
+	if ( ! empty( $w3tc_actions[ $w3tc_hook ] ) ) {
+		foreach ( $w3tc_actions[ $w3tc_hook ] as $callback ) {
+			$w3tc_value = call_user_func_array( $callback, $args );
+			$args[0]    = $w3tc_value;
 		}
 	}
 
-	return $value;
+	return $w3tc_value;
 }

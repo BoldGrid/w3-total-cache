@@ -7,13 +7,14 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 // when separate config is used - each blog has own uploads
 // so nothing to upload from network admin.
-$upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Environment::is_using_master_config();
+$w3tc_upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Environment::is_using_master_config();
 
-$can_purge = Cdn_Util::can_purge( $cdn_engine );
+$w3tc_can_purge = Cdn_Util::can_purge( $w3tc_cdn_engine );
 
 require W3TC_INC_DIR . '/options/common/header.php';
 
@@ -72,7 +73,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdn.engine' ) ) . '</strong>',
-			'<span class="w3tc-' . ( $cdn_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
+			'<span class="w3tc-' . ( $w3tc_cdn_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
 			'<span class="w3tc-' . ( $is_cdn_authorized ? 'authorized">' . esc_html__( 'authorized', 'w3-total-cache' ) : 'not-authorized">' . esc_html__( 'not authorized', 'w3-total-cache' ) ) . '</span>'
 		),
 		array(
@@ -94,7 +95,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdnfsd.engine' ) ) . '</strong>',
-			'<span class="w3tc-' . ( $cdnfsd_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
+			'<span class="w3tc-' . ( $w3tc_cdnfsd_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
 			'<span class="w3tc-' . ( $is_cdnfsd_authorized ? 'authorized">' . esc_html__( 'authorized', 'w3-total-cache' ) : 'not-authorized">' . esc_html__( 'not authorized', 'w3-total-cache' ) ) . '</span>'
 		),
 		array(
@@ -108,7 +109,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 </p>
 <form id="w3tc_cdn" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php
-	if ( ! empty( $cdn_engine ) ) {
+	if ( ! empty( $w3tc_cdn_engine ) ) {
 		if ( $cdn_mirror ) {
 			?>
 			<p>
@@ -122,9 +123,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						),
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 						'</acronym>',
-						'<input id="cdn_rename_domain" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
+						'<input id="cdn_rename_domain" class="button {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_rename_domain' ) ) .
 							'\'}" type="button" value="' . esc_attr__( 'modify attachment URLs', 'w3-total-cache' ) . '" />',
-						'<input id="cdn_import_library" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
+						'<input id="cdn_import_library" class="button {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_import_library' ) ) .
 							'\'}" type="button" value="' . esc_attr__( 'importing attachments into the Media Library', 'w3-total-cache' ) . '" />'
 					),
 					array(
@@ -142,20 +143,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				?>
 			</p>
 			<?php
-			if ( $can_purge || $cdn_mirror_purge_all ) {
+			if ( $w3tc_can_purge || $cdn_mirror_purge_all ) {
 				?>
 				<p>
 					<?php
-					$cdn_purge_button        = $can_purge ?
-						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
+					$w3tc_cdn_purge_button        = $w3tc_can_purge ?
+						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_purge' ) ) .
 							'\'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
 						'';
-					$cdn_mirror_purge_button = $cdn_mirror_purge_all ?
-						( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :
+					$w3tc_cdn_mirror_purge_button = $cdn_mirror_purge_all ?
+						( $w3tc_can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :
 						'';
 
 					echo wp_kses(
-						$cdn_purge_button . $cdn_mirror_purge_button,
+						$w3tc_cdn_purge_button . $w3tc_cdn_mirror_purge_button,
 						array(
 							'acronym' => array(
 								'title' => array(),
@@ -191,11 +192,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				)
 			);
 			?>
-			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
-			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
+			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_import_library' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
+			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_queue' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
 
-			<?php if ( $can_purge ) : ?>
-				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
+			<?php if ( $w3tc_can_purge ) : ?>
+				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_purge' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
 				<?php
 				echo wp_kses(
 					sprintf(
@@ -216,7 +217,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				?>
 			<?php endif; ?>
 
-			<input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="Modify attachment URLs" /> <?php esc_html_e( 'if the domain name of your site has ever changed.', 'w3-total-cache' ); ?>
+			<input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_rename_domain' ) ); ?>'}" type="button" value="Modify attachment URLs" /> <?php esc_html_e( 'if the domain name of your site has ever changed.', 'w3-total-cache' ); ?>
 			<?php
 		}
 	}
@@ -245,13 +246,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<tr>
 				<th <?php echo $cdn_mirror ? 'colspan="2"' : 'style="width: 300px;"'; ?>>
 					<?php
-					$force_value = ( $upload_blogfiles_enabled ? null : false );
+					$w3tc_force_value = ( $w3tc_upload_blogfiles_enabled ? null : false );
 					$this->checkbox(
 						'cdn.uploads.enable',
-						! $upload_blogfiles_enabled,
+						! $w3tc_upload_blogfiles_enabled,
 						'',
 						true,
-						$force_value
+						$w3tc_force_value
 					);
 					?>
 					<?php Util_Ui::e_config_label( 'cdn.uploads.enable' ); ?></label>
@@ -273,7 +274,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								),
 							)
 						);
-						if ( ! $upload_blogfiles_enabled ) :
+						if ( ! $w3tc_upload_blogfiles_enabled ) :
 							echo wp_kses(
 								sprintf(
 									// translators: 1 HTML line break.
@@ -293,9 +294,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 				<?php if ( ! $cdn_mirror ) : ?>
 					<td>
-						<input id="cdn_export_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+						<input id="cdn_export_library" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_export_library' ) ); ?>'}"
 							type="button" value="<?php esc_attr_e( 'Upload attachments', 'w3-total-cache' ); ?>"
-							<?php disabled( ! $upload_blogfiles_enabled ); ?> />
+							<?php disabled( ! $w3tc_upload_blogfiles_enabled ); ?> />
 					</td>
 				<?php endif; ?>
 			</tr>
@@ -325,7 +326,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 				<?php if ( ! $cdn_mirror ) : ?>
 					<td>
-						<input class="button cdn_export {type: 'includes', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+						<input class="button cdn_export {type: 'includes', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_export' ) ); ?>'}"
 							type="button" value="<?php esc_attr_e( 'Upload includes files', 'w3-total-cache' ); ?>" />
 					</td>
 				<?php endif; ?>
@@ -356,7 +357,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 				<?php if ( ! $cdn_mirror ) : ?>
 					<td>
-						<input class="button cdn_export {type: 'theme', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+						<input class="button cdn_export {type: 'theme', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_export' ) ); ?>'}"
 							type="button" value="<?php esc_attr_e( 'Upload theme files', 'w3-total-cache' ); ?>"
 							/>
 					</td>
@@ -394,7 +395,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 				<?php if ( ! $cdn_mirror ) : ?>
 					<td>
-						<input class="button cdn_export {type: 'minify', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+						<input class="button cdn_export {type: 'minify', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_export' ) ); ?>'}"
 							type="button" value="<?php esc_attr_e( 'Upload minify files', 'w3-total-cache' ); ?>"
 							<?php disabled( ! $minify_enabled ); ?> />
 					</td>
@@ -426,9 +427,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 				<?php if ( ! $cdn_mirror ) : ?>
 					<td>
-						<input class="button cdn_export {type: 'custom', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+						<input class="button cdn_export {type: 'custom', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_export' ) ); ?>'}"
 							type="button" value="<?php esc_attr_e( 'Upload custom files', 'w3-total-cache' ); ?>"
-							<?php disabled( ! $upload_blogfiles_enabled ); ?> />
+							<?php disabled( ! $w3tc_upload_blogfiles_enabled ); ?> />
 					</td>
 				<?php endif; ?>
 			</tr>
@@ -471,20 +472,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php if ( ! empty( $cdn_engine ) ) : ?>
+		<?php if ( ! empty( $w3tc_cdn_engine ) ) : ?>
 			<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
 			<table class="form-table">
 				<?php
-				$known_engines = array(
+				$w3tc_known_engines = array(
 					'bunnycdn',
 					'google_drive',
 					'rackspace_cdn',
 					'rscf',
 				);
-				if ( in_array( $cdn_engine, $known_engines, true ) ) {
+				if ( in_array( $w3tc_cdn_engine, $w3tc_known_engines, true ) ) {
 					do_action( 'w3tc_settings_cdn_boxarea_configuration' );
-				} elseif ( Cdn_Util::is_engine( $cdn_engine ) ) {
-					include W3TC_INC_DIR . '/options/cdn/' . $cdn_engine . '.php';
+				} elseif ( Cdn_Util::is_engine( $w3tc_cdn_engine ) ) {
+					include W3TC_INC_DIR . '/options/cdn/' . $w3tc_cdn_engine . '.php';
 				}
 				?>
 			</table>
@@ -494,7 +495,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
 
 		<?php
-		if ( 'bunnycdn' === $cdn_engine || 'bunnycdn' === $cdnfsd_engine ) {
+		if ( 'bunnycdn' === $w3tc_cdn_engine || 'bunnycdn' === $w3tc_cdnfsd_engine ) {
 			Util_Ui::postbox_header( esc_html__( 'Purge', 'w3-total-cache' ), '', 'purge-urls' );
 			do_action( 'w3tc_purge_urls_box' );
 			Util_Ui::postbox_footer();
@@ -661,11 +662,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<p class="description"><?php esc_html_e( 'Select user roles that will use the origin server exclusively:', 'w3-total-cache' ); ?></p>
 
 					<div id="cdn_reject_roles" class="w3tc_reject_roles">
-						<?php $saved_roles = $this->_config->get_array( 'cdn.reject.roles' ); ?>
+						<?php $w3tc_saved_roles = $this->_config->get_array( 'cdn.reject.roles' ); ?>
 						<input type="hidden" name="cdn__reject__roles" value="" /><br />
-						<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-							<input type="checkbox" name="cdn__reject__roles[]" value="<?php echo esc_attr( $role_name ); ?>" <?php checked( in_array( $role_name, $saved_roles, true ) ); ?> id="role_<?php echo esc_attr( $role_name ); ?>" />
-							<label for="role_<?php echo esc_attr( $role_name ); ?>"><?php echo esc_html( $role_data['name'] ); ?></label>
+						<?php foreach ( get_editable_roles() as $w3tc_role_name => $w3tc_role_data ) : ?>
+							<input type="checkbox" name="cdn__reject__roles[]" value="<?php echo esc_attr( $w3tc_role_name ); ?>" <?php checked( in_array( $w3tc_role_name, $w3tc_saved_roles, true ) ); ?> id="role_<?php echo esc_attr( $w3tc_role_name ); ?>" />
+							<label for="role_<?php echo esc_attr( $w3tc_role_name ); ?>"><?php echo esc_html( $w3tc_role_data['name'] ); ?></label>
 						<?php endforeach; ?>
 					</div>
 				</th>
@@ -712,20 +713,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<tr>
 				<th colspan="2">
 					<?php
-					$disabled    = false;
-					$force_value = null;
+					$w3tc_disabled    = false;
+					$w3tc_force_value = null;
 
 					if ( 'google_drive' === $this->_config->get_string( 'cdn.engine' ) ) {
-						$disabled    = true;
-						$force_value = false;
+						$w3tc_disabled    = true;
+						$w3tc_force_value = false;
 					}
 
 					$this->checkbox(
 						'cdn.autoupload.enabled',
-						$disabled,
+						$w3tc_disabled,
 						'',
 						true,
-						$force_value
+						$w3tc_force_value
 					);
 					?>
 					<?php Util_Ui::e_config_label( 'cdn.autoupload.enabled' ); ?></label>

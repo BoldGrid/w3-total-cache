@@ -1,14 +1,21 @@
 <?php
+/**
+ * File: latest_ajax.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<?php foreach ( $items as $item ) : ?>
+<?php foreach ( $items as $w3tc_item ) : ?>
 <h4>
-	<a href="<?php echo esc_url( $item['link'] ); ?>">
-		<?php echo esc_html( wp_strip_all_tags( $item['title'] ) ); ?>
+	<a href="<?php echo esc_url( $w3tc_item['link'] ); ?>">
+		<?php echo esc_html( wp_strip_all_tags( $w3tc_item['title'] ) ); ?>
 	</a>
 </h4>
 <?php endforeach ?>

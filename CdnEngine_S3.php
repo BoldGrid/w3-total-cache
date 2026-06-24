@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -68,12 +69,12 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Initializes the CdnEngine_S3 class with a given configuration.
 	 *
-	 * @param array $config Configuration array for S3 integration.
+	 * @param array $w3tc_config Configuration array for S3 integration.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'key'             => '',
 				'secret'          => '',
@@ -81,10 +82,10 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				'bucket_location' => '',
 				'cname'           => array(),
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 	}
 
 	/**
@@ -101,10 +102,10 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			$scheme = $this->_get_scheme();
 
 			// it does not support '+', requires '%2B'.
-			$path = str_replace( '+', '%2B', $path );
-			$url  = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+			$path     = str_replace( '+', '%2B', $path );
+			$w3tc_url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -179,20 +180,20 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			// process at least one item before timeout so that progress goes on.
 			if ( ! empty( $results ) && ! is_null( $timeout_time ) && time() > $timeout_time ) {
 				return 'timeout';
 			}
 
-			$results[] = $this->_upload( $file, $force_rewrite );
+			$results[] = $this->_upload( $w3tc_file, $force_rewrite );
 
 			if ( $this->_config['compression'] && $this->_may_gzip( $remote_path ) ) {
-				$file['remote_path_gzip'] = $remote_path . $this->_gzip_extension;
-				$results[]                = $this->_upload_gzip( $file, $force_rewrite );
+				$w3tc_file['remote_path_gzip'] = $remote_path . $this->_gzip_extension;
+				$results[]                     = $this->_upload_gzip( $w3tc_file, $force_rewrite );
 			}
 		}
 
@@ -202,16 +203,16 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Uploads a single file to the S3 bucket.
 	 *
-	 * @param array $file           File descriptor containing local and remote paths.
+	 * @param array $w3tc_file           File descriptor containing local and remote paths.
 	 * @param bool  $force_rewrite  Whether to overwrite the file if it exists.
 	 *
 	 * @return array Result of the upload operation.
 	 *
 	 * @throws \Aws\Exception\AwsException If an unexpected error occurs during the upload process.
 	 */
-	private function _upload( $file, $force_rewrite = false ) {
-		$local_path  = $file['local_path'];
-		$remote_path = $file['remote_path'];
+	private function _upload( $w3tc_file, $force_rewrite = false ) {
+		$local_path  = $w3tc_file['local_path'];
+		$remote_path = $w3tc_file['remote_path'];
 
 		if ( ! file_exists( $local_path ) ) {
 			return $this->_get_result(
@@ -219,7 +220,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				'Source file not found.',
-				$file
+				$w3tc_file
 			);
 		}
 
@@ -242,7 +243,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 							$remote_path,
 							W3TC_CDN_RESULT_OK,
 							'Object up-to-date.',
-							$file
+							$w3tc_file
 						);
 					}
 				} catch ( \Aws\Exception\AwsException $ex ) {
@@ -252,8 +253,8 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				}
 			}
 
-			$headers = $this->get_headers_for_file( $file );
-			$result  = $this->_put_object(
+			$headers     = $this->get_headers_for_file( $w3tc_file );
+			$w3tc_result = $this->_put_object(
 				array(
 					'Key'        => $remote_path,
 					'SourceFile' => $local_path,
@@ -266,7 +267,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_OK,
 				'OK',
-				$file
+				$w3tc_file
 			);
 		} catch ( \Exception $ex ) {
 			$error = sprintf( 'Unable to put object (%s).', $ex->getMessage() );
@@ -276,7 +277,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				$error,
-				$file
+				$w3tc_file
 			);
 		}
 	}
@@ -284,16 +285,16 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Uploads a gzipped version of the file to the S3 bucket.
 	 *
-	 * @param array $file           File descriptor containing local and remote paths.
+	 * @param array $w3tc_file           File descriptor containing local and remote paths.
 	 * @param bool  $force_rewrite  Whether to overwrite the file if it exists.
 	 *
 	 * @return array Result of the upload operation.
 	 *
 	 * @throws \Aws\Exception\AwsException If an unexpected error occurs during the upload process.
 	 */
-	private function _upload_gzip( $file, $force_rewrite = false ) {
-		$local_path  = $file['local_path'];
-		$remote_path = $file['remote_path_gzip'];
+	private function _upload_gzip( $w3tc_file, $force_rewrite = false ) {
+		$local_path  = $w3tc_file['local_path'];
+		$remote_path = $w3tc_file['remote_path_gzip'];
 
 		if ( ! function_exists( 'gzencode' ) ) {
 			return $this->_get_result(
@@ -301,7 +302,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				"GZIP library doesn't exist.",
-				$file
+				$w3tc_file
 			);
 		}
 
@@ -311,7 +312,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				'Source file not found.',
-				$file
+				$w3tc_file
 			);
 		}
 
@@ -323,11 +324,11 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				'Unable to read file.',
-				$file
+				$w3tc_file
 			);
 		}
 
-		$data = gzencode( $contents );
+		$w3tc_data = gzencode( $contents );
 
 		try {
 			if ( ! $force_rewrite ) {
@@ -339,7 +340,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 						)
 					);
 
-					$hash    = '"' . md5( $data ) . '"';
+					$hash    = '"' . md5( $w3tc_data ) . '"';
 					$s3_hash = ( isset( $info['ETag'] ) ? $info['ETag'] : '' );
 
 					if ( $hash === $s3_hash ) {
@@ -348,7 +349,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 							$remote_path,
 							W3TC_CDN_RESULT_OK,
 							'Object up-to-date.',
-							$file
+							$w3tc_file
 						);
 					}
 				} catch ( \Aws\Exception\AwsException $ex ) {
@@ -358,13 +359,13 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				}
 			}
 
-			$headers                     = $this->get_headers_for_file( $file );
+			$headers                     = $this->get_headers_for_file( $w3tc_file );
 			$headers['Content-Encoding'] = 'gzip';
 
-			$result = $this->_put_object(
+			$w3tc_result = $this->_put_object(
 				array(
 					'Key'  => $remote_path,
-					'Body' => $data,
+					'Body' => $w3tc_data,
 				),
 				$headers
 			);
@@ -374,7 +375,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_OK,
 				'OK',
-				$file
+				$w3tc_file
 			);
 		} catch ( \Exception $ex ) {
 			$error = sprintf( 'Unable to put object (%s).', $ex->getMessage() );
@@ -384,7 +385,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
 				$error,
-				$file
+				$w3tc_file
 			);
 		}
 	}
@@ -392,28 +393,28 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Uploads an object to the S3 bucket with specific headers.
 	 *
-	 * @param array $data    Data to be uploaded, including file path and bucket details.
+	 * @param array $w3tc_data    Data to be uploaded, including file path and bucket details.
 	 * @param array $headers Headers for the object being uploaded.
 	 *
 	 * @return \Aws\Result Result of the putObject operation.
 	 */
-	private function _put_object( $data, $headers ) {
+	private function _put_object( $w3tc_data, $headers ) {
 		if ( ! empty( $this->_config['s3_acl'] ) ) {
-			$data['ACL'] = 'public-read';
+			$w3tc_data['ACL'] = 'public-read';
 		}
 
-		$data['Bucket'] = $this->_config['bucket'];
+		$w3tc_data['Bucket'] = $this->_config['bucket'];
 
-		$data['ContentType'] = $headers['Content-Type'];
+		$w3tc_data['ContentType'] = $headers['Content-Type'];
 
 		if ( isset( $headers['Content-Encoding'] ) ) {
-			$data['ContentEncoding'] = $headers['Content-Encoding'];
+			$w3tc_data['ContentEncoding'] = $headers['Content-Encoding'];
 		}
 		if ( isset( $headers['Cache-Control'] ) ) {
-			$data['CacheControl'] = $headers['Cache-Control'];
+			$w3tc_data['CacheControl'] = $headers['Cache-Control'];
 		}
 
-		return $this->api->putObject( $data );
+		return $this->api->putObject( $w3tc_data );
 	}
 
 	/**
@@ -434,9 +435,9 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$local_path  = $file['local_path'];
-			$remote_path = $file['remote_path'];
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $w3tc_file['local_path'];
+			$remote_path = $w3tc_file['remote_path'];
 
 			try {
 				$this->api->deleteObject(
@@ -450,7 +451,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_OK,
 					'OK',
-					$file
+					$w3tc_file
 				);
 			} catch ( \Exception $ex ) {
 				$results[] = $this->_get_result(
@@ -458,7 +459,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete object (%s).', $ex->getMessage() ),
-					$file
+					$w3tc_file
 				);
 			}
 
@@ -477,7 +478,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 						$remote_path_gzip,
 						W3TC_CDN_RESULT_OK,
 						'OK',
-						$file
+						$w3tc_file
 					);
 				} catch ( \Exception $ex ) {
 					$results[] = $this->_get_result(
@@ -485,7 +486,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 						$remote_path_gzip,
 						W3TC_CDN_RESULT_ERROR,
 						sprintf( 'Unable to delete object (%s).', $ex->getMessage() ),
-						$file
+						$w3tc_file
 					);
 				}
 			}
@@ -508,7 +509,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			return false;
 		}
 
-		$key = 'test_s3_' . md5( time() );
+		$w3tc_key = 'test_s3_' . md5( time() );
 
 		$this->_init();
 		$buckets = $this->api->listBuckets();
@@ -533,20 +534,20 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		}
 
 		if ( ! empty( $this->_config['s3_acl'] ) ) {
-			$result = $this->api->putObject(
+			$w3tc_result = $this->api->putObject(
 				array(
 					'ACL'    => $this->_config['s3_acl'],
 					'Bucket' => $this->_config['bucket'],
-					'Key'    => $key,
-					'Body'   => $key,
+					'Key'    => $w3tc_key,
+					'Body'   => $w3tc_key,
 				)
 			);
 		} else {
-			$result = $this->api->putObject(
+			$w3tc_result = $this->api->putObject(
 				array(
 					'Bucket' => $this->_config['bucket'],
-					'Key'    => $key,
-					'Body'   => $key,
+					'Key'    => $w3tc_key,
+					'Body'   => $w3tc_key,
 				)
 			);
 		}
@@ -554,17 +555,17 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		$object = $this->api->getObject(
 			array(
 				'Bucket' => $this->_config['bucket'],
-				'Key'    => $key,
+				'Key'    => $w3tc_key,
 			)
 		);
 
-		if ( (string) $object['Body'] !== $key ) {
+		if ( (string) $object['Body'] !== $w3tc_key ) {
 			$error = 'Objects are not equal.';
 
 			$this->api->deleteObject(
 				array(
 					'Bucket' => $this->_config['bucket'],
-					'Key'    => $key,
+					'Key'    => $w3tc_key,
 				)
 			);
 
@@ -574,7 +575,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		$this->api->deleteObject(
 			array(
 				'Bucket' => $this->_config['bucket'],
-				'Key'    => $key,
+				'Key'    => $w3tc_key,
 			)
 		);
 
@@ -593,17 +594,17 @@ class CdnEngine_S3 extends CdnEngine_Base {
 
 		switch ( $location ) {
 			case 'us-east-1':
-				$region = '';
+				$w3tc_region = '';
 				break;
 			case 'us-east-1-e':
-				$region = 'us-east-1.';
+				$w3tc_region = 'us-east-1.';
 				break;
 			default:
-				$region = $location . '.';
+				$w3tc_region = $location . '.';
 				break;
 		}
 
-		return $region;
+		return $w3tc_region;
 	}
 
 	/**

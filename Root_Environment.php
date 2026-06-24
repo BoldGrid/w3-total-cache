@@ -16,18 +16,19 @@ class Root_Environment {
 	/**
 	 * Fixes the environment configuration in the WordPress admin panel.
 	 *
-	 * @param Config $config           W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config           W3TC Config containing relevant settings.
 	 * @param bool   $force_all_checks Whether to force all environment checks.
 	 *
 	 * @return void
 	 *
 	 * @throws Util_Environment_Exceptions If one or more handlers fail during the fix process.
 	 */
-	public function fix_in_wpadmin( $config, $force_all_checks = false ) {
-		$exs          = new Util_Environment_Exceptions();
-		$fix_on_event = false;
+	public function fix_in_wpadmin( $w3tc_config, $force_all_checks = false ) {
+		$exs                   = new Util_Environment_Exceptions();
+		$nginx_rules_before_fp = Util_Rule::nginx_rules_file_fingerprint();
+		$fix_on_event          = false;
 		if ( Util_Environment::is_wpmu() && Util_Environment::blog_id() !== 0 ) {
-			$md5_string = $config->get_md5();
+			$md5_string = $w3tc_config->get_md5();
 			if ( get_transient( 'w3tc_config_changes' ) !== $md5_string ) {
 				$fix_on_event = true;
 				set_transient( 'w3tc_config_changes', $md5_string, 3600 );
@@ -37,9 +38,9 @@ class Root_Environment {
 		// call plugin-related handlers.
 		foreach ( $this->get_handlers() as $h ) {
 			try {
-				$h->fix_on_wpadmin_request( $config, $force_all_checks );
+				$h->fix_on_wpadmin_request( $w3tc_config, $force_all_checks );
 				if ( $fix_on_event ) {
-					$this->fix_on_event( $config, 'admin_request' );
+					$this->fix_on_event( $w3tc_config, 'admin_request' );
 				}
 			} catch ( Util_Environment_Exceptions $ex ) {
 				$exs->push( $ex );
@@ -47,7 +48,7 @@ class Root_Environment {
 		}
 
 		try {
-			do_action( 'w3tc_environment_fix_on_wpadmin_request', $config, $force_all_checks );
+			do_action( 'w3tc_environment_fix_on_wpadmin_request', $w3tc_config, $force_all_checks );
 		} catch ( Util_Environment_Exceptions $ex ) {
 			$exs->push( $ex );
 		}
@@ -55,12 +56,14 @@ class Root_Environment {
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
 		}
+
+		Util_Rule::finalize_nginx_restart_notice_after_environment_fix( $nginx_rules_before_fp );
 	}
 
 	/**
 	 * Fixes the environment configuration based on specific events.
 	 *
-	 * @param Config      $config     W3TC Config containing relevant settings.
+	 * @param Config      $w3tc_config     W3TC Config containing relevant settings.
 	 * @param string      $event      Name of the triggering event.
 	 * @param Config|null $old_config Optional old W3TC Config object for comparison.
 	 *
@@ -68,20 +71,21 @@ class Root_Environment {
 	 *
 	 * @throws Util_Environment_Exceptions If one or more handlers fail during the fix process.
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$exs = new Util_Environment_Exceptions();
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		$exs                   = new Util_Environment_Exceptions();
+		$nginx_rules_before_fp = Util_Rule::nginx_rules_file_fingerprint();
 
 		// call plugin-related handlers.
 		foreach ( $this->get_handlers() as $h ) {
 			try {
-				$h->fix_on_event( $config, $event );
+				$h->fix_on_event( $w3tc_config, $event );
 			} catch ( Util_Environment_Exceptions $ex ) {
 				$exs->push( $ex );
 			}
 		}
 
 		try {
-			do_action( 'w3tc_environment_fix_on_event', $config, $event );
+			do_action( 'w3tc_environment_fix_on_event', $w3tc_config, $event );
 		} catch ( Util_Environment_Exceptions $ex ) {
 			$exs->push( $ex );
 		}
@@ -89,6 +93,8 @@ class Root_Environment {
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
 		}
+
+		Util_Rule::finalize_nginx_restart_notice_after_environment_fix( $nginx_rules_before_fp );
 	}
 
 	/**
@@ -124,15 +130,15 @@ class Root_Environment {
 	/**
 	 * Retrieves the rules required for the environment configuration.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return array Array of descriptors for required rewrite rules.
 	 */
-	public function get_required_rules( $config ) {
+	public function get_required_rules( $w3tc_config ) {
 		$required_rules = array();
 		foreach ( $this->get_handlers() as $h ) {
 			if ( method_exists( $h, 'get_required_rules' ) ) {
-				$required_rules_current = $h->get_required_rules( $config );
+				$required_rules_current = $h->get_required_rules( $w3tc_config );
 
 				if ( ! is_null( $required_rules_current ) ) {
 					$required_rules = array_merge( $required_rules, $required_rules_current );
@@ -140,12 +146,12 @@ class Root_Environment {
 			}
 		}
 
-		$required_rules = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $config );
+		$required_rules = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $w3tc_config );
 
 		$rewrite_rules_descriptors = array();
 
-		foreach ( $required_rules as $descriptor ) {
-			$filename = $descriptor['filename'];
+		foreach ( $required_rules as $w3tc_descriptor ) {
+			$filename = $w3tc_descriptor['filename'];
 
 			if ( isset( $rewrite_rules_descriptors[ $filename ] ) ) {
 				$content = $rewrite_rules_descriptors[ $filename ]['content'];
@@ -153,15 +159,15 @@ class Root_Environment {
 				$content = array();
 			}
 
-			if ( ! isset( $descriptor['position'] ) ) {
-				$content[] = $descriptor['content'];
+			if ( ! isset( $w3tc_descriptor['position'] ) ) {
+				$content[] = $w3tc_descriptor['content'];
 			} else {
-				$position = $descriptor['position'];
+				$position = $w3tc_descriptor['position'];
 
 				if ( isset( $content[ $position ] ) ) {
-					$content[ $position ] .= $descriptor['content'];
+					$content[ $position ] .= $w3tc_descriptor['content'];
 				} else {
-					$content[ $position ] = $descriptor['content'];
+					$content[ $position ] = $w3tc_descriptor['content'];
 				}
 			}
 
@@ -172,10 +178,10 @@ class Root_Environment {
 		}
 
 		$rewrite_rules_descriptors_out = array();
-		foreach ( $rewrite_rules_descriptors as $filename => $descriptor ) {
+		foreach ( $rewrite_rules_descriptors as $filename => $w3tc_descriptor ) {
 			$rewrite_rules_descriptors_out[ $filename ] = array(
 				'filename' => $filename,
-				'content'  => implode( '', $descriptor['content'] ),
+				'content'  => implode( '', $w3tc_descriptor['content'] ),
 			);
 		}
 
@@ -190,7 +196,7 @@ class Root_Environment {
 	 * @return array Array of handler objects for managing environment configurations.
 	 */
 	private function get_handlers() {
-		$a = array(
+		$w3tc_a = array(
 			new Generic_Environment(),
 			new Minify_Environment(),
 			new PgCache_Environment(),
@@ -202,28 +208,28 @@ class Root_Environment {
 			new Extension_AlwaysCached_Environment(),
 		);
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
 	 * Retrieves additional instructions for the environment configuration.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return array Array of descriptors for additional instructions, grouped by area.
 	 */
-	public function get_other_instructions( $config ) {
+	public function get_other_instructions( $w3tc_config ) {
 		$instructions_descriptors = array();
 
 		foreach ( $this->get_handlers() as $h ) {
 			if ( method_exists( $h, 'get_instructions' ) ) {
-				$instructions = $h->get_instructions( $config );
+				$instructions = $h->get_instructions( $w3tc_config );
 				if ( ! is_null( $instructions ) ) {
-					foreach ( $instructions as $descriptor ) {
-						$area                                = $descriptor['area'];
-						$instructions_descriptors[ $area ][] = array(
-							'title'   => $descriptor['title'],
-							'content' => $descriptor['content'],
+					foreach ( $instructions as $w3tc_descriptor ) {
+						$w3tc_area                                = $w3tc_descriptor['area'];
+						$instructions_descriptors[ $w3tc_area ][] = array(
+							'title'   => $w3tc_descriptor['title'],
+							'content' => $w3tc_descriptor['content'],
 						);
 					}
 				}
@@ -242,16 +248,16 @@ class Root_Environment {
 	 *
 	 * @since 2.8.3
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return void
 	 */
-	public static function delete_plugin_data( $config ) {
+	public static function delete_plugin_data( $w3tc_config ) {
 		global $wpdb;
 
-		$license_key = $config->get_string( 'plugin.license_key' );
-		if ( ! empty( $license_key ) ) {
-			Licensing_Core::deactivate_license( $license_key );
+		$w3tc_license_key = $w3tc_config->get_string( 'plugin.license_key' );
+		if ( ! empty( $w3tc_license_key ) ) {
+			Licensing_Core::deactivate_license( $w3tc_license_key );
 		}
 
 		// Define prefixes for options and transients.

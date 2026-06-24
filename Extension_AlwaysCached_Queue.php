@@ -11,6 +11,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
 	define( 'W3TC_ALWAYSCACHED_TABLE_QUEUE', 'w3tc_alwayscached_queue' );
 }
@@ -27,20 +28,20 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string  $url       URL.
-	 * @param array   $extension Extension data.
+	 * @param string  $w3tc_url       URL.
+	 * @param array   $w3tc_extension Extension data.
 	 * @param integer $priority  Priority.
 	 *
 	 * @return void
 	 */
-	public static function add( $url, $extension, $priority = 100 ) {
+	public static function add( $w3tc_url, $w3tc_extension, $priority = 100 ) {
 		// Compress page_key_extension by removing empty values.
-		$extension = array_filter( $extension );
+		$w3tc_extension = array_filter( $w3tc_extension );
 
 		global $wpdb;
 
-		$table = self::table_name();
-		$key   = self::key_by_url( $url );
+		$table    = self::table_name();
+		$w3tc_key = self::key_by_url( $w3tc_url );
 
 		/**
 		 * The page_key_extension has to be updated since for :flush operation it contains timestamp
@@ -58,12 +59,12 @@ class Extension_AlwaysCached_Queue {
 					ON DUPLICATE KEY UPDATE
 					extension = %s,
 					requests_count = requests_count + 1",
-				$key,
-				$url,
-				serialize( $extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				$w3tc_key,
+				$w3tc_url,
+				serialize( $w3tc_extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				$priority,
 				gmdate( 'Y-m-d G:i:s' ),
-				serialize( $extension ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				serialize( $w3tc_extension ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			)
 		);
 	}
@@ -73,11 +74,11 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return array|object|null|void
 	 */
-	public static function get_by_url( $url ) {
+	public static function get_by_url( $w3tc_url ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -87,7 +88,7 @@ class Extension_AlwaysCached_Queue {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM `$table` WHERE `key` = %s",
-				self::key_by_url( $url )
+				self::key_by_url( $w3tc_url )
 			),
 			ARRAY_A
 		);
@@ -108,7 +109,7 @@ class Extension_AlwaysCached_Queue {
 		// Concurrency-safe extraction.
 		for ( $n = 0; $n < 10; $n++ ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$item = $wpdb->get_row(
+			$w3tc_item = $wpdb->get_row(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					"SELECT * FROM `$table`
@@ -120,28 +121,28 @@ class Extension_AlwaysCached_Queue {
 				ARRAY_A
 			);
 
-			if ( empty( $item ) ) {
+			if ( empty( $w3tc_item ) ) {
 				return null;
 			}
 
 			$new_to_process = gmdate( 'Y-m-d G:i:s', time() + 300 );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$count = $wpdb->query(
+			$w3tc_count = $wpdb->query(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					"UPDATE `$table`
 						SET to_process = %s
 						WHERE `key` = %s AND to_process = %s",
 					$new_to_process,
-					$item['key'],
-					$item['to_process']
+					$w3tc_item['key'],
+					$w3tc_item['to_process']
 				)
 			);
 
-			if ( 1 === $count ) {
-				$item['to_process'] = $new_to_process;
-				return $item;
+			if ( 1 === $w3tc_count ) {
+				$w3tc_item['to_process'] = $new_to_process;
+				return $w3tc_item;
 			}
 		}
 
@@ -153,11 +154,11 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $item Queue item.
+	 * @param array $w3tc_item Queue item.
 	 *
 	 * @return void
 	 */
-	public static function pop_item_finish( $item ) {
+	public static function pop_item_finish( $w3tc_item ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -172,9 +173,9 @@ class Extension_AlwaysCached_Queue {
 					`key` = %s AND
 					to_process = %s AND
 					requests_count = %d",
-				$item['key'],
-				$item['to_process'],
-				$item['requests_count']
+				$w3tc_item['key'],
+				$w3tc_item['to_process'],
+				$w3tc_item['requests_count']
 			)
 		);
 	}
@@ -185,13 +186,13 @@ class Extension_AlwaysCached_Queue {
 	 * @since 2.8.0
 	 *
 	 * @param string  $mode         Queue mode.
-	 * @param integer $offset       Pagination offset.
-	 * @param integer $limit        Pagination page entries limit.
+	 * @param integer $w3tc_offset       Pagination offset.
+	 * @param integer $w3tc_limit        Pagination page entries limit.
 	 * @param string  $search_query Search query.
 	 *
 	 * @return array|object|null
 	 */
-	public static function rows( $mode, $offset = 0, $limit = 15, $search_query = '' ) {
+	public static function rows( $mode, $w3tc_offset = 0, $w3tc_limit = 15, $search_query = '' ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -207,8 +208,8 @@ class Extension_AlwaysCached_Queue {
 					LIMIT %d OFFSET %d",
 				gmdate( 'Y-m-d G:i:s' ),
 				'%' . $wpdb->esc_like( $search_query ) . '%',
-				$limit,
-				$offset
+				$w3tc_limit,
+				$w3tc_offset
 			),
 			ARRAY_A
 		);
@@ -287,11 +288,11 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $item Item data.
+	 * @param array $w3tc_item Item data.
 	 *
 	 * @return bool
 	 */
-	public static function exists_higher_priority( $item ) {
+	public static function exists_higher_priority( $w3tc_item ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -305,7 +306,7 @@ class Extension_AlwaysCached_Queue {
 					ORDER BY priority, to_process
 					LIMIT 1",
 				gmdate( 'Y-m-d G:i:s' ),
-				$item['priority']
+				$w3tc_item['priority']
 			),
 			ARRAY_A
 		);
@@ -318,12 +319,12 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string $url URL.
+	 * @param string $w3tc_url URL.
 	 *
 	 * @return string
 	 */
-	private static function key_by_url( $url ) {
-		return strlen( $url ) > 50 ? md5( $url ) : $url;
+	private static function key_by_url( $w3tc_url ) {
+		return strlen( $w3tc_url ) > 50 ? md5( $w3tc_url ) : $w3tc_url;
 	}
 
 	/**

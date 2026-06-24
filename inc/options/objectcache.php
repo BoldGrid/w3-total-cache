@@ -1,14 +1,21 @@
 <?php
+/**
+ * File: objectcache.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <?php
-$objectcache_doc_url         = 'https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/';
-$objectcache_learn_more_link = static function ( $anchor, $setting_label ) use ( $objectcache_doc_url ) {
+$w3tc_objectcache_doc_url           = 'https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/';
+$w3tc_objectcache_learn_more_link   = static function ( $anchor, $setting_label ) use ( $w3tc_objectcache_doc_url ) {
 	if ( empty( $anchor ) || empty( $setting_label ) ) {
 		return '';
 	}
@@ -19,9 +26,9 @@ $objectcache_learn_more_link = static function ( $anchor, $setting_label ) use (
 		$setting_label
 	);
 
-	return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $objectcache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+	return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $w3tc_objectcache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
 };
-$objectcache_anchor_tags     = array(
+$w3tc_objectcache_anchor_tags       = array(
 	'a'    => array(
 		'class'  => array(),
 		'href'   => array(),
@@ -32,15 +39,15 @@ $objectcache_anchor_tags     = array(
 		'class' => array(),
 	),
 );
-$objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) use ( $objectcache_learn_more_link ) {
+$w3tc_objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) use ( $w3tc_objectcache_learn_more_link ) {
 	if ( empty( $anchor ) ) {
 		return '';
 	}
 
-	$label = $config_key ? Util_Ui::config_label( $config_key ) : '';
-	$label = $label ? wp_strip_all_tags( $label ) : $anchor;
+	$w3tc_label = $config_key ? Util_Ui::config_label( $config_key ) : '';
+	$w3tc_label = $w3tc_label ? wp_strip_all_tags( $w3tc_label ) : $anchor;
 
-	return $objectcache_learn_more_link( $anchor, $label );
+	return $w3tc_objectcache_learn_more_link( $anchor, $w3tc_label );
 };
 ?>
 
@@ -73,10 +80,10 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'objectcache.engine' ) ) {
-				$module = 'objectcache';
+				$w3tc_module = 'objectcache';
 				include W3TC_INC_DIR . '/options/parts/memcached.php';
 			} elseif ( 'redis' === $this->_config->get_string( 'objectcache.engine' ) ) {
-				$module = 'objectcache';
+				$w3tc_module = 'objectcache';
 				include W3TC_INC_DIR . '/options/parts/redis.php';
 			}
 			?>
@@ -87,7 +94,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__lifetime" value="<?php echo esc_attr( $this->_config->get_integer( 'objectcache.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'default-lifetime-of-cache-objects', 'objectcache.lifetime' ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'default-lifetime-of-cache-objects', 'objectcache.lifetime' ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -98,7 +105,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__file__gc" value="<?php echo esc_attr( $this->_config->get_integer( 'objectcache.file.gc' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description">
 						<?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'garbage-collection-interval', 'objectcache.file.gc' ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'garbage-collection-interval', 'objectcache.file.gc' ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -109,7 +116,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__groups__global" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.groups.global' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Groups shared amongst sites in network mode.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'global-groups', 'objectcache.groups.global' ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'global-groups', 'objectcache.groups.global' ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -120,7 +127,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 						<?php Util_Ui::sealing_disabled( 'objectcache.' ); ?> name="objectcache__groups__nonpersistent" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.groups.nonpersistent' ) ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Groups that should not be cached.', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'non-persistent-groups', 'objectcache.groups.nonpersistent' ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'non-persistent-groups', 'objectcache.groups.nonpersistent' ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</td>
 			</tr>
@@ -130,7 +137,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ); ?><?php esc_html_e( 'Enable caching for wp-admin requests', 'w3-total-cache' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Enabling this option will increase wp-admin performance, but may cause side-effects', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'enable-caching-for-wp-admin-requests', __( 'Enable caching for wp-admin requests', 'w3-total-cache' ) ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'enable-caching-for-wp-admin-requests', __( 'Enable caching for wp-admin requests', 'w3-total-cache' ) ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -139,7 +146,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 					<?php $this->checkbox( 'objectcache.fallback_transients' ); ?><?php esc_html_e( 'Store transients in database', 'w3-total-cache' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Store transients in database even when external cache is used, which allows transient values to survive object cache cleaning/expiration', 'w3-total-cache' ); ?>
-						<?php echo wp_kses( $objectcache_learn_more_output( 'store-transients-in-database', __( 'Store transients in database', 'w3-total-cache' ) ), $objectcache_anchor_tags ); ?>
+						<?php echo wp_kses( $w3tc_objectcache_learn_more_output( 'store-transients-in-database', __( 'Store transients in database', 'w3-total-cache' ) ), $w3tc_objectcache_anchor_tags ); ?>
 					</p>
 				</th>
 			</tr>
@@ -177,7 +184,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 					'control'        => 'checkbox',
 					'disabled'       => ! $objectcache_enabled,
 					'description'    => esc_html__( 'WP-CLI already uses Memcached, Redis, and other persistent engines. Enable this only if your object cache engine is Disk and you want WP-CLI to use it.', 'w3-total-cache' ) .
-						wp_kses( $objectcache_learn_more_output( 'allow-objectcache-wpcli-disk', 'objectcache.wpcli_disk' ), $objectcache_anchor_tags ),
+						wp_kses( $w3tc_objectcache_learn_more_output( 'allow-objectcache-wpcli-disk', 'objectcache.wpcli_disk' ), $w3tc_objectcache_anchor_tags ),
 				)
 			);
 			?>
@@ -229,26 +236,26 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 				)
 			);
 
-			$time_options = array();
-			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-					$time_label                  = $scheduled_time->format( 'g:i a' );
-					$time_options[ $time_value ] = $time_label;
+			$w3tc_time_options = array();
+			for ( $w3tc_hour = 0; $w3tc_hour < 24; $w3tc_hour++ ) {
+				foreach ( array( '00', '30' ) as $w3tc_minute ) {
+					$w3tc_time_value                       = $w3tc_hour * 60 + intval( $w3tc_minute );
+					$w3tc_scheduled_time                   = new \DateTime( "{$w3tc_hour}:{$w3tc_minute}", wp_timezone() );
+					$w3tc_time_label                       = $w3tc_scheduled_time->format( 'g:i a' );
+					$w3tc_time_options[ $w3tc_time_value ] = $w3tc_time_label;
 				}
 			}
 
-			$wp_disabled = ! $this->_config->get_boolean( 'objectcache.wp_cron' );
+			$w3tc_wp_disabled = ! $this->_config->get_boolean( 'objectcache.wp_cron' );
 
 			Util_Ui::config_item(
 				array(
 					'key'              => 'objectcache.wp_cron_time',
 					'label'            => Util_Ui::config_label( 'objectcache.wp_cron_time' ),
 					'control'          => 'selectbox',
-					'selectbox_values' => $time_options,
+					'selectbox_values' => $w3tc_time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-					'disabled'         => ! $objectcache_enabled || $wp_disabled,
+					'disabled'         => ! $objectcache_enabled || $w3tc_wp_disabled,
 				)
 			);
 
@@ -264,7 +271,7 @@ $objectcache_learn_more_output = static function ( $anchor, $config_key = '' ) u
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-					'disabled'         => ! $objectcache_enabled || $wp_disabled,
+					'disabled'         => ! $objectcache_enabled || $w3tc_wp_disabled,
 				)
 			);
 			?>

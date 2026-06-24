@@ -52,17 +52,17 @@ class Generic_AdminActions_Flush {
 	 * @return void
 	 */
 	public function w3tc_flush_current_page() {
-		$url = filter_input( INPUT_GET, 'url', FILTER_SANITIZE_URL );
-		if ( empty( $url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
-			$url = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+		$w3tc_url = filter_input( INPUT_GET, 'url', FILTER_SANITIZE_URL );
+		if ( empty( $w3tc_url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
+			$w3tc_url = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 
-		w3tc_flush_url( $url );
+		w3tc_flush_url( $w3tc_url );
 
 		?>
 		<div style="text-align: center; margin-top: 30px">
 			<h3><?php esc_html_e( 'Page has been flushed successfully', 'w3-total-cache' ); ?></h3>
-			<a id="w3tc_return" href="<?php echo esc_attr( $url ); ?>"><?php esc_html_e( 'Return', 'w3-total-cache' ); ?></a>
+			<a id="w3tc_return" href="<?php echo esc_attr( $w3tc_url ); ?>"><?php esc_html_e( 'Return', 'w3-total-cache' ); ?></a>
 		</div>
 		<script>
 			setTimeout(function() {
@@ -409,9 +409,9 @@ class Generic_AdminActions_Flush {
 		$status = $flush->execute_delayed_operations();
 
 		$errors = array();
-		foreach ( $status as $i ) {
-			if ( isset( $i['error'] ) ) {
-				$errors[] = $i['error'];
+		foreach ( $status as $w3tc_i ) {
+			if ( isset( $w3tc_i['error'] ) ) {
+				$errors[] = $w3tc_i['error'];
 			}
 		}
 

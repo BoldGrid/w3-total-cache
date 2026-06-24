@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -44,7 +45,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<td>
 					<input name="access_key" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
-						value="<?php echo esc_attr( $config->get_string( 'cdnfsd.cloudfront.access_key' ) ); ?>" />
+						value="<?php echo esc_attr( $w3tc_config->get_string( 'cdnfsd.cloudfront.access_key' ) ); ?>" />
 				</td>
 				</tr>
 				<tr>
@@ -52,7 +53,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<td>
 						<input name="secret_key" type="text" class="w3tc-ignore-change"
 							style="width: 550px"
-							value="<?php echo esc_attr( $config->get_string( 'cdnfsd.cloudfront.secret_key' ) ); ?>" />
+							value="<?php echo esc_attr( $w3tc_config->get_string( 'cdnfsd.cloudfront.secret_key' ) ); ?>" />
 					</td>
 				</tr>
 		</table>

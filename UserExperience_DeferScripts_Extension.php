@@ -11,12 +11,13 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * UserExperience DeferScripts Extension.
  *
  * phpcs:disable WordPress.WP.AlternativeFunctions
  *
- * @since 2.4.2
+ * @since 2.5.0
  */
 class UserExperience_DeferScripts_Extension {
 	/**
@@ -24,7 +25,7 @@ class UserExperience_DeferScripts_Extension {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Mutator.
@@ -36,16 +37,16 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * User Experience DeferScripts constructor.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 */
 	public function __construct() {
-		$this->config = Dispatcher::config();
+		$this->w3tc_config = Dispatcher::config();
 	}
 
 	/**
 	 * Runs User Experience DeferScripts feature.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @return void
 	 */
@@ -57,8 +58,8 @@ class UserExperience_DeferScripts_Extension {
 		*/
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
-			$this->config->set_extension_active_frontend( 'user-experience-defer-scripts', false );
+		if ( ! Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+			$this->w3tc_config->set_extension_active_frontend( 'user-experience-defer-scripts', false );
 			return;
 		}
 
@@ -71,7 +72,7 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Processes the page content buffer to defer JS.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param string $buffer page content buffer.
 	 *
@@ -109,7 +110,7 @@ class UserExperience_DeferScripts_Extension {
 			return $buffer;
 		}
 
-		$this->mutator = new UserExperience_DeferScripts_Mutator( $this->config );
+		$this->mutator = new UserExperience_DeferScripts_Mutator( $this->w3tc_config );
 
 		$buffer = $this->mutator->run( $buffer );
 
@@ -129,7 +130,7 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Checks if the request can be processed for defer JS.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param boolean $can_process flag representing if defer JS can be executed.
 	 *
@@ -163,7 +164,7 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Adds defer JS message to W3TC footer comment.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param array $strings array of W3TC footer comments.
 	 *
@@ -177,14 +178,14 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Embeds the defer JS script in buffer.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param string $buffer page content buffer.
 	 *
 	 * @return string
 	 */
 	private function embed_script( $buffer ) {
-		$config_timeout = $this->config->get_integer(
+		$config_timeout = $this->w3tc_config->get_integer(
 			array(
 				'user-experience-defer-scripts',
 				'timeout',
@@ -213,7 +214,7 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Filters script tags that are flaged as deferred. This is used to prevent Minify from touching scripts deferred by this feature.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param array $script_tags array of script tags.
 	 *
@@ -230,7 +231,7 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Renders the user experience defer JS settings page.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @return void
 	 */
@@ -241,40 +242,40 @@ class UserExperience_DeferScripts_Extension {
 	/**
 	 * Specify config key typing for fields that need it.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
-	 * @param mixed $descriptor Descriptor.
-	 * @param mixed $key Compound key array.
+	 * @param mixed $w3tc_descriptor Descriptor.
+	 * @param mixed $w3tc_key Compound key array.
 	 *
 	 * @return array
 	 */
-	public function w3tc_config_key_descriptor( $descriptor, $key ) {
-		if ( is_array( $key ) && 'user-experience-defer-scripts.includes' === implode( '.', $key ) ) {
-			$descriptor = array( 'type' => 'array' );
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) && 'user-experience-defer-scripts.includes' === implode( '.', $w3tc_key ) ) {
+			$w3tc_descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+		return $w3tc_descriptor;
 	}
 
 	/**
 	 * Performs actions on save.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
-	 * @param array $data Array of save data.
+	 * @param array $w3tc_data Array of save data.
 	 *
 	 * @return array
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		if (
 			$new_config->get_array( array( 'user-experience-defer-scripts', 'timeout' ) ) !== $old_config->get_array( array( 'user-experience-defer-scripts', 'timeout' ) )
 			|| $new_config->get_array( array( 'user-experience-defer-scripts', 'includes' ) ) !== $old_config->get_array( array( 'user-experience-defer-scripts', 'includes' ) )
 		) {
-			$minify_enabled  = $this->config->get_boolean( 'minify.enabled' );
-			$pgcache_enabled = $this->config->get_boolean( 'pgcache.enabled' );
+			$minify_enabled  = $this->w3tc_config->get_boolean( 'minify.enabled' );
+			$pgcache_enabled = $this->w3tc_config->get_boolean( 'pgcache.enabled' );
 			if ( $minify_enabled || $pgcache_enabled ) {
 				$state = Dispatcher::config_state();
 				if ( $minify_enabled ) {
@@ -287,7 +288,7 @@ class UserExperience_DeferScripts_Extension {
 			}
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -298,11 +299,11 @@ class UserExperience_DeferScripts_Extension {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		$config            = Dispatcher::config();
-		$extensions_active = $config->get_array( 'extensions.active' );
-		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-defer-scripts', $extensions_active );
+		$w3tc_config       = Dispatcher::config();
+		$extensions_active = $w3tc_config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $w3tc_config ) && array_key_exists( 'user-experience-defer-scripts', $extensions_active );
 	}
 }
 
-$o = new UserExperience_DeferScripts_Extension();
-$o->run();
+$w3tc_o = new UserExperience_DeferScripts_Extension();
+$w3tc_o->run();

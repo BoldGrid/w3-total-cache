@@ -61,19 +61,19 @@ class Root_AdminActivation {
 			}
 		}
 
-		$e      = Dispatcher::component( 'Root_Environment' );
-		$config = Dispatcher::config();
-		$debug  = \defined( 'WP_DEBUG' ) && WP_DEBUG && ! \defined( 'W3D_TESTING' );
+		$e           = Dispatcher::component( 'Root_Environment' );
+		$w3tc_config = Dispatcher::config();
+		$debug       = \defined( 'WP_DEBUG' ) && WP_DEBUG && ! \defined( 'W3D_TESTING' );
 
 		try {
-			$e->fix_in_wpadmin( $config, true );
+			$e->fix_in_wpadmin( $w3tc_config, true );
 		} catch ( Util_Environment_Exceptions $exs ) {
-			$r = Util_Activation::parse_environment_exceptions( $exs );
+			$w3tc_r = Util_Activation::parse_environment_exceptions( $exs );
 
-			if ( \strlen( $r['required_changes'] ) > 0 ) {
+			if ( \strlen( $w3tc_r['required_changes'] ) > 0 ) {
 				// Log the error for debugging purposes.
 				if ( $debug ) {
-					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					\error_log( 'W3 Total Cache environment exception: ' . $w3tc_r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
 		} catch ( \Exception $e ) {
@@ -87,14 +87,14 @@ class Root_AdminActivation {
 		}
 
 		try {
-			$e->fix_on_event( $config, 'activate' );
+			$e->fix_on_event( $w3tc_config, 'activate' );
 		} catch ( Util_Environment_Exceptions $exs ) {
-			$r = Util_Activation::parse_environment_exceptions( $exs );
+			$w3tc_r = Util_Activation::parse_environment_exceptions( $exs );
 
-			if ( \strlen( $r['required_changes'] ) > 0 ) {
+			if ( \strlen( $w3tc_r['required_changes'] ) > 0 ) {
 				// Log the error for debugging purposes.
 				if ( $debug ) {
-					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					\error_log( 'W3 Total Cache environment exception: ' . $w3tc_r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
 		} catch ( \Exception $e ) {
@@ -111,20 +111,20 @@ class Root_AdminActivation {
 		if ( ! ConfigUtil::is_item_exists( 0, false ) ) {
 			try {
 				// create folders.
-				$e->fix_in_wpadmin( $config );
+				$e->fix_in_wpadmin( $w3tc_config );
 			} catch ( Util_Environment_Exceptions $exs ) {
-				$r = Util_Activation::parse_environment_exceptions( $exs );
+				$w3tc_r = Util_Activation::parse_environment_exceptions( $exs );
 
-				if ( \strlen( $r['required_changes'] ) > 0 ) {
+				if ( \strlen( $w3tc_r['required_changes'] ) > 0 ) {
 					// Log the error for debugging purposes.
 					if ( $debug ) {
-						\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						\error_log( 'W3 Total Cache environment exception: ' . $w3tc_r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					}
 				}
 			}
 
 			try {
-				Util_Admin::config_save( Dispatcher::config(), $config );
+				Util_Admin::config_save( Dispatcher::config(), $w3tc_config );
 			} catch ( \Exception $ex ) {
 				// Log the exception for debugging purposes.
 				if ( $debug ) {
@@ -157,9 +157,9 @@ class Root_AdminActivation {
 			$e = Dispatcher::component( 'Root_Environment' );
 			$e->fix_after_deactivation();
 		} catch ( Util_Environment_Exceptions $exs ) {
-			$r = Util_Activation::parse_environment_exceptions( $exs );
+			$w3tc_r = Util_Activation::parse_environment_exceptions( $exs );
 
-			if ( strlen( $r['required_changes'] ) > 0 ) {
+			if ( strlen( $w3tc_r['required_changes'] ) > 0 ) {
 				$changes_style = 'border: 1px solid black; background: white; margin: 10px 30px 10px 30px; padding: 10px;';
 
 				// this is not shown since wp redirects from that page not solved now.
@@ -178,7 +178,7 @@ class Root_AdminActivation {
 						'</strong>',
 						'<br /><br />',
 						'<div style="' . esc_attr( $changes_style ) . '">',
-						esc_html( $r['required_changes'] ),
+						esc_html( $w3tc_r['required_changes'] ),
 						'</div>',
 						'</p></div>'
 					),
@@ -208,8 +208,8 @@ class Root_AdminActivation {
 
 		// Check if data cleanup is required.
 		if ( get_option( 'w3tc_remove_data' ) ) {
-			$config = Dispatcher::config();
-			Root_Environment::delete_plugin_data( $config );
+			$w3tc_config = Dispatcher::config();
+			Root_Environment::delete_plugin_data( $w3tc_config );
 		}
 	}
 }

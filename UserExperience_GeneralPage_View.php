@@ -7,11 +7,12 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 ?>
 <?php
 Util_Ui::postbox_header_tabs(
@@ -120,7 +121,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			),
 			'label_class'       => 'w3tc_single_column',
 			'pro'               => true,
-			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $w3tc_config ) ? true : false,
 			'show_learn_more'   => false,
 			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+18',
@@ -159,7 +160,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			),
 			'label_class'       => 'w3tc_single_column',
 			'pro'               => true,
-			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $w3tc_config ) ? true : false,
 			'show_learn_more'   => false,
 			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+27',
@@ -198,7 +199,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			),
 			'label_class'    => 'w3tc_single_column',
 			'pro'            => true,
-			'disabled'       => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'disabled'       => ! Util_Environment::is_w3tc_pro( $w3tc_config ) ? true : false,
 		)
 	);
 

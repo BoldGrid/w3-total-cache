@@ -55,12 +55,12 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	/**
 	 * Initializes the CdnEngine_Mirror_RackSpaceCdn instance with configuration parameters.
 	 *
-	 * @param array $config Configuration settings for the RackSpace CDN service.
+	 * @param array $w3tc_config Configuration settings for the RackSpace CDN service.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'user_name'                 => '',
 				'api_key'                   => '',
@@ -72,14 +72,14 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 				'access_state'              => '',
 				'new_access_state_callback' => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		$this->_service_id                = $config['service_id'];
-		$this->_new_access_state_callback = $config['new_access_state_callback'];
+		$this->_service_id                = $w3tc_config['service_id'];
+		$this->_new_access_state_callback = $w3tc_config['new_access_state_callback'];
 
 		// init access state.
-		$this->_access_state = @json_decode( $config['access_state'], true );
+		$this->_access_state = @json_decode( $w3tc_config['access_state'], true );
 		if ( ! is_array( $this->_access_state ) ) {
 			$this->_access_state = array();
 		}
@@ -93,20 +93,20 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 		);
 
 		// cnames.
-		if ( 'https' !== $config['service_protocol'] && ! empty( $config['domains'] ) ) {
-			$this->_domains = (array) $config['domains'];
+		if ( 'https' !== $w3tc_config['service_protocol'] && ! empty( $w3tc_config['domains'] ) ) {
+			$this->_domains = (array) $w3tc_config['domains'];
 		} else {
-			$this->_domains = array( $config['service_access_url'] );
+			$this->_domains = array( $w3tc_config['service_access_url'] );
 		}
 
 		// form 'ssl' parameter based on service protocol.
-		if ( 'https' === $config['service_protocol'] ) {
-			$config['ssl'] = 'enabled';
+		if ( 'https' === $w3tc_config['service_protocol'] ) {
+			$w3tc_config['ssl'] = 'enabled';
 		} else {
-			$config['ssl'] = 'disabled';
+			$w3tc_config['ssl'] = 'disabled';
 		}
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 		$this->_create_api( array( $this, '_on_new_access_requested_api' ) );
 	}
 
@@ -135,14 +135,14 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	 * @throws \Exception If authentication or region retrieval fails.
 	 */
 	public function _on_new_access_requested_api() {
-		$r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
-		if ( ! isset( $r['access_token'] ) || ! isset( $r['services'] ) ) {
+		$w3tc_r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
+		if ( ! isset( $w3tc_r['access_token'] ) || ! isset( $w3tc_r['services'] ) ) {
 			throw new \Exception( \esc_html__( 'Authentication failed.', 'w3-total-cache' ) );
 		}
 
-		$r['regions'] = Cdn_RackSpace_Api_Tokens::cdn_services_by_region( $r['services'] );
+		$w3tc_r['regions'] = Cdn_RackSpace_Api_Tokens::cdn_services_by_region( $w3tc_r['services'] );
 
-		if ( ! isset( $r['regions'][ $this->_config['region'] ] ) ) {
+		if ( ! isset( $w3tc_r['regions'][ $this->_config['region'] ] ) ) {
 			throw new \Exception(
 				\esc_html(
 					sprintf(
@@ -154,8 +154,8 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 			);
 		}
 
-		$this->_access_state['access_token']             = $r['access_token'];
-		$this->_access_state['access_region_descriptor'] = $r['regions'][ $this->_config['region'] ];
+		$this->_access_state['access_token']             = $w3tc_r['access_token'];
+		$this->_access_state['access_region_descriptor'] = $w3tc_r['regions'][ $this->_config['region'] ];
 
 		$this->_create_api( array( $this, '_on_new_access_requested_second_time' ) );
 
@@ -189,9 +189,9 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 		$results = array();
 
 		try {
-			foreach ( $files as $file ) {
-				$url = $this->_format_url( $file['remote_path'] );
-				$this->_api->purge( $this->_service_id, $url );
+			foreach ( $files as $w3tc_file ) {
+				$w3tc_url = $this->_format_url( $w3tc_file['remote_path'] );
+				$this->_api->purge( $this->_service_id, $w3tc_url );
 
 				$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_OK, 'OK' );
 			}
@@ -222,12 +222,12 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	 * @return array List of domains configured in the service.
 	 */
 	public function service_domains_get() {
-		$service = $this->_api->service_get( $this->_service_id );
+		$w3tc_service = $this->_api->service_get( $this->_service_id );
 
 		$domains = array();
 
-		if ( isset( $service['domains'] ) ) {
-			foreach ( $service['domains'] as $d ) {
+		if ( isset( $w3tc_service['domains'] ) ) {
+			foreach ( $w3tc_service['domains'] as $d ) {
 				$domains[] = $d['domain'];
 			}
 		}
@@ -243,14 +243,14 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	 * @return void
 	 */
 	public function service_domains_set( $domains ) {
-		$value = array();
+		$w3tc_value = array();
 		foreach ( $domains as $d ) {
 			$v = array( 'domain' => $d );
 			if ( 'https' === $this->_config['service_protocol'] ) {
 				$v['protocol'] = 'https';
 			}
 
-			$value[] = $v;
+			$w3tc_value[] = $v;
 		}
 
 		$this->_api->service_set(
@@ -259,7 +259,7 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 				array(
 					'op'    => 'replace',
 					'path'  => '/domains',
-					'value' => $value,
+					'value' => $w3tc_value,
 				),
 			)
 		);

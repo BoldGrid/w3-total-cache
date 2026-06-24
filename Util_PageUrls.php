@@ -212,8 +212,8 @@ class Util_PageUrls {
 	public static function get_post_author_urls( $post_author, $limit_post_pages = 10 ) {
 		static $feed_author_urls = array();
 
-		$key = md5( $post_author . ',' . $limit_post_pages );
-		if ( ! isset( $post_author_urls[ $key ] ) ) {
+		$w3tc_key = md5( $post_author . ',' . $limit_post_pages );
+		if ( ! isset( $post_author_urls[ $w3tc_key ] ) ) {
 			$full_urls          = array();
 			$posts_number       = count_user_posts( $post_author );
 			$posts_per_page     = get_option( 'posts_per_page' );
@@ -231,10 +231,10 @@ class Util_PageUrls {
 				$full_urls[]         = $author_pagenum_link;
 			}
 
-			$post_author_urls[ $key ] = $full_urls;
+			$post_author_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $post_author_urls[ $key ];
+		return $post_author_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -248,8 +248,8 @@ class Util_PageUrls {
 	public static function get_post_terms_urls( $terms, $limit_post_pages = 10 ) {
 		static $post_terms_urls = array();
 
-		$key = md5( self::_term_hash( $terms ) . ',' . $limit_post_pages );
-		if ( ! isset( $post_terms_urls[ $key ] ) ) {
+		$w3tc_key = md5( self::_term_hash( $terms ) . ',' . $limit_post_pages );
+		if ( ! isset( $post_terms_urls[ $w3tc_key ] ) ) {
 			$full_urls      = array();
 			$posts_per_page = get_option( 'posts_per_page' );
 
@@ -267,10 +267,10 @@ class Util_PageUrls {
 					$full_urls[]       = $term_pagenum_link;
 				}
 			}
-			$post_terms_urls[ $key ] = $full_urls;
+			$post_terms_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $post_terms_urls[ $key ];
+		return $post_terms_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -287,8 +287,8 @@ class Util_PageUrls {
 		$post_type    = $post->post_type;
 		$archive_slug = self::_get_archive_slug( $post );
 
-		$key = md5( $post->ID . ',' . $limit_post_pages );
-		if ( ! isset( $daily_archive_urls[ $key ] ) ) {
+		$w3tc_key = md5( $post->ID . ',' . $limit_post_pages );
+		if ( ! isset( $daily_archive_urls[ $w3tc_key ] ) ) {
 			$full_urls          = array();
 			$post_date          = strtotime( $post->post_date );
 			$post_year          = gmdate( 'Y', $post_date );
@@ -310,9 +310,9 @@ class Util_PageUrls {
 				$full_urls[]      = $day_pagenum_link;
 			}
 
-			$daily_archive_urls[ $key ] = $full_urls;
+			$daily_archive_urls[ $w3tc_key ] = $full_urls;
 		}
-		return $daily_archive_urls[ $key ];
+		return $daily_archive_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -329,8 +329,8 @@ class Util_PageUrls {
 		$post_type    = $post->post_type;
 		$archive_slug = self::_get_archive_slug( $post );
 
-		$key = md5( $post->ID . ',' . $limit_post_pages );
-		if ( ! isset( $monthly_archive_urls[ $key ] ) ) {
+		$w3tc_key = md5( $post->ID . ',' . $limit_post_pages );
+		if ( ! isset( $monthly_archive_urls[ $w3tc_key ] ) ) {
 			$full_urls  = array();
 			$post_date  = strtotime( $post->post_date );
 			$post_year  = gmdate( 'Y', $post_date );
@@ -352,9 +352,9 @@ class Util_PageUrls {
 				$full_urls[]        = $month_pagenum_link;
 			}
 
-			$monthly_archive_urls[ $key ] = $full_urls;
+			$monthly_archive_urls[ $w3tc_key ] = $full_urls;
 		}
-		return $monthly_archive_urls[ $key ];
+		return $monthly_archive_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -371,8 +371,8 @@ class Util_PageUrls {
 		$post_type    = $post->post_type;
 		$archive_slug = self::_get_archive_slug( $post );
 
-		$key = md5( $post->ID . ',' . $limit_post_pages );
-		if ( ! isset( $yearly_archive_urls[ $key ] ) ) {
+		$w3tc_key = md5( $post->ID . ',' . $limit_post_pages );
+		if ( ! isset( $yearly_archive_urls[ $w3tc_key ] ) ) {
 
 			$full_urls = array();
 			$post_date = strtotime( $post->post_date );
@@ -393,9 +393,9 @@ class Util_PageUrls {
 				$year_pagenum_link = self::get_pagenum_link( $year_uri, $pagenum );
 				$full_urls[]       = $year_pagenum_link;
 			}
-			$yearly_archive_urls[ $key ] = $full_urls;
+			$yearly_archive_urls[ $w3tc_key ] = $full_urls;
 		}
-		return $yearly_archive_urls[ $key ];
+		return $yearly_archive_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -409,19 +409,19 @@ class Util_PageUrls {
 	public static function get_feed_urls( $feeds, $post_type = null ) {
 		static $feed_urls = array();
 
-		$key = md5( implode( ',', $feeds ) . $post_type );
-		if ( ! isset( $feed_urls[ $key ] ) ) {
+		$w3tc_key = md5( implode( ',', $feeds ) . $post_type );
+		if ( ! isset( $feed_urls[ $w3tc_key ] ) ) {
 			$full_urls = array();
-			foreach ( $feeds as $feed ) {
-				$feed_link = self::get_feed_link( $feed, $post_type );
+			foreach ( $feeds as $w3tc_feed ) {
+				$feed_link = self::get_feed_link( $w3tc_feed, $post_type );
 
 				$full_urls[] = $feed_link;
 			}
 
-			$feed_urls[ $key ] = $full_urls;
+			$feed_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $feed_urls[ $key ];
+		return $feed_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -435,18 +435,18 @@ class Util_PageUrls {
 	public static function get_feed_comments_urls( $post_id, $feeds ) {
 		static $feed_comments_urls = array();
 
-		$key = md5( implode( ',', $feeds ) . $post_id );
-		if ( ! isset( $feed_comments_urls[ $key ] ) ) {
+		$w3tc_key = md5( implode( ',', $feeds ) . $post_id );
+		if ( ! isset( $feed_comments_urls[ $w3tc_key ] ) ) {
 			$full_urls = array();
-			foreach ( $feeds as $feed ) {
-				$post_comments_feed_link = self::get_post_comments_feed_link( $post_id, $feed );
+			foreach ( $feeds as $w3tc_feed ) {
+				$post_comments_feed_link = self::get_post_comments_feed_link( $post_id, $w3tc_feed );
 				$full_urls[]             = $post_comments_feed_link;
 			}
 
-			$feed_comments_urls[ $key ] = $full_urls;
+			$feed_comments_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $feed_comments_urls[ $key ];
+		return $feed_comments_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -460,18 +460,18 @@ class Util_PageUrls {
 	public static function get_feed_author_urls( $post_author, $feeds ) {
 		static $post_author_urls = array();
 
-		$key = md5( implode( ',', $feeds ) . $post_author );
-		if ( ! isset( $feed_author_urls[ $key ] ) ) {
+		$w3tc_key = md5( implode( ',', $feeds ) . $post_author );
+		if ( ! isset( $feed_author_urls[ $w3tc_key ] ) ) {
 			$full_urls = array();
-			foreach ( $feeds as $feed ) {
-				$author_feed_link = self::get_author_feed_link( $post_author, $feed );
+			foreach ( $feeds as $w3tc_feed ) {
+				$author_feed_link = self::get_author_feed_link( $post_author, $w3tc_feed );
 				$full_urls[]      = $author_feed_link;
 			}
 
-			$feed_author_urls[ $key ] = $full_urls;
+			$feed_author_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $feed_author_urls[ $key ];
+		return $feed_author_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -485,20 +485,20 @@ class Util_PageUrls {
 	public static function get_feed_terms_urls( $terms, $feeds ) {
 		static $feed_terms_urls = array();
 
-		$key = md5( implode( ',', $feeds ) . self::_term_hash( $terms ) );
-		if ( ! isset( $feed_terms_urls[ $key ] ) ) {
+		$w3tc_key = md5( implode( ',', $feeds ) . self::_term_hash( $terms ) );
+		if ( ! isset( $feed_terms_urls[ $w3tc_key ] ) ) {
 			$full_urls = array();
 			foreach ( $terms as $term ) {
-				foreach ( $feeds as $feed ) {
-					$term_feed_link = self::get_term_feed_link( $term->term_id, $term->taxonomy, $feed );
+				foreach ( $feeds as $w3tc_feed ) {
+					$term_feed_link = self::get_term_feed_link( $term->term_id, $term->taxonomy, $w3tc_feed );
 					$full_urls[]    = $term_feed_link;
 				}
 			}
 
-			$feed_terms_urls[ $key ] = $full_urls;
+			$feed_terms_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $feed_terms_urls[ $key ];
+		return $feed_terms_urls[ $w3tc_key ];
 	}
 
 	/**
@@ -511,8 +511,8 @@ class Util_PageUrls {
 	public static function get_pages_urls( $pages ) {
 		static $pages_urls = array();
 
-		$key = md5( implode( ',', $pages ) );
-		if ( ! isset( $pages_urls[ $key ] ) ) {
+		$w3tc_key = md5( implode( ',', $pages ) );
+		if ( ! isset( $pages_urls[ $w3tc_key ] ) ) {
 			$full_urls = array();
 			foreach ( $pages as $uri ) {
 				if ( $uri ) {
@@ -521,23 +521,23 @@ class Util_PageUrls {
 				}
 			}
 
-			$pages_urls[ $key ] = $full_urls;
+			$pages_urls[ $w3tc_key ] = $full_urls;
 		}
 
-		return $pages_urls[ $key ];
+		return $pages_urls[ $w3tc_key ];
 	}
 
 	/**
 	 * Workaround for get_pagenum_link function
 	 *
-	 * @param string $url     URL.
+	 * @param string $w3tc_url     URL.
 	 * @param int    $pagenum Page number.
 	 *
 	 * @return string
 	 */
-	public static function get_pagenum_link( $url, $pagenum = 1 ) {
+	public static function get_pagenum_link( $w3tc_url, $pagenum = 1 ) {
 		$request_uri            = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		$_SERVER['REQUEST_URI'] = $url;
+		$_SERVER['REQUEST_URI'] = $w3tc_url;
 
 		if ( is_admin() ) {
 			$link = self::get_pagenum_link_admin( $pagenum );
@@ -595,9 +595,9 @@ class Util_PageUrls {
 			$request = ( ( ! empty( $request ) ) ? trailingslashit( $request ) : $request ) . user_trailingslashit( $wp_rewrite->pagination_base . '/' . $pagenum, 'paged' );
 		}
 
-		$result = $base . $request . $query_string;
-		$result = apply_filters( 'get_pagenum_link', $result, $pagenum );
-		return $result;
+		$w3tc_result = $base . $request . $query_string;
+		$w3tc_result = apply_filters( 'get_pagenum_link', $w3tc_result, $pagenum ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		return $w3tc_result;
 	}
 
 	/**
@@ -668,123 +668,123 @@ class Util_PageUrls {
 
 		$sql = sprintf( 'SELECT COUNT(*) FROM %s WHERE %s', $wpdb->posts, $where );
 
-		$count = (int) $wpdb->get_var( $sql );
+		$w3tc_count = (int) $wpdb->get_var( $sql );
 
-		return $count;
+		return $w3tc_count;
 	}
 
 	/**
 	 * Workaround for get_feed_link function, remove filtering.
 	 *
-	 * @param string      $feed      Feed.
+	 * @param string      $w3tc_feed      Feed.
 	 * @param null|string $post_type Post type.
 	 *
 	 * @return mixed
 	 */
-	public static function get_feed_link( $feed = '', $post_type = null ) {
+	public static function get_feed_link( $w3tc_feed = '', $post_type = null ) {
 		global $wp_rewrite;
 
 		if ( $post_type ) {
-			return get_post_type_archive_feed_link( $post_type, $feed );
+			return get_post_type_archive_feed_link( $post_type, $w3tc_feed );
 		}
 
 		$permalink = $wp_rewrite->get_feed_permastruct();
 		if ( '' !== $permalink ) {
-			if ( false !== strpos( $feed, 'comments_' ) ) {
-				$feed      = str_replace( 'comments_', '', $feed );
+			if ( false !== strpos( $w3tc_feed, 'comments_' ) ) {
+				$w3tc_feed = str_replace( 'comments_', '', $w3tc_feed );
 				$permalink = $wp_rewrite->get_comment_feed_permastruct();
 			}
 
-			if ( get_default_feed() === $feed ) {
-				$feed = '';
+			if ( get_default_feed() === $w3tc_feed ) {
+				$w3tc_feed = '';
 			}
 
-			$permalink = str_replace( '%feed%', $feed, $permalink );
-			$permalink = preg_replace( '#/+#', '/', "/$permalink" );
-			$output    = home_url( user_trailingslashit( $permalink, 'feed' ) );
+			$permalink   = str_replace( '%feed%', $w3tc_feed, $permalink );
+			$permalink   = preg_replace( '#/+#', '/', "/$permalink" );
+			$w3tc_output = home_url( user_trailingslashit( $permalink, 'feed' ) );
 		} else {
-			if ( empty( $feed ) ) {
-				$feed = get_default_feed();
+			if ( empty( $w3tc_feed ) ) {
+				$w3tc_feed = get_default_feed();
 			}
 
-			if ( false !== strpos( $feed, 'comments_' ) ) {
-				$feed = str_replace( 'comments_', 'comments-', $feed );
+			if ( false !== strpos( $w3tc_feed, 'comments_' ) ) {
+				$w3tc_feed = str_replace( 'comments_', 'comments-', $w3tc_feed );
 			}
 
-			$output = home_url( "?feed={$feed}" );
+			$w3tc_output = home_url( "?feed={$w3tc_feed}" );
 		}
 
-		return $output;
+		return $w3tc_output;
 	}
 
 	/**
 	 * Workaround for get_post_comments_feed_link function, remove filtering.
 	 *
 	 * @param int    $post_id Post ID.
-	 * @param string $feed    Feed.
+	 * @param string $w3tc_feed    Feed.
 	 *
 	 * @return string
 	 */
-	public static function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
+	public static function get_post_comments_feed_link( $post_id = 0, $w3tc_feed = '' ) {
 		$post_id = absint( $post_id );
 
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
 
-		if ( empty( $feed ) ) {
-			$feed = get_default_feed();
+		if ( empty( $w3tc_feed ) ) {
+			$w3tc_feed = get_default_feed();
 		}
 
 		if ( '' !== get_option( 'permalink_structure' ) ) {
 			if ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post_id ) {
-				$url = _get_page_link( $post_id );
+				$w3tc_url = _get_page_link( $post_id );
 			} else {
-				$url = get_permalink( $post_id );
+				$w3tc_url = get_permalink( $post_id );
 			}
 
-			$url = trailingslashit( $url ) . 'feed';
-			if ( get_default_feed() !== $feed ) {
-				$url .= "/$feed";
+			$w3tc_url = trailingslashit( $w3tc_url ) . 'feed';
+			if ( get_default_feed() !== $w3tc_feed ) {
+				$w3tc_url .= "/$w3tc_feed";
 			}
 
-			$url = user_trailingslashit( $url, 'single_feed' );
+			$w3tc_url = user_trailingslashit( $w3tc_url, 'single_feed' );
 		} else {
 			$type = get_post_field( 'post_type', $post_id );
 			if ( 'page' === $type ) {
-				$url = home_url( "?feed=$feed&amp;page_id=$post_id" );
+				$w3tc_url = home_url( "?feed=$w3tc_feed&amp;page_id=$post_id" );
 			} else {
-				$url = home_url( "?feed=$feed&amp;p=$post_id" );
+				$w3tc_url = home_url( "?feed=$w3tc_feed&amp;p=$post_id" );
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
 	 * Workaround for get_author_feed_link function, remove filtering.
 	 *
 	 * @param unknown $author_id Author ID.
-	 * @param string  $feed      Feed.
+	 * @param string  $w3tc_feed      Feed.
 	 *
 	 * @return string
 	 */
-	public static function get_author_feed_link( $author_id, $feed = '' ) {
-		$author_id           = (int) $author_id;
-		$permalink_structure = get_option( 'permalink_structure' );
+	public static function get_author_feed_link( $author_id, $w3tc_feed = '' ) {
+		$author_id                = (int) $author_id;
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
 
-		if ( empty( $feed ) ) {
-			$feed = get_default_feed();
+		if ( empty( $w3tc_feed ) ) {
+			$w3tc_feed = get_default_feed();
 		}
 
-		if ( '' === $permalink_structure ) {
-			$link = home_url( "?feed=$feed&amp;author=" . $author_id );
+		if ( '' === $w3tc_permalink_structure ) {
+			$link = home_url( "?feed=$w3tc_feed&amp;author=" . $author_id );
 		} else {
 			$link = get_author_posts_url( $author_id );
-			if ( get_default_feed() === $feed ) {
+			if ( get_default_feed() === $w3tc_feed ) {
 				$feed_link = 'feed';
 			} else {
-				$feed_link = "feed/$feed";
+				$feed_link = "feed/$w3tc_feed";
 			}
 
 			$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
@@ -798,11 +798,11 @@ class Util_PageUrls {
 	 *
 	 * @param unknown $term_id  Term ID.
 	 * @param string  $taxonomy Taxonomy.
-	 * @param string  $feed     Feed.
+	 * @param string  $w3tc_feed     Feed.
 	 *
 	 * @return bool|string
 	 */
-	public static function get_term_feed_link( $term_id, $taxonomy = 'category', $feed = '' ) {
+	public static function get_term_feed_link( $term_id, $taxonomy = 'category', $w3tc_feed = '' ) {
 		$term_id = (int) $term_id;
 
 		$term = get_term( $term_id, $taxonomy );
@@ -811,27 +811,27 @@ class Util_PageUrls {
 			return false;
 		}
 
-		if ( empty( $feed ) ) {
-			$feed = get_default_feed();
+		if ( empty( $w3tc_feed ) ) {
+			$w3tc_feed = get_default_feed();
 		}
 
-		$permalink_structure = get_option( 'permalink_structure' );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
 
-		if ( '' === $permalink_structure ) {
+		if ( '' === $w3tc_permalink_structure ) {
 			if ( 'category' === $taxonomy ) {
-				$link = home_url( "?feed=$feed&amp;cat=$term_id" );
+				$link = home_url( "?feed=$w3tc_feed&amp;cat=$term_id" );
 			} elseif ( 'post_tag' === $taxonomy ) {
-				$link = home_url( "?feed=$feed&amp;tag=$term->slug" );
+				$link = home_url( "?feed=$w3tc_feed&amp;tag=$term->slug" );
 			} else {
 				$t    = get_taxonomy( $taxonomy );
-				$link = home_url( "?feed=$feed&amp;$t->query_var=$term->slug" );
+				$link = home_url( "?feed=$w3tc_feed&amp;$t->query_var=$term->slug" );
 			}
 		} else {
 			$link = get_term_link( $term_id, $term->taxonomy );
-			if ( get_default_feed() === $feed ) {
+			if ( get_default_feed() === $w3tc_feed ) {
 				$feed_link = 'feed';
 			} else {
-				$feed_link = "feed/$feed";
+				$feed_link = "feed/$w3tc_feed";
 			}
 
 			$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
@@ -908,25 +908,25 @@ class Util_PageUrls {
 	 * @return string
 	 */
 	public static function complement_with_mirror_urls( $queued_urls ) {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		if ( ! $config->get_boolean( 'pgcache.mirrors.enabled' ) || Util_Environment::is_wpmu_subdomain() ) {
+		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) || Util_Environment::is_wpmu_subdomain() ) {
 			return $queued_urls;
 		}
 
-		$home_urls = $config->get_array( 'pgcache.mirrors.home_urls' );
+		$home_urls = $w3tc_config->get_array( 'pgcache.mirrors.home_urls' );
 
 		$url_prefix  = trailingslashit( get_home_url() );
 		$mirror_urls = array();
 
-		foreach ( $queued_urls as $url ) {
-			if ( substr( $url, 0, strlen( $url_prefix ) ) !== $url_prefix ) {
+		foreach ( $queued_urls as $w3tc_url ) {
+			if ( substr( $w3tc_url, 0, strlen( $url_prefix ) ) !== $url_prefix ) {
 				continue;
 			}
 
 			foreach ( $home_urls as $home ) {
 				if ( ! empty( $home ) ) {
-					$mirror_urls[] = trailingslashit( $home ) . substr( $url, strlen( $url_prefix ) );
+					$mirror_urls[] = trailingslashit( $home ) . substr( $w3tc_url, strlen( $url_prefix ) );
 				}
 			}
 		}

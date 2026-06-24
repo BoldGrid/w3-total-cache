@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -33,7 +33,7 @@ use W3TC\Generic_AdminActions_Default;
  * regression that surfaced after #1321 merged is the proximate driver
  * for this test.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 
@@ -41,7 +41,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * Ensure the cache temp directory `Config::save()` needs is present
 	 * in test fixtures that don't provision it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -60,7 +60,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * doesn't leak into the next — `Util_Request::get_request()` reads
 	 * `$_GET + $_POST` directly.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * Helper: build a fresh, empty Config object and seed a single
 	 * secret-flagged key in memory (no disk write needed).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $key   Config key.
 	 * @param string $value Stored plaintext.
@@ -98,7 +98,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * Empty POST with NO clear companion MUST leave the stored secret
 	 * untouched — that's the #1321 empty-POST-preserves-secret rule.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -123,7 +123,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * — that's the explicit "Remove on save" path users need to drop a
 	 * credential through the UI.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -150,7 +150,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * the field gets the clear, not the rotation. This matches the
 	 * principle of least surprise (checkbox is the explicit action).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -176,7 +176,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * empty-POST and clear paths must not interfere with the common
 	 * credential-rotation flow.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -201,7 +201,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 	 * standalone config keys — they're sidecars to their parent secret,
 	 * processed inside the secret block.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -221,6 +221,54 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 			'KEEP-ME',
 			$config->get_string( 'plugin.license_key' ),
 			'A stray clear companion without its parent must be inert (no spurious mutations).'
+		);
+	}
+
+	/**
+	 * New Relic API key uses the same explicit-clear path via the
+	 * extension's `w3tc_config_key_descriptor` filter.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @return void
+	 */
+	public function test_newrelic_api_key_clear_companion_blanks_secret() {
+		$filter = function ( $w3tc_descriptor, $w3tc_key ) {
+			if ( is_array( $w3tc_key ) && 'newrelic' === $w3tc_key[0] && 'api_key' === $w3tc_key[1] ) {
+				return array(
+					'type'  => 'string',
+					'flags' => array( 'secret' => true ),
+				);
+			}
+
+			return $w3tc_descriptor;
+		};
+
+		add_filter( 'w3tc_config_key_descriptor', $filter, 10, 2 );
+
+		$_POST                               = array();
+		$_POST['newrelic___api_key']          = '';
+		$_POST['newrelic___api_key__w3tc_clear'] = '1';
+
+		$config = new Config();
+		$ref    = new \ReflectionObject( $config );
+		$prop   = $ref->getProperty( '_data' );
+		$prop->setAccessible( true );
+		$data                    = $prop->getValue( $config );
+		$data['newrelic']        = array(
+			'api_key' => 'NRAK-EXAMPLE-KEY',
+		);
+		$prop->setValue( $config, $data );
+
+		$admin = new Generic_AdminActions_Default();
+		$admin->read_request( $config );
+
+		remove_filter( 'w3tc_config_key_descriptor', $filter, 10 );
+
+		$this->assertSame(
+			'',
+			$config->get_string( array( 'newrelic', 'api_key' ) ),
+			'New Relic API key clear companion must wipe the stored credential.'
 		);
 	}
 }

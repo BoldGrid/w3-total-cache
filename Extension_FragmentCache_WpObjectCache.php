@@ -142,13 +142,13 @@ class Extension_FragmentCache_WpObjectCache {
 	 * Get from the cache
 	 *
 	 * @param string    $id    Id.
-	 * @param string    $group Group.
+	 * @param string    $w3tc_group Group.
 	 * @param bool      $force Force.
 	 * @param bool|null $found Found.
 	 *
 	 * @return mixed
 	 */
-	public function get( $id, $group = 'transient', $force = false, &$found = null ) {
+	public function get( $id, $w3tc_group = 'transient', $force = false, &$found = null ) {
 		// Abort if this is a WP-CLI call and fragmentcache engine is set to Disk.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
@@ -158,42 +158,42 @@ class Extension_FragmentCache_WpObjectCache {
 			$time_start = Util_Debug::microtime();
 		}
 
-		$key = $this->_get_cache_key( $id );
-		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $group );
-		$internal = isset( $this->cache[ $fragment_group ][ $key ] );
+		$w3tc_key = $this->_get_cache_key( $id );
+		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $w3tc_group );
+		$internal = isset( $this->cache[ $fragment_group ][ $w3tc_key ] );
 
 		if ( $internal ) {
-			$found = true;
-			$value = $this->cache[ $fragment_group ][ $key ];
+			$found      = true;
+			$w3tc_value = $this->cache[ $fragment_group ][ $w3tc_key ];
 		} elseif (
 			$this->_caching
-			&& ! in_array( $group, $this->nonpersistent_groups, true )
+			&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
 		) {
 			$cache = $this->_get_cache( $fragment_group_global );
-			$v     = $cache->get( $key, $fragment_group );
+			$v     = $cache->get( $w3tc_key, $fragment_group );
 
 			if ( is_array( $v ) && null !== $v['content'] ) {
-				$found = true;
-				$value = $v['content'];
+				$found      = true;
+				$w3tc_value = $v['content'];
 			} else {
-				$value = false;
+				$w3tc_value = false;
 			}
 		} else {
-			$value = false;
+			$w3tc_value = false;
 		}
 
-		if ( null === $value ) {
-			$value = false;
+		if ( null === $w3tc_value ) {
+			$w3tc_value = false;
 		}
 
-		if ( is_object( $value ) ) {
-			$value = clone $value;
+		if ( is_object( $w3tc_value ) ) {
+			$w3tc_value = clone $w3tc_value;
 		}
 
-		$this->cache[ $fragment_group ][ $key ] = $value;
+		$this->cache[ $fragment_group ][ $w3tc_key ] = $w3tc_value;
 		++$this->cache_total;
 
-		if ( false !== $value ) {
+		if ( false !== $w3tc_value ) {
 			$cached = true;
 			++$this->cache_hits;
 		} else {
@@ -208,60 +208,60 @@ class Extension_FragmentCache_WpObjectCache {
 			$time              = Util_Debug::microtime() - $time_start;
 			$this->time_total += $time;
 
-			if ( ! $group ) {
-				$group = 'transient';
+			if ( ! $w3tc_group ) {
+				$w3tc_group = 'transient';
 			}
 
 			$this->debug_info[] = array(
 				'id'        => $id,
-				'group'     => $group,
+				'group'     => $w3tc_group,
 				'cached'    => $cached,
 				'internal'  => $internal,
-				'data_size' => ( $value ? strlen( serialize( $value ) ) : '' ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				'data_size' => ( $w3tc_value ? strlen( serialize( $w3tc_value ) ) : '' ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				'time'      => $time,
 			);
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Set to the cache
 	 *
 	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
+	 * @param mixed   $w3tc_data   Data.
+	 * @param string  $w3tc_group  Group.
 	 * @param integer $expire Expire.
 	 *
 	 * @return bool
 	 */
-	public function set( $id, $data, $group = 'transient', $expire = 0 ) {
+	public function set( $id, $w3tc_data, $w3tc_group = 'transient', $expire = 0 ) {
 		// Abort if this is a WP-CLI call and fragmentcache engine is set to Disk.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
 		}
 
-		$key = $this->_get_cache_key( $id );
+		$w3tc_key = $this->_get_cache_key( $id );
 
-		if ( is_object( $data ) ) {
-			$data = clone $data;
+		if ( is_object( $w3tc_data ) ) {
+			$w3tc_data = clone $w3tc_data;
 		}
 
-		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $group );
+		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $w3tc_group );
 		if ( is_int( $fragment_group_expiration ) ) {
 			$expire = $fragment_group_expiration;
 		}
 
-		$this->cache[ $fragment_group ][ $key ] = $data;
+		$this->cache[ $fragment_group ][ $w3tc_key ] = $w3tc_data;
 
 		if (
 			$this->_caching
-				&& ! in_array( $group, $this->nonpersistent_groups, true )
+				&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
 		) {
 			$cache = $this->_get_cache( $fragment_group_global );
-			$v     = array( 'content' => $data );
+			$v     = array( 'content' => $w3tc_data );
 
-			return $cache->set( $key, $v, ( $expire ? $expire : $this->_lifetime ), $fragment_group );
+			return $cache->set( $w3tc_key, $v, ( $expire ? $expire : $this->_lifetime ), $fragment_group );
 		}
 
 		return true;
@@ -271,25 +271,25 @@ class Extension_FragmentCache_WpObjectCache {
 	 * Delete from the cache
 	 *
 	 * @param string $id    ID.
-	 * @param string $group Group.
+	 * @param string $w3tc_group Group.
 	 * @param bool   $force Force.
 	 *
 	 * @return boolean
 	 */
-	public function delete( $id, $group = 'transient', $force = false ) {
-		if ( ! $force && $this->get( $id, $group ) === false ) {
+	public function delete( $id, $w3tc_group = 'transient', $force = false ) {
+		if ( ! $force && $this->get( $id, $w3tc_group ) === false ) {
 			return false;
 		}
 
-		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $group );
+		list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $id, $w3tc_group );
 
-		$key = $this->_get_cache_key( $id );
+		$w3tc_key = $this->_get_cache_key( $id );
 
-		unset( $this->cache[ $fragment_group ][ $key ] );
+		unset( $this->cache[ $fragment_group ][ $w3tc_key ] );
 
-		if ( $this->_caching && ! in_array( $group, $this->nonpersistent_groups, true ) ) {
+		if ( $this->_caching && ! in_array( $w3tc_group, $this->nonpersistent_groups, true ) ) {
 			$cache = $this->_get_cache( $fragment_group_global );
-			return $cache->delete( $key, $fragment_group );
+			return $cache->delete( $w3tc_key, $fragment_group );
 		}
 
 		return true;
@@ -299,36 +299,36 @@ class Extension_FragmentCache_WpObjectCache {
 	 * Add to the cache
 	 *
 	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
+	 * @param mixed   $w3tc_data   Data.
+	 * @param string  $w3tc_group  Group.
 	 * @param integer $expire Expire.
 	 *
 	 * @return boolean
 	 */
-	public function add( $id, $data, $group = 'default', $expire = 0 ) {
-		if ( $this->get( $id, $group ) !== false ) {
+	public function add( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		if ( $this->get( $id, $w3tc_group ) !== false ) {
 			return false;
 		}
 
-		return $this->set( $id, $data, $group, $expire );
+		return $this->set( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Replace in the cache
 	 *
 	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
+	 * @param mixed   $w3tc_data   Data.
+	 * @param string  $w3tc_group  Group.
 	 * @param integer $expire Expire.
 	 *
 	 * @return boolean
 	 */
-	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
-		if ( $this->get( $id, $group ) === false ) {
+	public function replace( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		if ( $this->get( $id, $w3tc_group ) === false ) {
 			return false;
 		}
 
-		return $this->set( $id, $data, $group, $expire );
+		return $this->set( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
@@ -357,9 +357,9 @@ class Extension_FragmentCache_WpObjectCache {
 		$cache->flush( 'global-nogroup' );
 
 		$groups = $this->_core->get_registered_fragment_groups();
-		foreach ( $groups as $group => $descriptor ) {
-			$cache = $this->_get_cache( $descriptor['global'] );
-			$cache->flush( $group );
+		foreach ( $groups as $w3tc_group => $w3tc_descriptor ) {
+			$cache = $this->_get_cache( $w3tc_descriptor['global'] );
+			$cache->flush( $w3tc_group );
 		}
 
 		return true;
@@ -431,65 +431,65 @@ class Extension_FragmentCache_WpObjectCache {
 	/**
 	 * Increment numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment.
-	 * @param int        $offset The amount by which to increment the item's value. Default is 1.
-	 * @param string     $group  The group the key is in.
+	 * @param int|string $w3tc_key    The cache key to increment.
+	 * @param int        $w3tc_offset The amount by which to increment the item's value. Default is 1.
+	 * @param string     $w3tc_group  The group the key is in.
 	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
-	public function incr( $key, $offset = 1, $group = 'default' ) {
-		$value = $this->get( $key, $group );
+	public function incr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$w3tc_value = $this->get( $w3tc_key, $w3tc_group );
 
-		if ( false === $value ) {
+		if ( false === $w3tc_value ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $value ) ) {
-			$value = 0;
+		if ( ! is_numeric( $w3tc_value ) ) {
+			$w3tc_value = 0;
 		}
 
-		$offset = (int) $offset;
-		$value += $offset;
+		$w3tc_offset = (int) $w3tc_offset;
+		$w3tc_value += $w3tc_offset;
 
-		if ( $value < 0 ) {
-			$value = 0;
+		if ( $w3tc_value < 0 ) {
+			$w3tc_value = 0;
 		}
 
-		$this->replace( $key, $value, $group );
+		$this->replace( $w3tc_key, $w3tc_value, $w3tc_group );
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Decrement numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment.
-	 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
-	 * @param string     $group  The group the key is in.
+	 * @param int|string $w3tc_key    The cache key to increment.
+	 * @param int        $w3tc_offset The amount by which to decrement the item's value. Default is 1.
+	 * @param string     $w3tc_group  The group the key is in.
 	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
-	public function decr( $key, $offset = 1, $group = 'default' ) {
-		$value = $this->get( $key, $group );
+	public function decr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$w3tc_value = $this->get( $w3tc_key, $w3tc_group );
 
-		if ( false === $value ) {
+		if ( false === $w3tc_value ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $value ) ) {
-			$value = 0;
+		if ( ! is_numeric( $w3tc_value ) ) {
+			$w3tc_value = 0;
 		}
 
-		$offset = (int) $offset;
-		$value -= $offset;
+		$w3tc_offset = (int) $w3tc_offset;
+		$w3tc_value -= $w3tc_offset;
 
-		if ( $value < 0 ) {
-			$value = 0;
+		if ( $w3tc_value < 0 ) {
+			$w3tc_value = 0;
 		}
 
-		$this->replace( $key, $value, $group );
+		$this->replace( $w3tc_key, $w3tc_value, $w3tc_group );
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
@@ -532,9 +532,9 @@ class Extension_FragmentCache_WpObjectCache {
 		}
 
 		if ( ! isset( $cache[ $blog_id ] ) ) {
-			$engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+			$w3tc_engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'memcached':
 					$engine_config = array(
 						'servers'           => $this->_config->get_array( array( 'fragmentcache', 'memcached.servers' ) ),
@@ -574,7 +574,7 @@ class Extension_FragmentCache_WpObjectCache {
 			$engine_config['host']        = Util_Environment::host();
 			$engine_config['instance_id'] = Util_Environment::instance_id();
 
-			$cache[ $blog_id ] = Cache::instance( $engine, $engine_config );
+			$cache[ $blog_id ] = Cache::instance( $w3tc_engine, $engine_config );
 		}
 
 		return $cache[ $blog_id ];
@@ -628,11 +628,11 @@ class Extension_FragmentCache_WpObjectCache {
 				'Transient ID'
 			);
 
-			foreach ( $this->debug_info as $index => $debug ) {
+			foreach ( $this->debug_info as $w3tc_index => $debug ) {
 				list( $fragment_group, $fragment_group_expiration, $fragment_group_global ) = $this->_fragment_group( $debug['id'], $debug['group'] );
 				$strings[] = sprintf(
 					'%s | %s | %s | %s | %s | %s| %s| %s',
-					str_pad( $index + 1, 5, ' ', STR_PAD_LEFT ),
+					str_pad( $w3tc_index + 1, 5, ' ', STR_PAD_LEFT ),
 					str_pad( ( $debug['cached'] ? 'cached' : 'not cached' ), 15, ' ', STR_PAD_BOTH ),
 					str_pad( ( $debug['internal'] ? 'internal' : 'persistent' ), 15, ' ', STR_PAD_BOTH ),
 					str_pad( $debug['data_size'], 13, ' ', STR_PAD_LEFT ),
@@ -653,11 +653,11 @@ class Extension_FragmentCache_WpObjectCache {
 	 * Uses registered fragment groups to identify it.
 	 *
 	 * @param unknown $id    ID.
-	 * @param string  $group Group.
+	 * @param string  $w3tc_group Group.
 	 *
 	 * @return string
 	 */
-	private function _fragment_group( $id, $group ) {
+	private function _fragment_group( $id, $w3tc_group ) {
 		if ( empty( $id ) ) {
 			return array( 'nogroup', 0, false );
 		}
@@ -666,11 +666,11 @@ class Extension_FragmentCache_WpObjectCache {
 		$use_group = '';
 		$length    = 0;
 
-		foreach ( $groups as $group => $descriptor ) {
-			if ( strpos( $id, $group ) !== false ) {
-				if ( strlen( $group ) > $length ) {
-					$length    = strlen( $group );
-					$use_group = array( $group, $descriptor['expiration'], $descriptor['global'] );
+		foreach ( $groups as $w3tc_group => $w3tc_descriptor ) {
+			if ( strpos( $id, $w3tc_group ) !== false ) {
+				if ( strlen( $w3tc_group ) > $length ) {
+					$length    = strlen( $w3tc_group );
+					$use_group = array( $w3tc_group, $w3tc_descriptor['expiration'], $w3tc_descriptor['global'] );
 				}
 			}
 		}
@@ -678,7 +678,7 @@ class Extension_FragmentCache_WpObjectCache {
 			return $use_group;
 		}
 
-		if ( 'site-transient' === $group ) {
+		if ( 'site-transient' === $w3tc_group ) {
 			return array( 'global-nogroup', 0, true );
 		}
 
@@ -700,13 +700,13 @@ class Extension_FragmentCache_WpObjectCache {
 	/**
 	 * Check if this is a WP-CLI call and fragmentcache[engine] is using Disk.
 	 *
-	 * @since  2.8.1
+	 * @since  2.8.2
 	 * @access private
 	 *
 	 * @return bool
 	 */
 	private function is_wpcli_disk(): bool {
-		$engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
-		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $engine;
+		$w3tc_engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $w3tc_engine;
 	}
 }

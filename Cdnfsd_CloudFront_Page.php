@@ -20,7 +20,7 @@ class Cdnfsd_CloudFront_Page {
 		wp_enqueue_script(
 			'w3tc_cdn_cloudfront_fsd',
 			plugins_url( 'Cdnfsd_CloudFront_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
+			array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ),
 			'1.0',
 			false
 		);
@@ -32,7 +32,7 @@ class Cdnfsd_CloudFront_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		include W3TC_DIR . '/Cdnfsd_CloudFront_Page_View.php';
 	}
 }

@@ -16,35 +16,35 @@ class Extension_NewRelic_AdminNotes {
 	 *
 	 * phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
 	 *
-	 * @param object $config Configuration object containing the plugin settings.
+	 * @param object $w3tc_config Configuration object containing the plugin settings.
 	 *
 	 * @return array An array with a message recommending optimizations, or an empty array if no recommendations.
 	 */
-	public function notifications( $config ) {
-		$config_state = Dispatcher::config_state();
-		if ( ! $config_state->get_boolean( 'newrelic.hide_note_pageload_slow' ) ) {
+	public function notifications( $w3tc_config ) {
+		$w3tc_config_state = Dispatcher::config_state();
+		if ( ! $w3tc_config_state->get_boolean( 'newrelic.hide_note_pageload_slow' ) ) {
 			$pl = get_option( 'w3tc_nr_frontend_response_time' );
 
 			if ( false !== $pl && $pl > 0.3 ) {
 				$nr_recommends = array();
-				if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
 					$nr_recommends[] = __( 'Page Cache', 'w3-total-cache' );
 				}
 
-				if ( ! $config->get_boolean( 'minify.enabled' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'minify.enabled' ) ) {
 					$nr_recommends[] = __( 'Minify', 'w3-total-cache' );
 				}
 
-				if ( ! $config->get_boolean( 'cdn.enabled' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
 					$nr_recommends[] = __( 'CDN', 'w3-total-cache' );
 				}
 
-				if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
+				if ( ! $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
 					$nr_recommends[] = __( 'Browser Cache and use compression', 'w3-total-cache' );
 				}
 
 				if ( $nr_recommends ) {
-					$message = sprintf(
+					$w3tc_message = sprintf(
 						// Translators: 1 New Relic recommendations, 2 button link.
 						__(
 							'Application monitoring has detected that your page load time is higher than 300ms. It is recommended that you enable the following features: %1$s %2$s',
@@ -64,7 +64,7 @@ class Extension_NewRelic_AdminNotes {
 					);
 
 					return array(
-						'newrelic_recommends' => $message,
+						'newrelic_recommends' => $w3tc_message,
 					);
 				}
 			}

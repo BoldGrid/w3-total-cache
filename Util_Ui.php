@@ -21,12 +21,12 @@ class Util_Ui {
 	 * @param string $text        Text.
 	 * @param string $onclick     On click.
 	 * @param string $class_value Class.
-	 * @param string $name        Name.
+	 * @param string $w3tc_name        Name.
 	 *
 	 * @return string
 	 */
-	public static function button( $text, $onclick = '', $class_value = 'button', $name = '' ) {
-		$maybe_name = ( empty( $name ) ? '' : ' name="' . esc_attr( $name ) . '"' );
+	public static function button( $text, $onclick = '', $class_value = 'button', $w3tc_name = '' ) {
+		$maybe_name = ( empty( $w3tc_name ) ? '' : ' name="' . esc_attr( $w3tc_name ) . '"' );
 		return '<input type="button"' . $maybe_name . ' class="' . esc_attr( $class_value ) . '" value="' .
 			esc_attr( $text ) . '" onclick="' . esc_attr( $onclick ) . '" />';
 	}
@@ -35,18 +35,18 @@ class Util_Ui {
 	 * Returns button link html.
 	 *
 	 * @param string $text        Text.
-	 * @param string $url         URL.
+	 * @param string $w3tc_url         URL.
 	 * @param bool   $new_window  Open link in a new window.
 	 * @param string $class_value Class.
-	 * @param string $name        Name.
+	 * @param string $w3tc_name        Name.
 	 *
 	 * @return string
 	 */
-	public static function button_link( $text, $url, $new_window = false, $class_value = 'button', $name = '' ) {
-		$url = str_replace( '&amp;', '&', $url );
+	public static function button_link( $text, $w3tc_url, $new_window = false, $class_value = 'button', $w3tc_name = '' ) {
+		$w3tc_url = str_replace( '&amp;', '&', $w3tc_url );
 
 		if ( $new_window ) {
-			$onclick = sprintf( 'window.open(\'%s\');', addslashes( $url ) );
+			$onclick = sprintf( 'window.open(\'%s\');', addslashes( $w3tc_url ) );
 		} else {
 			$onclick = '';
 
@@ -54,10 +54,10 @@ class Util_Ui {
 				$onclick .= 'w3tc_beforeupload_unbind(); ';
 			}
 
-			$onclick .= sprintf( 'document.location.href=\'%s\';', addslashes( $url ) );
+			$onclick .= sprintf( 'document.location.href=\'%s\';', addslashes( $w3tc_url ) );
 		}
 
-		return self::button( $text, $onclick, $class_value, $name );
+		return self::button( $text, $onclick, $class_value, $w3tc_name );
 	}
 
 	/**
@@ -76,23 +76,35 @@ class Util_Ui {
 			$addon['page'] = Util_Request::get_string( 'page', 'w3tc_dashboard' );
 		}
 
-		$url = 'admin.php';
-		$amp = '?';
-		foreach ( $addon as $key => $value ) {
-			$url .= $amp . rawurlencode( $key ) . '=' . rawurlencode( $value );
-			$amp  = '&';
+		$w3tc_url = 'admin.php';
+		$amp      = '?';
+		foreach ( $addon as $w3tc_key => $w3tc_value ) {
+			$w3tc_url .= $amp . rawurlencode( $w3tc_key ) . '=' . rawurlencode( $w3tc_value );
+			$amp       = '&';
 		}
 
-		$url = wp_nonce_url( $url, 'w3tc' );
+		$admin_action = '';
+		foreach ( $addon as $w3tc_key => $w3tc_value ) {
+			// First w3tc_* key names the dispatcher handler (e.g. w3tc_default_config_state_master).
+			if ( 0 === \strpos( $w3tc_key, 'w3tc_' ) && 'page' !== $w3tc_key ) {
+				$admin_action = $w3tc_key;
+				break;
+			}
+		}
 
-		return $url;
+		// Addon arrays without a dispatcher key are plain page links; no nonce needed.
+		if ( '' !== $admin_action ) {
+			$w3tc_url = Util_Nonce::admin_nonce_url( $w3tc_url, $admin_action );
+		}
+
+		return $w3tc_url;
 	}
 
 	/**
 	 * Returns hide note button html
 	 *
 	 * @param string  $text          Text.
-	 * @param string  $note          Note.
+	 * @param string  $w3tc_note          Note.
 	 * @param string  $redirect      Redirect.
 	 * @param boolean $admin         If to use config admin.
 	 * @param string  $page          Page.
@@ -102,7 +114,7 @@ class Util_Ui {
 	 */
 	public static function button_hide_note(
 		$text,
-		$note,
+		$w3tc_note,
 		$redirect = '',
 		$admin = false,
 		$page = '',
@@ -112,19 +124,19 @@ class Util_Ui {
 			$page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
 		}
 
-		$url = sprintf( 'admin.php?page=%s&%s&note=%s', $page, $custom_method, $note );
+		$w3tc_url = sprintf( 'admin.php?page=%s&%s&note=%s', $page, $custom_method, $w3tc_note );
 
 		if ( $admin ) {
-			$url .= '&admin=1';
+			$w3tc_url .= '&admin=1';
 		}
 
 		if ( '' !== $redirect ) {
-			$url .= '&redirect=' . rawurlencode( $redirect );
+			$w3tc_url .= '&redirect=' . rawurlencode( $redirect );
 		}
 
-		$url = wp_nonce_url( $url, 'w3tc' );
+		$w3tc_url = Util_Nonce::admin_nonce_url( $w3tc_url, $custom_method );
 
-		return self::button_link( $text, $url, false, 'button', 'w3tc_hide_' . $custom_method );
+		return self::button_link( $text, $w3tc_url, false, 'button', 'w3tc_hide_' . $custom_method );
 	}
 
 	/**
@@ -133,7 +145,7 @@ class Util_Ui {
 	 * @param array $parameters {
 	 *     Parameters for generating the hide note button.
 	 *
-	 *     @type string $key The configuration key used to generate the button ID.
+	 *     @type string $w3tc_key The configuration key used to generate the button ID.
 	 * }
 	 *
 	 * @return string The generated button HTML.
@@ -152,14 +164,14 @@ class Util_Ui {
 	 * Action button
 	 *
 	 * @param string $action      Action.
-	 * @param string $url         URL.
+	 * @param string $w3tc_url         URL.
 	 * @param string $class_value Class.
 	 * @param bool   $new_window  New window flag.
 	 *
 	 * @return string
 	 */
-	public static function action_button( $action, $url, $class_value = '', $new_window = false ) {
-		return self::button_link( $action, $url, $new_window, $class_value );
+	public static function action_button( $action, $w3tc_url, $class_value = '', $new_window = false ) {
+		return self::button_link( $action, $w3tc_url, $new_window, $class_value );
 	}
 	/**
 	 * Returns popup button html
@@ -173,10 +185,14 @@ class Util_Ui {
 	 * @return string
 	 */
 	public static function button_popup( $text, $action, $params = '', $width = 800, $height = 600 ) {
-		$url = wp_nonce_url( sprintf( 'admin.php?page=w3tc_dashboard&w3tc_%s%s', $action, ( '' !== $params ? '&' . $params : '' ) ), 'w3tc' );
-		$url = str_replace( '&amp;', '&', $url );
+		$handler  = 'w3tc_' . $action;
+		$w3tc_url = Util_Nonce::admin_nonce_url(
+			sprintf( 'admin.php?page=w3tc_dashboard&%s%s', $handler, ( '' !== $params ? '&' . $params : '' ) ),
+			$handler
+		);
+		$w3tc_url = str_replace( '&amp;', '&', $w3tc_url );
 
-		$onclick = sprintf( 'window.open(\'%s\', \'%s\', \'width=%d,height=%d,status=no,toolbar=no,menubar=no,scrollbars=yes\');', $url, $action, $width, $height );
+		$onclick = sprintf( 'window.open(\'%s\', \'%s\', \'width=%d,height=%d,status=no,toolbar=no,menubar=no,scrollbars=yes\');', $w3tc_url, $action, $width, $height );
 
 		return self::button( $text, $onclick );
 	}
@@ -264,16 +280,16 @@ class Util_Ui {
 	 * @param string $adv_link     Optional. URL for the "Advanced Settings" tab. Default empty.
 	 * @param string $premium_link Optional. URL for the "Premium Services" tab. Default empty.
 	 * @param string $tutorials_tab Optional. URL for the "Help" tab. Default empty.
-	 * @param array  $extra_links {
+	 * @param array  $w3tc_extra_links {
 	 *     Optional. Additional links for the postbox navigation.
 	 *
 	 *     @type string $text  Link text.
-	 *     @type string $url   URL for the extra link.
+	 *     @type string $w3tc_url   URL for the extra link.
 	 * }
 	 *
 	 * @return void
 	 */
-	public static function postbox_header_tabs( $title, $description = '', $class_value = '', $id = '', $adv_link = '', $premium_link = '', $tutorials_tab = '', $extra_links = array() ) {
+	public static function postbox_header_tabs( $title, $description = '', $class_value = '', $id = '', $adv_link = '', $premium_link = '', $tutorials_tab = '', $w3tc_extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
@@ -282,7 +298,7 @@ class Util_Ui {
 		$tutorials_tab      = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="help">' . esc_html__( 'Help', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
-		foreach ( $extra_links as $extra_link_text => $extra_link ) {
+		foreach ( $w3tc_extra_links as $extra_link_text => $extra_link ) {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '</a>';
 		}
 
@@ -311,7 +327,7 @@ class Util_Ui {
 	 * based on a given configuration key. It uses a mapping to fetch the correct tab content, which is then
 	 * wrapped in a `<div>` element with a `data-tab-type` attribute for identification.
 	 *
-	 * @param string $key      The configuration key used to retrieve tab settings.
+	 * @param string $w3tc_key      The configuration key used to retrieve tab settings.
 	 * @param string $tab_type The type of tab to retrieve (e.g., 'tutorials', 'premium-services').
 	 *
 	 * @return string|null     The HTML content for the specified tab, or null if the tab or key is not found.
@@ -321,15 +337,15 @@ class Util_Ui {
 	 * echo wp_kses_post( Util_Ui::get_tab('example_key', 'tutorials');  // Retrieves the tutorials tab for 'example_key'
 	 * ```
 	 */
-	public static function get_tab( string $key, string $tab_type ): ?string {
+	public static function get_tab( string $w3tc_key, string $tab_type ): ?string {
 
 		// If for any reason the key or tab type is empty, return an empty string.
-		if ( empty( $key ) || empty( $tab_type ) ) {
+		if ( empty( $w3tc_key ) || empty( $tab_type ) ) {
 			return '';
 		}
 
 		require_once 'ConfigSettingsTabs.php';
-		$configs = Config_Tab_Settings::get_config( $key );
+		$configs = Config_Tab_Settings::get_config( $w3tc_key );
 
 		// Define a mapping of tab types to the corresponding config keys.
 		$tab_mapping = array(
@@ -357,19 +373,19 @@ class Util_Ui {
 		$b1_id = 'w3tc_save_options_' . $id;
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
-		$nonce_field = self::nonce_field( 'w3tc' );
+		$nonce_field = self::nonce_field( Util_Nonce::admin_action( 'w3tc_save_options' ) );
 		$nonce_html  = wp_kses( $nonce_field, self::get_allowed_html_for_wp_kses_from_content( $nonce_field ) );
 		$extra_html  = wp_kses( $extra, self::get_allowed_html_for_wp_kses_from_content( $extra ) );
 
 		?>
 		<p class="submit">
 			<?php echo $nonce_html; ?>
-			<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" name="w3tc_save_options" class="w3tc-button-save button-primary" value="<?php esc_attr_e( 'Save all settings', 'w3-total-cache' ); ?>" />
+			<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" name="w3tc_save_options" class="w3tc-button-save button-primary" value="<?php esc_attr_e( 'Save all settings', 'w3-total-cache' ); ?>" data-w3tc-nonce="<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_save_options' ) ); ?>" />
 			<?php echo $extra_html; ?>
 			<?php
 			if ( ! is_network_admin() ) {
 				echo '<input type="submit" id="' . esc_attr( $b2_id ) . '" name="w3tc_default_save_and_flush" style="float: right"
-					class="w3tc-button-save button-primary" value="' . esc_attr__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '" />';
+					class="w3tc-button-save button-primary" value="' . esc_attr__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '" data-w3tc-nonce="' . esc_attr( Util_Nonce::create_admin( 'w3tc_default_save_and_flush' ) ) . '" />';
 			}
 			?>
 		</p>
@@ -407,7 +423,7 @@ class Util_Ui {
 		$b1_id = 'w3tc_save_options_' . $id;
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
-		$nonce_field = self::nonce_field( 'w3tc' );
+		$nonce_field = self::nonce_field( Util_Nonce::admin_action( 'w3tc_save_options' ) );
 		echo wp_kses(
 			$nonce_field,
 			self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
@@ -423,17 +439,17 @@ class Util_Ui {
 			<?php
 			if ( ! is_network_admin() ) {
 				?>
-				<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+				<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>" data-w3tc-nonce="<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_save_options' ) ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
 				<div class="dropdown-menu dropdown-menu-right">
-					<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="<?php esc_html_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>"/>
+					<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="<?php esc_html_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>" data-w3tc-nonce="<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_default_save_and_flush' ) ); ?>"/>
 				</div>
 				<?php
 			} else {
 				?>
-				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>" data-w3tc-nonce="<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_save_options' ) ); ?>"/>
 				<?php
 			}
 			?>
@@ -447,9 +463,9 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function print_flush_split_button() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$nonce_field = self::nonce_field( 'w3tc' );
+		$nonce_field = self::nonce_field( Util_Nonce::admin_action( 'w3tc_save_options' ) );
 		echo wp_kses(
 			$nonce_field,
 			self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
@@ -457,7 +473,7 @@ class Util_Ui {
 
 		?>
 		<div class="btn-group w3tc-button-flush-dropdown">
-			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
+			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>" data-w3tc-nonce="<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_flush_all' ) ); ?>"/>
 			<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				<span class="sr-only">Toggle Dropdown</span>
 			</button>
@@ -478,40 +494,44 @@ class Util_Ui {
 						)
 					);
 				}
-				if ( $config->get_boolean( 'pgcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_attr__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_attr__( 'Empty Page Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_pgcache' ) . '/>';
 				}
-				if ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_attr__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->get_boolean( 'browsercache.cssjs.replace' ) || $w3tc_config->get_boolean( 'browsercache.other.replace' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_attr__( 'Empty Browser Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_browser_cache' ) . '/>';
 				}
-				if ( $config->get_boolean( 'minify.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_attr__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->get_boolean( 'minify.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_attr__( 'Empty Minify Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_minify' ) . '/>';
 				}
-				if ( $config->get_boolean( 'dbcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_attr__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->get_boolean( 'dbcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_attr__( 'Empty Database Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_dbcache' ) . '/>';
 				}
-				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_attr__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->getf_boolean( 'objectcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_attr__( 'Empty Object Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_objectcache' ) . '/>';
 				}
-				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
-					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
-						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
-							'' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_attr__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
+				/**
+				 * Render the CDN purge control only for engines that support a full purge; engines such as
+				 * Generic Mirror have no purge API, so the button is omitted entirely rather than disabled.
+				 */
+				if (
+					( $w3tc_config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $w3tc_config->get_string( 'cdn.engine' ) ) ) ||
+					( $w3tc_config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $w3tc_config->get_string( 'cdnfsd.engine' ) ) )
+				) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn" value="' . esc_attr__( 'Empty CDN Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_cdn' ) . '/>';
 				}
-				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_attr__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $w3tc_config ) && ! empty( $w3tc_config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_attr__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_fragmentcache' ) . '/>';
 				}
-				if ( $config->get_boolean( 'varnish.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_attr__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->get_boolean( 'varnish.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_attr__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_flush_varnish' ) . '/>';
 				}
-				if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty Cloudflare Cache', 'w3-total-cache' ) . '"/>';
+				if ( $w3tc_config->is_extension_active_frontend( 'cloudflare' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty Cloudflare Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_cloudflare_flush' ) . '/>';
 				}
 				$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
 				if ( $opcode_enabled ) {
 					$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_attr__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_attr__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"' . self::admin_submit_nonce_attr( 'w3tc_opcache_flush' ) . '/>';
 				}
 				?>
 			</div>
@@ -541,13 +561,13 @@ class Util_Ui {
 	/**
 	 * Sealing disabled
 	 *
-	 * @param string $key Key.
+	 * @param string $w3tc_key Key.
 	 *
 	 * @return void
 	 */
-	public static function sealing_disabled( $key ) {
-		$c = Dispatcher::config();
-		if ( $c->is_sealed( $key ) ) {
+	public static function sealing_disabled( $w3tc_key ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->is_sealed( $w3tc_key ) ) {
 			echo 'disabled="disabled" ';
 		}
 	}
@@ -556,13 +576,13 @@ class Util_Ui {
 	 * Returns nonce field HTML
 	 *
 	 * @param string|int $action  Action.
-	 * @param string     $name    Name.
+	 * @param string     $w3tc_name    Name.
 	 * @param bool       $referer Referrer.
 	 *
 	 * @return string
 	 */
-	public static function nonce_field( $action = -1, $name = '_wpnonce', $referer = true ) {
-		$return = '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( wp_create_nonce( $action ) ) . '" />';
+	public static function nonce_field( $action = -1, $w3tc_name = '_wpnonce', $referer = true ) {
+		$return = '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( wp_create_nonce( $action ) ) . '" />';
 
 		if ( $referer ) {
 			$return .= wp_referer_field( false );
@@ -572,15 +592,28 @@ class Util_Ui {
 	}
 
 	/**
+	 * HTML attribute carrying a per-handler admin nonce for submit buttons.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action Dispatcher handler request key.
+	 *
+	 * @return string
+	 */
+	public static function admin_submit_nonce_attr( $action ) {
+		return ' data-w3tc-nonce="' . esc_attr( Util_Nonce::create_admin( $action ) ) . '"';
+	}
+
+	/**
 	 * Returns an notification box
 	 *
-	 * @param string $message Message.
+	 * @param string $w3tc_message Message.
 	 * @param string $id      Adds an id to the notification box.
 	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return string
 	 */
-	public static function get_notification_box( $message, $id = '', $dismissible = false ) {
+	public static function get_notification_box( $w3tc_message, $id = '', $dismissible = false ) {
 		$page_val = Util_Request::get_string( 'page' );
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
@@ -596,21 +629,21 @@ class Util_Ui {
 			'<div %1$s class="notice notice-info updated inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$dismissible ? 'is-dismissible' : '',
-			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
+			$logo . wp_kses( $w3tc_message, self::get_allowed_html_for_wp_kses_from_content( $w3tc_message ) )
 		);
 	}
 
 	/**
 	 * Echos an notification box
 	 *
-	 * @param string $message Message.
+	 * @param string $w3tc_message Message.
 	 * @param string $id      adds an id to the notification box.
 	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return void
 	 */
-	public static function e_notification_box( $message, $id = '', $dismissible = false ) {
-		$notification_box = self::get_notification_box( $message, $id, $dismissible );
+	public static function e_notification_box( $w3tc_message, $id = '', $dismissible = false ) {
+		$notification_box = self::get_notification_box( $w3tc_message, $id, $dismissible );
 		echo wp_kses(
 			$notification_box,
 			self::get_allowed_html_for_wp_kses_from_content( $notification_box )
@@ -620,13 +653,13 @@ class Util_Ui {
 	/**
 	 * Echos an error box.
 	 *
-	 * @param string $message Message.
+	 * @param string $w3tc_message Message.
 	 * @param string $id      Id.
 	 * @param bool   $dismissible Whether the notification box should be dismissible.
 	 *
 	 * @return void
 	 */
-	public static function error_box( $message, $id = '', $dismissible = false ) {
+	public static function error_box( $w3tc_message, $id = '', $dismissible = false ) {
 		$page_val = Util_Request::get_string( 'page' );
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
@@ -642,7 +675,7 @@ class Util_Ui {
 			'<div %1$s class="notice notice-error error inline %2$s">%3$s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$dismissible ? 'is-dismissible' : '',
-			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
+			$logo . wp_kses( $w3tc_message, self::get_allowed_html_for_wp_kses_from_content( $w3tc_message ) )
 		);
 
 		echo wp_kses(
@@ -703,26 +736,26 @@ class Util_Ui {
 	 * Returns an hidden input text element
 	 *
 	 * @param string $id       ID.
-	 * @param string $name     Name.
-	 * @param string $value    Value.
+	 * @param string $w3tc_name     Name.
+	 * @param string $w3tc_value    Value.
 	 *
 	 * @return string
 	 */
-	public static function r_hidden( $id, $name, $value ) {
-		return '<input type="hidden" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
+	public static function r_hidden( $id, $w3tc_name, $w3tc_value ) {
+		return '<input type="hidden" id="' . esc_attr( $id ) . '" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '" />';
 	}
 
 	/**
 	 * Echos a hidden input text element
 	 *
 	 * @param string $id    ID.
-	 * @param string $name  Name.
-	 * @param string $value Value.
+	 * @param string $w3tc_name  Name.
+	 * @param string $w3tc_value Value.
 	 *
 	 * @return void
 	 */
-	public static function hidden( $id, $name, $value ) {
-		$hidden = self::r_hidden( $id, $name, $value );
+	public static function hidden( $id, $w3tc_name, $w3tc_value ) {
+		$hidden = self::r_hidden( $id, $w3tc_name, $w3tc_value );
 		echo wp_kses(
 			$hidden,
 			self::get_allowed_html_for_wp_kses_from_content( $hidden )
@@ -738,10 +771,10 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function label( $id, $text ) {
-		$label = '<label for="' . esc_attr( $id ) . '">' . $text . '</label>';
+		$w3tc_label = '<label for="' . esc_attr( $id ) . '">' . $text . '</label>';
 		echo wp_kses(
-			$label,
-			self::get_allowed_html_for_wp_kses_from_content( $label )
+			$w3tc_label,
+			self::get_allowed_html_for_wp_kses_from_content( $w3tc_label )
 		);
 	}
 
@@ -749,36 +782,36 @@ class Util_Ui {
 	 * Echos an input text element
 	 *
 	 * @param string $id          ID.
-	 * @param string $name        Name.
-	 * @param string $value       Value.
-	 * @param bool   $disabled    Disabled.
+	 * @param string $w3tc_name        Name.
+	 * @param string $w3tc_value       Value.
+	 * @param bool   $w3tc_disabled    Disabled.
 	 * @param int    $size        Size.
 	 * @param string $type        Type.
-	 * @param string $placeholder Placeholder.
+	 * @param string $w3tc_placeholder Placeholder.
 	 *
 	 * @return void
 	 */
-	public static function textbox( $id, $name, $value, $disabled = false, $size = 40, $type = 'text', $placeholder = '' ) {
-		$placeholder = ! empty( $placeholder ) ? ' placeholder="' . esc_attr( $placeholder ) . '"' : '';
+	public static function textbox( $id, $w3tc_name, $w3tc_value, $w3tc_disabled = false, $size = 40, $type = 'text', $w3tc_placeholder = '' ) {
+		$w3tc_placeholder = ! empty( $w3tc_placeholder ) ? ' placeholder="' . esc_attr( $w3tc_placeholder ) . '"' : '';
 
-		echo '<input class="enabled" type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled, true, false ) . ' size="' . esc_attr( $size ) . '"' . $placeholder . ' />';
+		echo '<input class="enabled" type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $w3tc_name ) . '"
+			 value="' . esc_attr( $w3tc_value ) . '" ' . disabled( $w3tc_disabled, true, false ) . ' size="' . esc_attr( $size ) . '"' . $w3tc_placeholder . ' />';
 	}
 
 	/**
 	 * Echos an input password element
 	 *
 	 * @param string $id       ID.
-	 * @param string $name     Name.
-	 * @param string $value    Value.
-	 * @param bool   $disabled Diabled.
+	 * @param string $w3tc_name     Name.
+	 * @param string $w3tc_value    Value.
+	 * @param bool   $w3tc_disabled Diabled.
 	 * @param int    $size     Size.
 	 *
 	 * @return void
 	 */
-	public static function passwordbox( $id, $name, $value, $disabled = false, $size = 40 ) {
-		echo '<input class="enabled" type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled, true, false ) . ' size="' . esc_attr( $size ) . '" />';
+	public static function passwordbox( $id, $w3tc_name, $w3tc_value, $w3tc_disabled = false, $size = 40 ) {
+		echo '<input class="enabled" type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $w3tc_name ) . '"
+			 value="' . esc_attr( $w3tc_value ) . '" ' . disabled( $w3tc_disabled, true, false ) . ' size="' . esc_attr( $size ) . '" />';
 	}
 
 	/**
@@ -790,21 +823,21 @@ class Util_Ui {
 	 * `Util_Ui::config_item()`), so a future credential field added to
 	 * the schema is masked by being flagged — no template edit needed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param string|array $key Config key (compound keys are never
+	 * @param string|array $w3tc_key Config key (compound keys are never
 	 *                          secrets in the static schema).
 	 *
 	 * @return bool
 	 */
-	public static function is_secret_config_key( $key ) {
-		if ( \is_array( $key ) || ! \is_string( $key ) || '' === $key ) {
+	public static function is_secret_config_key( $w3tc_key ) {
+		if ( \is_array( $w3tc_key ) || ! \is_string( $w3tc_key ) || '' === $w3tc_key ) {
 			return false;
 		}
 
 		$secrets = Config::secret_keys();
 
-		return isset( $secrets[ $key ] );
+		return isset( $secrets[ $w3tc_key ] );
 	}
 
 	/**
@@ -843,13 +876,13 @@ class Util_Ui {
 	 *      e.g. `Licensing_Plugin_Admin::possible_state_change()`
 	 *      deactivates the license against EDD).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $args {
 	 *     Field arguments.
 	 *
 	 *     @type string $id          DOM id.
-	 *     @type string $name        Submit name (e.g. `cdn__s3__secret`).
+	 *     @type string $w3tc_name        Submit name (e.g. `cdn__s3__secret`).
 	 *     @type bool   $has_value   Whether a secret is currently
 	 *                               configured. When true the input
 	 *                               renders a dot placeholder AND a
@@ -867,31 +900,31 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function secret_input( $args ) {
-		$id          = isset( $args['id'] ) ? (string) $args['id'] : '';
-		$name        = isset( $args['name'] ) ? (string) $args['name'] : '';
-		$has_value   = ! empty( $args['has_value'] );
-		$size        = isset( $args['size'] ) ? (int) $args['size'] : 60;
-		$type        = isset( $args['type'] ) && 'text' === $args['type'] ? 'text' : 'password';
-		$sealing_key = isset( $args['sealing_key'] ) ? (string) $args['sealing_key'] : '';
-		$extra_class = ! isset( $args['extra_class'] ) || (bool) $args['extra_class'];
-		$disabled    = ! empty( $args['disabled'] );
+		$id            = isset( $args['id'] ) ? (string) $args['id'] : '';
+		$w3tc_name     = isset( $args['name'] ) ? (string) $args['name'] : '';
+		$has_value     = ! empty( $args['has_value'] );
+		$size          = isset( $args['size'] ) ? (int) $args['size'] : 60;
+		$type          = isset( $args['type'] ) && 'text' === $args['type'] ? 'text' : 'password';
+		$sealing_key   = isset( $args['sealing_key'] ) ? (string) $args['sealing_key'] : '';
+		$extra_class   = ! isset( $args['extra_class'] ) || (bool) $args['extra_class'];
+		$w3tc_disabled = ! empty( $args['disabled'] );
 
-		$placeholder = $has_value ? '••••••••' : '';
+		$w3tc_placeholder = $has_value ? '••••••••' : '';
 
-		if ( ! $disabled && '' !== $sealing_key && Dispatcher::config()->is_sealed( $sealing_key ) ) {
-			$disabled = true;
+		if ( ! $w3tc_disabled && '' !== $sealing_key && Dispatcher::config()->is_sealed( $sealing_key ) ) {
+			$w3tc_disabled = true;
 		}
 
 		echo '<input'
 			. ( $extra_class ? ' class="w3tc-ignore-change"' : '' )
 			. ' type="' . esc_attr( $type ) . '"'
 			. ' id="' . esc_attr( $id ) . '"'
-			. ' name="' . esc_attr( $name ) . '"'
+			. ' name="' . esc_attr( $w3tc_name ) . '"'
 			. ' value=""'
-			. ' placeholder="' . esc_attr( $placeholder ) . '"'
+			. ' placeholder="' . esc_attr( $w3tc_placeholder ) . '"'
 			. ' autocomplete="new-password"'
 			. ' size="' . esc_attr( (string) $size ) . '"'
-			. ( $disabled ? ' disabled="disabled"' : '' )
+			. ( $w3tc_disabled ? ' disabled="disabled"' : '' )
 			. ' />';
 
 		/**
@@ -905,11 +938,11 @@ class Util_Ui {
 		 * entry ends in `clear`) and is trivially filtered out of the
 		 * `$_REQUEST` iteration in `read_request()`.
 		 */
-		if ( $has_value && ! $disabled ) {
+		if ( $has_value && ! $w3tc_disabled ) {
 			$clear_id = $id . '__w3tc_clear';
 			echo ' <label for="' . esc_attr( $clear_id ) . '" class="w3tc-secret-clear-label" style="margin-left:8px;font-weight:normal;cursor:pointer;">'
 				. '<input class="w3tc-ignore-change" type="checkbox" id="' . esc_attr( $clear_id ) . '"'
-				. ' name="' . esc_attr( $name ) . '__w3tc_clear" value="1" />'
+				. ' name="' . esc_attr( $w3tc_name ) . '__w3tc_clear" value="1" />'
 				. ' ' . esc_html__( 'Remove on save', 'w3-total-cache' )
 				. '</label>';
 		}
@@ -919,32 +952,32 @@ class Util_Ui {
 	 * Echoes a select element.
 	 *
 	 * @param string $id        The ID attribute for the select element.
-	 * @param string $name      The name attribute for the select element.
-	 * @param string $value     The selected value.
+	 * @param string $w3tc_name      The name attribute for the select element.
+	 * @param string $w3tc_value     The selected value.
 	 * @param array  $values    An array of options, where the key is the option value and the value is the label.
-	 * @param bool   $disabled  Whether the select element should be disabled. Default false.
+	 * @param bool   $w3tc_disabled  Whether the select element should be disabled. Default false.
 	 * @param array  $optgroups {
 	 *     Optional. An associative array of optgroup labels.
 	 *
-	 *     @type int|string $key The optgroup identifier.
-	 *     @type string     $label The label for the optgroup.
+	 *     @type int|string $w3tc_key The optgroup identifier.
+	 *     @type string     $w3tc_label The label for the optgroup.
 	 * }
 	 *
 	 * @return void
 	 */
-	public static function selectbox( $id, $name, $value, $values, $disabled = false, $optgroups = null ) {
-		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" ' . disabled( $disabled, true, false ) . ">\n";
+	public static function selectbox( $id, $w3tc_name, $w3tc_value, $values, $w3tc_disabled = false, $optgroups = null ) {
+		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $w3tc_name ) . '" ' . disabled( $w3tc_disabled, true, false ) . ">\n";
 
 		if ( ! is_array( $optgroups ) ) {
 			// simle control.
-			foreach ( $values as $key => $descriptor ) {
-				self::option( $key, $value, $descriptor );
+			foreach ( $values as $w3tc_key => $w3tc_descriptor ) {
+				self::option( $w3tc_key, $w3tc_value, $w3tc_descriptor );
 			}
 		} else {
 			// with optgroups.
 			$current_optgroup = -1;
-			foreach ( $values as $key => $descriptor ) {
-				$optgroup = ( isset( $descriptor['optgroup'] ) ? $descriptor['optgroup'] : -1 );
+			foreach ( $values as $w3tc_key => $w3tc_descriptor ) {
+				$optgroup = ( isset( $w3tc_descriptor['optgroup'] ) ? $w3tc_descriptor['optgroup'] : -1 );
 				if ( $optgroup !== $current_optgroup ) {
 					if ( -1 !== $current_optgroup ) {
 						echo '</optgroup>';
@@ -953,7 +986,7 @@ class Util_Ui {
 					$current_optgroup = $optgroup;
 				}
 
-				self::option( $key, $value, $descriptor );
+				self::option( $w3tc_key, $w3tc_value, $w3tc_descriptor );
 			}
 
 			if ( -1 !== $current_optgroup ) {
@@ -967,35 +1000,35 @@ class Util_Ui {
 	/**
 	 * Echos a select option
 	 *
-	 * @param string $key            Key.
+	 * @param string $w3tc_key            Key.
 	 * @param string $selected_value Name.
-	 * @param string $descriptor     Descriptor.
+	 * @param string $w3tc_descriptor     Descriptor.
 	 *
 	 * @return void
 	 */
-	private static function option( $key, $selected_value, $descriptor ) {
-		if ( ! is_array( $descriptor ) ) {
-			$label    = $descriptor;
-			$disabled = false;
+	private static function option( $w3tc_key, $selected_value, $w3tc_descriptor ) {
+		if ( ! is_array( $w3tc_descriptor ) ) {
+			$w3tc_label    = $w3tc_descriptor;
+			$w3tc_disabled = false;
 		} else {
-			$label    = $descriptor['label'];
-			$disabled = ! empty( $descriptor['disabled'] );
+			$w3tc_label    = $w3tc_descriptor['label'];
+			$w3tc_disabled = ! empty( $w3tc_descriptor['disabled'] );
 		}
 
-		echo '<option value="' . esc_attr( $key ) . '" ' . selected( $selected_value, $key ) . disabled( $disabled, true, false ) . '>' .
-			wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</option>' . "\n";
+		echo '<option value="' . esc_attr( $w3tc_key ) . '" ' . selected( $selected_value, $w3tc_key ) . disabled( $w3tc_disabled, true, false ) . '>' .
+			wp_kses( $w3tc_label, self::get_allowed_html_for_wp_kses_from_content( $w3tc_label ) ) . '</option>' . "\n";
 	}
 
 	/**
 	 * Echos a group of radio elements values: value => label pair or value => array(label, disabled, postfix).
 	 *
-	 * @param string $name      Name.
-	 * @param string $value     Value.
+	 * @param string $w3tc_name      Name.
+	 * @param string $w3tc_value     Value.
 	 * @param array  $values    {
 	 *     Values.
 	 *
-	 *     @type string $label             Label for the radio button.
-	 *     @type bool   $disabled          Whether the radio button is disabled.
+	 *     @type string $w3tc_label             Label for the radio button.
+	 *     @type bool   $w3tc_disabled          Whether the radio button is disabled.
 	 *     @type string $postfix           Postfix to be appended to the label.
 	 *     @type bool   $pro_feature       Whether the radio button is a pro feature.
 	 *     @type string $pro_excerpt       Excerpt for pro feature description.
@@ -1007,18 +1040,18 @@ class Util_Ui {
 	 *     @type string $score_link        Link related to the score.
 	 *     @type bool   $show_learn_more   Whether to show the "learn more" option for the pro feature.
 	 * }
-	 * @param bool   $disabled  Disabled flag for all radio buttons.
+	 * @param bool   $w3tc_disabled  Disabled flag for all radio buttons.
 	 * @param string $separator Separator to be used between radio buttons.
 	 *
 	 * @return void
 	 */
-	public static function radiogroup( $name, $value, $values, $disabled = false, $separator = '' ) {
-		$c      = Dispatcher::config();
-		$is_pro = Util_Environment::is_w3tc_pro( $c );
-		$first  = true;
-		foreach ( $values as $key => $label_or_array ) {
-			if ( $first ) {
-				$first = false;
+	public static function radiogroup( $w3tc_name, $w3tc_value, $values, $w3tc_disabled = false, $separator = '' ) {
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
+		$w3tc_first  = true;
+		foreach ( $values as $w3tc_key => $label_or_array ) {
+			if ( $w3tc_first ) {
+				$w3tc_first = false;
 			} else {
 				echo wp_kses(
 					$separator,
@@ -1026,15 +1059,15 @@ class Util_Ui {
 				);
 			}
 
-			$label         = '';
+			$w3tc_label    = '';
 			$item_disabled = false;
 			$postfix       = '';
 			$pro_feature   = false;
 
 			if ( ! is_array( $label_or_array ) ) {
-				$label = $label_or_array;
+				$w3tc_label = $label_or_array;
 			} else {
-				$label         = $label_or_array['label'];
+				$w3tc_label    = $label_or_array['label'];
 				$item_disabled = $label_or_array['disabled'];
 				$postfix       = isset( $label_or_array['postfix'] ) ? $label_or_array['postfix'] : '';
 				$pro_feature   = isset( $label_or_array['pro_feature'] ) ? $label_or_array['pro_feature'] : false;
@@ -1044,25 +1077,25 @@ class Util_Ui {
 				self::pro_wrap_maybe_start();
 			}
 
-			echo '<label><input type="radio" id="' . esc_attr( $name . '__' . $key ) . '" name="' . esc_attr( $name ) .
-				'" value="' . esc_attr( $key ) . '"' . checked( $value, $key, false ) . disabled( $disabled || $item_disabled, true, false ) . ' />' .
-				wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>' .
+			echo '<label><input type="radio" id="' . esc_attr( $w3tc_name . '__' . $w3tc_key ) . '" name="' . esc_attr( $w3tc_name ) .
+				'" value="' . esc_attr( $w3tc_key ) . '"' . checked( $w3tc_value, $w3tc_key, false ) . disabled( $w3tc_disabled || $item_disabled, true, false ) . ' />' .
+				wp_kses( $w3tc_label, self::get_allowed_html_for_wp_kses_from_content( $w3tc_label ) ) . '</label>' .
 				wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
 
 			if ( $pro_feature ) {
 				self::pro_wrap_description(
 					$label_or_array['pro_excerpt'],
 					$label_or_array['pro_description'],
-					$name . '__' . $key
+					$w3tc_name . '__' . $w3tc_key
 				);
 
-				if ( ! $is_pro && isset( $label_or_array['intro_label'] ) && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) && isset( $label_or_array['score_link'] ) ) {
+				if ( ! $w3tc_is_pro && isset( $label_or_array['intro_label'] ) && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) && isset( $label_or_array['score_link'] ) ) {
 					$score_block = self::get_score_block( $label_or_array['intro_label'], $label_or_array['score'], $label_or_array['score_label'], $label_or_array['score_description'], $label_or_array['score_link'] );
 					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 				}
 
 				$show_learn_more = isset( $label_or_array['show_learn_more'] ) && is_bool( $label_or_array['show_learn_more'] ) ? $label_or_array['show_learn_more'] : true;
-				self::pro_wrap_maybe_end( $name . '__' . $key, $show_learn_more );
+				self::pro_wrap_maybe_end( $w3tc_name . '__' . $w3tc_key, $show_learn_more );
 			}
 		}
 	}
@@ -1071,16 +1104,16 @@ class Util_Ui {
 	 * Echos an input text element
 	 *
 	 * @param string $id       ID.
-	 * @param string $name     Name.
-	 * @param string $value    Value.
-	 * @param bool   $disabled Disabled.
+	 * @param string $w3tc_name     Name.
+	 * @param string $w3tc_value    Value.
+	 * @param bool   $w3tc_disabled Disabled.
 	 *
 	 * @return void
 	 */
-	public static function textarea( $id, $name, $value, $disabled = false ) {
+	public static function textarea( $id, $w3tc_name, $w3tc_value, $w3tc_disabled = false ) {
 		// The "textarea" element must not have padding around the value.
 		?>
-		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>><?php echo esc_textarea( $value ); ?></textarea>
+		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $w3tc_name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $w3tc_disabled, true, true ); ?>><?php echo esc_textarea( $w3tc_value ); ?></textarea>
 		<?php
 	}
 
@@ -1088,24 +1121,24 @@ class Util_Ui {
 	 * Echos an input checkbox element
 	 *
 	 * @param string $id       ID.
-	 * @param string $name     Name.
+	 * @param string $w3tc_name     Name.
 	 * @param bool   $state    Whether checked or not.
-	 * @param bool   $disabled Disabled.
-	 * @param string $label    Label.
+	 * @param bool   $w3tc_disabled Disabled.
+	 * @param string $w3tc_label    Label.
 	 *
 	 * @return void
 	 */
-	public static function checkbox( $id, $name, $state, $disabled = false, $label = null ) {
-		if ( ! is_null( $label ) ) {
+	public static function checkbox( $id, $w3tc_name, $state, $w3tc_disabled = false, $w3tc_label = null ) {
+		if ( ! is_null( $w3tc_label ) ) {
 			echo '<label>';
 		}
 
-		echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( ( ! $disabled ? '0' : ( $state ? '1' : '0' ) ) ) . '">' . "\n";
-		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) .
-			'" value="1" ' . checked( $state, true, false ) . disabled( $disabled, true, false ) . ' /> ';
+		echo '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( ( ! $w3tc_disabled ? '0' : ( $state ? '1' : '0' ) ) ) . '">' . "\n";
+		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $w3tc_name ) .
+			'" value="1" ' . checked( $state, true, false ) . disabled( $w3tc_disabled, true, false ) . ' /> ';
 
-		if ( ! is_null( $label ) ) {
-			echo wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>';
+		if ( ! is_null( $w3tc_label ) ) {
+			echo wp_kses( $w3tc_label, self::get_allowed_html_for_wp_kses_from_content( $w3tc_label ) ) . '</label>';
 		}
 	}
 
@@ -1114,26 +1147,26 @@ class Util_Ui {
 	 *
 	 * @param string $type     Type.
 	 * @param string $id       ID.
-	 * @param string $name     Name.
-	 * @param mixed  $value    Value.
-	 * @param bool   $disabled Disabled.
+	 * @param string $w3tc_name     Name.
+	 * @param mixed  $w3tc_value    Value.
+	 * @param bool   $w3tc_disabled Disabled.
 	 *
 	 * @return void
 	 */
-	public static function element( $type, $id, $name, $value, $disabled = false ) {
+	public static function element( $type, $id, $w3tc_name, $w3tc_value, $w3tc_disabled = false ) {
 		switch ( $type ) {
 			case 'textbox':
-				self::textbox( $id, $name, $value, $disabled );
+				self::textbox( $id, $w3tc_name, $w3tc_value, $w3tc_disabled );
 				break;
 			case 'password':
-				self::passwordbox( $id, $name, $value, $disabled );
+				self::passwordbox( $id, $w3tc_name, $w3tc_value, $w3tc_disabled );
 				break;
 			case 'textarea':
-				self::textarea( $id, $name, $value, $disabled );
+				self::textarea( $id, $w3tc_name, $w3tc_value, $w3tc_disabled );
 				break;
 			case 'checkbox':
 			default:
-				self::checkbox( $id, $name, $value, $disabled );
+				self::checkbox( $id, $w3tc_name, $w3tc_value, $w3tc_disabled );
 				break;
 		}
 	}
@@ -1144,10 +1177,10 @@ class Util_Ui {
 	 * @param array $e {
 	 *     Config.
 	 *
-	 *     @type string $name    The name of the checkbox.
-	 *     @type mixed  $value   The value of the checkbox.
-	 *     @type bool   $disabled Optional. Whether the checkbox is disabled. Defaults to false.
-	 *     @type string $label   Optional. The label for the checkbox. Defaults to null.
+	 *     @type string $w3tc_name    The name of the checkbox.
+	 *     @type mixed  $w3tc_value   The value of the checkbox.
+	 *     @type bool   $w3tc_disabled Optional. Whether the checkbox is disabled. Defaults to false.
+	 *     @type string $w3tc_label   Optional. The label for the checkbox. Defaults to null.
 	 * }
 	 *
 	 * @return void
@@ -1168,10 +1201,10 @@ class Util_Ui {
 	 * @param array $e {
 	 *     Config.
 	 *
-	 *     @type string $name       The name of the radio group.
-	 *     @type mixed  $value      The selected value.
+	 *     @type string $w3tc_name       The name of the radio group.
+	 *     @type mixed  $w3tc_value      The selected value.
 	 *     @type array  $values     Array of radio button options.
-	 *     @type bool   $disabled   Whether the radio group is disabled.
+	 *     @type bool   $w3tc_disabled   Whether the radio group is disabled.
 	 *     @type string $separator  The separator between radio buttons.
 	 * }
 	 *
@@ -1193,10 +1226,10 @@ class Util_Ui {
 	 * @param array $e {
 	 *     Config.
 	 *
-	 *     @type string   $name      The name of the select element.
-	 *     @type mixed    $value     The selected value.
+	 *     @type string   $w3tc_name      The name of the select element.
+	 *     @type mixed    $w3tc_value     The selected value.
 	 *     @type array    $values    The available options.
-	 *     @type bool     $disabled  Optional. Whether the select should be disabled. Default false.
+	 *     @type bool     $w3tc_disabled  Optional. Whether the select should be disabled. Default false.
 	 *     @type array|null $optgroups Optional. The optgroups for grouping options. Default null.
 	 * }
 	 *
@@ -1219,12 +1252,12 @@ class Util_Ui {
 	 * @param array $e {
 	 *     Config.
 	 *
-	 *     @type string $name        Name of the textbox.
-	 *     @type string $value       Value of the textbox.
-	 *     @type bool   $disabled    Whether the textbox is disabled. Default is false.
+	 *     @type string $w3tc_name        Name of the textbox.
+	 *     @type string $w3tc_value       Value of the textbox.
+	 *     @type bool   $w3tc_disabled    Whether the textbox is disabled. Default is false.
 	 *     @type int    $size        Size of the textbox. Default is 20.
 	 *     @type string $type        Type of the textbox. Default is 'text'.
-	 *     @type string $placeholder Placeholder text for the textbox. Default is an empty string.
+	 *     @type string $w3tc_placeholder Placeholder text for the textbox. Default is an empty string.
 	 * }
 	 *
 	 * @return void
@@ -1247,9 +1280,9 @@ class Util_Ui {
 	 * @param array $e {
 	 *     Config.
 	 *
-	 *     @type string  $name      Name of the textarea.
-	 *     @type string  $value     Value of the textarea.
-	 *     @type bool    $disabled  Whether the textarea is disabled. Default is false.
+	 *     @type string  $w3tc_name      Name of the textarea.
+	 *     @type string  $w3tc_value     Value of the textarea.
+	 *     @type bool    $w3tc_disabled  Whether the textarea is disabled. Default is false.
 	 * }
 	 *
 	 * @return void
@@ -1269,13 +1302,13 @@ class Util_Ui {
 	 * Handles rendering of different input controls (checkbox, radiogroup, selectbox, textbox, textarea, none, and button)
 	 * based on the configuration provided in the input array.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Configuration for the control.
 	 *
 	 *     @type string  $control              The type of control to render. Possible values are 'checkbox', 'radiogroup', 'selectbox', 'textbox', 'textarea', 'none', 'button'.
 	 *     @type string  $control_name         The name of the control.
-	 *     @type mixed   $value                The value of the control.
-	 *     @type bool    $disabled             Whether the control is disabled.
+	 *     @type mixed   $w3tc_value                The value of the control.
+	 *     @type bool    $w3tc_disabled             Whether the control is disabled.
 	 *     @type string  $checkbox_label       The label for the checkbox (if applicable).
 	 *     @type array   $radiogroup_values    The values for the radiogroup (if applicable).
 	 *     @type string  $radiogroup_separator The separator for the radiogroup (if applicable).
@@ -1289,43 +1322,43 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function control2( $a ) {
-		if ( 'checkbox' === $a['control'] ) {
+	public static function control2( $w3tc_a ) {
+		if ( 'checkbox' === $w3tc_a['control'] ) {
 			self::checkbox2(
 				array(
-					'name'     => $a['control_name'],
-					'value'    => $a['value'],
-					'disabled' => $a['disabled'],
-					'label'    => $a['checkbox_label'],
+					'name'     => $w3tc_a['control_name'],
+					'value'    => $w3tc_a['value'],
+					'disabled' => $w3tc_a['disabled'],
+					'label'    => $w3tc_a['checkbox_label'],
 				)
 			);
-		} elseif ( 'radiogroup' === $a['control'] ) {
+		} elseif ( 'radiogroup' === $w3tc_a['control'] ) {
 			self::radiogroup2(
 				array(
-					'name'      => $a['control_name'],
-					'value'     => $a['value'],
-					'disabled'  => $a['disabled'],
-					'values'    => $a['radiogroup_values'],
-					'separator' => isset( $a['radiogroup_separator'] ) ? $a['radiogroup_separator'] : '',
+					'name'      => $w3tc_a['control_name'],
+					'value'     => $w3tc_a['value'],
+					'disabled'  => $w3tc_a['disabled'],
+					'values'    => $w3tc_a['radiogroup_values'],
+					'separator' => isset( $w3tc_a['radiogroup_separator'] ) ? $w3tc_a['radiogroup_separator'] : '',
 				)
 			);
-		} elseif ( 'selectbox' === $a['control'] ) {
+		} elseif ( 'selectbox' === $w3tc_a['control'] ) {
 			self::selectbox2(
 				array(
-					'name'      => $a['control_name'],
-					'value'     => $a['value'],
-					'disabled'  => $a['disabled'],
-					'values'    => $a['selectbox_values'],
-					'optgroups' => isset( $a['selectbox_optgroups'] ) ? $a['selectbox_optgroups'] : null,
+					'name'      => $w3tc_a['control_name'],
+					'value'     => $w3tc_a['value'],
+					'disabled'  => $w3tc_a['disabled'],
+					'values'    => $w3tc_a['selectbox_values'],
+					'optgroups' => isset( $w3tc_a['selectbox_optgroups'] ) ? $w3tc_a['selectbox_optgroups'] : null,
 				)
 			);
-		} elseif ( 'textbox' === $a['control'] ) {
+		} elseif ( 'textbox' === $w3tc_a['control'] ) {
 			// Secret-flagged keys (CDN API secrets, FTP passwords, license
 			// key, etc.) must NEVER reflect their value into the HTML
 			// `value=` attribute. Route through the placeholder renderer
 			// so the form pattern stays consistent with the inputs that
 			// already migrated to `Util_Ui::secret_input()` directly.
-			if ( self::is_secret_config_key( $a['key'] ?? '' ) ) {
+			if ( self::is_secret_config_key( $w3tc_a['key'] ?? '' ) ) {
 				// Carry through the caller-supplied id so the surrounding
 				// `<label for="...">` (which uses `control_name` as the
 				// for-target) keeps its click/focus association. Honor
@@ -1334,43 +1367,43 @@ class Util_Ui {
 				// Key ID, where the operator wants to see what they
 				// typed) — but default to `password` so unspecified
 				// secret fields don't reflect on-screen.
-				$secret_type = ( isset( $a['textbox_type'] ) && 'text' === $a['textbox_type'] )
+				$secret_type = ( isset( $w3tc_a['textbox_type'] ) && 'text' === $w3tc_a['textbox_type'] )
 					? 'text'
 					: 'password';
 				self::secret_input(
 					array(
-						'id'        => $a['control_name'],
-						'name'      => $a['control_name'],
-						'has_value' => '' !== (string) ( $a['value'] ?? '' ),
-						'disabled'  => $a['disabled'],
+						'id'        => $w3tc_a['control_name'],
+						'name'      => $w3tc_a['control_name'],
+						'has_value' => '' !== (string) ( $w3tc_a['value'] ?? '' ),
+						'disabled'  => $w3tc_a['disabled'],
 						'type'      => $secret_type,
-						'size'      => isset( $a['textbox_size'] ) ? (int) $a['textbox_size'] : 60,
+						'size'      => isset( $w3tc_a['textbox_size'] ) ? (int) $w3tc_a['textbox_size'] : 60,
 					)
 				);
 			} else {
 				self::textbox2(
 					array(
-						'name'        => $a['control_name'],
-						'value'       => $a['value'],
-						'disabled'    => $a['disabled'],
-						'type'        => isset( $a['textbox_type'] ) ? $a['textbox_type'] : null,
-						'size'        => isset( $a['textbox_size'] ) ? $a['textbox_size'] : null,
-						'placeholder' => isset( $a['textbox_placeholder'] ) ? $a['textbox_placeholder'] : null,
+						'name'        => $w3tc_a['control_name'],
+						'value'       => $w3tc_a['value'],
+						'disabled'    => $w3tc_a['disabled'],
+						'type'        => isset( $w3tc_a['textbox_type'] ) ? $w3tc_a['textbox_type'] : null,
+						'size'        => isset( $w3tc_a['textbox_size'] ) ? $w3tc_a['textbox_size'] : null,
+						'placeholder' => isset( $w3tc_a['textbox_placeholder'] ) ? $w3tc_a['textbox_placeholder'] : null,
 					)
 				);
 			}
-		} elseif ( 'textarea' === $a['control'] ) {
+		} elseif ( 'textarea' === $w3tc_a['control'] ) {
 			self::textarea2(
 				array(
-					'name'     => $a['control_name'],
-					'value'    => $a['value'],
-					'disabled' => $a['disabled'],
+					'name'     => $w3tc_a['control_name'],
+					'value'    => $w3tc_a['value'],
+					'disabled' => $w3tc_a['disabled'],
 				)
 			);
-		} elseif ( 'none' === $a['control'] ) {
-			echo wp_kses( $a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $a['none_label'] ) );
-		} elseif ( 'button' === $a['control'] ) {
-			echo '<button type="button" class="button">' . wp_kses( $a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $a['none_label'] ) ) . '</button>';
+		} elseif ( 'none' === $w3tc_a['control'] ) {
+			echo wp_kses( $w3tc_a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['none_label'] ) );
+		} elseif ( 'button' === $w3tc_a['control'] ) {
+			echo '<button type="button" class="button">' . wp_kses( $w3tc_a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['none_label'] ) ) . '</button>';
 		}
 	}
 
@@ -1398,13 +1431,13 @@ class Util_Ui {
 	 * Renders <tr> element with controls.
 	 *
 	 * Renders a table row with various controls, such as checkboxes, select boxes, textboxes, etc.
-	 * The control type is determined by the keys in the `$a` array.
+	 * The control type is determined by the keys in the `$w3tc_a` array.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Configuration options for rendering the controls.
 	 *
 	 *     @type string $id          The ID for the control.
-	 *     @type string $label       The label for the control.
+	 *     @type string $w3tc_label       The label for the control.
 	 *     @type string $label_class The class to apply to the label.
 	 *     @type string $style       The style of the table row. Default is 'label', alternative is 'one-column'.
 	 *     @type array  $checkbox    The configuration for a checkbox control.
@@ -1419,24 +1452,24 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function table_tr( $a ) {
-		$id = isset( $a['id'] ) ? $a['id'] : '';
-		$a  = apply_filters( 'w3tc_ui_settings_item', $a );
+	public static function table_tr( $w3tc_a ) {
+		$id     = isset( $w3tc_a['id'] ) ? $w3tc_a['id'] : '';
+		$w3tc_a = apply_filters( 'w3tc_ui_settings_item', $w3tc_a );
 
 		echo '<tr><th';
 
-		if ( isset( $a['label_class'] ) ) {
-			echo ' class="' . esc_attr( $a['label_class'] ) . '"';
+		if ( isset( $w3tc_a['label_class'] ) ) {
+			echo ' class="' . esc_attr( $w3tc_a['label_class'] ) . '"';
 		}
 		echo '>';
-		if ( isset( $a['label'] ) ) {
-			self::label( $id, $a['label'] );
+		if ( isset( $w3tc_a['label'] ) ) {
+			self::label( $id, $w3tc_a['label'] );
 		}
 
 		echo "</th>\n<td>\n";
 
-		foreach ( $a as $key => $e ) {
-			if ( 'checkbox' === $key ) {
+		foreach ( $w3tc_a as $w3tc_key => $e ) {
+			if ( 'checkbox' === $w3tc_key ) {
 				self::checkbox(
 					$id,
 					isset( $e['name'] ) ? $e['name'] : null,
@@ -1444,13 +1477,13 @@ class Util_Ui {
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
 					( isset( $e['label'] ) ? $e['label'] : null )
 				);
-			} elseif ( 'description' === $key ) {
+			} elseif ( 'description' === $w3tc_key ) {
 				echo '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
-			} elseif ( 'hidden' === $key ) {
+			} elseif ( 'hidden' === $w3tc_key ) {
 				self::hidden( '', $e['name'], $e['value'] );
-			} elseif ( 'html' === $key ) {
+			} elseif ( 'html' === $w3tc_key ) {
 				echo wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) );
-			} elseif ( 'radiogroup' === $key ) {
+			} elseif ( 'radiogroup' === $w3tc_key ) {
 				self::radiogroup(
 					$e['name'],
 					$e['value'],
@@ -1458,7 +1491,7 @@ class Util_Ui {
 					$e['disabled'],
 					$e['separator']
 				);
-			} elseif ( 'selectbox' === $key ) {
+			} elseif ( 'selectbox' === $w3tc_key ) {
 				self::selectbox(
 					$id,
 					$e['name'],
@@ -1467,7 +1500,7 @@ class Util_Ui {
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
 					( isset( $e['optgroups'] ) ? $e['optgroups'] : null )
 				);
-			} elseif ( 'textbox' === $key ) {
+			} elseif ( 'textbox' === $w3tc_key ) {
 				self::textbox(
 					$id,
 					$e['name'],
@@ -1477,7 +1510,7 @@ class Util_Ui {
 					( ! empty( $e['type'] ) ? $e['type'] : 'text' ),
 					( ! empty( $e['placeholder'] ) ? $e['placeholder'] : '' )
 				);
-			} elseif ( 'textarea' === $key ) {
+			} elseif ( 'textarea' === $w3tc_key ) {
 				self::textarea(
 					$id,
 					$e['name'],
@@ -1493,13 +1526,13 @@ class Util_Ui {
 	/**
 	 * Prints configuration item UI based on description.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Config.
 	 *
-	 *     @type string $key                 Configuration key.
-	 *     @type string $label               Configuration key's label as introduced to the user.
-	 *     @type mixed  $value               The value of the configuration item.
-	 *     @type bool   $disabled            If the control is disabled.
+	 *     @type string $w3tc_key                 Configuration key.
+	 *     @type string $w3tc_label               Configuration key's label as introduced to the user.
+	 *     @type mixed  $w3tc_value               The value of the configuration item.
+	 *     @type bool   $w3tc_disabled            If the control is disabled.
 	 *     @type string $control             Type of control (checkbox, radiogroup, selectbox, textbox).
 	 *     @type string $checkbox_label      Text shown after the checkbox.
 	 *     @type array  $radiogroup_values   Array of possible values for radiogroup.
@@ -1521,46 +1554,46 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function config_item( $a ) {
+	public static function config_item( $w3tc_a ) {
 		/*
 		 * Some items we do not want shown in the free edition.
 		 *
 		 * By default, they will show in free, unless 'show_in_free' is specifically passed in as false.
 		 */
 		$is_w3tc_free = ! Util_Environment::is_w3tc_pro( Dispatcher::config() );
-		$show_in_free = ! isset( $a['show_in_free'] ) || (bool) $a['show_in_free'];
+		$show_in_free = ! isset( $w3tc_a['show_in_free'] ) || (bool) $w3tc_a['show_in_free'];
 		if ( ! $show_in_free && $is_w3tc_free ) {
 			return;
 		}
 
-		$a = self::config_item_preprocess( $a );
+		$w3tc_a = self::config_item_preprocess( $w3tc_a );
 
-		if ( 'w3tc_single_column' === $a['label_class'] ) {
+		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
 			echo '<tr><th colspan="2">';
 		} else {
-			echo '<tr><th class="' . esc_attr( $a['label_class'] ) . '">';
+			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
 
-			if ( ! empty( $a['label'] ) ) {
-				self::label( $a['control_name'], $a['label'] );
+			if ( ! empty( $w3tc_a['label'] ) ) {
+				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
 			}
 
 			echo "</th>\n<td>\n";
 		}
 
-		self::control2( $a );
+		self::control2( $w3tc_a );
 
-		if ( isset( $a['control_after'] ) ) {
+		if ( isset( $w3tc_a['control_after'] ) ) {
 			echo wp_kses(
-				$a['control_after'],
-				self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] )
+				$w3tc_a['control_after'],
+				self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['control_after'] )
 			);
 		}
-		if ( isset( $a['description'] ) ) {
+		if ( isset( $w3tc_a['description'] ) ) {
 			echo wp_kses(
 				sprintf(
 					'%1$s%2$s%3$s',
 					'<p class="description">',
-					$a['description'],
+					$w3tc_a['description'],
 					'</p>'
 				),
 				array(
@@ -1583,12 +1616,12 @@ class Util_Ui {
 			);
 		}
 
-		if ( $is_w3tc_free && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
-			$score_block = self::get_score_block( $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+		if ( $is_w3tc_free && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
+			$score_block = self::get_score_block( $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
-		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
+		echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
 		echo "</tr>\n";
 	}
 
@@ -1598,15 +1631,15 @@ class Util_Ui {
 	 * Outputs the HTML for the config item extension, including a checkbox for enabling the extension,
 	 * and additional information such as description, score block, and pro features.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Config.
 	 *
 	 *     @type string $label_class       The label class for the config item.
 	 *     @type string $control_name      The control name for the config item.
-	 *     @type string $label             The label for the config item.
+	 *     @type string $w3tc_label             The label for the config item.
 	 *     @type string $checkbox_label    The label for the checkbox.
 	 *     @type string $extension_id      The extension ID.
-	 *     @type bool   $disabled          Whether the checkbox should be disabled.
+	 *     @type bool   $w3tc_disabled          Whether the checkbox should be disabled.
 	 *     @type string $description       The description for the config item.
 	 *     @type string $intro_label       The intro label for the score block (if applicable).
 	 *     @type int    $score             The score for the score block (if applicable).
@@ -1620,62 +1653,62 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function config_item_extension_enabled( $a ) {
-		$c      = Dispatcher::config();
-		$is_pro = Util_Environment::is_w3tc_pro( $c );
+	public static function config_item_extension_enabled( $w3tc_a ) {
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
 
-		if ( 'w3tc_single_column' === $a['label_class'] ) {
+		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
 			echo '<tr><th colspan="2">';
 		} else {
-			echo '<tr><th class="' . esc_attr( $a['label_class'] ) . '">';
+			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
 
-			if ( ! empty( $a['label'] ) ) {
-				self::label( $a['control_name'], $a['label'] );
+			if ( ! empty( $w3tc_a['label'] ) ) {
+				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
 			}
 
 			echo "</th>\n<td>\n";
 		}
 
-		if ( isset( $a['pro'] ) ) {
+		if ( isset( $w3tc_a['pro'] ) ) {
 			self::pro_wrap_maybe_start();
 		}
 
 		self::checkbox2(
 			array(
-				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
-				'value'    => $c->is_extension_active_frontend( $a['extension_id'] ),
-				'label'    => $a['checkbox_label'],
-				'disabled' => isset( $a['disabled'] ) ? $a['disabled'] : false,
+				'name'     => 'extension__' . self::config_key_to_http_name( $w3tc_a['extension_id'] ),
+				'value'    => $w3tc_c->is_extension_active_frontend( $w3tc_a['extension_id'] ),
+				'label'    => $w3tc_a['checkbox_label'],
+				'disabled' => isset( $w3tc_a['disabled'] ) ? $w3tc_a['disabled'] : false,
 			)
 		);
 
-		if ( isset( $a['description'] ) ) {
-			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
+		if ( isset( $w3tc_a['description'] ) ) {
+			echo '<p class="description">' . wp_kses( $w3tc_a['description'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['description'] ) ) . '</p>';
 		}
 
-		if ( ! $is_pro && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
-			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+		if ( ! $w3tc_is_pro && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
+			$score_block = self::get_score_block( $w3tc_a['intro_label'], $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
-		if ( isset( $a['pro'] ) ) {
-			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
-			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ), $show_learn_more );
+		if ( isset( $w3tc_a['pro'] ) ) {
+			$show_learn_more = isset( $w3tc_a['show_learn_more'] ) && is_bool( $w3tc_a['show_learn_more'] ) ? $w3tc_a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $w3tc_a['extension_id'] ), $show_learn_more );
 		}
 
-		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
+		echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
 		echo "</tr>\n";
 	}
 
 	/**
 	 * Config item pro.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Configuration settings for the item.
 	 *
 	 *     @type string $label_class       The CSS class for the label.
 	 *     @type string $control_name      The name of the control.
-	 *     @type string $label             The label text for the control.
+	 *     @type string $w3tc_label             The label text for the control.
 	 *     @type string $wrap_separate     Whether to wrap the description separately.
 	 *     @type string $no_wrap           Whether to disable wrapping.
 	 *     @type string $control_after     HTML to output after the control.
@@ -1691,59 +1724,59 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function config_item_pro( $a ) {
-		$c      = Dispatcher::config();
-		$is_pro = Util_Environment::is_w3tc_pro( $c );
-		$a      = self::config_item_preprocess( $a );
+	public static function config_item_pro( $w3tc_a ) {
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
+		$w3tc_a      = self::config_item_preprocess( $w3tc_a );
 
-		if ( 'w3tc_single_column' === $a['label_class'] ) {
+		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
 			echo '<tr><th colspan="2">';
-		} elseif ( 'w3tc_no_trtd' !== $a['label_class'] ) {
-			echo '<tr><th class="' . esc_attr( $a['label_class'] ) . '">';
+		} elseif ( 'w3tc_no_trtd' !== $w3tc_a['label_class'] ) {
+			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
 
-			if ( ! empty( $a['label'] ) ) {
-				self::label( $a['control_name'], $a['label'] );
+			if ( ! empty( $w3tc_a['label'] ) ) {
+				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
 			}
 
 			echo "</th>\n<td>\n";
 		}
 
 		// If wrap_separate is not set we wrap everything.
-		if ( ! isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
+		if ( ! isset( $w3tc_a['wrap_separate'] ) && ! isset( $w3tc_a['no_wrap'] ) ) {
 			self::pro_wrap_maybe_start();
 		}
 
-		self::control2( $a );
+		self::control2( $w3tc_a );
 
-		if ( isset( $a['control_after'] ) ) {
-			echo wp_kses( $a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] ) );
+		if ( isset( $w3tc_a['control_after'] ) ) {
+			echo wp_kses( $w3tc_a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['control_after'] ) );
 		}
 
 		// If wrap_separate is set we wrap only the description.
-		if ( isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
+		if ( isset( $w3tc_a['wrap_separate'] ) && ! isset( $w3tc_a['no_wrap'] ) ) {
 			// If not pro we add a spacer for better separation of control element and wrapper.
-			if ( ! $is_pro ) {
+			if ( ! $w3tc_is_pro ) {
 				echo '<br/><br/>';
 			}
 			self::pro_wrap_maybe_start();
 		}
 
-		if ( isset( $a['description'] ) ) {
-			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
+		if ( isset( $w3tc_a['description'] ) ) {
+			self::pro_wrap_description( $w3tc_a['excerpt'], $w3tc_a['description'], $w3tc_a['control_name'] );
 		}
 
-		if ( ! $is_pro && ! isset( $a['no_wrap'] ) && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
-			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+		if ( ! $w3tc_is_pro && ! isset( $w3tc_a['no_wrap'] ) && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
+			$score_block = self::get_score_block( $w3tc_a['intro_label'], $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
-		if ( ! isset( $a['no_wrap'] ) ) {
-			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
-			self::pro_wrap_maybe_end( $a['control_name'], $show_learn_more );
+		if ( ! isset( $w3tc_a['no_wrap'] ) ) {
+			$show_learn_more = isset( $w3tc_a['show_learn_more'] ) && is_bool( $w3tc_a['show_learn_more'] ) ? $w3tc_a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( $w3tc_a['control_name'], $show_learn_more );
 		}
 
-		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
-			echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
+		if ( 'w3tc_no_trtd' !== $w3tc_a['label_class'] ) {
+			echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
 			echo "</tr>\n";
 		}
 	}
@@ -1753,13 +1786,13 @@ class Util_Ui {
 	 *
 	 * Processes the configuration item and applies necessary defaults or values based on the config.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Config.
 	 *
-	 *     @type string $key          The key of the configuration item.
-	 *     @type mixed  $value        The value of the configuration item. If not set, defaults are applied.
-	 *     @type bool   $disabled     Whether the configuration item is disabled. Defaults to a sealed state.
-	 *     @type string $label        The label of the configuration item. Defaults to generated label.
+	 *     @type string $w3tc_key          The key of the configuration item.
+	 *     @type mixed  $w3tc_value        The value of the configuration item. If not set, defaults are applied.
+	 *     @type bool   $w3tc_disabled     Whether the configuration item is disabled. Defaults to a sealed state.
+	 *     @type string $w3tc_label        The label of the configuration item. Defaults to generated label.
 	 *     @type string $control_name The control name for the configuration item.
 	 *     @type string $label_class  The CSS class for the label. Defaults to an empty string or 'w3tc_config_checkbox' for checkboxes.
 	 *     @type string $control      The type of control (e.g., checkbox).
@@ -1767,47 +1800,47 @@ class Util_Ui {
 	 *
 	 * @return array Processed configuration item.
 	 */
-	public static function config_item_preprocess( $a ) {
-		$c = Dispatcher::config();
+	public static function config_item_preprocess( $w3tc_a ) {
+		$w3tc_c = Dispatcher::config();
 
-		if ( ! isset( $a['value'] ) || is_null( $a['value'] ) ) {
-			$a['value'] = $c->get( $a['key'] ) ?? '';
-			if ( is_array( $a['value'] ) ) {
-				$a['value'] = implode( "\n", $a['value'] );
+		if ( ! isset( $w3tc_a['value'] ) || is_null( $w3tc_a['value'] ) ) {
+			$w3tc_a['value'] = $w3tc_c->get( $w3tc_a['key'] ) ?? '';
+			if ( is_array( $w3tc_a['value'] ) ) {
+				$w3tc_a['value'] = implode( "\n", $w3tc_a['value'] );
 			}
 		}
 
-		if ( ! isset( $a['disabled'] ) || is_null( $a['disabled'] ) ) {
-			$a['disabled'] = $c->is_sealed( $a['key'] );
+		if ( ! isset( $w3tc_a['disabled'] ) || is_null( $w3tc_a['disabled'] ) ) {
+			$w3tc_a['disabled'] = $w3tc_c->is_sealed( $w3tc_a['key'] );
 		}
 
-		if ( empty( $a['label'] ) ) {
-			$a['label'] = self::config_label( $a['key'] );
+		if ( empty( $w3tc_a['label'] ) ) {
+			$w3tc_a['label'] = self::config_label( $w3tc_a['key'] );
 		}
 
-		$a['control_name'] = self::config_key_to_http_name( $a['key'] );
-		$a['label_class']  = empty( $a['label_class'] ) ? '' : $a['label_class'];
-		if ( empty( $a['label_class'] ) && 'checkbox' === $a['control'] ) {
-			$a['label_class'] = 'w3tc_config_checkbox';
+		$w3tc_a['control_name'] = self::config_key_to_http_name( $w3tc_a['key'] );
+		$w3tc_a['label_class']  = empty( $w3tc_a['label_class'] ) ? '' : $w3tc_a['label_class'];
+		if ( empty( $w3tc_a['label_class'] ) && 'checkbox' === $w3tc_a['control'] ) {
+			$w3tc_a['label_class'] = 'w3tc_config_checkbox';
 		}
 
-		$action_key = $a['key'];
+		$action_key = $w3tc_a['key'];
 		if ( is_array( $action_key ) ) {
 			$action_key = 'extension.' . $action_key[0] . '.' . $action_key[1];
 		}
 
-		return apply_filters( 'w3tc_ui_config_item_' . $action_key, $a );
+		return apply_filters( 'w3tc_ui_config_item_' . $action_key, $w3tc_a );
 	}
 
 	/**
 	 * Displays config item - caching engine selectbox.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Config settings.
 	 *
-	 *     @type string $key           The key for the config item.
-	 *     @type string $label         Optional. The label for the selectbox.
-	 *     @type bool   $disabled      Optional. Whether the config item should be disabled.
+	 *     @type string $w3tc_key           The key for the config item.
+	 *     @type string $w3tc_label         Optional. The label for the selectbox.
+	 *     @type bool   $w3tc_disabled      Optional. Whether the config item should be disabled.
 	 *     @type bool   $empty_value   Optional. Whether to include an empty value option. Default is false.
 	 *     @type string $control_after Optional. Additional content to display after the control.
 	 *     @type bool   $pro           Optional. If set, calls the pro version of the config item function.
@@ -1815,8 +1848,8 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function config_item_engine( $a ) {
-		if ( isset( $a['empty_value'] ) && $a['empty_value'] ) {
+	public static function config_item_engine( $w3tc_a ) {
+		if ( isset( $w3tc_a['empty_value'] ) && $w3tc_a['empty_value'] ) {
 			$values[''] = array(
 				'label' => 'Please select a method',
 			);
@@ -1858,9 +1891,9 @@ class Util_Ui {
 		);
 
 		$item_engine_config = array(
-			'key'                 => $a['key'],
-			'label'               => ( isset( $a['label'] ) ? $a['label'] : null ),
-			'disabled'            => ( isset( $a['disabled'] ) ? $a['disabled'] : null ),
+			'key'                 => $w3tc_a['key'],
+			'label'               => ( isset( $w3tc_a['label'] ) ? $w3tc_a['label'] : null ),
+			'disabled'            => ( isset( $w3tc_a['disabled'] ) ? $w3tc_a['disabled'] : null ),
 			'control'             => 'selectbox',
 			'selectbox_values'    => $values,
 			'selectbox_optgroups' => array(
@@ -1868,10 +1901,10 @@ class Util_Ui {
 				__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
 				__( 'Multiple Servers:', 'w3-total-cache' ),
 			),
-			'control_after'       => isset( $a['control_after'] ) ? $a['control_after'] : null,
+			'control_after'       => isset( $w3tc_a['control_after'] ) ? $w3tc_a['control_after'] : null,
 		);
 
-		if ( isset( $a['pro'] ) ) {
+		if ( isset( $w3tc_a['pro'] ) ) {
 			self::config_item_pro( $item_engine_config );
 		} else {
 			self::config_item( $item_engine_config );
@@ -1993,30 +2026,30 @@ class Util_Ui {
 	/**
 	 * On subblogs - shows button to enable/disable custom configuration.
 	 *
-	 * @param array $a {
+	 * @param array $w3tc_a {
 	 *     Config.
 	 *
-	 *     @type string $key Config key *_overloaded which are managed.
+	 *     @type string $w3tc_key Config key *_overloaded which are managed.
 	 * }
 	 *
 	 * @return void
 	 */
-	public static function config_overloading_button( $a ) {
-		$c = Dispatcher::config();
-		if ( $c->is_master() ) {
+	public static function config_overloading_button( $w3tc_a ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->is_master() ) {
 			return;
 		}
 
-		if ( $c->get_boolean( $a['key'] ) ) {
-			$name  = 'w3tc_config_overloaded_disable~' . self::config_key_to_http_name( $a['key'] );
-			$value = __( 'Use common settings', 'w3-total-cache' );
+		if ( $w3tc_c->get_boolean( $w3tc_a['key'] ) ) {
+			$w3tc_name  = 'w3tc_config_overloaded_disable~' . self::config_key_to_http_name( $w3tc_a['key'] );
+			$w3tc_value = __( 'Use common settings', 'w3-total-cache' );
 		} else {
-			$name  = 'w3tc_config_overloaded_enable~' . self::config_key_to_http_name( $a['key'] );
-			$value = __( 'Use specific settings', 'w3-total-cache' );
+			$w3tc_name  = 'w3tc_config_overloaded_enable~' . self::config_key_to_http_name( $w3tc_a['key'] );
+			$w3tc_value = __( 'Use specific settings', 'w3-total-cache' );
 		}
 
 		echo '<div style="float: right">';
-		echo '<input type="submit" class="button" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
+		echo '<input type="submit" class="button" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '" />';
 		echo '</div>';
 	}
 
@@ -2108,11 +2141,11 @@ class Util_Ui {
 	 * @return string
 	 */
 	public static function config_key_from_http_name( $http_key ) {
-		$a = explode( '___', $http_key );
-		if ( count( $a ) === 2 ) {
-			$a[0] = self::config_key_from_http_name( $a[0] );
-			$a[1] = self::config_key_from_http_name( $a[1] );
-			return $a;
+		$w3tc_a = explode( '___', $http_key );
+		if ( count( $w3tc_a ) === 2 ) {
+			$w3tc_a[0] = self::config_key_from_http_name( $w3tc_a[0] );
+			$w3tc_a[1] = self::config_key_from_http_name( $w3tc_a[1] );
+			return $w3tc_a;
 		}
 
 		return str_replace( '__', '.', $http_key );
@@ -2180,10 +2213,10 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function print_options_menu( $custom_areas = array() ) {
-		$config            = Dispatcher::config();
+		$w3tc_config       = Dispatcher::config();
 		$state             = Dispatcher::config_state();
 		$page              = Util_Admin::get_current_page();
-		$show_purge_link   = 'bunnycdn' === $config->get_string( 'cdn.engine' ) || 'bunnycdn' === $config->get_string( 'cdnfsd.engine' );
+		$show_purge_link   = 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' ) || 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' );
 		$licensing_visible = (
 			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
 			! ini_get( 'w3tc.license_key' ) &&
@@ -2197,7 +2230,7 @@ class Util_Ui {
 				}
 
 				$message_bus_link = array();
-				if ( Util_Environment::is_w3tc_pro( $config ) ) {
+				if ( Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 					$message_bus_link = array(
 						array(
 							'id'   => 'amazon_sns',
@@ -2216,7 +2249,7 @@ class Util_Ui {
 					);
 				}
 
-				$links = array_merge(
+				$w3tc_links = array_merge(
 					array(
 						array(
 							'id'   => 'general',
@@ -2302,7 +2335,7 @@ class Util_Ui {
 				);
 
 				$links_buff = array();
-				foreach ( $links as $link ) {
+				foreach ( $w3tc_links as $link ) {
 					$links_buff[] = "<a href=\"#{$link['id']}\">{$link['text']}</a>";
 				}
 
@@ -2501,10 +2534,10 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-				<?php if ( ! empty( $config->get_string( 'cdn.engine' ) ) ) : ?>
+				<?php if ( ! empty( $w3tc_config->get_string( 'cdn.engine' ) ) ) : ?>
 					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
-				<?php if ( ! empty( $config->get_string( 'cdnfsd.engine' ) ) ) : ?>
+				<?php if ( ! empty( $w3tc_config->get_string( 'cdnfsd.engine' ) ) ) : ?>
 					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
 				<?php if ( $show_purge_link ) : ?>
@@ -2607,8 +2640,8 @@ class Util_Ui {
 				break;
 
 			case 'w3tc_extensions':
-				$extension = Util_Admin::get_current_extension();
-				switch ( $extension ) {
+				$w3tc_extension = Util_Admin::get_current_extension();
+				switch ( $w3tc_extension ) {
 					case 'cloudflare':
 						?>
 						<div id="w3tc-options-menu">

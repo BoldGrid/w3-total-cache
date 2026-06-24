@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: dashboard_banner.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }

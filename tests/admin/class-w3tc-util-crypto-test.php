@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -20,7 +20,7 @@ use W3TC\Util_Crypto;
  * detection, legacy passthrough, idempotency, fresh-IV-per-call,
  * envelope detection.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 
@@ -40,7 +40,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * value the config layer might pass through (short, long, UTF-8,
 	 * credentials-with-special-chars).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_round_trip_preserves_value() {
 		$cases = array(
@@ -68,7 +68,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * Empty / non-string inputs pass through (the helper is a no-op so
 	 * the config layer can hand it any value without special-casing).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_empty_and_non_string_passthrough() {
 		$this->assertSame( '', Util_Crypto::envelope_encrypt( '' ) );
@@ -82,7 +82,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * unchanged so the upgrade is transparent — values stay readable
 	 * until the next `save()` re-wraps them.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_legacy_plaintext_passes_through_decrypt() {
 		$legacy = 'AKIAIOSFODNN7EXAMPLE';
@@ -94,7 +94,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * double-wrap would mean the upgrade path encrypts an already-
 	 * encrypted blob and then can't decrypt it back to the original.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_no_double_wrap() {
 		$plain = 'wJalrXUtnFEMI/K7MDENG';
@@ -109,7 +109,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * produces a different envelope each time. Determinism here would
 	 * be a serious crypto smell (CBC with reused IV leaks structure).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_fresh_iv_per_call() {
 		$a = Util_Crypto::envelope_encrypt( 'same' );
@@ -126,7 +126,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * the admin sees "credential needs re-entry" rather than the
 	 * literal false.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_tampered_envelope_returns_false() {
 		$envelope = Util_Crypto::envelope_encrypt( 'legit-credential' );
@@ -147,7 +147,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	/**
 	 * Malformed base64 in the body fails cleanly (no warning, no fatal).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_malformed_base64_returns_false() {
 		$this->assertFalse( Util_Crypto::envelope_decrypt( 'enc:v1:not!valid!base64!!!' ) );
@@ -163,7 +163,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 * `derive_key()` is private; the property is exercised through
 	 * Reflection so the API surface stays unchanged.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_derive_key_uses_distinct_purposes() {
 		$method = new \ReflectionMethod( Util_Crypto::class, 'derive_key' );
@@ -185,7 +185,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	/**
 	 * `is_envelope()` recognises the prefix and rejects everything else.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 */
 	public function test_is_envelope_recognises_prefix() {
 		$this->assertTrue( Util_Crypto::is_envelope( 'enc:v1:abc' ) );

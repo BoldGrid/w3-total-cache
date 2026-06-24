@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 W3 Total Cache (W3TC) is a WordPress performance plugin providing page caching, object caching, database caching, minification, CDN integration, and related optimizations.
 
-- **PHP compatibility**: 7.2.5–8.3 (enforced via `composer.json` platform config)
-- **WordPress compatibility**: 5.3+
+- **PHP compatibility**: 7.4–8.5 (enforced via `composer.json` platform config)
+- **WordPress compatibility**: 6.0+
 - **Current version**: 2.9.1 (do not bump manually — done in the build process)
 
 ## Commands
@@ -128,7 +128,7 @@ Component suffixes indicate role:
 - Prefix all global namespace function calls with a backslash (e.g., `\strlen()`)
 - Opening parenthesis of multi-line function calls must be the last content on the line
 - Do not make unrelated coding-standards fixes in changed files
-- Add `@since X.X.X` to all new doc blocks (version is updated in the build process)
+- Add `@since X.X.X` to all new doc blocks. After bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements on `master` before tagging.
 
 ### Contribution Notes
 - Do not update POT files, `readme.txt`, or the plugin version — all handled in the build process

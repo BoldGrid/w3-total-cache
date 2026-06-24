@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class UserExperience_OEmbed_Extension
  */
@@ -35,5 +36,5 @@ class UserExperience_OEmbed_Extension {
 	}
 }
 
-$o = new UserExperience_OEmbed_Extension();
-$o->run();
+$w3tc_o = new UserExperience_OEmbed_Extension();
+$w3tc_o->run();

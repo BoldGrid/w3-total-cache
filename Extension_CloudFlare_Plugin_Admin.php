@@ -33,13 +33,13 @@ class Extension_CloudFlare_Plugin_Admin {
 	 * Adds Cloudflare to the list of extensions.
 	 *
 	 * @param array $extensions Existing extensions.
-	 * @param mixed $config     Current configuration.
+	 * @param mixed $w3tc_config     Current configuration.
 	 *
 	 * @return array Updated extensions list.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$current_user            = wp_get_current_user();
-		$message                 = array( 'Cloudflare' );
+		$w3tc_message            = array( 'Cloudflare' );
 		$cloudflare_signup_email = '';
 		$cloudflare_signup_user  = '';
 
@@ -58,10 +58,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'author'          => 'W3 EDGE',
 			'description'     => wp_kses(
 				sprintf(
-					// translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
-					// translators: 3 opening HTML abbr tag, 4 closing HTML abbr tag,
-					// translators: 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag,
-					// translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.
+					/* translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag, 3 opening HTML abbr tag, 4 closing HTML abbr tag, 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag, 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag. */
 					__(
 						'Cloudflare protects and accelerates websites. %1$sSign up now for free%2$s to get started, or if you have an account simply log in to obtain your %3$sAPI%4$s token / global key from the %5$saccount page%6$s to enter it on the General Settings box that appears after plugin activation. Contact the Cloudflare %7$ssupport team%8$s with any questions.',
 						'w3-total-cache'
@@ -91,7 +88,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'settings_exists' => true,
 			'version'         => '0.3',
 			'enabled'         => true,
-			'requirements'    => implode( ', ', $message ),
+			'requirements'    => implode( ', ', $w3tc_message ),
 			'path'            => 'w3-total-cache/Extension_CloudFlare_Plugin.php',
 		);
 
@@ -104,16 +101,16 @@ class Extension_CloudFlare_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-		$c             = Dispatcher::config();
+		$w3tc_c        = Dispatcher::config();
 		$this->api     = new Extension_CloudFlare_Api(
 			array(
-				'email'                 => $c->get_string( array( 'cloudflare', 'email' ) ),
-				'key'                   => $c->get_string( array( 'cloudflare', 'key' ) ),
-				'zone_id'               => $c->get_string( array( 'cloudflare', 'zone_id' ) ),
-				'timelimit_api_request' => $c->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ),
+				'email'                 => $w3tc_c->get_string( array( 'cloudflare', 'email' ) ),
+				'key'                   => $w3tc_c->get_string( array( 'cloudflare', 'key' ) ),
+				'zone_id'               => $w3tc_c->get_string( array( 'cloudflare', 'zone_id' ) ),
+				'timelimit_api_request' => $w3tc_c->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ),
 			)
 		);
-		$this->_config = $c;
+		$this->_config = $w3tc_c;
 
 		add_action( 'w3tc_config_ui_save-w3tc_extensions', array( $this, 'w3tc_save_options' ), 10, 0 );
 
@@ -129,8 +126,6 @@ class Extension_CloudFlare_Plugin_Admin {
 		add_filter( 'w3tc_settings_general_anchors', array( $this, 'w3tc_settings_general_anchors' ) );
 		add_action( 'w3tc_settings_general_boxarea_cloudflare', array( $this, 'w3tc_settings_general_boxarea_cloudflare' ) );
 
-		add_action( 'wp_ajax_w3tc_cloudflare_api_request', array( $this, 'action_cloudflare_api_request' ) );
-
 		// modify main menu.
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -143,9 +138,9 @@ class Extension_CloudFlare_Plugin_Admin {
 
 		add_action( 'w3tc_ajax', array( '\W3TC\Extension_CloudFlare_Popup', 'w3tc_ajax' ) );
 
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 
-		if ( empty( $cdnfsd_engine ) || 'cloudflare' === $cdnfsd_engine ) {
+		if ( empty( $w3tc_cdnfsd_engine ) || 'cloudflare' === $w3tc_cdnfsd_engine ) {
 			add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Extension_CloudFlare_Page', 'w3tc_settings_box_cdnfsd' ) );
 		}
 
@@ -168,9 +163,7 @@ class Extension_CloudFlare_Plugin_Admin {
 		if ( array_key_exists( 'cloudflare/cloudflare.php', $plugins ) && $this->_config->get_boolean( 'notes.cloudflare_plugin' ) ) {
 			echo wp_kses(
 				sprintf(
-					// translators: 1 opening HTML div tag with class "error" followed by opening HTML p tag,
-					// translators: 2 HTML button with lable "Hide this message" that will hide the error message,
-					// translators: 3 closing HTML p tag followed by closing HTML div tag.
+					/* translators: 1 opening HTML div tag with class "error" followed by opening HTML p tag, 2 HTML button with lable "Hide this message" that will hide the error message, 3 closing HTML p tag followed by closing HTML div tag. */
 					__(
 						'%1$sCloudflare plugin detected. We recommend removing the plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear when Cloudflare is removed. %2$s%3$s',
 						'w3-total-cache'
@@ -217,11 +210,11 @@ class Extension_CloudFlare_Plugin_Admin {
 				'id'     => 'w3tc_flush_cloudflare',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Cloudflare', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_cloudflare_flush'
 					),
-					'w3tc'
+					'w3tc_cloudflare_flush'
 				),
 			);
 		}
@@ -241,103 +234,23 @@ class Extension_CloudFlare_Plugin_Admin {
 			// update asap to avoid multiple processes entering the check.
 			$state->set( 'extension.cloudflare.next_ips_check', time() + 7 * 24 * 60 * 60 );
 
-			$data = array();
+			$w3tc_data = array();
 			try {
-				$data = $this->api->get_ip_ranges();
+				$w3tc_data = $this->api->get_ip_ranges();
 			} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Missing exception handling?
 			}
 
-			if ( isset( $data['ip4'] ) ) {
-				$state->set( 'extension.cloudflare.ips.ip4', $data['ip4'] );
+			if ( isset( $w3tc_data['ip4'] ) ) {
+				$state->set( 'extension.cloudflare.ips.ip4', $w3tc_data['ip4'] );
 			}
 
-			if ( isset( $data['ip6'] ) ) {
-				$state->set( 'extension.cloudflare.ips.ip6', $data['ip6'] );
+			if ( isset( $w3tc_data['ip6'] ) ) {
+				$state->set( 'extension.cloudflare.ips.ip6', $w3tc_data['ip6'] );
 			}
 
 			$state->save();
 		}
-	}
-
-	/**
-	 * Handles AJAX requests for Cloudflare API actions.
-	 *
-	 * @return void
-	 *
-	 * @throws \Exception If API request fails.
-	 */
-	public function action_cloudflare_api_request() {
-		$result   = false;
-		$response = null;
-		$actions  = array(
-			'dev_mode',
-			'sec_lvl',
-			'fpurge_ts',
-		);
-		$email    = Util_Request::get_string( 'email' );
-		$key      = Util_Request::get_string( 'key' );
-		$zone     = Util_Request::get_string( 'zone' );
-		$action   = Util_Request::get_string( 'command' );
-		$value    = Util_Request::get_string( 'value' );
-		$nonce    = Util_Request::get_string( '_wpnonce' );
-		$error    = null;
-
-		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
-			$error = 'Access denied.';
-		} elseif ( ! $key ) {
-			$error = 'Empty token / global key.';
-		} elseif ( Extension_CloudFlare_Api::is_legacy_global_api_key_string( $key ) ) {
-			if ( ! $email ) {
-				$error = 'Empty email.';
-			} elseif ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
-				$error = 'Invalid email.';
-			}
-		} elseif ( $email && ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
-			$error = 'Invalid email.';
-		} elseif ( ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
-			$error = 'Invalid authentication (API token, or Global API key with account email).';
-		}
-
-		if ( null === $error ) {
-			if ( ! $zone ) {
-				$error = 'Empty zone.';
-			} elseif ( strpos( $zone, '.' ) === false ) {
-				$error = 'Invalid domain.';
-			} elseif ( ! in_array( $action, $actions, true ) ) {
-				$error = 'Invalid action.';
-			} else {
-				$config = array(
-					'email' => $email,
-					'key'   => $key,
-					'zone'  => $zone,
-				);
-
-				@$this->api = new Extension_CloudFlare_Api( $config );
-
-				@set_time_limit( $this->_config->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-				$response = $this->api->api_request( $action, $value );
-
-				if ( $response ) {
-					if ( 'success' === $response->result ) {
-						$result = true;
-						$error  = 'OK';
-					} else {
-						$error = $response->msg;
-					}
-				} else {
-					$error = 'Unable to make Cloudflare API request.';
-				}
-			}
-		}
-
-		$return = array(
-			'result'   => $result,
-			'error'    => $error,
-			'response' => $response,
-		);
-
-		wp_send_json( $return );
 	}
 
 	/**
@@ -375,23 +288,24 @@ class Extension_CloudFlare_Plugin_Admin {
 	 * @return array Updated actions.
 	 */
 	public function w3tc_dashboard_actions( $actions ) {
-		$email = $this->_config->get_string( array( 'cloudflare', 'email' ) );
-		$key   = $this->_config->get_string( array( 'cloudflare', 'key' ) );
+		$email    = $this->_config->get_string( array( 'cloudflare', 'email' ) );
+		$w3tc_key = $this->_config->get_string( array( 'cloudflare', 'key' ) );
 
-		if ( ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $key ) ) {
+		if ( ! Extension_CloudFlare_Api::are_api_credentials_usable( $email, $w3tc_key ) ) {
 			return $actions;
 		}
 
-		$modules            = Dispatcher::component( 'ModuleStatus' );
-		$can_empty_memcache = $modules->can_empty_memcache();
-		$can_empty_opcode   = $modules->can_empty_opcode();
-		$can_empty_file     = $modules->can_empty_file();
-		$can_empty_varnish  = $modules->can_empty_varnish();
+		$w3tc_modules       = Dispatcher::component( 'ModuleStatus' );
+		$can_empty_memcache = $w3tc_modules->can_empty_memcache();
+		$can_empty_opcode   = $w3tc_modules->can_empty_opcode();
+		$can_empty_file     = $w3tc_modules->can_empty_file();
+		$can_empty_varnish  = $w3tc_modules->can_empty_varnish();
 
 		$actions[] = sprintf(
-			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s>',
+			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s%3$s>',
 			esc_attr__( 'Empty All Caches Except Cloudflare', 'w3-total-cache' ),
-			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : '',
+			Util_Ui::admin_submit_nonce_attr( 'w3tc_cloudflare_flush_all_except_cf' )
 		);
 
 		return $actions;
@@ -400,44 +314,44 @@ class Extension_CloudFlare_Plugin_Admin {
 	/**
 	 * Modifies the configuration for enabling the CDN functionality.
 	 *
-	 * @param array $a Configuration array.
+	 * @param array $w3tc_a Configuration array.
 	 *
 	 * @return array Updated configuration.
 	 */
-	public function w3tc_ui_config_item_cdnfsd_enabled( $a ) {
-		$c             = Dispatcher::config();
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+	public function w3tc_ui_config_item_cdnfsd_enabled( $w3tc_a ) {
+		$w3tc_c             = Dispatcher::config();
+		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 
 		// overwrite behavior if controlled by extension.
-		if ( empty( $cdnfsd_engine ) || 'cloudflare' === $cdnfsd_engine ) {
-			$a['value'] = true;
+		if ( empty( $w3tc_cdnfsd_engine ) || 'cloudflare' === $w3tc_cdnfsd_engine ) {
+			$w3tc_a['value'] = true;
 		}
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
 	 * Modifies the engine configuration for the CDN functionality.
 	 *
-	 * @param array $a Configuration array.
+	 * @param array $w3tc_a Configuration array.
 	 *
 	 * @return array Updated configuration.
 	 */
-	public function w3tc_ui_config_item_cdnfsd_engine( $a ) {
-		$c             = Dispatcher::config();
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+	public function w3tc_ui_config_item_cdnfsd_engine( $w3tc_a ) {
+		$w3tc_c             = Dispatcher::config();
+		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 
 		// overwrite behavior if controlled by extension.
-		if ( empty( $cdnfsd_engine ) || 'cloudflare' === $cdnfsd_engine ) {
-			$a['value'] = 'cloudflare';
+		if ( empty( $w3tc_cdnfsd_engine ) || 'cloudflare' === $w3tc_cdnfsd_engine ) {
+			$w3tc_a['value'] = 'cloudflare';
 		}
 
-		if ( isset( $a['selectbox_values']['cloudflare'] ) ) {
-			$a['selectbox_values']['cloudflare']['label']    = 'Cloudflare';
-			$a['selectbox_values']['cloudflare']['disabled'] = null;
+		if ( isset( $w3tc_a['selectbox_values']['cloudflare'] ) ) {
+			$w3tc_a['selectbox_values']['cloudflare']['label']    = 'Cloudflare';
+			$w3tc_a['selectbox_values']['cloudflare']['disabled'] = null;
 		}
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
@@ -461,7 +375,7 @@ class Extension_CloudFlare_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_cloudflare() {
-		$config = $this->_config;
+		$w3tc_config = $this->_config;
 		include W3TC_DIR . '/Extension_CloudFlare_GeneralPage_View.php';
 	}
 

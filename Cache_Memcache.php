@@ -38,7 +38,7 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * Initializes the Memcache connection and sets up servers based on the provided configuration.
 	 *
-	 * @param array $config {
+	 * @param array $w3tc_config {
 	 *     Configuration for Memcache, including.
 	 *
 	 *     @type array  $servers          List of Memcache server endpoints.
@@ -46,16 +46,16 @@ class Cache_Memcache extends Cache_Base {
 	 *     @type string $key_version_mode Mode for key versioning ('disabled' to disable it).
 	 * }
 	 */
-	public function __construct( $config ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config ) {
+		parent::__construct( $w3tc_config );
 
 		$memcache_class  = '\Memcache';
 		$this->_memcache = new $memcache_class();
 
-		if ( ! empty( $config['servers'] ) ) {
-			$persistent = isset( $config['persistent'] ) ? (bool) $config['persistent'] : false;
+		if ( ! empty( $w3tc_config['servers'] ) ) {
+			$persistent = isset( $w3tc_config['persistent'] ) ? (bool) $w3tc_config['persistent'] : false;
 
-			foreach ( (array) $config['servers'] as $server ) {
+			foreach ( (array) $w3tc_config['servers'] as $server ) {
 				list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
 				// For unix sockets, the memcache extension expects the socket path as host and port 0.
 				if ( 0 === (int) $port && ( 0 === strpos( $ip, 'unix:' ) || false !== strpos( $ip, '/' ) ) ) {
@@ -73,7 +73,7 @@ class Cache_Memcache extends Cache_Base {
 
 		// when disabled - no extra requests are made to obtain key version, but flush operations not supported as a result
 		// group should be always empty.
-		if ( isset( $config['key_version_mode'] ) && 'disabled' === $config['key_version_mode'] ) {
+		if ( isset( $w3tc_config['key_version_mode'] ) && 'disabled' === $w3tc_config['key_version_mode'] ) {
 			$this->_key_version[''] = 1;
 		}
 
@@ -85,15 +85,15 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * If the key already exists, it will overwrite the value. This method is functionally equivalent to `set()`.
 	 *
-	 * @param string $key    Cache key.
-	 * @param mixed  $value  Value to store.
+	 * @param string $w3tc_key    Cache key.
+	 * @param mixed  $w3tc_value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
-	 * @param string $group  Cache group. Default is an empty string.
+	 * @param string $w3tc_group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function add( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
@@ -102,21 +102,21 @@ class Cache_Memcache extends Cache_Base {
 	 * This method stores the value in Memcache with a specific key, expiration time, and group. It also includes a versioning
 	 * mechanism to handle key updates.
 	 *
-	 * @param string $key    Cache key.
-	 * @param mixed  $value  Value to store.
+	 * @param string $w3tc_key    Cache key.
+	 * @param mixed  $w3tc_value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
-	 * @param string $group  Cache group. Default is an empty string.
+	 * @param string $w3tc_group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		if ( ! isset( $value['key_version'] ) ) {
-			$value['key_version'] = $this->_get_key_version( $group );
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( ! isset( $w3tc_value['key_version'] ) ) {
+			$w3tc_value['key_version'] = $this->_get_key_version( $w3tc_group );
 		}
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		return @$this->_memcache->set( $storage_key, $value, false, $expire );
+		return @$this->_memcache->set( $storage_key, $w3tc_value, false, $expire );
 	}
 
 	/**
@@ -125,29 +125,29 @@ class Cache_Memcache extends Cache_Base {
 	 * This method fetches the cached value for the given key. If the key version does not match the current version, it may return
 	 * expired data based on configuration.
 	 *
-	 * @param string $key   Cache key.
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_key   Cache key.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return array Array containing the value (or null) and a boolean indicating if old data was returned.
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 
 		$v = @$this->_memcache->get( $storage_key );
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
 
-		$key_version = $this->_get_key_version( $group );
+		$key_version = $this->_get_key_version( $w3tc_group );
 		if ( $v['key_version'] === $key_version ) {
 			return array( $v, $has_old_data );
 		}
 
 		if ( $v['key_version'] > $key_version ) {
 			if ( ! empty( $v['key_version_at_creation'] ) && $v['key_version_at_creation'] !== $key_version ) {
-				$this->_set_key_version( $v['key_version'], $group );
+				$this->_set_key_version( $v['key_version'], $w3tc_group );
 			}
 			return array( $v, $has_old_data );
 		}
@@ -176,15 +176,15 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * This method is functionally equivalent to `set()`.
 	 *
-	 * @param string $key    Cache key.
-	 * @param mixed  $value  Value to store.
+	 * @param string $w3tc_key    Cache key.
+	 * @param mixed  $w3tc_value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
-	 * @param string $group  Cache group. Default is an empty string.
+	 * @param string $w3tc_group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function replace( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
@@ -192,13 +192,13 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * If expired data is allowed, it sets the key version to 0 and updates the cache. Otherwise, it removes the key completely.
 	 *
-	 * @param string $key   Cache key.
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_key   Cache key.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 
 		if ( $this->_use_expired_data ) {
 			$v = @$this->_memcache->get( $storage_key );
@@ -214,25 +214,25 @@ class Cache_Memcache extends Cache_Base {
 	/**
 	 * Deletes a key and its value from the cache without considering versioning.
 	 *
-	 * @param string $key   Cache key to delete.
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_key   Cache key to delete.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		return @$this->_memcache->delete( $storage_key, 0 );
 	}
 
 	/**
 	 * Flushes the cache for the specified group by incrementing its key version.
 	 *
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return bool Always returns true.
 	 */
-	public function flush( $group = '' ) {
-		$this->_increment_key_version( $group );
+	public function flush( $w3tc_group = '' ) {
+		$this->_increment_key_version( $w3tc_group );
 		return true;
 	}
 
@@ -241,14 +241,14 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * Used to create a new version of a cache key for precomputing or updating data.
 	 *
-	 * @param string $group Cache group.
+	 * @param string $w3tc_group Cache group.
 	 *
 	 * @return array Associative array with:
 	 *               - 'key_version' (int): The new key version.
 	 *               - 'key_version_at_creation' (int): The current key version.
 	 */
-	public function get_ahead_generation_extension( $group ) {
-		$v = $this->_get_key_version( $group );
+	public function get_ahead_generation_extension( $w3tc_group ) {
+		$v = $this->_get_key_version( $w3tc_group );
 		return array(
 			'key_version'             => $v + 1,
 			'key_version_at_creation' => $v,
@@ -258,8 +258,8 @@ class Cache_Memcache extends Cache_Base {
 	/**
 	 * Updates the cache key version after an ahead-generation operation.
 	 *
-	 * @param string $group Cache group.
-	 * @param array  $extension {
+	 * @param string $w3tc_group Cache group.
+	 * @param array  $w3tc_extension {
 	 *     The extension data with the new key version.
 	 *
 	 *     @type string $key_version The new cache key version.
@@ -267,10 +267,10 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
-		$v = $this->_get_key_version( $group );
-		if ( $extension['key_version'] > $v ) {
-			$this->_set_key_version( $extension['key_version'], $group );
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
+		$v = $this->_get_key_version( $w3tc_group );
+		if ( $w3tc_extension['key_version'] > $v ) {
+			$this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group );
 		}
 	}
 
@@ -295,33 +295,33 @@ class Cache_Memcache extends Cache_Base {
 	/**
 	 * Gets the current key version for a cache group.
 	 *
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return int The current key version.
 	 */
-	private function _get_key_version( $group = '' ) {
-		if ( ! isset( $this->_key_version[ $group ] ) || $this->_key_version[ $group ] <= 0 ) {
-			$v = @$this->_memcache->get( $this->_get_key_version_key( $group ) );
+	private function _get_key_version( $w3tc_group = '' ) {
+		if ( ! isset( $this->_key_version[ $w3tc_group ] ) || $this->_key_version[ $w3tc_group ] <= 0 ) {
+			$v = @$this->_memcache->get( $this->_get_key_version_key( $w3tc_group ) );
 			$v = intval( $v );
 
-			$this->_key_version[ $group ] = ( $v > 0 ? $v : 1 );
+			$this->_key_version[ $w3tc_group ] = ( $v > 0 ? $v : 1 );
 		}
 
-		return $this->_key_version[ $group ];
+		return $this->_key_version[ $w3tc_group ];
 	}
 
 	/**
 	 * Sets a new key version for a cache group.
 	 *
 	 * @param int    $v     The new key version.
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return void
 	 */
-	private function _set_key_version( $v, $group = '' ) {
+	private function _set_key_version( $v, $w3tc_group = '' ) {
 		// expiration has to be as long as possible since all cache data expires when key version expires.
-		@$this->_memcache->set( $this->_get_key_version_key( $group ), $v, false, 0 );
-		$this->_key_version[ $group ] = $v;
+		@$this->_memcache->set( $this->_get_key_version_key( $w3tc_group ), $v, false, 0 );
+		$this->_key_version[ $w3tc_group ] = $v;
 	}
 
 	/**
@@ -329,20 +329,20 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * If the key does not exist, initializes it with version 2.
 	 *
-	 * @since 0.14.5
+	 * @since 2.0.0
 	 *
-	 * @param string $group Cache group. Default is an empty string.
+	 * @param string $w3tc_group Cache group. Default is an empty string.
 	 *
 	 * @return void
 	 */
-	private function _increment_key_version( $group = '' ) {
-		$r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
+	private function _increment_key_version( $w3tc_group = '' ) {
+		$w3tc_r = @$this->_memcache->increment( $this->_get_key_version_key( $w3tc_group ), 1 );
 
-		if ( $r ) {
-			$this->_key_version[ $group ] = $r;
+		if ( $w3tc_r ) {
+			$this->_key_version[ $w3tc_group ] = $w3tc_r;
 		} else {
 			// it doesn't initialize the key if it doesn't exist.
-			$this->_set_key_version( 2, $group );
+			$this->_set_key_version( 2, $w3tc_group );
 		}
 	}
 
@@ -391,8 +391,8 @@ class Cache_Memcache extends Cache_Base {
 					continue;
 				}
 
-				foreach ( $keys_data as $key => $size_expiration ) {
-					if ( substr( $key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
+				foreach ( $keys_data as $w3tc_key => $size_expiration ) {
+					if ( substr( $w3tc_key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
 						if ( count( $size_expiration ) > 0 ) {
 							$size['bytes'] += $size_expiration[0];
 							++$size['items'];
@@ -410,7 +410,7 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * Since Memcache does not support Compare-And-Swap (CAS), atomicity cannot be guaranteed.
 	 *
-	 * @param string $key       The cache key.
+	 * @param string $w3tc_key       The cache key.
 	 * @param array  $old_value {
 	 *     The expected old value.
 	 *
@@ -420,14 +420,14 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * @return bool True if the value was set, false otherwise.
 	 */
-	public function set_if_maybe_equals( $key, $old_value, $new_value ) {
+	public function set_if_maybe_equals( $w3tc_key, $old_value, $new_value ) {
 		// cant guarantee atomic action here, memcache doesnt support CAS.
-		$value = $this->get( $key );
-		if ( isset( $old_value['content'] ) && $value['content'] !== $old_value['content'] ) {
+		$w3tc_value = $this->get( $w3tc_key );
+		if ( isset( $old_value['content'] ) && $w3tc_value['content'] !== $old_value['content'] ) {
 			return false;
 		}
 
-		return $this->set( $key, $new_value );
+		return $this->set( $w3tc_key, $new_value );
 	}
 
 	/**
@@ -435,47 +435,47 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * If the counter does not exist, it initializes the counter to 0 before adding the value.
 	 *
-	 * @param string $key   The cache key for the counter.
-	 * @param int    $value The value to add to the counter. If 0, no changes are made.
+	 * @param string $w3tc_key   The cache key for the counter.
+	 * @param int    $w3tc_value The value to add to the counter. If 0, no changes are made.
 	 *
 	 * @return int|bool The new counter value on success, or false on failure.
 	 */
-	public function counter_add( $key, $value ) {
-		if ( 0 === $value ) {
+	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( 0 === $w3tc_value ) {
 			return true;
 		}
 
-		$storage_key = $this->get_item_key( $key );
-		$r           = @$this->_memcache->increment( $storage_key, $value );
-		if ( ! $r ) { // it doesnt initialize counter by itself.
-			$this->counter_set( $key, 0 );
+		$storage_key = $this->get_item_key( $w3tc_key );
+		$w3tc_r      = @$this->_memcache->increment( $storage_key, $w3tc_value );
+		if ( ! $w3tc_r ) { // it doesnt initialize counter by itself.
+			$this->counter_set( $w3tc_key, 0 );
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
 	 * Sets a counter to a specific value.
 	 *
-	 * @param string $key   The cache key for the counter.
-	 * @param int    $value The value to set for the counter.
+	 * @param string $w3tc_key   The cache key for the counter.
+	 * @param int    $w3tc_value The value to set for the counter.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function counter_set( $key, $value ) {
-		$storage_key = $this->get_item_key( $key );
-		return @$this->_memcache->set( $storage_key, $value );
+	public function counter_set( $w3tc_key, $w3tc_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
+		return @$this->_memcache->set( $storage_key, $w3tc_value );
 	}
 
 	/**
 	 * Retrieves the current value of a counter stored in the cache.
 	 *
-	 * @param string $key The cache key for the counter.
+	 * @param string $w3tc_key The cache key for the counter.
 	 *
 	 * @return int The counter value. Returns 0 if the counter does not exist.
 	 */
-	public function counter_get( $key ) {
-		$storage_key = $this->get_item_key( $key );
+	public function counter_get( $w3tc_key ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$v           = (int) @$this->_memcache->get( $storage_key );
 
 		return $v;
@@ -487,13 +487,13 @@ class Cache_Memcache extends Cache_Base {
 	 * The key includes the instance ID, host, blog ID, module, and an MD5 hash of the item name. Spaces in the name are sanitized
 	 * to ensure compatibility with Memcache.
 	 *
-	 * @param string $name The name of the cache item.
+	 * @param string $w3tc_name The name of the cache item.
 	 *
 	 * @return string The unique storage key for the cache item.
 	 */
-	public function get_item_key( $name ) {
+	public function get_item_key( $w3tc_name ) {
 		// memcached doesn't survive spaces in a key.
-		$key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $name ) );
-		return $key;
+		$w3tc_key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $w3tc_name ) );
+		return $w3tc_key;
 	}
 }

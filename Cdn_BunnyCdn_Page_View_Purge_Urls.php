@@ -7,17 +7,18 @@
  * @since   2.6.0
  * @package W3TC
  *
- * @param array $config W3TC configuration.
+ * @param array $w3tc_config W3TC configuration.
  */
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die;
 
-$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-$is_authorized   = ! empty( $account_api_key ) &&
-	( $config->get_string( 'cdn.bunnycdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
-$placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \home_url() . '/css/*' );
+$w3tc_account_api_key = $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' );
+$w3tc_is_authorized   = ! empty( $w3tc_account_api_key ) &&
+	( $w3tc_config->get_string( 'cdn.bunnycdn.pull_zone_id' ) || $w3tc_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
+$w3tc_placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \home_url() . '/css/*' );
 
 ?>
 <table class="form-table">
@@ -36,15 +37,15 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 		</th>
 		<td>
 				<textarea id="w3tc-purge-urls" class="w3tc-ignore-change" cols="60" rows="5"
-					placeholder="<?php echo \esc_html( $placeholder ); ?>" <?php echo ( $is_authorized ? '' : 'disabled' ); ?>></textarea>
+					placeholder="<?php echo \esc_html( $w3tc_placeholder ); ?>" <?php echo ( $w3tc_is_authorized ? '' : 'disabled' ); ?>></textarea>
 				<p><?php \esc_html_e( 'Purging a URL will remove the file from the CDN cache and re-download it from your origin server. Please enter the exact CDN URL of each individual file. You can also purge folders or wildcard files using * inside of the URL path. Wildcard values are not supported if using Perma-Cache.', 'w3-total-cache' ); ?></p>
 				<p>
 					<input class="w3tc_cdn_bunnycdn_purge_urls button-primary" type="button"
 						value="<?php \esc_attr_e( 'Purge URLs Now', 'w3-total-cache' ); ?>"
-						<?php echo ( $is_authorized ? '' : 'disabled' ); ?>/>
+						<?php echo ( $w3tc_is_authorized ? '' : 'disabled' ); ?>/>
 				</p>
 			<?php
-			if ( ! $is_authorized ) :
+			if ( ! $w3tc_is_authorized ) :
 				echo wp_kses(
 					\sprintf(
 						// translators: 1: Opening HTML elements, 2: Name of the CDN service, 3: Closing HTML elements.

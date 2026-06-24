@@ -1,44 +1,66 @@
-jQuery(function($) {
-	function w3tc_extension_cloudflare_resize(o) {
-		o.resize();
-	}
+/**
+ * File: Extension_CloudFlare_Page_View.js
+ *
+ * Cloudflare extension settings page lightbox interactions.
+ *
+ * @package W3TC
+ * @since   2.0.0
+ */
 
+jQuery(function ($) {
+  function w3tc_extension_cloudflare_resize(o) {
+    o.resize();
+  }
 
-	$('body')
-		/**
-		 * Authorize popup
-		 */
-		.on('click', '.w3tc_extension_cloudflare_authorize', function() {
-		    W3tc_Lightbox.open({
-		        id:'w3tc-overlay',
-		        close: '',
-		        width: 800,
-		        height: 300,
-		        url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-            		'&w3tc_action=extension_cloudflare_intro',
-		        callback: w3tc_extension_cloudflare_resize
-		    });
-		})
+  $("body")
+    /**
+     * Authorize popup
+     */
+    .on("click", ".w3tc_extension_cloudflare_authorize", function () {
+      W3tc_Lightbox.open({
+        id: "w3tc-overlay",
+        close: "",
+        width: 800,
+        height: 300,
+        url:
+          ajaxurl +
+          "?action=w3tc_ajax&_wpnonce=" +
+          w3tcGetAjaxNonce("extension_cloudflare_intro") +
+          "&w3tc_action=extension_cloudflare_intro",
+        callback: w3tc_extension_cloudflare_resize,
+      });
+    })
 
+    .on("click", ".w3tc_popup_submit", function () {
+      // load_form POSTs w3tc_action from the form; match the hub token on the URL query.
+      var url =
+        ajaxurl +
+        "?action=w3tc_ajax&_wpnonce=" +
+        w3tcGetAjaxNonceForForm(".w3tc_extension_cloudflare_form");
 
+      W3tc_Lightbox.load_form(
+        url,
+        ".w3tc_extension_cloudflare_form",
+        w3tc_extension_cloudflare_resize,
+      );
+    })
 
-		.on('click', '.w3tc_popup_submit', function() {
-			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce;
+    .on("click", ".w3tc_cloudflare_zone_page", function () {
+      var page = jQuery(this).data("page");
+      jQuery('input[name="w3tc_action"]').val(
+        "extension_cloudflare_intro_done",
+      );
+      jQuery('input[name="page"]').val(page);
 
-	    	W3tc_Lightbox.load_form(url, '.w3tc_extension_cloudflare_form',
-	    		w3tc_extension_cloudflare_resize);
-	    })
+      var url =
+        ajaxurl +
+        "?action=w3tc_ajax&_wpnonce=" +
+        w3tcGetAjaxNonce("extension_cloudflare_intro_done");
 
-
-
-		.on('click', '.w3tc_cloudflare_zone_page', function() {
-			var page = jQuery(this).data('page');
-			jQuery('input[name="w3tc_action"]').val('extension_cloudflare_intro_done');
-			jQuery('input[name="page"]').val(page);
-
-			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce;
-
-	    	W3tc_Lightbox.load_form(url, '.w3tc_extension_cloudflare_form',
-	    		w3tc_extension_cloudflare_resize);
-	    })
+      W3tc_Lightbox.load_form(
+        url,
+        ".w3tc_extension_cloudflare_form",
+        w3tc_extension_cloudflare_resize,
+      );
+    });
 });

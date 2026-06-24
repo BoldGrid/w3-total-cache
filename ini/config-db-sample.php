@@ -5,6 +5,7 @@
  * @package W3TC
  */
 
+defined( 'ABSPATH' ) || exit;
 define( 'W3TC_CONFIG_DATABASE', true );
 
 // optional - specify table to store.

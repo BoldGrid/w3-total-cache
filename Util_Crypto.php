@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 namespace W3TC;
@@ -50,7 +50,7 @@ namespace W3TC;
  * rotating salts must re-enter credentials. The release notes call this
  * out alongside the existing salt-rotation guidance.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class Util_Crypto {
 
@@ -71,7 +71,7 @@ class Util_Crypto {
 	 * behaviour — and a one-time admin notice surfaces the missing
 	 * dependency.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return bool
 	 */
@@ -105,7 +105,7 @@ class Util_Crypto {
 	 * back to a mix of AUTH_KEY + SECURE_AUTH_KEY when `wp_salt()` is
 	 * unavailable (CLI helpers, standalone tests).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $purpose `'enc'` for the AES-256-CBC key, `'mac'`
 	 *                        for the HMAC-SHA256 key.
@@ -130,7 +130,7 @@ class Util_Crypto {
 	 * failure (so the call site can write *something* and the existing
 	 * fallback behaviour persists).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $plaintext Raw secret value.
 	 *
@@ -172,7 +172,7 @@ class Util_Crypto {
 	 * length) return `false` — callers should treat that as "credential
 	 * needs re-entry" rather than feeding a partial value downstream.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $envelope Either an `enc:v1:...` envelope or a legacy plaintext string.
 	 *
@@ -222,13 +222,13 @@ class Util_Crypto {
 	 * Used by `Config::set()` to avoid double-wrapping on save and by
 	 * `Config::get_string()` to skip the decrypt path on legacy values.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param mixed $value Candidate value.
+	 * @param mixed $w3tc_value Candidate value.
 	 *
 	 * @return bool
 	 */
-	public static function is_envelope( $value ) {
-		return \is_string( $value ) && 0 === \strpos( $value, self::ENVELOPE_PREFIX );
+	public static function is_envelope( $w3tc_value ) {
+		return \is_string( $w3tc_value ) && 0 === \strpos( $w3tc_value, self::ENVELOPE_PREFIX );
 	}
 }

@@ -21,17 +21,17 @@ class BrowserCache_Environment_Apache {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**
@@ -40,12 +40,12 @@ class BrowserCache_Environment_Apache {
 	 * @return string
 	 */
 	public function rules_rewrite() {
-		if ( ! $this->c->get_boolean( 'browsercache.rewrite' ) ) {
+		if ( ! $this->w3tc_c->get_boolean( 'browsercache.rewrite' ) ) {
 			return '';
 		}
 
 		$core       = Dispatcher::component( 'BrowserCache_Core' );
-		$extensions = $core->get_replace_extensions( $this->c );
+		$extensions = $core->get_replace_extensions( $this->w3tc_c );
 
 		$rules   = array();
 		$rules[] = '<IfModule mod_rewrite.c>';
@@ -65,7 +65,7 @@ class BrowserCache_Environment_Apache {
 	 * @return string
 	 */
 	public function rules_no404wp( $mime_types ) {
-		if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+		if ( ! $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
 			return '';
 		}
 
@@ -75,18 +75,18 @@ class BrowserCache_Environment_Apache {
 
 		$extensions = array_merge( array_keys( $cssjs_types ), array_keys( $html_types ), array_keys( $other_types ) );
 
-		$permalink_structure     = get_option( 'permalink_structure' );
-		$permalink_structure_ext = ltrim( strrchr( $permalink_structure, '.' ), '.' );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
+		$permalink_structure_ext  = ltrim( strrchr( $w3tc_permalink_structure, '.' ), '.' );
 
 		if ( '' !== $permalink_structure_ext ) {
-			foreach ( $extensions as $index => $extension ) {
-				if ( strstr( $extension, $permalink_structure_ext ) !== false ) {
-					$extensions[ $index ] = preg_replace( '~\|?' . Util_Environment::preg_quote( $permalink_structure_ext ) . '\|?~', '', $extension );
+			foreach ( $extensions as $w3tc_index => $w3tc_extension ) {
+				if ( strstr( $w3tc_extension, $permalink_structure_ext ) !== false ) {
+					$extensions[ $w3tc_index ] = preg_replace( '~\|?' . Util_Environment::preg_quote( $permalink_structure_ext ) . '\|?~', '', $w3tc_extension );
 				}
 			}
 		}
 
-		$exceptions = $this->c->get_array( 'browsercache.no404wp.exceptions' );
+		$exceptions = $this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' );
 
 		$wp_uri = network_home_url( '', 'relative' );
 		$wp_uri = rtrim( $wp_uri, '/' );

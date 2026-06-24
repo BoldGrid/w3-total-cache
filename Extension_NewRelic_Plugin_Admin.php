@@ -25,11 +25,11 @@ class Extension_NewRelic_Plugin_Admin {
 	 * Retrieves the list of available extensions and adds New Relic to the list.
 	 *
 	 * @param array $extensions List of existing extensions.
-	 * @param array $config Configuration data.
+	 * @param array $w3tc_config Configuration data.
 	 *
 	 * @return array Updated list of extensions.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$extensions['newrelic'] = array(
 			'name'                        => 'New Relic',
 			'author'                      => 'W3 EDGE',
@@ -65,6 +65,7 @@ class Extension_NewRelic_Plugin_Admin {
 	 */
 	public function run() {
 		add_filter( 'w3tc_compatibility_test', array( $this, 'verify_compatibility' ) );
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 		add_action( 'w3tc_config_save', array( $this, 'w3tc_config_save' ), 10, 1 );
 
 		add_filter( 'w3tc_admin_actions', array( $this, 'w3tc_admin_actions' ) );
@@ -99,8 +100,8 @@ class Extension_NewRelic_Plugin_Admin {
 	 * @return array Modified admin menu with New Relic monitoring option.
 	 */
 	public function w3tc_admin_menu( $menu ) {
-		$c               = Dispatcher::config();
-		$monitoring_type = $c->get_string( array( 'newrelic', 'monitoring_type' ) );
+		$w3tc_c          = Dispatcher::config();
+		$monitoring_type = $w3tc_c->get_string( array( 'newrelic', 'monitoring_type' ) );
 		if ( 'apm' === $monitoring_type ) {
 			$menu['w3tc_monitoring'] = array(
 				'page_title'     => __( 'Monitoring', 'w3-total-cache' ),
@@ -128,16 +129,16 @@ class Extension_NewRelic_Plugin_Admin {
 	/**
 	 * Adds custom plugin links for the New Relic extension.
 	 *
-	 * @param array $links Existing array of plugin links.
+	 * @param array $w3tc_links Existing array of plugin links.
 	 *
 	 * @return array Modified array of plugin links with New Relic settings link added.
 	 */
-	public function w3tc_extension_plugin_links( $links ) {
-		$links   = array();
-		$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) .
+	public function w3tc_extension_plugin_links( $w3tc_links ) {
+		$w3tc_links   = array();
+		$w3tc_links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) .
 			'">' . __( 'Settings', 'w3-total-cache' ) . '</a>';
 
-		return $links;
+		return $w3tc_links;
 	}
 
 	/**
@@ -167,19 +168,19 @@ class Extension_NewRelic_Plugin_Admin {
 		$not_running           = is_array( $verify_running_result );
 
 		if ( $not_running ) {
-			$message  = '<p>' .
+			$w3tc_message  = '<p>' .
 				__( 'New Relic is not running correctly. ', 'w3-total-cache' ) .
 				'<a href="#" class="w3tc_link_more {for_class: \'w3tc_nr_admin_notice\'}">' .
 				'more</a> ' .
 				'<div class="w3tc_none w3tc_nr_admin_notice">' .
 				__( 'The plugin has detected the following issues:. ', 'w3-total-cache' );
-			$message .= "<ul class=\"w3-bullet-list\">\n";
+			$w3tc_message .= "<ul class=\"w3-bullet-list\">\n";
 			foreach ( $verify_running_result as $cause ) {
-				$message .= "<li>$cause</li>";
+				$w3tc_message .= "<li>$cause</li>";
 			}
-			$message .= "</ul>\n";
+			$w3tc_message .= "</ul>\n";
 
-			$message .= '<p>' . sprintf(
+			$w3tc_message .= '<p>' . sprintf(
 				// Translators: 1 opening HTML link to General Settings page monitoring section, 2 closing HTML link.
 				__(
 					'Please review the %1$ssettings%2$s.',
@@ -188,24 +189,24 @@ class Extension_NewRelic_Plugin_Admin {
 				'<a href="' . network_admin_url( 'admin.php?page=w3tc_general#monitoring' ) . '">',
 				'</a>'
 			) . '</p>';
-			$message .= "</div></p>\n";
+			$w3tc_message .= "</div></p>\n";
 
-			Util_Ui::error_box( $message );
+			Util_Ui::error_box( $w3tc_message );
 		}
 	}
 
 	/**
 	 * Adds custom notes to the W3 Total Cache dashboard related to New Relic.
 	 *
-	 * @param array $notes Existing array of notes to be displayed.
+	 * @param array $w3tc_notes Existing array of notes to be displayed.
 	 *
 	 * @return array Modified array of notes with New Relic notifications added.
 	 */
-	public function w3tc_notes( $notes ) {
+	public function w3tc_notes( $w3tc_notes ) {
 		$newrelic_notes = Dispatcher::component( 'Extension_NewRelic_AdminNotes' );
-		$notes          = array_merge( $notes, $newrelic_notes->notifications( $this->_config ) );
+		$w3tc_notes     = array_merge( $w3tc_notes, $newrelic_notes->notifications( $this->_config ) );
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -219,8 +220,8 @@ class Extension_NewRelic_Plugin_Admin {
 		$nerser          = Dispatcher::component( 'Extension_NewRelic_Service' );
 		$nr_verified     = $nerser->verify_compatibility();
 		$verified_list[] = '<strong>New Relic</strong>';
-		foreach ( $nr_verified as $criteria => $result ) {
-			$verified_list[] = sprintf( "$criteria: %s", $result );
+		foreach ( $nr_verified as $criteria => $w3tc_result ) {
+			$verified_list[] = sprintf( "$criteria: %s", $w3tc_result );
 		}
 
 		return $verified_list;
@@ -229,27 +230,54 @@ class Extension_NewRelic_Plugin_Admin {
 	/**
 	 * Handles the saving of configuration settings for the New Relic extension.
 	 *
-	 * @param object $config Configuration object containing the settings to be saved.
+	 * @param object $w3tc_config Configuration object containing the settings to be saved.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_save( $config ) {
+	public function w3tc_config_save( $w3tc_config ) {
 		// frontend activity.
-		$api_key   = $config->get_string( array( 'newrelic', 'api_key' ) );
+		$api_key   = $w3tc_config->get_string( array( 'newrelic', 'api_key' ) );
 		$is_filled = ! empty( $api_key );
 
-		if ( $is_filled ) {
-			$monitoring_type = $config->get_string( array( 'newrelic', 'monitoring_type' ) );
+		if ( ! $is_filled ) {
+			$w3tc_config->set( array( 'newrelic', 'apm.application_name' ), '' );
+			$w3tc_config->set( array( 'newrelic', 'browser.application_id' ), '' );
+			$w3tc_config->set( array( 'newrelic', 'account_id' ), 0 );
+			update_option( 'w3tc_nr_account_id', '' );
+			update_option( 'w3tc_nr_application_id', '' );
+		} else {
+			$monitoring_type = $w3tc_config->get_string( array( 'newrelic', 'monitoring_type' ) );
 
 			if ( 'browser' === $monitoring_type ) {
-				$v         = $config->get_string( array( 'newrelic', 'browser.application_id' ) );
+				$v         = $w3tc_config->get_string( array( 'newrelic', 'browser.application_id' ) );
 				$is_filled = ! empty( $v );
 			} else {
-				$v         = $config->get_string( array( 'newrelic', 'apm.application_name' ) );
+				$v         = $w3tc_config->get_string( array( 'newrelic', 'apm.application_name' ) );
 				$is_filled = ! empty( $v );
 			}
 		}
 
-		$config->set_extension_active_frontend( 'newrelic', $is_filled );
+		$w3tc_config->set_extension_active_frontend( 'newrelic', $is_filled );
+	}
+
+	/**
+	 * Marks the New Relic API key as a secret for masked-input / clear handling.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @param mixed $w3tc_descriptor Descriptor from the schema, or null.
+	 * @param mixed $w3tc_key        Config key.
+	 *
+	 * @return mixed
+	 */
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) && 'newrelic' === $w3tc_key[0] && 'api_key' === $w3tc_key[1] ) {
+			return array(
+				'type'  => 'string',
+				'flags' => array( 'secret' => true ),
+			);
+		}
+
+		return $w3tc_descriptor;
 	}
 }

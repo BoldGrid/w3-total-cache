@@ -113,26 +113,26 @@ class UsageStatistics_Source_PageCacheLog {
 			}
 		}
 
-		$output = array();
-		foreach ( $this->by_uri as $uri => $data ) {
-			$output[] = array(
+		$w3tc_output = array();
+		foreach ( $this->by_uri as $uri => $w3tc_data ) {
+			$w3tc_output[] = array(
 				'uri'         => $uri,
-				'count'       => $data['count'],
-				'avg_size'    => (int) ( $data['sum_size'] / $data['count'] ),
-				'avg_time_ms' => (int) ( $data['sum_time_ms'] / $data['count'] ),
-				'sum_time_ms' => $data['sum_time_ms'],
-				'reasons'     => $data['reasons'],
+				'count'       => $w3tc_data['count'],
+				'avg_size'    => (int) ( $w3tc_data['sum_size'] / $w3tc_data['count'] ),
+				'avg_time_ms' => (int) ( $w3tc_data['sum_time_ms'] / $w3tc_data['count'] ),
+				'sum_time_ms' => $w3tc_data['sum_time_ms'],
+				'reasons'     => $w3tc_data['reasons'],
 			);
 		}
 
 		usort(
-			$output,
-			function ( $a, $b ) {
-				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
+			$w3tc_output,
+			function ( $w3tc_a, $b ) {
+				return (int) ( $b[ $this->sort_column ] ) - (int) ( $w3tc_a[ $this->sort_column ] );
 			}
 		);
 
-		return $output;
+		return $w3tc_output;
 	}
 
 	/**
@@ -153,8 +153,8 @@ class UsageStatistics_Source_PageCacheLog {
 		$n = 0;
 		if ( $skip_first_line ) {
 			for ( ; $n < $s_length; $n++ ) {
-				$c = substr( $s, $n, 1 );
-				if ( "\r" === $c || "\n" === $c ) {
+				$w3tc_c = substr( $s, $n, 1 );
+				if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 					$unparsed_head = substr( $s, 0, $n + 1 );
 					break;
 				}
@@ -163,8 +163,8 @@ class UsageStatistics_Source_PageCacheLog {
 
 		$line_start = $n;
 		for ( ; $n < $s_length; $n++ ) {
-			$c = substr( $s, $n, 1 );
-			if ( "\r" === $c || "\n" === $c ) {
+			$w3tc_c = substr( $s, $n, 1 );
+			if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 				if ( $n > $line_start ) {
 					$this->push_line( substr( $s, $line_start, $n - $line_start ) );
 				}
@@ -183,15 +183,15 @@ class UsageStatistics_Source_PageCacheLog {
 	 * time taken, size, process status, and the reason. If the log line meets the filter criteria (e.g.,
 	 * matching the process status and timestamp), the relevant information is added to the `$by_uri` attribute.
 	 *
-	 * @param string $line A single line of log data to be processed.
+	 * @param string $w3tc_line A single line of log data to be processed.
 	 *
 	 * @return void
 	 */
-	private function push_line( $line ) {
+	private function push_line( $w3tc_line ) {
 		$matches = null;
 		preg_match(
 			'/\[([^>\]]+)\] \[([^>\]]+)\] \[([^>\]]+)\] finished in (\d+) size (\d+) with process status ([^ ]+) reason (.*)/',
-			$line,
+			$w3tc_line,
 			$matches
 		);
 

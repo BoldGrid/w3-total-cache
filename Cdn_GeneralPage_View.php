@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die;
 
 Util_Ui::postbox_header_tabs(
@@ -49,7 +50,7 @@ Util_Ui::config_overloading_button(
 ?>
 <div id="w3tc-bunnycdn-ad-general">
 	<?php
-	if ( ! $cdn_enabled ) {
+	if ( ! $w3tc_cdn_enabled ) {
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,

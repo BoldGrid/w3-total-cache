@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -18,16 +19,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-api-key', 'api_key', $details['api_key'] );
 	Util_Ui::hidden( 'w3tc-rackspace-access-token', 'access_token', $details['access_token'] );
 	Util_Ui::hidden( 'w3tc-rackspace-region-descriptors', 'region_descriptors', $details['region_descriptors_serialized'] );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
@@ -39,11 +30,11 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th>Region:</td>
 				<td>
-					<?php foreach ( $details['region_descriptors'] as $region => $region_details ) : ?>
+					<?php foreach ( $details['region_descriptors'] as $w3tc_region => $w3tc_region_details ) : ?>
 						<label>
 							<input name="region" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $region ); ?>" />
-							<?php echo esc_html( $region_details['name'] ); ?>
+								value="<?php echo esc_attr( $w3tc_region ); ?>" />
+							<?php echo esc_html( $w3tc_region_details['name'] ); ?>
 						</label><br />
 					<?php endforeach; ?>
 				</td>

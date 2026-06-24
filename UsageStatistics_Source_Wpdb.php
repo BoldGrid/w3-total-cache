@@ -30,12 +30,12 @@ class UsageStatistics_Source_Wpdb {
 	 * @return void
 	 */
 	public static function init() {
-		$o = new UsageStatistics_Source_Wpdb();
+		$w3tc_o = new UsageStatistics_Source_Wpdb();
 
-		add_filter( 'query', array( $o, 'query' ) );
-		add_action( 'w3tc_usage_statistics_of_request', array( $o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
-		add_filter( 'w3tc_usage_statistics_metrics', array( $o, 'w3tc_usage_statistics_metrics' ) );
-		add_filter( 'w3tc_usage_statistics_summary_from_history', array( $o, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
+		add_filter( 'w3tc_dbcluster_query', array( $w3tc_o, 'query' ) );
+		add_action( 'w3tc_usage_statistics_of_request', array( $w3tc_o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+		add_filter( 'w3tc_usage_statistics_metrics', array( $w3tc_o, 'w3tc_usage_statistics_metrics' ) );
+		add_filter( 'w3tc_usage_statistics_summary_from_history', array( $w3tc_o, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 	}
 
 	/**

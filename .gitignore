@@ -1,6 +1,8 @@
 .cursor/working/
 .vscode/
 node_modules/
+# yarn.lock is canonical; ignore npm's lockfile from ad-hoc npm install.
+package-lock.json
 vendor/
 /qa/env/000-environment
 /qa/env/200-ami-build
@@ -8,6 +10,7 @@ vendor/
 /qa/env/boxes/*
 /qa/env/key-aws-w3tcqa.pem
 /qa/env/lib/*.pyc
+__pycache__/
 /qa/env/working/*
 /qa/node_modules/*
 .DS_Store

@@ -6,8 +6,8 @@ This project is a WordPress plugin designed to enhance website performance throu
 ## Coding Standards
 - Follow the coding standards defined in the ./phpcs.xml file.
 - This is a WordPress plugin, so the coding standards must adhere to the WordPress coding standards.
-- This plugin must be compatible with PHP 7.2.5 through 8.3, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
-- This plugin must be compatible with WordPress 5.3 and up, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
+- This plugin must be compatible with PHP 7.4 through 8.5, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
+- This plugin must be compatible with WordPress 6.0 and up, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
 - Do not use spaces for indentation; use 4-space tabs instead.
 - Use single quotes for strings unless double quotes are necessary (e.g., when using variables inside the string).
 - Do not make coding standards changes in changed files unless it is directly related to the functionality being modified.
@@ -27,7 +27,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - WordPress Documentation Standards for JavaScript: https://developer.wordpress.org/coding-standards/inline-documentation-standards/javascript/
 
 ## Contribution Process
-- Add `@since X.X.X` to all new doc blocks -- it's updated in our build process.
+- Add `@since X.X.X` to all new doc blocks. After bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements on `master` before tagging.
 - Do not update POT files -- it's done in our build process.
 - Do not change the `readme.txt` file -- it's done on release branches.
 - Do not increment the plugin version number -- it's done in our build process.
@@ -65,8 +65,8 @@ Every GHSA created against this repo, and every PR opened inside a GHSA's tempor
 The operational details (how to PATCH an advisory, how to rename a TPF PR, how to make the rename idempotent when the source title already carries a prefix) are encoded in `.claude/skills/move-pr-to-private-ghsa/SKILL.md` caveat #18 and its Phase 2 / Phase 5 snippets. Read that skill before creating a new GHSA or amending an existing one.
 
 ## Dependency Management
-- Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.2.5–8.3 constraint declared in `composer.json`.
-- When running Composer directly, keep `composer update --with-all-dependencies` targeted at the repo root so the generated lock file honors the configured PHP platform (7.2.5).
+- Use `yarn run upgrade:deps` to refresh JS packages and Composer libraries in one step; this enforces the PHP 7.4–8.5 constraint declared in `composer.json`.
+- When running Composer directly, keep `composer update --with-all-dependencies` targeted at the repo root so the generated lock file honors the configured PHP platform (7.4).
 
 ## Working Files
 - For ad-hoc agent scratch files (PR-comment bodies, JSON payloads for `gh api`, draft patches, intermediate tool output, etc.), write to `.cursor/working/` — it is covered by `.gitignore` (`.cursor/working/`).
@@ -88,3 +88,4 @@ The operational details (how to PATCH an advisory, how to rename a TPF PR, how t
  - `.claude/skills/pr-content-to-jira/SKILL.md` — move sensitive descriptive content (vuln scope, finding IDs, exploit-shaped review commentary) off a public GitHub PR and into an internal Jira ticket. Use when a PR has accumulated content that should not stay in the default public view and a parent Jira ticket exists.
  - `.claude/skills/move-pr-to-private-ghsa/SKILL.md` — move an in-progress public security-fix PR's branch into a GitHub Security Advisory's temporary private fork, then close + delete the original public PR. Use when the team decides remaining review and additional commits should happen privately. Pair with `pr-content-to-jira` when the public PR also has descriptive content to preserve.
  - `.claude/skills/repost-pr-reviews-to-tpf/SKILL.md` — repost GitHub review content (Copilot bot reviews, human-reviewer threads) from a closed public PR onto its GHSA temporary-private-fork PR, anchored to the source's `original_commit_id` at `original_line` so GitHub renders each comment as a historical outdated comment matching the original review UX exactly. Use after `move-pr-to-private-ghsa` to restore reviewer-thread continuity on the TPF — reviews/inline comments do not migrate with the commits, so the TPF starts from a blank Conversation tab without this follow-up. Attribution lives in an inline preface on every body.
+ - `.claude/skills/analyze-w3tcqa-environment/SKILL.md` — map the W3TCQA AWS matrix (orchestrator `~/ci` / `qa/env`, EC2 `/share` layout, report artifacts, box naming, log triage). Use when analyzing uploaded `w3tcqa-ci.zip`, `summary.html`, per-box logs, or planning fixes to `qa/plugins` probe scripts. Implementation split: `IMPLEMENTATION-PLANS.md` in the same directory.

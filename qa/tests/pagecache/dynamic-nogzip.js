@@ -22,10 +22,28 @@ describe('', function() {
 
 
 	it('set options', async() => {
+		/**
+		 * The eval()/include primitives behind mfunc/mclude were removed; the
+		 * dispatcher now only honours `call:<slug>` payloads against callbacks
+		 * registered via the `w3tc_dynamic_callbacks` filter. This mu-plugin
+		 * registers `qa_multiply` which returns `a * b` so the test below can
+		 * assert on the same `4428840` (= 5678 * 780) hit indicator.
+		 */
+		await sys.copyPhpToPath('../../plugins/pagecache/dynamic-mfunc-callback.php',
+			env.wpContentPath + 'mu-plugins');
+
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,
 			browsercache__enabled: false,
 			pgcache__engine: 'file'
+		});
+
+		/**
+		 * Late init: cache HIT must run `_parse_dynamic` after MU-plugins
+		 * register `w3tc_dynamic_callbacks` (see dynamic-late-init.js).
+		 */
+		await w3tc.setOptions(adminPage, 'w3tc_pgcache', {
+			pgcache_late_init: true
 		});
 
 		await wp.addWpConfigConstant(adminPage, 'W3TC_DYNAMIC_SECURITY', 'phptest');
@@ -38,7 +56,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'post',
 			title: 'post_1_title',
-			content: '<!-- mfunc phptest --> echo 5678 * 780; <!-- /mfunc phptest -->'
+			content: '<!-- mfunc phptest call:qa_multiply {"a":5678,"b":780} --><!-- /mfunc phptest -->'
 		});
 
 		testPageUrl = testPage.url;
@@ -50,7 +68,7 @@ describe('', function() {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 
 		let content = await page.content();
-		expect(content).not.contains('echo');
+		expect(content).not.contains('call:qa_multiply');
 		expect(content).contains('4428840');
 	});
 
@@ -59,7 +77,7 @@ describe('', function() {
 		let response = await page.goto(testPageUrl);
 
 		let content = await page.content();
-		expect(content).not.contains('echo');
+		expect(content).not.contains('call:qa_multiply');
 		expect(content).contains('4428840');
 	});
 });

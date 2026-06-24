@@ -14,12 +14,12 @@ class Generic_AdminNotes {
 	/**
 	 * W3TC admin notices.
 	 *
-	 * @param array $notes Notices.
+	 * @param array $w3tc_notes Notices.
 	 *
 	 * @return string
 	 */
-	public function w3tc_notes( $notes ) {
-		$c            = Dispatcher::config();
+	public function w3tc_notes( $w3tc_notes ) {
+		$w3tc_c       = Dispatcher::config();
 		$state        = Dispatcher::config_state();
 		$state_master = Dispatcher::config_state_master();
 		$state_note   = Dispatcher::config_state_note();
@@ -31,7 +31,7 @@ class Generic_AdminNotes {
 			$wp_content_mode = Util_File::get_file_permissions( WP_CONTENT_DIR );
 
 			if ( $wp_content_mode > 755 ) {
-				$notes['generic_wp_content_writeable'] = wp_kses(
+				$w3tc_notes['generic_wp_content_writeable'] = wp_kses(
 					sprintf(
 						// translators: 1: HTML strong tag for current WP directory, 2: HTML strong tag for CHMOD instruction for current WP directory,
 						// translators: 3: conversion of file permissions from base 10 to 8, 4: HTML input button for hiding message.
@@ -68,7 +68,7 @@ class Generic_AdminNotes {
 		 * Check Zlib extension.
 		 */
 		if ( ! $state_master->get_boolean( 'common.hide_note_no_zlib' ) && ! function_exists( 'gzencode' ) ) {
-			$notes['no_zlib'] = wp_kses(
+			$w3tc_notes['no_zlib'] = wp_kses(
 				sprintf(
 					// translators: 1: opening HTML strong tag, 2: closing HTML strong tag, 3: HTML input button for hiding message.
 					__(
@@ -102,7 +102,7 @@ class Generic_AdminNotes {
 		 * Check if Zlib output compression is enabled
 		 */
 		if ( ! $state_master->get_boolean( 'common.hide_note_zlib_output_compression' ) && Util_Environment::is_zlib_enabled() ) {
-			$notes['zlib_output_compression'] = wp_kses(
+			$w3tc_notes['zlib_output_compression'] = wp_kses(
 				sprintf(
 					// translators: 1: opening HTML strong tag, 2: clsoing HTML strong tag, 3: HTML line break, 4: HTML input button to hide message.
 					__(
@@ -134,10 +134,13 @@ class Generic_AdminNotes {
 			);
 		}
 
-		if ( $state_master->get_boolean( 'common.show_note.nginx_restart_required' ) ) {
+		if (
+			$state_master->get_boolean( 'common.show_note.nginx_restart_required' ) &&
+			! $state_master->get_boolean( 'common.hide_note_nginx_restart_required' )
+		) {
 			$cf = Dispatcher::component( 'CacheFlush' );
 
-			$notes['nginx_restart_required'] = wp_kses(
+			$w3tc_notes['nginx_restart_required'] = wp_kses(
 				sprintf(
 					// translators: 1: HTML input button to hide message.
 					__(
@@ -147,8 +150,8 @@ class Generic_AdminNotes {
 					Util_Ui::button_hide_note2(
 						array(
 							'w3tc_default_config_state_master' => 'y',
-							'key'   => 'common.show_note.nginx_restart_required',
-							'value' => 'false',
+							'key'   => 'common.hide_note_nginx_restart_required',
+							'value' => 'true',
 						)
 					)
 				),
@@ -167,8 +170,8 @@ class Generic_AdminNotes {
 		/**
 		 * Preview mode
 		 */
-		if ( $c->is_preview() ) {
-			$notes['preview_mode'] = wp_kses(
+		if ( $w3tc_c->is_preview() ) {
+			$w3tc_notes['preview_mode'] = wp_kses(
 				sprintf(
 					// translators: 1: HTML input button to apply changes, 2: HTML input button to disable preview mode,
 					// translators: 3: opening HTML p tag, 4: HTML inptu button to preview changes, 5: closing HTML p tag.
@@ -209,14 +212,14 @@ class Generic_AdminNotes {
 		if ( $state_note->get( 'common.show_note.plugins_updated' ) && ! is_network_admin() /* flushing under network admin do nothing */ ) {
 			$texts = array();
 
-			if ( $c->get_boolean( 'pgcache.enabled' ) ) {
+			if ( $w3tc_c->get_boolean( 'pgcache.enabled' ) ) {
 				$texts[] = Util_Ui::button_link(
 					__( 'empty the page cache', 'w3-total-cache' ),
 					Util_Ui::url( array( 'w3tc_flush_posts' => 'y' ) )
 				);
 			}
 
-			if ( $c->get_boolean( 'minify.enabled' ) ) {
+			if ( $w3tc_c->get_boolean( 'minify.enabled' ) ) {
 				$texts[] = wp_kses(
 					sprintf(
 						// translators: 1: HTML input button to view minify settings.
@@ -250,7 +253,7 @@ class Generic_AdminNotes {
 			}
 
 			if ( count( $texts ) ) {
-				$notes['some_plugins_activated'] = wp_kses(
+				$w3tc_notes['some_plugins_activated'] = wp_kses(
 					sprintf(
 						// translators: 1: HTML input button to clear the cache, 2: HTML input button to hide message.
 						__(
@@ -286,8 +289,8 @@ class Generic_AdminNotes {
 		/**
 		 * Show notification when flush_statics needed.
 		 */
-		if ( $c->get_boolean( 'browsercache.enabled' ) && $state_note->get( 'common.show_note.flush_statics_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $c->is_preview() ) {
-			$notes['flush_statics_needed'] = wp_kses(
+		if ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $state_note->get( 'common.show_note.flush_statics_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $w3tc_c->is_preview() ) {
+			$w3tc_notes['flush_statics_needed'] = wp_kses(
 				sprintf(
 					// translators: 1: HTML input button to empty static files cache, 2: HTML input button to hide message.
 					__(
@@ -321,10 +324,10 @@ class Generic_AdminNotes {
 		/**
 		 * Show notification when flush_posts needed.
 		 */
-		if ( $state_note->get( 'common.show_note.flush_posts_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $c->is_preview() && ! isset( $notes['flush_statics_needed'] ) ) {
+		if ( $state_note->get( 'common.show_note.flush_posts_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $w3tc_c->is_preview() && ! isset( $w3tc_notes['flush_statics_needed'] ) ) {
 			$cf = Dispatcher::component( 'CacheFlush' );
 			if ( $cf->flushable_posts() ) {
-				$notes['flush_posts_needed'] = wp_kses(
+				$w3tc_notes['flush_posts_needed'] = wp_kses(
 					sprintf(
 						// translators: 1: HTML input button to empty page cache, 2: HTML input button to hide message.
 						__(
@@ -356,17 +359,17 @@ class Generic_AdminNotes {
 			}
 		}
 
-		$is_debug = $c->get_boolean( 'cluster.messagebus.debug' ) ||
-			$c->get_boolean( 'dbcache.debug' ) ||
-			$c->get_boolean( 'objectcache.debug' ) ||
-			$c->get_boolean( 'pgcache.debug' ) ||
-			$c->get_boolean( 'minify.debug' ) ||
-			$c->get_boolean( 'cdn.debug' ) ||
-			$c->get_boolean( 'cdnfsd.debug' ) ||
-			$c->get_boolean( 'varnish.debug' );
+		$is_debug = $w3tc_c->get_boolean( 'cluster.messagebus.debug' ) ||
+			$w3tc_c->get_boolean( 'dbcache.debug' ) ||
+			$w3tc_c->get_boolean( 'objectcache.debug' ) ||
+			$w3tc_c->get_boolean( 'pgcache.debug' ) ||
+			$w3tc_c->get_boolean( 'minify.debug' ) ||
+			$w3tc_c->get_boolean( 'cdn.debug' ) ||
+			$w3tc_c->get_boolean( 'cdnfsd.debug' ) ||
+			$w3tc_c->get_boolean( 'varnish.debug' );
 
 		if ( $is_debug && ! $state_master->get_boolean( 'common.hide_note_debug_enabled' ) ) {
-			$notes['debug_enabled'] = wp_kses(
+			$w3tc_notes['debug_enabled'] = wp_kses(
 				sprintf(
 					// translators: 1: HTML input button to hide message.
 					__(
@@ -393,7 +396,7 @@ class Generic_AdminNotes {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -403,8 +406,8 @@ class Generic_AdminNotes {
 	 * @return array
 	 */
 	public function w3tc_errors( $errors ) {
-		$state = Dispatcher::config_state();
-		$c     = Dispatcher::config();
+		$state  = Dispatcher::config_state();
+		$w3tc_c = Dispatcher::config();
 
 		/**
 		 * Check permalinks.
@@ -412,8 +415,8 @@ class Generic_AdminNotes {
 		if (
 			! $state->get_boolean( 'common.hide_note_no_permalink_rules' ) &&
 			(
-				( $c->get_boolean( 'pgcache.enabled' ) && 'file_generic' === $c->get_string( 'pgcache.engine' ) ) ||
-				( $c->get_boolean( 'browsercache.enabled' ) && $c->get_boolean( 'browsercache.no404wp' ) )
+				( $w3tc_c->get_boolean( 'pgcache.enabled' ) && 'file_generic' === $w3tc_c->get_string( 'pgcache.engine' ) ) ||
+				( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.no404wp' ) )
 			) &&
 			! Util_Rule::is_permalink_rules()
 		) {

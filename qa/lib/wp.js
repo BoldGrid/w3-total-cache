@@ -9,6 +9,7 @@ const fs = require('fs');
 const env = require('./environment');
 const sys = require('./sys');
 const exec = util.promisify(require('child_process').exec);
+const execFile = util.promisify(require('child_process').execFile);
 
 fs.readFileAsync = util.promisify(fs.readFile);
 fs.writeFileAsync = util.promisify(fs.writeFile);
@@ -48,41 +49,29 @@ async function login(pPage, data) {
  * @returns {string}
  */
 async function getCurrentTheme(pPage) {
-	let theme = null;
-
 	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
-	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*.
-		let src = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
-		let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
-		theme   = m[1];
-	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*.
-		let href = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
-		let m    = href.match(/theme=([^&]+)/);
-		theme    = m[1];
-	} else { // WP 5 and up.
-		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
+	let theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
 
-		log.log(`Active theme (from data-slug): ${theme}`);
+	log.log(`Active theme (from data-slug): ${theme}`);
 
-		// If the data attribute is null, then failover to the screenshot image src.
-		if (!theme) {
-			log.log('Could not find active theme data-slug.');
+	// If the data attribute is null, then failover to the screenshot image src.
+	if (!theme) {
+		log.log('Could not find active theme data-slug.');
 
-			let src = await pPage.$eval('.theme.active .theme-screenshot img', (e) => e.src);
+		let src = await pPage.$eval('.theme.active .theme-screenshot img', (e) => e.src);
 
-			log.log(`Active theme screenshot img src: ${src}`);
+		log.log(`Active theme screenshot img src: ${src}`);
 
-			let m = src.match(/themes\/(.+)\/screenshot\.png/);
+		let m = src.match(/themes\/(.+)\/screenshot\.png/);
 
-			log.log(`Active theme screenshot img src match: ${m}`);
+		log.log(`Active theme screenshot img src match: ${m}`);
 
-			if (!Array.isArray(m) || !m[1]) {
-				throw new Error('Could not determine theme folder.');
-			}
-
-			theme = m[1];
+		if (!Array.isArray(m) || !m[1]) {
+			throw new Error('Could not determine theme folder.');
 		}
+
+		theme = m[1];
 	}
 
 	return theme;
@@ -278,29 +267,14 @@ async function addQaBootstrap(pPage, themeFunctionsFilename, filenameToLoad) {
 async function networkActivatePlugin(pPage, pluginFilename) {
 	await pPage.goto(env.networkAdminUrl + 'plugins.php', {waitUntil: 'domcontentloaded'});
 
-	if (parseFloat(env.wpVersion) < 4.4) {
-		// WordPress <4.4.
-		let parts = pluginFilename.split('/');
-		let pluginName = parts[0];
-		let pluginRow = await pPage.$('tr#' + pluginName);
-		expect(pluginRow).not.null;
+	let pluginRow = await pPage.$('tr[data-plugin="' + pluginFilename + '"]');
+	expect(pluginRow).not.null;
 
-		let pluginActivate = '#' + pluginName + ' .activate a';
-		await Promise.all([
-			pPage.evaluate((pluginActivate) => document.querySelector(pluginActivate).click(), pluginActivate),
-			pPage.waitForNavigation()
-		]);
-	} else {
-		// WordPress 4.4 and up.
-		let pluginRow = await pPage.$('tr[data-plugin="' + pluginFilename + '"]');
-		expect(pluginRow).not.null;
-
-		let pluginActivate = 'tr[data-plugin="' + pluginFilename + '"] .activate a';
-		await Promise.all([
-			pPage.evaluate((pluginActivate) => document.querySelector(pluginActivate).click(), pluginActivate),
-			pPage.waitForNavigation()
-		]);
-	}
+	let pluginActivate = 'tr[data-plugin="' + pluginFilename + '"] .activate a';
+	await Promise.all([
+		pPage.evaluate((pluginActivate) => document.querySelector(pluginActivate).click(), pluginActivate),
+		pPage.waitForNavigation()
+	]);
 
 	let ifActivated = await pPage.$eval('#message', (e) => e.innerText.trim());
 	expect(ifActivated).contains('Plugin activated.');
@@ -335,25 +309,15 @@ async function userSignUpSingle(pPage, data) {
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
 
-	if (parseFloat(env.wpVersion) >= 4.4) {
-		// Do not send confirmation email.
-		let sendUserNotification = '#send_user_notification';
-		await pPage.evaluate((sendUserNotification) => document.querySelector(sendUserNotification).click(), sendUserNotification);
-	}
+	// Do not send confirmation email.
+	let sendUserNotification = '#send_user_notification';
+	await pPage.evaluate((sendUserNotification) => document.querySelector(sendUserNotification).click(), sendUserNotification);
 
 	let generatePw = '.wp-generate-pw';
 	await pPage.evaluate((generatePw) => document.querySelector(generatePw).click(), generatePw);
 
-	let password;
-	if (parseFloat(env.wpVersion) < 5.3) {
-		// WordPress <5.3.
-		await pPage.waitForSelector('#pass1-text', {visible: true});
-		password = await pPage.$eval('#pass1-text', (e) => e.value);
-	} else {
-		// WordPress 5.3 and up.
-		await pPage.waitForSelector('#pass1', {visible: true});
-		password = await pPage.$eval('#pass1', (e) => e.value);
-	}
+	await pPage.waitForSelector('#pass1', {visible: true});
+	let password = await pPage.$eval('#pass1', (e) => e.value);
 
 	let createUserSub = '#createusersub';
 	await Promise.all([
@@ -365,6 +329,25 @@ async function userSignUpSingle(pPage, data) {
 	expect(m).contains('New user created.');
 
 	return password;
+}
+
+/**
+ * Set a WP user's password via wp-cli (multisite-safe).
+ *
+ * @param {string} login    User login.
+ * @param {string} password Plaintext password.
+ */
+async function wpCliSetUserPassword(login, password) {
+	let args = [
+		'-u', 'www-data',
+		'wp', 'user', 'update', login,
+		'--user_pass=' + password,
+		'--path=' + env.wpPath,
+	];
+	if (env.isWpmu) {
+		args.push('--url=' + env.homeUrl);
+	}
+	await execFile('sudo', args);
 }
 
 /**
@@ -388,29 +371,49 @@ async function userSignUpNetwork(pPage, data) {
 	]);
 
 	let message = await pPage.$eval('#message', (e) => e.innerHTML);
-	if (parseFloat(env.wpVersion) < 4.4) {
-		// WordPress <4.4.
-		expect(message).contains('Options saved.');
-	} else {
-		// WordPres 4.4 and up.
-		expect(message).contains('Settings saved.');
-	}
+	expect(message).contains('Settings saved.');
 
 	log.success('signup allowed');
 
+	const password = 'W3tcQa!' + Date.now();
+
 	// Add user.
-	await pPage.goto(env.adminUrl + 'user-new.php', { waitUntil: 'networkidle0' });
+	await pPage.goto(env.adminUrl + 'user-new.php', {waitUntil: 'domcontentloaded'});
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
 
+	let noconfirmation = '#noconfirmation';
+	if (await pPage.$(noconfirmation) !== null) {
+		await pPage.evaluate(
+			(noconfirmation) => document.querySelector(noconfirmation).click(),
+			noconfirmation
+		);
+	}
+
 	let createUserSub = '#createusersub';
 	await Promise.all([
-			pPage.evaluate((createUserSub) => document.querySelector(createUserSub).click(), createUserSub),
-			pPage.waitForNavigation()
+		pPage.evaluate((createUserSub) => document.querySelector(createUserSub).click(), createUserSub),
+		pPage.waitForNavigation({waitUntil: 'domcontentloaded'})
 	]);
 
+	await pPage.waitForFunction(
+		() => document.querySelector('#message') ||
+			document.querySelector('.notice.error'),
+		{timeout: 30000}
+	);
+
+	if (await pPage.$('.notice.error') !== null) {
+		let errText = await pPage.$eval('.notice.error', (e) => e.innerText);
+		throw new Error('user-new.php: ' + errText);
+	}
+
 	let m = await pPage.$eval('#message', (e) => e.outerHTML);
+	if (m.indexOf('User has been added') !== -1) {
+		await wpCliSetUserPassword(data.user_login, password);
+		return password;
+	}
+
 	expect(m).contains('Invitation email sent to new user.');
 
 	// We are "catching" the email with activation key and activated a subscriber.
@@ -421,8 +424,8 @@ async function userSignUpNetwork(pPage, data) {
 	expect(emailUrl).not.empty;
 
 	// Open signup verification url.
-	await adminPage.goto(emailUrl, { waitUntil: 'domcontentloaded' });
-	let m2 = await adminPage.$eval('#signup-welcome', (e) => e.outerHTML);
+	await pPage.goto(emailUrl, {waitUntil: 'domcontentloaded'});
+	let m2 = await pPage.$eval('#signup-welcome', (e) => e.outerHTML);
 	expect(m2).not.empty;
 	let match = m2.match(new RegExp('Password:\\s*<[^>]+>\\s*([^< ]+)'));
 	return match[1];

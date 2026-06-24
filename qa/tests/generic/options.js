@@ -13,6 +13,7 @@ const wp = requireRoot('lib/wp');
 /**environments: multiply(environments('blog'), environments('cache')) */
 
 let pluginFileUrl = env.blogSiteUrl + 'options.php';
+let lastCacheConfigKey = null;
 
 describe('', function() {
 	this.timeout(sys.suiteTimeout);
@@ -46,20 +47,27 @@ describe('', function() {
 
 async function testWithDifferentOptions(oc, db, autoload) {
 	log.log('Testing Object Cache set to "' + oc + '" and Database Cache set to "' + db + '" with options autoload set to "' + autoload + '"...');
-	await w3tc.setOptions(adminPage, 'w3tc_general', {
-		dbcache__enabled: db,
-		objectcache__enabled: oc,
-		browsercache__enabled: false,
-		dbcache__engine: env.cacheEngineLabel,
-		objectcache__engine: env.cacheEngineLabel
-	});
 
-	if (db) {
-		await flushDBCache();
-	}
+	const cacheConfigKey = String(oc) + ':' + String(db);
+	if (cacheConfigKey !== lastCacheConfigKey) {
+		await w3tc.setOptions(adminPage, 'w3tc_general', {
+			dbcache__enabled: db,
+			objectcache__enabled: oc,
+			browsercache__enabled: false,
+			dbcache__engine: env.cacheEngineLabel,
+			objectcache__engine: env.cacheEngineLabel
+		});
 
-	if (oc) {
-		await flushObjectCache();
+		if (db) {
+			await flushDBCache();
+		}
+
+		if (oc) {
+			await flushObjectCache();
+		}
+
+		await sys.afterSourceFileContentsChanges();
+		lastCacheConfigKey = cacheConfigKey;
 	}
 
 	await page.goto(pluginFileUrl + '?action=add_option&value=test1&autoload=' +

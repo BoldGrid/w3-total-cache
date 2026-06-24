@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 return array(
 	'page_cache'     => array(
 		'tabs' => array(

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class: W3TotalCache_Command
  *
@@ -66,9 +67,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 		}
 
 		try {
-			$config      = Dispatcher::config();
+			$w3tc_config = Dispatcher::config();
 			$environment = Dispatcher::component( 'Root_Environment' );
-			$environment->fix_in_wpadmin( $config, true );
+			$environment->fix_in_wpadmin( $w3tc_config, true );
 		} catch ( Util_Environment_Exceptions $e ) {
 			\WP_CLI::error(
 				\sprintf(
@@ -257,22 +258,22 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * @return void
 	 */
 	public function option( array $args = array(), array $vars = array() ) {
-		$op   = \array_shift( $args );
-		$name = \array_shift( $args );
-		$c    = null;
+		$op        = \array_shift( $args );
+		$w3tc_name = \array_shift( $args );
+		$w3tc_c    = null;
 
-		if ( empty( $name ) ) {
+		if ( empty( $w3tc_name ) ) {
 			\WP_CLI::error( \__( '<name> parameter is not specified', 'w3-total-cache' ) );
 			return;
 		}
-		if ( \strpos( $name, '::' ) !== false ) {
-			$name = \explode( '::', $name );
+		if ( \strpos( $w3tc_name, '::' ) !== false ) {
+			$w3tc_name = \explode( '::', $w3tc_name );
 		}
 
 		if ( isset( $vars['state'] ) ) {
-			$c = isset( $vars['master'] ) ? Dispatcher::config_state_master() : Dispatcher::config_state();
+			$w3tc_c = isset( $vars['master'] ) ? Dispatcher::config_state_master() : Dispatcher::config_state();
 		} else {
-			$c = isset( $vars['master'] ) ? Dispatcher::config_master() : Dispatcher::config();
+			$w3tc_c = isset( $vars['master'] ) ? Dispatcher::config_master() : Dispatcher::config();
 		}
 
 		if ( 'get' === $op ) {
@@ -281,21 +282,21 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			switch ( $type ) {
 				case 'boolean':
 				case 'bool':
-					$v = $c->get_boolean( $name ) ? 'true' : 'false';
+					$v = $w3tc_c->get_boolean( $w3tc_name ) ? 'true' : 'false';
 					break;
 				case 'integer':
 				case 'int':
-					$v = $c->get_integer( $name );
+					$v = $w3tc_c->get_integer( $w3tc_name );
 					break;
 				case 'string':
-					$v = $c->get_string( $name );
+					$v = $w3tc_c->get_string( $w3tc_name );
 					break;
 				case 'array':
-					\var_export( $c->get_array( $name ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+					\var_export( $w3tc_c->get_array( $w3tc_name ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 					echo "\n";
 					return;
 				case 'json':
-					echo \wp_json_encode( $c->get_array( $name ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
+					echo \wp_json_encode( $w3tc_c->get_array( $w3tc_name ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
 					return;
 				default:
 					\WP_CLI::error( \__( 'Unknown type ', 'w3-total-cache' ) . $type );
@@ -311,21 +312,21 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				return;
 			}
 
-			$value = \array_shift( $args );
+			$w3tc_value = \array_shift( $args );
 
 			switch ( $type ) {
 				case 'boolean':
 				case 'bool':
-					if ( 'true' === $value || '1' === $value || 'on' === $value ) {
+					if ( 'true' === $w3tc_value || '1' === $w3tc_value || 'on' === $w3tc_value ) {
 						$v = true;
-					} elseif ( 'false' === $value || '0' === $value || 'off' === $value ) {
+					} elseif ( 'false' === $w3tc_value || '0' === $w3tc_value || 'off' === $w3tc_value ) {
 						$v = false;
 					} else {
 						\WP_CLI::error(
 							\sprintf(
 								// translators: 1: Value being set.
 								\__( '<value> parameter "%1$s" is not boolean', 'w3-total-cache' ),
-								$value
+								$w3tc_value
 							)
 						);
 						return;
@@ -333,17 +334,17 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 					break;
 				case 'integer':
 				case 'int':
-					$v = (int) $value;
+					$v = (int) $w3tc_value;
 					break;
 				case 'string':
-					$v = $value;
+					$v = $w3tc_value;
 					break;
 				case 'array':
 					$delimiter = $vars['delimiter'] ?? ',';
-					$v         = \explode( $delimiter, $value );
+					$v         = \explode( $delimiter, $w3tc_value );
 					break;
 				case 'json':
-					$v = \json_decode( $value );
+					$v = \json_decode( $w3tc_value );
 					break;
 				default:
 					\WP_CLI::error( \__( 'Unknown type ', 'w3-total-cache' ) . $type );
@@ -351,8 +352,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			}
 
 			try {
-				$c->set( $name, $v );
-				$c->save();
+				$w3tc_c->set( $w3tc_name, $v );
+				$w3tc_c->save();
 				\WP_CLI::success( \__( 'Option updated successfully.', 'w3-total-cache' ) );
 			} catch ( \Exception $e ) {
 				\WP_CLI::error( \__( 'Option value update failed.', 'w3-total-cache' ) );
@@ -391,7 +392,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 		WP_Filesystem();
 
 		try {
-			$config = new Config();
+			$w3tc_config = new Config();
 
 			if ( ! $wp_filesystem->exists( $filename ) || ! $wp_filesystem->is_readable( $filename ) ) {
 				throw new \Exception(
@@ -405,11 +406,11 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				);
 			}
 
-			if ( ! $config->import( $filename ) ) {
+			if ( ! $w3tc_config->import( $filename ) ) {
 				throw new \Exception( \esc_html__( 'Import failed', 'w3-total-cache' ) );
 			}
 
-			$config->save();
+			$w3tc_config->save();
 		} catch ( \Exception $e ) {
 			\WP_CLI::error(
 				sprintf(
@@ -457,9 +458,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 		// Try to export the config and write to file.
 		try {
-			$config = new Config();
+			$w3tc_config = new Config();
 
-			if ( ! $wp_filesystem->put_contents( $filename, $config->export( $filename ), octdec( $mode ) ) ) {
+			if ( ! $wp_filesystem->put_contents( $filename, $w3tc_config->export( $filename ), octdec( $mode ) ) ) {
 				throw new \Exception( \esc_html__( 'Export failed', 'w3-total-cache' ) );
 			}
 		} catch ( \Exception $e ) {
@@ -514,15 +515,15 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	public function cdn_purge( array $args = array() ) {
 		$purgeitems = array();
 
-		foreach ( $args as $file ) {
+		foreach ( $args as $w3tc_file ) {
 			$cdncommon = Dispatcher::component( 'Cdn_Core' );
-			if ( file_exists( $file ) ) {
-				$local_path = $file;
+			if ( file_exists( $w3tc_file ) ) {
+				$local_path = $w3tc_file;
 			} else {
-				$local_path = ABSPATH . $file;
+				$local_path = ABSPATH . $w3tc_file;
 			}
 
-			$remote_path  = $file;
+			$remote_path  = $w3tc_file;
 			$purgeitems[] = $cdncommon->build_file_descriptor( $local_path, $remote_path );
 		}
 
@@ -549,8 +550,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 */
 	public function pgcache_cleanup() {
 		try {
-			$o = Dispatcher::component( 'PgCache_Plugin_Admin' );
-			$o->cleanup();
+			$w3tc_o = Dispatcher::component( 'PgCache_Plugin_Admin' );
+			$w3tc_o->cleanup();
 		} catch ( \Exception $e ) {
 			\WP_CLI::error(
 				\sprintf(
@@ -584,9 +585,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				\WP_CLI::log( $m );
 			};
 
-			$o = Dispatcher::component( 'PgCache_Plugin_Admin' );
+			$w3tc_o = Dispatcher::component( 'PgCache_Plugin_Admin' );
 
-			$o->prime(
+			$w3tc_o->prime(
 				( isset( $vars['start'] ) ? $vars['start'] - 1 : null ),
 				( isset( $vars['limit'] ) ? $vars['limit'] : null ),
 				$log_callback

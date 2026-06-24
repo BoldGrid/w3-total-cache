@@ -11,28 +11,91 @@ async function setOptions_loadPage(pPage, queryPage) {
 	await sys.repeatOnFailure(pPage, async() => {
 		log.log('opening options page ' + queryPage);
 
-		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
-			{waitUntil: 'domcontentloaded'});
-
-		// Skip the Setup Guide wizard.
-		if (await pPage.$('#w3tc-wizard-skip') != null) {
-			log.log('Encountered the Setup Guide wizard; skipping...');
-
-			let wizardSkip = '#w3tc-wizard-skip';
-			let skipped = await Promise.all([
-				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout: 300000}),
-			]);
-
-			expect(skipped).is.not.null;
-		}
-
-		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
-			{waitUntil: 'domcontentloaded'});
+		await exports.loadW3tcPage(pPage, env.networkAdminUrl, queryPage);
 
 		let nonce = await pPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
 	});
+};
+
+/**
+ * Open a W3TC admin page and skip the setup wizard when present.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} queryPage W3TC page slug.
+ * @return {Promise<void>}
+ */
+exports.loadW3tcPage = async function(pPage, adminUrlBase, queryPage) {
+	await pPage.goto(adminUrlBase + 'admin.php?page=' + queryPage,
+		{waitUntil: 'domcontentloaded'});
+
+	if (await pPage.$('#w3tc-wizard-skip') != null) {
+		log.log('Encountered the Setup Guide wizard; skipping...');
+
+		await Promise.all([
+			pPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
+			pPage.waitForNavigation({timeout: 300000}),
+		]);
+
+		await pPage.goto(adminUrlBase + 'admin.php?page=' + queryPage,
+			{waitUntil: 'domcontentloaded'});
+	}
+};
+
+/**
+ * Return a per-handler admin nonce from the localized w3tc_admin_nonces map.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} action Dispatcher handler key.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} [queryPage=w3tc_dashboard] W3TC page slug.
+ * @return {Promise<string>}
+ */
+exports.adminActionNonce = async function(pPage, action, adminUrlBase, queryPage) {
+	if (!queryPage) {
+		queryPage = 'w3tc_dashboard';
+	}
+
+	await exports.loadW3tcPage(pPage, adminUrlBase, queryPage);
+
+	// Token must come from the logged-in browser document (wp eval runs as user 0).
+	let nonce = await pPage.evaluate((act) => {
+		if (typeof w3tcGetAdminNonce === 'function') {
+			let n = w3tcGetAdminNonce(act);
+			if (n) {
+				return n;
+			}
+		}
+		if (typeof w3tc_admin_nonces !== 'undefined' && w3tc_admin_nonces[act]) {
+			return w3tc_admin_nonces[act];
+		}
+		return '';
+	}, action);
+
+	expect(nonce).not.empty;
+	return nonce;
+};
+
+/**
+ * Read a nonce embedded in a button class via the metadata {nonce: '...'} token.
+ *
+ * @param {import('puppeteer').Page} pPage Puppeteer page.
+ * @param {string} selector CSS selector for the button.
+ * @param {string} adminUrlBase Full admin URL prefix.
+ * @param {string} queryPage W3TC page slug.
+ * @return {Promise<string>}
+ */
+exports.buttonMetadataNonce = async function(pPage, selector, adminUrlBase, queryPage) {
+	await exports.loadW3tcPage(pPage, adminUrlBase, queryPage);
+
+	let nonce = await pPage.$eval(selector, (el) => {
+		let m = el.className.match(/\{nonce:\s*'([^']+)'\}/);
+		return m ? m[1] : '';
+	});
+
+	expect(nonce).not.empty;
+	return nonce;
 };
 
 exports.setOptions = async function(pPage, queryPage, values) {
@@ -57,8 +120,10 @@ exports.setOptions = async function(pPage, queryPage, values) {
 			if (!checked && values[key] && ('minify__enabled' == key || 'objectcache__enabled' == key)) {
 				exports.w3tcCloseModalBySubmit(pPage);
 
-				// very weird issue - first button click hangs, while all other
-				// works in that case. it cant scroll up?
+				/**
+				 * very weird issue - first button click hangs, while all other
+				 * works in that case. it cant scroll up?
+				 */
 				saveSelector = 'input[name="w3tc_save_options"]';
 			}
 		} else if (tagType == 'INPUT text' || tagType == 'INPUT password' ||
@@ -88,14 +153,20 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 		let v;
 		if (tagType == 'SELECT') {
-			v = await await pPage.$eval(keySelector, (e) => e.value);
+			v = await pPage.$eval(keySelector, (e) => e.value);
 		} else if (tagType == 'INPUT checkbox' || tagType == 'INPUT radio') {
 			let checked = await pPage.$eval(keySelector, (e) => e.getAttribute('checked'));
 			v = (checked == 'checked');
 		} else if (tagType == 'INPUT password') {
 			v = values[key];   // check not supported
 		} else if (tagType == 'INPUT text' || tagType == 'TEXTAREA') {
-			v = await await pPage.$eval(keySelector, (e) => e.value);
+			let isMaskedSecret = await pPage.$eval(keySelector, (e) =>
+				e.getAttribute('autocomplete') === 'new-password');
+			if (isMaskedSecret) {
+				log.log('skip DOM verify for masked secret field ' + key);
+				continue;
+			}
+			v = await pPage.$eval(keySelector, (e) => e.value);
 		} else {
 			throw new Error('unknown type ' + tagType);
 		}
@@ -143,6 +214,10 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 	}
 
 	let extensionActivate = '#' + extenstion_id + ' .activate a';
+	let activateLink = await pPage.$(extensionActivate);
+	if (activateLink === null) {
+		throw new Error('extension not listed on w3tc_extensions: ' + extenstion_id);
+	}
 	await Promise.all([
 		pPage.evaluate((extensionActivate) => document.querySelector(extensionActivate).click(), extensionActivate),
 		pPage.waitForNavigation()
@@ -221,10 +296,10 @@ exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel
 };
 
 exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
-	let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
+	let response = await pPage.goto(url, {waitUntil: 'load'});
 	if (pPage.url().indexOf("repeat=w3tc") >= 0) {
 		log.log('repeat=w3tc found, doing one more request');
-		let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
+		response = await pPage.goto(url, {waitUntil: 'load'});
 	}
 
 	return response;
@@ -260,7 +335,7 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 			'&url=' + encodeURIComponent(url) +
 			'&page_key_postfix=' + pageKeyPostfix +
 			'&engine=' + cacheEngineLabel,
-		{waitUntil: 'domcontentloaded'});
+		{waitUntil: 'load'});
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 };
 
@@ -480,6 +555,139 @@ exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
 
 	// Build and execute the command using the JSON array.
 	await exec(`sudo -u www-data wp option update w3tc_post_update_generic_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json || true`);
+};
+
+/**
+ * Clear the per-IP blogmap-discovery rate-limit transients written by
+ * Util_WpmuBlogmap::register_new_item() so a multisite spec running
+ * from a fixed CI source IP can register >5 brand-new blog URLs in a
+ * single 60s window without tripping the rt9-180 sub-C rate limit.
+ * Narrow scope by design: only the `w3tc_blogmap_register_rate_*`
+ * transients are removed; no other plugin state is touched. See
+ * `qa/plugins/generic/clear-blogmap-rate.php` for the SQL.
+ */
+exports.clearBlogmapRateLimit = async function(pPage) {
+	log.log('clearing w3tc_blogmap_register_rate_* transients');
+	let r = await exec('cp ../../plugins/generic/clear-blogmap-rate.php ' +
+		env.wpPath + 'clear-blogmap-rate.php');
+
+	let controlUrl = env.blogSiteUrl + 'clear-blogmap-rate.php';
+	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
+	let html = await pPage.content();
+	expect(html).contains('ok');
+};
+
+/**
+ * Read a dotted config key via wp-cli (master.php / DB storage).
+ *
+ * @param {string} key  Dotted config key.
+ * @param {string} type Value type: string, boolean, or json.
+ * @return {Promise<*>} Parsed option value.
+ */
+exports.getConfigOption = async function(key, type) {
+	type = type || 'string';
+	let shellKey = key.replace(/'/g, "'\\''");
+	let r = await exec(
+		'sudo -u www-data wp w3tc option get \'' + shellKey + '\' --type=' + type +
+		' --path=' + env.wpPath + ' 2>/dev/null || true'
+	);
+	let out = (r.stdout || '').trim();
+	if (type === 'json') {
+		try {
+			return JSON.parse(out);
+		} catch (e) {
+			return null;
+		}
+	}
+	if (type === 'boolean' || type === 'bool') {
+		return out === 'true';
+	}
+	return out;
+};
+
+async function isEngineSelectDisabled(pPage, family, engine) {
+	let selector = '#' + family + '__engine';
+	try {
+		return await pPage.$eval(
+			selector + ' option[value="' + engine + '"]',
+			(o) => o.disabled
+		);
+	} catch (e) {
+		return true;
+	}
+}
+
+async function setGeneralEngine(pPage, family, engine) {
+	let enabledKey = family + '__enabled';
+	let engineKey  = family + '__engine';
+	if (await isEngineSelectDisabled(pPage, family, engine)) {
+		log.log('engine ' + engine + ' disabled in General UI — set via config');
+		await exports.setOptionInternal(pPage, family + '.enabled', true);
+		await exports.setOptionInternal(pPage, family + '.engine', engine);
+		return;
+	}
+	let toggles = {};
+	toggles[enabledKey] = true;
+	toggles[engineKey]  = engine;
+	await exports.setOptions(pPage, 'w3tc_general', toggles);
+}
+
+/**
+ * Engine form-save round-trip helper used by per-engine CDN / CDNFSD specs.
+ *
+ * Activates the engine via the General page, writes engine-specific config
+ * keys, reads them back via wp-cli, and asserts the values round-tripped.
+ * Secret fields are written via `setOptionInternal` because the rendered
+ * form masks them on read-back.
+ *
+ * @param {object} pPage   Puppeteer admin page.
+ * @param {string} family  'cdn' or 'cdnfsd'.
+ * @param {string} engine  Engine identifier (e.g. 's3', 'bunnycdn').
+ * @param {object} values  Map of dotted config-key -> string|bool value.
+ */
+exports.assertEngineSaveRoundTrip = async function(pPage, family, engine, values) {
+	await setGeneralEngine(pPage, family, engine);
+
+	/**
+	 * Write each config key directly — engine-specific forms differ too much
+	 * to drive reliably; config-level round-trip is the net effect under test.
+	 */
+	for (let key in values) {
+		await exports.setOptionInternal(pPage, key, values[key]);
+	}
+
+	let failures = [];
+	for (let key in values) {
+		let want = values[key];
+		let gotType = Array.isArray(want) ? 'json' :
+			((typeof want === 'boolean') ? 'boolean' : 'string');
+		let got = await exports.getConfigOption(key, gotType);
+
+		if (Array.isArray(want)) {
+			if (!Array.isArray(got)) {
+				failures.push(key + ' missing (engine ' + engine + ')');
+				continue;
+			}
+		} else if (typeof want === 'string' && want !== '' && got === '') {
+			failures.push(key + ' missing (engine ' + engine + ')');
+			continue;
+		}
+
+		if (got != want && String(got) !== String(want)) {
+			failures.push(key + ': want=' + JSON.stringify(want) +
+				' got=' + JSON.stringify(got));
+		}
+	}
+	if (failures.length > 0) {
+		log.error('engine round-trip failures: ' + failures.join('; '));
+	}
+	expect(failures).is.empty;
+
+	expect(await exports.getConfigOption(family + '.engine')).equals(engine);
+	expect(await exports.getConfigOption(family + '.enabled', 'boolean')).is.true;
+
+	log.success(family + '.' + engine + ' settings round-tripped (' +
+		Object.keys(values).length + ' keys)');
 };
 
 // Close modal by clicking "I Understand the Risks" button.

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_Wpml_Plugin
  *
@@ -45,25 +46,25 @@ class Extension_Wpml_Plugin {
 	/**
 	 * Converts the URL to the document root filename.
 	 *
-	 * @param array $data Associative array containing 'url' and 'home_url' keys.
+	 * @param array $w3tc_data Associative array containing 'url' and 'home_url' keys.
 	 *
 	 * @return array The modified data array with updated 'home_url'.
 	 */
-	public function w3tc_url_to_docroot_filename( $data ) {
-		$home_url = $data['home_url'];
+	public function w3tc_url_to_docroot_filename( $w3tc_data ) {
+		$home_url = $w3tc_data['home_url'];
 
-		if ( substr( $data['url'], 0, strlen( $home_url ) ) !== $home_url ) {
-			$data['home_url'] = get_option( 'home' );
+		if ( substr( $w3tc_data['url'], 0, strlen( $home_url ) ) !== $home_url ) {
+			$w3tc_data['home_url'] = get_option( 'home' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 }
 
-$p = new Extension_Wpml_Plugin();
-$p->run();
+$w3tc_p = new Extension_Wpml_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_Wpml_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_Wpml_Plugin_Admin();
+	$w3tc_p->run();
 }

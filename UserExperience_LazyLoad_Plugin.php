@@ -16,7 +16,7 @@ class UserExperience_LazyLoad_Plugin {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Mapping of attachment URLs to post IDs.
@@ -33,7 +33,7 @@ class UserExperience_LazyLoad_Plugin {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->config = Dispatcher::config();
+		$this->w3tc_config = Dispatcher::config();
 	}
 
 	/**
@@ -48,13 +48,13 @@ class UserExperience_LazyLoad_Plugin {
 		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
 		$this->metaslider_hooks();
 
-		if ( $this->config->get_boolean( 'lazyload.googlemaps.google_maps_easy' ) ) {
-			$p = new UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy();
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.google_maps_easy' ) ) {
+			$w3tc_p = new UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy();
 
-			add_filter( 'w3tc_lazyload_mutator_before', array( $p, 'w3tc_lazyload_mutator_before' ) );
+			add_filter( 'w3tc_lazyload_mutator_before', array( $w3tc_p, 'w3tc_lazyload_mutator_before' ) );
 		}
 
-		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) ) {
 			add_filter(
 				'w3tc_lazyload_mutator_before',
 				array(
@@ -64,10 +64,10 @@ class UserExperience_LazyLoad_Plugin {
 			);
 		}
 
-		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) ) {
-			$p = new UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin();
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) ) {
+			$w3tc_p = new UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin();
 
-			add_filter( 'w3tc_lazyload_mutator_before', array( $p, 'w3tc_lazyload_mutator_before' ) );
+			add_filter( 'w3tc_lazyload_mutator_before', array( $w3tc_p, 'w3tc_lazyload_mutator_before' ) );
 		}
 
 		add_filter( 'wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
@@ -112,7 +112,7 @@ class UserExperience_LazyLoad_Plugin {
 			return $buffer;
 		}
 
-		$mutator = new UserExperience_LazyLoad_Mutator( $this->config, $this->posts_by_url );
+		$mutator = new UserExperience_LazyLoad_Mutator( $this->w3tc_config, $this->posts_by_url );
 		$buffer  = $mutator->run( $buffer );
 
 		// embed lazyload script.
@@ -192,17 +192,17 @@ class UserExperience_LazyLoad_Plugin {
 	 */
 	private function embed_script( $buffer ) {
 		$js_url = plugins_url( 'pub/js/lazyload.min.js', W3TC_FILE );
-		$method = $this->config->get_string( 'lazyload.embed_method' );
+		$method = $this->w3tc_config->get_string( 'lazyload.embed_method' );
 
 		$fire_event = 'function(t){var e;try{e=new CustomEvent("w3tc_lazyload_loaded",{detail:{e:t}})}catch(a){(e=document.createEvent("CustomEvent")).initCustomEvent("w3tc_lazyload_loaded",!1,!1,{e:t})}window.dispatchEvent(e)}';
 
 		$thresholds       = '';
-		$config_threshold = $this->config->get_string( 'lazyload.threshold' );
+		$config_threshold = $this->w3tc_config->get_string( 'lazyload.threshold' );
 		if ( ! empty( $config_threshold ) ) {
 			$thresholds = 'thresholds:' . wp_json_encode( $config_threshold ) . ',';
 		}
 
-		$config = '{elements_selector:".lazy",' . $thresholds . 'callback_loaded:' . $fire_event . '}';
+		$w3tc_config = '{elements_selector:".lazy",' . $thresholds . 'callback_loaded:' . $fire_event . '}';
 
 		$on_initialized_javascript = apply_filters( 'w3tc_lazyload_on_initialized_javascript', '' );
 
@@ -255,7 +255,7 @@ class UserExperience_LazyLoad_Plugin {
 					$observe_js .
 					$on_initialized_javascript_wrapped .
 					'window.w3tc_lazyload=1,' .
-					'window.lazyLoadOptions=' . $config .
+					'window.lazyLoadOptions=' . $w3tc_config .
 				'</script>' .
 				'<script async src="' . esc_url( $js_url ) . '"></script>';
 
@@ -272,7 +272,7 @@ class UserExperience_LazyLoad_Plugin {
 				'<script>' .
 				file_get_contents( W3TC_DIR . '/pub/js/lazyload.min.js' ) .
 				$observe_js .
-				'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+				'window.w3tc_lazyload=new LazyLoad(' . $w3tc_config . ');' .
 				'w3tc_ll_observe(window.w3tc_lazyload);' .
 				$on_initialized_javascript .
 				'</script>';
@@ -298,7 +298,7 @@ class UserExperience_LazyLoad_Plugin {
 			$footer_script =
 				'<script>' .
 					$observe_js .
-					'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+					'window.w3tc_lazyload=new LazyLoad(' . $w3tc_config . ');' .
 					'w3tc_ll_observe(window.w3tc_lazyload);' .
 					$on_initialized_javascript .
 				'</script>';
@@ -319,14 +319,14 @@ class UserExperience_LazyLoad_Plugin {
 	 *
 	 * Updates the internal posts-by-URL mapping for tracking purposes.
 	 *
-	 * @param string $url     The attachment URL.
+	 * @param string $w3tc_url     The attachment URL.
 	 * @param int    $post_id The post ID.
 	 *
 	 * @return string The unmodified attachment URL.
 	 */
-	public function wp_get_attachment_url( $url, $post_id ) {
-		$this->posts_by_url[ $url ] = $post_id;
-		return $url;
+	public function wp_get_attachment_url( $w3tc_url, $post_id ) {
+		$this->posts_by_url[ $w3tc_url ] = $post_id;
+		return $w3tc_url;
 	}
 
 	/**

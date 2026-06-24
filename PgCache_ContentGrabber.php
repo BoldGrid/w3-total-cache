@@ -199,9 +199,9 @@ class PgCache_ContentGrabber {
 		$this->_late_init    = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
 
-		$engine                 = $this->_config->get_string( 'pgcache.engine' );
-		$this->_enhanced_mode   = 'file_generic' === $engine;
-		$this->_nginx_memcached = 'nginx_memcached' === $engine;
+		$w3tc_engine            = $this->_config->get_string( 'pgcache.engine' );
+		$this->_enhanced_mode   = 'file_generic' === $w3tc_engine;
+		$this->_nginx_memcached = 'nginx_memcached' === $w3tc_engine;
 
 		if ( $this->_config->get_boolean( 'mobile.enabled' ) ) {
 			$this->_mobile = Dispatcher::component( 'Mobile_UserAgent' );
@@ -267,7 +267,7 @@ class PgCache_ContentGrabber {
 
 		// TODO: call modifies object state, rename method at least.
 		$this->_caching = $this->_can_read_cache();
-		global $w3_late_init;
+		global $w3tc_w3_late_init;
 
 		if ( $this->_debug ) {
 			self::log( 'start, can_cache: ' . ( $this->_caching ? 'true' : 'false' ) . ', reject reason: ' . $this->cache_reject_reason );
@@ -288,7 +288,7 @@ class PgCache_ContentGrabber {
 			$this->_cached_data = $this->_extract_cached_page( false );
 			if ( $this->_cached_data ) {
 				if ( $this->_late_init ) {
-					$w3_late_init = true;
+					$w3tc_w3_late_init = true;
 					return;
 				} else {
 					$this->process_status = 'hit';
@@ -303,7 +303,7 @@ class PgCache_ContentGrabber {
 			$this->_late_init = false;
 		}
 
-		$w3_late_init = $this->_late_init;
+		$w3tc_w3_late_init = $this->_late_init;
 		// Start output buffering.
 
 		Util_Bus::add_ob_callback( 'pagecache', array( $this, 'ob_callback' ) );
@@ -317,19 +317,25 @@ class PgCache_ContentGrabber {
 	 * @return void
 	 */
 	private function run_extensions_dropin() {
-		$c          = $this->_config;
-		$extensions = $c->get_array( 'extensions.active' );
+		$w3tc_c = $this->_config;
 
-		$dropin = $c->get_array( 'extensions.active_dropin' );
-		foreach ( $dropin as $extension => $nothing ) {
-			if ( isset( $extensions[ $extension ] ) ) {
-				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
+		/**
+		 * Layer 1 of the file-inclusion playbook: same fix as
+		 * Root_Loader::run_extensions -- drop raw-config-path concat in
+		 * favour of Util_Extension::resolve() slug-allowlist + realpath()
+		 * canonicalization under W3TC_EXTENSION_DIR. Legacy
+		 * `extensions.active` / `extensions.active_dropin` entries are
+		 * normalized read-side via convert_legacy_entries(); unknown
+		 * slugs are dropped, not included (dropin variant).
+		 *
+		 * @since 2.10.0
+		 */
+		$extensions = Util_Extension::convert_legacy_entries( $w3tc_c->get_array( 'extensions.active' ) );
+		$dropin     = Util_Extension::convert_legacy_entries( $w3tc_c->get_array( 'extensions.active_dropin' ) );
 
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+		foreach ( $dropin as $w3tc_extension => $nothing ) {
+			if ( isset( $extensions[ $w3tc_extension ] ) ) {
+				Util_Extension::include_once( $w3tc_extension );
 			}
 		}
 	}
@@ -355,14 +361,14 @@ class PgCache_ContentGrabber {
 
 		// Check if page is cached.
 		if ( ! $this->_set_extract_page_key( $this->_page_key_extension, $with_filter ) ) {
-			$data = null;
+			$w3tc_data = null;
 		} else {
-			$data                             = $cache->get_with_old( $this->_page_key, $this->_page_group );
-			list( $data, $this->_old_exists ) = $data;
+			$w3tc_data                             = $cache->get_with_old( $this->_page_key, $this->_page_group );
+			list( $w3tc_data, $this->_old_exists ) = $w3tc_data;
 		}
 
 		// Try to get uncompressed version of cache.
-		if ( $compression && ! $data ) {
+		if ( $compression && ! $w3tc_data ) {
 			if (
 				! $this->_set_extract_page_key(
 					array_merge(
@@ -372,15 +378,15 @@ class PgCache_ContentGrabber {
 					$with_filter
 				)
 			) {
-				$data = null;
+				$w3tc_data = null;
 			} else {
-				$data                             = $cache->get_with_old( $this->_page_key, $this->_page_group );
-				list( $data, $this->_old_exists ) = $data;
-				$compression                      = false;
+				$w3tc_data                             = $cache->get_with_old( $this->_page_key, $this->_page_group );
+				list( $w3tc_data, $this->_old_exists ) = $w3tc_data;
+				$compression                           = false;
 			}
 		}
 
-		if ( ! $data ) {
+		if ( ! $w3tc_data ) {
 			if ( $this->_debug ) {
 				self::log( 'no cache entry for ' . $this->_request_url_fragments['host'] . $this->_request_uri . ' ' . $this->_page_key );
 			}
@@ -388,9 +394,9 @@ class PgCache_ContentGrabber {
 			return null;
 		}
 
-		$data['compression'] = $compression;
+		$w3tc_data['compression'] = $compression;
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -399,7 +405,7 @@ class PgCache_ContentGrabber {
 	 * @param array $page_key_extension {
 	 *     Cache key extension data.
 	 *
-	 *     @type string $group        The cache group.
+	 *     @type string $w3tc_group        The cache group.
 	 *     @type string $useragent    The user agent string.
 	 *     @type string $referrer     The referrer URL.
 	 *     @type string $encryption   Encryption type.
@@ -456,7 +462,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Processes the cached page and terminates execution.
 	 *
-	 * @param array $data {
+	 * @param array $w3tc_data {
 	 *     Cached page data.
 	 *
 	 *     @type bool   $404        Whether the page is a 404 response. Defaults to false.
@@ -469,14 +475,14 @@ class PgCache_ContentGrabber {
 	 *
 	 * @return void
 	 */
-	private function process_cached_page_and_exit( $data ) {
+	private function process_cached_page_and_exit( $w3tc_data ) {
 		// Do Bad Behavior check.
 		$this->_bad_behavior();
 
-		$is_404      = isset( $data['404'] ) ? $data['404'] : false;
-		$headers     = isset( $data['headers'] ) ? $data['headers'] : array();
-		$content     = $data['content'];
-		$has_dynamic = isset( $data['has_dynamic'] ) && $data['has_dynamic'];
+		$is_404      = isset( $w3tc_data['404'] ) ? $w3tc_data['404'] : false;
+		$headers     = isset( $w3tc_data['headers'] ) ? $w3tc_data['headers'] : array();
+		$content     = $w3tc_data['content'];
+		$has_dynamic = isset( $w3tc_data['has_dynamic'] ) && $w3tc_data['has_dynamic'];
 		$etag        = md5( $content );
 
 		if ( $has_dynamic ) {
@@ -484,8 +490,8 @@ class PgCache_ContentGrabber {
 			$time        = time();
 			$compression = $this->_page_key_extension['compression'];
 		} else {
-			$time        = isset( $data['time'] ) ? $data['time'] : time();
-			$compression = $data['compression'];
+			$time        = isset( $w3tc_data['time'] ) ? $w3tc_data['time'] : time();
+			$compression = $w3tc_data['compression'];
 		}
 
 		// Send headers.
@@ -528,8 +534,14 @@ class PgCache_ContentGrabber {
 			return $buffer;
 		}
 
-		$compression      = false;
-		$has_dynamic      = $this->_has_dynamic( $buffer );
+		$compression = false;
+		$has_dynamic = $this->_has_dynamic( $buffer );
+
+		// Sign dynamic-fragment tags so read-time dispatch can verify integrity (layer 2 of the dispatcher).
+		if ( $has_dynamic ) {
+			$buffer = $this->_sign_dynamic_tags( $buffer );
+		}
+
 		$response_headers = $this->_get_response_headers();
 
 		// TODO: call modifies object state, rename method at least.
@@ -842,8 +854,10 @@ class PgCache_ContentGrabber {
 		}
 
 		if ( isset( $response_headers['kv']['location'] ) ) {
-			// dont cache query-string normalization redirects (e.g. from wp core) when cache key is normalized,
-			// since that cause redirect loop.
+			/**
+			 * Dont cache query-string normalization redirects (e.g. from wp core) when cache key is normalized,
+			 * since that cause redirect loop.
+			 */
 
 			if (
 				$this->_get_page_key( $this->_page_key_extension ) === $this->_get_page_key(
@@ -888,9 +902,9 @@ class PgCache_ContentGrabber {
 	 * @return array Configuration data for the cache engine.
 	 */
 	public function get_usage_statistics_cache_config() {
-		$engine = $this->_config->get_string( 'pgcache.engine' );
+		$w3tc_engine = $this->_config->get_string( 'pgcache.engine' );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'memcached':
 			case 'nginx_memcached':
 				$engine_config = array(
@@ -917,14 +931,14 @@ class PgCache_ContentGrabber {
 				break;
 
 			case 'file_generic':
-				$engine = 'file';
+				$w3tc_engine = 'file';
 				break;
 
 			default:
 				$engine_config = array();
 		}
 
-		$engine_config['engine'] = $engine;
+		$engine_config['engine'] = $w3tc_engine;
 
 		return $engine_config;
 	}
@@ -932,22 +946,22 @@ class PgCache_ContentGrabber {
 	/**
 	 * Retrieves the cache instance for a specific group.
 	 *
-	 * @param string $group Cache group name. Defaults to '*'.
+	 * @param string $w3tc_group Cache group name. Defaults to '*'.
 	 *
 	 * @return mixed Cache instance.
 	 */
-	public function _get_cache( $group = '*' ) {
+	public function _get_cache( $w3tc_group = '*' ) {
 		static $caches = array();
 
-		if ( empty( $group ) ) {
-			$group = '*';
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = '*';
 		}
 
-		if ( empty( $caches[ $group ] ) ) {
-			$engine           = $this->_config->get_string( 'pgcache.engine' );
+		if ( empty( $caches[ $w3tc_group ] ) ) {
+			$w3tc_engine      = $this->_config->get_string( 'pgcache.engine' );
 			$use_expired_data = true;
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'memcached':
 				case 'nginx_memcached':
 					$engine_config = array(
@@ -984,12 +998,14 @@ class PgCache_ContentGrabber {
 					break;
 
 				case 'file_generic':
-					// Elementor deletes dependent assets when its cache flushes. Serving *_old HTML here keeps
-					// pointing visitors to missing CSS/JS, so disable stale reads when Elementor is detected.
+					/**
+					 * Elementor deletes dependent assets when its cache flushes. Serving *_old HTML here keeps
+					 * pointing visitors to missing CSS/JS, so disable stale reads when Elementor is detected.
+					 */
 					$use_expired_data = ! Util_Environment::is_elementor();
 
-					if ( '*' !== $group ) {
-						$engine = 'file';
+					if ( '*' !== $w3tc_group ) {
+						$w3tc_engine = 'file';
 
 						$engine_config = array(
 							'section'         => 'page',
@@ -1028,10 +1044,10 @@ class PgCache_ContentGrabber {
 			$engine_config['host']             = '';
 			$engine_config['instance_id']      = Util_Environment::instance_id();
 
-			$caches[ $group ] = Cache::instance( $engine, $engine_config );
+			$caches[ $w3tc_group ] = Cache::instance( $w3tc_engine, $engine_config );
 		}
 
-		return $caches[ $group ];
+		return $caches[ $w3tc_group ];
 	}
 
 	/**
@@ -1171,8 +1187,8 @@ class PgCache_ContentGrabber {
 		if ( ! empty( $reject_custom ) ) {
 			$customs = get_post_custom();
 			if ( $customs ) {
-				foreach ( $customs as $key => $value ) {
-					if ( @preg_match( '~' . $reject_custom . '~i', $key . ( isset( $value[0] ) ? "={$value[0]}" : '' ) ) ) {
+				foreach ( $customs as $w3tc_key => $w3tc_value ) {
+					if ( @preg_match( '~' . $reject_custom . '~i', $w3tc_key . ( isset( $w3tc_value[0] ) ? "={$w3tc_value[0]}" : '' ) ) ) {
 						return true;
 					}
 				}
@@ -1270,12 +1286,14 @@ class PgCache_ContentGrabber {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( strpos( $cookie_name, 'w3tc_logged_' ) === 0 ) {
 				foreach ( $roles as $role ) {
-					// Accept BOTH the new HMAC-SHA256 cookie name and the
-					// legacy MD5(NONCE_KEY . $role) form for one release
-					// window so an upgrade doesn't immediately serve the
-					// logged-out-cache to users whose browsers still hold
-					// the old-named cookie. The legacy lookup is dropped
-					// in the release AFTER this one.
+					/**
+					 * Accept BOTH the new HMAC-SHA256 cookie name and the
+					 * legacy MD5(NONCE_KEY . $role) form for one release
+					 * window so an upgrade doesn't immediately serve the
+					 * logged-out-cache to users whose browsers still hold
+					 * the old-named cookie. The legacy lookup is dropped
+					 * in the release AFTER this one.
+					 */
 					if ( strstr( $cookie_name, Util_Cookie::role_cookie_name( $role ) ) ) {
 						return false;
 					}
@@ -1316,27 +1334,27 @@ class PgCache_ContentGrabber {
 	/**
 	 * Compresses the given data using the specified compression method.
 	 *
-	 * @param string $data        The data to be compressed.
+	 * @param string $w3tc_data        The data to be compressed.
 	 * @param string $compression The compression method ('gzip', 'deflate', 'br').
 	 *
 	 * @return string The compressed data.
 	 */
-	public function _compress( $data, $compression ) {
+	public function _compress( $w3tc_data, $compression ) {
 		switch ( $compression ) {
 			case 'gzip':
-				$data = gzencode( $data );
+				$w3tc_data = gzencode( $w3tc_data );
 				break;
 
 			case 'deflate':
-				$data = gzdeflate( $data );
+				$w3tc_data = gzdeflate( $w3tc_data );
 				break;
 
 			case 'br':
-				$data = brotli_compress( $data );
+				$w3tc_data = brotli_compress( $w3tc_data );
 				break;
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -1345,7 +1363,7 @@ class PgCache_ContentGrabber {
 	 * @return array An associative array representing the key extension.
 	 */
 	private function _get_key_extension() {
-		$extension = array(
+		$w3tc_extension = array(
 			'useragent'           => '',
 			'referrer'            => '',
 			'cookie'              => '',
@@ -1358,35 +1376,35 @@ class PgCache_ContentGrabber {
 		);
 
 		if ( $this->_mobile ) {
-			$extension['useragent'] = $this->_mobile->get_group();
+			$w3tc_extension['useragent'] = $this->_mobile->get_group();
 		}
 
 		if ( $this->_referrer ) {
-			$extension['referrer'] = $this->_referrer->get_group();
+			$w3tc_extension['referrer'] = $this->_referrer->get_group();
 		}
 
 		if ( Util_Environment::is_https() ) {
-			$extension['encryption'] = 'ssl';
+			$w3tc_extension['encryption'] = 'ssl';
 		}
 
-		$this->_fill_key_extension_cookie( $extension );
+		$this->_fill_key_extension_cookie( $w3tc_extension );
 
 		// fill group.
-		$extension['group'] = $this->get_cache_group_by_uri( $this->_request_uri );
-		$extension          = w3tc_apply_filters(
+		$w3tc_extension['group'] = $this->get_cache_group_by_uri( $this->_request_uri );
+		$w3tc_extension          = w3tc_apply_filters(
 			'pagecache_key_extension',
-			$extension,
+			$w3tc_extension,
 			$this->_request_url_fragments['host'],
 			$this->_request_uri
 		);
 
-		return $extension;
+		return $w3tc_extension;
 	}
 
 	/**
 	 * Fills the key extension array with cookie-related information based on configured cookie groups.
 	 *
-	 * @param array $extension {
+	 * @param array $w3tc_extension {
 	 *     Reference to the key extension array.
 	 *
 	 *     @type string|null $cookie              The name of the matched cookie group, if any.
@@ -1396,7 +1414,7 @@ class PgCache_ContentGrabber {
 	 *
 	 * @return void
 	 */
-	private function _fill_key_extension_cookie( &$extension ) {
+	private function _fill_key_extension_cookie( &$w3tc_extension ) {
 		if ( ! $this->_config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
 			return;
 		}
@@ -1420,12 +1438,12 @@ class PgCache_ContentGrabber {
 				if ( count( $cookies ) > 0 ) {
 					$cookies_regexp = '~^(' . implode( '|', $cookies ) . ')$~i';
 
-					foreach ( $_COOKIE as $key => $value ) {
-						if ( @preg_match( $cookies_regexp, $key . '=' . $value ) ) {
-							$extension['cookie'] = $group_name;
+					foreach ( $_COOKIE as $w3tc_key => $w3tc_value ) {
+						if ( @preg_match( $cookies_regexp, $w3tc_key . '=' . $w3tc_value ) ) {
+							$w3tc_extension['cookie'] = $group_name;
 							if ( ! $g['cache'] ) {
-								$extension['cache']               = false;
-								$extension['cache_reject_reason'] = 'cookiegroup ' . $group_name;
+								$w3tc_extension['cache']               = false;
+								$w3tc_extension['cache_reject_reason'] = 'cookiegroup ' . $group_name;
 							}
 
 							return;
@@ -1444,8 +1462,10 @@ class PgCache_ContentGrabber {
 	 * @return string The cache group name.
 	 */
 	protected function get_cache_group_by_uri( $uri ) {
-		// "!$this->_enhanced_mode" in condition above prevents usage of separate group under disk-enhanced
-		// so that rewrite rules still work. Flushing is handled by workaround in this case.
+		/**
+		 * "!$this->_enhanced_mode" in condition above prevents usage of separate group under disk-enhanced
+		 * so that rewrite rules still work. Flushing is handled by workaround in this case.
+		 */
 		if ( ! $this->_enhanced_mode ) {
 			$sitemap_regex = $this->_config->get_string( 'pgcache.purge.sitemap_regex' );
 			if ( $sitemap_regex && preg_match( '~' . $sitemap_regex . '~', basename( $uri ) ) ) {
@@ -1585,8 +1605,8 @@ class PgCache_ContentGrabber {
 	 * @param array $response_headers {
 	 *     An array of response headers.
 	 *
-	 *     @type string[] $name  The header name.
-	 *     @type string   $value The header value.
+	 *     @type string[] $w3tc_name  The header name.
+	 *     @type string   $w3tc_value The header value.
 	 * }
 	 *
 	 * @return array {
@@ -1617,9 +1637,9 @@ class PgCache_ContentGrabber {
 		);
 		$repeating_headers = apply_filters( 'w3tc_repeating_headers', $repeating_headers );
 
-		foreach ( $response_headers as $i ) {
-			$header_name  = $i['name'];
-			$header_value = $i['value'];
+		foreach ( $response_headers as $w3tc_i ) {
+			$header_name  = $w3tc_i['name'];
+			$header_value = $w3tc_i['value'];
 
 			foreach ( $cache_headers as $cache_header_name ) {
 				if ( strcasecmp( $header_name, $cache_header_name ) === 0 ) {
@@ -1650,7 +1670,7 @@ class PgCache_ContentGrabber {
 	 *     @type string $referrer     Referrer key extension.
 	 *     @type string $cookie       Cookie key extension.
 	 *     @type string $encryption   Encryption key extension.
-	 *     @type string $group        Optional. Cache group key extension.
+	 *     @type string $w3tc_group        Optional. Cache group key extension.
 	 *     @type string $content_type Optional. Content type for XML handling.
 	 *     @type string $compression  Optional. Compression type key extension.
 	 * }
@@ -1719,7 +1739,7 @@ class PgCache_ContentGrabber {
 			$key_compression = '_' . $page_key_extension['compression'];
 		}
 
-		$key = w3tc_apply_filters(
+		$w3tc_key = w3tc_apply_filters(
 			'pagecache_page_key',
 			array(
 				'key'                => array(
@@ -1733,60 +1753,60 @@ class PgCache_ContentGrabber {
 			)
 		);
 
-		return implode( '', $key['key'] );
+		return implode( '', $w3tc_key['key'] );
 	}
 
 	/**
 	 * Normalizes and modifies the URL part of the page key.
 	 *
-	 * @param string $key  The URL part of the cache key.
+	 * @param string $w3tc_key  The URL part of the cache key.
 	 * @param array  $page_key_extension {
 	 *     An array of page key extensions.
 	 *
-	 *     @type string $group Optional. Group identifier for the page key.
+	 *     @type string $w3tc_group Optional. Group identifier for the page key.
 	 * }
 	 *
 	 * @return string The normalized URL part of the cache key.
 	 */
-	private function _get_page_key_urlpart( $key, $page_key_extension ) {
+	private function _get_page_key_urlpart( $w3tc_key, $page_key_extension ) {
 		// remove fragments.
-		$key = preg_replace( '~#.*$~', '', $key );
+		$w3tc_key = preg_replace( '~#.*$~', '', $w3tc_key );
 
 		// host/uri in different cases means the same page in wp.
-		$key = strtolower( $key );
+		$w3tc_key = strtolower( $w3tc_key );
 
 		if ( empty( $page_key_extension['group'] ) ) {
 			if ( $this->_enhanced_mode || $this->_nginx_memcached ) {
 				$extra = '';
 
 				// URL decode.
-				$key = urldecode( $key );
+				$w3tc_key = urldecode( $w3tc_key );
 
 				// replace double slashes.
-				$key = preg_replace( '~[/\\\]+~', '/', $key );
+				$w3tc_key = preg_replace( '~[/\\\]+~', '/', $w3tc_key );
 
 				// replace index.php.
-				$key = str_replace( '/index.php', '/', $key );
+				$w3tc_key = str_replace( '/index.php', '/', $w3tc_key );
 
 				// remove querystring.
-				$key = preg_replace( '~\?.*$~', '', $key );
+				$w3tc_key = preg_replace( '~\?.*$~', '', $w3tc_key );
 
 				// make sure one slash is at the end.
-				if ( '/' === substr( $key, strlen( $key ) - 1, 1 ) ) {
+				if ( '/' === substr( $w3tc_key, strlen( $w3tc_key ) - 1, 1 ) ) {
 					$extra = '_slash';
 				}
 
-				$key = trim( $key, '/' ) . '/';
+				$w3tc_key = trim( $w3tc_key, '/' ) . '/';
 
 				if ( $this->_nginx_memcached ) {
-					return $key;
+					return $w3tc_key;
 				}
 
-				return $key . '_index' . $extra;
+				return $w3tc_key . '_index' . $extra;
 			}
 		}
 
-		return md5( $key );
+		return md5( $w3tc_key );
 	}
 
 	/**
@@ -1806,12 +1826,12 @@ class PgCache_ContentGrabber {
 		);
 
 		if ( $this->_debug ) {
-			$time_total = Util_Debug::microtime() - $this->_time_start;
-			$engine     = $this->_config->get_string( 'pgcache.engine' );
-			$strings[]  = '';
-			$strings[]  = 'Page cache debug info:';
-			$strings[]  = sprintf( '%s%s', str_pad( 'Engine: ', 20 ), Cache::engine_name( $engine ) );
-			$strings[]  = sprintf( '%s%s', str_pad( 'Cache key: ', 20 ), $this->_page_key );
+			$time_total  = Util_Debug::microtime() - $this->_time_start;
+			$w3tc_engine = $this->_config->get_string( 'pgcache.engine' );
+			$strings[]   = '';
+			$strings[]   = 'Page cache debug info:';
+			$strings[]   = sprintf( '%s%s', str_pad( 'Engine: ', 20 ), Cache::engine_name( $w3tc_engine ) );
+			$strings[]   = sprintf( '%s%s', str_pad( 'Cache key: ', 20 ), $this->_page_key );
 
 			$strings[] = sprintf( '%s%.3fs', str_pad( 'Creation Time: ', 20 ), time() );
 
@@ -1820,11 +1840,11 @@ class PgCache_ContentGrabber {
 			if ( count( $headers['plain'] ) ) {
 				$strings[] = 'Header info:';
 
-				foreach ( $headers['plain'] as $i ) {
+				foreach ( $headers['plain'] as $w3tc_i ) {
 					$strings[] = sprintf(
 						'%s%s',
-						str_pad( $i['name'] . ': ', 20 ),
-						Util_Content::escape_comment( $i['value'] )
+						str_pad( $w3tc_i['name'] . ': ', 20 ),
+						Util_Content::escape_comment( $w3tc_i['value'] )
 					);
 				}
 			}
@@ -1841,8 +1861,8 @@ class PgCache_ContentGrabber {
 	 * @param array $headers {
 	 *     An associative array of headers to send.
 	 *
-	 *     @type string       $name  The header name.
-	 *     @type string|array $value The header value or an array with 'n' for the name and 'v' for the value.
+	 *     @type string       $w3tc_name  The header name.
+	 *     @type string|array $w3tc_value The header value or an array with 'n' for the name and 'v' for the value.
 	 * }
 	 *
 	 * @return bool True on success, false if headers were already sent.
@@ -1856,22 +1876,22 @@ class PgCache_ContentGrabber {
 		// headers are sent as name->value and array(n=>, v=>) to support repeating headers.
 		foreach ( $headers as $name0 => $value0 ) {
 			if ( is_array( $value0 ) && isset( $value0['n'] ) ) {
-				$name  = $value0['n'];
-				$value = $value0['v'];
+				$w3tc_name  = $value0['n'];
+				$w3tc_value = $value0['v'];
 			} else {
-				$name  = $name0;
-				$value = $value0;
+				$w3tc_name  = $name0;
+				$w3tc_value = $value0;
 			}
 
-			if ( 'Status' === $name ) {
+			if ( 'Status' === $w3tc_name ) {
 				@header( $headers['Status'] );
-			} elseif ( 'Status-Code' === $name ) {
+			} elseif ( 'Status-Code' === $w3tc_name ) {
 				if ( function_exists( 'http_response_code' ) ) { // php5.3 compatibility.
 					@http_response_code( $headers['Status-Code'] );
 				}
-			} elseif ( ! empty( $name ) && ! empty( $value ) ) {
-				@header( $name . ': ' . $value, ! isset( $repeating[ $name ] ) );
-				$repeating[ $name ] = true;
+			} elseif ( ! empty( $w3tc_name ) && ! empty( $w3tc_value ) ) {
+				@header( $w3tc_name . ': ' . $w3tc_value, ! isset( $repeating[ $w3tc_name ] ) );
+				$repeating[ $w3tc_name ] = true;
 			}
 		}
 
@@ -1969,13 +1989,13 @@ class PgCache_ContentGrabber {
 		);
 
 		// Send headers to client.
-		$result = $this->_headers( $headers );
+		$w3tc_result = $this->_headers( $headers );
 
 		if ( $exit ) {
 			exit();
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -2085,13 +2105,98 @@ class PgCache_ContentGrabber {
 	 */
 	public function _bad_behavior() {
 		$bb_file = $this->_config->get_string( 'pgcache.bad_behavior_path' );
-		if ( '' !== $bb_file ) {
-			require_once $bb_file;
+
+		if ( '' === $bb_file ) {
+			return;
 		}
+
+		/**
+		 * Allowlist gate for the admin-configured Bad Behavior plugin path
+		 *. The legacy code called
+		 * `require_once $this->_config->get_string('pgcache.bad_behavior_path')`
+		 * with zero validation -- any admin-settable string flowed straight
+		 * into require_once. Mass-assignment writes to this key (handled
+		 * separately by sec-fix-mass-assignment) gave a subscriber-reachable
+		 * RCE primitive.
+		 *
+		 * The validator below enforces:
+		 *   - realpath() canonicalization succeeds (file must exist)
+		 *   - the resolved path lives under WP_PLUGIN_DIR, which is the
+		 *     correct boundary because operators have multiple legitimate
+		 *     install layouts (`bad-behavior`, `bad-behavior-mu`, etc.).
+		 *     `/tmp/evil.php`, `/etc/passwd`, and anything else outside
+		 *     `WP_PLUGIN_DIR` are rejected. The W3TC plugin directory is
+		 *     itself under `WP_PLUGIN_DIR` and is therefore NOT excluded
+		 *     by this prefix check; the realpath + `is_file()` checks
+		 *     plus the fact that this method is only called from the
+		 *     page-cache start path make a self-include via this key a
+		 *     non-issue (no W3TC file is a sensible "Bad Behavior" hook).
+		 *
+		 * Failures are logged via Util_Debug::log('pgcache', ...). User-
+		 * influenced path strings pass through the local
+		 * `$sanitize_for_log` closure below — it escapes CR/LF to the
+		 * literal sequences `\r` / `\n` and replaces any remaining
+		 * control byte (`0x00`-`0x1F` / `0x7F`) with `?`, so a crafted
+		 * config value cannot forge additional log lines (log-injection).
+		 * Kept inline rather than promoted to a Util_Debug helper because
+		 * this is the only log site in the file-inclusion fix that
+		 * concatenates an admin-controlled string; promoting it would
+		 * change the Util_Debug API surface for no other consumer.
+		 *
+		 * @since 2.10.0
+		 */
+		$sanitize_for_log = static function ( $w3tc_value ) {
+			$w3tc_value = (string) $w3tc_value;
+			$w3tc_value = \str_replace( array( "\r", "\n" ), array( '\\r', '\\n' ), $w3tc_value );
+
+			return \preg_replace( '/[\x00-\x1F\x7F]/', '?', $w3tc_value );
+		};
+
+		$real = \realpath( $bb_file );
+
+		if ( false === $real || ! \is_file( $real ) ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: realpath() failed for ' . $sanitize_for_log( $bb_file ) );
+			}
+			return;
+		}
+
+		$plugin_root = \defined( 'WP_PLUGIN_DIR' ) ? \realpath( WP_PLUGIN_DIR ) : false;
+
+		if ( false === $plugin_root ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: WP_PLUGIN_DIR not resolvable' );
+			}
+			return;
+		}
+
+		if ( 0 !== \strpos( $real, $plugin_root . DIRECTORY_SEPARATOR ) ) {
+			if ( \class_exists( '\W3TC\Util_Debug' ) ) {
+				Util_Debug::log( 'pgcache', 'bad_behavior_path rejected: not under WP_PLUGIN_DIR (' . $sanitize_for_log( $real ) . ')' );
+			}
+			return;
+		}
+
+		require_once $real;
 	}
 
 	/**
 	 * Parses dynamic content within the provided buffer.
+	 *
+	 * Security model for the registered-callback dispatcher:
+	 *  - Layer 1: dispatch goes through a registered-callback registry
+	 *    (the `w3tc_dynamic_callbacks` filter) — raw PHP / file paths are
+	 *    refused; only `call:<slug>` payloads dispatch.
+	 *  - Layer 2: each tag must carry an HMAC computed at cache-write time
+	 *    using the HMAC key returned by `_dynamic_hmac_key()` (see that
+	 *    helper's docblock for why it bypasses `wp_salt()`). Read-time
+	 *    recomputes and rejects on mismatch. The HMAC is appended to
+	 *    the cached tag by `_sign_dynamic_tags()` during the output-
+	 *    buffering pass.
+	 *  - Layer 3: if `W3TC_DYNAMIC_SECURITY` is undefined / empty / `1`,
+	 *    no dispatch happens at all — the buffer is returned untouched.
+	 *
+	 * @since 2.10.0
 	 *
 	 * @param string $buffer The content buffer to parse.
 	 *
@@ -2127,70 +2232,481 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Executes a dynamic mfunc tag found in content.
+	 * Returns the registry of dynamic callback slugs → callables.
 	 *
-	 * phpcs:disable Squiz.PHP.Eval.Discouraged
+	 * **Callback contract.** Every registered callable is invoked with
+	 * two arguments: `( array $args, string $kind )`. `$args` is the
+	 * JSON-decoded payload from the tag (always an array); `$kind` is
+	 * the literal string `'mfunc'` or `'mclude'`. The second argument
+	 * lets a callback serve both kinds with different rendering, or
+	 * assert on `$kind` defensively. Callbacks may declare only
+	 * `$args` if they don't need it — PHP discards the extra
+	 * positional — but a typed/strict-mode signature MUST accept both.
 	 *
-	 * @param array $matches The matches from the regular expression.
+	 * Themes and plugins register dispatchable callbacks via:
 	 *
-	 * @return string The result of executing the mfunc code.
+	 *     add_filter( 'w3tc_dynamic_callbacks', function( $cbs ) {
+	 *         $cbs['my_slug'] = function( $args, $kind ) {
+	 *             return '<span>' . esc_html( $args['user'] ?? '' ) . '</span>';
+	 *         };
+	 *         return $cbs;
+	 *     } );
+	 *
+	 * Then emit a tag like:
+	 *
+	 *     <!-- mfunc TOKEN call:my_slug {"user":"alice"} --><!-- /mfunc TOKEN -->
+	 *
+	 * The HMAC envelope (`hmac:<hex>`) is added automatically at
+	 * cache-write time; emitters MUST NOT compute it themselves.
+	 *
+	 * **Cache-miss fallback content.** Use the *inline-header* form (with the
+	 * `call:slug` descriptor inside the opening comment) if you want HTML
+	 * placed between the comments to survive a cache miss. The *body-form*
+	 * (descriptor between the comments) is supported for back-compat but its
+	 * body is overwritten by `_sign_dynamic_tags()` at write time — anything
+	 * you placed there as fallback markup will be wiped before the cached
+	 * file lands on disk.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return array<string,callable> Slug → callable(array $args, string $kind): string
 	 */
-	public function _parse_dynamic_mfunc( $matches ) {
-		$code1 = trim( $matches[1] );
-		$code2 = trim( $matches[2] );
-		$code  = ( $code1 ? $code1 : $code2 );
-
-		if ( $code ) {
-			$code = trim( $code, ';' ) . ';';
-
-			try {
-				ob_start();
-				$result = eval( $code ); // phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
-				$output = ob_get_contents();
-				ob_end_clean();
-			} catch ( \Exception $ex ) {
-				$result = false;
-			}
-
-			if ( false === $result ) {
-				$output = sprintf( 'Unable to execute code: %s', htmlspecialchars( $code ) );
-			}
-		} else {
-			$output = htmlspecialchars( 'Invalid mfunc tag syntax. The correct format is: <!-- W3TC_DYNAMIC_SECURITY mfunc PHP code --><!-- /mfunc W3TC_DYNAMIC_SECURITY --> or <!-- W3TC_DYNAMIC_SECURITY mfunc -->PHP code<!-- /mfunc W3TC_DYNAMIC_SECURITY -->.' );
+	private function _get_dynamic_callbacks() {
+		if ( ! \function_exists( 'apply_filters' ) ) {
+			return array();
 		}
 
-		return $output;
+		$callbacks = \apply_filters( 'w3tc_dynamic_callbacks', array() );
+
+		return \is_array( $callbacks ) ? $callbacks : array();
 	}
 
 	/**
-	 * Includes a file based on a dynamic mclude tag found in content.
+	 * Returns the HMAC secret used to sign dynamic-fragment payloads.
+	 *
+	 * Derived directly from `AUTH_KEY` + `AUTH_SALT` rather than
+	 * `wp_salt('auth')` because the verifier runs from
+	 * `advanced-cache.php`, which `wp-settings.php` loads *before*
+	 * `wp-includes/pluggable.php` — so `wp_salt()` is undefined on
+	 * the regular cache-HIT path for every non-`file_generic` cache
+	 * engine (Disk: Basic, memcached, redis, APC, XCache). The
+	 * signer runs from `ob_callback()` *after* pluggable is loaded,
+	 * so calling `wp_salt('auth')` on the write side would derive
+	 * the same constants but the verifier could not match it.
+	 *
+	 * Using the underlying constants directly gives the same site-
+	 * bound rotation behaviour as `wp_salt('auth')` (`wp_salt` is
+	 * itself a hash over `AUTH_KEY . AUTH_SALT` for the `auth`
+	 * scheme) while remaining stable across the
+	 * `advanced-cache.php` → `pluggable.php` boundary and across
+	 * CLI test invocations where WordPress is not loaded at all.
+	 *
+	 * When neither constant is defined (a development site whose
+	 * `wp-config.php` was generated without salts), the helper
+	 * falls back to `W3TC_DYNAMIC_SECURITY` so the HMAC remains
+	 * deterministic for that install rather than degenerating to
+	 * an empty key.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string
+	 */
+	private function _dynamic_hmac_key() {
+		$w3tc_key = defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : '';
+		$salt     = defined( 'AUTH_SALT' ) ? (string) AUTH_SALT : '';
+
+		if ( '' === $w3tc_key && '' === $salt ) {
+			return defined( 'W3TC_DYNAMIC_SECURITY' ) ? (string) W3TC_DYNAMIC_SECURITY : '';
+		}
+
+		return 'w3tc-dynamic|' . $w3tc_key . '|' . $salt;
+	}
+
+	/**
+	 * Computes the HMAC for a (kind, slug, args-json) tuple.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $kind      Tag kind, 'mfunc' or 'mclude'.
+	 * @param string $slug      Callback slug.
+	 * @param string $args_json The JSON args string in its **canonical
+	 *                          form** — i.e. with leading/trailing
+	 *                          whitespace trimmed. Both the signing path
+	 *                          (`_sign_dynamic_tags`) and the verifying
+	 *                          path (`_parse_dynamic_header` →
+	 *                          `_dispatch_dynamic`) apply the same
+	 *                          `trim()` before calling this helper, so
+	 *                          the HMAC is deterministic across write
+	 *                          and read for the same tag. Callers MUST
+	 *                          NOT pass an untrimmed value; doing so
+	 *                          would produce an HMAC that the verifier
+	 *                          rejects.
+	 *
+	 * @return string Lowercase hex sha256 HMAC.
+	 */
+	public function _dynamic_hmac( $kind, $slug, $args_json ) {
+		return \hash_hmac( 'sha256', $kind . '|' . $slug . '|' . $args_json, $this->_dynamic_hmac_key() );
+	}
+
+	/**
+	 * Parses a mfunc / mclude tag header into (slug, args_json, hmac).
+	 *
+	 * Accepts the safe form:
+	 *
+	 *     call:<slug> <json-args> hmac:<hex>
+	 *
+	 * Whitespace between segments is flexible; `<json-args>` is the
+	 * substring between the slug token and `hmac:`.  Returns `null` if
+	 * the tag is not in the safe form (no `call:` prefix or no `hmac:`).
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $header The raw payload header from the tag.
+	 *
+	 * @return array{slug:string,args_json:string,hmac:string}|null
+	 */
+	private function _parse_dynamic_header( $header ) {
+		$header = trim( $header );
+
+		if ( ! preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*?)\s*hmac:([0-9a-f]{64})$~is', $header, $m ) ) {
+			return null;
+		}
+
+		return array(
+			'slug'      => $m[1],
+			'args_json' => trim( $m[2] ),
+			'hmac'      => strtolower( $m[3] ),
+		);
+	}
+
+	/**
+	 * Decodes a tag's JSON args, returning an empty array for empty / invalid input.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $args_json JSON string.
+	 *
+	 * @return array
+	 */
+	private function _decode_dynamic_args( $args_json ) {
+		if ( '' === $args_json ) {
+			return array();
+		}
+
+		$decoded = \json_decode( $args_json, true );
+
+		return \is_array( $decoded ) ? $decoded : array();
+	}
+
+	/**
+	 * Logs a deprecation notice when raw-PHP mfunc / file-path mclude tags
+	 * are seen at dispatch time.  These tags are no longer executed — emitters
+	 * must migrate to the `call:<slug>` registered-callback form.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $kind   'mfunc' or 'mclude'.
+	 * @param string $reason Human-readable reason.
+	 *
+	 * @return void
+	 */
+	private function _log_dynamic_deprecation( $kind, $reason ) {
+		/**
+		 * Rate-limit identical (kind|reason) notices to once per 5 minutes
+		 * per site. On a high-traffic site, the first cache miss after this
+		 * patch ships re-renders every still-cached legacy tag through this
+		 * path; without a guard, `_doing_it_wrong()` floods admin notices
+		 * (when WP_DEBUG is on) and `error_log()` floods the system log on
+		 * every page load until the cache rolls over. The dedupe key uses
+		 * md5() rather than the raw string because $reason can contain HMACs
+		 * and arbitrary slugs, and transient keys are length-bounded.
+		 */
+		$dedupe_key = 'w3tc_dyn_dep_' . md5( (string) $kind . '|' . (string) $reason );
+		if ( \function_exists( 'get_site_transient' ) && \function_exists( 'set_site_transient' ) ) {
+			if ( false !== \get_site_transient( $dedupe_key ) ) {
+				return;
+			}
+			\set_site_transient( $dedupe_key, 1, 300 );
+		}
+
+		if ( \function_exists( '_doing_it_wrong' ) ) {
+			\_doing_it_wrong(
+				\esc_html( $kind ),
+				\esc_html(
+					sprintf(
+						/* translators: 1: tag kind (mfunc/mclude), 2: reason. */
+						'W3TC dynamic %1$s tag refused: %2$s. Raw PHP / file-path payloads are no longer dispatched; migrate to the registered-callback form (<!-- %1$s TOKEN call:slug {...} -->) via the `w3tc_dynamic_callbacks` filter.',
+						$kind,
+						$reason
+					)
+				),
+				'2.10.0'
+			);
+		} elseif ( \function_exists( 'error_log' ) ) {
+			\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf( '[W3TC] dynamic %s tag refused: %s', $kind, $reason )
+			);
+		}
+	}
+
+	/**
+	 * Dispatches a verified, registered callback by slug.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $kind 'mfunc' or 'mclude'.
+	 * @param string $slug Callback slug.
+	 * @param array  $args Decoded JSON args.
+	 *
+	 * @return string The callback's HTML output, or an error sentinel.
+	 */
+	private function _dispatch_dynamic_callback( $kind, $slug, $args ) {
+		$callbacks = $this->_get_dynamic_callbacks();
+
+		if ( empty( $callbacks ) ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s registry is empty; no callbacks registered.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		if ( ! isset( $callbacks[ $slug ] ) || ! \is_callable( $callbacks[ $slug ] ) ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s slug "%s" is not registered.', $kind, $slug ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		try {
+			$w3tc_output = \call_user_func( $callbacks[ $slug ], $args, $kind );
+		} catch ( \Throwable $ex ) {
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s slug "%s" raised an exception.', $kind, $slug ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		if ( ! \is_string( $w3tc_output ) ) {
+			/**
+			 * A callback that returns null/false/an array silently coerces to
+			 * an empty (or garbled) string and hides the bug from site owners
+			 * — the fragment just disappears. Surface it through the same
+			 * log channel as the deprecation path so the breakage is visible
+			 * (and rate-limited identically) before we coerce.
+			 */
+			$this->_log_dynamic_deprecation(
+				$kind,
+				sprintf( 'callback "%s" returned non-string %s', $slug, \gettype( $w3tc_output ) )
+			);
+
+			/**
+			 * `(string)` on an array or a non-Stringable object raises a PHP
+			 * warning and produces the literal `"Array"` / "Object of class …
+			 * could not be converted" sentinel. Both are useless in cached
+			 * HTML and noisy in the error log. Coerce scalars (which have
+			 * useful string forms — `null` → `''`, `false` → `''`, numbers
+			 * → the digits) but emit an empty string for the rest.
+			 */
+			if ( \is_scalar( $w3tc_output ) || ( \is_object( $w3tc_output ) && \method_exists( $w3tc_output, '__toString' ) ) ) {
+				return (string) $w3tc_output;
+			}
+
+			return '';
+		}
+
+		return $w3tc_output;
+	}
+
+	/**
+	 * Common dispatcher for mfunc / mclude tags.
+	 *
+	 * Enforces the three security layers:
+	 *  1. Refuses unless `W3TC_DYNAMIC_SECURITY` is defined (already gated
+	 *     upstream by `_parse_dynamic()`).
+	 *  2. Refuses unless the payload is in the `call:<slug>` form with a
+	 *     valid HMAC envelope.
+	 *  3. Refuses unless the slug is in the registered-callback registry.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $kind    'mfunc' or 'mclude'.
+	 * @param array  $matches preg_replace_callback matches: [0]=full, [1]=header, [2]=body.
+	 *
+	 * @return string
+	 */
+	private function _dispatch_dynamic( $kind, $matches ) {
+		$header = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+		$body   = isset( $matches[2] ) ? trim( $matches[2] ) : '';
+
+		/**
+		 * Prefer the header for the call descriptor; fall back to the body for
+		 * the alternate "<!-- mfunc TOKEN -->call:slug ... hmac:hex<!-- /mfunc TOKEN -->" form.
+		 */
+		$candidate = '' !== $header ? $header : $body;
+		$parsed    = $this->_parse_dynamic_header( $candidate );
+
+		if ( null === $parsed ) {
+			$this->_log_dynamic_deprecation( $kind, 'raw payload (no call:slug + hmac envelope)' );
+
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s tag refused: missing call:slug + hmac envelope.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		$expected = $this->_dynamic_hmac( $kind, $parsed['slug'], $parsed['args_json'] );
+
+		if ( ! \hash_equals( $expected, $parsed['hmac'] ) ) {
+			$this->_log_dynamic_deprecation( $kind, 'HMAC mismatch' );
+
+			return \htmlspecialchars(
+				sprintf( 'W3TC dynamic %s tag refused: HMAC mismatch.', $kind ),
+				ENT_QUOTES,
+				'UTF-8'
+			);
+		}
+
+		return $this->_dispatch_dynamic_callback( $kind, $parsed['slug'], $this->_decode_dynamic_args( $parsed['args_json'] ) );
+	}
+
+	/**
+	 * Dispatches a dynamic mfunc tag.
+	 *
+	 * Previously this method `eval()`'d arbitrary PHP from the tag payload.
+	 * That primitive has been removed; only registered callbacks dispatched
+	 * via `call:<slug>` + HMAC are honored.
+	 *
+	 * @since 2.10.0
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string The content of the included file, or an error message.
+	 * @return string The callback's output, or an error message.
+	 */
+	public function _parse_dynamic_mfunc( $matches ) {
+		return $this->_dispatch_dynamic( 'mfunc', $matches );
+	}
+
+	/**
+	 * Dispatches a dynamic mclude tag.
+	 *
+	 * Previously this method `include`'d a relative file path supplied
+	 * inside the tag.  That primitive has been removed; only registered
+	 * callbacks dispatched via `call:<slug>` + HMAC are honored.  Plugins
+	 * that need to render an include's output should wrap it in a slug.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param array $matches The matches from the regular expression.
+	 *
+	 * @return string The callback's output, or an error message.
 	 */
 	public function _parse_dynamic_mclude( $matches ) {
-		$file1 = trim( $matches[1] );
-		$file2 = trim( $matches[2] );
+		return $this->_dispatch_dynamic( 'mclude', $matches );
+	}
 
-		$file = ( $file1 ? $file1 : $file2 );
-
-		if ( $file ) {
-			$file = ABSPATH . $file;
-
-			if ( file_exists( $file ) && is_readable( $file ) ) {
-				ob_start();
-				include $file;
-				$output = ob_get_contents();
-				ob_end_clean();
-			} else {
-				$output = sprintf( 'Unable to open file: %s', htmlspecialchars( $file ) );
-			}
-		} else {
-			$output = htmlspecialchars( 'Incorrect mclude tag syntax. The correct format is: <!-- mclude W3TC_DYNAMIC_SECURITY path/to/file.php --><!-- /mclude W3TC_DYNAMIC_SECURITY --> or <!-- mclude W3TC_DYNAMIC_SECURITY -->path/to/file.php<!-- /mclude W3TC_DYNAMIC_SECURITY -->.' );
+	/**
+	 * Signs every dynamic mfunc / mclude tag in $buffer by appending an
+	 * `hmac:<hex>` envelope to the `call:<slug>` descriptor.  Called once
+	 * before the buffer is written to the page cache so that later
+	 * read-time dispatch can verify integrity.
+	 *
+	 * Both inline-header form (`<!-- mfunc TOKEN call:slug ... -->...<!-- /mfunc TOKEN -->`)
+	 * and between-tags / body form (`<!-- mfunc TOKEN -->call:slug ...<!-- /mfunc TOKEN -->`)
+	 * are signed in place, because dispatch accepts both shapes.
+	 *
+	 * Tags whose payload is not in the safe `call:<slug>` form are left
+	 * unsigned — at dispatch time they will fall through to the
+	 * deprecation path and refuse to execute.  This is intentional: it
+	 * makes back-compat behavior visible (an error in place of the tag)
+	 * rather than silently dropping the tag at write time.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $buffer Buffer containing rendered HTML.
+	 *
+	 * @return string Buffer with HMAC envelopes added.
+	 */
+	public function _sign_dynamic_tags( $buffer ) {
+		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) || 1 === (int) W3TC_DYNAMIC_SECURITY ) {
+			return $buffer;
 		}
 
-		return $output;
+		$security = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+
+		$sign_one = function ( $kind ) {
+			return function ( $matches ) use ( $kind ) {
+				$header   = isset( $matches[1] ) ? trim( $matches[1] ) : '';
+				$body_raw = isset( $matches[2] ) ? $matches[2] : '';
+				$body     = trim( $body_raw );
+
+				// If the header already has a complete `call:slug ... hmac:hex` envelope, leave it alone.
+				if ( null !== $this->_parse_dynamic_header( $header ) ) {
+					return $matches[0];
+				}
+
+				// Likewise, leave a fully-signed body-form alone.
+				if ( '' === $header && null !== $this->_parse_dynamic_header( $body ) ) {
+					return $matches[0];
+				}
+
+				/**
+				 * Determine where the `call:<slug>` descriptor lives: in the header
+				 * (inline form) or in the body (between-tags form).  Both forms are
+				 * honored at dispatch time, so both must be signed at write time.
+				 */
+				if ( preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $header, $m ) ) {
+					$source = 'header';
+				} elseif ( '' === $header && preg_match( '~^call:([A-Za-z0-9_\-\.:]+)\s*(.*)$~is', $body, $m ) ) {
+					$source = 'body';
+				} else {
+					// Raw-PHP / file-path payload — leave unsigned; dispatch will refuse.
+					return $matches[0];
+				}
+
+				$slug      = $m[1];
+				$args_json = trim( $m[2] );
+				$hmac      = $this->_dynamic_hmac( $kind, $slug, $args_json );
+
+				$w3tc_descriptor = 'call:' . $slug;
+				if ( '' !== $args_json ) {
+					$w3tc_descriptor .= ' ' . $args_json;
+				}
+				$w3tc_descriptor .= ' hmac:' . $hmac;
+
+				if ( 'header' === $source ) {
+					return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' ' . $w3tc_descriptor . ' -->' . $body_raw . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
+				}
+
+				return '<!-- ' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->' . $w3tc_descriptor . '<!-- /' . $kind . ' ' . W3TC_DYNAMIC_SECURITY . ' -->';
+			};
+		};
+
+		/**
+		 * `\s*` (NOT `\s+`) between the security token and the closing
+		 * `-->` so we match the same set of tags as `_parse_dynamic` /
+		 * `_has_dynamic` (both use `(.*)-->`, accepting zero whitespace).
+		 * A tag like `<!-- mfunc TOKEN-->call:slug...<!-- /mfunc TOKEN -->`
+		 * would otherwise be detected as dynamic at parse time but never
+		 * signed at write time — dispatch would then refuse it for a
+		 * missing HMAC envelope.
+		 */
+		$buffer = preg_replace_callback(
+			'~<!--\s*mfunc\s+' . $security . '\s*(.*?)\s*-->(.*?)<!--\s*/mfunc\s+' . $security . '\s*-->~is',
+			$sign_one( 'mfunc' ),
+			$buffer
+		);
+
+		$buffer = preg_replace_callback(
+			'~<!--\s*mclude\s+' . $security . '\s*(.*?)\s*-->(.*?)<!--\s*/mclude\s+' . $security . '\s*-->~is',
+			$sign_one( 'mclude' ),
+			$buffer
+		);
+
+		return $buffer;
 	}
 
 	/**
@@ -2253,10 +2769,10 @@ class PgCache_ContentGrabber {
 	 * @return void
 	 */
 	private function _preprocess_request_uri() {
-		$p = explode( '?', $this->_request_uri, 2 );
+		$w3tc_p = explode( '?', $this->_request_uri, 2 );
 
-		$this->_request_url_fragments['path']        = $p[0];
-		$this->_request_url_fragments['querystring'] = ( empty( $p[1] ) ? '' : '?' . $p[1] );
+		$this->_request_url_fragments['path']        = $w3tc_p[0];
+		$this->_request_url_fragments['querystring'] = ( empty( $w3tc_p[1] ) ? '' : '?' . $w3tc_p[1] );
 
 		$this->_request_url_fragments = $this->_normalize_url_fragments( $this->_request_url_fragments );
 	}
@@ -2328,8 +2844,8 @@ class PgCache_ContentGrabber {
 		if ( $this->_late_caching && $this->_caching ) {
 			$this->_cached_data = $this->_extract_cached_page( true );
 			if ( $this->_cached_data ) {
-				global $w3_late_caching_succeeded;
-				$w3_late_caching_succeeded = true;
+				global $w3tc_w3_late_caching_succeeded;
+				$w3tc_w3_late_caching_succeeded = true;
 
 				$this->process_status = 'hit';
 				$this->process_cached_page_and_exit( $this->_cached_data );
@@ -2534,18 +3050,24 @@ class PgCache_ContentGrabber {
 	 * @return bool|int The number of bytes written, or false on failure.
 	 */
 	protected static function log( $msg ) {
-		$data = sprintf(
+		$w3tc_data = sprintf(
 			'[%1$s] [%2$s] [%3$s] %4$s ' . "\n",
 			gmdate( 'r' ),
 			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '',
 			! empty( $_SERVER['HTTP_REFERER'] ) ? htmlspecialchars( $_SERVER['HTTP_REFERER'] ) : '-',
 			$msg
 		);
-		$data = strtr( $data, '<>', '..' );
-		$date = Util_Debug::redact_wpnonce( $data );
+		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		/**
+		 * Assignment used to land in `$date` (typo for `$w3tc_data`),
+		 * so the redacted form was never written and the log file kept
+		 * the raw `_wpnonce=` value. Keep the variable name on `$w3tc_data`
+		 * so the file_put_contents below writes the redacted form.
+		 */
+		$w3tc_data = Util_Debug::redact_wpnonce( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
 
-		return @file_put_contents( $filename, $data, FILE_APPEND );
+		return @file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 	}
 }

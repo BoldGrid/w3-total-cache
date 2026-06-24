@@ -27,17 +27,17 @@ class Minify_Core {
 	public static function urls_for_minification_to_minify_filename( $files, $type ) {
 		$files_string = wp_json_encode( $files );
 
-		$key = self::urls_for_minification_to_minify_key( $files_string, substr( md5( $files_string ), 0, 5 ) );
-		if ( is_null( $key ) ) {
+		$w3tc_key = self::urls_for_minification_to_minify_key( $files_string, substr( md5( $files_string ), 0, 5 ) );
+		if ( is_null( $w3tc_key ) ) {
 			// key collision (rare case), try full md5.
-			$key = self::urls_for_minification_to_minify_key( $files_string, md5( $files_string ) );
-			if ( is_null( $key ) ) {
+			$w3tc_key = self::urls_for_minification_to_minify_key( $files_string, md5( $files_string ) );
+			if ( is_null( $w3tc_key ) ) {
 				// collision of full md5 - unprobable.
 				return null;
 			}
 		}
 
-		$minify_filename = $key . '.' . $type;
+		$minify_filename = $w3tc_key . '.' . $type;
 
 		if ( has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ) {
 			$minify_filename = apply_filters(
@@ -46,7 +46,7 @@ class Minify_Core {
 				$files,
 				$type
 			);
-			update_option( 'w3tc_minify_filter_' . hash( 'crc32b', $minify_filename ), $key, false );
+			update_option( 'w3tc_minify_filter_' . hash( 'crc32b', $minify_filename ), $w3tc_key, false );
 		}
 
 		return $minify_filename;
@@ -56,20 +56,20 @@ class Minify_Core {
 	 * Retrieves the minification key based on the files string.
 	 *
 	 * @param string $files_string JSON encoded string of files.
-	 * @param string $key          The base key to check.
+	 * @param string $w3tc_key          The base key to check.
 	 *
 	 * @return string|null The key if found, or null if not.
 	 */
-	private static function urls_for_minification_to_minify_key( $files_string, $key ) {
-		$v                = get_option( 'w3tc_minify_' . $key );
+	private static function urls_for_minification_to_minify_key( $files_string, $w3tc_key ) {
+		$v                = get_option( 'w3tc_minify_' . $w3tc_key );
 		$minify_filenames = @json_decode( $v, true );
 		if ( empty( $minify_filenames ) || ! is_array( $minify_filenames ) ) {
-			update_option( 'w3tc_minify_' . $key, $files_string, false );
-			return $key;
+			update_option( 'w3tc_minify_' . $w3tc_key, $files_string, false );
+			return $w3tc_key;
 		}
 
 		if ( $v === $files_string ) {
-			return $key;
+			return $w3tc_key;
 		}
 
 		return null;
@@ -96,21 +96,21 @@ class Minify_Core {
 
 		$urls = array();
 
-		foreach ( $urls_unverified as $file ) {
+		foreach ( $urls_unverified as $w3tc_file ) {
 			$verified = false;
-			if ( Util_Environment::is_url( $file ) ) {
-				$c               = Dispatcher::config();
-				$external        = $c->get_array( 'minify.cache.files' );
-				$external_regexp = $c->get_boolean( 'minify.cache.files_regexp' );
+			if ( Util_Environment::is_url( $w3tc_file ) ) {
+				$w3tc_c          = Dispatcher::config();
+				$external        = $w3tc_c->get_array( 'minify.cache.files' );
+				$external_regexp = $w3tc_c->get_boolean( 'minify.cache.files_regexp' );
 
-				foreach ( $external as $ext ) {
-					if ( empty( $ext ) ) {
+				foreach ( $external as $w3tc_ext ) {
+					if ( empty( $w3tc_ext ) ) {
 						continue;
 					}
 
 					if (
 						! $external_regexp &&
-						preg_match( '~^' . Util_Environment::get_url_regexp( $ext ) . '~', $file ) &&
+						preg_match( '~^' . Util_Environment::get_url_regexp( $w3tc_ext ) . '~', $w3tc_file ) &&
 						! $verified
 					) {
 						$verified = true;
@@ -118,7 +118,7 @@ class Minify_Core {
 
 					if (
 						$external_regexp &&
-						preg_match( '~' . $ext . '~', $file ) &&
+						preg_match( '~' . $w3tc_ext . '~', $w3tc_file ) &&
 						! $verified
 					) {
 						$verified = true;
@@ -126,31 +126,31 @@ class Minify_Core {
 				}
 
 				if ( ! $verified ) {
-					self::debug_error( sprintf( 'Remote file not in external files/libraries list: "%s"', $file ) );
+					self::debug_error( sprintf( 'Remote file not in external files/libraries list: "%s"', $w3tc_file ) );
 				}
 			} elseif (
 				/* no ".." */
-				strpos( $file, '..' ) !== false ||
+				strpos( $w3tc_file, '..' ) !== false ||
 				/* no "//" */
-				strpos( $file, '//' ) !== false ||
+				strpos( $w3tc_file, '//' ) !== false ||
 				/* no "\" */
 				(
-					strpos( $file, '\\' ) !== false &&
+					strpos( $w3tc_file, '\\' ) !== false &&
 					'WIN' !== strtoupper( substr( PHP_OS, 0, 3 ) )
 				) ||
 				/* no "./" */
-				preg_match( '/(?:^|[^\\.])\\.\\//', $file ) ||
+				preg_match( '/(?:^|[^\\.])\\.\\//', $w3tc_file ) ||
 				/* no unwanted chars */
-				! preg_match( '/^[a-zA-Z0-9_.\\/-]|[\\\\]+$/', $file )
+				! preg_match( '/^[a-zA-Z0-9_.\\/-]|[\\\\]+$/', $w3tc_file )
 			) {
 				$verified = false;
-				self::debug_error( sprintf( 'File path invalid: "%s"', $file ) );
+				self::debug_error( sprintf( 'File path invalid: "%s"', $w3tc_file ) );
 			} else {
 				$verified = true;
 			}
 
 			if ( $verified ) {
-				$urls[] = $file;
+				$urls[] = $w3tc_file;
 			}
 		}
 
@@ -168,8 +168,8 @@ class Minify_Core {
 		$path     = Util_Environment::cache_blog_minify_dir();
 		$filename = $path . '/' . $minify_filename;
 
-		$c = Dispatcher::config();
-		if ( Util_Rule::can_check_rules() && $c->get_boolean( 'minify.rewrite' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( Util_Rule::can_check_rules() && $w3tc_c->get_boolean( 'minify.rewrite' ) ) {
 			return Util_Environment::filename_to_url( $filename );
 		}
 
@@ -184,8 +184,8 @@ class Minify_Core {
 	 * @return void
 	 */
 	public static function debug_error( $error ) {
-		$c     = Dispatcher::config();
-		$debug = $c->get_boolean( 'minify.debug' );
+		$w3tc_c = Dispatcher::config();
+		$debug  = $w3tc_c->get_boolean( 'minify.debug' );
 
 		if ( $debug ) {
 			self::log( $error );
@@ -201,7 +201,7 @@ class Minify_Core {
 	 * @return bool True if the message was successfully written, false otherwise.
 	 */
 	public static function log( $msg ) {
-		$data = sprintf(
+		$w3tc_data = sprintf(
 			"[%s] [%s] [%s] %s\n",
 			gmdate( 'r' ),
 			isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
@@ -209,11 +209,11 @@ class Minify_Core {
 			$msg
 		);
 
-		$data = strtr( $data, '<>', '..' );
+		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'minify' );
 
-		return @file_put_contents( $filename, $data, FILE_APPEND );
+		return @file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 	}
 
 	/**
@@ -224,30 +224,30 @@ class Minify_Core {
 	 * @return array The cache configuration for the minify engine.
 	 */
 	public function get_usage_statistics_cache_config() {
-		$c      = Dispatcher::config();
-		$engine = $c->get_string( 'minify.engine' );
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_engine = $w3tc_c->get_string( 'minify.engine' );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'memcached':
 				$engineConfig = array(
-					'servers'           => $c->get_array( 'minify.memcached.servers' ),
-					'persistent'        => $c->get_boolean( 'minify.memcached.persistent' ),
-					'aws_autodiscovery' => $c->get_boolean( 'minify.memcached.aws_autodiscovery' ),
-					'username'          => $c->get_string( 'minify.memcached.username' ),
-					'password'          => $c->get_string( 'minify.memcached.password' ),
+					'servers'           => $w3tc_c->get_array( 'minify.memcached.servers' ),
+					'persistent'        => $w3tc_c->get_boolean( 'minify.memcached.persistent' ),
+					'aws_autodiscovery' => $w3tc_c->get_boolean( 'minify.memcached.aws_autodiscovery' ),
+					'username'          => $w3tc_c->get_string( 'minify.memcached.username' ),
+					'password'          => $w3tc_c->get_string( 'minify.memcached.password' ),
 				);
 				break;
 
 			case 'redis':
 				$engineConfig = array(
-					'servers'                 => $c->get_array( 'minify.redis.servers' ),
-					'verify_tls_certificates' => $c->get_boolean( 'minify.redis.verify_tls_certificates' ),
-					'persistent'              => $c->get_boolean( 'minify.redis.persistent' ),
-					'timeout'                 => $c->get_integer( 'minify.redis.timeout' ),
-					'retry_interval'          => $c->get_integer( 'minify.redis.retry_interval' ),
-					'read_timeout'            => $c->get_integer( 'minify.redis.read_timeout' ),
-					'dbid'                    => $c->get_integer( 'minify.redis.dbid' ),
-					'password'                => $c->get_string( 'minify.redis.password' ),
+					'servers'                 => $w3tc_c->get_array( 'minify.redis.servers' ),
+					'verify_tls_certificates' => $w3tc_c->get_boolean( 'minify.redis.verify_tls_certificates' ),
+					'persistent'              => $w3tc_c->get_boolean( 'minify.redis.persistent' ),
+					'timeout'                 => $w3tc_c->get_integer( 'minify.redis.timeout' ),
+					'retry_interval'          => $w3tc_c->get_integer( 'minify.redis.retry_interval' ),
+					'read_timeout'            => $w3tc_c->get_integer( 'minify.redis.read_timeout' ),
+					'dbid'                    => $w3tc_c->get_integer( 'minify.redis.dbid' ),
+					'password'                => $w3tc_c->get_string( 'minify.redis.password' ),
 				);
 				break;
 
@@ -255,7 +255,7 @@ class Minify_Core {
 				$engineConfig = array();
 		}
 
-		$engineConfig['engine'] = $engine;
+		$engineConfig['engine'] = $w3tc_engine;
 
 		return $engineConfig;
 	}

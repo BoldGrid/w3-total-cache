@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -25,8 +26,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		);
 		?>
 		<?php
-		$minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
-		$minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $minify_doc_url ) {
+		$w3tc_minify_doc_url             = 'https://www.boldgrid.com/support/w3-total-cache/minify-cache/';
+		$w3tc_minify_learn_more_link     = static function ( $anchor, $setting_label ) use ( $w3tc_minify_doc_url ) {
 			if ( empty( $anchor ) || empty( $setting_label ) ) {
 				return '';
 			}
@@ -37,9 +38,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$setting_label
 			);
 
-			return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+			return ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( $w3tc_minify_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
 		};
-		$minify_anchor_allowed_tags = array(
+		$w3tc_minify_anchor_allowed_tags = array(
 			'a'    => array(
 				'class'  => array(),
 				'href'   => array(),
@@ -50,14 +51,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'class' => array(),
 			),
 		);
-		$minify_learn_more_output   = static function ( $anchor, $setting_label ) use ( $minify_learn_more_link, $minify_anchor_allowed_tags ) {
-			$link = $minify_learn_more_link( $anchor, $setting_label );
+		$w3tc_minify_learn_more_output   = static function ( $anchor, $setting_label ) use ( $w3tc_minify_learn_more_link, $w3tc_minify_anchor_allowed_tags ) {
+			$link = $w3tc_minify_learn_more_link( $anchor, $setting_label );
 
 			if ( empty( $link ) ) {
 				return '';
 			}
 
-			return wp_kses( $link, $minify_anchor_allowed_tags );
+			return wp_kses( $link, $w3tc_minify_anchor_allowed_tags );
 		};
 		?>
 
@@ -65,25 +66,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
 				<td>
-					<?php
-					echo wp_kses(
-						Util_Ui::nonce_field( 'w3tc' ),
-						array(
-							'input' => array(
-								'type'  => array(),
-								'name'  => array(),
-								'value' => array(),
-							),
-						)
-					);
-					?>
 					<?php if ( $this->_config->is_preview() ) : ?>
-						<input id="preview-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_preview_disable' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 						<?php
 						echo wp_kses(
 							Util_Ui::button_link(
 								esc_html__( 'Deploy', 'w3-total-cache' ),
-								esc_url( wp_nonce_url( sprintf( 'admin.php?page=%1$s&w3tc_config_preview_deploy', $this->_page ), 'w3tc' ) )
+								esc_url( Util_Nonce::admin_nonce_url( sprintf( 'admin.php?page=%1$s&w3tc_config_preview_deploy', $this->_page ), 'w3tc_config_preview_deploy' ) )
 							),
 							array(
 								'input' => array(
@@ -120,7 +109,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							?>
 						</p>
 					<?php else : ?>
-						<input id="preview-button" type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_preview_enable' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 					<?php endif; ?>
 					<p class="description"><?php esc_html_e( 'Use preview mode to test configuration scenarios prior to releasing them (deploy) on the actual site. Preview mode remains active even after deploying settings until the feature is disabled.', 'w3-total-cache' ); ?></p>
 				</td>
@@ -194,8 +183,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'optgroup' => 2,
 						),
 						'nginx_memcached' => array(
-							'disabled' => ! Util_Installed::memcached_memcached() || ! $is_pro,
-							'label'    => esc_html__( 'Nginx + Memcached', 'w3-total-cache' ) . ( $is_pro ? '' : esc_html__( ' (available after upgrade)', 'w3-total-cache' ) ),
+							'disabled' => ! Util_Installed::memcached_memcached() || ! $w3tc_is_pro,
+							'label'    => esc_html__( 'Nginx + Memcached', 'w3-total-cache' ) . ( $w3tc_is_pro ? '' : esc_html__( ' (available after upgrade)', 'w3-total-cache' ) ),
 							'optgroup' => 2,
 						),
 						'redis'           => array(
@@ -265,7 +254,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								'title' => array(),
 							),
 						)
-					) . $minify_learn_more_output( 'general-settings', __( 'Minify', 'w3-total-cache' ) ),
+					) . $w3tc_minify_learn_more_output( 'general-settings', __( 'Minify', 'w3-total-cache' ) ),
 				)
 			);
 
@@ -401,7 +390,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
 			?>
 
-			<?php if ( $is_pro ) : ?>
+			<?php if ( $w3tc_is_pro ) : ?>
 				<?php require W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php'; ?>
 			<?php endif; ?>
 		</table>
@@ -432,7 +421,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<table class="form-table">
 			<?php
-			$objectcache_config_item = array(
+			$w3tc_objectcache_config_item = array(
 				'key'            => 'objectcache.enabled',
 				'control'        => 'checkbox',
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
@@ -461,9 +450,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				),
 			);
 			if ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ) {
-				$objectcache_config_item['disabled'] = true;
+				$w3tc_objectcache_config_item['disabled'] = true;
 			}
-			Util_Ui::config_item( $objectcache_config_item );
+			Util_Ui::config_item( $w3tc_objectcache_config_item );
 			?>
 			<div class="objectcache_disk_notice notice notice-warning">
 				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
@@ -567,8 +556,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		?>
 		<table class="form-table">
 			<?php
-			$c           = Dispatcher::config();
-			$wp_disabled = ! $c->get_boolean( 'allcache.wp_cron' );
+			$w3tc_c           = Dispatcher::config();
+			$w3tc_wp_disabled = ! $w3tc_c->get_boolean( 'allcache.wp_cron' );
 
 			Util_Ui::config_item(
 				array(
@@ -579,13 +568,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				)
 			);
 
-			$time_options = array();
-			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-					$time_label                  = $scheduled_time->format( 'g:i a' );
-					$time_options[ $time_value ] = $time_label;
+			$w3tc_time_options = array();
+			for ( $w3tc_hour = 0; $w3tc_hour < 24; $w3tc_hour++ ) {
+				foreach ( array( '00', '30' ) as $w3tc_minute ) {
+					$w3tc_time_value                       = $w3tc_hour * 60 + intval( $w3tc_minute );
+					$w3tc_scheduled_time                   = new \DateTime( "{$w3tc_hour}:{$w3tc_minute}", wp_timezone() );
+					$w3tc_time_label                       = $w3tc_scheduled_time->format( 'g:i a' );
+					$w3tc_time_options[ $w3tc_time_value ] = $w3tc_time_label;
 				}
 			}
 
@@ -594,9 +583,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'key'              => 'allcache.wp_cron_time',
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
-					'selectbox_values' => $time_options,
+					'selectbox_values' => $w3tc_time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-					'disabled'         => $wp_disabled,
+					'disabled'         => $w3tc_wp_disabled,
 				)
 			);
 
@@ -612,7 +601,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-					'disabled'         => $wp_disabled,
+					'disabled'         => $w3tc_wp_disabled,
 				)
 			);
 			?>
@@ -674,7 +663,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php if ( $is_pro ) : ?>
+		<?php if ( $w3tc_is_pro ) : ?>
 			<?php
 			Util_Ui::postbox_header_tabs(
 				esc_html__( 'Message Bus', 'w3-total-cache' ),
@@ -829,8 +818,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php endif; ?>
 
 		<?php
-		foreach ( $custom_areas as $area ) {
-			do_action( 'w3tc_settings_general_boxarea_' . $area['id'] );
+		foreach ( $custom_areas as $w3tc_area ) {
+			do_action( 'w3tc_settings_general_boxarea_' . $w3tc_area['id'] );
 		}
 		?>
 
@@ -1064,13 +1053,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php $this->checkbox_debug( 'minify.debug' ); ?> <?php Util_Ui::e_config_label( 'minify.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'dbcache.debug' ); ?> <?php Util_Ui::e_config_label( 'dbcache.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'objectcache.debug' ); ?> <?php Util_Ui::e_config_label( 'objectcache.debug' ); ?></label><br />
-					<?php if ( $is_pro ) : ?>
+					<?php if ( $w3tc_is_pro ) : ?>
 						<?php $this->checkbox_debug( array( 'fragmentcache', 'debug' ) ); ?> <?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?></label><br />
 					<?php endif; ?>
 					<?php $this->checkbox_debug( 'cdn.debug' ); ?> <?php Util_Ui::e_config_label( 'cdn.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'cdnfsd.debug' ); ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'varnish.debug' ); ?> <?php Util_Ui::e_config_label( 'varnish.debug' ); ?></label>
-					<?php if ( $is_pro ) : ?>
+					<?php if ( $w3tc_is_pro ) : ?>
 						<br />
 						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ); ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ); ?></label>
 					<?php endif ?>
@@ -1163,7 +1152,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		?>
 		<table class="form-table">
 			<?php
-			$image_service_link = $this->_config->is_extension_active( 'imageservice' )
+			$w3tc_image_service_link = $this->_config->is_extension_active( 'imageservice' )
 				? sprintf(
 					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
 					__( 'The tool and its settings can be found on the %1$s %2$sImage Converter%3$s page.', 'w3-total-cache' ),
@@ -1214,7 +1203,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=learn_more&utm_campaign=image_service' ) . '" target="_blank">',
 									'</a>'
 								),
-							$image_service_link
+							$w3tc_image_service_link
 						),
 						array(
 							'a'  => array(
@@ -1254,39 +1243,39 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		);
 		?>
 		<?php
-		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
-		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
+		$w3tc_access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
+		$w3tc_w3_pagespeed      = new PageSpeed_Api( $w3tc_access_token_json );
 
-		$site_id            = Util_Http::generate_site_id();
-		$return_url         = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
+		$w3tc_site_id       = Util_Http::generate_site_id();
+		$w3tc_return_url    = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
 		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
 
-		$access_token       = Util_Request::get( 'w3tc_access_token' );
-		$w3tc_pagespeed_key = Util_Request::get( 'w3tc_pagespeed_key' );
-		$authorize_error    = Util_Request::get( 'w3tc_authorize_error' );
-		$deauthorize        = Util_Request::get( 'w3tc_deauthorize' );
+		$w3tc_access_token    = Util_Request::get( 'w3tc_access_token' );
+		$w3tc_pagespeed_key   = Util_Request::get( 'w3tc_pagespeed_key' );
+		$w3tc_authorize_error = Util_Request::get( 'w3tc_authorize_error' );
+		$w3tc_deauthorize     = Util_Request::get( 'w3tc_deauthorize' );
 
-		if ( ! empty( $authorize_error ) ) {
-			$authorize_error = json_decode( $authorize_error );
+		if ( ! empty( $w3tc_authorize_error ) ) {
+			$w3tc_authorize_error = json_decode( $w3tc_authorize_error );
 
-			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
-				$message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-missing-auth-url' === $authorize_error->error->id ) {
-				$message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-missing-return-url' === $authorize_error->error->id ) {
-				$message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-failed' === $authorize_error->error->id ) {
-				$message = __( 'Failed to process authorize request!', 'w3-total-cache' );
+			if ( 'authorize-in-missing-site-id' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-auth-url' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-return-url' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-failed' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'Failed to process authorize request!', 'w3-total-cache' );
 			}
 
-			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
-				$message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $authorize_error->error->id ) {
-				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
-				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-token-missing' === $authorize_error->error->id ) {
-				$message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
+			if ( 'authorize-out-code-missing' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-not-found' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-token-missing' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
 			}
 
 			update_option(
@@ -1295,32 +1284,32 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			);
 			update_option(
 				'w3tcps_authorize_fail_message',
-				$message
+				$w3tc_message
 			);
 
-			wp_safe_redirect( $return_url );
+			wp_safe_redirect( $w3tc_return_url );
 			exit;
-		} elseif ( ! empty( $access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
-			$this->_config->set( 'widget.pagespeed.access_token', $access_token );
+		} elseif ( ! empty( $w3tc_access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
+			$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
 			$this->_config->save();
 
-			wp_safe_redirect( $return_url );
+			wp_safe_redirect( $w3tc_return_url );
 			exit;
-		} elseif ( $deauthorize ) {
-			$w3_pagespeed->reset();
+		} elseif ( $w3tc_deauthorize ) {
+			$w3tc_w3_pagespeed->reset();
 			update_option(
 				'w3tcps_authorize_success',
 				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
 			);
-			wp_safe_redirect( $return_url );
+			wp_safe_redirect( $w3tc_return_url );
 			exit;
 		}
 		?>
 		<table class="form-table">
 			<?php
-			$access_token_json = ( ! empty( $w3_pagespeed->client->getAccessToken() ) ? $w3_pagespeed->client->getAccessToken() : '' );
-			if ( ! $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
+			$w3tc_access_token_json = ( ! empty( $w3tc_w3_pagespeed->client->getAccessToken() ) ? $w3tc_w3_pagespeed->client->getAccessToken() : '' );
+			if ( ! $w3tc_w3_pagespeed->client->isAccessTokenExpired() && ! empty( $w3tc_access_token_json ) ) {
 				?>
 				<tr>
 					<th>
@@ -1329,7 +1318,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 				<tr>
 					<th>
-						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize', 'w3-total-cache' ); ?></a>
+						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3tc_return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize', 'w3-total-cache' ); ?></a>
 					</th>
 				</tr>
 				<?php
@@ -1340,7 +1329,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
 					</th>
 					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( Util_Environment::get_api_base_url() . '/google/authorize-in/' . rawurlencode( $site_id ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize', 'w3-total-cache' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( Util_Environment::get_api_base_url() . '/google/authorize-in/' . rawurlencode( $w3tc_site_id ) . '/' . rawurlencode( $w3tc_return_url ) ); ?>"><?php esc_html_e( 'Authorize', 'w3-total-cache' ); ?></a>
 						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
@@ -1365,37 +1354,28 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'settings'
 		);
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
+		Util_Ui::hidden( 'w3tc-import-export-nonce', '_wpnonce', '' );
 		?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Import configuration:', 'w3-total-cache' ); ?></th>
 				<td>
 					<input type="file" name="config_file" />
-					<input type="submit" name="w3tc_config_import" class="w3tc-button-save button" value="<?php esc_attr_e( 'Upload', 'w3-total-cache' ); ?>" />
+					<input type="submit" name="w3tc_config_import" class="w3tc-button-save button" value="<?php esc_attr_e( 'Upload', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_import' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 					<p class="description"><?php esc_html_e( 'Upload and replace the active settings file.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th><?php esc_html_e( 'Export configuration:', 'w3-total-cache' ); ?></th>
 				<td>
-					<input type="submit" name="w3tc_config_export" class="button" value="<?php esc_attr_e( 'Download', 'w3-total-cache' ); ?>" />
+					<input type="submit" name="w3tc_config_export" class="button" value="<?php esc_attr_e( 'Download', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_export' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 					<p class="description"><?php esc_html_e( 'Download the active settings file.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th><?php esc_html_e( 'Reset configuration:', 'w3-total-cache' ); ?></th>
 				<td>
-					<input type="submit" name="w3tc_config_reset" class="button" value="<?php esc_attr_e( 'Restore Default Settings', 'w3-total-cache' ); ?>" />
+					<input type="submit" name="w3tc_config_reset" class="button" value="<?php esc_attr_e( 'Restore Default Settings', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_reset' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 					<p class="description"><?php esc_html_e( 'Revert all settings to the defaults. Any settings staged in preview mode will not be modified.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>

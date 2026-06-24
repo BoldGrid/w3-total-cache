@@ -103,29 +103,29 @@ class UsageStatistics_Source_DbQueriesLog {
 			}
 		}
 
-		$output = array();
-		foreach ( $this->by_query as $query => $data ) {
-			$output[] = array(
+		$w3tc_output = array();
+		foreach ( $this->by_query as $query => $w3tc_data ) {
+			$w3tc_output[] = array(
 				'query'       => $query,
-				'count_total' => $data['count_total'],
-				'count_hit'   => $data['count_hit'],
-				'avg_size'    => (int) ( $data['sum_size'] / $data['count_total'] ),
-				'avg_time_ms' => (int) ( $data['sum_time_ms'] / $data['count_total'] ),
-				'sum_time_ms' => (int) $data['sum_time_ms'],
-				'reasons'     => $data['reasons'],
+				'count_total' => $w3tc_data['count_total'],
+				'count_hit'   => $w3tc_data['count_hit'],
+				'avg_size'    => (int) ( $w3tc_data['sum_size'] / $w3tc_data['count_total'] ),
+				'avg_time_ms' => (int) ( $w3tc_data['sum_time_ms'] / $w3tc_data['count_total'] ),
+				'sum_time_ms' => (int) $w3tc_data['sum_time_ms'],
+				'reasons'     => $w3tc_data['reasons'],
 			);
 		}
 
 		usort(
-			$output,
-			function ( $a, $b ) {
-				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
+			$w3tc_output,
+			function ( $w3tc_a, $b ) {
+				return (int) ( $b[ $this->sort_column ] ) - (int) ( $w3tc_a[ $this->sort_column ] );
 			}
 		);
 
-		$output = array_slice( $output, 0, 200 );
+		$w3tc_output = array_slice( $w3tc_output, 0, 200 );
 
-		return $output;
+		return $w3tc_output;
 	}
 
 	/**
@@ -146,8 +146,8 @@ class UsageStatistics_Source_DbQueriesLog {
 		$n = 0;
 		if ( $skip_first_line ) {
 			for ( ; $n < $s_length; $n++ ) {
-				$c = substr( $s, $n, 1 );
-				if ( "\r" === $c || "\n" === $c ) {
+				$w3tc_c = substr( $s, $n, 1 );
+				if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 					$unparsed_head = substr( $s, 0, $n + 1 );
 					break;
 				}
@@ -156,8 +156,8 @@ class UsageStatistics_Source_DbQueriesLog {
 
 		$line_start = $n;
 		for ( ; $n < $s_length; $n++ ) {
-			$c = substr( $s, $n, 1 );
-			if ( "\r" === $c || "\n" === $c ) {
+			$w3tc_c = substr( $s, $n, 1 );
+			if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 				if ( $n > $line_start ) {
 					$this->push_line( substr( $s, $line_start, $n - $line_start ) );
 				}
@@ -175,12 +175,12 @@ class UsageStatistics_Source_DbQueriesLog {
 	 * This method parses a line of log data, updating the query statistics for the given query (e.g., count, size, time, etc.).
 	 * It also checks if more log data is needed based on the timestamp and ensures that data for each query is stored appropriately.
 	 *
-	 * @param string $line The log line to be processed.
+	 * @param string $w3tc_line The log line to be processed.
 	 *
 	 * @return void
 	 */
-	private function push_line( $line ) {
-		$matches = str_getcsv( $line, "\t" );
+	private function push_line( $w3tc_line ) {
+		$matches = str_getcsv( $w3tc_line, "\t" );
 
 		if ( ! $matches ) {
 			return;

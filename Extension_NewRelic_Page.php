@@ -26,14 +26,14 @@ class Extension_NewRelic_Page extends Base_Page_Settings {
 	 * @return void
 	 */
 	public function render_content() {
-		$config          = Dispatcher::config();
-		$monitoring_type = $config->get_string( array( 'newrelic', 'monitoring_type' ) );
+		$w3tc_config     = Dispatcher::config();
+		$monitoring_type = $w3tc_config->get_string( array( 'newrelic', 'monitoring_type' ) );
 		if ( 'browser' === $monitoring_type ) {
 			return;
 		}
 
 		$nerser               = Dispatcher::component( 'Extension_NewRelic_Service' );
-		$new_relic_configured = $config->get_string( array( 'newrelic', 'api_key' ) ) && $config->get_string( array( 'newrelic', 'apm.application_name' ) );
+		$new_relic_configured = $w3tc_config->get_string( array( 'newrelic', 'api_key' ) ) && $w3tc_config->get_string( array( 'newrelic', 'apm.application_name' ) );
 		$verify_running       = $nerser->verify_running();
 		$application_settings = array();
 

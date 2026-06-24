@@ -101,58 +101,29 @@ describe('', function() {
 	it('signup verification', async() => {
 		let mail = await fs.readFileAsync(env.wpContentPath + 'mail.txt', 'utf8');
 		console.log(mail);
-		let passwordMath = mail.match(/^Password: (.+?)$/m);
-
-		if (passwordMath != null) {
-			// before wp4.3
-			testUserPassword = passwordMath[0].split(' ')[1];
-		} else if (parseFloat(env.wpVersion) < 5.3) {
-			// before wp5.3 - follow url
-			let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
-			let followUrl = m[1];
-
-			log.log('found ' + followUrl);
-			await page.goto(followUrl);
-			await page.waitForFunction(function() {
-				return document.getElementById('pass1-text') &&
-					document.getElementById('pass1-text').value != '';
-			});
-
-			testUserPassword = await page.$eval('#pass1-text', (e) => e.value);
-
-			log.log('got password ' + testUserPassword);
-			let wpSubmitButton = '#wp-submit';
-			await Promise.all([
-				page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-				page.waitForNavigation()
-			]);
-
-			expect(await page.content()).contains('Your password has been reset');
-		} else {
-			let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
-			if (m == null) {
-				m = mail.match(/visit the following address:\s*(http[^\s]+)/m);
-			}
-			let followUrl = m[1];
-
-			log.log('found ' + followUrl);
-			await page.goto(followUrl);
-			await page.waitForFunction(function() {
-				return document.getElementById('pass1') &&
-					document.getElementById('pass1').value != '';
-			});
-
-			testUserPassword = await page.$eval('#pass1', (e) => e.value);
-
-			log.log('got password ' + testUserPassword);
-			let wpSubmitButton = '#wp-submit';
-			await Promise.all([
-				page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-				page.waitForNavigation()
-			]);
-
-			expect(await page.content()).contains('Your password has been reset');
+		let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
+		if (m == null) {
+			m = mail.match(/visit the following address:\s*(http[^\s]+)/m);
 		}
+		let followUrl = m[1];
+
+		log.log('found ' + followUrl);
+		await page.goto(followUrl);
+		await page.waitForFunction(function() {
+			return document.getElementById('pass1') &&
+				document.getElementById('pass1').value != '';
+		});
+
+		testUserPassword = await page.$eval('#pass1', (e) => e.value);
+
+		log.log('got password ' + testUserPassword);
+		let wpSubmitButton = '#wp-submit';
+		await Promise.all([
+			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
+			page.waitForNavigation()
+		]);
+
+		expect(await page.content()).contains('Your password has been reset');
 
 		log.log('user pw ' + testUserPassword);
 	});

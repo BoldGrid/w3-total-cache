@@ -57,12 +57,12 @@ class PgCache_Page extends Base_Page_Settings {
 			unset( $feeds[ $feed_key ] );
 		}
 
-		$default_feed        = get_default_feed();
-		$pgcache_enabled     = $this->_config->get_boolean( 'pgcache.enabled' );
-		$permalink_structure = get_option( 'permalink_structure' );
+		$default_feed             = get_default_feed();
+		$pgcache_enabled          = $this->_config->get_boolean( 'pgcache.enabled' );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
 
-		$varnish_enabled = $this->_config->get_boolean( 'varnish.enabled' );
-		$cdnfsd_enabled  = $this->_config->get_boolean( 'cdnfsd.enabled' );
+		$varnish_enabled     = $this->_config->get_boolean( 'varnish.enabled' );
+		$w3tc_cdnfsd_enabled = $this->_config->get_boolean( 'cdnfsd.enabled' );
 
 		include W3TC_INC_DIR . '/options/pgcache.php';
 	}

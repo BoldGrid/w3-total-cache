@@ -14,13 +14,13 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  *
- * @since 0.14.4
+ * @since 2.0.0
  */
 class UserExperience_Plugin_Jquery {
 	/**
 	 * Config class object.
 	 *
-	 * @since 0.14.4
+	 * @since 2.0.0
 	 *
 	 * @var Config
 	 */
@@ -29,7 +29,7 @@ class UserExperience_Plugin_Jquery {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.14.4
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
@@ -38,7 +38,7 @@ class UserExperience_Plugin_Jquery {
 	/**
 	 * Run.
 	 *
-	 * @since 0.14.4
+	 * @since 2.0.0
 	 */
 	public function run() {
 		// Disable jquery-migrate on the front-end, if configured.

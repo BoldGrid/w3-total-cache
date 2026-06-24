@@ -135,26 +135,78 @@ class Generic_Plugin_Admin {
 		$this->_page = Util_Admin::get_current_page();
 
 		// Run plugin action.
-		$action = false;
-		foreach ( $_REQUEST as $key => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( 'w3tc_' === substr( $key, 0, 5 ) ) {
-				$action = $key;
-				break;
-			}
-		}
+		$action            = false;
+		$display_only_keys = array(
+			'w3tc_note',
+			'w3tc_error',
+			'w3tc_message',
+			'w3tc_message_action',
+		);
 
 		$executor = new Root_AdminActions();
 
-		if ( $action && $executor->exists( $action ) ) {
-			if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-				wp_nonce_ays( 'w3tc' );
+		/**
+		 * Resolve the handler key from POST on form submissions so a stale
+		 * `w3tc_*` query arg left on the URL cannot shadow the clicked submit
+		 * button. Do not fall back to GET on POST requests — metabox saves and
+		 * other non-W3TC POSTs must not inherit a GET-side action key. Admin-bar
+		 * / nonce-link actions remain GET-driven.
+		 */
+		$request_sources = array();
+		$request_method  = isset( $_SERVER['REQUEST_METHOD'] ) ? \strtoupper( (string) \wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared to a literal HTTP method only.
+		if ( 'POST' === $request_method ) {
+			$request_sources[] = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Action key discovery only; nonce verified before dispatch.
+		} else {
+			$request_sources[] = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET admin-action links carry the handler key here.
+		}
+
+		foreach ( $request_sources as $request_source ) {
+			foreach ( $request_source as $w3tc_key => $w3tc_value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,Generic.CodeAnalysis.UnusedFunctionParameter.Found
+				if ( 'w3tc_' !== \substr( $w3tc_key, 0, 5 ) ) {
+					continue;
+				}
+
+				if ( \in_array( $w3tc_key, $display_only_keys, true ) ) {
+					continue;
+				}
+
+				if ( $executor->is_dispatchable( $w3tc_key ) ) {
+					$action = $w3tc_key;
+					break 2;
+				}
+			}
+		}
+
+		if ( $action ) {
+			/**
+			 * Per-action nonce key for the admin-action dispatcher.
+			 *
+			 * @since 2.10.0
+			 */
+			if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( $action ) ) ) {
+				wp_nonce_ays( Util_Nonce::admin_action( $action ) );
+			}
+
+			/**
+			 * Defence-in-depth: enforce manage_options at the dispatcher
+			 * regardless of how the menu was registered or how
+			 * w3tc_capability_menu was filtered.
+			 *
+			 * @since 2.10.0
+			 */
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				wp_die(
+					\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+					'',
+					array( 'response' => 403 )
+				);
 			}
 
 			try {
 				$executor->execute( $action );
 			} catch ( \Exception $e ) {
-				$key = 'admin_action_failed_' . $action;
-				Util_Admin::redirect_with_custom_messages( array(), array( $key => $e->getMessage() ) );
+				$w3tc_key = 'admin_action_failed_' . $action;
+				Util_Admin::redirect_with_custom_messages( array(), array( $w3tc_key => $e->getMessage() ) );
 			}
 
 			exit();
@@ -164,13 +216,13 @@ class Generic_Plugin_Admin {
 	/**
 	 * Save settings handler.
 	 *
-	 * @param array $data Data.
+	 * @param array $w3tc_data Data.
 	 *
 	 * @return array
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		// Schedule purge if enabled.
 		if ( $new_config->get_boolean( 'allcache.wp_cron' ) ) {
@@ -194,32 +246,99 @@ class Generic_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
-	 * Load action
+	 * Load action — generic W3TC admin AJAX dispatcher.
 	 *
-	 * @throws \Exception Exception.
+	 * The prior implementation wrapped both the capability check and
+	 * the handler dispatch in a single try/catch that echoed
+	 * `$e->getMessage()` with a 200 status. Authorization
+	 * failures looked indistinguishable from success on the wire
+	 * (HTTP 200 + body `"no permissions"`), and the underlying audit
+	 * event never reached any log. Now:
+	 *
+	 *  * Nonce failure → `w3tc_audit_log` (`nonce_failed`) +
+	 *    `wp_nonce_ays` (which emits 403 / dies).
+	 *  * Capability failure → `w3tc_audit_log` (`cap_denied`) +
+	 *    `wp_send_json_error( ..., 403 )` (matches the pattern
+	 *    already used by `wp_ajax_w3tc_forums_api` below).
+	 *  * Handler exception → `w3tc_audit_log` (`handler_exception`)
+	 *    + `Util_Debug::log` (sanitized) + `wp_send_json_error(
+	 *    ..., 500 )`. The exception body never reaches the client
+	 *    verbatim; only a stable generic message does.
 	 *
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_ajax() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		$action      = Util_Request::get_string( 'w3tc_action' );
+		$ajax_action = 'w3tc_ajax_' . $action;
+
+		if ( ! Util_Nonce::verify_admin( $ajax_action ) ) {
+			Util_Debug::audit_log(
+				'nonce_failed',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+				)
+			);
+			wp_nonce_ays( $ajax_action );
+		}
+
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			Util_Debug::audit_log(
+				'cap_denied',
+				array(
+					'handler'    => 'wp_ajax_w3tc_ajax',
+					'action'     => $action,
+					'capability' => 'manage_options',
+				)
+			);
+			wp_send_json_error( 'no permissions', 403 );
+		}
+
+		$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
+		$capability      = apply_filters( 'w3tc_ajax_capability_' . $action, $base_capability );
+
+		if ( empty( $capability ) || ! \current_user_can( $capability ) ) {
+			Util_Debug::audit_log(
+				'cap_denied',
+				array(
+					'handler'    => 'wp_ajax_w3tc_ajax',
+					'action'     => $action,
+					'capability' => $capability,
+				)
+			);
+			wp_send_json_error( 'no permissions', 403 );
 		}
 
 		try {
-			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
-			$capability      = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ), $base_capability );
-			if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
-				throw new \Exception( 'no permissions' );
-			}
-
 			do_action( 'w3tc_ajax' );
-			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
+			do_action( 'w3tc_ajax_' . $action );
 		} catch ( \Exception $e ) {
-			echo esc_html( $e->getMessage() );
+			Util_Debug::audit_log(
+				'handler_exception',
+				array(
+					'handler' => 'wp_ajax_w3tc_ajax',
+					'action'  => $action,
+					'class'   => get_class( $e ),
+					'message' => $e->getMessage(),
+				)
+			);
+			/**
+			 * Route the raw exception message through `redact()` before
+			 * it lands in `admin-ajax.log`: SDK exceptions can embed
+			 * request parameters (`_wpnonce=`, `token=`, `Authorization:
+			 * Bearer …`, `define('AUTH_KEY', '…')`) directly in the
+			 * message string. `Util_Debug::log()` only strips control
+			 * characters and `<>`; it does NOT redact secrets, so a
+			 * raw `$e->getMessage()` could persist sensitive values
+			 * even though the audit-side context map is already
+			 * redacted.
+			 */
+			Util_Debug::log( 'admin-ajax', 'exception in ' . $action . ': ' . Util_Debug::redact( $e->getMessage() ) );
+			wp_send_json_error( 'handler error', 500 );
 		}
 
 		exit();
@@ -234,15 +353,35 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function wp_ajax_w3tc_forums_api() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			wp_nonce_ays( 'w3tc' );
+		/**
+		 * Per-action nonce key. Accepts the legacy `'w3tc'`
+		 * action via Util_Nonce as a back-compat fallback.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! Util_Nonce::verify_admin( 'w3tc_forums_api' ) ) {
+			wp_nonce_ays( 'w3tc_forums_api' );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'no permissions', 403 );
 		}
 
-		$tag   = Util_Request::get_string( 'tabId' );
+		$tag = Util_Request::get_string( 'tabId' );
+
+		/**
+		 * $tag is concatenated into the forums API URL as a path / query
+		 * segment. Even though the host (`W3TC_BOLDGRID_FORUM_API`) is
+		 * fixed, an unprivileged caller who reaches this handler with
+		 * a valid admin nonce could submit `../../`, query-string-shaped,
+		 * or scheme-relative values that would otherwise change the
+		 * effective request target. Restrict to a conservative alphabet
+		 * that matches the documented `tabId` shape.
+		 */
+		if ( '' === $tag || ! preg_match( '/^[A-Za-z0-9._-]+$/', $tag ) ) {
+			wp_send_json_error( 'invalid tabId', 400 );
+		}
+
 		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
 
 		wp_send_json( $posts );
@@ -258,6 +397,10 @@ class Generic_Plugin_Admin {
 
 		// Special handling for deactivation link, it's plugins.php file.
 		if ( 'w3tc_deactivate_plugin' === Util_Request::get_string( 'action' ) ) {
+			if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_deactivate_plugin' ) ) ) {
+				wp_nonce_ays( Util_Nonce::admin_action( 'w3tc_deactivate_plugin' ) );
+			}
+
 			Util_Activation::deactivate_plugin();
 		}
 
@@ -298,10 +441,10 @@ class Generic_Plugin_Admin {
 			array( '\W3TC\UsageStatistics_Page', 'admin_print_scripts_w3tc_stats' )
 		);
 
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		// CDN.
-		switch ( $c->get_string( 'cdn.engine' ) ) {
+		switch ( $w3tc_c->get_string( 'cdn.engine' ) ) {
 			case 'bunnycdn':
 				$cdn_class = '\W3TC\Cdn_BunnyCdn_Page';
 				break;
@@ -330,7 +473,7 @@ class Generic_Plugin_Admin {
 		}
 
 		// CDNFSD.
-		switch ( $c->get_string( 'cdnfsd.engine' ) ) {
+		switch ( $w3tc_c->get_string( 'cdnfsd.engine' ) ) {
 			case 'bunnycdn':
 				$cdnfsd_class = '\W3TC\Cdnfsd_BunnyCdn_Page';
 				break;
@@ -366,7 +509,7 @@ class Generic_Plugin_Admin {
 
 		$page_val = Util_Request::get_string( 'page' );
 		if ( ! empty( $page_val ) ) {
-			do_action( 'admin_init_' . $page_val );
+			do_action( 'admin_init_' . $page_val ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		}
 	}
 
@@ -384,9 +527,11 @@ class Generic_Plugin_Admin {
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
 
 		wp_register_script( 'w3tc-metadata', plugins_url( 'pub/js/metadata.js', W3TC_FILE ), array(), W3TC_VERSION, false );
-		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array(), W3TC_VERSION, false );
-		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array(), W3TC_VERSION, false );
-		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		// Registered in load_scripts() so dependents can list w3tc-nonce; maps are localized in admin_print_scripts().
+		wp_register_script( 'w3tc-nonce', plugins_url( 'pub/js/w3tc-nonce.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
 
 		// New feature count for the Feature Showcase.
@@ -404,12 +549,18 @@ class Generic_Plugin_Admin {
 		$current_screen = get_current_screen();
 		if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
 			wp_enqueue_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
-			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array( 'w3tc-nonce' ), W3TC_VERSION, false );
 			wp_localize_script(
 				'w3tc-exit-survey',
 				'w3tcData',
 				array(
-					'nonce' => wp_create_nonce( 'w3tc' ),
+					'nonces' => Util_Nonce::create_ajax_map(
+						array(
+							'exit_survey_render',
+							'exit_survey_submit',
+							'exit_survey_skip',
+						)
+					),
 				)
 			);
 			wp_enqueue_script( 'w3tc-exit-survey' );
@@ -467,6 +618,7 @@ class Generic_Plugin_Admin {
 
 			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				exit;
 			}
 		}
 
@@ -614,6 +766,18 @@ class Generic_Plugin_Admin {
 	private function _admin_menu( $base_capability ) {
 		$base_capability = apply_filters( 'w3tc_capability_menu', $base_capability );
 
+		/**
+		 * Floor the filtered menu capability at manage_options. The
+		 * w3tc_capability_menu filter remains for back-compat but cannot
+		 * lower the menu/dispatcher gate below manage_options
+		 *.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( current_user_can( $base_capability ) ) {
 			$menus         = Dispatcher::component( 'Root_AdminMenu' );
 			$submenu_pages = $menus->generate( $base_capability );
@@ -682,14 +846,70 @@ class Generic_Plugin_Admin {
 		}
 
 		wp_enqueue_script( 'w3tc-metadata' );
+		wp_enqueue_script( 'w3tc-nonce' );
+
+		wp_localize_script(
+			'w3tc-nonce',
+			'w3tc_ajax_nonces',
+			Util_Nonce::create_ajax_map( Util_Nonce::known_ajax_actions() )
+		);
+
+		wp_localize_script(
+			'w3tc-nonce',
+			'w3tc_admin_nonces',
+			Util_Nonce::create_admin_map(
+				array(
+					'w3tc_save_options',
+					'w3tc_default_save_and_flush',
+					'w3tc_flush_all',
+					'w3tc_flush_pgcache',
+					'w3tc_flush_browser_cache',
+					'w3tc_flush_minify',
+					'w3tc_flush_dbcache',
+					'w3tc_flush_objectcache',
+					'w3tc_flush_cdn',
+					'w3tc_flush_fragmentcache',
+					'w3tc_flush_varnish',
+					'w3tc_cloudflare_flush',
+					'w3tc_cloudflare_flush_all_except_cf',
+					'w3tc_opcache_flush',
+					'w3tc_cdn_purge_files',
+					'w3tc_cdn_google_drive_auth_set',
+					'w3tc_cdn_rackspace_cdn_domains_reload',
+					'w3tc_save_new_relic',
+					'w3tc_config_dbcluster_config_save',
+					'w3tc_test_self',
+					'w3tc_licensing_upgrade',
+					'w3tc_licensing_buy_plugin',
+					'w3tc_default_save_license_key',
+					'w3tc_test_minify_recommendations',
+					'w3tc_ustats_access_log_test',
+					// Handlers invoked from dashboard AJAX/GET without an options-page form nonce field.
+					'w3tc_test_memcached',
+					'w3tc_test_redis',
+					'w3tc_default_hide_note',
+					'w3tc_default_config_state_master',
+					'w3tc_config_import',
+					'w3tc_config_export',
+					'w3tc_config_reset',
+					'w3tc_config_preview_enable',
+					'w3tc_config_preview_disable',
+					'w3tc_config_preview_deploy',
+					'w3tc_alwayscached_process',
+					'w3tc_alwayscached_empty',
+					'w3tc_alwayscached_regenerate',
+				)
+			)
+		);
+
 		wp_enqueue_script( 'w3tc-options' );
 		wp_enqueue_script( 'w3tc-lightbox' );
 
 		if ( $this->is_w3tc_page ) {
 			wp_localize_script(
 				'w3tc-options',
-				'w3tc_nonce',
-				array( wp_create_nonce( 'w3tc' ) )
+				'w3tc_forums_api_nonce',
+				array( wp_create_nonce( 'w3tc_forums_api' ) )
 			);
 
 			wp_localize_script(
@@ -706,8 +926,7 @@ class Generic_Plugin_Admin {
 					'cdnfsdEngine'     => $this->_config->get_string( 'cdnfsd.engine' ),
 					'cfWarning'        => wp_kses(
 						sprintf(
-							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
-							// translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
+							/* translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag, 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag. */
 							__(
 								'Please see %1$sAmazon\'s CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s.',
 								'w3-total-cache'
@@ -873,14 +1092,14 @@ class Generic_Plugin_Admin {
 	 * Contextual help list filter.
 	 */
 	public function add_help_tabs() {
-		$screen   = get_current_screen();
-		$sections = Generic_Faq::sections();
-		$n        = 0;
+		$w3tc_screen = get_current_screen();
+		$sections    = Generic_Faq::sections();
+		$n           = 0;
 
-		foreach ( $sections as $section => $data ) {
+		foreach ( $sections as $section => $w3tc_data ) {
 			$content = '<div class="w3tchelp_content" data-section="' . $section . '"></div>';
 
-			$screen->add_help_tab(
+			$w3tc_screen->add_help_tab(
 				array(
 					'id'      => 'w3tc_faq_' . $n,
 					'title'   => $section,
@@ -909,22 +1128,22 @@ class Generic_Plugin_Admin {
 	/**
 	 * Plugin action links filter
 	 *
-	 * @param array $links Links array.
+	 * @param array $w3tc_links Links array.
 	 *
 	 * @return array
 	 */
-	public function plugin_action_links( $links ) {
-		array_unshift( $links, '<a class="edit" href="admin.php?page=w3tc_general">' . esc_html__( 'Settings', 'w3-total-cache' ) . '</a>' );
-		array_unshift( $links, '<a class="edit" style="color: red" href="admin.php?page=w3tc_support">' . esc_html__( 'Premium Support', 'w3-total-cache' ) . '</a>' );
+	public function plugin_action_links( $w3tc_links ) {
+		array_unshift( $w3tc_links, '<a class="edit" href="admin.php?page=w3tc_general">' . esc_html__( 'Settings', 'w3-total-cache' ) . '</a>' );
+		array_unshift( $w3tc_links, '<a class="edit" style="color: red" href="admin.php?page=w3tc_support">' . esc_html__( 'Premium Support', 'w3-total-cache' ) . '</a>' );
 
 		if ( ! is_writable( WP_CONTENT_DIR ) || ! is_writable( Util_Rule::get_browsercache_rules_cache_path() ) ) {
 			$delete_link = '<a href="' .
-				wp_nonce_url( admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc' ) .
+				esc_url( Util_Nonce::admin_nonce_url( admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc_deactivate_plugin' ) ) .
 				'">Uninstall</a>';
-			array_unshift( $links, $delete_link );
+			array_unshift( $w3tc_links, $delete_link );
 		}
 
-		return $links;
+		return $w3tc_links;
 	}
 
 	/**
@@ -935,9 +1154,29 @@ class Generic_Plugin_Admin {
 	 * @return array
 	 */
 	public function favorite_actions( $actions ) {
-		$actions[ wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot expose the "Empty Caches" favorite action to
+		 * non-admins.
+		 *
+		 * Early-return when the current user is not an admin: there is no
+		 * reason to compute or filter a capability for an action we would
+		 * never expose to them anyway.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return $actions;
+		}
+
+		$capability = apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' );
+		if ( empty( $capability ) ) {
+			$capability = 'manage_options';
+		}
+
+		$actions[ Util_Nonce::admin_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc_flush_all' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
-			apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
+			$capability,
 		);
 
 		return $actions;
@@ -986,14 +1225,14 @@ class Generic_Plugin_Admin {
 		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;
 
-		foreach ( $changelog as $index => $line ) {
-			if ( preg_match( '~^\s*\*\s*~', $line ) ) {
+		foreach ( $changelog as $w3tc_index => $w3tc_line ) {
+			if ( preg_match( '~^\s*\*\s*~', $w3tc_line ) ) {
 				if ( ! $ul ) {
 					echo '<ul style="list-style: disc; margin-left: 20px;margin-top:0;">';
 					$ul = true;
 				}
-				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
-				echo '<li style="width: 50%; margin: 0; float: left; ' . ( 0 === $index % 2 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
+				$w3tc_line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $w3tc_line ) );
+				echo '<li style="width: 50%; margin: 0; float: left; ' . ( 0 === $w3tc_index % 2 ? 'clear: left;' : '' ) . '">' . esc_html( $w3tc_line ) . '</li>';
 			} elseif ( $ul ) {
 				echo '</ul><div style="clear: left;"></div>';
 				$ul = false;
@@ -1184,7 +1423,7 @@ class Generic_Plugin_Admin {
 		);
 
 		$errors                    = array();
-		$notes                     = array();
+		$w3tc_notes                = array();
 		$environment_error_present = false;
 
 		$error = Util_Request::get_string( 'w3tc_error' );
@@ -1192,14 +1431,16 @@ class Generic_Plugin_Admin {
 			$errors[ $error ] = $error_messages[ $error ];
 		}
 
-		$note = Util_Request::get_string( 'w3tc_note' );
-		if ( isset( $note_messages[ $note ] ) ) {
-			$notes[ $note ] = $note_messages[ $note ];
+		$w3tc_note = Util_Request::get_string( 'w3tc_note' );
+		if ( isset( $note_messages[ $w3tc_note ] ) ) {
+			$w3tc_notes[ $w3tc_note ] = $note_messages[ $w3tc_note ];
 		}
 
-		// print errors happened during last request execution,
-		// when we decided to redirect with error message instead of
-		// printing it directly (to avoid reexecution on refresh).
+		/**
+		 * Print errors happened during last request execution,
+		 * when we decided to redirect with error message instead of
+		 * printing it directly (to avoid reexecution on refresh).
+		 */
 		if ( ! is_null( $this->w3tc_message ) ) {
 			$v = $this->w3tc_message;
 			if ( isset( $v['errors'] ) && is_array( $v['errors'] ) ) {
@@ -1212,11 +1453,11 @@ class Generic_Plugin_Admin {
 				}
 			}
 			if ( isset( $v['notes'] ) && is_array( $v['notes'] ) ) {
-				foreach ( $v['notes'] as $note ) {
-					if ( isset( $note_messages[ $note ] ) ) {
-						$notes[] = $note_messages[ $note ];
+				foreach ( $v['notes'] as $w3tc_note ) {
+					if ( isset( $note_messages[ $w3tc_note ] ) ) {
+						$w3tc_notes[] = $note_messages[ $w3tc_note ];
 					} else {
-						$notes[] = $note;
+						$w3tc_notes[] = $w3tc_note;
 					}
 				}
 			}
@@ -1230,18 +1471,18 @@ class Generic_Plugin_Admin {
 			$environment->fix_in_wpadmin( $this->_config );
 
 			if ( ! empty( Util_Request::get_string( 'upgrade' ) ) ) {
-				$notes[] = __( 'Required files and directories have been automatically created', 'w3-total-cache' );
+				$w3tc_notes[] = __( 'Required files and directories have been automatically created', 'w3-total-cache' );
 			}
 		} catch ( Util_Environment_Exceptions $exs ) {
-			$r = Util_Activation::parse_environment_exceptions( $exs );
-			$n = 1;
+			$w3tc_r = Util_Activation::parse_environment_exceptions( $exs );
+			$n      = 1;
 
-			foreach ( $r['before_errors'] as $e ) {
+			foreach ( $w3tc_r['before_errors'] as $e ) {
 				$errors[ 'generic_env_' . $n ] = $e;
 				++$n;
 			}
 
-			if ( strlen( $r['required_changes'] ) > 0 ) {
+			if ( strlen( $w3tc_r['required_changes'] ) > 0 ) {
 				$changes_style = 'border: 1px solid black; ' .
 					'background: white; ' .
 					'margin: 10px 30px 10px 30px; ' .
@@ -1281,31 +1522,33 @@ class Generic_Plugin_Admin {
 						'<td>' . Util_Ui::button_link( __( 'Contact Support', 'w3-total-cache' ), Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), false, 'button' ) . '</td>' .
 					'</tr>' .
 					'</table>' .
-					'<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
+					'<div class="w3tc-required-changes" style="' . $changes_style . '">' . $w3tc_r['required_changes'] . '</div>' .
 					'<div class="w3tc-ftp-form" style="' . $ftp_style . '">' . $ftp_form . '</div>';
 
 				$environment_error_present = true;
 				$errors['generic_ftp']     = $error;
 			}
 
-			foreach ( $r['later_errors'] as $e ) {
+			foreach ( $w3tc_r['later_errors'] as $e ) {
 				$errors[ 'generic_env_' . $n ] = $e;
 				++$n;
 			}
 		}
 
-		$errors = apply_filters( 'w3tc_errors', $errors );
-		$notes  = apply_filters( 'w3tc_notes', $notes );
+		Generic_AdminActions_Default::apply_pending_nginx_restart_notice_dismiss();
+
+		$errors     = apply_filters( 'w3tc_errors', $errors );
+		$w3tc_notes = apply_filters( 'w3tc_notes', $w3tc_notes );
 
 		/**
 		 * Show messages.
 		 */
-		foreach ( $notes as $key => $note ) {
+		foreach ( $w3tc_notes as $w3tc_key => $w3tc_note ) {
 			echo wp_kses(
 				sprintf(
 					'<div class="updated w3tc_note inline" id="%1$s"><p>%2$s</p></div>',
-					esc_attr( $key ),
-					$note
+					esc_attr( $w3tc_key ),
+					$w3tc_note
 				),
 				array(
 					'div'   => array(
@@ -1329,10 +1572,10 @@ class Generic_Plugin_Admin {
 			);
 		}
 
-		foreach ( $errors as $key => $error ) {
+		foreach ( $errors as $w3tc_key => $error ) {
 				printf(
 					'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
-					esc_attr( $key ),
+					esc_attr( $w3tc_key ),
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 		}
@@ -1343,7 +1586,7 @@ class Generic_Plugin_Admin {
 	 *
 	 * Post-update admin tasks are run only once per version.
 	 *
-	 * @since 2.8.1
+	 * @since 2.8.2
 	 *
 	 * @see Util_Admin::fix_on_event()
 	 *

@@ -281,7 +281,7 @@ textarea.w3tc-error {
 #w3tc fieldset legend {
 	color: #999;
 	padding: 0 5px;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 #w3tc fieldset legend a:hover {
@@ -292,7 +292,7 @@ textarea.w3tc-error {
 	color: #000;
 	margin: 1em 0;
 	overflow: auto;
-	background: #ffffff;
+	background: #fff;
 	padding: 12px 15px;
 	border: 1px solid #ccc;
 }
@@ -395,7 +395,7 @@ textarea.w3tc-error {
 .mobile_group,
 .referrer_group,
 .cookiegroup_name {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .w3tc-alwayscached-queue-section {
@@ -524,7 +524,7 @@ textarea.w3tc-error {
 	width: auto;
 	line-height: 100%;
 	padding: 3px 3px;
-	font-weight: normal;
+	font-weight: 400;
 	text-align: left;
 }
 
@@ -535,7 +535,7 @@ textarea.w3tc-error {
 	padding-left: 38px;
 	line-height: 32px;
 	margin: 1em 0;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 #w3tc .postbox .inside {
@@ -545,6 +545,7 @@ textarea.w3tc-error {
 #w3tc .postbox .postbox-title {
 	cursor: auto;
 	border-bottom: 1px solid #ccd0d4;
+
 	/* WP 5.5 */
 }
 
@@ -625,6 +626,7 @@ textarea.w3tc-error {
 
 #w3tc .postbox-header {
 	border-bottom: 0;
+
 	/* WP 5.5 */
 }
 
@@ -643,7 +645,7 @@ textarea.w3tc-error {
 }
 
 #minify_form .html-tag {
-	font-weight: bold;
+	font-weight: 700;
 	color: #107e0e;
 	float: right;
 }
@@ -700,7 +702,7 @@ textarea.w3tc-error {
 }
 
 .w3tc-required-changes strong {
-	font-weight: bold;
+	font-weight: 700;
 	font-family: courier, sans-serif;
 }
 
@@ -796,7 +798,7 @@ td.w3tc_config_value_text {
 }
 
 .w3tc_reject_roles label {
-	font-weight: normal;
+	font-weight: 400;
 }
 
 
@@ -844,7 +846,7 @@ th.w3tc_extensions_manage_column_check {
 
 .w3tc-gopro-description {
 	display: block;
-	max-height: 0px;
+	max-height: 0;
 	transition: max-height 0.5s ease-out;
 	overflow: hidden;
 }
@@ -864,7 +866,7 @@ th.w3tc_extensions_manage_column_check {
 .button.w3tc-gopro-button:focus {
 	border-color: green;
 	box-shadow: 0 1px 0 green;
-	background: #009900;
+	background: #090;
 	color: #fff;
 }
 
@@ -930,7 +932,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro {
 	border-bottom: 3px solid transparent;
 	border-top: 3px solid #30bec3;
 	content: '';
-	left: 0px;
+	left: 0;
 	position: absolute;
 	top: 100%;
 	z-index: -1;
@@ -1003,10 +1005,10 @@ table.w3tc-pro-feature {
 	position: relative;
 }
 
-table.w3tc-pro-feature:after,
-table:not(.w3tc-pro-feature) .w3tc-gopro:after,
-.w3tc-gopro-manual-wrap .w3tc-gopro:after {
-	background-image: url("../img/transparent-comet.png");
+table.w3tc-pro-feature::after,
+table:not(.w3tc-pro-feature) .w3tc-gopro::after,
+.w3tc-gopro-manual-wrap .w3tc-gopro::after {
+	background-image: url(../img/transparent-comet.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 	background-size: 100% 100%;
@@ -1040,14 +1042,14 @@ table.w3tc-pro-feature td {
 }
 
 /* Size of comet background for pro features not in a pro table */
-table:not(.w3tc-pro-feature) .w3tc-gopro:after,
-.w3tc-gopro-manual-wrap .w3tc-gopro:after {
+table:not(.w3tc-pro-feature) .w3tc-gopro::after,
+.w3tc-gopro-manual-wrap .w3tc-gopro::after {
 	width: 280px;
 	height: 152px;
 }
 
 /* Size of comet background for pro features on Extensions page */
-#the-list .plugin-description .w3tc-gopro:after {
+#the-list .plugin-description .w3tc-gopro::after {
 	width: 196px;
 	height: 106px;
 }
@@ -1061,7 +1063,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after,
 }
 
 #w3tc_dashboard_banner .inside {
-	background-image: url("../img/transparent-comet-moon.png"), linear-gradient( to right, #fff 60%, #56bec1 100% );
+	background-image: url(../img/transparent-comet-moon.png), linear-gradient( to right, #fff 60%, #56bec1 100% );
 	background-repeat: no-repeat;
 	background-position: top right;
 	background-size: contain;
@@ -1088,6 +1090,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after,
 }
 
 @media screen and (max-width: 960px) {
+
 	#w3tc_dashboard_banner {
 		margin: 45px auto auto auto;
 	}
@@ -1109,7 +1112,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after,
 
 .w3tc-label {
 	color: #fff;
-	padding: 0px 4px;
+	padding: 0 4px;
 	border-radius: 5px;
 	display: inline-block;
 	font-size: 11px;
@@ -1160,7 +1163,7 @@ td .w3tc-control-after span {
 
 #w3tc-top-nav-bar {
 	margin: 0 -20px 15px;
-	background: #ffffff;
+	background: #fff;
 	position: sticky;
 	top: 32px;
 	z-index: 10;
@@ -1184,7 +1187,7 @@ td .w3tc-control-after span {
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link h2.logo {
 	height: 40px;
-	background: url("../img/W3TC_dashboard_logo_title.png") top left no-repeat;
+	background: url(../img/W3TC_dashboard_logo_title.png) top left no-repeat;
 	background-size: contain;
 	background-origin: content-box;
 	text-indent: -9999px;
@@ -1221,7 +1224,7 @@ td .w3tc-control-after span {
 	position: absolute;
 	background-color: #f9f9f9;
 	width: 160px;
-	box-shadow: 0px 0px 2px 0px #c3c4c7;
+	box-shadow: 0 0 2px 0 #c3c4c7;
 	z-index: 1;
 	top: 30px;
 	right: 0;
@@ -1238,7 +1241,7 @@ td .w3tc-control-after span {
 	padding: 0 10px;
 	cursor: pointer;
 	border-radius: 3px;
-	border: 1px solid #ffffff;
+	border: 1px solid #fff;
 	box-sizing: border-box;
 }
 
@@ -1264,7 +1267,6 @@ td .w3tc-control-after span {
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button {
 	border-color: darkgreen;
-	box-shadow: 0 1px 0 darkgreen;
 	background: green;
 	color: #fff;
 	box-shadow: unset;
@@ -1275,8 +1277,7 @@ td .w3tc-control-after span {
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:hover,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:focus {
 	border-color: green;
-	box-shadow: 0 1px 0 green;
-	background: #009900;
+	background: #090;
 	box-shadow: unset;
 }
 
@@ -1298,7 +1299,7 @@ td .w3tc-control-after span {
  */
 
 #w3tc-footer {
-	background: #ffffff;
+	background: #fff;
 	box-shadow: 0 -1px 0 #ccd0d4, 0 -1px 1px 1px rgba(0, 0, 0, 0.04);
 	position: absolute;
 	left: 0;
@@ -1323,10 +1324,11 @@ td .w3tc-control-after span {
 }
 
 #w3tc-footer .w3tc-footer-link .dashicons {
-	color: #000000;
+	color: #000;
 	text-decoration: none;
 	margin-right: 5px;
 }
+
 #w3tc-footer .button-buy-plugin,
 #w3tc-footer .w3tc-gopro-button {
 	margin: 10px 10px 0;
@@ -1334,7 +1336,6 @@ td .w3tc-control-after span {
 	float: left;
 	clear: both;
 	border-color: darkgreen;
-	box-shadow: 0 1px 0 darkgreen;
 	background: green;
 	color: #fff;
 	box-shadow: unset;
@@ -1357,7 +1358,7 @@ td .w3tc-control-after span {
 
 #w3tc-footer .logo-link h2.logo {
 	height: 40px;
-	background: url("../img/W3TC_dashboard_logo_title.png") top left no-repeat;
+	background: url(../img/W3TC_dashboard_logo_title.png) top left no-repeat;
 	background-size: contain;
 	background-origin: content-box;
 	text-indent: -9999px;
@@ -1370,7 +1371,7 @@ td .w3tc-control-after span {
 #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo {
 	width: 150px;
 	height: 50px;
-	background: url('../img/w3tc_bunnycdn_logo.svg') 0 8px no-repeat;
+	background: url(../img/w3tc_bunnycdn_logo.svg) 0 8px no-repeat;
 }
 
 #w3tc-bunnycdn-ad-cdn,
@@ -1404,7 +1405,7 @@ td .w3tc-control-after span {
 }
 
 #w3tc-bunnycdn-ad-general strong {
-	color: #FFFFFF;
+	color: #FFF;
 	font-weight: 700;
 	margin: 5px 10px;
 	padding: 5px 10px;
@@ -1413,7 +1414,7 @@ td .w3tc-control-after span {
 #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button {
 	margin: 5px 10px;
 	padding: 5px 10px;
-	color: #ffffff;
+	color: #fff;
 	font-weight: 600;
 	background-color: #242958;
 	border-color: #242958;
@@ -1538,7 +1539,7 @@ td .w3tc-control-after span {
 .w3tc-button-control-container .dropdown-menu {
 	padding: 0;
 	border: none;
-	box-shadow: 0px 0px 2px 0px #c3c4c7;
+	box-shadow: 0 0 2px 0 #c3c4c7;
 }
 
 .w3tc-button-control-container .dropdown-menu .dropdown-item {
@@ -1584,7 +1585,7 @@ td .w3tc-control-after span {
 }
 
 .w3tc-button-control-container .w3tc-button-save-dropdown>.btn {
-	color: #ffffff;
+	color: #fff;
 	background: #2271b1;
 	border-color: #2271b1;
 	margin-right: 0;
@@ -1596,7 +1597,7 @@ td .w3tc-control-after span {
 
 .w3tc-button-control-container .w3tc-button-save-dropdown>.btn:not(.dropdown-toggle) {
 	border-top: 1px solid #135e96;
-	border-right: 1px solid #ffffff;
+	border-right: 1px solid #fff;
 	border-bottom: 1px solid #135e96;
 	border-left: 1px solid #135e96;
 }
@@ -1605,7 +1606,7 @@ td .w3tc-control-after span {
 	border-top: 1px solid #135e96;
 	border-right: 1px solid #135e96;
 	border-bottom: 1px solid #135e96;
-	border-left: 1px solid #ffffff;
+	border-left: 1px solid #fff;
 }
 
 .w3tc-button-control-container .w3tc-button-flush-dropdown>.btn:focus,
@@ -1655,7 +1656,7 @@ td .w3tc-control-after span {
     border: 2px solid #68D500;
     border-radius: 50%;
 	background: #EEFAEC;
-    color: #000000;
+    color: #000;
     font-size: 18px;
     font-weight: 600;
     margin-right: 15px;
@@ -1703,7 +1704,7 @@ td .w3tc-control-after span {
     border: 2px solid #68D500;
     border-radius: 50%;
 	background: #EEFAEC;
-    color: #000000;
+    color: #000;
     font-size: 14px;
     font-weight: 600;
 }
@@ -1719,18 +1720,22 @@ td .w3tc-control-after span {
 }
 
 @media screen and (max-width: 1200px) {
+
 	.w3tc_form_bar>#w3tc-options-menu,
 	.w3tc_form_bar>.w3tc-button-control-container {
 		width: 100%;
 		text-align: center;
 	}
+
 	.w3tc_form_bar {
 		flex-wrap: wrap;
 	}
+
 	.w3tc_form_bar .w3tc-button-control-container .w3tc-button-flush-dropdown,
 	.w3tc_form_bar .w3tc-button-control-container .w3tc-button-save-dropdown {
 		float: unset;
 	}
+
 		#w3tc-footer .button-buy-plugin,
 	#w3tc-footer .w3tc-bunnycdn-logo {
 		float: none;
@@ -1759,58 +1764,72 @@ td .w3tc-control-after span {
 }
 
 @media screen and (max-width: 960px) {
+
 	#w3tc #w3tc_dashboard_banner {
 		margin: 45px auto auto auto;
 	}
+
 	#w3tc #w3tc_dashboard_banner .inside {
 		background: none;
 		padding: 12px;
 	}
+
 	#w3tc #w3tc_dashboard_banner .inside>p:first-of-type {
 		padding-top: initial;
 	}
+
 	#w3tc-footer {
 		width: calc(100% - 36px);
 		margin-left: 36px;
 		padding: 0 15px;
 	}
+
 	#w3tc-footer #w3tc-footer-container {
 		flex-wrap: wrap;
 	}
+
 	#w3tc-footer .w3tc-footer-column-1,
 	#w3tc-footer .w3tc-footer-column-2 {
 		width: 100%;
 		padding: 0 10px;
 		text-align: center;
 	}
+
 	#w3tc-footer .logo-link h2.logo {
 		background-position: center;
 	}
 }
 
 @media ( max-width: 782px) {
+
 	#wpcontent {
 		padding-right: 10px;
 	}
+
 	#screen-meta-links {
 		top: 43px;
 	}
+
 	#w3tc-top-nav-bar {
 		top: 46px;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link h2.logo {
 		height: 34px;
-		background: url("../img/w3tc_w3tc-logo.png") top left no-repeat;
+		background: url(../img/w3tc_w3tc-logo.png) top left no-repeat;
 		background-size: auto;
 		background-origin: content-box;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link {
 		width: 10%;
 		min-width: 51px;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links {
 		width: 90%;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a,
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>input,
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown>a {
@@ -1819,23 +1838,29 @@ td .w3tc-control-after span {
 		font-size: 14px;
 		vertical-align: middle;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>input,
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a.w3tc-gopro-button {
 		margin-top: 3px;
 	}
+
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown-content {
 		top: 40px;
 	}
+
 	#w3tc-footer {
 		margin-left: 0;
 		width: 100%;
 	}
-	table.w3tc-pro-feature:after {
+
+	table.w3tc-pro-feature::after {
 		background-image: none;
 	}
+
 	table.w3tc-pro-feature td {
 		background-image: none;
 	}
+
 	table.w3tc-pro-feature td {
 		padding: 12px;
 	}
@@ -1847,14 +1872,17 @@ td .w3tc-control-after span {
 		background: #efefef;
 		margin: 5px 0;
 	}
-	table:not(.w3tc-pro-feature) .w3tc-gopro:after,
-	.w3tc-gopro-manual-wrap .w3tc-gopro:after {
+
+	table:not(.w3tc-pro-feature) .w3tc-gopro::after,
+	.w3tc-gopro-manual-wrap .w3tc-gopro::after {
 		background: none;
 	}
+
 	.w3tc-button-control-container .dropdown-menu .dropdown-item {
 		padding-left: 10px;
 		padding-right: 10px;
 	}
+
 	#memcached_test_status,
 	#redis_test_status {
 		display: inline-block;
@@ -1883,8 +1911,9 @@ td .w3tc-control-after span {
 }
 
 @media ( max-width: 600px) {
+
 	#w3tc-top-nav-bar {
-		top: 0px;
+		top: 0;
 	}
 
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a,

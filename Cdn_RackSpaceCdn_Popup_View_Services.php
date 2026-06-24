@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -20,16 +21,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-access-token', 'access_token', $details['access_token'] );
 	Util_Ui::hidden( 'w3tc-rackspace-access-region-descriptor', 'access_region_descriptor', $details['access_region_descriptor_serialized'] );
 	Util_Ui::hidden( 'w3tc-rackspace-region', 'region', $details['region'] );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
@@ -41,12 +32,12 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th>Service:</td>
 				<td>
-					<?php foreach ( $details['services'] as $service ) : ?>
+					<?php foreach ( $details['services'] as $w3tc_service ) : ?>
 						<label>
 							<input name="service" type="radio"
 								class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $service['id'] ); ?>" />
-							<?php echo esc_html( $service['name'] ); ?>
+								value="<?php echo esc_attr( $w3tc_service['id'] ); ?>" />
+							<?php echo esc_html( $w3tc_service['name'] ); ?>
 						</label><br />
 					<?php endforeach; ?>
 

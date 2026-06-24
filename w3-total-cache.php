@@ -3,9 +3,9 @@
  * Plugin Name:       W3 Total Cache
  * Plugin URI:        https://www.boldgrid.com/totalcache/
  * Description:       The highest rated and most complete WordPress performance plugin. Dramatically improve the speed and user experience of your site. Add browser, page, object and database caching as well as minify and content delivery network (CDN) to WordPress.
- * Version:           2.9.4
- * Requires at least: 5.3
- * Requires PHP:      7.2.5
+ * Version:           2.10.0
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
  * Author:            BoldGrid
  * Author URI:        https://www.boldgrid.com/
  * License:           GPL v2 or later
@@ -52,7 +52,7 @@ if ( defined( 'WP_INSTALLING' ) && WP_INSTALLING ) {
 	return;
 }
 
-if ( version_compare( PHP_VERSION, '7.2.5', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 	require_once __DIR__ . '/w3-total-cache-old-php.php';
 	register_activation_hook( __FILE__, 'w3tc_old_php_activate' );
 	return;

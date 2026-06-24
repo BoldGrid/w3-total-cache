@@ -23,29 +23,29 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the notes array to include WPML-related information.
 	 *
-	 * @param array $notes {
+	 * @param array $w3tc_notes {
 	 *     Existing notes.
 	 *
-	 *     @type string $key Note identifier.
-	 *     @type string $message Note message.
+	 *     @type string $w3tc_key Note identifier.
+	 *     @type string $w3tc_message Note message.
 	 * }
 	 *
 	 * @return array Modified notes with WPML-related information added.
 	 */
-	public function w3tc_notes( $notes ) {
-		$config   = Dispatcher::config();
-		$settings = get_option( 'icl_sitepress_settings' );
+	public function w3tc_notes( $w3tc_notes ) {
+		$w3tc_config   = Dispatcher::config();
+		$w3tc_settings = get_option( 'icl_sitepress_settings' );
 
 		if (
-			$config->get_boolean( 'pgcache.enabled' ) &&
-			'file_generic' === $config->get_string( 'pgcache.engine' ) &&
-			isset( $settings['language_negotiation_type'] ) &&
-			3 === (int) $settings['language_negotiation_type']
+			$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
+			'file_generic' === $w3tc_config->get_string( 'pgcache.engine' ) &&
+			isset( $w3tc_settings['language_negotiation_type'] ) &&
+			3 === (int) $w3tc_settings['language_negotiation_type']
 		) {
 			$state = Dispatcher::config_state();
 
 			if ( ! $state->get_boolean( 'wpml.hide_note_language_negotiation_type' ) ) {
-				$notes[] = sprintf(
+				$w3tc_notes[] = sprintf(
 					// Translators: 1 button link.
 					__(
 						'W3 Total Cache\'s Page caching cannot work effectively when WPML Language URL format is "Language name added as a parameter" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %1$s',
@@ -62,7 +62,7 @@ class Extension_Wpml_Plugin_Admin {
 			}
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Extension_Wpml_Plugin_Admin {
 	 *     @type array $wpml {
 	 *         Details for the WPML extension.
 	 *
-	 *         @type string   $name             Name of the extension.
+	 *         @type string   $w3tc_name             Name of the extension.
 	 *         @type string   $author           Author of the extension.
 	 *         @type string   $description      Description of the extension.
 	 *         @type string   $author_uri       URL to the author's website.
@@ -85,19 +85,19 @@ class Extension_Wpml_Plugin_Admin {
 	 *         @type array    $pro_description  Detailed description for the pro feature.
 	 *         @type bool     $settings_exists  Whether settings exist for the extension.
 	 *         @type string   $version          Version of the extension.
-	 *         @type bool     $enabled          Whether the extension is enabled.
+	 *         @type bool     $w3tc_enabled          Whether the extension is enabled.
 	 *         @type string   $disabled_message Message displayed when the extension is disabled.
 	 *         @type string   $requirements     List of requirements for enabling the extension.
 	 *         @type string   $path             Path to the extension file.
 	 *     }
 	 * }
-	 * @param object $config Configuration object.
+	 * @param object $w3tc_config Configuration object.
 	 *
 	 * @return array Modified extensions with WPML details.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$base_plugin_active = self::base_plugin_active();
-		$enabled            = $base_plugin_active;
+		$w3tc_enabled       = $base_plugin_active;
 		$disabled_message   = '';
 
 		$requirements = array();
@@ -105,8 +105,8 @@ class Extension_Wpml_Plugin_Admin {
 			$requirements[] = 'Install and activate WPML or TranslatePress.';
 		}
 
-		if ( empty( $requirements ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
-			$enabled = false;
+		if ( empty( $requirements ) && ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+			$w3tc_enabled = false;
 		}
 
 		$extensions['wpml'] = array(
@@ -123,7 +123,7 @@ class Extension_Wpml_Plugin_Admin {
 			),
 			'settings_exists'  => false,
 			'version'          => '0.1',
-			'enabled'          => $enabled,
+			'enabled'          => $w3tc_enabled,
 			'disabled_message' => $disabled_message,
 			'requirements'     => implode( ', ', $requirements ),
 			'path'             => 'w3-total-cache/Extension_Wpml_Plugin.php',
@@ -144,7 +144,7 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the hooks to include the WPML notes filter.
 	 *
-	 * @param array $hooks {
+	 * @param array $w3tc_hooks {
 	 *     Existing hooks.
 	 *
 	 *     @type array $filters {
@@ -156,17 +156,17 @@ class Extension_Wpml_Plugin_Admin {
 	 *
 	 * @return array Modified hooks with WPML notes filter.
 	 */
-	public static function w3tc_extensions_hooks( $hooks ) {
+	public static function w3tc_extensions_hooks( $w3tc_hooks ) {
 		if ( ! self::show_notice() ) {
-			return $hooks;
+			return $w3tc_hooks;
 		}
 
-		if ( ! isset( $hooks['filters']['w3tc_notes'] ) ) {
-			$hooks['filters']['w3tc_notes'] = array();
+		if ( ! isset( $w3tc_hooks['filters']['w3tc_notes'] ) ) {
+			$w3tc_hooks['filters']['w3tc_notes'] = array();
 		}
 
-		$hooks['filters']['w3tc_notes'][] = 'w3tc_notes_wpml';
-		return $hooks;
+		$w3tc_hooks['filters']['w3tc_notes'][] = 'w3tc_notes_wpml';
+		return $w3tc_hooks;
 	}
 
 	/**
@@ -175,8 +175,8 @@ class Extension_Wpml_Plugin_Admin {
 	 * @return bool True if the notice should be shown, false otherwise.
 	 */
 	private static function show_notice() {
-		$config = Dispatcher::config();
-		if ( $config->is_extension_active( 'wpml' ) ) {
+		$w3tc_config = Dispatcher::config();
+		if ( $w3tc_config->is_extension_active( 'wpml' ) ) {
 			return false;
 		}
 
@@ -195,7 +195,7 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the notes array to include WPML activation suggestion.
 	 *
-	 * @param array $notes {
+	 * @param array $w3tc_notes {
 	 *     Existing notes.
 	 *
 	 *     @type string $wpml Message suggesting WPML activation.
@@ -203,15 +203,15 @@ class Extension_Wpml_Plugin_Admin {
 	 *
 	 * @return array Modified notes with WPML activation suggestion.
 	 */
-	public static function w3tc_notes_wpml( $notes ) {
+	public static function w3tc_notes_wpml( $w3tc_notes ) {
 		if ( ! self::show_notice() ) {
-			return $notes;
+			return $w3tc_notes;
 		}
 
 		$extension_id = 'wpml';
 
-		$config = Dispatcher::config();
-		if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+		$w3tc_config = Dispatcher::config();
+		if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 			$activate_text = 'Available after <a href="#" class="button-buy-plugin" data-src="wpml_requirements3">upgrade</a>. ';
 		} else {
 			$activate_text = sprintf(
@@ -220,7 +220,7 @@ class Extension_Wpml_Plugin_Admin {
 			);
 		}
 
-		$notes[ $extension_id ] = sprintf(
+		$w3tc_notes[ $extension_id ] = sprintf(
 			// Translators: 1 opening HTML link to extensions page, 2 closing HTML link, 3 activate text, 4 button link.
 			__(
 				'Activating the %1$sWPML%2$s extension for W3 Total Cache may be helpful for your site. %3$s%4$s',
@@ -241,6 +241,6 @@ class Extension_Wpml_Plugin_Admin {
 			)
 		);
 
-		return $notes;
+		return $w3tc_notes;
 	}
 }

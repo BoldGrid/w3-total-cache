@@ -7,9 +7,10 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 // Define repeated regex to simplify changes.
-define( 'MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9-_]+)\\.(css|js)([?].*)?' );
-define( 'MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.(.+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
+define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9-_]+)\\.(css|js)([?].*)?' );
+define( 'W3TC_MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.(.+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
 
 /**
  * Class Minify_MinifiedFileRequestHandler
@@ -38,6 +39,42 @@ class Minify_MinifiedFileRequestHandler {
 	private $_error_occurred = false;
 
 	/**
+	 * Per-token site-transient key prefix used to gate the unauthenticated
+	 * `rewrite_test.css` and `XXX.css` probes.
+	 *
+	 * Each issued probe token becomes its own transient (`<prefix><token>`)
+	 * so concurrent rewrite tests — multiple admins, or one admin running
+	 * back-to-back tests — cannot clobber each other's tokens. Only
+	 * requests presenting a matching token via `X-W3TC-Minify-Probe` may
+	 * trigger the probe responses.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_PREFIX = 'w3tc_minify_probe_';
+
+	/**
+	 * Lifetime (seconds) of an issued probe token. Probes are server-to-self
+	 * within a single admin request, so a short window suffices.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var int
+	 */
+	const PROBE_TOKEN_TTL = 60;
+
+	/**
+	 * HTTP header carrying the probe token from the issuing admin request to
+	 * the (unauthenticated) `init`-hook minify handler.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_HEADER = 'X-W3TC-Minify-Probe';
+
+	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
 	 *
 	 * Initializes the configuration object.
@@ -49,29 +86,139 @@ class Minify_MinifiedFileRequestHandler {
 	}
 
 	/**
+	 * Issues a short-lived single-use token authorising the legitimate
+	 * minify rewrite/cache-length probes.
+	 *
+	 * The token is stored as a site transient with a small TTL and is read
+	 * back (and consumed) in {@see consume_probe_token()} when the probe
+	 * request lands. This closes that path: anonymous callers can no longer
+	 * trigger the `rewrite_test.css` / `XXX.css` side channels, while the
+	 * plugin's own admin-side rewrite verification continues to work.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string A 32-character hex token.
+	 */
+	public static function issue_probe_token() {
+		// 16 random bytes -> 32 hex chars; cryptographically strong.
+		try {
+			$token = bin2hex( random_bytes( 16 ) );
+		} catch ( \Exception $e ) {
+			/**
+			 * `random_bytes` only throws if the OS RNG is unavailable. Fall
+			 * back to `wp_generate_password` — but normalise the output so
+			 * it still matches the strict `/^[a-f0-9]{32}$/` consume regex.
+			 * Without `bin2hex`-shaped output the consume side would
+			 * silently reject every probe on hosts without OS RNG.
+			 */
+			$raw   = \wp_generate_password( 16, false, false );
+			$token = strtolower( bin2hex( substr( $raw, 0, 16 ) ) );
+		}
+
+		/**
+		 * Key the transient by token value so each issued token gets its own
+		 * storage slot. Concurrent probes therefore do not overwrite each
+		 * other; each token can be independently consumed.
+		 */
+		\set_site_transient( self::PROBE_TOKEN_PREFIX . $token, '1', self::PROBE_TOKEN_TTL );
+
+		return $token;
+	}
+
+	/**
+	 * Validates the inbound probe token and consumes it on success so it
+	 * cannot be replayed.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool True if the request presents a matching probe token.
+	 */
+	private function consume_probe_token() {
+		$header_key = 'HTTP_' . strtoupper( str_replace( '-', '_', self::PROBE_TOKEN_HEADER ) );
+		if ( empty( $_SERVER[ $header_key ] ) ) {
+			return false;
+		}
+
+		$presented = trim( (string) \wp_unslash( $_SERVER[ $header_key ] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- value normalized by strict /^[a-f0-9]{32}$/ regex on the next non-comment line.
+		// Defensive: strict format match for a 32-char hex token.
+		if ( ! preg_match( '/^[a-f0-9]{32}$/', $presented ) ) {
+			return false;
+		}
+
+		/**
+		 * Token IS the transient key. Lookup is the validation: a missing
+		 * transient (false) means the token is invalid, expired, or already
+		 * consumed. The 32-char hex format check above bounds the lookup
+		 * keyspace; the unguessable random token bounds the probability that
+		 * a guess collides with a live issued token.
+		 */
+		$w3tc_key = self::PROBE_TOKEN_PREFIX . $presented;
+		$valid    = \get_site_transient( $w3tc_key );
+		if ( false === $valid ) {
+			return false;
+		}
+
+		// One-shot: clear so this token cannot be replayed.
+		\delete_site_transient( $w3tc_key );
+
+		return true;
+	}
+
+	/**
+	 * Sends a 404-style response and exits. Used to suppress the
+	 * unauthenticated probe side-channels.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	private function reject_probe() {
+		if ( ! headers_sent() ) {
+			\status_header( 404 );
+			\nocache_headers();
+		}
+		exit();
+	}
+
+	/**
 	 * Processes the given file request and serves minified content.
 	 *
-	 * @param string|null $file  The requested file for minification. Defaults to null.
+	 * @param string|null $w3tc_file  The requested file for minification. Defaults to null.
 	 * @param bool        $quiet Whether to suppress errors and output debugging information.
 	 *
 	 * @return array|void An array of minification results, or void in certain cases.
 	 *
 	 * @throws \Exception If a recoverable error occurs during the minification process.
 	 */
-	public function process( $file = null, $quiet = false ) {
+	public function process( $w3tc_file = null, $quiet = false ) {
 		// Check for rewrite test request.
 		$rewrite_marker = 'rewrite_test.css';
-		if ( substr( $file, strlen( $file ) - strlen( $rewrite_marker ) ) === $rewrite_marker ) {
+		if ( substr( $w3tc_file, strlen( $w3tc_file ) - strlen( $rewrite_marker ) ) === $rewrite_marker ) {
+			/**
+			 * Gate the probe behind a single-use token so anonymous
+			 * callers cannot use it to fingerprint the handler.
+			 */
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			echo 'Minify OK';
 			exit();
 		}
 
 		$filelength_test_marker = 'XXX.css';
-		if ( substr( $file, strlen( $file ) - strlen( $filelength_test_marker ) ) === $filelength_test_marker ) {
+		if ( substr( $w3tc_file, strlen( $w3tc_file ) - strlen( $filelength_test_marker ) ) === $filelength_test_marker ) {
+			/**
+			 * This probe writes request-supplied content to the
+			 * minify cache directory. Require an issued probe token so only
+			 * the plugin's own admin-side environment check can drive it.
+			 */
+			if ( ! $this->consume_probe_token() ) {
+				$this->reject_probe();
+			}
 			$cache = $this->_get_cache();
 			header( 'Content-type: text/css' );
 
-			if ( ! $cache->store( basename( $file ), array( 'content' => 'content ok' ) ) ) {
+			if ( ! $cache->store( basename( $w3tc_file ), array( 'content' => 'content ok' ) ) ) {
 				echo 'error storing';
 			} else {
 				if (
@@ -79,7 +226,7 @@ class Minify_MinifiedFileRequestHandler {
 					$this->_config->get_boolean( 'browsercache.enabled' ) &&
 					$this->_config->get_boolean( 'browsercache.cssjs.brotli' )
 				) {
-					if ( ! $cache->store( basename( $file ) . '_br', array( 'content' => brotli_compress( 'content ok' ) ) ) ) {
+					if ( ! $cache->store( basename( $w3tc_file ) . '_br', array( 'content' => brotli_compress( 'content ok' ) ) ) ) {
 						echo 'error storing';
 						exit();
 					}
@@ -90,13 +237,13 @@ class Minify_MinifiedFileRequestHandler {
 					$this->_config->get_boolean( 'browsercache.enabled' ) &&
 					$this->_config->get_boolean( 'browsercache.cssjs.compression' )
 				) {
-					if ( ! $cache->store( basename( $file ) . '_gzip', array( 'content' => gzencode( 'content ok' ) ) ) ) {
+					if ( ! $cache->store( basename( $w3tc_file ) . '_gzip', array( 'content' => gzencode( 'content ok' ) ) ) ) {
 						echo 'error storing';
 						exit();
 					}
 				}
 
-				$v = $cache->fetch( basename( $file ) );
+				$v = $cache->fetch( basename( $w3tc_file ) );
 				if ( 'content ok' === $v['content'] ) {
 					echo 'content ok';
 				} else {
@@ -108,8 +255,8 @@ class Minify_MinifiedFileRequestHandler {
 		}
 
 		// remove querystring.
-		if ( preg_match( '~(.+)(\?x[0-9]{5})$~', $file, $m ) ) {
-			$file = $m[1];
+		if ( preg_match( '~(.+)(\?x[0-9]{5})$~', $w3tc_file, $m ) ) {
+			$w3tc_file = $m[1];
 		}
 
 		// remove blog_id.
@@ -120,12 +267,12 @@ class Minify_MinifiedFileRequestHandler {
 			}
 		}
 
-		if ( preg_match( '~^(' . $levels . '[0-9]+)\/(.+)$~', $file, $matches ) ) {
-			$file = $matches[2];
+		if ( preg_match( '~^(' . $levels . '[0-9]+)\/(.+)$~', $w3tc_file, $matches ) ) {
+			$w3tc_file = $matches[2];
 		}
 
 		// normalize according to browsercache.
-		$file = Dispatcher::requested_minify_filename( $this->_config, $file );
+		$w3tc_file = Dispatcher::requested_minify_filename( $this->_config, $w3tc_file );
 
 		// parse file.
 		$hash     = '';
@@ -133,12 +280,12 @@ class Minify_MinifiedFileRequestHandler {
 		$location = '';
 		$type     = '';
 
-		if ( preg_match( '~^' . MINIFY_AUTO_FILENAME_REGEX . '$~', $file, $matches ) ) {
+		if ( preg_match( '~^' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_file, $matches ) ) {
 			list( , $hash, $type ) = $matches;
-		} elseif ( preg_match( '~^' . MINIFY_MANUAL_FILENAME_REGEX . '$~', $file, $matches ) ) {
+		} elseif ( preg_match( '~^' . W3TC_MINIFY_MANUAL_FILENAME_REGEX . '$~', $w3tc_file, $matches ) ) {
 			list( , $theme, $template, $location, , , $type ) = $matches;
 		} else {
-			return $this->finish_with_error( sprintf( 'Bad file param format: "%s"', $file ), $quiet, false );
+			return $this->finish_with_error( sprintf( 'Bad file param format: "%s"', $w3tc_file ), $quiet, false );
 		}
 
 		// Set cache engine.
@@ -146,8 +293,8 @@ class Minify_MinifiedFileRequestHandler {
 		\W3TCL\Minify\Minify::setCache( $cache );
 
 		// Set cache ID.
-		$cache_id = $this->get_cache_id( $file );
-		\W3TCL\Minify\Minify::setCacheId( $file );
+		$cache_id = $this->get_cache_id( $w3tc_file );
+		\W3TCL\Minify\Minify::setCacheId( $w3tc_file );
 
 		// Set logger.
 		\W3TCL\Minify\Minify_Logger::setLogger(
@@ -192,8 +339,22 @@ class Minify_MinifiedFileRequestHandler {
 			$_GET['f_array'] = $this->minify_filename_to_filenames_for_minification( $hash, $type );
 			$_GET['ext']     = $type;
 		} else {
-			$_GET['g']                         = $location;
-			$serve_options['minApp']['groups'] = $this->get_groups( $theme, $template, $type );
+			/**
+			 * Manual mode (empty hash): the file list is derived server-side
+			 * from the configured minify groups and served through the `g`
+			 * group path. `f_array` is an auto-mode-only transport that is
+			 * populated from the hash lookup above; a manual request must never
+			 * carry one. With a manual-format filename the hash is empty, so
+			 * without this an attacker-supplied `f_array[]=wp-config.php` would
+			 * survive untouched into MinApp::setupSources() and be served as an
+			 * arbitrary docroot file read (CVE-2026-9282). Drop any caller-
+			 * supplied `f_array` and force groups-only resolution so the file
+			 * read loop is never reachable in manual mode.
+			 */
+			unset( $_GET['f_array'] );
+			$_GET['g']                             = $location;
+			$serve_options['minApp']['groups']     = $this->get_groups( $theme, $template, $type );
+			$serve_options['minApp']['groupsOnly'] = true;
 		}
 
 		// Set minifier.
@@ -207,13 +368,13 @@ class Minify_MinifiedFileRequestHandler {
 				case ( 'include' === $location && $this->_config->get_boolean( 'minify.js.combine.header' ) ):
 				case ( 'include-body' === $location && $this->_config->get_boolean( 'minify.js.combine.body' ) ):
 				case ( 'include-footer' === $location && $this->_config->get_boolean( 'minify.js.combine.footer' ) ):
-					$engine = 'combinejs';
+					$w3tc_engine = 'combinejs';
 					break;
 
 				default:
-					$engine = $this->_config->get_string( 'minify.js.engine' );
-					if ( ! $w3_minifier->exists( $engine ) || ! $w3_minifier->available( $engine ) ) {
-						$engine = 'js';
+					$w3tc_engine = $this->_config->get_string( 'minify.js.engine' );
+					if ( ! $w3_minifier->exists( $w3tc_engine ) || ! $w3_minifier->available( $w3tc_engine ) ) {
+						$w3tc_engine = 'js';
 					}
 
 					break;
@@ -222,20 +383,20 @@ class Minify_MinifiedFileRequestHandler {
 			$minifier_type = 'text/css';
 
 			if ( ( $hash || 'include' === $location ) && 'combine' === $this->_config->get_string( 'minify.css.method' ) ) {
-				$engine = 'combinecss';
+				$w3tc_engine = 'combinecss';
 			} else {
-				$engine = $this->_config->get_string( 'minify.css.engine' );
-				if ( ! $w3_minifier->exists( $engine ) || ! $w3_minifier->available( $engine ) ) {
-					$engine = 'css';
+				$w3tc_engine = $this->_config->get_string( 'minify.css.engine' );
+				if ( ! $w3_minifier->exists( $w3tc_engine ) || ! $w3_minifier->available( $w3tc_engine ) ) {
+					$w3tc_engine = 'css';
 				}
 			}
 		}
 
 		// Initialize minifier.
-		$w3_minifier->init( $engine );
+		$w3_minifier->init( $w3tc_engine );
 
-		$serve_options['minifiers'][ $minifier_type ]       = $w3_minifier->get_minifier( $engine );
-		$serve_options['minifierOptions'][ $minifier_type ] = $w3_minifier->get_options( $engine );
+		$serve_options['minifiers'][ $minifier_type ]       = $w3_minifier->get_minifier( $w3tc_engine );
+		$serve_options['minifierOptions'][ $minifier_type ] = $w3_minifier->get_options( $w3tc_engine );
 
 		// Send X-Powered-By header.
 		if ( ! $quiet && $browsercache && $this->_config->get_boolean( 'browsercache.cssjs.w3tc' ) ) {
@@ -263,7 +424,7 @@ class Minify_MinifiedFileRequestHandler {
 		$state = Dispatcher::config_state_master();
 		if ( ! $this->_error_occurred && $state->get_boolean( 'minify.show_note_minify_error' ) ) {
 			$error_file = $state->get_string( 'minify.error.file' );
-			if ( $error_file === $file ) {
+			if ( $error_file === $w3tc_file ) {
 				$state->set( 'minify.show_note_minify_error', false );
 				$state->save();
 			}
@@ -345,16 +506,16 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Retrieves custom data associated with a specific URL.
 	 *
-	 * @param string $url The URL for which custom data is being retrieved.
+	 * @param string $w3tc_url The URL for which custom data is being retrieved.
 	 *
 	 * @return mixed|null Custom data associated with the URL, or null if none exists.
 	 */
-	public function get_url_custom_data( $url ) {
-		if ( preg_match( '~/' . MINIFY_AUTO_FILENAME_REGEX . '$~', $url, $matches ) ) {
+	public function get_url_custom_data( $w3tc_url ) {
+		if ( preg_match( '~/' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_url, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
-			$key = $this->get_custom_data_key( $hash, $type );
-			return $this->_cache_get( $key );
+			$w3tc_key = $this->get_custom_data_key( $hash, $type );
+			return $this->_cache_get( $w3tc_key );
 		}
 
 		return null;
@@ -363,17 +524,17 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Associates custom data with a specified file.
 	 *
-	 * @param string $file The file to associate the custom data with.
-	 * @param mixed  $data The custom data to store.
+	 * @param string $w3tc_file The file to associate the custom data with.
+	 * @param mixed  $w3tc_data The custom data to store.
 	 *
 	 * @return void
 	 */
-	public function set_file_custom_data( $file, $data ) {
-		if ( preg_match( '~' . MINIFY_AUTO_FILENAME_REGEX . '$~', $file, $matches ) ) {
+	public function set_file_custom_data( $w3tc_file, $w3tc_data ) {
+		if ( preg_match( '~' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_file, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
-			$key = $this->get_custom_data_key( $hash, $type );
-			$this->_cache_set( $key, $data );
+			$w3tc_key = $this->get_custom_data_key( $hash, $type );
+			$this->_cache_set( $w3tc_key, $w3tc_data );
 		}
 	}
 
@@ -387,7 +548,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return array An array of groups for the specified parameters.
 	 */
 	public function get_groups( $theme, $template, $type ) {
-		$result = array();
+		$w3tc_result = array();
 
 		switch ( $type ) {
 			case 'css':
@@ -399,7 +560,7 @@ class Minify_MinifiedFileRequestHandler {
 				break;
 
 			default:
-				return $result;
+				return $w3tc_result;
 		}
 
 		if ( isset( $groups[ $theme ]['default'] ) ) {
@@ -412,29 +573,42 @@ class Minify_MinifiedFileRequestHandler {
 			$locations = array_merge_recursive( $locations, (array) $groups[ $theme ][ $template ] );
 		}
 
-		foreach ( $locations as $location => $config ) {
-			if ( ! empty( $config['files'] ) ) {
-				foreach ( (array) $config['files'] as $url ) {
-					if ( ! Util_Environment::is_url( $url ) ) {
-						$url = Util_Environment::home_domain_root_url() . '/' . ltrim( $url, '/' );
+		foreach ( $locations as $location => $w3tc_config ) {
+			if ( ! empty( $w3tc_config['files'] ) ) {
+				foreach ( (array) $w3tc_config['files'] as $w3tc_url ) {
+					if ( Util_Environment::is_url( $w3tc_url ) ) {
+						$w3tc_file = Util_Environment::url_to_docroot_filename( $w3tc_url );
+					} else {
+						/**
+						 * A non-URL group entry is already a document-root-relative
+						 * local path stored in the config, so resolve it directly.
+						 *
+						 * Round-tripping it through home_domain_root_url() and
+						 * url_to_docroot_filename() breaks on subdirectory-multisite
+						 * subsites: get_home_url() carries the "/<blog>" path, so the
+						 * shared "/wp-content/..." URL fails the home-URL prefix check
+						 * and the local file is misclassified as external. It then gets
+						 * routed to _precache_file(), which Util_Http::download() now
+						 * refuses for non-public hosts (internal/staging/private-IP
+						 * deployments), leaving the group with no resolvable source.
+						 */
+						$w3tc_file = ltrim( $w3tc_url, '/' );
 					}
 
-					$file = Util_Environment::url_to_docroot_filename( $url );
-
-					if ( is_null( $file ) ) {
+					if ( is_null( $w3tc_file ) ) {
 						// it's external url.
-						$precached_file = $this->_precache_file( $url, $type );
+						$precached_file = $this->_precache_file( $w3tc_url, $type );
 
 						if ( $precached_file ) {
-							$result[ $location ][ $url ] = $precached_file;
+							$w3tc_result[ $location ][ $w3tc_url ] = $precached_file;
 						} else {
-							Minify_Core::debug_error( sprintf( 'Unable to cache remote url: "%s"', $url ) );
+							Minify_Core::debug_error( sprintf( 'Unable to cache remote url: "%s"', $w3tc_url ) );
 						}
 					} else {
-						$path = Util_Environment::document_root() . '/' . $file;
+						$path = Util_Environment::document_root() . '/' . $w3tc_file;
 
 						if ( file_exists( $path ) ) {
-							$result[ $location ][ $file ] = '//' . $file;
+							$w3tc_result[ $location ][ $w3tc_file ] = '//' . $w3tc_file;
 						} else {
 							Minify_Core::debug_error( sprintf( 'File "%s" doesn\'t exist', $path ) );
 						}
@@ -443,18 +617,18 @@ class Minify_MinifiedFileRequestHandler {
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
 	 * Retrieves the cache ID for the specified file.
 	 *
-	 * @param string $file The file for which the cache ID is retrieved.
+	 * @param string $w3tc_file The file for which the cache ID is retrieved.
 	 *
 	 * @return string The cache ID for the file.
 	 */
-	public function get_cache_id( $file ) {
-		return $file;
+	public function get_cache_id( $w3tc_file ) {
+		return $w3tc_file;
 	}
 
 	/**
@@ -476,11 +650,11 @@ class Minify_MinifiedFileRequestHandler {
 
 			$document_root = Util_Environment::document_root();
 
-			foreach ( $files as $file ) {
-				if ( is_a( $file, '\W3TCL\Minify\Minify_Source' ) ) {
-					$path = $file->filepath;
+			foreach ( $files as $w3tc_file ) {
+				if ( is_a( $w3tc_file, '\W3TCL\Minify\Minify_Source' ) ) {
+					$path = $w3tc_file->filepath;
 				} else {
-					$path = rtrim( $document_root, '/' ) . '/' . ltrim( $file, '/' );
+					$path = rtrim( $document_root, '/' ) . '/' . ltrim( $w3tc_file, '/' );
 				}
 
 				$sources[] = $path;
@@ -515,8 +689,8 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return string|null The group ID or null if not found.
 	 */
 	public function get_id_group( $theme, $template, $location, $type ) {
-		$key = $this->get_id_key_group( $theme, $template, $location, $type );
-		$id  = $this->_cache_get( $key );
+		$w3tc_key = $this->get_id_key_group( $theme, $template, $location, $type );
+		$id       = $this->_cache_get( $w3tc_key );
 
 		if ( false === $id ) {
 			$sources = $this->get_sources_group( $theme, $template, $location, $type );
@@ -525,7 +699,7 @@ class Minify_MinifiedFileRequestHandler {
 				$id = $this->_generate_id( $sources, $type );
 
 				if ( $id ) {
-					$this->_cache_set( $key, $id );
+					$this->_cache_set( $w3tc_key, $id );
 				}
 			}
 		}
@@ -563,27 +737,27 @@ class Minify_MinifiedFileRequestHandler {
 			$files = array();
 		}
 
-		$result = array();
+		$w3tc_result = array();
 		if ( is_array( $files ) && count( $files ) > 0 ) {
-			foreach ( $files as $file ) {
-				$docroot_filename = Util_Environment::url_to_docroot_filename( $file );
+			foreach ( $files as $w3tc_file ) {
+				$docroot_filename = Util_Environment::url_to_docroot_filename( $w3tc_file );
 
-				if ( Util_Environment::is_url( $file ) && is_null( $docroot_filename ) ) {
+				if ( Util_Environment::is_url( $w3tc_file ) && is_null( $docroot_filename ) ) {
 					// it's external url.
-					$precached_file = $this->_precache_file( $file, $type );
+					$precached_file = $this->_precache_file( $w3tc_file, $type );
 
 					if ( $precached_file ) {
-						$result[] = $precached_file;
+						$w3tc_result[] = $precached_file;
 					} else {
-						Minify_Core::debug_error( sprintf( 'Unable to cache remote file: "%s"', $file ) );
+						Minify_Core::debug_error( sprintf( 'Unable to cache remote file: "%s"', $w3tc_file ) );
 					}
 				} else {
 					$path = Util_Environment::docroot_to_full_filename( $docroot_filename );
 
 					if ( @file_exists( $path ) ) {
-						$result[] = $file;
+						$w3tc_result[] = $w3tc_file;
 					} else {
-						Minify_Core::debug_error( sprintf( 'File "%s" doesn\'t exist', $file ) );
+						Minify_Core::debug_error( sprintf( 'File "%s" doesn\'t exist', $w3tc_file ) );
 					}
 				}
 			}
@@ -595,7 +769,7 @@ class Minify_MinifiedFileRequestHandler {
 			Minify_Core::log( implode( "\n", $files ) );
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -616,23 +790,23 @@ class Minify_MinifiedFileRequestHandler {
 			$this->_handle_error( $error );
 		}
 
-		$message = '<h1>W3TC Minify Error</h1>';
+		$w3tc_message = '<h1>W3TC Minify Error</h1>';
 
 		if ( $this->_config->get_boolean( 'minify.debug' ) ) {
-			$message .= sprintf( '<p>%s.</p>', $error );
+			$w3tc_message .= sprintf( '<p>%s.</p>', $error );
 		} else {
-			$message .= '<p>Enable debug mode to see error message.</p>';
+			$w3tc_message .= '<p>Enable debug mode to see error message.</p>';
 		}
 
 		if ( $quiet ) {
 			return array(
-				'content' => $message,
+				'content' => $w3tc_message,
 			);
 		}
 
 		if ( defined( 'W3TC_IN_MINIFY' ) ) {
 			status_header( 400 );
-			echo esc_html( $message );
+			echo esc_html( $w3tc_message );
 			die();
 		}
 	}
@@ -651,14 +825,14 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Pre-caches a file from a URL for minification.
 	 *
-	 * @param string $url  The URL of the file.
+	 * @param string $w3tc_url  The URL of the file.
 	 * @param string $type The type of the file (e.g., CSS or JS).
 	 *
 	 * @return mixed The minified source or false if caching fails.
 	 */
-	public function _precache_file( $url, $type ) {
+	public function _precache_file( $w3tc_url, $type ) {
 		$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
-		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $url ), $type );
+		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 
 		if ( ! file_exists( $cache_path ) || @filemtime( $cache_path ) < ( time() - $lifetime ) ) {
 			if ( ! @is_dir( dirname( $cache_path ) ) ) {
@@ -667,7 +841,7 @@ class Minify_MinifiedFileRequestHandler {
 
 			// google-fonts (most used for external inclusion) doesnt return full content (unicode-range) for simple useragents.
 			Util_Http::download(
-				$url,
+				$w3tc_url,
 				$cache_path,
 				array(
 					'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
@@ -675,27 +849,27 @@ class Minify_MinifiedFileRequestHandler {
 			);
 		}
 
-		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $url, $type ) : false;
+		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $w3tc_url, $type ) : false;
 	}
 
 	/**
 	 * Retrieves a minify source from a file path and URL.
 	 *
 	 * @param string $file_path The file path to the cached file.
-	 * @param string $url       The original URL of the file.
+	 * @param string $w3tc_url       The original URL of the file.
 	 * @param string $type      Resource type (css/js).
 	 *
 	 * @return \W3TCL\Minify\Minify_Source The minify source object.
 	 */
-	public function _get_minify_source( $file_path, $url, $type ) {
+	public function _get_minify_source( $file_path, $w3tc_url, $type ) {
 		$spec = array(
 			'filepath'      => $file_path,
 			'minifyOptions' => array(
-				'prependRelativePath' => $url,
+				'prependRelativePath' => $w3tc_url,
 			),
 		);
 
-		if ( $this->is_already_minified_resource( $url, $type ) ) {
+		if ( $this->is_already_minified_resource( $w3tc_url, $type ) ) {
 			// Remote vendor files already minified should only be combined, never re-minified, to avoid syntax issues.
 			if ( 'js' === $type ) {
 				$spec['minifier'] = '';
@@ -747,7 +921,7 @@ class Minify_MinifiedFileRequestHandler {
 
 			switch ( $this->_config->get_string( 'minify.engine' ) ) {
 				case 'memcached':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'           => Util_Environment::blog_id(),
 						'instance_id'       => Util_Environment::instance_id(),
 						'host'              => Util_Environment::host(),
@@ -761,15 +935,15 @@ class Minify_MinifiedFileRequestHandler {
 					);
 
 					if ( class_exists( 'Memcached' ) ) {
-						$inner_cache = new Cache_Memcached( $config );
+						$inner_cache = new Cache_Memcached( $w3tc_config );
 					} elseif ( class_exists( 'Memcache' ) ) {
-						$inner_cache = new Cache_Memcache( $config );
+						$inner_cache = new Cache_Memcache( $w3tc_config );
 					}
 
 					break;
 
 				case 'redis':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'                 => Util_Environment::blog_id(),
 						'instance_id'             => Util_Environment::instance_id(),
 						'host'                    => Util_Environment::host(),
@@ -784,12 +958,12 @@ class Minify_MinifiedFileRequestHandler {
 						'password'                => $this->_config->get_string( 'minify.redis.password' ),
 					);
 
-					$inner_cache = new Cache_Redis( $config );
+					$inner_cache = new Cache_Redis( $w3tc_config );
 
 					break;
 
 				case 'apc':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'     => Util_Environment::blog_id(),
 						'instance_id' => Util_Environment::instance_id(),
 						'host'        => Util_Environment::host(),
@@ -797,46 +971,46 @@ class Minify_MinifiedFileRequestHandler {
 					);
 
 					if ( function_exists( 'apcu_store' ) ) {
-						$inner_cache = new Cache_Apcu( $config );
+						$inner_cache = new Cache_Apcu( $w3tc_config );
 					} elseif ( function_exists( 'apc_store' ) ) {
-						$inner_cache = new Cache_Apc( $config );
+						$inner_cache = new Cache_Apc( $w3tc_config );
 					}
 
 					break;
 
 				case 'eaccelerator':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'     => Util_Environment::blog_id(),
 						'instance_id' => Util_Environment::instance_id(),
 						'host'        => Util_Environment::host(),
 						'module'      => 'minify',
 					);
 
-					$inner_cache = new Cache_Eaccelerator( $config );
+					$inner_cache = new Cache_Eaccelerator( $w3tc_config );
 
 					break;
 
 				case 'xcache':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'     => Util_Environment::blog_id(),
 						'instance_id' => Util_Environment::instance_id(),
 						'host'        => Util_Environment::host(),
 						'module'      => 'minify',
 					);
 
-					$inner_cache = new Cache_Xcache( $config );
+					$inner_cache = new Cache_Xcache( $w3tc_config );
 
 					break;
 
 				case 'wincache':
-					$config = array(
+					$w3tc_config = array(
 						'blog_id'     => Util_Environment::blog_id(),
 						'instance_id' => Util_Environment::instance_id(),
 						'host'        => Util_Environment::host(),
 						'module'      => 'minify',
 					);
 
-					$inner_cache = new Cache_Wincache( $config );
+					$inner_cache = new Cache_Wincache( $w3tc_config );
 
 					break;
 			}
@@ -873,11 +1047,11 @@ class Minify_MinifiedFileRequestHandler {
 		$notification = $this->_config->get_string( 'minify.error.notification' );
 
 		if ( $notification ) {
-			$file  = Util_Request::get_string( 'file' );
-			$state = Dispatcher::config_state_master();
+			$w3tc_file = Util_Request::get_string( 'file' );
+			$state     = Dispatcher::config_state_master();
 
-			if ( $file ) {
-				$state->set( 'minify.error.file', $file );
+			if ( $w3tc_file ) {
+				$state->set( 'minify.error.file', $w3tc_file );
 			}
 
 			if ( stristr( $notification, 'admin' ) !== false ) {
@@ -919,9 +1093,9 @@ class Minify_MinifiedFileRequestHandler {
 
 		@set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-		$result = @wp_mail( $to_email, 'W3 Total Cache Error Notification', $body, implode( "\n", $headers ) );
+		$w3tc_result = @wp_mail( $to_email, 'W3 Total Cache Error Notification', $body, implode( "\n", $headers ) );
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -952,10 +1126,10 @@ class Minify_MinifiedFileRequestHandler {
 
 		foreach ( $sources as $source ) {
 			if ( is_string( $source ) && file_exists( $source ) ) {
-				$data = @file_get_contents( $source );
+				$w3tc_data = @file_get_contents( $source );
 
-				if ( false !== $data ) {
-					$values[] = md5( $data );
+				if ( false !== $w3tc_data ) {
+					$values[] = md5( $w3tc_data );
 				} else {
 					return false;
 				}
@@ -963,12 +1137,12 @@ class Minify_MinifiedFileRequestHandler {
 				$headers = @get_headers( $source->minifyOptions['prependRelativePath'] );
 				if ( strpos( $headers[0], '200' ) !== false ) {
 					$segments  = explode( '.', $source->minifyOptions['prependRelativePath'] );
-					$ext       = strtolower( array_pop( $segments ) );
-					$pc_source = $this->_precache_file( $source->minifyOptions['prependRelativePath'], $ext );
-					$data      = @file_get_contents( $pc_source->filepath );
+					$w3tc_ext  = strtolower( array_pop( $segments ) );
+					$pc_source = $this->_precache_file( $source->minifyOptions['prependRelativePath'], $w3tc_ext );
+					$w3tc_data = @file_get_contents( $pc_source->filepath );
 
-					if ( false !== $data ) {
-						$values[] = md5( $data );
+					if ( false !== $w3tc_data ) {
+						$values[] = md5( $w3tc_data );
 					} else {
 						return false;
 					}
@@ -978,7 +1152,7 @@ class Minify_MinifiedFileRequestHandler {
 			}
 		}
 
-		$keys = array(
+		$w3tc_keys = array(
 			'minify.debug',
 			'minify.engine',
 			'minify.options',
@@ -986,13 +1160,13 @@ class Minify_MinifiedFileRequestHandler {
 		);
 
 		if ( 'js' === $type ) {
-			$engine = $this->_config->get_string( 'minify.js.engine' );
+			$w3tc_engine = $this->_config->get_string( 'minify.js.engine' );
 
 			if ( $this->_config->get_boolean( 'minify.auto' ) ) {
-				$keys[] = 'minify.js.method';
+				$w3tc_keys[] = 'minify.js.method';
 			} else {
 				array_merge(
-					$keys,
+					$w3tc_keys,
 					array(
 						'minify.js.combine.header',
 						'minify.js.combine.body',
@@ -1001,10 +1175,10 @@ class Minify_MinifiedFileRequestHandler {
 				);
 			}
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'js':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.js.strip.comments',
 							'minify.js.strip.crlf',
@@ -1013,8 +1187,8 @@ class Minify_MinifiedFileRequestHandler {
 					break;
 
 				case 'yuijs':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.yuijs.options.line-break',
 							'minify.yuijs.options.nomunge',
@@ -1025,8 +1199,8 @@ class Minify_MinifiedFileRequestHandler {
 					break;
 
 				case 'ccjs':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.ccjs.options.compilation_level',
 							'minify.ccjs.options.formatting',
@@ -1035,13 +1209,13 @@ class Minify_MinifiedFileRequestHandler {
 					break;
 			}
 		} elseif ( 'css' === $type ) {
-			$engine = $this->_config->get_string( 'minify.css.engine' );
-			$keys[] = 'minify.css.method';
+			$w3tc_engine = $this->_config->get_string( 'minify.css.engine' );
+			$w3tc_keys[] = 'minify.css.method';
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'css':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.css.strip.comments',
 							'minify.css.strip.crlf',
@@ -1051,8 +1225,8 @@ class Minify_MinifiedFileRequestHandler {
 					break;
 
 				case 'yuicss':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.yuicss.options.line-break',
 						)
@@ -1060,8 +1234,8 @@ class Minify_MinifiedFileRequestHandler {
 					break;
 
 				case 'csstidy':
-					$keys = array_merge(
-						$keys,
+					$w3tc_keys = array_merge(
+						$w3tc_keys,
 						array(
 							'minify.csstidy.options.remove_bslash',
 							'minify.csstidy.options.compress_colors',
@@ -1086,8 +1260,8 @@ class Minify_MinifiedFileRequestHandler {
 			}
 		}
 
-		foreach ( $keys as $key ) {
-			$values[] = $this->_config->get( $key );
+		foreach ( $w3tc_keys as $w3tc_key ) {
+			$values[] = $this->_config->get( $w3tc_key );
 		}
 
 		$id = substr( md5( implode( '', $this->_flatten_array( $values ) ) ), 0, 6 );
@@ -1105,11 +1279,11 @@ class Minify_MinifiedFileRequestHandler {
 	private function _flatten_array( $values ) {
 		$flatten = array();
 
-		foreach ( $values as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$flatten = array_merge( $flatten, $this->_flatten_array( $value ) );
+		foreach ( $values as $w3tc_key => $w3tc_value ) {
+			if ( is_array( $w3tc_value ) ) {
+				$flatten = array_merge( $flatten, $this->_flatten_array( $w3tc_value ) );
 			} else {
-				$flatten[ $key ] = $value;
+				$flatten[ $w3tc_key ] = $w3tc_value;
 			}
 		}
 		return $flatten;
@@ -1118,29 +1292,31 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Retrieves a value from the cache by its key.
 	 *
-	 * @param string $key The key of the cached value.
+	 * @param string $w3tc_key The key of the cached value.
 	 *
 	 * @return mixed The cached value or null if not found.
 	 */
-	public function _cache_get( $key ) {
+	public function _cache_get( $w3tc_key ) {
 		$cache = $this->_get_cache();
 
-		$data = $cache->fetch( $key );
+		$w3tc_data = $cache->fetch( $w3tc_key );
 
-		if ( isset( $data['content'] ) ) {
-			$value = @unserialize( $data['content'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( isset( $w3tc_data['content'] ) ) {
+			$w3tc_value = @unserialize( $w3tc_data['content'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-			// `allowed_classes => false` returns `__PHP_Incomplete_Class` for
-			// crafted object payloads. Callers of _cache_get() expect either
-			// `false` (miss) or a legitimate scalar / array; treating an
-			// incomplete-object result as a miss keeps the downstream paths
-			// well-typed and prevents fatal-on-array-access if a future caller
-			// dereferences the value.
-			if ( is_object( $value ) ) {
+			/**
+			 * `allowed_classes => false` returns `__PHP_Incomplete_Class` for
+			 * any serialised object input. Callers of _cache_get() expect either
+			 * `false` (miss) or a legitimate scalar / array; treating an
+			 * incomplete-object result as a miss keeps the downstream paths
+			 * well-typed and prevents fatal-on-array-access if a future caller
+			 * dereferences the value.
+			 */
+			if ( is_object( $w3tc_value ) ) {
 				return false;
 			}
 
-			return $value;
+			return $w3tc_value;
 		}
 
 		return false;
@@ -1149,14 +1325,14 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Sets a value in the cache.
 	 *
-	 * @param string $key   The cache key.
-	 * @param mixed  $value The value to store in the cache.
+	 * @param string $w3tc_key   The cache key.
+	 * @param mixed  $w3tc_value The value to store in the cache.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function _cache_set( $key, $value ) {
+	public function _cache_set( $w3tc_key, $w3tc_value ) {
 		$cache = $this->_get_cache();
 
-		return $cache->store( $key, array( 'content' => serialize( $value ) ) );
+		return $cache->store( $w3tc_key, array( 'content' => serialize( $w3tc_value ) ) );
 	}
 }

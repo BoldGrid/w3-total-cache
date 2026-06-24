@@ -1,20 +1,27 @@
 <?php
+/**
+ * File: memcached.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
 /*
- * Requires $module variable
+ * Requires $w3tc_module variable
  */
 ?>
 <tr>
 	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<textarea id="memcached_servers" name="<?php echo esc_attr( $module ); ?>__memcached__servers" <?php Util_Ui::sealing_disabled( $module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $this->_config->get_array( $module . '.memcached.servers' ) ) ); ?></textarea>
-		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
+		<textarea id="memcached_servers" name="<?php echo esc_attr( $w3tc_module ); ?>__memcached__servers" <?php Util_Ui::sealing_disabled( $w3tc_module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $this->_config->get_array( $w3tc_module . '.memcached.servers' ) ) ); ?></textarea>
+		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_test_memcached' ) ); ?>'}"
+			<?php Util_Ui::sealing_disabled( $w3tc_module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
 		<p class="description"><?php esc_html_e( 'Enter one server definition per line: e.g. 127.0.0.1:11211 or domain.com:11211.', 'w3-total-cache' ); ?></p>
@@ -23,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label><?php esc_html_e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.persistent' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.persistent' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
+		<?php $this->checkbox( $w3tc_module . '.memcached.persistent' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.persistent' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Using persistent connection doesn\'t reinitialize memcached driver on each request', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
@@ -31,7 +38,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<th><label><?php esc_html_e( 'Node Auto Discovery:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<label>
-			<?php $this->checkbox( $module . '.memcached.aws_autodiscovery', ! Util_Installed::memcached_aws() ); ?>
+			<?php $this->checkbox( $w3tc_module . '.memcached.aws_autodiscovery', ! Util_Installed::memcached_aws() ); ?>
 			Amazon Node Auto Discovery
 		</label>
 		<p class="description">
@@ -63,7 +70,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label><?php esc_html_e( 'Use binary protocol:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.binary_protocol' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.binary_protocol' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
+		<?php $this->checkbox( $w3tc_module . '.memcached.binary_protocol' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.binary_protocol' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Using binary protocol can increase throughput.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
@@ -71,9 +78,9 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="memcached_username"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.username' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="memcached_username" name="<?php echo esc_attr( $module ); ?>__memcached__username" type="text"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			<?php $this->value_with_disabled( $module . '.memcached.username', ! Util_Installed::memcached_auth(), '' ); ?> />
+		<input id="memcached_username" name="<?php echo esc_attr( $w3tc_module ); ?>__memcached__username" type="text"
+			<?php Util_Ui::sealing_disabled( $w3tc_module ); ?>
+			<?php $this->value_with_disabled( $w3tc_module . '.memcached.username', ! Util_Installed::memcached_auth(), '' ); ?> />
 		<p class="description">
 			<?php
 			echo wp_kses(
@@ -119,9 +126,25 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="memcached_password"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="memcached_password" name="<?php echo esc_attr( $module ); ?>__memcached__password" type="text"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			<?php $this->value_with_disabled( $module . '.memcached.password', ! Util_Installed::memcached_auth(), '' ); ?> />
+		<?php
+		/**
+		 * RT9-19: Use the masked secret renderer so the stored
+		 * Memcached SASL password never round-trips through the HTML
+		 * `value=` attribute. `Util_Installed::memcached_auth()` may
+		 * disable the field when libmemcached lacks SASL support —
+		 * pass that through unchanged via the `disabled` arg.
+		 */
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'memcached_password',
+				'name'        => $w3tc_module . '__memcached__password',
+				'has_value'   => '' !== $this->_config->get_string( $w3tc_module . '.memcached.password' ),
+				'type'        => 'password',
+				'sealing_key' => $w3tc_module . '.',
+				'disabled'    => ! Util_Installed::memcached_auth(),
+			)
+		);
+		?>
 		<p class="description">
 			<?php
 			echo wp_kses(

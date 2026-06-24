@@ -86,25 +86,25 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Constructor.
 	 *
-	 * @param array $config Config.
+	 * @param array $w3tc_config Config.
 	 */
-	public function __construct( $config ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config ) {
+		parent::__construct( $w3tc_config );
 
-		$this->_persistent              = ( isset( $config['persistent'] ) && $config['persistent'] );
-		$this->_servers                 = (array) $config['servers'];
-		$this->_verify_tls_certificates = ( isset( $config['verify_tls_certificates'] ) && $config['verify_tls_certificates'] );
-		$this->_password                = $config['password'];
-		$this->_dbid                    = $config['dbid'];
-		$this->_timeout                 = $config['timeout'] ?? 3600000;
-		$this->_retry_interval          = $config['retry_interval'] ?? 3600000;
-		$this->_read_timeout            = $config['read_timeout'] ?? 60.0;
+		$this->_persistent              = ( isset( $w3tc_config['persistent'] ) && $w3tc_config['persistent'] );
+		$this->_servers                 = (array) $w3tc_config['servers'];
+		$this->_verify_tls_certificates = ( isset( $w3tc_config['verify_tls_certificates'] ) && $w3tc_config['verify_tls_certificates'] );
+		$this->_password                = $w3tc_config['password'];
+		$this->_dbid                    = $w3tc_config['dbid'];
+		$this->_timeout                 = $w3tc_config['timeout'] ?? 3600000;
+		$this->_retry_interval          = $w3tc_config['retry_interval'] ?? 3600000;
+		$this->_read_timeout            = $w3tc_config['read_timeout'] ?? 60.0;
 
 		/**
 		 * When disabled - no extra requests are made to obtain key version,
 		 * but flush operations not supported as a result group should be always empty.
 		 */
-		if ( isset( $config['key_version_mode'] ) && 'disabled' === $config['key_version_mode'] ) {
+		if ( isset( $w3tc_config['key_version_mode'] ) && 'disabled' === $w3tc_config['key_version_mode'] ) {
 			$this->_key_version[''] = 1;
 		}
 	}
@@ -112,31 +112,31 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Adds data.
 	 *
-	 * @param string  $key    Key.
-	 * @param mixed   $value  Var.
+	 * @param string  $w3tc_key    Key.
+	 * @param mixed   $w3tc_value  Var.
 	 * @param integer $expire Expire.
-	 * @param string  $group  Used to differentiate between groups of cache values.
+	 * @param string  $w3tc_group  Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function add( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function add( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
 	 * Sets data.
 	 *
-	 * @param string  $key    Key.
-	 * @param mixed   $value  Value.
+	 * @param string  $w3tc_key    Key.
+	 * @param mixed   $w3tc_value  Value.
 	 * @param integer $expire Expire.
-	 * @param string  $group  Used to differentiate between groups of cache values.
+	 * @param string  $w3tc_group  Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		if ( ! isset( $value['key_version'] ) ) {
-			$value['key_version'] = $this->_get_key_version( $group );
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( ! isset( $w3tc_value['key_version'] ) ) {
+			$w3tc_value['key_version'] = $this->_get_key_version( $w3tc_group );
 		}
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -144,23 +144,23 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( ! $expire ) {
-			return $accessor->set( $storage_key, serialize( $value ) );
+			return $accessor->set( $storage_key, serialize( $w3tc_value ) );
 		}
 
-		return $accessor->setex( $storage_key, $expire, serialize( $value ) );
+		return $accessor->setex( $storage_key, $expire, serialize( $w3tc_value ) );
 	}
 
 	/**
 	 * Returns data
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return mixed
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -171,8 +171,8 @@ class Cache_Redis extends Cache_Base {
 		$v = $this->_unserialize(
 			$v,
 			array(
-				'group' => $group,
-				'key'   => $key,
+				'group' => $w3tc_group,
+				'key'   => $w3tc_key,
 			)
 		);
 
@@ -180,14 +180,14 @@ class Cache_Redis extends Cache_Base {
 			return array( null, $has_old_data );
 		}
 
-		$key_version = $this->_get_key_version( $group );
+		$key_version = $this->_get_key_version( $w3tc_group );
 		if ( $v['key_version'] === $key_version ) {
 			return array( $v, $has_old_data );
 		}
 
 		if ( $v['key_version'] > $key_version ) {
 			if ( ! empty( $v['key_version_at_creation'] ) && $v['key_version_at_creation'] !== $key_version ) {
-				$this->_set_key_version( $v['key_version'], $group );
+				$this->_set_key_version( $v['key_version'], $w3tc_group );
 			}
 			return array( $v, $has_old_data );
 		}
@@ -215,25 +215,25 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Replaces data.
 	 *
-	 * @param string  $key    Key.
-	 * @param mixed   $value  Value.
+	 * @param string  $w3tc_key    Key.
+	 * @param mixed   $w3tc_value  Value.
 	 * @param integer $expire Expire.
-	 * @param string  $group  Used to differentiate between groups of cache values.
+	 * @param string  $w3tc_group  Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function replace( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function replace( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
 	 * Deletes data.
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 * @return bool
 	 */
-	public function delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -257,12 +257,12 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Key to delete, deletes _old and primary if exists.
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 * @return bool
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -275,14 +275,14 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Flushes all data.
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function flush( $group = '' ) {
-		$this->_get_key_version( $group );   // Initialize $this->_key_version.
-		if ( isset( $this->_key_version[ $group ] ) ) {
-			++$this->_key_version[ $group ];
-			$this->_set_key_version( $this->_key_version[ $group ], $group );
+	public function flush( $w3tc_group = '' ) {
+		$this->_get_key_version( $w3tc_group );   // Initialize $this->_key_version.
+		if ( isset( $this->_key_version[ $w3tc_group ] ) ) {
+			++$this->_key_version[ $w3tc_group ];
+			$this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group );
 		}
 
 		return true;
@@ -292,12 +292,12 @@ class Cache_Redis extends Cache_Base {
 	 * Gets a key extension for "ahead generation" mode.
 	 * Used by AlwaysCached functionality to regenerate content
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
 	 */
-	public function get_ahead_generation_extension( $group ) {
-		$v = $this->_get_key_version( $group );
+	public function get_ahead_generation_extension( $w3tc_group ) {
+		$v = $this->_get_key_version( $w3tc_group );
 		return array(
 			'key_version'             => $v + 1,
 			'key_version_at_creation' => $v,
@@ -307,15 +307,15 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Flushes group with before condition
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
-	 * @param array  $extension Used to set a condition what version to flush.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
+	 * @param array  $w3tc_extension Used to set a condition what version to flush.
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
-		$v = $this->_get_key_version( $group );
-		if ( $extension['key_version'] > $v ) {
-			$this->_set_key_version( $extension['key_version'], $group );
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
+		$v = $this->_get_key_version( $w3tc_group );
+		if ( $w3tc_extension['key_version'] > $v ) {
+			$this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group );
 		}
 	}
 
@@ -340,20 +340,20 @@ class Cache_Redis extends Cache_Base {
 			return array();
 		}
 
-		$a = $accessor->info();
+		$w3tc_a = $accessor->info();
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
 	 * Returns key version.
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return int
 	 */
-	private function _get_key_version( $group = '' ) {
-		if ( ! isset( $this->_key_version[ $group ] ) || $this->_key_version[ $group ] <= 0 ) {
-			$storage_key = $this->_get_key_version_key( $group );
+	private function _get_key_version( $w3tc_group = '' ) {
+		if ( ! isset( $this->_key_version[ $w3tc_group ] ) || $this->_key_version[ $w3tc_group ] <= 0 ) {
+			$storage_key = $this->_get_key_version_key( $w3tc_group );
 			$accessor    = $this->_get_accessor( $storage_key );
 
 			if ( is_null( $accessor ) ) {
@@ -368,21 +368,21 @@ class Cache_Redis extends Cache_Base {
 				$accessor->set( $storage_key, $v );
 			}
 
-			$this->_key_version[ $group ] = $v;
+			$this->_key_version[ $w3tc_group ] = $v;
 		}
 
-		return $this->_key_version[ $group ];
+		return $this->_key_version[ $w3tc_group ];
 	}
 
 	/**
 	 * Sets new key version.
 	 *
 	 * @param string $v     Version.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	private function _set_key_version( $v, $group = '' ) {
-		$storage_key = $this->_get_key_version_key( $group );
+	private function _set_key_version( $v, $w3tc_group = '' ) {
+		$storage_key = $this->_get_key_version_key( $w3tc_group );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -397,12 +397,12 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Used to replace as atomically as possible known value to new one.
 	 *
-	 * @param string $key       Key.
+	 * @param string $w3tc_key       Key.
 	 * @param string $old_value Old value.
 	 * @param string $new_value New value.
 	 */
-	public function set_if_maybe_equals( $key, $old_value, $new_value ) {
-		$storage_key = $this->get_item_key( $key );
+	public function set_if_maybe_equals( $w3tc_key, $old_value, $new_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -411,15 +411,15 @@ class Cache_Redis extends Cache_Base {
 
 		$accessor->watch( $storage_key );
 
-		$value = $accessor->get( $storage_key );
-		$value = $this->_unserialize( $value, array( 'key' => $key ) );
+		$w3tc_value = $accessor->get( $storage_key );
+		$w3tc_value = $this->_unserialize( $w3tc_value, array( 'key' => $w3tc_key ) );
 
-		if ( ! is_array( $value ) ) {
+		if ( ! is_array( $w3tc_value ) ) {
 			$accessor->unwatch();
 			return false;
 		}
 
-		if ( isset( $old_value['content'] ) && $value['content'] !== $old_value['content'] ) {
+		if ( isset( $old_value['content'] ) && $w3tc_value['content'] !== $old_value['content'] ) {
 			$accessor->unwatch();
 			return false;
 		}
@@ -432,15 +432,15 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Retrieves multiple cached values in a single request.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
-	 * @param array  $keys  Cache keys.
-	 * @param string $group Cache group.
+	 * @param array  $w3tc_keys  Cache keys.
+	 * @param string $w3tc_group Cache group.
 	 *
 	 * @return array Map of cache key => raw cached payload (serialized array or null).
 	 */
-	public function get_multi( array $keys, $group = '' ) {
-		if ( empty( $keys ) ) {
+	public function get_multi( array $w3tc_keys, $w3tc_group = '' ) {
+		if ( empty( $w3tc_keys ) ) {
 			return array();
 		}
 
@@ -448,15 +448,15 @@ class Cache_Redis extends Cache_Base {
 		$server_buckets = array();
 		$servers_count  = count( $this->_servers );
 
-		foreach ( $keys as $key ) {
-			$storage_key = $this->get_item_key( $key );
-			$index       = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
+		foreach ( $w3tc_keys as $w3tc_key ) {
+			$storage_key = $this->get_item_key( $w3tc_key );
+			$w3tc_index  = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
 
-			$server_buckets[ $index ]['storage_keys'][] = $storage_key;
-			$server_buckets[ $index ]['orig_keys'][]    = $key;
+			$server_buckets[ $w3tc_index ]['storage_keys'][] = $storage_key;
+			$server_buckets[ $w3tc_index ]['orig_keys'][]    = $w3tc_key;
 		}
 
-		foreach ( $server_buckets as $index => $bucket ) {
+		foreach ( $server_buckets as $w3tc_index => $bucket ) {
 			$storage_keys = $bucket['storage_keys'];
 			$orig_keys    = $bucket['orig_keys'];
 
@@ -470,8 +470,8 @@ class Cache_Redis extends Cache_Base {
 
 			$values = $accessor->mget( $storage_keys );
 
-			foreach ( $orig_keys as $i => $orig_key ) {
-				if ( isset( $values[ $i ] ) && false !== $values[ $i ] ) {
+			foreach ( $orig_keys as $w3tc_i => $orig_key ) {
+				if ( isset( $values[ $w3tc_i ] ) && false !== $values[ $w3tc_i ] ) {
 					// This backend only writes cache envelopes — arrays
 					// shaped `[ 'key_version' => ..., 'content' => ... ]`
 					// via set() / set_multi(). The single-key path in
@@ -483,9 +483,9 @@ class Cache_Redis extends Cache_Base {
 					// guard miss; that's covered by the same is_array()
 					// check, since false is not an array.
 					$decoded              = $this->_unserialize(
-						$values[ $i ],
+						$values[ $w3tc_i ],
 						array(
-							'group' => $group,
+							'group' => $w3tc_group,
 							'key'   => $orig_key,
 						)
 					);
@@ -502,37 +502,37 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Stores multiple values in a single request.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param array  $items  Map of cache key => payload.
-	 * @param string $group  Cache group.
+	 * @param string $w3tc_group  Cache group.
 	 * @param int    $expire Expiration.
 	 *
 	 * @return array Map of cache key => success boolean.
 	 */
-	public function set_multi( array $items, $group = '', $expire = 0 ) {
+	public function set_multi( array $items, $w3tc_group = '', $expire = 0 ) {
 		if ( empty( $items ) ) {
 			return array();
 		}
 
-		$key_version    = $this->_get_key_version( $group );
+		$key_version    = $this->_get_key_version( $w3tc_group );
 		$results        = array();
 		$server_buckets = array();
 		$servers_count  = count( $this->_servers );
 
-		foreach ( $items as $key => $value ) {
-			if ( ! isset( $value['key_version'] ) ) {
-				$value['key_version'] = $key_version;
+		foreach ( $items as $w3tc_key => $w3tc_value ) {
+			if ( ! isset( $w3tc_value['key_version'] ) ) {
+				$w3tc_value['key_version'] = $key_version;
 			}
 
-			$storage_key = $this->get_item_key( $key );
-			$index       = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
+			$storage_key = $this->get_item_key( $w3tc_key );
+			$w3tc_index  = ( $servers_count <= 1 ) ? 0 : crc32( $storage_key ) % $servers_count;
 
-			$server_buckets[ $index ]['storage'][ $storage_key ] = serialize( $value );
-			$server_buckets[ $index ]['orig_keys'][]             = $key;
+			$server_buckets[ $w3tc_index ]['storage'][ $storage_key ] = serialize( $w3tc_value );
+			$server_buckets[ $w3tc_index ]['orig_keys'][]             = $w3tc_key;
 		}
 
-		foreach ( $server_buckets as $index => $bucket ) {
+		foreach ( $server_buckets as $w3tc_index => $bucket ) {
 			$storage_map = $bucket['storage'];
 			$orig_keys   = $bucket['orig_keys'];
 
@@ -574,54 +574,54 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Use key as a counter and add integer value to it.
 	 *
-	 * @param string $key   Key.
-	 * @param int    $value Value.
+	 * @param string $w3tc_key   Key.
+	 * @param int    $w3tc_value Value.
 	 */
-	public function counter_add( $key, $value ) {
-		if ( empty( $value ) ) {
+	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( empty( $w3tc_value ) ) {
 			return true;
 		}
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
 			return false;
 		}
 
-		$r = $accessor->incrBy( $storage_key, (int) $value );
+		$w3tc_r = $accessor->incrBy( $storage_key, (int) $w3tc_value );
 
-		if ( ! $r ) { // It doesn't initialize counter by itself.
-			$this->counter_set( $key, 0 );
+		if ( ! $w3tc_r ) { // It doesn't initialize counter by itself.
+			$this->counter_set( $w3tc_key, 0 );
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
 	 * Use key as a counter and add integet value to it.
 	 *
-	 * @param string $key   Key.
-	 * @param int    $value Value.
+	 * @param string $w3tc_key   Key.
+	 * @param int    $w3tc_value Value.
 	 */
-	public function counter_set( $key, $value ) {
-		$storage_key = $this->get_item_key( $key );
+	public function counter_set( $w3tc_key, $w3tc_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
 			return false;
 		}
 
-		return $accessor->set( $storage_key, $value );
+		return $accessor->set( $storage_key, $w3tc_value );
 	}
 
 	/**
 	 * Get counter's value.
 	 *
-	 * @param string $key Key.
+	 * @param string $w3tc_key Key.
 	 */
-	public function counter_get( $key ) {
-		$storage_key = $this->get_item_key( $key );
+	public function counter_get( $w3tc_key ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
@@ -679,25 +679,25 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Get accessor.
 	 *
-	 * @param string $key Key.
+	 * @param string $w3tc_key Key.
 	 * @return object
 	 */
-	private function _get_accessor( $key ) {
+	private function _get_accessor( $w3tc_key ) {
 		if ( count( $this->_servers ) <= 1 ) {
-			$index = 0;
+			$w3tc_index = 0;
 		} else {
-			$index = crc32( $key ) % count( $this->_servers );
+			$w3tc_index = crc32( $w3tc_key ) % count( $this->_servers );
 		}
 
-		if ( isset( $this->_accessors[ $index ] ) ) {
-			return $this->_accessors[ $index ];
+		if ( isset( $this->_accessors[ $w3tc_index ] ) ) {
+			return $this->_accessors[ $w3tc_index ];
 		}
 
-		if ( ! isset( $this->_servers[ $index ] ) ) {
-			$this->_accessors[ $index ] = null;
+		if ( ! isset( $this->_servers[ $w3tc_index ] ) ) {
+			$this->_accessors[ $w3tc_index ] = null;
 		} else {
 			try {
-				$server       = $this->_servers[ $index ];
+				$server       = $this->_servers[ $w3tc_index ];
 				$connect_args = $this->build_connect_args( $server );
 
 				$accessor = new \Redis();
@@ -718,9 +718,9 @@ class Cache_Redis extends Cache_Base {
 				$accessor = null;
 			}
 
-			$this->_accessors[ $index ] = $accessor;
+			$this->_accessors[ $w3tc_index ] = $accessor;
 		}
 
-		return $this->_accessors[ $index ];
+		return $this->_accessors[ $w3tc_index ];
 	}
 }

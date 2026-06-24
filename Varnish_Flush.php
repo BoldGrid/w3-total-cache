@@ -81,7 +81,7 @@ class Varnish_Flush {
 	 * Iterates through all the servers in the configuration and attempts to send a PURGE request. Logs any errors or successes
 	 * during the process.
 	 *
-	 * @param string $url The URL to be purged from the Varnish cache.
+	 * @param string $w3tc_url The URL to be purged from the Varnish cache.
 	 *
 	 * @return bool Returns `true` if all purge requests were successful, otherwise `false`.
 	 *
@@ -94,21 +94,21 @@ class Varnish_Flush {
 	 *
 	 * @throws \Exception Not explicitly thrown, but errors are logged using `_log` and returned as a `WP_Error`.
 	 */
-	protected function _purge( $url ) {
+	protected function _purge( $w3tc_url ) {
 		@set_time_limit( $this->_timeout ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 		$return = true;
 
 		foreach ( (array) $this->_servers as $server ) {
-			$response = $this->_request( $server, $url );
+			$response = $this->_request( $server, $w3tc_url );
 
 			if ( is_wp_error( $response ) ) {
-				$this->_log( $url, sprintf( 'Unable to send request: %s.', implode( '; ', $response->get_error_messages() ) ) );
+				$this->_log( $w3tc_url, sprintf( 'Unable to send request: %s.', implode( '; ', $response->get_error_messages() ) ) );
 				$return = false;
 			} elseif ( 200 !== $response['response']['code'] ) {
-				$this->_log( $url, 'Bad response: ' . $response['response']['status'] );
+				$this->_log( $w3tc_url, 'Bad response: ' . $response['response']['status'] );
 				$return = false;
 			} else {
-				$this->_log( $url, 'PURGE OK' );
+				$this->_log( $w3tc_url, 'PURGE OK' );
 			}
 		}
 
@@ -122,7 +122,7 @@ class Varnish_Flush {
 	 * for direct communication.
 	 *
 	 * @param string $varnish_server The Varnish server endpoint in the format `host:port`.
-	 * @param string $url The URL to be purged.
+	 * @param string $w3tc_url The URL to be purged.
 	 *
 	 * @return array|\WP_Error An array containing the response code and status if the request is successful, or a `WP_Error` object
 	 *                         in case of failure.
@@ -136,11 +136,11 @@ class Varnish_Flush {
 	 *
 	 * @throws \WP_Error Thrown if the URL format is invalid, the server connection fails, or the response is malformed.
 	 */
-	public function _request( $varnish_server, $url ) {
-		$parse_url = @wp_parse_url( $url );
+	public function _request( $varnish_server, $w3tc_url ) {
+		$parse_url = @wp_parse_url( $w3tc_url );
 
 		if ( ! $parse_url || ! isset( $parse_url['host'] ) ) {
-			return new \WP_Error( 'http_request_failed', 'Unrecognized URL format ' . $url );
+			return new \WP_Error( 'http_request_failed', 'Unrecognized URL format ' . $w3tc_url );
 		}
 
 		$host        = $parse_url['host'];
@@ -151,10 +151,46 @@ class Varnish_Flush {
 
 		list( $varnish_host, $varnish_port ) = Util_Content::endpoint_to_host_port( $varnish_server, 80 );
 
-		// If url host is the same as varnish server - we can use regular WordPress http infrastructure, otherwise custom request
-		// should be sent using fsockopen, since we send request to other server than specified by $url.
+		/**
+		 * Refuse outbound purge requests targeting cloud metadata
+		 * (169.254.169.254), loopback (127.0.0.0/8), or any other
+		 * reserved range. Varnish legitimately runs on RFC1918 hosts
+		 * (10.x / 172.16-31.x / 192.168.x) so we use
+		 * `host_resolves_safe_internal()` here rather than the strict
+		 * `is_public_host()`. The check covers both literal IPs in the
+		 * admin-set `varnish.servers` value and hostnames that resolve
+		 * to a dangerous range via DNS. Filterable so an operator with
+		 * an audited reason — e.g. a sidecar Varnish on `127.0.0.1` —
+		 * can opt out per-host.
+		 */
+		if ( ! \apply_filters(
+			'w3tc_varnish_skip_host_check',
+			false,
+			$varnish_host,
+			$varnish_port
+		) && ! Util_Url::host_resolves_safe_internal( $varnish_host ) ) {
+			$this->_log(
+				$w3tc_url,
+				sprintf(
+					'Refused PURGE to %s — host is loopback, link-local, or reserved range.',
+					$varnish_host
+				)
+			);
+			return new \WP_Error(
+				'http_request_failed',
+				sprintf(
+					'Refused to send Varnish PURGE to %s: host is loopback, link-local, or a reserved range. Set varnish.servers to a routable internal host, or filter `w3tc_varnish_skip_host_check` to opt out.',
+					$varnish_host
+				)
+			);
+		}
+
+		/**
+		 * If url host is the same as varnish server - we can use regular WordPress http infrastructure, otherwise custom request
+		 * should be sent using fsockopen, since we send request to other server than specified by $w3tc_url.
+		 */
 		if ( $host === $varnish_host && $port === $varnish_port ) {
-			return Util_Http::request( $url, array( 'method' => 'PURGE' ) );
+			return Util_Http::request( $w3tc_url, array( 'method' => 'PURGE' ) );
 		}
 
 		$request_headers_array = array(
@@ -168,9 +204,9 @@ class Varnish_Flush {
 		$request         = $request_headers . "\r\n\r\n";
 
 		// log what we are about to do.
-		$this->_log( $url, sprintf( 'Connecting to %s ...', $varnish_host ) );
-		$this->_log( $url, sprintf( 'PURGE %s HTTP/1.1', $request_uri ) );
-		$this->_log( $url, sprintf( 'Host: %s', $host ) );
+		$this->_log( $w3tc_url, sprintf( 'Connecting to %s ...', $varnish_host ) );
+		$this->_log( $w3tc_url, sprintf( 'PURGE %s HTTP/1.1', $request_uri ) );
+		$this->_log( $w3tc_url, sprintf( 'Host: %s', $host ) );
 
 		$errno  = null;
 		$errstr = null;
@@ -195,8 +231,8 @@ class Varnish_Flush {
 		$matches = null;
 		if ( preg_match( '~^HTTP/1.[01] (\d+)~', $response_headers, $matches ) ) {
 			$code   = (int) $matches[1];
-			$a      = explode( "\n", $response_headers );
-			$status = ( count( $a ) >= 1 ? $a[0] : '' );
+			$w3tc_a = explode( "\n", $response_headers );
+			$status = ( count( $w3tc_a ) >= 1 ? $w3tc_a[0] : '' );
 			$return = array(
 				'response' => array(
 					'code'   => $code,
@@ -216,7 +252,7 @@ class Varnish_Flush {
 	 * Writes log messages to a designated debug file if debugging is enabled. The log file is determined by
 	 * `Util_Debug::log_filename('varnish')`.
 	 *
-	 * @param string $url The URL associated with the log message.
+	 * @param string $w3tc_url The URL associated with the log message.
 	 * @param string $msg The message to be logged.
 	 *
 	 * @return bool Returns `true` if logging is disabled or if the log is successfully written. Returns `false` if file writing fails.
@@ -228,14 +264,14 @@ class Varnish_Flush {
 	 *
 	 * @throws \Exception Not explicitly thrown but can fail silently if `file_put_contents` encounters an error.
 	 */
-	public function _log( $url, $msg ) {
+	public function _log( $w3tc_url, $msg ) {
 		if ( $this->_debug ) {
-			$data = sprintf( "[%s] [%s] %s\n", gmdate( 'r' ), $url, $msg );
-			$data = strtr( $data, '<>', '' );
+			$w3tc_data = sprintf( "[%s] [%s] %s\n", gmdate( 'r' ), $w3tc_url, $msg );
+			$w3tc_data = strtr( $w3tc_data, '<>', '' );
 
 			$filename = Util_Debug::log_filename( 'varnish' );
 
-			return @file_put_contents( $filename, $data, FILE_APPEND );
+			return @file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 		}
 
 		return true;
@@ -280,8 +316,8 @@ class Varnish_Flush {
 			$full_urls = array( get_home_url() . '/.*' );
 			$full_urls = Util_PageUrls::complement_with_mirror_urls( $full_urls );
 
-			foreach ( $full_urls as $url ) {
-				$this->_purge( $url );
+			foreach ( $full_urls as $w3tc_url ) {
+				$this->_purge( $w3tc_url );
 			}
 		} else {
 			// todo: remove. doesnt work for all caches. replace with tool to flush network.
@@ -302,11 +338,11 @@ class Varnish_Flush {
 				);
 				foreach ( $blogs as $blog ) {
 					if ( ! isset( $blog->mapped_domain ) ) {
-						$url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
+						$w3tc_url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
 					} else {
-						$url = $protocall . $blog->mapped_domain . '/.*';
+						$w3tc_url = $protocall . $blog->mapped_domain . '/.*';
 					}
-					$this->_purge( $url );
+					$this->_purge( $w3tc_url );
 				}
 			} elseif ( ! Util_Environment::is_wpmu_subdomain() ) {
 				$this->_purge( get_home_url() . '/.*' );
@@ -322,8 +358,8 @@ class Varnish_Flush {
 				);
 
 				foreach ( $blogs as $blog ) {
-					$url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
-					$this->_purge( $url );
+					$w3tc_url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
+					$this->_purge( $w3tc_url );
 				}
 			}
 		}
@@ -358,7 +394,7 @@ class Varnish_Flush {
 	 * @uses Util_PageUrls::get_feed_terms_urls() To retrieve feed URLs for terms associated with the post.
 	 * @uses Util_PageUrls::get_pages_urls() To retrieve URLs of custom purge pages.
 	 * @uses Util_PageUrls::complement_with_mirror_urls() To add mirror URLs to the purge list.
-	 * @uses apply_filters() To allow customization of the queued URLs through the 'varnish_flush_post_queued_urls' filter.
+	 * @uses apply_filters() To allow customization of the queued URLs through the 'w3tc_varnish_flush_post_queued_urls' filter.
 	 */
 	public function flush_post( $post_id, $force ) {
 		if ( ! $post_id ) {
@@ -491,14 +527,14 @@ class Varnish_Flush {
 			// add mirror urls.
 			$full_urls = Util_PageUrls::complement_with_mirror_urls( $full_urls );
 
-			$full_urls = apply_filters( 'varnish_flush_post_queued_urls', $full_urls );
+			$full_urls = apply_filters( 'w3tc_varnish_flush_post_queued_urls', $full_urls );
 
 			/**
 			 * Queue flush
 			 */
 			if ( count( $full_urls ) ) {
-				foreach ( $full_urls as $url ) {
-					$this->queued_urls[ $url ] = '*';
+				foreach ( $full_urls as $w3tc_url ) {
+					$this->queued_urls[ $w3tc_url ] = '*';
 				}
 			}
 
@@ -513,12 +549,12 @@ class Varnish_Flush {
 	 *
 	 * This method purges the cache for a single URL using the internal `_purge` method.
 	 *
-	 * @param string $url The URL to be purged.
+	 * @param string $w3tc_url The URL to be purged.
 	 *
 	 * @return void
 	 */
-	public function flush_url( $url ) {
-		$this->_purge( $url );
+	public function flush_url( $w3tc_url ) {
+		$this->_purge( $w3tc_url );
 	}
 
 	/**
@@ -533,21 +569,21 @@ class Varnish_Flush {
 	public function flush_post_cleanup() {
 		if ( $this->flush_operation_requested ) {
 			$this->do_flush();
-			$count = 999;
+			$w3tc_count = 999;
 
 			$this->flush_operation_requested = false;
 			$this->queued_urls               = array();
 		} else {
-			$count = count( $this->queued_urls );
-			if ( $count > 0 ) {
-				foreach ( $this->queued_urls as $url => $nothing ) {
-					$this->flush_url( $url );
+			$w3tc_count = count( $this->queued_urls );
+			if ( $w3tc_count > 0 ) {
+				foreach ( $this->queued_urls as $w3tc_url => $nothing ) {
+					$this->flush_url( $w3tc_url );
 				}
 
 				$this->queued_urls = array();
 			}
 		}
 
-		return $count;
+		return $w3tc_count;
 	}
 }

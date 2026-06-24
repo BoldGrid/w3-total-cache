@@ -46,7 +46,7 @@ class Cdn_AdminActions {
 		$cdn_queue_action = Util_Request::get_string( 'cdn_queue_action' );
 		$cdn_queue_tab    = Util_Request::get_string( 'cdn_queue_tab' );
 
-		$notes = array();
+		$w3tc_notes = array();
 
 		switch ( $cdn_queue_tab ) {
 			case 'upload':
@@ -63,7 +63,7 @@ class Cdn_AdminActions {
 				$cdn_queue_id = Util_Request::get_integer( 'cdn_queue_id' );
 				if ( ! empty( $cdn_queue_id ) ) {
 					$w3_plugin_cdn->queue_delete( $cdn_queue_id );
-					$notes[] = __( 'File successfully deleted from the queue.', 'w3-total-cache' );
+					$w3tc_notes[] = __( 'File successfully deleted from the queue.', 'w3-total-cache' );
 				}
 				break;
 
@@ -71,14 +71,14 @@ class Cdn_AdminActions {
 				$cdn_queue_type = Util_Request::get_integer( 'cdn_queue_type' );
 				if ( ! empty( $cdn_queue_type ) ) {
 					$w3_plugin_cdn->queue_empty( $cdn_queue_type );
-					$notes[] = __( 'Queue successfully emptied.', 'w3-total-cache' );
+					$w3tc_notes[] = __( 'Queue successfully emptied.', 'w3-total-cache' );
 				}
 				break;
 
 			case 'process':
 				$w3_plugin_cdn_normal = Dispatcher::component( 'Cdn_Plugin' );
 				$n                    = $w3_plugin_cdn_normal->cron_queue_process();
-				$notes[]              = sprintf(
+				$w3tc_notes[]         = sprintf(
 					// Translators: 1 number of processed queue items.
 					__(
 						'Number of processed queue items: %1$d',
@@ -89,9 +89,9 @@ class Cdn_AdminActions {
 				break;
 		}
 
-		$nonce = wp_create_nonce( 'w3tc' );
-		$queue = $w3_plugin_cdn->queue_get();
-		$title = __( 'Unsuccessful file transfer queue.', 'w3-total-cache' );
+		$nonce      = Util_Nonce::create_admin( 'w3tc_cdn_queue' );
+		$queue      = $w3_plugin_cdn->queue_get();
+		$w3tc_title = __( 'Unsuccessful file transfer queue.', 'w3-total-cache' );
 
 		include W3TC_INC_DIR . '/popup/cdn_queue.php';
 	}
@@ -107,8 +107,8 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_export_library() {
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
-		$total = $w3_plugin_cdn->get_attachments_count();
-		$title = __( 'Media Library export', 'w3-total-cache' );
+		$total      = $w3_plugin_cdn->get_attachments_count();
+		$w3tc_title = __( 'Media Library export', 'w3-total-cache' );
 
 		include W3TC_INC_DIR . '/popup/cdn_export_library.php';
 	}
@@ -125,18 +125,18 @@ class Cdn_AdminActions {
 		$flush = Dispatcher::component( 'CacheFlush' );
 		$flush->flush_all( array( 'only' => 'cdn' ) );
 
-		$status = $flush->execute_delayed_operations();
-		$errors = array();
-		foreach ( $status as $i ) {
-			if ( isset( $i['error'] ) ) {
-				$errors[] = $i['error'];
+		$status      = $flush->execute_delayed_operations();
+		$w3tc_errors = array();
+		foreach ( $status as $w3tc_i ) {
+			if ( isset( $w3tc_i['error'] ) ) {
+				$w3tc_errors[] = $w3tc_i['error'];
 			}
 		}
 
-		if ( empty( $errors ) ) {
+		if ( empty( $w3tc_errors ) ) {
 			Util_Admin::redirect( array( 'w3tc_note' => 'flush_cdn' ), true );
 		} else {
-			Util_Admin::redirect_with_custom_messages2( array( 'errors' => array( 'Failed to purge CDN: ' . implode( ', ', $errors ) ) ), true );
+			Util_Admin::redirect_with_custom_messages2( array( 'errors' => array( 'Failed to purge CDN: ' . implode( ', ', $w3tc_errors ) ) ), true );
 		}
 	}
 
@@ -151,19 +151,19 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_export_library_process() {
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
-		$limit  = Util_Request::get_integer( 'limit' );
-		$offset = Util_Request::get_integer( 'offset' );
+		$w3tc_limit  = Util_Request::get_integer( 'limit' );
+		$w3tc_offset = Util_Request::get_integer( 'offset' );
 
-		$count   = null;
-		$total   = null;
-		$results = array();
+		$w3tc_count = null;
+		$total      = null;
+		$results    = array();
 
-		$w3_plugin_cdn->export_library( $limit, $offset, $count, $total, $results, time() + 120 );
+		$w3_plugin_cdn->export_library( $w3tc_limit, $w3tc_offset, $w3tc_count, $total, $results, time() + 120 );
 
 		$response = array(
-			'limit'   => $limit,
-			'offset'  => $offset,
-			'count'   => $count,
+			'limit'   => $w3tc_limit,
+			'offset'  => $w3tc_offset,
+			'count'   => $w3tc_count,
 			'total'   => $total,
 			'results' => $results,
 		);
@@ -188,7 +188,7 @@ class Cdn_AdminActions {
 		$total    = $w3_plugin_cdn->get_import_posts_count();
 		$cdn_host = $cdn->get_domain();
 
-		$title = __( 'Media Library import', 'w3-total-cache' );
+		$w3tc_title = __( 'Media Library import', 'w3-total-cache' );
 
 		include W3TC_INC_DIR . '/popup/cdn_import_library.php';
 	}
@@ -204,23 +204,23 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_import_library_process() {
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
-		$limit           = Util_Request::get_integer( 'limit' );
-		$offset          = Util_Request::get_integer( 'offset' );
-		$import_external = Util_Request::get_boolean( 'cdn_import_external' );
-		$config_state    = Dispatcher::config_state();
-		$config_state->set( 'cdn.import.external', $import_external );
-		$config_state->save();
+		$w3tc_limit        = Util_Request::get_integer( 'limit' );
+		$w3tc_offset       = Util_Request::get_integer( 'offset' );
+		$import_external   = Util_Request::get_boolean( 'cdn_import_external' );
+		$w3tc_config_state = Dispatcher::config_state();
+		$w3tc_config_state->set( 'cdn.import.external', $import_external );
+		$w3tc_config_state->save();
 
-		$count   = null;
-		$total   = null;
-		$results = array();
+		$w3tc_count = null;
+		$total      = null;
+		$results    = array();
 
-		@$w3_plugin_cdn->import_library( $limit, $offset, $count, $total, $results );
+		@$w3_plugin_cdn->import_library( $w3tc_limit, $w3tc_offset, $w3tc_count, $total, $results );
 
 		$response = array(
-			'limit'   => $limit,
-			'offset'  => $offset,
-			'count'   => $count,
+			'limit'   => $w3tc_limit,
+			'offset'  => $w3tc_offset,
+			'count'   => $w3tc_count,
 			'total'   => $total,
 			'results' => $results,
 		);
@@ -241,7 +241,7 @@ class Cdn_AdminActions {
 
 		$total = $w3_plugin_cdn->get_rename_posts_count();
 
-		$title = __( 'Modify attachment URLs', 'w3-total-cache' );
+		$w3tc_title = __( 'Modify attachment URLs', 'w3-total-cache' );
 
 		include W3TC_INC_DIR . '/popup/cdn_rename_domain.php';
 	}
@@ -257,20 +257,20 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_rename_domain_process() {
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
-		$limit  = Util_Request::get_integer( 'limit' );
-		$offset = Util_Request::get_integer( 'offset' );
-		$names  = Util_Request::get_array( 'names' );
+		$w3tc_limit  = Util_Request::get_integer( 'limit' );
+		$w3tc_offset = Util_Request::get_integer( 'offset' );
+		$names       = Util_Request::get_array( 'names' );
 
-		$count   = null;
-		$total   = null;
-		$results = array();
+		$w3tc_count = null;
+		$total      = null;
+		$results    = array();
 
-		@$w3_plugin_cdn->rename_domain( $names, $limit, $offset, $count, $total, $results );
+		@$w3_plugin_cdn->rename_domain( $names, $w3tc_limit, $w3tc_offset, $w3tc_count, $total, $results );
 
 		$response = array(
-			'limit'   => $limit,
-			'offset'  => $offset,
-			'count'   => $count,
+			'limit'   => $w3tc_limit,
+			'offset'  => $w3tc_offset,
+			'count'   => $w3tc_count,
 			'total'   => $total,
 			'results' => $results,
 		);
@@ -293,28 +293,28 @@ class Cdn_AdminActions {
 
 		switch ( $cdn_export_type ) {
 			case 'includes':
-				$title = __( 'Includes files export', 'w3-total-cache' );
-				$files = $w3_plugin_cdn->get_files_includes();
+				$w3tc_title = __( 'Includes files export', 'w3-total-cache' );
+				$files      = $w3_plugin_cdn->get_files_includes();
 				break;
 
 			case 'theme':
-				$title = __( 'Theme files export', 'w3-total-cache' );
-				$files = $w3_plugin_cdn->get_files_theme();
+				$w3tc_title = __( 'Theme files export', 'w3-total-cache' );
+				$files      = $w3_plugin_cdn->get_files_theme();
 				break;
 
 			case 'minify':
-				$title = __( 'Minify files export', 'w3-total-cache' );
-				$files = $w3_plugin_cdn->get_files_minify();
+				$w3tc_title = __( 'Minify files export', 'w3-total-cache' );
+				$files      = $w3_plugin_cdn->get_files_minify();
 				break;
 
 			case 'custom':
-				$title = __( 'Custom files export', 'w3-total-cache' );
-				$files = $w3_plugin_cdn->get_files_custom();
+				$w3tc_title = __( 'Custom files export', 'w3-total-cache' );
+				$files      = $w3_plugin_cdn->get_files_custom();
 				break;
 
 			default:
-				$title = __( 'Unknown files export', 'w3-total-cache' );
-				$files = array();
+				$w3tc_title = __( 'Unknown files export', 'w3-total-cache' );
+				$files      = array();
 				break;
 		}
 
@@ -336,32 +336,32 @@ class Cdn_AdminActions {
 		$upload  = array();
 		$results = array();
 
-		foreach ( $files as $file ) {
-			$local_path        = $common->docroot_filename_to_absolute_path( $file );
-			$remote_path       = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $file ) );
+		foreach ( $files as $w3tc_file ) {
+			$local_path        = $common->docroot_filename_to_absolute_path( $w3tc_file );
+			$remote_path       = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $w3tc_file ) );
 			$d                 = $common->build_file_descriptor( $local_path, $remote_path );
-			$d['_original_id'] = $file;
+			$d['_original_id'] = $w3tc_file;
 			$upload[]          = $d;
 		}
 
 		$common->upload( $upload, false, $results, time() + 5 );
-		$output = array();
+		$w3tc_output = array();
 
-		foreach ( $results as $item ) {
-			$file = '';
-			if ( isset( $item['descriptor']['_original_id'] ) ) {
-				$file = $item['descriptor']['_original_id'];
+		foreach ( $results as $w3tc_item ) {
+			$w3tc_file = '';
+			if ( isset( $w3tc_item['descriptor']['_original_id'] ) ) {
+				$w3tc_file = $w3tc_item['descriptor']['_original_id'];
 			}
 
-			$output[] = array(
-				'result' => $item['result'],
-				'error'  => $item['error'],
-				'file'   => $file,
+			$w3tc_output[] = array(
+				'result' => $w3tc_item['result'],
+				'error'  => $w3tc_item['error'],
+				'file'   => $w3tc_file,
 			);
 		}
 
 		$response = array(
-			'results' => $output,
+			'results' => $w3tc_output,
 		);
 
 		echo wp_json_encode( $response );
@@ -375,8 +375,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_purge() {
-		$title   = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
-		$results = array();
+		$w3tc_title = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
+		$results    = array();
 
 		$path = ltrim( str_replace( get_home_url(), '', get_stylesheet_directory_uri() ), '/' );
 		include W3TC_INC_DIR . '/popup/cdn_purge.php';
@@ -391,8 +391,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_purge_files() {
-		$title   = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
-		$results = array();
+		$w3tc_title = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
+		$results    = array();
 
 		$files = Util_Request::get_array( 'files' );
 
@@ -400,9 +400,9 @@ class Cdn_AdminActions {
 
 		$common = Dispatcher::component( 'Cdn_Core' );
 
-		foreach ( $files as $file ) {
-			$local_path  = $common->docroot_filename_to_absolute_path( $file );
-			$remote_path = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $file ) );
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $common->docroot_filename_to_absolute_path( $w3tc_file );
+			$remote_path = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $w3tc_file ) );
 
 			$purge[] = $common->build_file_descriptor( $local_path, $remote_path );
 		}
@@ -410,7 +410,7 @@ class Cdn_AdminActions {
 		if ( count( $purge ) ) {
 			$common->purge( $purge, $results );
 		} else {
-			$errors[] = __( 'Empty files list.', 'w3-total-cache' );
+			$w3tc_errors[] = __( 'Empty files list.', 'w3-total-cache' );
 		}
 
 		$path = str_replace( get_home_url(), '', get_stylesheet_directory_uri() );
@@ -447,84 +447,284 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_test() {
-		$engine = Util_Request::get_string( 'engine' );
-		$config = Util_Request::get_array( 'config' );
+		$w3tc_engine = Util_Request::get_string( 'engine' );
+		$w3tc_config = Util_Request::get_array( 'config' );
 
 		// TODO: Workaround to support test case cdn/a04.
-		if ( 'ftp' === $engine && ! isset( $config['host'] ) ) {
-			$config = Util_Request::get_string( 'config' );
-			$config = json_decode( $config, true );
+		if ( 'ftp' === $w3tc_engine && ! isset( $w3tc_config['host'] ) ) {
+			$w3tc_config = Util_Request::get_string( 'config' );
+			$w3tc_config = json_decode( $w3tc_config, true );
 		}
 
-		$config = array_merge( $config, array( 'debug' => false ) );
+		$w3tc_config = array_merge( $w3tc_config, array( 'debug' => false ) );
+		$w3tc_config = self::_cdn_test_merge_stored_secrets( $w3tc_engine, $w3tc_config );
 
-		if ( isset( $config['domain'] ) && ! is_array( $config['domain'] ) ) {
-			$config['domain'] = explode( ',', $config['domain'] );
+		if ( isset( $w3tc_config['domain'] ) && ! is_array( $w3tc_config['domain'] ) ) {
+			$w3tc_config['domain'] = explode( ',', $w3tc_config['domain'] );
 		}
 
-		if ( Cdn_Util::is_engine( $engine ) ) {
-			$result = true;
-			$error  = null;
+		if ( Cdn_Util::is_engine( $w3tc_engine ) ) {
+			$w3tc_result = true;
+			$error       = null;
 		} else {
-			$result = false;
-			$error  = __( 'Incorrect engine ', 'w3-total-cache' ) . $engine;
+			$w3tc_result = false;
+			$error       = __( 'Incorrect engine ', 'w3-total-cache' ) . $w3tc_engine;
 		}
-		if ( ! isset( $config['docroot'] ) ) {
-			$config['docroot'] = Util_Environment::document_root();
+		if ( ! isset( $w3tc_config['docroot'] ) ) {
+			$w3tc_config['docroot'] = Util_Environment::document_root();
 		}
 
-		if ( $result ) {
+		if ( $w3tc_result ) {
 			if (
-				'google_drive' === $engine ||
-				'transparentcdn' === $engine ||
-				'rackspace_cdn' === $engine ||
-				'rscf' === $engine ||
-				'bunnycdn' === $engine ||
-				's3_compatible' === $engine
+				'google_drive' === $w3tc_engine ||
+				'transparentcdn' === $w3tc_engine ||
+				'rackspace_cdn' === $w3tc_engine ||
+				'rscf' === $w3tc_engine ||
+				'bunnycdn' === $w3tc_engine ||
+				's3_compatible' === $w3tc_engine
 			) {
 				// those use already stored w3tc config.
 				$w3_cdn = Dispatcher::component( 'Cdn_Core' )->get_cdn();
 			} else {
-				// those use dynamic config from the page.
-				$w3_cdn = CdnEngine::instance( $engine, $config );
-			}
-
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-
-			try {
-				if ( $w3_cdn->test( $error ) ) {
-					$result = true;
-					$error  = __( 'Test passed', 'w3-total-cache' );
-				} else {
-					$result = false;
-					$error  = sprintf(
-						// Translators: 1 error message.
+				/**
+				 * Those use dynamic config from the page — the test
+				 * handler runs whatever host the admin has just
+				 * entered, before save. Refuse outbound to a non-
+				 * routable target so an admin (or anyone driving the
+				 * nonce via a separate primitive) cannot point this at
+				 * AWS instance metadata / 127.0.0.1:6379 / etc.
+				 */
+				$bad_host = self::_unsafe_test_host( $w3tc_engine, $w3tc_config );
+				if ( null !== $bad_host ) {
+					$w3tc_result = false;
+					$error       = sprintf(
+						// Translators: 1 — rejected host literal.
 						__(
-							'Error: %1$s',
+							'Refused CDN test target: %1$s resolves to a loopback, link-local, or reserved IP address.',
 							'w3-total-cache'
 						),
-						$error
+						$bad_host
+					);
+				} else {
+					$w3_cdn = CdnEngine::instance( $w3tc_engine, $w3tc_config );
+				}
+			}
+
+			/**
+			 * `$w3tc_result` was flipped to false above if the destination
+			 * host check refused the test, in which case $w3_cdn is
+			 * unset. Re-check before invoking the test so we don't
+			 * fatal on the next line.
+			 */
+			if ( $w3tc_result ) {
+				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+
+				try {
+					if ( $w3_cdn->test( $error ) ) {
+						$w3tc_result = true;
+						$error       = __( 'Test passed', 'w3-total-cache' );
+					} else {
+						$w3tc_result = false;
+						$error       = sprintf(
+							// Translators: 1 error message.
+							__(
+								'Error: %1$s',
+								'w3-total-cache'
+							),
+							$error
+						);
+					}
+				} catch ( \Exception $ex ) {
+					$w3tc_result = false;
+					$error       = sprintf(
+						// Translators: 1 error message.
+						__(
+							'Error: %s',
+							'w3-total-cache'
+						),
+						$ex->getMessage()
 					);
 				}
-			} catch ( \Exception $ex ) {
-				$result = false;
-				$error  = sprintf(
-					// Translators: 1 error message.
-					__(
-						'Error: %s',
-						'w3-total-cache'
-					),
-					$ex->getMessage()
-				);
 			}
 		}
 
 		$response = array(
-			'result' => $result,
+			'result' => $w3tc_result,
 			'error'  => $error,
 		);
 
 		echo wp_json_encode( $response );
+	}
+
+	/**
+	 * Fill empty secret fields in a CDN test/create POST from stored config.
+	 *
+	 * Masked {@see Util_Ui::secret_input()} fields always submit `value=""`;
+	 * the Test / Create Container handlers must preserve stored credentials
+	 * the same way {@see Generic_AdminActions_Default::read_request()} does
+	 * on save.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $w3tc_engine CDN engine identifier.
+	 * @param array  $w3tc_config Dynamic config from the request.
+	 *
+	 * @return array
+	 */
+	private static function _cdn_test_merge_stored_secrets( $w3tc_engine, array $w3tc_config ) {
+		$map = self::_cdn_test_stored_secret_keys( $w3tc_engine );
+		if ( empty( $map ) ) {
+			return $w3tc_config;
+		}
+
+		$w3tc_c = Dispatcher::config();
+		foreach ( $map as $config_key => $stored_key ) {
+			if ( ! isset( $w3tc_config[ $config_key ] ) ) {
+				continue;
+			}
+			if ( ! is_string( $w3tc_config[ $config_key ] ) || '' !== $w3tc_config[ $config_key ] ) {
+				continue;
+			}
+			$stored = $w3tc_c->get_string( $stored_key );
+			if ( '' !== $stored ) {
+				$w3tc_config[ $config_key ] = $stored;
+			}
+		}
+
+		return $w3tc_config;
+	}
+
+	/**
+	 * Map dynamic CDN test config keys to dotted stored-secret keys.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $w3tc_engine CDN engine identifier.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function _cdn_test_stored_secret_keys( $w3tc_engine ) {
+		switch ( $w3tc_engine ) {
+			case 'ftp':
+				return array(
+					'pass'    => 'cdn.ftp.pass',
+					'privkey' => 'cdn.ftp.privkey',
+				);
+			case 's3':
+				return array( 'secret' => 'cdn.s3.secret' );
+			case 's3_compatible':
+				return array( 'secret' => 'cdn.s3_compatible.secret' );
+			case 'cf':
+				return array( 'secret' => 'cdn.cf.secret' );
+			case 'cf2':
+				return array( 'secret' => 'cdn.cf2.secret' );
+			case 'rscf':
+				return array( 'key' => 'cdn.rscf.key' );
+			case 'azure':
+				return array( 'key' => 'cdn.azure.key' );
+			default:
+				return array();
+		}
+	}
+
+	/**
+	 * Scan the dynamic CDN-test config for any host field that resolves
+	 * to a loopback / link-local / reserved-future address and return the
+	 * first offender, or NULL when every host looks routable.
+	 *
+	 * The CDN test handler accepts a `config` array from the admin form
+	 * *before* it has been saved, so the values here are whatever the
+	 * client posted. Allowing loopback or link-local targets turns the
+	 * test handler into a port scanner against the WP host (Redis on
+	 * 127.0.0.1:6379, AWS metadata on 169.254.169.254, etc.).
+	 *
+	 * Policy: RFC1918 hosts are allowed — operators legitimately run
+	 * internal FTP / mirror endpoints on `10.x` / `192.168.x`. Only the
+	 * dangerous ranges (loopback, link-local incl. metadata, multicast,
+	 * reserved-future) are refused. See {@see Util_Url::is_safe_internal_ip()}
+	 * for the exact range list.
+	 *
+	 * Keys inspected match the engine surface in {@see CdnEngine::instance()}'s
+	 * dynamic-config branch:
+	 *  - `host`     — FTP / SFTP target.
+	 *  - `api_host` — defensive control-endpoint field; no current engine
+	 *                 posts it, kept so the denylist stays a superset.
+	 *  - `endpoint` — S3 compatible alternate endpoint.
+	 *  - `account`  — Azure account name (resolves to `<account>.blob.core.windows.net`,
+	 *                 but the field also accepts a literal host for testing).
+	 *  - `domain`   — Mirror CDN domain (may be array or comma-string).
+	 *
+	 * Unknown engines / keys are not inspected — the helper is a
+	 * positive denylist, not an allowlist. The cost of a missed key is
+	 * the test handler reaches a non-listed target; the cost of an
+	 * over-eager allowlist is breaking legitimate operator setups.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $w3tc_engine CDN engine identifier (unused today;
+	 *                        accepted so future per-engine policy can
+	 *                        diverge without a signature break).
+	 * @param array  $w3tc_config Dynamic-config array as posted.
+	 *
+	 * @return string|null   Rejected host literal, or null if all clear.
+	 */
+	private static function _unsafe_test_host( $w3tc_engine, $w3tc_config ) {
+		unset( $w3tc_engine );
+		if ( ! \is_array( $w3tc_config ) ) {
+			return null;
+		}
+
+		$candidates = array();
+		foreach ( array( 'host', 'api_host', 'endpoint', 'account' ) as $w3tc_key ) {
+			if ( isset( $w3tc_config[ $w3tc_key ] ) && \is_string( $w3tc_config[ $w3tc_key ] ) && '' !== $w3tc_config[ $w3tc_key ] ) {
+				$candidates[] = $w3tc_config[ $w3tc_key ];
+			}
+		}
+		if ( isset( $w3tc_config['domain'] ) ) {
+			if ( \is_array( $w3tc_config['domain'] ) ) {
+				foreach ( $w3tc_config['domain'] as $d ) {
+					if ( \is_string( $d ) && '' !== $d ) {
+						$candidates[] = $d;
+					}
+				}
+			} elseif ( \is_string( $w3tc_config['domain'] ) && '' !== $w3tc_config['domain'] ) {
+				foreach ( \explode( ',', $w3tc_config['domain'] ) as $d ) {
+					$d = \trim( $d );
+					if ( '' !== $d ) {
+						$candidates[] = $d;
+					}
+				}
+			}
+		}
+
+		foreach ( $candidates as $w3tc_value ) {
+			/**
+			 * Strip scheme/path if a full URL leaked in; leave bare
+			 * hostnames and `host:port` alone.
+			 */
+			$host = $w3tc_value;
+			if ( false !== \stripos( $host, '://' ) ) {
+				$parsed = \wp_parse_url( $host, PHP_URL_HOST );
+				if ( \is_string( $parsed ) && '' !== $parsed ) {
+					$host = $parsed;
+				}
+			}
+			// Drop a trailing `:port` (but preserve IPv6 brackets).
+			if ( '[' !== \substr( $host, 0, 1 ) ) {
+				$colon = \strpos( $host, ':' );
+				if ( false !== $colon ) {
+					$host = \substr( $host, 0, $colon );
+				}
+			}
+			if ( '' === $host ) {
+				continue;
+			}
+			if ( ! Util_Url::host_resolves_safe_internal( $host ) ) {
+				return $w3tc_value;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -538,28 +738,29 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_create_container() {
-		$engine = Util_Request::get_string( 'engine' );
-		$config = Util_Request::get_array( 'config' );
+		$w3tc_engine = Util_Request::get_string( 'engine' );
+		$w3tc_config = Util_Request::get_array( 'config' );
 
-		$config = array_merge( $config, array( 'debug' => false ) );
+		$w3tc_config = array_merge( $w3tc_config, array( 'debug' => false ) );
+		$w3tc_config = self::_cdn_test_merge_stored_secrets( $w3tc_engine, $w3tc_config );
 
 		$container_id = '';
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 's3':
 			case 'cf':
 			case 'cf2':
 			case 'azure':
 			case 'azuremi':
-				$w3_cdn = CdnEngine::instance( $engine, $config );
+				$w3_cdn = CdnEngine::instance( $w3tc_engine, $w3tc_config );
 
 				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-				$result = false;
+				$w3tc_result = false;
 
 				try {
 					$container_id = $w3_cdn->create_container();
-					$result       = true;
+					$w3tc_result  = true;
 					$error        = __( 'Created successfully.', 'w3-total-cache' );
 				} catch ( \Exception $ex ) {
 					$error = sprintf(
@@ -575,12 +776,12 @@ class Cdn_AdminActions {
 				break;
 
 			default:
-				$result = false;
-				$error  = __( 'Incorrect type.', 'w3-total-cache' );
+				$w3tc_result = false;
+				$error       = __( 'Incorrect type.', 'w3-total-cache' );
 		}
 
 		$response = array(
-			'result'       => $result,
+			'result'       => $w3tc_result,
 			'error'        => $error,
 			'container_id' => $container_id,
 		);
@@ -615,12 +816,12 @@ class Cdn_AdminActions {
 	 * and verifying the response code. It returns true if the URL is accessible (HTTP 200 response),
 	 * or false otherwise.
 	 *
-	 * @param string $url The URL to test.
+	 * @param string $w3tc_url The URL to test.
 	 *
 	 * @return bool True if the URL is accessible, false otherwise.
 	 */
-	private function test_cdn_url( $url ) {
-		$response = wp_remote_get( $url );
+	private function test_cdn_url( $w3tc_url ) {
+		$response = wp_remote_get( $w3tc_url );
 		if ( is_wp_error( $response ) ) {
 			return false;
 		} else {

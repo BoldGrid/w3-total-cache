@@ -2,7 +2,7 @@
 /**
  * File: Cdn_Plugin_Admin.php
  *
- * @since   0.9.5.4
+ * @since   2.0.0
  * @package W3TC
  */
 
@@ -21,17 +21,17 @@ class Cdn_Plugin_Admin {
 		$config_labels = new Cdn_ConfigLabels();
 		\add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
-		$c             = Dispatcher::config();
-		$cdn_engine    = $c->get_string( 'cdn.engine' );
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
-		$is_cdn_page   = 'w3tc_cdn' === Util_Request::get_string( 'page' );
+		$w3tc_c             = Dispatcher::config();
+		$w3tc_cdn_engine    = $w3tc_c->get_string( 'cdn.engine' );
+		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
+		$is_cdn_page        = 'w3tc_cdn' === Util_Request::get_string( 'page' );
 
-		if ( $c->get_boolean( 'cdn.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'cdn.enabled' ) ) {
 			$admin_notes = new Cdn_AdminNotes();
 			\add_filter( 'w3tc_notes', array( $admin_notes, 'w3tc_notes' ) );
 			\add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ) );
 
-			if ( $c->get_boolean( 'cdn.admin.media_library' ) && $c->get_boolean( 'cdn.uploads.enable' ) ) {
+			if ( $w3tc_c->get_boolean( 'cdn.admin.media_library' ) && $w3tc_c->get_boolean( 'cdn.uploads.enable' ) ) {
 				\add_filter( 'wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 0 );
 				\add_filter( 'attachment_link', array( $this, 'wp_get_attachment_url' ), 0 );
 			}
@@ -41,7 +41,7 @@ class Cdn_Plugin_Admin {
 		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Attach to actions without firing class loading at all without need.
-		switch ( $cdn_engine ) {
+		switch ( $w3tc_cdn_engine ) {
 			case 'google_drive':
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_GoogleDrive_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				break;
@@ -62,7 +62,7 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
-				if ( $is_cdn_page && $c->get_boolean( 'cdn.enabled' ) ) {
+				if ( $is_cdn_page && $w3tc_c->get_boolean( 'cdn.enabled' ) ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
 				break;
@@ -73,9 +73,9 @@ class Cdn_Plugin_Admin {
 				break;
 		}
 
-		switch ( $cdnfsd_engine ) {
+		switch ( $w3tc_cdnfsd_engine ) {
 			case 'bunnycdn':
-				if ( $is_cdn_page && $c->get_boolean( 'cdnfsd.enabled' ) ) {
+				if ( $is_cdn_page && $w3tc_c->get_boolean( 'cdnfsd.enabled' ) ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
 				break;
@@ -90,7 +90,7 @@ class Cdn_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_cdn() {
-		$config             = Dispatcher::config();
+		$w3tc_config        = Dispatcher::config();
 		$engine_optgroups   = array();
 		$engine_values      = array();
 		$optgroup_pull      = count( $engine_optgroups );
@@ -102,29 +102,14 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
-		$engine_values['akamai'] = array(
-			'label'    => \__( 'Akamai', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
 		$engine_values['cf2'] = array(
 			'label'    => \__( 'Amazon CloudFront', 'w3-total-cache' ),
 			'disabled' => ! Util_Installed::curl() ? true : null,
 			'optgroup' => $optgroup_pull,
 		);
 
-		$engine_values['att'] = array(
-			'label'    => \__( 'AT&amp;T', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
 		$engine_values['bunnycdn'] = array(
 			'label'    => \__( 'Bunny CDN (recommended)', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['cotendo'] = array(
-			'label'    => \__( 'Cotendo (Akamai)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
@@ -135,11 +120,6 @@ class Cdn_Plugin_Admin {
 
 		$engine_values['rackspace_cdn'] = array(
 			'label'    => \__( 'RackSpace CDN', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['edgecast'] = array(
-			'label'    => \__( 'Verizon Digital Media Services (EdgeCast) / Media Temple ProCDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
@@ -189,8 +169,8 @@ class Cdn_Plugin_Admin {
 			'optgroup' => $optgroup_push,
 		);
 
-		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
-		$cdn_engine  = $config->get_string( 'cdn.engine' );
+		$w3tc_cdn_enabled = $w3tc_config->get_boolean( 'cdn.enabled' );
+		$w3tc_cdn_engine  = $w3tc_config->get_string( 'cdn.engine' );
 
 		include W3TC_DIR . '/Cdn_GeneralPage_View.php';
 	}
@@ -198,31 +178,31 @@ class Cdn_Plugin_Admin {
 	/**
 	 * Filters the attachment URL for the WordPress admin area based on CDN settings.
 	 *
-	 * @param string $url The URL of the attachment.
+	 * @param string $w3tc_url The URL of the attachment.
 	 *
 	 * @return string The filtered URL of the attachment.
 	 */
-	public function wp_get_attachment_url( $url ) {
+	public function wp_get_attachment_url( $w3tc_url ) {
 		if ( defined( 'WP_ADMIN' ) ) {
-			$url = trim( $url );
+			$w3tc_url = trim( $w3tc_url );
 
-			if ( ! empty( $url ) ) {
-				$parsed          = \wp_parse_url( $url );
+			if ( ! empty( $w3tc_url ) ) {
+				$parsed          = \wp_parse_url( $w3tc_url );
 				$uri             = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
 					( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 				$wp_upload_dir   = \wp_upload_dir();
 				$upload_base_url = $wp_upload_dir['baseurl'];
 
-				if ( \substr( $url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
+				if ( \substr( $w3tc_url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
 					$common  = Dispatcher::component( 'Cdn_Core' );
-					$new_url = $common->url_to_cdn_url( $url, $uri );
+					$new_url = $common->url_to_cdn_url( $w3tc_url, $uri );
 					if ( ! is_null( $new_url ) ) {
-						$url = $new_url;
+						$w3tc_url = $new_url;
 					}
 				}
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 }

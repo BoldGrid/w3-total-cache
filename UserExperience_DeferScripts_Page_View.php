@@ -11,16 +11,17 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c      = Dispatcher::config();
-$is_pro = Util_Environment::is_w3tc_pro( $c );
+$w3tc_c      = Dispatcher::config();
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
 
-if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) ) {
-	$c->set( array( 'user-experience-defer-scripts', 'timeout' ), 5000 );
-	$c->save();
+if ( is_null( $w3tc_c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) ) {
+	$w3tc_c->set( array( 'user-experience-defer-scripts', 'timeout' ), 5000 );
+	$w3tc_c->save();
 }
 
 ?>
@@ -50,7 +51,7 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 		?>
 	</p>
 	<?php
-	if ( ! $is_pro ) {
+	if ( ! $w3tc_is_pro ) {
 		Util_Ui::print_score_block(
 			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'+18',
@@ -90,7 +91,7 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 		?>
 	</table>
 	<?php
-	if ( $is_pro && ! UserExperience_DeferScripts_Extension::is_enabled() ) {
+	if ( $w3tc_is_pro && ! UserExperience_DeferScripts_Extension::is_enabled() ) {
 		echo wp_kses(
 			sprintf(
 				// translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.

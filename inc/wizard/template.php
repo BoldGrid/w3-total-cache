@@ -10,6 +10,8 @@
 
 namespace W3TC\Wizard;
 
+defined( 'ABSPATH' ) || exit;
+
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -29,7 +31,7 @@ class Template {
 	 *
 	 * @var array
 	 */
-	private $config = array();
+	private $w3tc_config = array();
 
 
 	/**
@@ -39,10 +41,10 @@ class Template {
 	 *
 	 * @see self::add_hooks();
 	 *
-	 * @param array $config Configuration.
+	 * @param array $w3tc_config Configuration.
 	 */
-	public function __construct( array $config ) {
-		$this->config = $config;
+	public function __construct( array $w3tc_config ) {
+		$this->w3tc_config = $w3tc_config;
 
 		$this->add_hooks();
 	}
@@ -53,13 +55,22 @@ class Template {
 	 * @since 2.0.0
 	 */
 	public function render() {
+		/**
+		 * Defense-in-depth: the wizard template emits an admin-only nonce
+		 * field and AJAX-bound markup. Refuse to render for users that
+		 * shouldn't be on the SetupGuide page.
+		 */
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_die( \esc_html__( 'You do not have sufficient permissions to access this page.', 'w3-total-cache' ) );
+		}
+
 		$allowed_html = array(
 			'a'      => array(
-				'href'   => array(),
-				'class'  => array(),
+				'href'     => array(),
+				'class'    => array(),
 				'data-src' => array(),
-				'id'     => array(),
-				'target' => array(),
+				'id'       => array(),
+				'target'   => array(),
 			),
 			'br'     => array(),
 			'div'    => array(
@@ -109,7 +120,7 @@ class Template {
 		<div id="w3tc_wizard_header">
 			<img id="w3tc_wizard_icon" src="<?php echo esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ); ?>" />
 			<div id="w3tc_wizard_title">
-				<span>TOTAL</span> <span>CACHE</span><span>:</span> <span><?php echo esc_html( $this->config['title'] ); ?></span>
+				<span>TOTAL</span> <span>CACHE</span><span>:</span> <span><?php echo esc_html( $this->w3tc_config['title'] ); ?></span>
 			</div>
 		</div>
 
@@ -118,12 +129,12 @@ class Template {
 			<ul id="w3tc-options-menu">
 			<?php
 			$is_first_step = true;
-			foreach ( $this->config['steps'] as $number => $step ) {
-				$number++;
-				$element_id = 'w3tc-wizard-step-' . ( isset( $step['id'] ) ? $step['id'] : $number );
+			foreach ( $this->w3tc_config['steps'] as $number => $step ) {
+				++$number;
+				$element_id   = 'w3tc-wizard-step-' . ( isset( $step['id'] ) ? $step['id'] : $number );
 				$active_class = $is_first_step ? ' class="is-active"' : '';
 
-				if ( isset( $this->config['steps_location'] ) && 'left' === $this->config['steps_location'] ) {
+				if ( isset( $this->w3tc_config['steps_location'] ) && 'left' === $this->w3tc_config['steps_location'] ) {
 					?>
 					<li id="<?php echo esc_attr( $element_id ); ?>"<?php echo $active_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 						<?php echo esc_html( $step['text'] ); ?>
@@ -145,8 +156,8 @@ class Template {
 			// The first slide is visible.
 			$hidden = '';
 
-			foreach ( $this->config['slides'] as $number => $slide ) {
-				$number++;
+			foreach ( $this->w3tc_config['slides'] as $number => $slide ) {
+				++$number;
 				$element_id = 'w3tc-wizard-slide-' . ( isset( $slide['id'] ) ? $slide['id'] : $number );
 				?>
 				<div id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-slides<?php echo esc_attr( $hidden ); ?>">
@@ -212,8 +223,8 @@ class Template {
 			)
 		);
 
-		if ( isset( $this->config['actions'] ) && is_array( $this->config['actions'] ) ) {
-			foreach ( $this->config['actions'] as $action ) {
+		if ( isset( $this->w3tc_config['actions'] ) && is_array( $this->w3tc_config['actions'] ) ) {
+			foreach ( $this->w3tc_config['actions'] as $action ) {
 				add_action(
 					$action['tag'],
 					$action['function'],
@@ -223,8 +234,8 @@ class Template {
 			}
 		}
 
-		if ( isset( $this->config['filters'] ) && is_array( $this->config['filters'] ) ) {
-			foreach ( $this->config['filters'] as $filter ) {
+		if ( isset( $this->w3tc_config['filters'] ) && is_array( $this->w3tc_config['filters'] ) ) {
+			foreach ( $this->w3tc_config['filters'] as $filter ) {
 				add_filter(
 					$filter['tag'],
 					$filter['function'],
@@ -243,7 +254,7 @@ class Template {
 	public function enqueue_scripts() {
 		wp_enqueue_script(
 			'w3tc_wizard',
-			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/js/wizard.js' ),
+			esc_url( plugin_dir_url( dirname( __DIR__ ) ) . 'pub/js/wizard.js' ),
 			array( 'jquery' ),
 			W3TC_VERSION,
 			false
@@ -259,8 +270,8 @@ class Template {
 
 		wp_enqueue_script( 'w3tc_wizard' );
 
-		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
-			foreach ( $this->config['scripts'] as $script ) {
+		if ( isset( $this->w3tc_config['scripts'] ) && is_array( $this->w3tc_config['scripts'] ) ) {
+			foreach ( $this->w3tc_config['scripts'] as $script ) {
 				wp_register_script(
 					$script['handle'],
 					$script['src'],
@@ -290,13 +301,13 @@ class Template {
 	public function enqueue_styles() {
 		wp_enqueue_style(
 			'w3tc_wizard',
-			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/css/wizard.css' ),
+			esc_url( plugin_dir_url( dirname( __DIR__ ) ) . 'pub/css/wizard.css' ),
 			array(),
 			W3TC_VERSION
 		);
 
-		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {
-			foreach ( $this->config['styles'] as $style ) {
+		if ( isset( $this->w3tc_config['styles'] ) && is_array( $this->w3tc_config['styles'] ) ) {
+			foreach ( $this->w3tc_config['styles'] as $style ) {
 				wp_enqueue_style(
 					$style['handle'],
 					$style['src'],

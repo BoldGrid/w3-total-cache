@@ -126,12 +126,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @return void
 	 */
 	public function __construct() {
-		$c                      = Dispatcher::config();
-		$this->_config          = $c;
-		$this->_lifetime        = $c->get_integer( 'dbcache.lifetime' );
-		$this->debug            = $c->get_boolean( 'dbcache.debug' );
-		$this->reject_logged    = $c->get_boolean( 'dbcache.reject.logged' );
-		$this->reject_constants = $c->get_array( 'dbcache.reject.constants' );
+		$w3tc_c                 = Dispatcher::config();
+		$this->_config          = $w3tc_c;
+		$this->_lifetime        = $w3tc_c->get_integer( 'dbcache.lifetime' );
+		$this->debug            = $w3tc_c->get_boolean( 'dbcache.debug' );
+		$this->reject_logged    = $w3tc_c->get_boolean( 'dbcache.reject.logged' );
+		$this->reject_constants = $w3tc_c->get_array( 'dbcache.reject.constants' );
 		$this->use_filters      = $this->_config->get_boolean( 'dbcache.use_filters' );
 	}
 
@@ -149,9 +149,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		$reject_reason     = '';
 		$is_cache_hit      = false;
-		$data              = false;
+		$w3tc_data         = false;
 		$time_total        = 0;
-		$group             = '';
+		$w3tc_group        = '';
 		$flush_after_query = false;
 
 		++$this->query_total;
@@ -191,21 +191,21 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		if ( $caching ) {
 			$this->wpdb_mixin->timer_start();
 			$cache      = $this->_get_cache();
-			$group      = $this->_get_group( $query );
-			$data       = $cache->get( md5( $query ), $group );
+			$w3tc_group = $this->_get_group( $query );
+			$w3tc_data  = $cache->get( md5( $query ), $w3tc_group );
 			$time_total = $this->wpdb_mixin->timer_stop();
 		}
 
-		if ( is_array( $data ) ) {
+		if ( is_array( $w3tc_data ) ) {
 			$is_cache_hit = true;
 			++$this->query_hits;
 
-			$this->wpdb_mixin->last_error  = $data['last_error'];
-			$this->wpdb_mixin->last_query  = $data['last_query'];
-			$this->wpdb_mixin->last_result = $data['last_result'];
-			$this->wpdb_mixin->col_info    = $data['col_info'];
-			$this->wpdb_mixin->num_rows    = $data['num_rows'];
-			$return_val                    = $data['return_val'];
+			$this->wpdb_mixin->last_error  = $w3tc_data['last_error'];
+			$this->wpdb_mixin->last_query  = $w3tc_data['last_query'];
+			$this->wpdb_mixin->last_result = $w3tc_data['last_result'];
+			$this->wpdb_mixin->col_info    = $w3tc_data['col_info'];
+			$this->wpdb_mixin->num_rows    = $w3tc_data['num_rows'];
+			$return_val                    = $w3tc_data['return_val'];
 		} else {
 			++$this->query_misses;
 
@@ -214,16 +214,16 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			$time_total = $this->wpdb_mixin->timer_stop();
 
 			if ( $flush_after_query ) {
-				$group = $this->_get_group( $query );
+				$w3tc_group = $this->_get_group( $query );
 
 				$this->_flush_cache_for_sql_group(
-					$group,
+					$w3tc_group,
 					array( 'modification_query' => $query )
 				);
 			}
 
 			if ( $caching ) {
-				$data = array(
+				$w3tc_data = array(
 					'last_error'  => $this->wpdb_mixin->last_error,
 					'last_query'  => $this->wpdb_mixin->last_query,
 					'last_result' => $this->wpdb_mixin->last_result,
@@ -232,13 +232,13 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					'return_val'  => $return_val,
 				);
 
-				$cache = $this->_get_cache();
-				$group = $this->_get_group( $query );
+				$cache      = $this->_get_cache();
+				$w3tc_group = $this->_get_group( $query );
 
 				$filter_data = array(
 					'query'      => $query,
-					'group'      => $group,
-					'content'    => $data,
+					'group'      => $w3tc_group,
+					'content'    => $w3tc_data,
 					'expiration' => $this->_lifetime,
 				);
 
@@ -269,8 +269,8 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					(int) ( $time_total * 1000000 ), // time_total in seconds.
 					$reject_reason, // reason.
 					$is_cache_hit, // cached.
-					( $data ? strlen( serialize( $data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- data size
-					strtr( $group, "<>\r\n", '..  ' ), // group.
+					( $w3tc_data ? strlen( serialize( $w3tc_data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- data size
+					strtr( $w3tc_group, "<>\r\n", '..  ' ), // group.
 				)
 			);
 		}
@@ -283,12 +283,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Escapes data for safe SQL usage.
 	 *
-	 * @param mixed $data Data to escape.
+	 * @param mixed $w3tc_data Data to escape.
 	 *
 	 * @return mixed Escaped data.
 	 */
-	public function _escape( $data ) {
-		return $this->next_injection->_escape( $data );
+	public function _escape( $w3tc_data ) {
+		return $this->next_injection->_escape( $w3tc_data );
 	}
 
 	/**
@@ -316,49 +316,49 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Inserts data into a database table.
 	 *
 	 * @param string $table  The table to insert data into.
-	 * @param array  $data   Data to insert into the table.
+	 * @param array  $w3tc_data   Data to insert into the table.
 	 * @param array  $format Optional format for the data.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function insert( $table, $data, $format = null ) {
-		return $this->next_injection->insert( $table, $data, $format );
+	public function insert( $table, $w3tc_data, $format = null ) {
+		return $this->next_injection->insert( $table, $w3tc_data, $format );
 	}
 
 	/**
 	 * Replaces data in a database table.
 	 *
 	 * @param string $table  The table to replace data in.
-	 * @param array  $data   Data to replace in the table.
+	 * @param array  $w3tc_data   Data to replace in the table.
 	 * @param array  $format Optional format for the data.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $table, $data, $format = null ) {
-		$group = $this->_get_group( $table );
+	public function replace( $table, $w3tc_data, $format = null ) {
+		$w3tc_group = $this->_get_group( $table );
 		$this->_flush_cache_for_sql_group(
-			$group,
+			$w3tc_group,
 			array( 'wpdb_replace' => $table )
 		);
 
-		return $this->next_injection->replace( $table, $data, $format );
+		return $this->next_injection->replace( $table, $w3tc_data, $format );
 	}
 
 	/**
 	 * Updates data in a database table.
 	 *
 	 * @param string $table        The table to update data in.
-	 * @param array  $data         Data to update in the table.
+	 * @param array  $w3tc_data         Data to update in the table.
 	 * @param array  $where        Conditions for the update.
 	 * @param array  $format       Optional format for the data.
 	 * @param array  $where_format Optional format for the conditions.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function update( $table, $data, $where, $format = null, $where_format = null ) {
-		$group = $this->_get_group( $table );
-		$this->_flush_cache_for_sql_group( $group, array( 'wpdb_update' => $table ) );
-		return $this->next_injection->update( $table, $data, $where, $format, $where_format );
+	public function update( $table, $w3tc_data, $where, $format = null, $where_format = null ) {
+		$w3tc_group = $this->_get_group( $table );
+		$this->_flush_cache_for_sql_group( $w3tc_group, array( 'wpdb_update' => $table ) );
+		return $this->next_injection->update( $table, $w3tc_data, $where, $format, $where_format );
 	}
 
 	/**
@@ -371,8 +371,8 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @return bool True on success, false on failure.
 	 */
 	public function delete( $table, $where, $where_format = null ) {
-		$group = $this->_get_group( $table );
-		$this->_flush_cache_for_sql_group( $group, array( 'wpdb_delete' => $table ) );
+		$w3tc_group = $this->_get_group( $table );
+		$this->_flush_cache_for_sql_group( $w3tc_group, array( 'wpdb_delete' => $table ) );
 		return $this->next_injection->delete( $table, $where, $where_format );
 	}
 
@@ -390,18 +390,18 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Flushed the cache for a specific SQL query group.
 	 *
-	 * @param string $group  The group to flush the cache for.
+	 * @param string $w3tc_group  The group to flush the cache for.
 	 * @param array  $extras Optional extra parameters for cache flushing.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	private function _flush_cache_for_sql_group( $group, $extras = array() ) {
+	private function _flush_cache_for_sql_group( $w3tc_group, $extras = array() ) {
 		$this->wpdb_mixin->timer_start();
 
 		if ( $this->debug ) {
 			$filename = Util_Debug::log(
 				'dbcache',
-				'flushing based on sqlquery group ' . $group .
+				'flushing based on sqlquery group ' . $w3tc_group .
 				' with extras ' . wp_json_encode( $extras )
 			);
 		}
@@ -409,12 +409,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			Util_Debug::log_purge(
 				'dbcache',
 				'_flush_cache_for_sql_group',
-				array( $group, $extras )
+				array( $w3tc_group, $extras )
 			);
 		}
 
 		$cache        = $this->_get_cache();
-		$flush_groups = $this->_get_flush_groups( $group, $extras );
+		$flush_groups = $this->_get_flush_groups( $w3tc_group, $extras );
 		$v            = true;
 
 		++$this->cache_flushes;
@@ -440,9 +440,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		static $cache = array();
 
 		if ( ! isset( $cache[0] ) ) {
-			$engine = $this->_config->get_string( 'dbcache.engine' );
+			$w3tc_engine = $this->_config->get_string( 'dbcache.engine' );
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'memcached':
 					$engine_config = array(
 						'servers'           => $this->_config->get_array( 'dbcache.memcached.servers' ),
@@ -483,7 +483,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			$engine_config['host']        = Util_Environment::host();
 			$engine_config['instance_id'] = Util_Environment::instance_id();
 
-			$cache[0] = Cache::instance( $engine, $engine_config );
+			$cache[0] = Cache::instance( $w3tc_engine, $engine_config );
 		}
 
 		return $cache[0];
@@ -522,9 +522,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		/**
 		 * Check for constants.
 		 */
-		foreach ( $this->reject_constants as $name ) {
-			if ( defined( $name ) && constant( $name ) ) {
-				$this->cache_reject_reason = $name . ' constant defined';
+		foreach ( $this->reject_constants as $w3tc_name ) {
+			if ( defined( $w3tc_name ) && constant( $w3tc_name ) ) {
+				$this->cache_reject_reason = $w3tc_name . ' constant defined';
 				$cache_reject_reason       = $this->cache_reject_reason;
 
 				return false;
@@ -732,7 +732,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		if ( $this->contains_only_tables( $tables, array( 'options' => '*' ) ) ) {
-			$group = 'options';
+			$w3tc_group = 'options';
 		} elseif (
 			$this->contains_only_tables(
 				$tables,
@@ -741,18 +741,18 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					'commentsmeta' => '*',
 				)
 			) ) {
-			$group = 'comments';
+			$w3tc_group = 'comments';
 		} elseif ( count( $tables ) <= 1 ) {
-			$group = 'singletables';   // Request with single table affected.
+			$w3tc_group = 'singletables';   // Request with single table affected.
 		} else {
-			$group = 'remaining';
+			$w3tc_group = 'remaining';
 		}
 
 		if ( $this->use_filters && function_exists( 'apply_filters' ) ) {
-			$group = apply_filters( 'w3tc_dbcache_get_sql_group', $group, $sql, $tables );
+			$w3tc_group = apply_filters( 'w3tc_dbcache_get_sql_group', $w3tc_group, $sql, $tables );
 		}
 
-		return $group;
+		return $w3tc_group;
 	}
 
 	/**
@@ -780,15 +780,15 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Retrieves the groups to flush based on the cache group.
 	 *
-	 * @param string $group  The cache group to flush.
+	 * @param string $w3tc_group  The cache group to flush.
 	 * @param array  $extras Optional extra parameters for flushing.
 	 *
 	 * @return array The groups to flush.
 	 */
-	private function _get_flush_groups( $group, $extras = array() ) {
+	private function _get_flush_groups( $w3tc_group, $extras = array() ) {
 		$groups_to_flush = array();
 
-		switch ( $group ) {
+		switch ( $w3tc_group ) {
 			case 'remaining':
 			case 'singletables':
 				$groups_to_flush = array(
@@ -804,17 +804,17 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			 * That can be changed by w3tc_dbcache_get_flush_groups filter.
 			 */
 			case 'options':
-				$groups_to_flush = array( $group => '*' );
+				$groups_to_flush = array( $w3tc_group => '*' );
 				break;
 			default:
 				$groups_to_flush = array(
-					$group      => '*',
+					$w3tc_group => '*',
 					'remaining' => '*',
 				);
 		}
 
 		if ( $this->use_filters && function_exists( 'apply_filters' ) ) {
-			$groups_to_flush = apply_filters( 'w3tc_dbcache_get_flush_groups', $groups_to_flush, $group, $extras );
+			$groups_to_flush = apply_filters( 'w3tc_dbcache_get_flush_groups', $groups_to_flush, $w3tc_group, $extras );
 		}
 
 		return $groups_to_flush;
@@ -823,7 +823,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Clears request-wide dbcache reject state so subsequent queries can be reconsidered.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @return void
 	 */
@@ -852,16 +852,16 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Retrieves a specific reject reason message based on the given key.
 	 *
-	 * @param string $key The key to identify the reject reason.
+	 * @param string $w3tc_key The key to identify the reject reason.
 	 *
 	 * @return string The reject reason message.
 	 */
-	private function _get_reject_reason_message( $key ) {
+	private function _get_reject_reason_message( $w3tc_key ) {
 		if ( ! function_exists( '__' ) ) {
-			return $key;
+			return $w3tc_key;
 		}
 
-		switch ( $key ) {
+		switch ( $w3tc_key ) {
 			case 'dbcache.disabled':
 				return __( 'Database caching is disabled', 'w3-total-cache' );
 			case 'DONOTCACHEDB':
@@ -887,7 +887,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			case 'user.logged_in':
 				return __( 'User is logged in', 'w3-total-cache' );
 			default:
-				return $key;
+				return $w3tc_key;
 		}
 	}
 
@@ -970,7 +970,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
 	 * Check if this is a WP-CLI call and objectcache.engine is using Disk.
 	 *
-	 * @since  2.8.1
+	 * @since  2.8.2
 	 * @access private
 	 *
 	 * @return bool

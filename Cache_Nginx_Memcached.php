@@ -38,26 +38,26 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * enabled, and if so, attempts to reconnect to existing Memcached servers. If no servers are available, it calls the
 	 * initialization method. If persistence is not enabled, it initializes a non-persistent Memcached connection.
 	 *
-	 * @param array $config Configuration array containing settings for Memcached.
+	 * @param array $w3tc_config Configuration array containing settings for Memcached.
 	 *
 	 * @return bool True if the Memcached connection was initialized successfully, false otherwise.
 	 */
-	public function __construct( $config ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config ) {
+		parent::__construct( $w3tc_config );
 
-		if ( isset( $config['persistent'] ) && $config['persistent'] ) {
-			$this->_config   = $config;
+		if ( isset( $w3tc_config['persistent'] ) && $w3tc_config['persistent'] ) {
+			$this->_config   = $w3tc_config;
 			$this->_memcache = new \Memcached( $this->_get_key_version_key( '' ) );
 			$server_list     = $this->_memcache->getServerList();
 
 			if ( empty( $server_list ) ) {
-				return $this->initialize( $config );
+				return $this->initialize( $w3tc_config );
 			} else {
 				return true;
 			}
 		} else {
 			$this->_memcache = new \Memcached();
-			return $this->initialize( $config );
+			return $this->initialize( $w3tc_config );
 		}
 	}
 
@@ -68,12 +68,12 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * authentication. It adds each server from the configuration and handles optional features like AWS autodiscovery and
 	 * SASL authentication if configured.
 	 *
-	 * @param array $config Configuration array containing Memcached settings, including server details and authentication.
+	 * @param array $w3tc_config Configuration array containing Memcached settings, including server details and authentication.
 	 *
 	 * @return bool True if initialization is successful, false if no servers are configured.
 	 */
-	private function initialize( $config ) {
-		if ( empty( $config['servers'] ) ) {
+	private function initialize( $w3tc_config ) {
+		if ( empty( $w3tc_config['servers'] ) ) {
 			return false;
 		}
 
@@ -84,21 +84,21 @@ class Cache_Nginx_Memcached extends Cache_Base {
 		$this->_memcache->setOption( \Memcached::OPT_COMPRESSION, false );
 
 		if (
-			isset( $config['aws_autodiscovery'] ) &&
-			$config['aws_autodiscovery'] &&
+			isset( $w3tc_config['aws_autodiscovery'] ) &&
+			$w3tc_config['aws_autodiscovery'] &&
 			defined( '\Memcached::OPT_CLIENT_MODE' ) &&
 			defined( '\Memcached::DYNAMIC_CLIENT_MODE' )
 		) {
 			$this->_memcache->setOption( \Memcached::OPT_CLIENT_MODE, \Memcached::DYNAMIC_CLIENT_MODE );
 		}
 
-		foreach ( (array) $config['servers'] as $server ) {
+		foreach ( (array) $w3tc_config['servers'] as $server ) {
 			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
 			$this->_memcache->addServer( $ip, $port );
 		}
 
-		if ( isset( $config['username'] ) && ! empty( $config['username'] ) && method_exists( $this->_memcache, 'setSaslAuthData' ) ) {
-			$this->_memcache->setSaslAuthData( $config['username'], $config['password'] );
+		if ( isset( $w3tc_config['username'] ) && ! empty( $w3tc_config['username'] ) && method_exists( $this->_memcache, 'setSaslAuthData' ) ) {
+			$this->_memcache->setSaslAuthData( $w3tc_config['username'], $w3tc_config['password'] );
 		}
 
 		return true;
@@ -110,15 +110,15 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method adds a new item to Memcached. It first calls the `set` method to store the item. This is typically used for
 	 * storing objects or arrays in Memcached.
 	 *
-	 * @param string $key    The key under which the item is stored.
-	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param string $w3tc_key    The key under which the item is stored.
+	 * @param mixed  $w3tc_value  The variable to store in Memcached.
 	 * @param int    $expire The expiration time for the item in seconds. Default is 0 (no expiration).
-	 * @param string $group  An optional group to categorize the item.
+	 * @param string $w3tc_group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function add( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
@@ -127,17 +127,17 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method stores an item in Memcached under the specified key. The item will be serialized and stored, and an expiration
 	 * time can be set.
 	 *
-	 * @param string $key    The key under which the item is stored.
-	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param string $w3tc_key    The key under which the item is stored.
+	 * @param mixed  $w3tc_value  The variable to store in Memcached.
 	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
-	 * @param string $group  An optional group to categorize the item.
+	 * @param string $w3tc_group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		$this->_memcache->setOption( \Memcached::OPT_USER_FLAGS, ( isset( $value['c'] ) ? 1 : 0 ) );
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		$this->_memcache->setOption( \Memcached::OPT_USER_FLAGS, ( isset( $w3tc_value['c'] ) ? 1 : 0 ) );
 
-		return @$this->_memcache->set( $key, $value['content'], $expire );
+		return @$this->_memcache->set( $w3tc_key, $w3tc_value['content'], $expire );
 	}
 
 	/**
@@ -146,22 +146,22 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method attempts to retrieve an item from Memcached. If the item exists, it returns the content along with an indicator
 	 * of whether compression was applied based on the key suffix.
 	 *
-	 * @param string $key     The key of the item to retrieve.
-	 * @param string $group   The group associated with the item.
+	 * @param string $w3tc_key     The key of the item to retrieve.
+	 * @param string $w3tc_group   The group associated with the item.
 	 *
 	 * @return array|null The content of the item along with compression info, or null if not found.
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 
-		$v = @$this->_memcache->get( $key );
+		$v = @$this->_memcache->get( $w3tc_key );
 		if ( false === $v ) {
 			return null;
 		}
 
-		$data                = array( 'content' => $v );
-		$data['compression'] = ( ' _gzip' === substr( $key, -5 ) ? 'gzip' : '' );
-		return array( $data, false );
+		$w3tc_data                = array( 'content' => $v );
+		$w3tc_data['compression'] = ( ' _gzip' === substr( $w3tc_key, -5 ) ? 'gzip' : '' );
+		return array( $w3tc_data, false );
 	}
 
 	/**
@@ -170,15 +170,15 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method replaces an existing item in Memcached. It calls the `set` method to store the new value under the same key.
 	 * If the key doesn't exist, it behaves like a regular set.
 	 *
-	 * @param string $key    The key under which the item is stored.
-	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param string $w3tc_key    The key under which the item is stored.
+	 * @param mixed  $w3tc_value  The variable to store in Memcached.
 	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
-	 * @param string $group  An optional group to categorize the item.
+	 * @param string $w3tc_group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$value, $expire = 0, $group = '' ) {
-		return $this->set( $key, $value, $expire, $group );
+	public function replace( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 	}
 
 	/**
@@ -186,13 +186,13 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 *
 	 * This method deletes an item from Memcached by its key. If the key doesn't exist, it silently does nothing.
 	 *
-	 * @param string $key     The key of the item to delete.
-	 * @param string $group   The group associated with the item.
+	 * @param string $w3tc_key     The key of the item to delete.
+	 * @param string $w3tc_group   The group associated with the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function delete( $key, $group = '' ) {
-		return @$this->_memcache->delete( $key );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		return @$this->_memcache->delete( $w3tc_key );
 	}
 
 	/**
@@ -201,13 +201,13 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method forces the deletion of an item from Memcached. It is similar to the regular `delete` method but emphasizes
 	 * immediate removal.
 	 *
-	 * @param string $key     The key of the item to delete.
-	 * @param string $group   The group associated with the item.
+	 * @param string $w3tc_key     The key of the item to delete.
+	 * @param string $w3tc_group   The group associated with the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		return @$this->_memcache->delete( $key );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		return @$this->_memcache->delete( $w3tc_key );
 	}
 
 	/**
@@ -215,11 +215,11 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 *
 	 * This method clears all the stored items from Memcached. It has no way to flush individual caches.
 	 *
-	 * @param string $group   An optional group to categorize the items.
+	 * @param string $w3tc_group   An optional group to categorize the items.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function flush( $group = '' ) {
+	public function flush( $w3tc_group = '' ) {
 		// can only flush everything from memcached, no way to flush only pgcache cache.
 		return @$this->_memcache->flush();
 	}
@@ -243,14 +243,14 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * @return array The statistics from Memcached, or an empty array if no stats are available.
 	 */
 	public function get_statistics() {
-		$a = $this->_memcache->getStats();
-		if ( count( $a ) > 0 ) {
-			$keys = array_keys( $a );
-			$key  = $keys[0];
-			return $a[ $key ];
+		$w3tc_a = $this->_memcache->getStats();
+		if ( count( $w3tc_a ) > 0 ) {
+			$w3tc_keys = array_keys( $w3tc_a );
+			$w3tc_key  = $w3tc_keys[0];
+			return $w3tc_a[ $w3tc_key ];
 		}
 
-		return $a;
+		return $w3tc_a;
 	}
 
 	/**
@@ -289,8 +289,8 @@ class Cache_Nginx_Memcached extends Cache_Base {
 					continue;
 				}
 
-				foreach ( $cdump as $line ) {
-					$key_data = explode( ' ', $line );
+				foreach ( $cdump as $w3tc_line ) {
+					$key_data = explode( ' ', $w3tc_line );
 					if ( ! is_array( $key_data ) || count( $key_data ) < 3 ) {
 						continue;
 					}
@@ -303,10 +303,10 @@ class Cache_Nginx_Memcached extends Cache_Base {
 						}
 					}
 
-					$key   = $key_data[1];
-					$bytes = substr( $key_data[2], 1 );
+					$w3tc_key = $key_data[1];
+					$bytes    = substr( $key_data[2], 1 );
 
-					if ( substr( $key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
+					if ( substr( $w3tc_key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
 						$size['bytes'] += $bytes;
 						++$size['items'];
 					}
@@ -329,23 +329,23 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * old value. It uses CAS (Check And Set) to ensure that the value is updated atomically and only when the existing value
 	 * has not changed.
 	 *
-	 * @param string $key       The key of the item to update.
+	 * @param string $w3tc_key       The key of the item to update.
 	 * @param array  $old_value The old value to compare against the current value in cache.
 	 * @param mixed  $new_value The new value to set if the old value matches the current value.
 	 *
 	 * @return bool True if the value was successfully set, false otherwise.
 	 */
-	public function set_if_maybe_equals( $key, $old_value, $new_value ) {
-		$storage_key = $this->get_item_key( $key );
+	public function set_if_maybe_equals( $w3tc_key, $old_value, $new_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		$cas   = null;
-		$value = @$this->_memcache->get( $storage_key, null, $cas );
+		$cas        = null;
+		$w3tc_value = @$this->_memcache->get( $storage_key, null, $cas );
 
-		if ( ! is_array( $value ) ) {
+		if ( ! is_array( $w3tc_value ) ) {
 			return false;
 		}
 
-		if ( isset( $old_value['content'] ) && $value['content'] !== $old_value['content'] ) {
+		if ( isset( $old_value['content'] ) && $w3tc_value['content'] !== $old_value['content'] ) {
 			return false;
 		}
 
@@ -358,23 +358,23 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method increments the value of a counter stored in Memcached. If the key does not exist or is not a number, the counter
 	 * is initialized to 0 and then incremented.
 	 *
-	 * @param string $key   The key of the counter to increment.
-	 * @param int    $value The amount by which to increment the counter.
+	 * @param string $w3tc_key   The key of the counter to increment.
+	 * @param int    $w3tc_value The amount by which to increment the counter.
 	 *
 	 * @return bool True if the increment was successful, false otherwise.
 	 */
-	public function counter_add( $key, $value ) {
-		if ( 0 === $value ) {
+	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( 0 === $w3tc_value ) {
 			return true;
 		}
 
-		$storage_key = $this->get_item_key( $key );
-		$r           = @$this->_memcache->increment( $storage_key, $value );
-		if ( ! $r ) { // it doesnt initialize counter by itself.
-			$this->counter_set( $key, 0 );
+		$storage_key = $this->get_item_key( $w3tc_key );
+		$w3tc_r      = @$this->_memcache->increment( $storage_key, $w3tc_value );
+		if ( ! $w3tc_r ) { // it doesnt initialize counter by itself.
+			$this->counter_set( $w3tc_key, 0 );
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
@@ -382,14 +382,14 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 *
 	 * This method sets the value of a counter in Memcached. If the key does not exist, it will create a new entry with the provided value.
 	 *
-	 * @param string $key   The key of the counter to set.
-	 * @param int    $value The value to set the counter to.
+	 * @param string $w3tc_key   The key of the counter to set.
+	 * @param int    $w3tc_value The value to set the counter to.
 	 *
 	 * @return bool True if the value was successfully set, false otherwise.
 	 */
-	public function counter_set( $key, $value ) {
-		$storage_key = $this->get_item_key( $key );
-		return @$this->_memcache->set( $storage_key, $value );
+	public function counter_set( $w3tc_key, $w3tc_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
+		return @$this->_memcache->set( $storage_key, $w3tc_value );
 	}
 
 	/**
@@ -397,12 +397,12 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 *
 	 * This method retrieves the value of a counter stored in Memcached. If the counter does not exist, it returns 0.
 	 *
-	 * @param string $key The key of the counter to retrieve.
+	 * @param string $w3tc_key The key of the counter to retrieve.
 	 *
 	 * @return int The current value of the counter.
 	 */
-	public function counter_get( $key ) {
-		$storage_key = $this->get_item_key( $key );
+	public function counter_get( $w3tc_key ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$v           = (int) @$this->_memcache->get( $storage_key );
 
 		return $v;
@@ -415,13 +415,13 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * hashed version of the provided name. Memcached keys cannot contain spaces, so this method ensures the key format is valid
 	 * for Memcached.
 	 *
-	 * @param string $name The name for which to generate a unique key.
+	 * @param string $w3tc_name The name for which to generate a unique key.
 	 *
 	 * @return string The generated storage key.
 	 */
-	public function get_item_key( $name ) {
+	public function get_item_key( $w3tc_name ) {
 		// memcached doesn't survive spaces in a key.
-		$key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $name ) );
-		return $key;
+		$w3tc_key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $w3tc_name ) );
+		return $w3tc_key;
 	}
 }

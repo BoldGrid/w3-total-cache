@@ -23,6 +23,45 @@ class Util_WpmuBlogmap {
 	private static $content_by_filename = array();
 
 	/**
+	 * RT9-180 sub-C: per-IP rate limit for first-frontend blog
+	 * discovery to bound enumeration-driven amplification of
+	 * filesystem writes.
+	 *
+	 * The dedup at {@see self::register_new_item()} already bounds
+	 * the write to once per blog URL ever. This rate limit
+	 * additionally bounds how fast a single source IP can trigger
+	 * discoveries across multiple subsite URLs (multisite-
+	 * enumeration scenario). Legitimate-user threshold: a real
+	 * visitor does not visit 5 brand-new subsites within 60 seconds
+	 * from one IP. A synthetic monitor probing all subsites at once
+	 * sees a slight delay on the 6th+ URL — recoverable on the next
+	 * window — not a denial.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var string
+	 */
+	const RATE_LIMIT_TRANSIENT_PREFIX = 'w3tc_blogmap_register_rate_';
+
+	/**
+	 * Maximum first-frontend registrations from one IP per window.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var int
+	 */
+	const RATE_LIMIT_MAX_PER_WINDOW = 5;
+
+	/**
+	 * Rate-limit window in seconds.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var int
+	 */
+	const RATE_LIMIT_WINDOW_SECONDS = 60;
+
+	/**
 	 * Generates a unique blog map filename based on the blog's home URL.
 	 *
 	 * This method determines the appropriate blog map file path and name by hashing the blog's home URL. The file path structure
@@ -76,27 +115,27 @@ class Util_WpmuBlogmap {
 			return $blog_data;
 		} else {
 			// try subdir blog.
-			$url = $host . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ); // phpcs:ignore
-			$pos = strpos( $url, '?' );
+			$w3tc_url = $host . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ); // phpcs:ignore
+			$pos      = strpos( $w3tc_url, '?' );
 			if ( false !== $pos ) {
-				$url = substr( $url, 0, $pos );
+				$w3tc_url = substr( $w3tc_url, 0, $pos );
 			}
 
-			$url       = rtrim( $url, '/' );
-			$start_url = $url;
+			$w3tc_url  = rtrim( $w3tc_url, '/' );
+			$start_url = $w3tc_url;
 
 			for ( ;; ) {
-				$blog_data = self::try_get_current_blog_data( $url );
+				$blog_data = self::try_get_current_blog_data( $w3tc_url );
 				if ( ! is_null( $blog_data ) ) {
 					return $blog_data;
 				}
 
-				$pos = strrpos( $url, '/' );
+				$pos = strrpos( $w3tc_url, '/' );
 				if ( false === $pos ) {
 					break;
 				}
 
-				$url = rtrim( substr( $url, 0, $pos ), '/' );
+				$w3tc_url = rtrim( substr( $w3tc_url, 0, $pos ), '/' );
 			}
 
 			$GLOBALS['w3tc_blogmap_register_new_item'] = $start_url;
@@ -111,7 +150,7 @@ class Util_WpmuBlogmap {
 	 * This method checks if the blog data corresponding to the provided URL exists in the cached data or retrieves it from the
 	 * appropriate file. If the blog data is found, it returns the relevant information; otherwise, it returns `null`.
 	 *
-	 * @param string $url The home URL of the blog to look up.
+	 * @param string $w3tc_url The home URL of the blog to look up.
 	 *
 	 * @return array|null The blog data if found, or null if the blog is not registered.
 	 *
@@ -125,8 +164,8 @@ class Util_WpmuBlogmap {
 	 * - **JSON Decoding**: Reads and decodes JSON data from the file if it exists. Invalid or malformed JSON will result in `null`.
 	 * - **Blog Match**: Checks if the URL exists in the retrieved blog map data. Returns the associated data if a match is found.
 	 */
-	public static function try_get_current_blog_data( $url ) {
-		$filename = self::blogmap_filename_by_home_url( $url );
+	public static function try_get_current_blog_data( $w3tc_url ) {
+		$filename = self::blogmap_filename_by_home_url( $w3tc_url );
 
 		if ( isset( self::$content_by_filename[ $filename ] ) ) {
 			$blog_data = self::$content_by_filename[ $filename ];
@@ -134,8 +173,8 @@ class Util_WpmuBlogmap {
 			$blog_data = null;
 
 			if ( file_exists( $filename ) ) {
-				$data      = file_get_contents( $filename );
-				$blog_data = @json_decode( $data, true );
+				$w3tc_data = file_get_contents( $filename );
+				$blog_data = @json_decode( $w3tc_data, true );
 
 				if ( is_array( $blog_data ) ) {
 					self::$content_by_filename[ $filename ] = $blog_data;
@@ -143,8 +182,8 @@ class Util_WpmuBlogmap {
 			}
 		}
 
-		if ( isset( $blog_data[ $url ] ) ) {
-			return $blog_data[ $url ];
+		if ( isset( $blog_data[ $w3tc_url ] ) ) {
+			return $blog_data[ $w3tc_url ];
 		}
 
 		return null;
@@ -156,7 +195,7 @@ class Util_WpmuBlogmap {
 	 * This method adds the current blog to the blog map file if it is not already registered. The blog map associates blog URLs with their
 	 * unique identifiers, supporting both subdomain and subdirectory WordPress multisite installations.
 	 *
-	 * @param object $config The configuration object containing settings for the current operation. Specifically, the `common.force_master`
+	 * @param object $w3tc_config The configuration object containing settings for the current operation. Specifically, the `common.force_master`
 	 *                       setting is used to determine the blog type.
 	 *
 	 * @return bool Returns `true` if the blog was successfully registered, or `false` if the blog was already registered or an error occurred.
@@ -172,7 +211,7 @@ class Util_WpmuBlogmap {
 	 *
 	 * @throws \Exception If file operations fail and are not caught by internal error handling.
 	 */
-	public static function register_new_item( $config ) {
+	public static function register_new_item( $w3tc_config ) {
 		if ( ! isset( $GLOBALS['current_blog'] ) ) {
 			return false;
 		}
@@ -201,8 +240,8 @@ class Util_WpmuBlogmap {
 		if ( ! @file_exists( $filename ) ) {
 			$blog_ids = array();
 		} else {
-			$data     = @file_get_contents( $filename );
-			$blog_ids = @json_decode( $data, true );
+			$w3tc_data = @file_get_contents( $filename );
+			$blog_ids  = @json_decode( $w3tc_data, true );
 			if ( ! is_array( $blog_ids ) ) {
 				$blog_ids = array();
 			}
@@ -212,21 +251,118 @@ class Util_WpmuBlogmap {
 			return false;
 		}
 
-		$data                       = $config->get_boolean( 'common.force_master' ) ? 'm' : 'c';
-		$blog_home_url              = preg_replace( '/[^a-zA-Z0-9\+\.%~!:()\/\-\_]/', '', $blog_home_url );
-		$blog_ids[ $blog_home_url ] = $data . $GLOBALS['current_blog']->blog_id;
+		/**
+		 * RT9-180 sub-C: per-IP rate-limit gate. The per-URL dedup
+		 * above already bounds writes to once per blog URL ever; this
+		 * additional gate caps enumeration-driven amplification from
+		 * a single source IP. On rate-limit we return false — same
+		 * return type as the dedup short-circuit — so the caller in
+		 * Generic_Plugin::init() sees `$do_redirect = false` and the
+		 * request continues with master config. The blog URL will
+		 * register on a subsequent visit once the rate-limit window
+		 * has cleared.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! self::_rate_limit_allows_write() ) {
+			return false;
+		}
 
-		$data = json_encode( $blog_ids );
+		$w3tc_data                  = $w3tc_config->get_boolean( 'common.force_master' ) ? 'm' : 'c';
+		$blog_home_url              = preg_replace( '/[^a-zA-Z0-9\+\.%~!:()\/\-\_]/', '', $blog_home_url );
+		$blog_ids[ $blog_home_url ] = $w3tc_data . $GLOBALS['current_blog']->blog_id;
+
+		$w3tc_data = json_encode( $blog_ids );
 
 		try {
-			Util_File::file_put_contents_atomic( $filename, $data );
+			Util_File::file_put_contents_atomic( $filename, $w3tc_data );
 		} catch ( \Exception $ex ) {
 			return false;
 		}
+
+		/**
+		 * Increment the per-IP counter only on a successful write.
+		 * Dedup short-circuits and write failures don't count against
+		 * the rate limit — legitimate writes are what we throttle.
+		 */
+		self::_rate_limit_record_write();
 
 		unset( self::$content_by_filename[ $filename ] );
 		unset( $GLOBALS['w3tc_blogmap_register_new_item'] );
 
 		return true;
+	}
+
+	/**
+	 * Compute the per-IP rate-limit transient key.
+	 *
+	 * The raw IP is salted with `wp_salt('nonce')` and hashed so the
+	 * persisted transient does not contain the client IP literal
+	 * (defense against transient-table dumps revealing the visitor
+	 * IP set). Returns empty string when no IP is detected (e.g.
+	 * CLI / WP-Cron without REMOTE_ADDR) — the caller treats empty
+	 * as "no rate limit applies" so legitimate non-HTTP contexts
+	 * are never throttled.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string Transient key, or '' when no IP available.
+	 */
+	private static function _ip_throttle_key() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] )
+			? (string) \wp_unslash( $_SERVER['REMOTE_ADDR'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP used only as a transient key segment after wp_unslash.
+			: '';
+		if ( '' === $ip ) {
+			return '';
+		}
+		if ( false === \filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return '';
+		}
+		$salt = \function_exists( 'wp_salt' ) ? \wp_salt( 'nonce' ) : '';
+		return self::RATE_LIMIT_TRANSIENT_PREFIX
+			. \substr( \hash( 'sha256', $ip . '|' . $salt ), 0, 16 );
+	}
+
+	/**
+	 * True when the current request's IP has not yet exhausted its
+	 * registration quota within the active window. Permits writes
+	 * when no IP can be derived (CLI, edge cases) so legitimate
+	 * non-HTTP contexts are never blocked.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool
+	 */
+	private static function _rate_limit_allows_write() {
+		$w3tc_key = self::_ip_throttle_key();
+		if ( '' === $w3tc_key ) {
+			return true;
+		}
+		$w3tc_count = \get_transient( $w3tc_key );
+		if ( false === $w3tc_count || ! \is_numeric( $w3tc_count ) ) {
+			$w3tc_count = 0;
+		}
+		return (int) $w3tc_count < self::RATE_LIMIT_MAX_PER_WINDOW;
+	}
+
+	/**
+	 * Increment the per-IP counter after a successful write. No-op
+	 * when no IP can be derived (matching the permissive policy in
+	 * {@see self::_rate_limit_allows_write()}).
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	private static function _rate_limit_record_write() {
+		$w3tc_key = self::_ip_throttle_key();
+		if ( '' === $w3tc_key ) {
+			return;
+		}
+		$w3tc_count = \get_transient( $w3tc_key );
+		if ( false === $w3tc_count || ! \is_numeric( $w3tc_count ) ) {
+			$w3tc_count = 0;
+		}
+		\set_transient( $w3tc_key, ( (int) $w3tc_count ) + 1, self::RATE_LIMIT_WINDOW_SECONDS );
 	}
 }

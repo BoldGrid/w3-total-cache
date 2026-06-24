@@ -46,7 +46,7 @@ class Util_UsageStatistics {
 	 * into a human-readable size format using the `bytes_to_size` method. If the value is null,
 	 * it returns 'n/a'.
 	 *
-	 * @param array           $a  The input array to search for the byte value.
+	 * @param array           $w3tc_a  The input array to search for the byte value.
 	 * @param string|int      $p1 The first key to search for.
 	 * @param string|int|null $p2 The second key to search for (optional).
 	 * @param string|int|null $p3 The third key to search for (optional).
@@ -54,8 +54,8 @@ class Util_UsageStatistics {
 	 * @return string The formatted size (e.g., '1.2 GB', '512.0 MB', or '256.0 KB'),
 	 *                or 'n/a' if the value is null or not found.
 	 */
-	public static function bytes_to_size2( $a, $p1, $p2 = null, $p3 = null ) {
-		$v = self::v( $a, $p1, $p2, $p3 );
+	public static function bytes_to_size2( $w3tc_a, $p1, $p2 = null, $p3 = null ) {
+		$v = self::v( $w3tc_a, $p1, $p2, $p3 );
 		if ( is_null( $v ) ) {
 			return 'n/a';
 		}
@@ -90,7 +90,7 @@ class Util_UsageStatistics {
 	 *
 	 * If either property is missing or the denominator is zero, a fallback value is returned.
 	 *
-	 * @param array      $a {
+	 * @param array      $w3tc_a {
 	 *     The input array containing the properties.
 	 *
 	 *     @type string|int $property1 The key for the numerator value.
@@ -100,15 +100,15 @@ class Util_UsageStatistics {
 	 * @param string|int $property2 The key for the denominator value.
 	 *
 	 * @return string The calculated percentage as a string (e.g., '75 %'), 'n/a' if properties
-	 *                are missing, or '0 %' if $a[$property2] is 0.
+	 *                are missing, or '0 %' if $w3tc_a[$property2] is 0.
 	 */
-	public static function percent2( $a, $property1, $property2 ) {
-		if ( ! isset( $a[ $property1 ] ) || ! isset( $a[ $property2 ] ) ) {
+	public static function percent2( $w3tc_a, $property1, $property2 ) {
+		if ( ! isset( $w3tc_a[ $property1 ] ) || ! isset( $w3tc_a[ $property2 ] ) ) {
 			return 'n/a';
-		} elseif ( empty( $a[ $property2 ] ) ) {
+		} elseif ( empty( $w3tc_a[ $property2 ] ) ) {
 			return '0 %';
 		} else {
-			return sprintf( '%d', $a[ $property1 ] / $a[ $property2 ] * 100 ) . ' %';
+			return sprintf( '%d', $w3tc_a[ $property1 ] / $w3tc_a[ $property2 ] * 100 ) . ' %';
 		}
 	}
 
@@ -125,8 +125,8 @@ class Util_UsageStatistics {
 	 */
 	public static function sum( $history, $property ) {
 		$v = 0;
-		foreach ( $history as $i ) {
-			$item_value = self::v3( $i, $property );
+		foreach ( $history as $w3tc_i ) {
+			$item_value = self::v3( $w3tc_i, $property );
 			if ( ! empty( $item_value ) ) {
 				$v += $item_value;
 			}
@@ -146,16 +146,16 @@ class Util_UsageStatistics {
 	 * @return float The average value, or 0 if there are no valid entries.
 	 */
 	public static function avg( $history, $property ) {
-		$v     = 0;
-		$count = 0;
-		foreach ( $history as $i ) {
-			$item_value = self::v3( $i, $property );
+		$v          = 0;
+		$w3tc_count = 0;
+		foreach ( $history as $w3tc_i ) {
+			$item_value = self::v3( $w3tc_i, $property );
 			if ( ! empty( $item_value ) ) {
 				$v += $item_value;
-				++$count;
+				++$w3tc_count;
 			}
 		}
-		return ( $count <= 0 ? 0 : $v / $count );
+		return ( $w3tc_count <= 0 ? 0 : $v / $w3tc_count );
 	}
 
 	/**
@@ -164,23 +164,23 @@ class Util_UsageStatistics {
 	 * This method iterates through an array of arrays and aggregates values of keys that start
 	 * with the given prefix. Only positive values are included in the sum.
 	 *
-	 * @param array  $output          The array to store the aggregated sums by property name.
+	 * @param array  $w3tc_output          The array to store the aggregated sums by property name.
 	 * @param array  $history         An array of arrays to sum values from.
 	 * @param string $property_prefix The prefix of the property names to match.
 	 *
 	 * @return void
 	 */
-	public static function sum_by_prefix_positive( &$output, $history, $property_prefix ) {
+	public static function sum_by_prefix_positive( &$w3tc_output, $history, $property_prefix ) {
 		$property_prefix_len = strlen( $property_prefix );
 
-		foreach ( $history as $i ) {
-			foreach ( $i as $key => $value ) {
-				if ( substr( $key, 0, $property_prefix_len ) === $property_prefix && $value > 0 ) {
-					if ( ! isset( $output[ $key ] ) ) {
-						$output[ $key ] = 0;
+		foreach ( $history as $w3tc_i ) {
+			foreach ( $w3tc_i as $w3tc_key => $w3tc_value ) {
+				if ( substr( $w3tc_key, 0, $property_prefix_len ) === $property_prefix && $w3tc_value > 0 ) {
+					if ( ! isset( $w3tc_output[ $w3tc_key ] ) ) {
+						$w3tc_output[ $w3tc_key ] = 0;
 					}
 
-					$output[ $key ] += $value;
+					$w3tc_output[ $w3tc_key ] += $w3tc_value;
 				}
 			}
 		}
@@ -237,15 +237,15 @@ class Util_UsageStatistics {
 	 * This method uses the `v` method to retrieve a nested value from an array and formats it
 	 * using `number_format()`. If the value is null, it returns 'n/a'.
 	 *
-	 * @param array           $a  The input array to search.
+	 * @param array           $w3tc_a  The input array to search.
 	 * @param string|int      $p1 The first key to search for.
 	 * @param string|int|null $p2 The second key to search for (optional).
 	 * @param string|int|null $p3 The third key to search for (optional).
 	 *
 	 * @return string The formatted value, or 'n/a' if the value is null.
 	 */
-	public static function integer2( $a, $p1, $p2 = null, $p3 = null ) {
-		$v = self::v( $a, $p1, $p2, $p3 );
+	public static function integer2( $w3tc_a, $p1, $p2 = null, $p3 = null ) {
+		$v = self::v( $w3tc_a, $p1, $p2, $p3 );
 		if ( is_null( $v ) ) {
 			return 'n/a';
 		} else {
@@ -259,19 +259,19 @@ class Util_UsageStatistics {
 	 * This method safely navigates an array by checking the existence of keys at each level.
 	 * If a key does not exist or the path is incomplete, the method returns `null`.
 	 *
-	 * @param array           $a   The input array to search.
+	 * @param array           $w3tc_a   The input array to search.
 	 * @param string|int      $p1 The first key, required to locate the initial value.
 	 * @param string|int|null $p2 Optional. The second key to access a nested value. Default is null.
 	 * @param string|int|null $p3 Optional. The third key to access a deeper nested value. Default is null.
 	 *
 	 * @return mixed|null The value located at the specified key path, or null if the path is invalid or incomplete.
 	 */
-	public static function v( $a, $p1, $p2 = null, $p3 = null ) {
-		if ( ! isset( $a[ $p1 ] ) ) {
+	public static function v( $w3tc_a, $p1, $p2 = null, $p3 = null ) {
+		if ( ! isset( $w3tc_a[ $p1 ] ) ) {
 			return null;
 		}
 
-		$v = $a[ $p1 ];
+		$v = $w3tc_a[ $p1 ];
 		if ( is_null( $p2 ) ) {
 			return $v;
 		}
@@ -298,21 +298,21 @@ class Util_UsageStatistics {
 	 * This method safely navigates a nested array by following the sequence of keys provided.
 	 * If any key in the sequence is not set or the path is invalid, the method returns `null`.
 	 *
-	 * @param array            $a The input array to search.
-	 * @param string|int|array $p A single key or an array of keys representing the path to the desired value
+	 * @param array            $w3tc_a The input array to search.
+	 * @param string|int|array $w3tc_p A single key or an array of keys representing the path to the desired value
 	 *                            If a single key is provided, it will be converted to an array.
 	 *
 	 * @return mixed|null The value at the specified key path, or null if the path is invalid or incomplete.
 	 */
-	public static function v3( $a, $p ) {
-		if ( ! is_array( $p ) ) {
-			$p = array( $p );
+	public static function v3( $w3tc_a, $w3tc_p ) {
+		if ( ! is_array( $w3tc_p ) ) {
+			$w3tc_p = array( $w3tc_p );
 		}
 
-		$actual = &$a;
-		$count  = count( $p );
-		for ( $i = 0; $i < $count; $i++ ) {
-			$property = $p[ $i ];
+		$actual     = &$w3tc_a;
+		$w3tc_count = count( $w3tc_p );
+		for ( $w3tc_i = 0; $w3tc_i < $w3tc_count; $w3tc_i++ ) {
+			$property = $w3tc_p[ $w3tc_i ];
 
 			if ( ! isset( $actual[ $property ] ) ) {
 				return null;
@@ -331,20 +331,20 @@ class Util_UsageStatistics {
 	 * of the first property to the second, scaled by 100. If the properties are missing or
 	 * the second property is zero, a fallback value is returned.
 	 *
-	 * @param array      $a The input array containing the values to calculate.
+	 * @param array      $w3tc_a The input array containing the values to calculate.
 	 * @param string|int $property1 The key for the numerator value.
 	 * @param string|int $property2 The key for the denominator value.
 	 *
 	 * @return string The calculated value as a percentage (formatted to 1 decimal place), '0'
 	 *                if the denominator is zero, or 'n/a' if either key is missing.
 	 */
-	public static function value_per_second( $a, $property1, $property2 ) {
-		if ( ! isset( $a[ $property1 ] ) || ! isset( $a[ $property2 ] ) ) {
+	public static function value_per_second( $w3tc_a, $property1, $property2 ) {
+		if ( ! isset( $w3tc_a[ $property1 ] ) || ! isset( $w3tc_a[ $property2 ] ) ) {
 			return 'n/a';
-		} elseif ( empty( $a[ $property2 ] ) ) {
+		} elseif ( empty( $w3tc_a[ $property2 ] ) ) {
 			return '0';
 		} else {
-			return sprintf( '%.1f', $a[ $property1 ] / $a[ $property2 ] * 100 );
+			return sprintf( '%.1f', $w3tc_a[ $property1 ] / $w3tc_a[ $property2 ] * 100 );
 		}
 	}
 

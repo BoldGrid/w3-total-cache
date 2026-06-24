@@ -28,30 +28,30 @@ class Minify_Environment {
 	/**
 	 * Fixes issues related to the WordPress admin area requests.
 	 *
-	 * @param Config $config           W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config           W3TC Config containing Minify settings.
 	 * @param bool   $force_all_checks Whether to force all checks regardless of configuration state.
 	 *
 	 * @return void
 	 *
 	 * @throws \Util_Environment_Exceptions If configuration or folder-related errors occur.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs            = new Util_Environment_Exceptions();
-		$minify_enabled = $config->get_boolean( 'minify.enabled' );
-		$engine         = $config->get_string( 'minify.engine' );
-		$rewrite        = $config->get_boolean( 'minify.rewrite' );
+		$minify_enabled = $w3tc_config->get_boolean( 'minify.enabled' );
+		$w3tc_engine    = $w3tc_config->get_string( 'minify.engine' );
+		$rewrite        = $w3tc_config->get_boolean( 'minify.rewrite' );
 
-		$this->fix_folders( $config, $exs );
+		$this->fix_folders( $w3tc_config, $exs );
 
-		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
+		if ( $w3tc_config->get_boolean( 'config.check' ) || $force_all_checks ) {
 			if ( $minify_enabled && Util_Rule::can_check_rules() && $rewrite ) {
-				$this->rules_core_add( $config, $exs );
+				$this->rules_core_add( $w3tc_config, $exs );
 			} else {
 				$this->rules_core_remove( $exs );
 			}
 
-			if ( $minify_enabled && 'file' === $engine ) {
-				$this->rules_cache_add( $config, $exs );
+			if ( $minify_enabled && 'file' === $w3tc_engine ) {
+				$this->rules_cache_add( $w3tc_config, $exs );
 			} else {
 				$this->rules_cache_remove( $exs );
 			}
@@ -60,7 +60,7 @@ class Minify_Environment {
 		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $minify_enabled && $rewrite && $config->get_boolean( 'minify.debug' ) ) {
+				if ( $minify_enabled && $rewrite && $w3tc_config->get_boolean( 'minify.debug' ) ) {
 					$this->verify_rewrite_working();
 				}
 			} catch ( \Exception $ex ) {
@@ -68,7 +68,7 @@ class Minify_Environment {
 			}
 
 			if ( $minify_enabled ) {
-				$this->verify_engine_working( $config, $exs );
+				$this->verify_engine_working( $w3tc_config, $exs );
 			}
 		}
 
@@ -80,19 +80,19 @@ class Minify_Environment {
 	/**
 	 * Handles configuration adjustments triggered by events.
 	 *
-	 * @param Config $config     W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config     W3TC Config containing Minify settings.
 	 * @param string $event      The event that triggered this function.
 	 * @param Config $old_config Optional previous W3TC Config for comparison.
 	 *
 	 * @return void
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$minify_enabled = $config->get_boolean( 'minify.enabled' );
-		$engine         = $config->get_string( 'minify.engine' );
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		$minify_enabled = $w3tc_config->get_boolean( 'minify.enabled' );
+		$w3tc_engine    = $w3tc_config->get_string( 'minify.engine' );
 
 		// Schedules events.
-		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'minify.file.gc' );
+		if ( $minify_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$new_interval = $w3tc_config->get_integer( 'minify.file.gc' );
 			$old_interval = $old_config ? $old_config->get_integer( 'minify.file.gc' ) : -1;
 
 			if ( null !== $old_config && $new_interval !== $old_interval ) {
@@ -131,28 +131,28 @@ class Minify_Environment {
 	/**
 	 * Retrieves the required rewrite rules based on the current configuration.
 	 *
-	 * @param Config $config W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config W3TC Config containing Minify settings.
 	 *
 	 * @return array|null Array of rewrite rules or null if Minify is disabled.
 	 */
-	public function get_required_rules( $config ) {
-		if ( ! $config->get_boolean( 'minify.enabled' ) ) {
+	public function get_required_rules( $w3tc_config ) {
+		if ( ! $w3tc_config->get_boolean( 'minify.enabled' ) ) {
 			return null;
 		}
 
 		$rewrite_rules = array();
-		if ( 'file' === $config->get_string( 'minify.engine' ) ) {
+		if ( 'file' === $w3tc_config->get_string( 'minify.engine' ) ) {
 			$minify_rules_cache_path = Util_Rule::get_minify_rules_cache_path();
 			$rewrite_rules[]         = array(
 				'filename' => $minify_rules_cache_path,
-				'content'  => $this->rules_cache_generate( $config ),
+				'content'  => $this->rules_cache_generate( $w3tc_config ),
 			);
 		}
 
 		$minify_rules_core_path = Util_Rule::get_minify_rules_core_path();
 		$rewrite_rules[]        = array(
 			'filename' => $minify_rules_core_path,
-			'content'  => $this->rules_core_generate( $config ),
+			'content'  => $this->rules_core_generate( $w3tc_config ),
 			'priority' => 1000,
 		);
 
@@ -162,14 +162,14 @@ class Minify_Environment {
 	/**
 	 * Fixes folder-related issues for the Minify engine.
 	 *
-	 * @param Config $config W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
 	 */
-	private function fix_folders( $config, $exs ) {
+	private function fix_folders( $w3tc_config, $exs ) {
 		// folder that we delete if exists and not writeable.
-		if ( $config->get_boolean( 'minify.enabled' ) && 'file' === $config->get_string( 'minify.engine' ) ) {
+		if ( $w3tc_config->get_boolean( 'minify.enabled' ) && 'file' === $w3tc_config->get_string( 'minify.engine' ) ) {
 			$dir = W3TC_CACHE_MINIFY_DIR;
 
 			try {
@@ -189,17 +189,17 @@ class Minify_Environment {
 	/**
 	 * Verifies that the Minify engine is working correctly.
 	 *
-	 * @param Config $config W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
 	 */
-	private function verify_engine_working( $config, $exs ) {
+	private function verify_engine_working( $w3tc_config, $exs ) {
 		$minifiers_errors = array();
 
-		if ( 'yuijs' === $config->get_string( 'minify.js.engine' ) ) {
-			$path_java = $config->get_string( 'minify.yuijs.path.java' );
-			$path_jar  = $config->get_string( 'minify.yuijs.path.jar' );
+		if ( 'yuijs' === $w3tc_config->get_string( 'minify.js.engine' ) ) {
+			$path_java = $w3tc_config->get_string( 'minify.yuijs.path.java' );
+			$path_jar  = $w3tc_config->get_string( 'minify.yuijs.path.jar' );
 
 			if ( ! file_exists( $path_java ) ) {
 				$minifiers_errors[] = sprintf( 'YUI Compressor (JS): JAVA executable path was not found. The default minifier JSMin will be used instead.' );
@@ -208,9 +208,9 @@ class Minify_Environment {
 			}
 		}
 
-		if ( 'yuicss' === $config->get_string( 'minify.css.engine' ) ) {
-			$path_java = $config->get_string( 'minify.yuicss.path.java' );
-			$path_jar  = $config->get_string( 'minify.yuicss.path.jar' );
+		if ( 'yuicss' === $w3tc_config->get_string( 'minify.css.engine' ) ) {
+			$path_java = $w3tc_config->get_string( 'minify.yuicss.path.java' );
+			$path_jar  = $w3tc_config->get_string( 'minify.yuicss.path.jar' );
 
 			if ( ! file_exists( $path_java ) ) {
 				$minifiers_errors[] = sprintf( 'YUI Compressor (CSS): JAVA executable path was not found. The default CSS minifier will be used instead.' );
@@ -219,9 +219,9 @@ class Minify_Environment {
 			}
 		}
 
-		if ( 'ccjs' === $config->get_string( 'minify.js.engine' ) ) {
-			$path_java = $config->get_string( 'minify.ccjs.path.java' );
-			$path_jar  = $config->get_string( 'minify.ccjs.path.jar' );
+		if ( 'ccjs' === $w3tc_config->get_string( 'minify.js.engine' ) ) {
+			$path_java = $w3tc_config->get_string( 'minify.ccjs.path.java' );
+			$path_jar  = $w3tc_config->get_string( 'minify.ccjs.path.jar' );
 
 			if ( ! file_exists( $path_java ) ) {
 				$minifiers_errors[] = sprintf( 'Closure Compiler: JAVA executable path was not found. The default minifier JSMin will be used instead.' );
@@ -251,16 +251,16 @@ class Minify_Environment {
 	 * @throws \Util_Environment_Exception If URL rewriting fails.
 	 */
 	private function verify_rewrite_working() {
-		$url = Minify_Core::minified_url( wp_rand() . 'w3tc_rewrite_test.css' );
+		$w3tc_url = Minify_Core::minified_url( wp_rand() . 'w3tc_rewrite_test.css' );
 
-		$result = $this->test_rewrite( $url );
-		if ( 'ok' !== $result ) {
+		$w3tc_result = $this->test_rewrite( $w3tc_url );
+		if ( 'ok' !== $w3tc_result ) {
 			$home_url = get_home_url();
 
 			$tech_message =
 				( Util_Environment::is_nginx() ? 'nginx configuration file' : '.htaccess file' ) .
-				' contains rules to rewrite url ' . $url . '. If handled by plugin, it returns "Minify OK"' .
-				' message.<br/>The plugin made a request to ' . $url . ' but received: <br />' . $result .
+				' contains rules to rewrite url ' . $w3tc_url . '. If handled by plugin, it returns "Minify OK"' .
+				' message.<br/>The plugin made a request to ' . $w3tc_url . ' but received: <br />' . $w3tc_result .
 				'<br />instead of "Minify OK" response. <br />';
 
 			$error = '<strong>W3 Total Cache error:</strong>It appears Minify ' .
@@ -287,16 +287,35 @@ class Minify_Environment {
 	/**
 	 * Tests the rewrite rules by sending a request to a test Minify URL.
 	 *
-	 * @param string $url The URL to test for rewriting functionality.
+	 * The probe URL points at the unauthenticated `Minify_Plugin::init`
+	 * handler. To stop anonymous callers from triggering the probe, we
+	 * issue a one-shot capability token via
+	 * {@see Minify_MinifiedFileRequestHandler::issue_probe_token()} and pass
+	 * it on the request through the `X-W3TC-Minify-Probe` header. The
+	 * handler will only emit `Minify OK` (or honour the `XXX.css` cache-write
+	 * probe) when the token matches.
+	 *
+	 * @since 2.10.0 Authenticated probe via short-lived `X-W3TC-Minify-Probe` token.
+	 *
+	 * @param string $w3tc_url The URL to test for rewriting functionality.
 	 *
 	 * @return string 'ok' if successful, or an error message otherwise.
 	 */
-	private function test_rewrite( $url ) {
-		$key    = sprintf( 'w3tc_rewrite_test_%s', substr( md5( $url ), 0, 16 ) );
-		$result = get_site_transient( $key );
+	private function test_rewrite( $w3tc_url ) {
+		$w3tc_key    = sprintf( 'w3tc_rewrite_test_%s', substr( md5( $w3tc_url ), 0, 16 ) );
+		$w3tc_result = get_site_transient( $w3tc_key );
 
-		if ( 'ok' !== $result ) {
-			$response = Util_Http::get( $url );
+		if ( 'ok' !== $w3tc_result ) {
+			$probe_token = Minify_MinifiedFileRequestHandler::issue_probe_token();
+
+			$response = Util_Http::get(
+				$w3tc_url,
+				array(
+					'headers' => array(
+						'X-W3TC-Minify-Probe' => $probe_token,
+					),
+				)
+			);
 
 			$is_ok = (
 				! is_wp_error( $response ) &&
@@ -305,17 +324,17 @@ class Minify_Environment {
 			);
 
 			if ( $is_ok ) {
-				$result = 'ok';
+				$w3tc_result = 'ok';
 			} elseif ( is_wp_error( $response ) ) {
-				$result = $response->get_error_message();
+				$w3tc_result = $response->get_error_message();
 			} else {
-				$result = '<pre>' . print_r( $response['response'], true ) . '</pre>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				$w3tc_result = '<pre>' . print_r( $response['response'], true ) . '</pre>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 			}
 
-			set_site_transient( $key, $result, 30 );
+			set_site_transient( $w3tc_key, $w3tc_result, 30 );
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -345,16 +364,16 @@ class Minify_Environment {
 	/**
 	 * Adds core rewrite rules for Minify.
 	 *
-	 * @param Config $config W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
 	 */
-	private function rules_core_add( $config, $exs ) {
+	private function rules_core_add( $w3tc_config, $exs ) {
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_minify_rules_core_path(),
-			$this->rules_core_generate( $config ),
+			$this->rules_core_generate( $w3tc_config ),
 			W3TC_MARKER_BEGIN_MINIFY_CORE,
 			W3TC_MARKER_END_MINIFY_CORE,
 			array(
@@ -391,18 +410,18 @@ class Minify_Environment {
 	/**
 	 * Generates the core rewrite rules for Minify based on the server environment.
 	 *
-	 * @param Config $config W3TC Config containing Minify settings.
+	 * @param Config $w3tc_config W3TC Config containing Minify settings.
 	 *
 	 * @return string The generated rules.
 	 */
-	public function rules_core_generate( $config ) {
+	public function rules_core_generate( $w3tc_config ) {
 		switch ( true ) {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
-				return $this->rules_core_generate_apache( $config );
+				return $this->rules_core_generate_apache( $w3tc_config );
 
 			case Util_Environment::is_nginx():
-				return $this->rules_core_generate_nginx( $config );
+				return $this->rules_core_generate_nginx( $w3tc_config );
 		}
 
 		return '';
@@ -427,11 +446,11 @@ class Minify_Environment {
 	/**
 	 * Generates Apache rewrite rules for core minification functionality.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated Apache rewrite rules.
 	 */
-	public function rules_core_generate_apache( $config ) {
+	public function rules_core_generate_apache( $w3tc_config ) {
 		$cache_uri = Util_Environment::url_to_uri( Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR ) ) . '/';
 		$site_uri  = $this->site_uri();
 
@@ -440,18 +459,18 @@ class Minify_Environment {
 			$site_uri = wp_parse_url( $site_uri, PHP_URL_PATH );
 		}
 
-		$engine       = $config->get_string( 'minify.engine' );
-		$browsercache = $config->get_boolean( 'browsercache.enabled' );
+		$w3tc_engine  = $w3tc_config->get_string( 'minify.engine' );
+		$browsercache = $w3tc_config->get_boolean( 'browsercache.enabled' );
 
 		$brotli = (
 			$browsercache &&
-			$config->get_boolean( 'browsercache.cssjs.brotli' ) &&
+			$w3tc_config->get_boolean( 'browsercache.cssjs.brotli' ) &&
 			! defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' )
 		);
 
 		$compression = (
 			$browsercache &&
-			$config->get_boolean( 'browsercache.cssjs.compression' ) &&
+			$w3tc_config->get_boolean( 'browsercache.cssjs.compression' ) &&
 			! defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' )
 		);
 
@@ -461,18 +480,18 @@ class Minify_Environment {
 		$rules .= "    RewriteEngine On\n";
 		$rules .= "    RewriteBase " . $cache_uri . "\n";
 
-		if ( 'file' === $engine ) {
+		if ( 'file' === $w3tc_engine ) {
 			if ( $brotli ) {
 				$rules .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 				$rules .= "    RewriteRule .* - [E=APPEND_EXT:_br]\n";
-				$rules .= "    RewriteCond %{REQUEST_FILENAME}%{ENV:APPEND_EXT} -" . ( $config->get_boolean( 'minify.file.nfs' ) ? 'F' : 'f' ) . "\n";
+				$rules .= "    RewriteCond %{REQUEST_FILENAME}%{ENV:APPEND_EXT} -" . ( $w3tc_config->get_boolean( 'minify.file.nfs' ) ? 'F' : 'f' ) . "\n";
 				$rules .= "    RewriteRule (.*) $1%{ENV:APPEND_EXT} [L]\n";
 			}
 
 			if ( $compression ) {
 				$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 				$rules .= "    RewriteRule .* - [E=APPEND_EXT:_gzip]\n";
-				$rules .= "    RewriteCond %{REQUEST_FILENAME}%{ENV:APPEND_EXT} -" . ( $config->get_boolean( 'minify.file.nfs' ) ? 'F' : 'f' ) . "\n";
+				$rules .= "    RewriteCond %{REQUEST_FILENAME}%{ENV:APPEND_EXT} -" . ( $w3tc_config->get_boolean( 'minify.file.nfs' ) ? 'F' : 'f' ) . "\n";
 				$rules .= "    RewriteRule (.*) $1%{ENV:APPEND_EXT} [L]\n";
 			}
 
@@ -491,11 +510,11 @@ class Minify_Environment {
 	/**
 	 * Generates NGINX rewrite rules for core minification functionality.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated NGINX rewrite rules.
 	 */
-	public function rules_core_generate_nginx( $config ) {
+	public function rules_core_generate_nginx( $w3tc_config ) {
 		$cache_uri       = Util_Environment::url_to_uri( Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR ) ) . '/';
 		$first_regex_var = '$1';
 
@@ -514,25 +533,25 @@ class Minify_Environment {
 
 		$minify_uri = $this->site_uri();
 
-		$engine       = $config->get_string( 'minify.engine' );
-		$browsercache = $config->get_boolean( 'browsercache.enabled' );
+		$w3tc_engine  = $w3tc_config->get_string( 'minify.engine' );
+		$browsercache = $w3tc_config->get_boolean( 'browsercache.enabled' );
 
 		$brotli = (
 			$browsercache &&
-			$config->get_boolean( 'browsercache.cssjs.brotli' ) &&
+			$w3tc_config->get_boolean( 'browsercache.cssjs.brotli' ) &&
 			! defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' )
 		);
 
 		$compression = (
 			$browsercache &&
-			$config->get_boolean( 'browsercache.cssjs.compression' ) &&
+			$w3tc_config->get_boolean( 'browsercache.cssjs.compression' ) &&
 			! defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' )
 		);
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_MINIFY_CORE . "\n";
 
-		if ( 'file' === $engine ) {
+		if ( 'file' === $w3tc_engine ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
 			if ( $brotli ) {
@@ -561,16 +580,16 @@ class Minify_Environment {
 	/**
 	 * Adds cache rules for minification.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param array  $exs    Array of existing rules to be modified or added to.
 	 *
 	 * @return void
 	 */
-	private function rules_cache_add( $config, $exs ) {
+	private function rules_cache_add( $w3tc_config, $exs ) {
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_minify_rules_cache_path(),
-			$this->rules_cache_generate( $config ),
+			$this->rules_cache_generate( $w3tc_config ),
 			W3TC_MARKER_BEGIN_MINIFY_CACHE,
 			W3TC_MARKER_END_MINIFY_CACHE,
 			array(
@@ -607,18 +626,18 @@ class Minify_Environment {
 	/**
 	 * Generates cache rules based on the server environment.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated cache rules.
 	 */
-	private function rules_cache_generate( $config ) {
+	private function rules_cache_generate( $w3tc_config ) {
 		switch ( true ) {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
-				return $this->rules_cache_generate_apache( $config );
+				return $this->rules_cache_generate_apache( $w3tc_config );
 
 			case Util_Environment::is_nginx():
-				return $this->rules_cache_generate_nginx( $config );
+				return $this->rules_cache_generate_nginx( $w3tc_config );
 		}
 
 		return '';
@@ -627,20 +646,20 @@ class Minify_Environment {
 	/**
 	 * Generates Apache cache rules for minification.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated Apache cache rules.
 	 */
-	private function rules_cache_generate_apache( $config ) {
-		$browsercache  = $config->get_boolean( 'browsercache.enabled' );
-		$brotli        = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.brotli' ) );
-		$compression   = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.compression' ) );
-		$expires       = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.expires' ) );
-		$lifetime      = ( $browsercache ? $config->get_integer( 'browsercache.cssjs.lifetime' ) : 0 );
-		$cache_control = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.cache.control' ) );
-		$etag          = ( $browsercache && $config->get_integer( 'browsercache.html.etag' ) );
-		$w3tc          = ( $browsercache && $config->get_integer( 'browsercache.cssjs.w3tc' ) );
-		$compatibility = $config->get_boolean( 'pgcache.compatibility' );
+	private function rules_cache_generate_apache( $w3tc_config ) {
+		$browsercache  = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.brotli' ) );
+		$compression   = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.compression' ) );
+		$expires       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.expires' ) );
+		$lifetime      = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.cssjs.lifetime' ) : 0 );
+		$cache_control = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.cache.control' ) );
+		$etag          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
+		$w3tc          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.cssjs.w3tc' ) );
+		$compatibility = $w3tc_config->get_boolean( 'pgcache.compatibility' );
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_MINIFY_CACHE . "\n";
@@ -703,7 +722,7 @@ class Minify_Environment {
 			}
 
 			if ( $cache_control ) {
-				$cache_policy = $config->get_string( 'browsercache.cssjs.cache.policy' );
+				$cache_policy = $w3tc_config->get_string( 'browsercache.cssjs.cache.policy' );
 
 				switch ( $cache_policy ) {
 					case 'cache':
@@ -774,21 +793,21 @@ class Minify_Environment {
 	/**
 	 * Generates NGINX cache rules for minification.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated NGINX cache rules.
 	 */
-	private function rules_cache_generate_nginx( $config ) {
+	private function rules_cache_generate_nginx( $w3tc_config ) {
 		$cache_uri = Util_Environment::url_to_uri( Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR ) ) . '/';
 
-		$browsercache = $config->get_boolean( 'browsercache.enabled' );
-		$brotli       = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.brotli' ) );
-		$gzip         = ( $browsercache && $config->get_boolean( 'browsercache.cssjs.compression' ) );
+		$browsercache = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.brotli' ) );
+		$gzip         = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.compression' ) );
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_MINIFY_CACHE . "\n";
 
-		$common_rules_a   = Dispatcher::nginx_rules_for_browsercache_section( $config, 'cssjs', true );
+		$common_rules_a   = Dispatcher::nginx_rules_for_browsercache_section( $w3tc_config, 'cssjs', true );
 		$common_rules_a[] = 'add_header Vary "Accept-Encoding";';
 
 		$common_rules = '    ' . implode( "\n    ", $common_rules_a ) . "\n";
@@ -838,15 +857,15 @@ class Minify_Environment {
 	 * Modifies or generates LiteSpeed browser cache rules for a specific section.
 	 *
 	 * @param string $section_rules Existing rules for the specified section.
-	 * @param Config $config        W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config        W3TC Config containing relevant settings.
 	 * @param string $section       Section name to modify or generate rules for.
 	 *
 	 * @return string Modified or generated rules for the specified section.
 	 */
-	public function w3tc_browsercache_rules_section( $section_rules, $config, $section ) {
+	public function w3tc_browsercache_rules_section( $section_rules, $w3tc_config, $section ) {
 		if ( Util_Environment::is_litespeed() ) {
-			$o             = new Minify_Environment_LiteSpeed( $config );
-			$section_rules = $o->w3tc_browsercache_rules_section( $section_rules, $section );
+			$w3tc_o        = new Minify_Environment_LiteSpeed( $w3tc_config );
+			$section_rules = $w3tc_o->w3tc_browsercache_rules_section( $section_rules, $section );
 		}
 		return $section_rules;
 	}

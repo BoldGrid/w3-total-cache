@@ -17,12 +17,12 @@ class Extension_Amp_Plugin_Admin {
 	 * Modifies the extensions array to include AMP extension details.
 	 *
 	 * @param array  $extensions Array of current extensions.
-	 * @param object $config     Configuration object.
+	 * @param object $w3tc_config     Configuration object.
 	 *
 	 * @return array Modified extensions array with AMP extension.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
-		$enabled          = true;
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
+		$w3tc_enabled     = true;
 		$disabled_message = '';
 
 		$requirements = array();
@@ -36,7 +36,7 @@ class Extension_Amp_Plugin_Admin {
 			'extension_id'     => 'amp',
 			'settings_exists'  => true,
 			'version'          => '0.1',
-			'enabled'          => $enabled,
+			'enabled'          => $w3tc_enabled,
 			'disabled_message' => $disabled_message,
 			'requirements'     => implode( ', ', $requirements ),
 			'path'             => 'w3-total-cache/Extension_Amp_Plugin.php',
@@ -51,10 +51,10 @@ class Extension_Amp_Plugin_Admin {
 	 * @return void
 	 */
 	public static function w3tc_extension_load_admin() {
-		$o = new Extension_Amp_Plugin_Admin();
+		$w3tc_o = new Extension_Amp_Plugin_Admin();
 
-		add_action( 'w3tc_extension_page_amp', array( $o, 'w3tc_extension_page_amp' ) );
-		add_action( 'w3tc_config_save', array( $o, 'w3tc_config_save' ), 10, 1 );
+		add_action( 'w3tc_extension_page_amp', array( $w3tc_o, 'w3tc_extension_page_amp' ) );
+		add_action( 'w3tc_config_save', array( $w3tc_o, 'w3tc_config_save' ), 10, 1 );
 	}
 
 	/**
@@ -69,15 +69,15 @@ class Extension_Amp_Plugin_Admin {
 	/**
 	 * Saves the AMP configuration settings.
 	 *
-	 * @param object $config Configuration object containing AMP settings.
+	 * @param object $w3tc_config Configuration object containing AMP settings.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_save( $config ) {
+	public function w3tc_config_save( $w3tc_config ) {
 		// frontend activity.
-		$url_type         = $config->get_string( array( 'amp', 'url_type' ) );
+		$url_type         = $w3tc_config->get_string( array( 'amp', 'url_type' ) );
 		$is_active_dropin = ( 'querystring' === $url_type );
 
-		$config->set_extension_active_dropin( 'amp', $is_active_dropin );
+		$w3tc_config->set_extension_active_dropin( 'amp', $is_active_dropin );
 	}
 }

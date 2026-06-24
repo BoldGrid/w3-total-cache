@@ -47,14 +47,14 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	/**
 	 * PHP5-style constructor
 	 *
-	 * @param array $config Config.
+	 * @param array $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
 
-		$this->_expire = ( isset( $config['expire'] ) ? (int) $config['expire'] : 0 );
+		$this->_expire = ( isset( $w3tc_config['expire'] ) ? (int) $w3tc_config['expire'] : 0 );
 
 		if ( ! $this->_expire ) {
 			$this->_expire = 0;
@@ -62,9 +62,9 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 			$this->_expire = W3TC_CACHE_FILE_EXPIRE_MAX;
 		}
 
-		if ( ! empty( $config['time_min_valid'] ) ) {
-			$this->time_min_valid          = $config['time_min_valid'];
-			$this->old_file_time_min_valid = $config['time_min_valid'];
+		if ( ! empty( $w3tc_config['time_min_valid'] ) ) {
+			$this->time_min_valid          = $w3tc_config['time_min_valid'];
+			$this->old_file_time_min_valid = $w3tc_config['time_min_valid'];
 		} elseif ( $this->_expire > 0 ) {
 			$this->time_min_valid          = time() - $this->_expire;
 			$this->old_file_time_min_valid = time() - $this->_expire * 5;
@@ -86,18 +86,18 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 		}
 
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
-				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
+				$full_path = $path . DIRECTORY_SEPARATOR . $w3tc_entry;
 
 				foreach ( $this->_exclude as $mask ) {
-					if ( fnmatch( $mask, basename( $entry ) ) ) {
-						$entry = @readdir( $dir );
+					if ( fnmatch( $mask, basename( $w3tc_entry ) ) ) {
+						$w3tc_entry = @readdir( $dir );
 						continue 2;
 					}
 				}
@@ -105,10 +105,10 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 				if ( @is_dir( $full_path ) ) {
 					$this->_clean( $full_path );
 				} else {
-					$this->_clean_file( $entry, $full_path );
+					$this->_clean_file( $w3tc_entry, $full_path );
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -121,13 +121,13 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	/**
 	 * Clean file
 	 *
-	 * @param string $entry     Entry.
+	 * @param string $w3tc_entry     Entry.
 	 * @param string $full_path Full path.
 	 *
 	 * @return void
 	 */
-	public function _clean_file( $entry, $full_path ) {
-		if ( '_old' === substr( $entry, -4 ) ) {
+	public function _clean_file( $w3tc_entry, $full_path ) {
+		if ( '_old' === substr( $w3tc_entry, -4 ) ) {
 			if ( ! $this->is_old_file_valid( $full_path ) ) {
 				++$this->processed_count;
 				@unlink( $full_path );
@@ -150,13 +150,13 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	/**
 	 * Checks if file is valid
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return bool
 	 */
-	public function is_valid( $file ) {
-		if ( $this->time_min_valid > 0 && file_exists( $file ) ) {
-			$ftime = @filemtime( $file );
+	public function is_valid( $w3tc_file ) {
+		if ( $this->time_min_valid > 0 && file_exists( $w3tc_file ) ) {
+			$ftime = @filemtime( $w3tc_file );
 			if ( $ftime && $ftime >= $this->time_min_valid ) {
 				return true;
 			}
@@ -168,13 +168,13 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	/**
 	 * Checks if old file is valid
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return bool
 	 */
-	public function is_old_file_valid( $file ) {
-		if ( $this->old_file_time_min_valid > 0 && file_exists( $file ) ) {
-			$ftime = @filemtime( $file );
+	public function is_old_file_valid( $w3tc_file ) {
+		if ( $this->old_file_time_min_valid > 0 && file_exists( $w3tc_file ) ) {
+			$ftime = @filemtime( $w3tc_file );
 
 			if ( $ftime && $ftime >= $this->old_file_time_min_valid ) {
 				return true;

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -20,16 +21,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-access-region-descriptor', 'access_region_descriptor', $details['access_region_descriptor_serialized'] );
 	Util_Ui::hidden( 'w3tc-rackspace-region', 'region', $details['region'] );
 	Util_Ui::hidden( 'w3tc-rackspace-service-id', 'service_id', $details['service_id'] );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 	?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Succeeded', 'w3-total-cache' ) ); ?>

@@ -175,13 +175,13 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Retrieves a cached object from the object cache.
 	 *
 	 * @param string $id    The cache key.
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 * @param bool   $force Whether to force a cache refresh.
 	 * @param bool   $found A reference to a boolean variable indicating whether the cache was found.
 	 *
 	 * @return mixed The cached object or false if not found.
 	 */
-	public function get( $id, $group = 'default', $force = false, &$found = null ) {
+	public function get( $id, $w3tc_group = 'default', $force = false, &$found = null ) {
 		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
@@ -191,35 +191,35 @@ class ObjectCache_WpObjectCache_Regular {
 			$time_start = Util_Debug::microtime();
 		}
 
-		if ( empty( $group ) ) {
-			$group = 'default';
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = 'default';
 		}
 
-		$key             = $this->_get_cache_key( $id, $group );
-		$in_incall_cache = isset( $this->cache[ $key ] );
+		$w3tc_key        = $this->_get_cache_key( $id, $w3tc_group );
+		$in_incall_cache = isset( $this->cache[ $w3tc_key ] );
 		$fallback_used   = false;
 
 		$cache_total_inc = 0;
 		$cache_hits_inc  = 0;
 
 		if ( $in_incall_cache && ! $force ) {
-			$found = true;
-			$value = $this->cache[ $key ];
+			$found      = true;
+			$w3tc_value = $this->cache[ $w3tc_key ];
 		} elseif (
 			$this->_caching
-			&& ! in_array( $group, $this->nonpersistent_groups, true )
-			&& $this->_check_can_cache_runtime( $group )
+			&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
+			&& $this->_check_can_cache_runtime( $w3tc_group )
 		) {
-			$cache = $this->_get_cache( null, $group );
-			$v     = $cache->get( $key, $group );
+			$cache = $this->_get_cache( null, $w3tc_group );
+			$v     = $cache->get( $w3tc_key, $w3tc_group );
 
 			/* // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 				For debugging
-				$a = $cache->_get_with_old_raw( $key );
-				$path = $cache->get_full_path( $key);
+				$w3tc_a = $cache->_get_with_old_raw( $w3tc_key );
+				$path = $cache->get_full_path( $w3tc_key);
 				$returned = 'x ' . $path . ' ' .
 					(is_readable( $path ) ? ' readable ' : ' not-readable ') .
-					json_encode($a);
+					json_encode($w3tc_a);
 			*/
 
 			$cache_total_inc = 1;
@@ -231,37 +231,37 @@ class ObjectCache_WpObjectCache_Regular {
 					&& intval( $v['key_version_all'] ) >= $this->key_version_all_get()
 			) {
 				$found          = true;
-				$value          = $v['content'];
+				$w3tc_value     = $v['content'];
 				$cache_hits_inc = 1;
 			} else {
-				$found = false;
-				$value = false;
+				$found      = false;
+				$w3tc_value = false;
 			}
 		} else {
-			$found = false;
-			$value = false;
+			$found      = false;
+			$w3tc_value = false;
 		}
 
-		if ( null === $value ) {
-			$value = false;
+		if ( null === $w3tc_value ) {
+			$w3tc_value = false;
 		}
 
-		if ( is_object( $value ) ) {
-			$value = clone $value;
+		if ( is_object( $w3tc_value ) ) {
+			$w3tc_value = clone $w3tc_value;
 		}
 
 		if (
 			! $found
-				&& $this->_is_transient_group( $group )
+				&& $this->_is_transient_group( $w3tc_group )
 				&& $this->_config->get_boolean( 'objectcache.fallback_transients' )
 		) {
 			$fallback_used = true;
-			$value         = $this->_transient_fallback_get( $id, $group );
-			$found         = ( false !== $value );
+			$w3tc_value    = $this->_transient_fallback_get( $id, $w3tc_group );
+			$found         = ( false !== $w3tc_value );
 		}
 
 		if ( $found && ! $in_incall_cache ) {
-			$this->cache[ $key ] = $value;
+			$this->cache[ $w3tc_key ] = $w3tc_value;
 		}
 
 		// Add debug info.
@@ -294,10 +294,10 @@ class ObjectCache_WpObjectCache_Regular {
 						array(
 							gmdate( 'r' ),
 							'get',
-							$group,
+							$w3tc_group,
 							$id,
 							$returned,
-							( $value ? strlen( serialize( $value ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+							( $w3tc_value ? strlen( serialize( $w3tc_value ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 							(int) ( $time * 1000000 ),
 						)
 					);
@@ -305,27 +305,27 @@ class ObjectCache_WpObjectCache_Regular {
 			}
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Retrieves multiple cached objects.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
 	 * @param array  $ids    An array of cache keys.
-	 * @param string $group  The cache group.
+	 * @param string $w3tc_group  The cache group.
 	 * @param bool   $force  Whether to force a cache refresh.
 	 *
 	 * @return array An associative array of cached objects, indexed by cache key.
 	 */
-	public function get_multiple( $ids, $group = 'default', $force = false ) {
+	public function get_multiple( $ids, $w3tc_group = 'default', $force = false ) {
 		if ( empty( $ids ) ) {
 			return array();
 		}
 
-		if ( empty( $group ) ) {
-			$group = 'default';
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = 'default';
 		}
 
 		$results          = array();
@@ -336,36 +336,36 @@ class ObjectCache_WpObjectCache_Regular {
 
 		// First satisfy anything already in the in-request cache unless $force is true.
 		foreach ( $ids as $id ) {
-			$key = $this->_get_cache_key( $id, $group );
-			if ( ! $force && isset( $this->cache[ $key ] ) ) {
-				$results[ $id ] = $this->cache[ $key ];
-				$cache_hits_inc++;
+			$w3tc_key = $this->_get_cache_key( $id, $w3tc_group );
+			if ( ! $force && isset( $this->cache[ $w3tc_key ] ) ) {
+				$results[ $id ] = $this->cache[ $w3tc_key ];
+				++$cache_hits_inc;
 				continue;
 			}
-			$runtime_misses[ $id ] = $key;
+			$runtime_misses[ $id ] = $w3tc_key;
 		}
 
 		// Attempt a batched persistent fetch for the remaining keys when allowed.
 		if (
 			! empty( $runtime_misses ) &&
 			$this->_caching &&
-			! in_array( $group, $this->nonpersistent_groups, true ) &&
-			$this->_check_can_cache_runtime( $group )
+			! in_array( $w3tc_group, $this->nonpersistent_groups, true ) &&
+			$this->_check_can_cache_runtime( $w3tc_group )
 		) {
-			$cache      = $this->_get_cache( null, $group );
-			$storageMap = $runtime_misses;
-			$raw_values = array();
+			$cache       = $this->_get_cache( null, $w3tc_group );
+			$storage_map = $runtime_misses;
+			$raw_values  = array();
 
 			if ( method_exists( $cache, 'get_multi' ) ) {
-				$raw_values = $cache->get_multi( array_values( $storageMap ), $group );
+				$raw_values = $cache->get_multi( array_values( $storage_map ), $w3tc_group );
 			} else {
-				foreach ( $storageMap as $storage_key ) {
-					$raw_values[ $storage_key ] = $cache->get( $storage_key, $group );
+				foreach ( $storage_map as $storage_key ) {
+					$raw_values[ $storage_key ] = $cache->get( $storage_key, $w3tc_group );
 				}
 			}
 
 			foreach ( $runtime_misses as $id => $storage_key ) {
-				$cache_total_inc++;
+				++$cache_total_inc;
 				$v = isset( $raw_values[ $storage_key ] ) ? $raw_values[ $storage_key ] : null;
 
 				if (
@@ -374,9 +374,9 @@ class ObjectCache_WpObjectCache_Regular {
 					isset( $v['key_version_all'] ) &&
 					intval( $v['key_version_all'] ) >= $this->key_version_all_get()
 				) {
-					$results[ $id ]           = $v['content'];
+					$results[ $id ]              = $v['content'];
 					$this->cache[ $storage_key ] = $v['content'];
-					$cache_hits_inc++;
+					++$cache_hits_inc;
 				} else {
 					$results[ $id ] = false;
 				}
@@ -384,7 +384,7 @@ class ObjectCache_WpObjectCache_Regular {
 		} else {
 			// Not eligible for persistent fetch; fall back to per-key get() honoring $force.
 			foreach ( $runtime_misses as $id => $unused_key ) {
-				$results[ $id ] = $this->get( $id, $group, $force );
+				$results[ $id ] = $this->get( $id, $w3tc_group, $force );
 			}
 		}
 
@@ -404,13 +404,13 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Sets a cached object in the object cache.
 	 *
 	 * @param string $id      The cache key.
-	 * @param mixed  $data    The data to cache.
-	 * @param string $group   The cache group.
+	 * @param mixed  $w3tc_data    The data to cache.
+	 * @param string $w3tc_group   The cache group.
 	 * @param int    $expire  The expiration time, in seconds.
 	 *
 	 * @return bool True if the cache was set successfully, false otherwise.
 	 */
-	public function set( $id, $data, $group = 'default', $expire = 0 ) {
+	public function set( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
 		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
@@ -420,54 +420,54 @@ class ObjectCache_WpObjectCache_Regular {
 			$time_start = Util_Debug::microtime();
 		}
 
-		if ( empty( $group ) ) {
-			$group = 'default';
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = 'default';
 		}
 
-		$key = $this->_get_cache_key( $id, $group );
+		$w3tc_key = $this->_get_cache_key( $id, $w3tc_group );
 
-		if ( is_object( $data ) ) {
-			$data = clone $data;
+		if ( is_object( $w3tc_data ) ) {
+			$w3tc_data = clone $w3tc_data;
 		}
 
-		$this->cache[ $key ] = $data;
-		$return              = true;
-		$ext_return          = null;
-		$cache_sets_inc      = 0;
+		$this->cache[ $w3tc_key ] = $w3tc_data;
+		$return                   = true;
+		$ext_return               = null;
+		$cache_sets_inc           = 0;
 
 		if (
 			$this->_caching
-				&& ! in_array( $group, $this->nonpersistent_groups, true )
-				&& $this->_check_can_cache_runtime( $group )
+				&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
+				&& $this->_check_can_cache_runtime( $w3tc_group )
 		) {
-			$cache = $this->_get_cache( null, $group );
+			$cache = $this->_get_cache( null, $w3tc_group );
 
-			if ( 'alloptions' === $id && 'options' === $group ) {
+			if ( 'alloptions' === $id && 'options' === $w3tc_group ) {
 				// alloptions are deserialized on the start when some classes are not loaded yet so postpone it until requested.
-				foreach ( $data as $k => $v ) {
+				foreach ( $w3tc_data as $k => $v ) {
 					if ( is_object( $v ) ) {
-						$data[ $k ] = serialize( $v ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						$w3tc_data[ $k ] = serialize( $v ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 					}
 				}
 			}
 
 			$v              = array(
-				'content'         => $data,
+				'content'         => $w3tc_data,
 				'key_version_all' => $this->key_version_all_get(),
 			);
 			$cache_sets_inc = 1;
 			$ext_return     = $cache->set(
-				$key,
+				$w3tc_key,
 				$v,
 				( $expire ? $expire : $this->_lifetime ),
-				$group
+				$w3tc_group
 			);
 			$return         = $ext_return;
 		}
 
-		if ( $this->_is_transient_group( $group ) &&
+		if ( $this->_is_transient_group( $w3tc_group ) &&
 			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
-			$this->_transient_fallback_set( $id, $data, $group, $expire );
+			$this->_transient_fallback_set( $id, $w3tc_data, $w3tc_group, $expire );
 		}
 
 		if ( $this->_debug || $this->stats_enabled ) {
@@ -489,10 +489,10 @@ class ObjectCache_WpObjectCache_Regular {
 					array(
 						gmdate( 'r' ),
 						'set',
-						$group,
+						$w3tc_group,
 						$id,
 						$reason,
-						( $data ? strlen( serialize( $data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						( $w3tc_data ? strlen( serialize( $w3tc_data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 						(int) ( $time * 1000000 ),
 					)
 				);
@@ -505,17 +505,17 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Sets multiple cached objects.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
 	 * @param array  $items  An associative array of data to cache, indexed by cache key.
-	 * @param string $group  The cache group.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return array An associative array of cache set results, indexed by cache key.
 	 */
-	public function set_multiple( array $items, $group = '', $expire = 0 ) {
-		if ( empty( $group ) ) {
-			$group = 'default';
+	public function set_multiple( array $items, $w3tc_group = '', $expire = 0 ) {
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = 'default';
 		}
 
 		if ( empty( $items ) ) {
@@ -535,13 +535,13 @@ class ObjectCache_WpObjectCache_Regular {
 		$key_version_all    = $this->key_version_all_get();
 		$persistent_allowed = (
 			$this->_caching &&
-			! in_array( $group, $this->nonpersistent_groups, true ) &&
-			$this->_check_can_cache_runtime( $group )
+			! in_array( $w3tc_group, $this->nonpersistent_groups, true ) &&
+			$this->_check_can_cache_runtime( $w3tc_group )
 		);
 
-		foreach ( $items as $id => $value ) {
-			$cache_key = $this->_get_cache_key( $id, $group );
-			$stored    = $value;
+		foreach ( $items as $id => $w3tc_value ) {
+			$cache_key = $this->_get_cache_key( $id, $w3tc_group );
+			$stored    = $w3tc_value;
 
 			$cache_key_to_id[ $cache_key ] = $id;
 			if ( is_object( $stored ) ) {
@@ -554,7 +554,7 @@ class ObjectCache_WpObjectCache_Regular {
 			if ( $persistent_allowed ) {
 				$stored_content = $stored;
 
-				if ( 'alloptions' === $id && 'options' === $group ) {
+				if ( 'alloptions' === $id && 'options' === $w3tc_group ) {
 					foreach ( $stored_content as $k => $v ) {
 						if ( is_object( $v ) ) {
 							$stored_content[ $k ] = serialize( $v ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -570,27 +570,27 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		if ( $persistent_allowed && ! empty( $payload ) ) {
-			$cache   = $this->_get_cache( null, $group );
-			$results = $this->set_multiple_to_cache(
+			$cache          = $this->_get_cache( null, $w3tc_group );
+			$results        = $this->set_multiple_to_cache(
 				$cache,
 				$payload,
 				$results,
 				$cache_key_to_id,
-				$group,
+				$w3tc_group,
 				( $expire ? $expire : $this->_lifetime )
 			);
 			$cache_sets_inc = count( $payload );
 		}
 
-		if ( $this->_is_transient_group( $group ) &&
+		if ( $this->_is_transient_group( $w3tc_group ) &&
 			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
-			foreach ( $items as $id => $value ) {
-				$this->_transient_fallback_set( $id, $value, $group, $expire );
+			foreach ( $items as $id => $w3tc_value ) {
+				$this->_transient_fallback_set( $id, $w3tc_value, $w3tc_group, $expire );
 			}
 		}
 
 		if ( $this->_debug || $this->stats_enabled ) {
-			$time = Util_Debug::microtime() - $time_start_debug;
+			$time              = Util_Debug::microtime() - $time_start_debug;
 			$this->cache_sets += $cache_sets_inc;
 			$this->time_total += $time;
 		}
@@ -602,29 +602,29 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Deletes a cached object from the object cache.
 	 *
 	 * @param string $id    The cache key.
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 * @param bool   $force Whether to force a cache deletion.
 	 *
 	 * @return bool True if the cache was deleted, false otherwise.
 	 */
-	public function delete( $id, $group = 'default', $force = false ) {
-		if ( ! $force && $this->get( $id, $group ) === false ) {
+	public function delete( $id, $w3tc_group = 'default', $force = false ) {
+		if ( ! $force && $this->get( $id, $w3tc_group ) === false ) {
 			return false;
 		}
 
-		$key    = $this->_get_cache_key( $id, $group );
-		$return = true;
+		$w3tc_key = $this->_get_cache_key( $id, $w3tc_group );
+		$return   = true;
 
-		unset( $this->cache[ $key ] );
+		unset( $this->cache[ $w3tc_key ] );
 
-		if ( $this->_caching && ! in_array( $group, $this->nonpersistent_groups, true ) ) {
-			$cache  = $this->_get_cache( null, $group );
-			$return = $cache->delete( $key, $group );
+		if ( $this->_caching && ! in_array( $w3tc_group, $this->nonpersistent_groups, true ) ) {
+			$cache  = $this->_get_cache( null, $w3tc_group );
+			$return = $cache->delete( $w3tc_key, $w3tc_group );
 		}
 
-		if ( $this->_is_transient_group( $group ) &&
+		if ( $this->_is_transient_group( $w3tc_group ) &&
 			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
-			$this->_transient_fallback_delete( $id, $group );
+			$this->_transient_fallback_delete( $id, $w3tc_group );
 		}
 
 		if ( $this->_debug ) {
@@ -632,7 +632,7 @@ class ObjectCache_WpObjectCache_Regular {
 				array(
 					gmdate( 'r' ),
 					'delete',
-					$group,
+					$w3tc_group,
 					$id,
 					( $return ? 'deleted' : 'discarded' ),
 					0,
@@ -647,17 +647,17 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Deletes multiple cached objects.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
-	 * @param array  $keys   An array of cache keys to delete.
-	 * @param string $group  The cache group.
+	 * @param array  $w3tc_keys   An array of cache keys to delete.
+	 * @param string $w3tc_group  The cache group.
 	 *
 	 * @return array An associative array of cache delete results, indexed by cache key.
 	 */
-	public function delete_multiple( array $keys, $group = '' ) {
+	public function delete_multiple( array $w3tc_keys, $w3tc_group = '' ) {
 		$values = array();
-		foreach ( $keys as $key ) {
-			$values[ $key ] = $this->delete( $key, $group );
+		foreach ( $w3tc_keys as $w3tc_key ) {
+			$values[ $w3tc_key ] = $this->delete( $w3tc_key, $w3tc_group );
 		}
 		return $values;
 	}
@@ -666,35 +666,35 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Adds a cached object to the object cache if it doesn't already exist.
 	 *
 	 * @param string $id     The cache key.
-	 * @param mixed  $data   The data to cache.
-	 * @param string $group  The cache group.
+	 * @param mixed  $w3tc_data   The data to cache.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return bool True if the cache was added, false otherwise.
 	 */
-	public function add( $id, $data, $group = 'default', $expire = 0 ) {
-		if ( $this->get( $id, $group ) !== false ) {
+	public function add( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		if ( $this->get( $id, $w3tc_group ) !== false ) {
 			return false;
 		}
 
-		return $this->set( $id, $data, $group, $expire );
+		return $this->set( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Adds multiple cached objects to the object cache if they don't already exist.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
-	 * @param array  $data   An associative array of data to cache, indexed by cache key.
-	 * @param string $group  The cache group.
+	 * @param array  $w3tc_data   An associative array of data to cache, indexed by cache key.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return array An associative array of cache add results, indexed by cache key.
 	 */
-	public function add_multiple( array $data, $group = '', $expire = 0 ) {
+	public function add_multiple( array $w3tc_data, $w3tc_group = '', $expire = 0 ) {
 		$values = array();
-		foreach ( $data as $key => $value ) {
-			$values[ $key ] = $this->add( $key, $value, $group, $expire );
+		foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+			$values[ $w3tc_key ] = $this->add( $w3tc_key, $w3tc_value, $w3tc_group, $expire );
 		}
 		return $values;
 	}
@@ -703,18 +703,18 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Replaces a cached object in the object cache if it already exists.
 	 *
 	 * @param string $id     The cache key.
-	 * @param mixed  $data   The data to cache.
-	 * @param string $group  The cache group.
+	 * @param mixed  $w3tc_data   The data to cache.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The expiration time, in seconds.
 	 *
 	 * @return bool True if the cache was replaced, false otherwise.
 	 */
-	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
-		if ( $this->get( $id, $group ) === false ) {
+	public function replace( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		if ( $this->get( $id, $w3tc_group ) === false ) {
 			return false;
 		}
 
-		return $this->set( $id, $data, $group, $expire );
+		return $this->set( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
@@ -826,11 +826,11 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Clears the cache for a specific group.
 	 *
-	 * @param string $group The cache group to flush.
+	 * @param string $w3tc_group The cache group to flush.
 	 *
 	 * @return bool Returns true on success.
 	 */
-	public function flush_group( $group ) {
+	public function flush_group( $w3tc_group ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -846,17 +846,17 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( isset( $w3_multisite_blogs ) ) {
 			foreach ( $w3_multisite_blogs as $blog ) {
 				$cache = $this->_get_cache( $blog->userblog_id );
-				$cache->flush( $group );
+				$cache->flush( $w3tc_group );
 			}
 		} else {
 			if ( 0 !== $this->_blog_id ) {
 				$cache = $this->_get_cache( 0 );
-				$cache->flush( $group );
+				$cache->flush( $w3tc_group );
 			}
 
 			$cache = $this->_get_cache();
 
-			$cache->flush( $group );
+			$cache->flush( $w3tc_group );
 		}
 
 		if ( $this->_debug || $this->stats_enabled ) {
@@ -918,77 +918,77 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Increments the value of a cached key.
 	 *
-	 * @param string $key    The cache key to increment.
-	 * @param int    $offset The value to increment by.
-	 * @param string $group  The group the cache belongs to.
+	 * @param string $w3tc_key    The cache key to increment.
+	 * @param int    $w3tc_offset The value to increment by.
+	 * @param string $w3tc_group  The group the cache belongs to.
 	 *
 	 * @return int|false Returns the new value on success, or false if the key does not exist.
 	 */
-	public function incr( $key, $offset = 1, $group = 'default' ) {
-		$value = $this->get( $key, $group );
+	public function incr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$w3tc_value = $this->get( $w3tc_key, $w3tc_group );
 
-		if ( false === $value ) {
+		if ( false === $w3tc_value ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $value ) ) {
-			$value = 0;
+		if ( ! is_numeric( $w3tc_value ) ) {
+			$w3tc_value = 0;
 		}
 
-		$offset = (int) $offset;
-		$value += $offset;
+		$w3tc_offset = (int) $w3tc_offset;
+		$w3tc_value += $w3tc_offset;
 
-		if ( $value < 0 ) {
-			$value = 0;
+		if ( $w3tc_value < 0 ) {
+			$w3tc_value = 0;
 		}
 
-		$this->replace( $key, $value, $group );
+		$this->replace( $w3tc_key, $w3tc_value, $w3tc_group );
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Decrements the value of a cached key.
 	 *
-	 * @param string $key    The cache key to decrement.
-	 * @param int    $offset The value to decrement by.
-	 * @param string $group  The group the cache belongs to.
+	 * @param string $w3tc_key    The cache key to decrement.
+	 * @param int    $w3tc_offset The value to decrement by.
+	 * @param string $w3tc_group  The group the cache belongs to.
 	 *
 	 * @return int|false Returns the new value on success, or false if the key does not exist.
 	 */
-	public function decr( $key, $offset = 1, $group = 'default' ) {
-		$value = $this->get( $key, $group );
+	public function decr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$w3tc_value = $this->get( $w3tc_key, $w3tc_group );
 
-		if ( false === $value ) {
+		if ( false === $w3tc_value ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $value ) ) {
-			$value = 0;
+		if ( ! is_numeric( $w3tc_value ) ) {
+			$w3tc_value = 0;
 		}
 
-		$offset = (int) $offset;
-		$value -= $offset;
+		$w3tc_offset = (int) $w3tc_offset;
+		$w3tc_value -= $w3tc_offset;
 
-		if ( $value < 0 ) {
-			$value = 0;
+		if ( $w3tc_value < 0 ) {
+			$w3tc_value = 0;
 		}
 
-		$this->replace( $key, $value, $group );
+		$this->replace( $w3tc_key, $w3tc_value, $w3tc_group );
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Fallback function to retrieve transient data.
 	 *
 	 * @param string $transient The transient key.
-	 * @param string $group     The cache group.
+	 * @param string $w3tc_group     The cache group.
 	 *
 	 * @return mixed|null The cached value, or null if not found.
 	 */
-	private function _transient_fallback_get( $transient, $group ) {
-		if ( 'transient' === $group ) {
+	private function _transient_fallback_get( $transient, $w3tc_group ) {
+		if ( 'transient' === $w3tc_group ) {
 			$transient_option = '_transient_' . $transient;
 
 			if ( function_exists( 'wp_installing' ) && ! wp_installing() ) {
@@ -1002,15 +1002,15 @@ class ObjectCache_WpObjectCache_Regular {
 					if ( false !== $timeout && $timeout < time() ) {
 						delete_option( $transient_option );
 						delete_option( $transient_timeout );
-						$value = false;
+						$w3tc_value = false;
 					}
 				}
 			}
 
-			if ( ! isset( $value ) ) {
-				$value = get_option( $transient_option );
+			if ( ! isset( $w3tc_value ) ) {
+				$w3tc_value = get_option( $transient_option );
 			}
-		} elseif ( 'site-transient' === $group ) {
+		} elseif ( 'site-transient' === $w3tc_group ) {
 			// Core transients that do not have a timeout. Listed here so querying timeouts can be avoided.
 			$no_timeout       = array( 'update_core', 'update_plugins', 'update_themes' );
 			$transient_option = '_site_transient_' . $transient;
@@ -1022,42 +1022,42 @@ class ObjectCache_WpObjectCache_Regular {
 				if ( false !== $timeout && $timeout < time() ) {
 					delete_site_option( $transient_option );
 					delete_site_option( $transient_timeout );
-					$value = false;
+					$w3tc_value = false;
 				}
 			}
 
-			if ( ! isset( $value ) ) {
-				$value = get_site_option( $transient_option );
+			if ( ! isset( $w3tc_value ) ) {
+				$w3tc_value = get_site_option( $transient_option );
 			}
 		} else {
-			$value = false;
+			$w3tc_value = false;
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 
 	/**
 	 * Fallback function to delete transient data.
 	 *
 	 * @param string $transient The transient key.
-	 * @param string $group     The cache group.
+	 * @param string $w3tc_group     The cache group.
 	 *
 	 * @return void
 	 */
-	private function _transient_fallback_delete( $transient, $group ) {
-		if ( 'transient' === $group ) {
+	private function _transient_fallback_delete( $transient, $w3tc_group ) {
+		if ( 'transient' === $w3tc_group ) {
 			$option_timeout = '_transient_timeout_' . $transient;
 			$option         = '_transient_' . $transient;
-			$result         = delete_option( $option );
+			$w3tc_result    = delete_option( $option );
 
-			if ( $result ) {
+			if ( $w3tc_result ) {
 				delete_option( $option_timeout );
 			}
-		} elseif ( 'site-transient' === $group ) {
+		} elseif ( 'site-transient' === $w3tc_group ) {
 			$option_timeout = '_site_transient_timeout_' . $transient;
 			$option         = '_site_transient_' . $transient;
-			$result         = delete_site_option( $option );
-			if ( $result ) {
+			$w3tc_result    = delete_site_option( $option );
+			if ( $w3tc_result ) {
 				delete_site_option( $option_timeout );
 			}
 		}
@@ -1067,14 +1067,14 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Fallback function to set transient data.
 	 *
 	 * @param string $transient  The transient key.
-	 * @param mixed  $value      The value to store.
-	 * @param string $group      The cache group.
+	 * @param mixed  $w3tc_value      The value to store.
+	 * @param string $w3tc_group      The cache group.
 	 * @param int    $expiration The expiration time in seconds.
 	 *
 	 * @return void
 	 */
-	private function _transient_fallback_set( $transient, $value, $group, $expiration ) {
-		if ( 'transient' === $group ) {
+	private function _transient_fallback_set( $transient, $w3tc_value, $w3tc_group, $expiration ) {
+		if ( 'transient' === $w3tc_group ) {
 			$transient_timeout = '_transient_timeout_' . $transient;
 			$transient_option  = '_transient_' . $transient;
 			if ( false === get_option( $transient_option ) ) {
@@ -1083,7 +1083,7 @@ class ObjectCache_WpObjectCache_Regular {
 					$autoload = 'no';
 					add_option( $transient_timeout, time() + $expiration, '', 'no' );
 				}
-				$result = add_option( $transient_option, $value, '', $autoload );
+				$w3tc_result = add_option( $transient_option, $w3tc_value, '', $autoload );
 			} else {
 				// If expiration is requested, but the transient has no timeout option,
 				// delete, then re-create transient rather than update.
@@ -1092,17 +1092,17 @@ class ObjectCache_WpObjectCache_Regular {
 					if ( false === get_option( $transient_timeout ) ) {
 						delete_option( $transient_option );
 						add_option( $transient_timeout, time() + $expiration, '', 'no' );
-						$result = add_option( $transient_option, $value, '', 'no' );
-						$update = false;
+						$w3tc_result = add_option( $transient_option, $w3tc_value, '', 'no' );
+						$update      = false;
 					} else {
 						update_option( $transient_timeout, time() + $expiration );
 					}
 				}
 				if ( $update ) {
-					$result = update_option( $transient_option, $value );
+					$w3tc_result = update_option( $transient_option, $w3tc_value );
 				}
 			}
-		} elseif ( 'site-transient' === $group ) {
+		} elseif ( 'site-transient' === $w3tc_group ) {
 			$transient_timeout = '_site_transient_timeout_' . $transient;
 			$option            = '_site_transient_' . $transient;
 
@@ -1111,13 +1111,13 @@ class ObjectCache_WpObjectCache_Regular {
 					add_site_option( $transient_timeout, time() + $expiration );
 				}
 
-				$result = add_site_option( $option, $value );
+				$w3tc_result = add_site_option( $option, $w3tc_value );
 			} else {
 				if ( $expiration ) {
 					update_site_option( $transient_timeout, time() + $expiration );
 				}
 
-				$result = update_site_option( $option, $value );
+				$w3tc_result = update_site_option( $option, $w3tc_value );
 			}
 		}
 	}
@@ -1173,50 +1173,50 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Retrieves the cache key for a given ID and group.
 	 *
 	 * @param string $id    The cache ID.
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 *
 	 * @return string The generated cache key.
 	 */
-	private function _get_cache_key( $id, $group = 'default' ) {
-		if ( ! $group ) {
-			$group = 'default';
+	private function _get_cache_key( $id, $w3tc_group = 'default' ) {
+		if ( ! $w3tc_group ) {
+			$w3tc_group = 'default';
 		}
 
 		$blog_id = $this->_blog_id;
 
-		if ( in_array( $group, $this->global_groups, true ) ) {
+		if ( in_array( $w3tc_group, $this->global_groups, true ) ) {
 			$blog_id = 0;
 		}
 
-		return $blog_id . $group . $id;
+		return $blog_id . $w3tc_group . $id;
 	}
 
 	/**
 	 * Persist multiple cache entries using the most efficient method available.
 	 *
-	 * @since X.X.X
+	 * @since 2.9.0
 	 *
 	 * @param object $cache           Cache engine instance.
 	 * @param array  $payload         Map of cache_key => structured payload.
 	 * @param array  $results         Current result map keyed by original IDs.
 	 * @param array  $cache_key_to_id Map of cache_key => original ID.
-	 * @param string $group           Cache group.
+	 * @param string $w3tc_group           Cache group.
 	 * @param int    $expire          Expiration.
 	 *
 	 * @return array Updated result map keyed by original IDs.
 	 */
-	private function set_multiple_to_cache( $cache, array $payload, array $results, array $cache_key_to_id, $group, $expire ) {
+	private function set_multiple_to_cache( $cache, array $payload, array $results, array $cache_key_to_id, $w3tc_group, $expire ) {
 		if ( method_exists( $cache, 'set_multi' ) ) {
-			$response = $cache->set_multi( $payload, $group, $expire );
+			$response = $cache->set_multi( $payload, $w3tc_group, $expire );
 
 			foreach ( $payload as $cache_key => $_ ) {
 				$id             = isset( $cache_key_to_id[ $cache_key ] ) ? $cache_key_to_id[ $cache_key ] : $cache_key;
 				$results[ $id ] = is_array( $response ) ? (bool) ( $response[ $cache_key ] ?? false ) : (bool) $response;
 			}
 		} else {
-			foreach ( $payload as $cache_key => $value ) {
+			foreach ( $payload as $cache_key => $w3tc_value ) {
 				$id             = isset( $cache_key_to_id[ $cache_key ] ) ? $cache_key_to_id[ $cache_key ] : $cache_key;
-				$results[ $id ] = $cache->set( $cache_key, $value, $expire, $group );
+				$results[ $id ] = $cache->set( $cache_key, $w3tc_value, $expire, $w3tc_group );
 			}
 		}
 
@@ -1229,9 +1229,9 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return array The cache configuration.
 	 */
 	public function get_usage_statistics_cache_config() {
-		$engine = $this->_config->get_string( 'objectcache.engine' );
+		$w3tc_engine = $this->_config->get_string( 'objectcache.engine' );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'memcached':
 				$engine_config = array(
 					'servers'           => $this->_config->get_array( 'objectcache.memcached.servers' ),
@@ -1260,7 +1260,7 @@ class ObjectCache_WpObjectCache_Regular {
 				$engine_config = array();
 		}
 
-		$engine_config['engine'] = $engine;
+		$engine_config['engine'] = $w3tc_engine;
 
 		return $engine_config;
 	}
@@ -1269,23 +1269,23 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Retrieves the cache instance for a given blog ID and group.
 	 *
 	 * @param int|null $blog_id The blog ID.
-	 * @param string   $group   The cache group.
+	 * @param string   $w3tc_group   The cache group.
 	 *
 	 * @return Cache The cache instance.
 	 */
-	private function _get_cache( $blog_id = null, $group = '' ) {
+	private function _get_cache( $blog_id = null, $w3tc_group = '' ) {
 		static $cache = array();
 
-		if ( is_null( $blog_id ) && ! in_array( $group, $this->global_groups, true ) ) {
+		if ( is_null( $blog_id ) && ! in_array( $w3tc_group, $this->global_groups, true ) ) {
 			$blog_id = $this->_blog_id;
 		} elseif ( is_null( $blog_id ) ) {
 			$blog_id = 0;
 		}
 
 		if ( ! isset( $cache[ $blog_id ] ) ) {
-			$engine = $this->_config->get_string( 'objectcache.engine' );
+			$w3tc_engine = $this->_config->get_string( 'objectcache.engine' );
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'memcached':
 					$engine_config = array(
 						'servers'           => $this->_config->get_array( 'objectcache.memcached.servers' ),
@@ -1327,7 +1327,7 @@ class ObjectCache_WpObjectCache_Regular {
 			$engine_config['host']        = Util_Environment::host();
 			$engine_config['instance_id'] = Util_Environment::instance_id();
 
-			$cache[ $blog_id ] = Cache::instance( $engine, $engine_config );
+			$cache[ $blog_id ] = Cache::instance( $w3tc_engine, $engine_config );
 		}
 
 		return $cache[ $blog_id ];
@@ -1359,13 +1359,13 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Checks if caching is allowed for runtime based on the group.
 	 *
-	 * @param string $group The cache group to check.
+	 * @param string $w3tc_group The cache group to check.
 	 *
 	 * @return bool Returns true if caching is allowed for the group.
 	 */
-	private function _check_can_cache_runtime( $group ) {
+	private function _check_can_cache_runtime( $w3tc_group ) {
 		// Need to be handled in wp admin as well as frontend.
-		if ( $this->_is_transient_group( $group ) ) {
+		if ( $this->_is_transient_group( $w3tc_group ) ) {
 			return true;
 		}
 
@@ -1392,12 +1392,12 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Determines whether the specified group is a transient group.
 	 *
-	 * @param string $group The cache group to check.
+	 * @param string $w3tc_group The cache group to check.
 	 *
 	 * @return bool Returns true if the group is transient.
 	 */
-	private function _is_transient_group( $group ) {
-		return in_array( $group, array( 'transient', 'site-transient' ), true );
+	private function _is_transient_group( $w3tc_group ) {
+		return in_array( $w3tc_group, array( 'transient', 'site-transient' ), true );
 	}
 
 	/**
@@ -1463,16 +1463,16 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Retrieves a rejection message based on a given key.
 	 *
-	 * @param string $key The rejection key.
+	 * @param string $w3tc_key The rejection key.
 	 *
 	 * @return string The rejection message.
 	 */
-	private function _get_reject_reason_message( $key ) {
+	private function _get_reject_reason_message( $w3tc_key ) {
 		if ( ! function_exists( '__' ) ) {
-			return $key;
+			return $w3tc_key;
 		}
 
-		switch ( $key ) {
+		switch ( $w3tc_key ) {
 			case 'objectcache.disabled':
 				return __( 'Object caching is disabled', 'w3-total-cache' );
 			case 'DONOTCACHEOBJECT':
@@ -1486,13 +1486,13 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Logs cache-related calls for debugging purposes.
 	 *
-	 * @param array $data The data to log.
+	 * @param array $w3tc_data The data to log.
 	 *
 	 * @return void
 	 */
-	private function log_call( array $data ): void {
+	private function log_call( array $w3tc_data ): void {
 		$filepath = Util_Debug::log_filename( 'objectcache-calls' );
-		$content  = implode( "\t", $data ) . PHP_EOL;
+		$content  = implode( "\t", $w3tc_data ) . PHP_EOL;
 
 		file_put_contents( $filepath, $content, FILE_APPEND );
 	}
@@ -1500,7 +1500,7 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Check if this is a WP-CLI call and objectcache.engine is using Disk and disabled for WP-CLI.
 	 *
-	 * @since  2.8.1
+	 * @since  2.8.2
 	 *
 	 * @return bool True if running WP-CLI with a file-based object cache, false otherwise.
 	 */

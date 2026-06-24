@@ -66,7 +66,7 @@ class Cache_File extends Cache_Base {
 	 * time limits, locking behavior, and flushing directory based on the configuration. If specific configurations are not provided,
 	 * defaults are determined using environment utilities.
 	 *
-	 * @param array $config {
+	 * @param array $w3tc_config {
 	 *     Optional. Configuration options for the cache file.
 	 *
 	 *     @type string $cache_dir        The directory where cache files are stored.
@@ -79,28 +79,28 @@ class Cache_File extends Cache_Base {
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
-		if ( isset( $config['cache_dir'] ) ) {
-			$this->_cache_dir = trim( $config['cache_dir'] );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
+		if ( isset( $w3tc_config['cache_dir'] ) ) {
+			$this->_cache_dir = trim( $w3tc_config['cache_dir'] );
 		} else {
-			$this->_cache_dir = Util_Environment::cache_blog_dir( $config['section'], $config['blog_id'] );
+			$this->_cache_dir = Util_Environment::cache_blog_dir( $w3tc_config['section'], $w3tc_config['blog_id'] );
 		}
 
-		$this->_exclude         = isset( $config['exclude'] ) ? (array) $config['exclude'] : array();
-		$this->_flush_timelimit = isset( $config['flush_timelimit'] ) ? (int) $config['flush_timelimit'] : 180;
-		$this->_locking         = isset( $config['locking'] ) ? (bool) $config['locking'] : false;
+		$this->_exclude         = isset( $w3tc_config['exclude'] ) ? (array) $w3tc_config['exclude'] : array();
+		$this->_flush_timelimit = isset( $w3tc_config['flush_timelimit'] ) ? (int) $w3tc_config['flush_timelimit'] : 180;
+		$this->_locking         = isset( $w3tc_config['locking'] ) ? (bool) $w3tc_config['locking'] : false;
 
-		if ( isset( $config['flush_dir'] ) ) {
-			$this->_flush_dir = $config['flush_dir'];
-		} elseif ( $config['blog_id'] <= 0 && ! isset( $config['cache_dir'] ) ) {
+		if ( isset( $w3tc_config['flush_dir'] ) ) {
+			$this->_flush_dir = $w3tc_config['flush_dir'];
+		} elseif ( $w3tc_config['blog_id'] <= 0 && ! isset( $w3tc_config['cache_dir'] ) ) {
 			// Clear whole section if we operate on master cache and in a mode when cache_dir not strictly specified.
-			$this->_flush_dir = Util_Environment::cache_dir( $config['section'] );
+			$this->_flush_dir = Util_Environment::cache_dir( $w3tc_config['section'] );
 		} else {
 			$this->_flush_dir = $this->_cache_dir;
 		}
 
-		if ( isset( $config['use_wp_hash'] ) && $config['use_wp_hash'] ) {
+		if ( isset( $w3tc_config['use_wp_hash'] ) && $w3tc_config['use_wp_hash'] ) {
 			$this->_use_wp_hash = true;
 		}
 	}
@@ -111,16 +111,16 @@ class Cache_File extends Cache_Base {
 	 * Attempts to retrieve the value using the specified key and group. If the key does not exist in the cache, the value is
 	 * added with the specified expiration time.
 	 *
-	 * @param string $key    The cache key.
-	 * @param mixed  $value  The variable to store in the cache.
+	 * @param string $w3tc_key    The cache key.
+	 * @param mixed  $w3tc_value  The variable to store in the cache.
 	 * @param int    $expire Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the value was added, false if it already exists or on failure.
 	 */
-	public function add( $key, &$value, $expire = 0, $group = '' ) {
-		if ( $this->get( $key, $group ) === false ) {
-			return $this->set( $key, $value, $expire, $group );
+	public function add( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( $this->get( $w3tc_key, $w3tc_group ) === false ) {
+			return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 		}
 
 		return false;
@@ -130,20 +130,20 @@ class Cache_File extends Cache_Base {
 	 * Stores the value in the cache with the specified expiration time. The data is serialized and written to a file with a
 	 * header indicating the expiration time. File locking can be used for write operations if enabled.
 	 *
-	 * @param string $key        An MD5 of the DB query.
+	 * @param string $w3tc_key        An MD5 of the DB query.
 	 * @param mixed  $content    Data to be cached.
 	 * @param int    $expiration Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
-	 * @param string $group      Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_group      Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $content, $expiration = 0, $group = '' ) {
+	public function set( $w3tc_key, $content, $expiration = 0, $w3tc_group = '' ) {
 		/**
 		 * Get the file pointer of the cache file.
-		 * The $key is transformed to a storage key (format "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+		 * The $w3tc_key is transformed to a storage key (format "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
 		 * The file path is in the format: CACHEDIR/db/BLOGID/GROUP/[0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}.
 		 */
-		$fp = $this->fopen_write( $key, $group, 'wb' );
+		$fp = $this->fopen_write( $w3tc_key, $w3tc_group, 'wb' );
 
 		if ( ! $fp ) {
 			return false;
@@ -176,23 +176,23 @@ class Cache_File extends Cache_Base {
 	 * Fetches the cached value for the specified key and group. If the cache entry has expired but old data usage is enabled, the
 	 * expired data can still be returned while updating its expiration time temporarily.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key    The cache key.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return array An array containing the unserialized cached data (or null if not found) and a boolean indicating if old data was used.
 	 */
-	public function get_with_old( $key, $group = '' ) {
-		list( $data, $has_old_data ) = $this->_get_with_old_raw( $key, $group );
-		if ( ! empty( $data ) ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
+		list( $w3tc_data, $has_old_data ) = $this->_get_with_old_raw( $w3tc_key, $w3tc_group );
+		if ( ! empty( $w3tc_data ) ) {
 			$data_unserialized = $this->_unserialize(
-				$data,
+				$w3tc_data,
 				array(
-					'group' => $group,
-					'key'   => $key,
+					'group' => $w3tc_group,
+					'key'   => $w3tc_key,
 				)
 			);
 		} else {
-			$data_unserialized = $data;
+			$data_unserialized = $w3tc_data;
 		}
 
 		return array( $data_unserialized, $has_old_data );
@@ -204,17 +204,17 @@ class Cache_File extends Cache_Base {
 	 * Reads the cached data file to determine the expiration time and fetches the data if it is valid. If the data is expired and
 	 * old data usage is enabled, the expiration time is updated temporarily and the expired data is returned.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key    The cache key.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return array An array containing the raw cached data (or null if not found) and a boolean indicating if old data was used.
 	 */
-	private function _get_with_old_raw( $key, $group = '' ) {
+	private function _get_with_old_raw( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $w3tc_group );
 		if ( ! is_readable( $path ) ) {
 			return array( null, $has_old_data );
 		}
@@ -229,7 +229,7 @@ class Cache_File extends Cache_Base {
 		}
 
 		$expires_at = @fread( $fp, 4 );
-		$data       = null;
+		$w3tc_data  = null;
 
 		if ( false !== $expires_at ) {
 			list( , $expires_at ) = @unpack( 'L', $expires_at );
@@ -246,12 +246,12 @@ class Cache_File extends Cache_Base {
 					$has_old_data = true;
 				}
 			} else {
-				$data = '';
+				$w3tc_data = '';
 
 				while ( ! @feof( $fp ) ) {
-					$data .= @fread( $fp, 4096 );
+					$w3tc_data .= @fread( $fp, 4096 );
 				}
-				$data = substr( $data, 14 );
+				$w3tc_data = substr( $w3tc_data, 14 );
 			}
 		}
 
@@ -261,7 +261,7 @@ class Cache_File extends Cache_Base {
 
 		@fclose( $fp );
 
-		return array( $data, $has_old_data );
+		return array( $w3tc_data, $has_old_data );
 	}
 
 	/**
@@ -269,16 +269,16 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Updates the cache entry for the specified key and group if it already exists. If the key does not exist, no action is taken.
 	 *
-	 * @param string $key    The cache key.
-	 * @param mixed  $value  The variable to store in the cache.
+	 * @param string $w3tc_key    The cache key.
+	 * @param mixed  $w3tc_value  The variable to store in the cache.
 	 * @param int    $expire Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the value was replaced, false otherwise.
 	 */
-	public function replace( $key, &$value, $expire = 0, $group = '' ) {
-		if ( false !== $this->get( $key, $group ) ) {
-			return $this->set( $key, $value, $expire, $group );
+	public function replace( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( false !== $this->get( $w3tc_key, $w3tc_group ) ) {
+			return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 		}
 
 		return false;
@@ -290,15 +290,15 @@ class Cache_File extends Cache_Base {
 	 * Removes the cache entry for the specified key and group. If "use expired data" is enabled, the expiration time of the cache
 	 * entry is set to zero instead of deleting the file.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key    The cache key.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the value was successfully deleted, false otherwise.
 	 */
-	public function delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $w3tc_group );
 
 		if ( ! file_exists( $path ) ) {
 			return true;
@@ -331,14 +331,14 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Completely removes the cache file for the specified key and group without checking for expiration or other conditions.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key    The cache key.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the file was successfully deleted, false otherwise.
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$key  = $this->get_item_key( $key );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 		return @unlink( $path );
 	}
 
@@ -348,19 +348,19 @@ class Cache_File extends Cache_Base {
 	 * Deletes all files in the cache directory or a specific group subdirectory. If the group is "sitemaps", the flush is performed
 	 * based on a regular expression defined in the configuration.
 	 *
-	 * @param string $group Optional. The group to flush. Default is an empty string.
+	 * @param string $w3tc_group Optional. The group to flush. Default is an empty string.
 	 *
 	 * @return bool Always returns true.
 	 */
-	public function flush( $group = '' ) {
+	public function flush( $w3tc_group = '' ) {
 		@set_time_limit( $this->_flush_timelimit ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-		if ( 'sitemaps' === $group ) {
-			$config        = Dispatcher::config();
-			$sitemap_regex = $config->get_string( 'pgcache.purge.sitemap_regex' );
+		if ( 'sitemaps' === $w3tc_group ) {
+			$w3tc_config   = Dispatcher::config();
+			$sitemap_regex = $w3tc_config->get_string( 'pgcache.purge.sitemap_regex' );
 			$this->_flush_based_on_regex( $sitemap_regex );
 		} else {
-			$flush_dir = $group ? $this->_cache_dir . DIRECTORY_SEPARATOR . $group . DIRECTORY_SEPARATOR : $this->_flush_dir;
+			$flush_dir = $w3tc_group ? $this->_cache_dir . DIRECTORY_SEPARATOR . $w3tc_group . DIRECTORY_SEPARATOR : $this->_flush_dir;
 			Util_File::emptydir( $flush_dir, $this->_exclude );
 		}
 
@@ -372,11 +372,11 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Returns an array containing the current timestamp for cache generation purposes.
 	 *
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 *
 	 * @return array An array with the `before_time` key set to the current timestamp.
 	 */
-	public function get_ahead_generation_extension( $group ) {
+	public function get_ahead_generation_extension( $w3tc_group ) {
 		return array(
 			'before_time' => time(),
 		);
@@ -387,8 +387,8 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Performs any cleanup or flushing required for a cache group after an ahead-of-generation operation.
 	 *
-	 * @param string $group The cache group.
-	 * @param array  $extension {
+	 * @param string $w3tc_group The cache group.
+	 * @param array  $w3tc_extension {
 	 *     An extension array with generation metadata.
 	 *
 	 *     @type mixed $before_time The time before the generation.
@@ -396,9 +396,9 @@ class Cache_File extends Cache_Base {
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
 		$dir = $this->_flush_dir;
-		$extension['before_time'];
+		$w3tc_extension['before_time'];
 	}
 
 	/**
@@ -406,14 +406,14 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Returns the modification time of the cache file for the specified key and group.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key    The cache key.
+	 * @param string $w3tc_group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return int|false The file modification time as a Unix timestamp, or false if the file does not exist.
 	 */
-	public function mtime( $key, $group = '' ) {
+	public function mtime( $w3tc_key, $w3tc_group = '' ) {
 		$path =
-			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
 
 		if ( file_exists( $path ) ) {
 			return @filemtime( $path );
@@ -428,19 +428,19 @@ class Cache_File extends Cache_Base {
 	 * Creates the file path for the cache file based on the key and group. A hash of the key is used to create subdirectories
 	 * for organizational purposes.
 	 *
-	 * @param string $key   Storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
-	 * @param string $group Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $w3tc_key   Storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+	 * @param string $w3tc_group Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return string The file path for the cache entry.
 	 */
-	public function _get_path( $key, $group = '' ) {
+	public function _get_path( $w3tc_key, $w3tc_group = '' ) {
 		if ( $this->_use_wp_hash && function_exists( 'wp_hash' ) ) {
-			$hash = wp_hash( $key ); // Most common.
+			$hash = wp_hash( $w3tc_key ); // Most common.
 		} else {
-			$hash = md5( $key ); // Less common, but still used in some cases.
+			$hash = md5( $w3tc_key ); // Less common, but still used in some cases.
 		}
 
-		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
+		return ( $w3tc_group ? $w3tc_group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
 	}
 
 	/**
@@ -487,14 +487,14 @@ class Cache_File extends Cache_Base {
 		$dir = @opendir( $path );
 
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( ! $size['timeout_occurred'] && false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( ! $size['timeout_occurred'] && false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
-				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
+				$full_path = $path . DIRECTORY_SEPARATOR . $w3tc_entry;
 
 				if ( @is_dir( $full_path ) ) {
 					$size = $this->dirsize( $full_path, $size, $timeout_time );
@@ -508,7 +508,7 @@ class Cache_File extends Cache_Base {
 					}
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -523,20 +523,20 @@ class Cache_File extends Cache_Base {
 	 * This method checks if the current value in the cache matches the provided old value. If they match, it sets the new value.
 	 * Cannot guarantee atomicity due to potential file lock failures.
 	 *
-	 * @param string $key       Cache key.
+	 * @param string $w3tc_key       Cache key.
 	 * @param mixed  $old_value The expected current value.
 	 * @param mixed  $new_value The value to set if the old value matches.
 	 *
 	 * @return bool True if the value was set, false otherwise.
 	 */
-	public function set_if_maybe_equals( $key, $old_value, $new_value ) {
+	public function set_if_maybe_equals( $w3tc_key, $old_value, $new_value ) {
 		// Cant guarantee atomic action here, filelocks fail often.
-		$value = $this->get( $key );
-		if ( isset( $old_value['content'] ) && $value['content'] !== $old_value['content'] ) {
+		$w3tc_value = $this->get( $w3tc_key );
+		if ( isset( $old_value['content'] ) && $w3tc_value['content'] !== $old_value['content'] ) {
 			return false;
 		}
 
-		return $this->set( $key, $new_value );
+		return $this->set( $w3tc_key, $new_value );
 	}
 
 	/**
@@ -545,27 +545,27 @@ class Cache_File extends Cache_Base {
 	 * This method appends the increment value to the counter file. If the value is 1, it stores it as 'x' for efficiency. Larger
 	 * increments are stored as space-separated integers.
 	 *
-	 * @param string $key   Cache key.
-	 * @param int    $value The increment value (must be non-zero).
+	 * @param string $w3tc_key   Cache key.
+	 * @param int    $w3tc_value The increment value (must be non-zero).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function counter_add( $key, $value ) {
-		if ( 0 === $value ) {
+	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( 0 === $w3tc_value ) {
 			return true;
 		}
 
-		$fp = $this->fopen_write( $key, '', 'a' );
+		$fp = $this->fopen_write( $w3tc_key, '', 'a' );
 		if ( ! $fp ) {
 			return false;
 		}
 
 		// use "x" to store increment, since it's most often case
 		// and it will save 50% of size if only increments are used.
-		if ( 1 === $value ) {
+		if ( 1 === $w3tc_value ) {
 			@fputs( $fp, 'x' );
 		} else {
-			@fputs( $fp, ' ' . (int) $value );
+			@fputs( $fp, ' ' . (int) $w3tc_value );
 		}
 
 		@fclose( $fp );
@@ -579,13 +579,13 @@ class Cache_File extends Cache_Base {
 	 * This method initializes a counter file with the provided value, along with an expiration time and a PHP exit directive to
 	 * prevent execution.
 	 *
-	 * @param string $key   Cache key.
-	 * @param int    $value The counter value to set.
+	 * @param string $w3tc_key   Cache key.
+	 * @param int    $w3tc_value The counter value to set.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function counter_set( $key, $value ) {
-		$fp = $this->fopen_write( $key, '', 'wb' );
+	public function counter_set( $w3tc_key, $w3tc_value ) {
+		$fp = $this->fopen_write( $w3tc_key, '', 'wb' );
 		if ( ! $fp ) {
 			return false;
 		}
@@ -595,7 +595,7 @@ class Cache_File extends Cache_Base {
 
 		@fputs( $fp, pack( 'L', $expires_at ) );
 		@fputs( $fp, '<?php exit; ?>' );
-		@fputs( $fp, (int) $value );
+		@fputs( $fp, (int) $w3tc_value );
 		@fclose( $fp );
 
 		return true;
@@ -606,28 +606,28 @@ class Cache_File extends Cache_Base {
 	 *
 	 * This method reads the counter file and calculates the total value by counting occurrences of 'x' and summing other stored values.
 	 *
-	 * @param string $key Cache key.
+	 * @param string $w3tc_key Cache key.
 	 *
 	 * @return int The counter value, or 0 if the key does not exist.
 	 */
-	public function counter_get( $key ) {
-		list( $value, $old_data ) = $this->_get_with_old_raw( $key );
-		if ( empty( $value ) ) {
+	public function counter_get( $w3tc_key ) {
+		list( $w3tc_value, $old_data ) = $this->_get_with_old_raw( $w3tc_key );
+		if ( empty( $w3tc_value ) ) {
 			return 0;
 		}
 
-		$original_length = strlen( $value );
-		$cut_value       = str_replace( 'x', '', $value );
+		$original_length = strlen( $w3tc_value );
+		$cut_value       = str_replace( 'x', '', $w3tc_value );
 
-		$count = $original_length - strlen( $cut_value );
+		$w3tc_count = $original_length - strlen( $cut_value );
 
 		// values more than 1 are stored as <space>value.
-		$a = explode( ' ', $cut_value );
-		foreach ( $a as $counter_value ) {
-			$count += (int) $counter_value;
+		$w3tc_a = explode( ' ', $cut_value );
+		foreach ( $w3tc_a as $counter_value ) {
+			$w3tc_count += (int) $counter_value;
 		}
 
-		return $count;
+		return $w3tc_count;
 	}
 
 	/**
@@ -635,18 +635,18 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Ensures the directory structure exists before attempting to open the file.
 	 *
-	 * @param string $key An MD5 of the DB query.
-	 * @param string $group Cache group.
+	 * @param string $w3tc_key An MD5 of the DB query.
+	 * @param string $w3tc_group Cache group.
 	 * @param string $mode File mode.  For example: 'wb' for write binary.
 	 *
 	 * @return resource|false File pointer on success, false on failure.
 	 */
-	private function fopen_write( $key, $group, $mode ) {
-		// Get the storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_$key").
-		$storage_key = $this->get_item_key( $key );
+	private function fopen_write( $w3tc_key, $w3tc_group, $mode ) {
+		// Get the storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_$w3tc_key").
+		$storage_key = $this->get_item_key( $w3tc_key );
 
 		// Get the subpath for the cache file (format: [0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}).
-		$sub_path = $this->_get_path( $storage_key, $group );
+		$sub_path = $this->_get_path( $storage_key, $w3tc_group );
 
 		// Ge the entire path of the cache file.
 		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
@@ -688,18 +688,18 @@ class Cache_File extends Cache_Base {
 
 		$dir = @opendir( $flush_dir );
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
-				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
-					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
+				if ( preg_match( '~' . $regex . '~', basename( $w3tc_entry ) ) ) {
+					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $w3tc_entry );
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );

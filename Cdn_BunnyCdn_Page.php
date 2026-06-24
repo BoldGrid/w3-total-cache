@@ -25,67 +25,9 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdn_BunnyCdn_Page();
+		$w3tc_o = new Cdn_BunnyCdn_Page();
 
-		\add_action( 'w3tc_ajax_cdn_bunnycdn_purge_url', array( $o, 'w3tc_ajax_cdn_bunnycdn_purge_url' ) );
-	}
-
-	/**
-	 * Checks if Bunny CDN is active and properly configured.
-	 *
-	 * This method verifies if Bunny CDN is enabled and configured correctly by checking the necessary configuration
-	 * values, including the account API key and pull zone IDs. It returns true if Bunny CDN is active, and false otherwise.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return bool True if Bunny CDN is active, false if not.
-	 */
-	public static function is_active() {
-		$config          = Dispatcher::config();
-		$cdn_enabled     = $config->get_boolean( 'cdn.enabled' );
-		$cdn_engine      = $config->get_string( 'cdn.engine' );
-		$cdn_zone_id     = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
-		$cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
-		$cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
-		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-
-		return ( $account_api_key &&
-			(
-				( $cdn_enabled && 'bunnycdn' === $cdn_engine && $cdn_zone_id ) ||
-				( $cdnfsd_enabled && 'bunnycdn' === $cdnfsd_engine && $cdnfsd_zone_id )
-			)
-		);
-	}
-
-	/**
-	 * Adds actions to the W3 Total Cache dashboard if Bunny CDN is active.
-	 *
-	 * This method appends a custom "Empty All Caches Except Bunny CDN" button to the W3 Total Cache dashboard if Bunny CDN
-	 * is enabled. It also checks if other cache types can be emptied before enabling the button.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @param array $actions List of existing actions in the dashboard.
-	 *
-	 * @return array Modified list of actions with the new button if Bunny CDN is active.
-	 */
-	public static function w3tc_dashboard_actions( array $actions ) {
-		if ( self::is_active() ) {
-			$modules            = Dispatcher::component( 'ModuleStatus' );
-			$can_empty_memcache = $modules->can_empty_memcache();
-			$can_empty_opcode   = $modules->can_empty_opcode();
-			$can_empty_file     = $modules->can_empty_file();
-			$can_empty_varnish  = $modules->can_empty_varnish();
-
-			$actions[] = sprintf(
-				'<input type="submit" class="dropdown-item" name="w3tc_bunnycdn_flush_all_except_bunnycdn" value="%1$s"%2$s>',
-				esc_attr__( 'Empty All Caches Except Bunny CDN', 'w3-total-cache' ),
-				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
-			);
-		}
-
-		return $actions;
+		\add_action( 'w3tc_ajax_cdn_bunnycdn_purge_url', array( $w3tc_o, 'w3tc_ajax_cdn_bunnycdn_purge_url' ) );
 	}
 
 	/**
@@ -99,14 +41,14 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
-		$config        = Dispatcher::config();
-		$is_authorized = ! empty( $config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
-			( $config->get_string( 'cdn.bunnycdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
+		$w3tc_config        = Dispatcher::config();
+		$w3tc_is_authorized = ! empty( $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
+			( $w3tc_config->get_string( 'cdn.bunnycdn.pull_zone_id' ) || $w3tc_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
 
 		\wp_register_script(
 			'w3tc_cdn_bunnycdn',
 			\plugins_url( 'Cdn_BunnyCdn_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
+			array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ),
 			W3TC_VERSION,
 			false
 		);
@@ -115,7 +57,7 @@ class Cdn_BunnyCdn_Page {
 			'w3tc_cdn_bunnycdn',
 			'W3TC_Bunnycdn',
 			array(
-				'is_authorized' => $is_authorized,
+				'is_authorized' => $w3tc_is_authorized,
 				'lang'          => array(
 					'empty_url'       => \esc_html__( 'No URL specified', 'w3-total-cache' ),
 					'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
@@ -139,7 +81,7 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_cdn_boxarea_configuration() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
 		include W3TC_DIR . '/Cdn_BunnyCdn_Page_View.php';
 	}
@@ -162,8 +104,8 @@ class Cdn_BunnyCdn_Page {
 			return;
 		}
 
-		$ran    = true;
-		$config = Dispatcher::config();
+		$ran         = true;
+		$w3tc_config = Dispatcher::config();
 
 		include W3TC_DIR . '/Cdn_BunnyCdn_Page_View_Purge_Urls.php';
 	}
@@ -185,48 +127,46 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_purge_url() {
-		$url = Util_Request::get_string( 'url' );
+		$w3tc_url = Util_Request::get_string( 'url' );
 
 		// Check if URL starts with "http", starts with a valid protocol, and passes a URL validation check.
-		if ( 0 !== \strpos( $url, 'http' ) || ! \preg_match( '~^http(s?)://(.+)~i', $url ) || ! \filter_var( $url, FILTER_VALIDATE_URL ) ) {
+		if ( 0 !== \strpos( $w3tc_url, 'http' ) || ! \preg_match( '~^http(s?)://(.+)~i', $w3tc_url ) || ! \filter_var( $w3tc_url, FILTER_VALIDATE_URL ) ) {
 			\wp_send_json_error(
 				array( 'error_message' => \esc_html__( 'Invalid URL', 'w3-total-cache' ) ),
 				400
 			);
 		}
 
-		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$w3tc_config          = Dispatcher::config();
+		$w3tc_account_api_key = $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' );
 
-		$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $account_api_key ) );
+		$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
 
 		// Try to delete pull zone.
 		try {
 			$api->purge(
 				array(
-					'url'   => \esc_url( $url, array( 'http', 'https' ) ),
+					'url'   => \esc_url( $w3tc_url, array( 'http', 'https' ) ),
 					'async' => true,
 				)
 			);
 		} catch ( \Exception $ex ) {
-			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
+			/**
+			 * Log the full SDK exception detail server-side (URLs,
+			 * request IDs, and any other request metadata embedded
+			 * in the upstream string); return only a generic message
+			 * to the admin so the AJAX response body doesn't carry
+			 * that upstream context.
+			 */
+			Util_Debug::log( 'bunnycdn', 'purge failed: ' . $ex->getMessage() );
+			\wp_send_json_error(
+				array(
+					'error_message' => \__( 'Bunny CDN purge request failed; see the W3TC debug log for details.', 'w3-total-cache' ),
+				),
+				422
+			);
 		}
 
 		\wp_send_json_success();
-	}
-
-	/**
-	 * Flushes all caches except Bunny CDN and redirects to the W3 Total Cache settings page.
-	 *
-	 * This method flushes all caches except for Bunny CDN and redirects the user to the W3 Total Cache settings page with
-	 * a success message.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return void
-	 */
-	public function w3tc_bunnycdn_flush_all_except_bunnycdn() {
-		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'bunnycdn' => 'skip' ) );
-		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all' ), true );
 	}
 }

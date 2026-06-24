@@ -24,7 +24,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $account_api_key;
+	private $w3tc_account_api_key;
 
 	/**
 	 * Storage API Key.
@@ -146,13 +146,13 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $config Configuration array containing API keys and pull zone ID.
+	 * @param array $w3tc_config Configuration array containing API keys and pull zone ID.
 	 */
-	public function __construct( array $config ) {
-		$this->account_api_key = ! empty( $config['account_api_key'] ) ? $config['account_api_key'] : '';
-		$this->storage_api_key = ! empty( $config['storage_api_key'] ) ? $config['storage_api_key'] : '';
-		$this->stream_api_key  = ! empty( $config['stream_api_key'] ) ? $config['stream_api_key'] : '';
-		$this->pull_zone_id    = ! empty( $config['pull_zone_id'] ) ? $config['pull_zone_id'] : '';
+	public function __construct( array $w3tc_config ) {
+		$this->w3tc_account_api_key = ! empty( $w3tc_config['account_api_key'] ) ? $w3tc_config['account_api_key'] : '';
+		$this->storage_api_key      = ! empty( $w3tc_config['storage_api_key'] ) ? $w3tc_config['storage_api_key'] : '';
+		$this->stream_api_key       = ! empty( $w3tc_config['stream_api_key'] ) ? $w3tc_config['stream_api_key'] : '';
+		$this->pull_zone_id         = ! empty( $w3tc_config['pull_zone_id'] ) ? $w3tc_config['pull_zone_id'] : '';
 	}
 
 	/**
@@ -220,7 +220,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $data Data for the new pull zone.
+	 * @param array $w3tc_data Data for the new pull zone.
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_add
 	 *
@@ -228,20 +228,20 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone name is invalid.
 	 */
-	public function add_pull_zone( array $data ) {
+	public function add_pull_zone( array $w3tc_data ) {
 		$this->api_type = 'account';
 
-		if ( empty( $data['Name'] ) || ! \is_string( $data['Name'] ) ) { // A Name string is required, which is used for the CDN hostname.
+		if ( empty( $w3tc_data['Name'] ) || ! \is_string( $w3tc_data['Name'] ) ) { // A Name string is required, which is used for the CDN hostname.
 			throw new \Exception( \esc_html__( 'A pull zone name (string) is required.', 'w3-total-cache' ) );
 		}
 
-		if ( \preg_match( '[^\w\d-]', $data['Name'] ) ) { // Only letters, numbers, and dashes are allowed in the Name.
+		if ( \preg_match( '[^\w\d-]', $w3tc_data['Name'] ) ) { // Only letters, numbers, and dashes are allowed in the Name.
 			throw new \Exception( \esc_html__( 'A pull zone name (string) is required.', 'w3-total-cache' ) );
 		}
 
 		return $this->wp_remote_post(
 			'https://api.bunny.net/pullzone',
-			$data
+			$w3tc_data
 		);
 	}
 
@@ -251,7 +251,7 @@ class Cdn_BunnyCdn_Api {
 	 * @since 2.6.0
 	 *
 	 * @param int   $id   The pull zone ID.
-	 * @param array $data Data for updating the pull zone.
+	 * @param array $w3tc_data Data for updating the pull zone.
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
@@ -259,7 +259,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function update_pull_zone( $id, array $data ) {
+	public function update_pull_zone( $id, array $w3tc_data ) {
 		$this->api_type = 'account';
 		$id             = empty( $this->pull_zone_id ) ? $id : $this->pull_zone_id;
 
@@ -269,7 +269,7 @@ class Cdn_BunnyCdn_Api {
 
 		return $this->wp_remote_post(
 			'https://api.bunny.net/pullzone/' . $id,
-			$data
+			$w3tc_data
 		);
 	}
 
@@ -306,7 +306,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string   $hostname The custom hostname to add.
+	 * @param string   $w3tc_hostname The custom hostname to add.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_addhostname
@@ -315,7 +315,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function add_custom_hostname( $hostname, $pull_zone_id = null ) {
+	public function add_custom_hostname( $w3tc_hostname, $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
@@ -323,13 +323,13 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $hostname ) || ! \filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
-			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . \esc_html( $hostname ) . '".' );
+		if ( empty( $w3tc_hostname ) || ! \filter_var( $w3tc_hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . \esc_html( $w3tc_hostname ) . '".' );
 		}
 
 		$this->wp_remote_post(
 			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/addHostname' ),
-			array( 'Hostname' => $hostname )
+			array( 'Hostname' => $w3tc_hostname )
 		);
 	}
 
@@ -349,14 +349,14 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array    $data Data for the edge rule.
+	 * @param array    $w3tc_data Data for the edge rule.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
 	 * @return void
 	 *
 	 * @throws \Exception If any required parameters are missing or invalid.
 	 */
-	public function add_edge_rule( array $data, $pull_zone_id = null ) {
+	public function add_edge_rule( array $w3tc_data, $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
@@ -364,25 +364,25 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		if ( ! isset( $data['ActionType'] ) || ! \is_int( $data['ActionType'] ) || $data['ActionType'] < 0 ) {
+		if ( ! isset( $w3tc_data['ActionType'] ) || ! \is_int( $w3tc_data['ActionType'] ) || $w3tc_data['ActionType'] < 0 ) {
 			throw new \Exception( \esc_html__( 'Invalid parameter "ActionType".', 'w3-total-cache' ) );
 		}
 
-		if ( ! isset( $data['TriggerMatchingType'] ) || ! \is_int( $data['TriggerMatchingType'] ) || $data['TriggerMatchingType'] < 0 ) {
+		if ( ! isset( $w3tc_data['TriggerMatchingType'] ) || ! \is_int( $w3tc_data['TriggerMatchingType'] ) || $w3tc_data['TriggerMatchingType'] < 0 ) {
 			throw new \Exception( \esc_html__( 'Invalid parameter "TriggerMatchingType".', 'w3-total-cache' ) );
 		}
 
-		if ( ! isset( $data['Enabled'] ) || ! \is_bool( $data['Enabled'] ) ) {
+		if ( ! isset( $w3tc_data['Enabled'] ) || ! \is_bool( $w3tc_data['Enabled'] ) ) {
 			throw new \Exception( \esc_html__( 'Missing parameter "Enabled".', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $data['Triggers'] ) ) {
+		if ( empty( $w3tc_data['Triggers'] ) ) {
 			throw new \Exception( \esc_html__( 'Missing parameter "Triggers".', 'w3-total-cache' ) );
 		}
 
 		$this->wp_remote_post(
 			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/edgerules/addOrUpdate' ),
-			$data
+			$w3tc_data
 		);
 	}
 
@@ -391,16 +391,16 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $data Data for the purge operation.
+	 * @param array $w3tc_data Data for the purge operation.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
-	public function purge( array $data ) {
+	public function purge( array $w3tc_data ) {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_post(
 			\esc_url( 'https://api.bunny.net/purge' ),
-			$data
+			$w3tc_data
 		);
 	}
 
@@ -446,11 +446,17 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid API type; must be one of "account", "storage", "stream".', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $this->{$type . '_api_key'} ) ) {
+		$w3tc_api_keys = array(
+			'account' => $this->w3tc_account_api_key,
+			'storage' => $this->storage_api_key,
+			'stream'  => $this->stream_api_key,
+		);
+
+		if ( empty( $w3tc_api_keys[ $type ] ) ) {
 			throw new \Exception( \esc_html__( 'API key value is empty.', 'w3-total-cache' ) );
 		}
 
-		return $this->{$type . '_api_key'};
+		return $w3tc_api_keys[ $type ];
 	}
 
 	/**
@@ -458,25 +464,25 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array|WP_Error $result The result returned from the API request.
+	 * @param array|WP_Error $w3tc_result The result returned from the API request.
 	 *
 	 * @return array The decoded response data.
 	 *
 	 * @throws \Exception If the response is not successful or fails to decode.
 	 */
-	private function decode_response( $result ) {
-		if ( \is_wp_error( $result ) ) {
+	private function decode_response( $w3tc_result ) {
+		if ( \is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		$response_body = @\json_decode( $result['body'], true );
+		$response_body = @\json_decode( $w3tc_result['body'], true );
 
 		// Throw an exception if the response code/status is not ok.
-		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {
-			$message = isset( $response_body['Message'] ) ? $response_body['Message'] : $result['body'];
+		if ( ! \in_array( $w3tc_result['response']['code'], array( 200, 201, 204 ), true ) ) {
+			$w3tc_message = isset( $response_body['Message'] ) ? $response_body['Message'] : $w3tc_result['body'];
 
 			throw new \Exception(
-				\esc_html( \__( 'Response code ', 'w3-total-cache' ) . $result['response']['code'] . ': ' . $message )
+				\esc_html( \__( 'Response code ', 'w3-total-cache' ) . $w3tc_result['response']['code'] . ': ' . $w3tc_message )
 			);
 		}
 
@@ -493,19 +499,19 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string $url  The URL to send the GET request to.
-	 * @param array  $data Optional. An associative array of data to send as query parameters. Default is an empty array.
+	 * @param string $w3tc_url  The URL to send the GET request to.
+	 * @param array  $w3tc_data Optional. An associative array of data to send as query parameters. Default is an empty array.
 	 *
 	 * @return mixed The decoded response from the API request.
 	 */
-	private function wp_remote_get( $url, array $data = array() ) {
+	private function wp_remote_get( $w3tc_url, array $w3tc_data = array() ) {
 		$api_key = $this->get_api_key();
 
 		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
 		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
-		$result = \wp_remote_get(
-			$url . ( empty( $data ) ? '' : '?' . \http_build_query( $data ) ),
+		$w3tc_result = \wp_remote_get(
+			$w3tc_url . ( empty( $w3tc_data ) ? '' : '?' . \http_build_query( $w3tc_data ) ),
 			array(
 				'headers' => array(
 					'AccessKey' => $api_key,
@@ -517,7 +523,7 @@ class Cdn_BunnyCdn_Api {
 		\remove_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 		\remove_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
 
-		return self::decode_response( $result );
+		return self::decode_response( $w3tc_result );
 	}
 
 
@@ -531,20 +537,20 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string $url   The URL to send the POST request to.
-	 * @param array  $data  Optional. An associative array of data to send in the request body. Default is an empty array.
+	 * @param string $w3tc_url   The URL to send the POST request to.
+	 * @param array  $w3tc_data  Optional. An associative array of data to send in the request body. Default is an empty array.
 	 * @param array  $args  Optional. Additional arguments to customize the POST request, such as custom headers or settings. Default is an empty array.
 	 *
 	 * @return mixed The decoded response from the API request.
 	 */
-	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
+	private function wp_remote_post( $w3tc_url, array $w3tc_data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
 
 		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
 		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
-		$result = \wp_remote_post(
-			$url,
+		$w3tc_result = \wp_remote_post(
+			$w3tc_url,
 			\array_merge(
 				array(
 					'headers' => array(
@@ -552,7 +558,7 @@ class Cdn_BunnyCdn_Api {
 						'Accept'       => 'application/json',
 						'Content-Type' => 'application/json',
 					),
-					'body'    => empty( $data ) ? null : \wp_json_encode( $data ),
+					'body'    => empty( $w3tc_data ) ? null : \wp_json_encode( $w3tc_data ),
 				),
 				$args
 			)
@@ -561,6 +567,6 @@ class Cdn_BunnyCdn_Api {
 		\remove_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 		\remove_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
 
-		return self::decode_response( $result );
+		return self::decode_response( $w3tc_result );
 	}
 }

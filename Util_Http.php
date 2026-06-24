@@ -18,12 +18,12 @@ class Util_Http {
 	 * Filter handler for use_curl_transport.
 	 * Workaround to not use curl for extra HTTP methods.
 	 *
-	 * @param bool  $result Result of the filter.
+	 * @param bool  $w3tc_result Result of the filter.
 	 * @param array $args   Arguments passed to the filter.
 	 *
 	 * @return bool Returns false if the HTTP method is not GET or POST, otherwise returns the original result.
 	 */
-	public static function use_curl_transport( $result, $args ) {
+	public static function use_curl_transport( $w3tc_result, $args ) {
 		/**
 		 * Check if the 'method' argument is set and ensure it is either 'GET' or 'POST'.
 		 * If it's not, disable the use of cURL transport by returning false.
@@ -33,18 +33,18 @@ class Util_Http {
 		}
 
 		// Return the original result if the method is GET or POST.
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
 	 * Sends HTTP request.
 	 *
-	 * @param string $url  URL to send the request to.
+	 * @param string $w3tc_url  URL to send the request to.
 	 * @param array  $args Arguments for the HTTP request.
 	 *
 	 * @return WP_Error|array Returns either a WP_Error object on failure or an array containing the response data.
 	 */
-	public static function request( $url, $args = array() ) {
+	public static function request( $w3tc_url, $args = array() ) {
 		// Static variable to ensure the filter is only added once during the lifetime of the script.
 		static $filter_set = false;
 
@@ -65,18 +65,18 @@ class Util_Http {
 			$args
 		);
 
-		return wp_remote_request( $url, $args );
+		return wp_remote_request( $w3tc_url, $args );
 	}
 
 	/**
 	 * Sends HTTP GET request
 	 *
-	 * @param string $url  URL to send the GET request to.
+	 * @param string $w3tc_url  URL to send the GET request to.
 	 * @param array  $args Arguments for the GET request.
 	 *
 	 * @return array|\WP_Error Returns the response data or a \WP_Error object on failure.
 	 */
-	public static function get( $url, $args = array() ) {
+	public static function get( $w3tc_url, $args = array() ) {
 		// Merge the provided arguments with the GET method.
 		$args = array_merge(
 			$args,
@@ -84,26 +84,30 @@ class Util_Http {
 		);
 
 		// Use the request method to send the GET request.
-		return self::request( $url, $args );
+		return self::request( $w3tc_url, $args );
 	}
 
 	/**
 	 * Downloads URL into a file
 	 *
-	 * @param string $url  URL to download.
-	 * @param string $file Path to the file where the content will be saved.
+	 * @param string $w3tc_url  URL to download.
+	 * @param string $w3tc_file Path to the file where the content will be saved.
 	 * @param array  $args Optional. Arguments for the download request.
 	 *
 	 * @return bool Returns true on success, or false on failure.
 	 */
-	public static function download( $url, $file, $args = array() ) {
+	public static function download( $w3tc_url, $w3tc_file, $args = array() ) {
 		// Ensure the URL has a protocol.
-		if ( strpos( $url, '//' ) === 0 ) {
-			$url = ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $url;
+		if ( strpos( $w3tc_url, '//' ) === 0 ) {
+			$w3tc_url = ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $w3tc_url;
+		}
+
+		if ( ! Util_Url::is_self_host_url( $w3tc_url ) && ! Util_Url::is_public_host( $w3tc_url ) ) {
+			return false;
 		}
 
 		// Send a GET request to the URL to fetch the content.
-		$response = self::get( $url, $args );
+		$response = self::get( $w3tc_url, $args );
 
 		// Check if the response contains an error.
 		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
@@ -111,7 +115,7 @@ class Util_Http {
 		}
 
 		// Attempt to write the response body to the specified file.
-		return (bool) @file_put_contents( $file, $response['body'] );
+		return (bool) @file_put_contents( $w3tc_file, $response['body'] );
 	}
 
 	/**
@@ -157,13 +161,13 @@ class Util_Http {
 	/**
 	 * Test the time to first byte (TTFB).
 	 *
-	 * @param string $url URL to test.
+	 * @param string $w3tc_url URL to test.
 	 * @param bool   $nocache Whether or not to request no cache response, by sending a Cache-Control header.
 	 *
 	 * @return float|false Time in seconds until the first byte is about to be transferred or false on error.
 	 */
-	public static function ttfb( $url, $nocache = false ) {
-		$ch   = curl_init( esc_url( $url ) );
+	public static function ttfb( $w3tc_url, $nocache = false ) {
+		$ch   = curl_init( esc_url( $w3tc_url ) );
 		$pass = (bool) $ch;
 		$ttfb = false;
 		$opts = array(
@@ -172,7 +176,14 @@ class Util_Http {
 			CURLOPT_HEADER         => 0,
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_FOLLOWLOCATION => 1,
-			CURLOPT_SSL_VERIFYPEER => false,
+			/**
+			 * SSL peer verification is the cURL default; the legacy
+			 * `CURLOPT_SSL_VERIFYPEER => false` was removed (// TTFB leg). Note: this function calls raw cURL directly
+			 * (not the WordPress HTTP API), so the WP `http_request_args`
+			 * / `https_ssl_verify` filters do NOT apply here. Operators
+			 * with broken CA bundles need to fix the bundle itself; a
+			 * TTFB probe MUST NOT silently accept a forged cert.
+			 */
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 		);
 
@@ -182,7 +193,7 @@ class Util_Http {
 				'Pragma: no-cache',
 			);
 
-			$opts[ CURLOPT_URL ] = add_query_arg( 'time', microtime( true ), $url );
+			$opts[ CURLOPT_URL ] = add_query_arg( 'time', microtime( true ), $w3tc_url );
 		}
 
 		if ( $ch ) {

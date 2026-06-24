@@ -1,0 +1,32 @@
+# ini/.htaccess — W3 Total Cache sample-config directory access control.
+#
+# Every file under ini/ is a *sample* — config-db-sample.php, dbcluster-
+# config-sample.php, varnish-sample-config.vcl, php.append.ini,
+# s3-sample-policy.txt and the apache_conf/ nginx-*.conf templates are
+# meant to be copied out by a sysadmin, never served directly. The
+# existing index.html / web.config are belt-and-braces guards that we
+# keep, but a directory-level deny is the canonical defense.
+#
+# Compatible with both Apache 2.2 (Order/Allow,Deny) and 2.4+ (Require).
+
+# Default-deny all requests for files under this directory.
+<IfModule mod_authz_core.c>
+	# Apache 2.4+
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	# Apache 2.2 fallback
+	Order Allow,Deny
+	Deny from all
+</IfModule>
+
+# Explicit additional block for dotfiles (e.g. this .htaccess).
+<FilesMatch "^\.">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order Allow,Deny
+		Deny from all
+	</IfModule>
+</FilesMatch>

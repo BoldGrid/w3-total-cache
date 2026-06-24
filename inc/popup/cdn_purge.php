@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_purge.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -28,29 +35,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </p>
 <p>
-	<?php
-	switch ( $this->_config->get_string( 'cdn.engine' ) ) :
-		case 'cotendo':
-			?>
-			<ul>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/</em> &mdash; <?php esc_html_e( 'the directory itself (only when accessed directly without any file).', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/*.</em> &mdash; <?php esc_html_e( 'all files in the directory with no extension, with all parameter variations.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/*.jpg</em> &mdash; <?php esc_html_e( 'all files in the directory whose extension is "jpg".', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path</em> &mdash; <?php esc_html_e( 'the specific file (when the file does not have an extension), and without parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em> &mdash; <?php esc_html_e( 'the specific file with its extension, and without parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg?*</em> &mdash; <?php esc_html_e( 'the specific file with its extension, with all variation of parameters.', 'w3-total-cache' ); ?></li>
-				<li><em><?php echo esc_url( $path ); ?>/images/headers/path.jpg?key=value</em> &mdash; <?php esc_html_e( 'the specific file with its extension, with the specific parameters.', 'w3-total-cache' ); ?></li>
-			</ul>
-			<?php
-			break;
-
-		default:
-			?>
-			<em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em>
-			<?php
-			break;
-	endswitch;
-	?>
+	<em><?php echo esc_url( $path ); ?>/images/headers/path.jpg</em>
 </p>
 
 
@@ -62,7 +47,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<p>
 		<?php
 		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
+			Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_cdn_purge_files' ) ),
 			array(
 				'input' => array(
 					'type'  => array(),
@@ -77,10 +62,10 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <div class="log">
-	<?php foreach ( $results as $result ) : ?>
-		<div class="log-<?php echo W3TC_CDN_RESULT_OK === $result['result'] ? 'success' : 'error'; ?>">
-			<?php echo esc_html( $result['remote_path'] ); ?>
-			<strong><?php echo esc_html( $result['error'] ); ?></strong>
+	<?php foreach ( $results as $w3tc_result ) : ?>
+		<div class="log-<?php echo W3TC_CDN_RESULT_OK === $w3tc_result['result'] ? 'success' : 'error'; ?>">
+			<?php echo esc_html( $w3tc_result['remote_path'] ); ?>
+			<strong><?php echo esc_html( $w3tc_result['error'] ); ?></strong>
 		</div>
 	<?php endforeach; ?>
 </div>

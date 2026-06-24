@@ -42,7 +42,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Image Service API class object.
@@ -57,7 +57,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Was the WP Cron error notice already printed?
 	 *
-	 * @since  2.8.0
+	 * @since  2.2.0
 	 * @static
 	 * @access private
 	 *
@@ -71,7 +71,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * @since 2.2.0
 	 */
 	public function __construct() {
-		$this->config = Dispatcher::config();
+		$this->w3tc_config = Dispatcher::config();
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * @return Config
 	 */
 	public function get_config(): Config {
-		return $this->config;
+		return $this->w3tc_config;
 	}
 
 	/**
@@ -91,33 +91,15 @@ class Extension_ImageService_Plugin_Admin {
 	 * @since 2.2.0
 	 * @static
 	 *
-	 * @global $wp_version WordPress core version.
-	 *
 	 * @param  array $extensions Extensions.
-	 * @param  array $config Configuration.
+	 * @param  array $w3tc_config Configuration.
 	 * @return array
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
-		global $wp_version;
-
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$description = __(
 			'Adds the ability to convert images in the Media Library to modern formats (like WebP or AVIF) for better performance.',
 			'w3-total-cache'
 		);
-
-		if ( version_compare( $wp_version, '5.8', '<' ) ) {
-			$description .= sprintf(
-				// translators: 1: HTML break, 2: WordPress version string, 3: HTML archor open tag, 4: HTML archor close tag.
-				__(
-					'%1$sThis extension works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.',
-					'w3-total-cache'
-				),
-				'<br />',
-				$wp_version,
-				'<a href="' . esc_url( admin_url( 'update-core.php' ) ) . '">',
-				'</a>'
-			);
-		}
 
 		$settings_url = esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice&w3tc_imageservice_action=dismiss_activation_notice' ) );
 		$library_url  = esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) );
@@ -170,10 +152,10 @@ class Extension_ImageService_Plugin_Admin {
 	 * @static
 	 */
 	public static function w3tc_extension_load_admin() {
-		$o = new Extension_ImageService_Plugin_Admin();
+		$w3tc_o = new Extension_ImageService_Plugin_Admin();
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', array( $o, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $w3tc_o, 'admin_enqueue_scripts' ) );
 
 		/**
 		 * Filters the Media list table columns.
@@ -184,7 +166,7 @@ class Extension_ImageService_Plugin_Admin {
 		 * @param bool     $detached      Whether the list table contains media not attached
 		 *                                to any posts. Default true.
 		 */
-		add_filter( 'manage_media_columns', array( $o, 'add_media_column' ) );
+		add_filter( 'manage_media_columns', array( $w3tc_o, 'add_media_column' ) );
 
 		/**
 		 * Fires for each custom column in the Media list table.
@@ -196,19 +178,19 @@ class Extension_ImageService_Plugin_Admin {
 		 * @param string $column_name Name of the custom column.
 		 * @param int    $post_id     Attachment ID.
 		 */
-		add_action( 'manage_media_custom_column', array( $o, 'media_column_row' ), 10, 2 );
+		add_action( 'manage_media_custom_column', array( $w3tc_o, 'media_column_row' ), 10, 2 );
 
 		// AJAX hooks.
-		add_action( 'wp_ajax_w3tc_imageservice_submit', array( $o, 'ajax_submit' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_postmeta', array( $o, 'ajax_get_postmeta' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_revert', array( $o, 'ajax_revert' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_all', array( $o, 'ajax_convert_all' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_revertall', array( $o, 'ajax_revert_all' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_counts', array( $o, 'ajax_get_counts' ) );
-		add_action( 'wp_ajax_w3tc_imageservice_usage', array( $o, 'ajax_get_usage' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_submit', array( $w3tc_o, 'ajax_submit' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_postmeta', array( $w3tc_o, 'ajax_get_postmeta' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_revert', array( $w3tc_o, 'ajax_revert' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_all', array( $w3tc_o, 'ajax_convert_all' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_revertall', array( $w3tc_o, 'ajax_revert_all' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_counts', array( $w3tc_o, 'ajax_get_counts' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_usage', array( $w3tc_o, 'ajax_get_usage' ) );
 
 		// Admin notices.
-		add_action( 'admin_notices', array( $o, 'display_notices' ) );
+		add_action( 'admin_notices', array( $w3tc_o, 'display_notices' ) );
 
 		/**
 		 * Ensure all network sites include support for modern image formats (e.g., WebP/AVIF).
@@ -228,7 +210,7 @@ class Extension_ImageService_Plugin_Admin {
 		);
 
 		// Add bulk actions.
-		add_filter( 'bulk_actions-upload', array( $o, 'add_bulk_actions' ) );
+		add_filter( 'bulk_actions-upload', array( $w3tc_o, 'add_bulk_actions' ) );
 
 		/**
 		 * Fires when a custom bulk action should be handled.
@@ -236,7 +218,7 @@ class Extension_ImageService_Plugin_Admin {
 		 * The redirect link should be modified with success or failure feedback
 		 * from the action to be used to display feedback to the user.
 		 *
-		 * The dynamic portion of the hook name, `$screen`, refers to the current screen ID.
+		 * The dynamic portion of the hook name, `$w3tc_screen`, refers to the current screen ID.
 		 *
 		 * @since 4.7.0
 		 *
@@ -247,7 +229,7 @@ class Extension_ImageService_Plugin_Admin {
 		 * @param array  $items    The items to take the action on. Accepts an array of IDs of posts,
 		 *                         comments, terms, links, plugins, attachments, or users.
 		 */
-		add_filter( 'handle_bulk_actions-upload', array( $o, 'handle_bulk_actions' ), 10, 3 );
+		add_filter( 'handle_bulk_actions-upload', array( $w3tc_o, 'handle_bulk_actions' ), 10, 3 );
 
 		/**
 		 * Handle auto-optimization on upload.
@@ -261,7 +243,7 @@ class Extension_ImageService_Plugin_Admin {
 		 *
 		 * @param int $post_ID Attachment ID.
 		 */
-		add_action( 'add_attachment', array( $o, 'auto_convert' ) );
+		add_action( 'add_attachment', array( $w3tc_o, 'auto_convert' ) );
 
 		/**
 		 * Delete optimizations on parent image delation.
@@ -277,14 +259,14 @@ class Extension_ImageService_Plugin_Admin {
 		 * @param WP_Post   $post         Post object.
 		 * @param bool      $force_delete Whether to bypass the Trash.
 		 */
-		add_filter( 'pre_delete_attachment', array( $o, 'cleanup_optimizations' ), 10, 3 );
+		add_filter( 'pre_delete_attachment', array( $w3tc_o, 'cleanup_optimizations' ), 10, 3 );
 
 		// Add admin menu items.
-		add_action( 'admin_menu', array( $o, 'admin_menu' ) );
+		add_action( 'admin_menu', array( $w3tc_o, 'admin_menu' ) );
 
 		// If auto-convert is enabled, then check WP Cron.
-		if ( ! empty( $o->get_config()->get_array( 'imageservice' )['auto'] ) && 'enabled' === $o->get_config()->get_array( 'imageservice' )['auto'] ) {
-			add_action( 'pre-upload-ui', array( $o, 'check_wpcron' ) );
+		if ( ! empty( $w3tc_o->get_config()->get_array( 'imageservice' )['auto'] ) && 'enabled' === $w3tc_o->get_config()->get_array( 'imageservice' )['auto'] ) {
+			add_action( 'pre-upload-ui', array( $w3tc_o, 'check_wpcron' ) );
 		}
 	}
 
@@ -473,42 +455,45 @@ class Extension_ImageService_Plugin_Admin {
 	 * @see Extension_ImageService_Api::get_usage()
 	 */
 	public function settings_page() {
-		$c      = $this->config;
+		$w3tc_c = $this->w3tc_config;
 		$counts = $this->get_counts();
 
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
 
-		// Save submitted settings.
+		/**
+		 * Save submitted settings. Per-action nonce key; legacy
+		 * `'w3tc'` accepted as a back-compat fallback via Util_Nonce.
+		 */
 		$nonce_val                    = Util_Request::get_string( '_wpnonce' );
 		$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
-		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
-			$settings                = $c->get_array( 'imageservice' );
-			$settings['compression'] = $imageservice_compression_val;
+		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_save_options' ) ) ) {
+			$w3tc_settings                = $w3tc_c->get_array( 'imageservice' );
+			$w3tc_settings['compression'] = $imageservice_compression_val;
 
 			$imageservice_auto_val = Util_Request::get_string( 'imageservice___auto' );
 			if ( ! empty( $imageservice_auto_val ) ) {
-				$settings['auto'] = $imageservice_auto_val;
+				$w3tc_settings['auto'] = $imageservice_auto_val;
 			}
 
 			$imageservice_visibility_val = Util_Request::get_string( 'imageservice___visibility' );
 			if ( ! empty( $imageservice_visibility_val ) ) {
-				$settings['visibility'] = $imageservice_visibility_val;
+				$w3tc_settings['visibility'] = $imageservice_visibility_val;
 			}
 
 			$imageservice_webp_val = Util_Request::get_string( 'imageservice___webp' );
-			$settings['webp']      = ! empty( $imageservice_webp_val );
+			$w3tc_settings['webp'] = ! empty( $imageservice_webp_val );
 
 			$imageservice_avif_val = Util_Request::get_string( 'imageservice___avif' );
 			// Only allow AVIF for Pro license holders.
-			if ( Util_Environment::is_w3tc_pro( $c ) ) {
-				$settings['avif'] = ! empty( $imageservice_avif_val );
+			if ( Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
+				$w3tc_settings['avif'] = ! empty( $imageservice_avif_val );
 			} else {
-				$settings['avif'] = false;
+				$w3tc_settings['avif'] = false;
 			}
 
-			$c->set( 'imageservice', $settings );
-			$c->save();
+			$w3tc_c->set( 'imageservice', $w3tc_settings );
+			$w3tc_c->save();
 
 			// Display notice when saving settings.
 			?>
@@ -519,10 +504,10 @@ class Extension_ImageService_Plugin_Admin {
 		}
 
 		// Get Image Service usage from the API.
-		$usage = Extension_ImageService_Plugin::get_api()->get_usage();
+		$w3tc_usage = Extension_ImageService_Plugin::get_api()->get_usage();
 
 		// Ensure that the monthly limit is represented correctly.
-		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
+		$w3tc_usage['limit_monthly'] = $w3tc_usage['limit_monthly'] ? $w3tc_usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
 
 		// Display a notice if WP Cron is not working as expected.
 		$this->check_wpcron();
@@ -579,7 +564,14 @@ class Extension_ImageService_Plugin_Admin {
 			wp_enqueue_style( 'w3tc-options' );
 			wp_enqueue_style( 'w3tc-bootstrap-css' );
 			wp_enqueue_script( 'w3tc-options' );
-			wp_localize_script( 'w3tc-lightbox', 'w3tc_nonce', array( wp_create_nonce( 'w3tc' ) ) );
+			// Extension settings screen does not run Generic_Plugin_Admin::admin_print_scripts().
+			Util_Nonce::enqueue_admin_nonces(
+				array(
+					'w3tc_test_self',
+					'w3tc_licensing_upgrade',
+					'w3tc_default_save_license_key',
+				)
+			);
 			wp_enqueue_script( 'w3tc-lightbox' );
 			wp_enqueue_style( 'w3tc-lightbox' );
 		}
@@ -636,10 +628,10 @@ class Extension_ImageService_Plugin_Admin {
 						),
 					),
 					'tos_choice'  => Licensing_Core::get_tos_choice(),
-					'track_usage' => $this->config->get_boolean( 'common.track_usage' ),
+					'track_usage' => $this->w3tc_config->get_boolean( 'common.track_usage' ),
 					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
-					'isPro'       => Util_Environment::is_w3tc_pro( $this->config ),
-					'settings'    => $this->config->get_array( 'imageservice' ),
+					'isPro'       => Util_Environment::is_w3tc_pro( $this->w3tc_config ),
+					'settings'    => $this->w3tc_config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
 			);
@@ -682,7 +674,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * Custom columns are registered using the {@see 'manage_media_columns'} filter.
 	 * Runs on the "manage_media_custom_column" action.
 	 *
-	 * @since 2.5.0
+	 * @since 2.2.0
 	 *
 	 * @see self::remove_optimizations()
 	 *
@@ -692,21 +684,23 @@ class Extension_ImageService_Plugin_Admin {
 	 * @param int    $post_id     Attachment ID.
 	 */
 	public function media_column_row( $column_name, $post_id ) {
-		static $settings;
+		static $w3tc_settings;
 
 		if ( 'imageservice' === $column_name ) {
 			$post              = get_post( $post_id );
 			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
 
-			$settings = isset( $settings ) ? $settings : $this->config->get_array( 'imageservice' );
+			$w3tc_settings = isset( $w3tc_settings ) ? $w3tc_settings : $this->w3tc_config->get_array( 'imageservice' );
 
 			// Display controls and info for eligible images.
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
 				$filepath = get_attached_file( $post_id );
 				$status   = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
 
-				// Check for old format conversion (backward compatibility).
-				// If post_child exists and is valid, treat it as converted regardless of current status.
+				/**
+				 * Check for old format conversion (backward compatibility).
+				 * If post_child exists and is valid, treat it as converted regardless of current status.
+				 */
 				if ( isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) ) {
 					$child_id = $imageservice_data['post_child'];
 					// Verify the child attachment still exists.
@@ -766,17 +760,22 @@ class Extension_ImageService_Plugin_Admin {
 						$sorted_downloads = $imageservice_data['downloads'];
 						uksort(
 							$sorted_downloads,
-							function( $a, $b ) {
+							function ( $w3tc_a, $b ) {
 								// Define order: webp first, then avif, then others.
-								$order = array( 'webp' => 1, 'avif' => 2 );
-								$a_order = isset( $order[ $a ] ) ? $order[ $a ] : 99;
+								$order   = array(
+									'webp' => 1,
+									'avif' => 2,
+								);
+								$a_order = isset( $order[ $w3tc_a ] ) ? $order[ $w3tc_a ] : 99;
 								$b_order = isset( $order[ $b ] ) ? $order[ $b ] : 99;
 								return $a_order - $b_order;
 							}
 						);
 
-						// Show all formats that have download info, not just those with post_children.
-						// This includes formats that failed or didn't reduce size.
+						/**
+						 * Show all formats that have download info, not just those with post_children.
+						 * This includes formats that failed or didn't reduce size.
+						 */
 						foreach ( $sorted_downloads as $format_key => $download_data ) {
 							// Skip if download_data is an error string and we don't have a post_child for it.
 							if ( is_string( $download_data ) && ( ! isset( $imageservice_data['post_children'][ $format_key ] ) || ! $imageservice_data['post_children'][ $format_key ] ) ) {
@@ -799,8 +798,10 @@ class Extension_ImageService_Plugin_Admin {
 								continue;
 							}
 							if ( is_array( $download_data ) ) {
-								// Headers are now stored normalized (lowercase keys) from cron.
-								// Handle both new normalized format and old format for backward compatibility.
+								/**
+								 * Headers are now stored normalized (lowercase keys) from cron.
+								 * Handle both new normalized format and old format for backward compatibility.
+								 */
 								$download_headers = $download_data;
 
 								// If old format with special structure, extract it.
@@ -810,10 +811,10 @@ class Extension_ImageService_Plugin_Admin {
 
 								// Normalize keys to lowercase for case-insensitive access.
 								$normalized_headers = array();
-								foreach ( $download_headers as $key => $value ) {
+								foreach ( $download_headers as $w3tc_key => $w3tc_value ) {
 									// Skip special WordPress array keys.
-									if ( "\0" !== substr( $key, 0, 1 ) ) {
-										$normalized_headers[ strtolower( $key ) ] = $value;
+									if ( "\0" !== substr( $w3tc_key, 0, 1 ) ) {
+										$normalized_headers[ strtolower( $w3tc_key ) ] = $w3tc_value;
 									}
 								}
 
@@ -866,18 +867,20 @@ class Extension_ImageService_Plugin_Admin {
 							}
 						}
 					} else {
-						// Handle single format (backward compatibility - old format).
-						// Check if old format conversion exists (post_child).
+						/**
+						 * Handle single format (backward compatibility - old format).
+						 * Check if old format conversion exists (post_child).
+						 */
 						$has_old_conversion = isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] );
 
 						if ( $has_old_conversion ) {
-							$download_data = isset( $imageservice_data['download'] ) ? $imageservice_data['download'] : null;
+							$download_data     = isset( $imageservice_data['download'] ) ? $imageservice_data['download'] : null;
 							$has_download_data = false;
 
 							// Determine format from child post mime type or default to WEBP.
 							$format_label = 'WEBP';
-							$child_id = $imageservice_data['post_child'];
-							$child_post = get_post( $child_id );
+							$child_id     = $imageservice_data['post_child'];
+							$child_post   = get_post( $child_id );
 							if ( $child_post && isset( $child_post->post_mime_type ) ) {
 								$format_label = strtoupper( str_replace( 'image/', '', $child_post->post_mime_type ) );
 							}
@@ -888,10 +891,10 @@ class Extension_ImageService_Plugin_Admin {
 
 								// Normalize keys to lowercase for case-insensitive access.
 								$normalized_headers = array();
-								foreach ( $download_headers as $key => $value ) {
+								foreach ( $download_headers as $w3tc_key => $w3tc_value ) {
 									// Skip special WordPress array keys.
-									if ( "\0" !== substr( $key, 0, 1 ) ) {
-										$normalized_headers[ strtolower( $key ) ] = $value;
+									if ( "\0" !== substr( $w3tc_key, 0, 1 ) ) {
+										$normalized_headers[ strtolower( $w3tc_key ) ] = $w3tc_value;
 									}
 								}
 
@@ -907,7 +910,7 @@ class Extension_ImageService_Plugin_Admin {
 									$filesize_in_int  = (int) $filesize_in;
 									$filesize_out_int = (int) $filesize_out;
 									if ( $filesize_in_int > 0 ) {
-										$reduction = ( ( $filesize_in_int - $filesize_out_int ) / $filesize_in_int ) * 100;
+										$reduction       = ( ( $filesize_in_int - $filesize_out_int ) / $filesize_in_int ) * 100;
 										$reduced_percent = number_format( $reduction, 2 ) . '%';
 									}
 								}
@@ -915,8 +918,8 @@ class Extension_ImageService_Plugin_Admin {
 								// Display if we have the necessary data.
 								if ( $filesize_in && $filesize_out ) {
 									$has_download_data = true;
-									$reduced_numeric = $reduced_percent ? (float) rtrim( $reduced_percent, '%' ) : 0;
-									$converted_class = $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+									$reduced_numeric   = $reduced_percent ? (float) rtrim( $reduced_percent, '%' ) : 0;
+									$converted_class   = $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
 
 									// Show statistics with or without percentage.
 									?>
@@ -944,7 +947,7 @@ class Extension_ImageService_Plugin_Admin {
 								}
 							} elseif ( $child_post ) {
 								// Try to get file sizes from the actual files if download data is missing.
-								$original_filepath = get_attached_file( $post_id );
+								$original_filepath  = get_attached_file( $post_id );
 								$converted_filepath = get_attached_file( $child_id );
 
 								if ( $original_filepath && $converted_filepath && file_exists( $original_filepath ) && file_exists( $converted_filepath ) ) {
@@ -953,10 +956,10 @@ class Extension_ImageService_Plugin_Admin {
 
 									if ( $filesize_in > 0 && $filesize_out > 0 ) {
 										$has_download_data = true;
-										$reduction = ( ( $filesize_in - $filesize_out ) / $filesize_in ) * 100;
-										$reduced_percent = number_format( $reduction, 2 ) . '%';
-										$reduced_numeric = (float) $reduction;
-										$converted_class = $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
+										$reduction         = ( ( $filesize_in - $filesize_out ) / $filesize_in ) * 100;
+										$reduced_percent   = number_format( $reduction, 2 ) . '%';
+										$reduced_numeric   = (float) $reduction;
+										$converted_class   = $reduced_numeric > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
 										?>
 										<div class="<?php echo esc_attr( $converted_class ); ?>">
 										<?php
@@ -1069,7 +1072,7 @@ class Extension_ImageService_Plugin_Admin {
 						if ( empty( $converted_formats ) && isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) ) {
 							$child_post = get_post( $imageservice_data['post_child'] );
 							if ( $child_post && isset( $child_post->post_mime_type ) ) {
-								$format_label = strtoupper( str_replace( 'image/', '', $child_post->post_mime_type ) );
+								$format_label        = strtoupper( str_replace( 'image/', '', $child_post->post_mime_type ) );
 								$converted_formats[] = $format_label;
 							}
 						}
@@ -1078,9 +1081,12 @@ class Extension_ImageService_Plugin_Admin {
 						if ( ! empty( $converted_formats ) ) {
 							usort(
 								$converted_formats,
-								function( $a, $b ) {
-									$order = array( 'WEBP' => 1, 'AVIF' => 2 );
-									$a_order = isset( $order[ $a ] ) ? $order[ $a ] : 99;
+								function ( $w3tc_a, $b ) {
+									$order   = array(
+										'WEBP' => 1,
+										'AVIF' => 2,
+									);
+									$a_order = isset( $order[ $w3tc_a ] ) ? $order[ $w3tc_a ] : 99;
 									$b_order = isset( $order[ $b ] ) ? $order[ $b ] : 99;
 									return $a_order - $b_order;
 								}
@@ -1092,7 +1098,7 @@ class Extension_ImageService_Plugin_Admin {
 						break;
 					case 'notconverted':
 					case 'notfound':
-						if ( isset( $settings['compression'] ) && 'lossless' === $settings['compression'] ) {
+						if ( isset( $w3tc_settings['compression'] ) && 'lossless' === $w3tc_settings['compression'] ) {
 							esc_html_e( 'Settings', 'w3-total-cache' );
 						} else {
 							esc_html_e( 'Convert', 'w3-total-cache' );
@@ -1128,7 +1134,7 @@ class Extension_ImageService_Plugin_Admin {
 
 					// Check old format (post_child).
 					if ( isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) ) {
-						$child_id = $imageservice_data['post_child'];
+						$child_id   = $imageservice_data['post_child'];
 						$child_post = get_post( $child_id );
 						if ( $child_post && 'image/webp' === $child_post->post_mime_type ) {
 							$has_webp = true;
@@ -1137,14 +1143,14 @@ class Extension_ImageService_Plugin_Admin {
 						}
 					}
 
-					$settings      = isset( $settings ) ? $settings : $this->config->get_array( 'imageservice' );
-					$webp_enabled  = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
-					$avif_enabled  = ! isset( $settings['avif'] ) || true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'];
-					$has_pro       = Util_Environment::is_w3tc_pro( $this->config );
-					$avif_enabled  = $avif_enabled && $has_pro;
+					$w3tc_settings     = isset( $w3tc_settings ) ? $w3tc_settings : $this->w3tc_config->get_array( 'imageservice' );
+					$w3tc_webp_enabled = isset( $w3tc_settings['webp'] ) && ! empty( $w3tc_settings['webp'] );
+					$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'];
+					$has_pro           = Util_Environment::is_w3tc_pro( $this->w3tc_config );
+					$w3tc_avif_enabled = $w3tc_avif_enabled && $has_pro;
 
 					// Show additional convert links only when the format is enabled.
-					if ( $has_webp && ! $has_avif && $avif_enabled ) {
+					if ( $has_webp && ! $has_avif && $w3tc_avif_enabled ) {
 						$avif_span_class    = $can_edit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
 						$avif_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
@@ -1153,7 +1159,7 @@ class Extension_ImageService_Plugin_Admin {
 						<?php
 					}
 
-					if ( $has_avif && ! $has_webp && $webp_enabled ) {
+					if ( $has_avif && ! $has_webp && $w3tc_webp_enabled ) {
 						$webp_span_class    = $can_edit ? 'w3tc-convert-webp' : 'w3tc-convert-webp w3tc-disabled';
 						$webp_aria_disabled = $can_edit ? 'false' : 'true';
 						?>
@@ -1196,7 +1202,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * @link https://make.wordpress.org/core/2016/10/04/custom-bulk-actions/
 	 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-admin/upload.php#L206
 	 *
-	 * @since WordPress 4.7.0
+	 * @since 4.7.0
 	 *
 	 * @param string $location The redirect URL.
 	 * @param string $doaction The action being taken.
@@ -1260,7 +1266,7 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function display_notices() {
 		$submitted = Util_Request::get_integer( 'w3tc_imageservice_submitted' );
-		$is_auto   = ! empty( $this->config->get_array( 'imageservice' )['auto'] ) && 'enabled' === $this->config->get_array( 'imageservice' )['auto'];
+		$is_auto   = ! empty( $this->w3tc_config->get_array( 'imageservice' )['auto'] ) && 'enabled' === $this->w3tc_config->get_array( 'imageservice' )['auto'];
 
 		if ( ! empty( $submitted ) ) {
 			$successful_val = Util_Request::get_integer( 'w3tc_imageservice_successful' );
@@ -1371,7 +1377,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Check if WEBP conversion already exists for an image.
 	 *
-	 * @since 2.2.0
+	 * @since 2.9.0
 	 *
 	 * @param int $post_id Post id.
 	 * @return bool True if WEBP conversion exists, false otherwise.
@@ -1381,7 +1387,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Check new format (post_children).
 		if ( isset( $imageservice_data['post_children']['webp'] ) && ! empty( $imageservice_data['post_children']['webp'] ) ) {
-			$child_id = $imageservice_data['post_children']['webp'];
+			$child_id   = $imageservice_data['post_children']['webp'];
 			$child_data = get_post_meta( $child_id, 'w3tc_imageservice', true );
 			if ( ! empty( $child_data['is_converted_file'] ) ) {
 				return true;
@@ -1390,7 +1396,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Check old format (post_child).
 		if ( isset( $imageservice_data['post_child'] ) && ! empty( $imageservice_data['post_child'] ) ) {
-			$child_id = $imageservice_data['post_child'];
+			$child_id   = $imageservice_data['post_child'];
 			$child_post = get_post( $child_id );
 			if ( $child_post && 'image/webp' === $child_post->post_mime_type ) {
 				$child_data = get_post_meta( $child_id, 'w3tc_imageservice', true );
@@ -1406,7 +1412,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Remove a single format optimization without deleting other converted formats.
 	 *
-	 * @since 2.2.0
+	 * @since 2.9.0
 	 *
 	 * @param int    $post_id    Parent post id.
 	 * @param string $format_key Format key (e.g. 'webp', 'avif').
@@ -1497,7 +1503,7 @@ class Extension_ImageService_Plugin_Admin {
 
 			// Check if WEBP already exists - if so, only request AVIF.
 			$convert_options = array();
-			if ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->config ) ) {
+			if ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
 				// Only request AVIF since WEBP already exists.
 				$convert_options['formats'] = array( 'image/avif' );
 			}
@@ -1559,16 +1565,18 @@ class Extension_ImageService_Plugin_Admin {
 				$requested_formats = $convert_options['formats'];
 			} else {
 				// Get requested formats from settings.
-				$settings = $this->config->get_array( 'imageservice' );
+				$w3tc_settings = $this->w3tc_config->get_array( 'imageservice' );
 				// Check webp setting - handle both boolean and string values, default to true if not set.
-				$webp_enabled = ! isset( $settings['webp'] ) || ( true === $settings['webp'] || '1' === $settings['webp'] || 1 === $settings['webp'] );
-				if ( $webp_enabled ) {
+				$w3tc_webp_enabled = ! isset( $w3tc_settings['webp'] ) || ( true === $w3tc_settings['webp'] || '1' === $w3tc_settings['webp'] || 1 === $w3tc_settings['webp'] );
+				if ( $w3tc_webp_enabled ) {
 					$requested_formats[] = 'image/webp';
 				}
-				// Check avif setting - handle both boolean and string values, default to true if not set.
-				// Only allow AVIF for Pro license holders.
-				$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-				if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
+				/**
+				 * Check avif setting - handle both boolean and string values, default to true if not set.
+				 * Only allow AVIF for Pro license holders.
+				 */
+				$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
+				if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
 					$requested_formats[] = 'image/avif';
 				}
 				// If no formats are selected, default to WebP for backward compatibility.
@@ -1577,18 +1585,20 @@ class Extension_ImageService_Plugin_Admin {
 				}
 			}
 
-			// Store jobs by format for easy lookup.
-			// If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
-			$jobs_by_format = array();
+			/**
+			 * Store jobs by format for easy lookup.
+			 * If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+			 */
+			$jobs_by_format   = array();
 			$forced_mime_type = null;
 			if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {
 				$forced_mime_type = reset( $convert_options['formats'] );
 			}
 
 			if ( $forced_mime_type && ! empty( $jobs ) ) {
-				$forced_key = str_replace( 'image/', '', strtolower( $forced_mime_type ) );
-				$job0 = $jobs[0];
-				$job0['mime_type'] = $forced_mime_type;
+				$forced_key                    = str_replace( 'image/', '', strtolower( $forced_mime_type ) );
+				$job0                          = $jobs[0];
+				$job0['mime_type']             = $forced_mime_type;
 				$jobs_by_format[ $forced_key ] = $job0;
 			} else {
 				foreach ( $jobs as $job ) {
@@ -1607,8 +1617,8 @@ class Extension_ImageService_Plugin_Admin {
 					}
 
 					if ( $mime_type && isset( $job['job_id'] ) && isset( $job['signature'] ) ) {
-						$format_key = str_replace( 'image/', '', strtolower( $mime_type ) );
-						$job['mime_type'] = $mime_type; // Normalize key for downstream usage.
+						$format_key                    = str_replace( 'image/', '', strtolower( $mime_type ) );
+						$job['mime_type']              = $mime_type; // Normalize key for downstream usage.
 						$jobs_by_format[ $format_key ] = $job;
 					}
 				}
@@ -1659,13 +1669,13 @@ class Extension_ImageService_Plugin_Admin {
 	 * @link https://developer.wordpress.org/reference/functions/update_post_meta/
 	 *
 	 * @param int   $post_id  Post id.
-	 * @param array $data Postmeta data.
+	 * @param array $w3tc_data Postmeta data.
 	 * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure or if the value
 	 *                  passed to the function is the same as the one that is already in the database.
 	 */
-	public static function update_postmeta( $post_id, array $data ) {
+	public static function update_postmeta( $post_id, array $w3tc_data ) {
 		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
-		$postmeta = array_merge( $postmeta, $data );
+		$postmeta = array_merge( $postmeta, $w3tc_data );
 
 		return update_post_meta( $post_id, 'w3tc_imageservice', $postmeta );
 	}
@@ -1705,7 +1715,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * @return bool|WP_Post|false|null True if optimizations were removed, false or null on failure, or WP_Post for backward compatibility.
 	 */
 	public function remove_optimizations( $post_id ) {
-		$result            = null;
+		$w3tc_result       = null;
 		$has_optimizations = false;
 
 		// Get child post ids.
@@ -1726,7 +1736,7 @@ class Extension_ImageService_Plugin_Admin {
 		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
 		if ( $child_id ) {
 			// Delete optimization.
-			$result = wp_delete_attachment( $child_id, true );
+			$w3tc_result       = wp_delete_attachment( $child_id, true );
 			$has_optimizations = true;
 		}
 
@@ -1736,7 +1746,7 @@ class Extension_ImageService_Plugin_Admin {
 		}
 
 		// Return true if optimizations were removed, or the result for backward compatibility.
-		return $has_optimizations ? ( false !== $result ? true : $result ) : $result;
+		return $has_optimizations ? ( false !== $w3tc_result ? true : $w3tc_result ) : $w3tc_result;
 	}
 
 	/**
@@ -1747,10 +1757,10 @@ class Extension_ImageService_Plugin_Admin {
 	 * @param int $post_id Post id.
 	 */
 	public function auto_convert( $post_id ) {
-		$settings = $this->config->get_array( 'imageservice' );
-		$enabled  = isset( $settings['auto'] ) && 'enabled' === $settings['auto'];
+		$w3tc_settings = $this->w3tc_config->get_array( 'imageservice' );
+		$w3tc_enabled  = isset( $w3tc_settings['auto'] ) && 'enabled' === $w3tc_settings['auto'];
 
-		if ( $enabled && in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+		if ( $w3tc_enabled && in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
 			$this->submit_images( array( $post_id ) );
 		}
 	}
@@ -1788,6 +1798,25 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
+
+		/**
+		 * Baseline gate: only users that can upload media can call the
+		 * Image Service conversion endpoint. The shared
+		 * w3tc_imageservice_submit nonce is localized to anyone with
+		 * upload_files (see admin_enqueue_scripts), so without this
+		 * floor any Contributor/Subscriber whose session already holds
+		 * a w3tc nonce could trigger BoldGrid API calls.
+		 *
+		 * @since 2.10.0
+		 */
+		if ( ! \current_user_can( 'upload_files' ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Insufficient permissions.', 'w3-total-cache' ),
+				),
+				403
+			);
+		}
 
 		// Check for post id.
 		$post_id_val = Util_Request::get_integer( 'post_id' );
@@ -1842,15 +1871,15 @@ class Extension_ImageService_Plugin_Admin {
 		}
 
 		// Check if a specific format was requested (from data-format attribute).
-		$format = Util_Request::get_string( 'format' );
+		$format          = Util_Request::get_string( 'format' );
 		$convert_options = array();
 
 		// If format is specified, only request that format.
-		if ( 'avif' === $format && Util_Environment::is_w3tc_pro( $this->config ) ) {
+		if ( 'avif' === $format && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
 			$convert_options['formats'] = array( 'image/avif' );
 		} elseif ( 'webp' === $format ) {
 			$convert_options['formats'] = array( 'image/webp' );
-		} elseif ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->config ) ) {
+		} elseif ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
 			// If WEBP already exists and no format specified, only request AVIF.
 			$convert_options['formats'] = array( 'image/avif' );
 		}
@@ -1930,16 +1959,18 @@ class Extension_ImageService_Plugin_Admin {
 			$requested_formats = $convert_options['formats'];
 		} else {
 			// Get requested formats from settings.
-			$settings = $this->config->get_array( 'imageservice' );
+			$w3tc_settings = $this->w3tc_config->get_array( 'imageservice' );
 			// Check webp setting - handle both boolean and string values, default to true if not set.
-			$webp_enabled = ! isset( $settings['webp'] ) || ( true === $settings['webp'] || '1' === $settings['webp'] || 1 === $settings['webp'] );
-			if ( $webp_enabled ) {
+			$w3tc_webp_enabled = ! isset( $w3tc_settings['webp'] ) || ( true === $w3tc_settings['webp'] || '1' === $w3tc_settings['webp'] || 1 === $w3tc_settings['webp'] );
+			if ( $w3tc_webp_enabled ) {
 				$requested_formats[] = 'image/webp';
 			}
-			// Check avif setting - handle both boolean and string values, default to true if not set.
-			// Only allow AVIF for Pro license holders.
-			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $this->config ) ) {
+			/**
+			 * Check avif setting - handle both boolean and string values, default to true if not set.
+			 * Only allow AVIF for Pro license holders.
+			 */
+			$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
+			if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
 				$requested_formats[] = 'image/avif';
 			}
 			// If no formats are selected, default to WebP for backward compatibility.
@@ -1948,18 +1979,20 @@ class Extension_ImageService_Plugin_Admin {
 			}
 		}
 
-		// Store jobs by format for easy lookup.
-		// If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
-		$jobs_by_format = array();
+		/**
+		 * Store jobs by format for easy lookup.
+		 * If we explicitly requested a single format, force the key to that format (API may not echo it back correctly).
+		 */
+		$jobs_by_format   = array();
 		$forced_mime_type = null;
 		if ( isset( $convert_options['formats'] ) && is_array( $convert_options['formats'] ) && 1 === count( $convert_options['formats'] ) ) {
 			$forced_mime_type = reset( $convert_options['formats'] );
 		}
 
 		if ( $forced_mime_type && ! empty( $jobs ) ) {
-			$forced_key = str_replace( 'image/', '', strtolower( $forced_mime_type ) );
-			$job0 = $jobs[0];
-			$job0['mime_type'] = $forced_mime_type;
+			$forced_key                    = str_replace( 'image/', '', strtolower( $forced_mime_type ) );
+			$job0                          = $jobs[0];
+			$job0['mime_type']             = $forced_mime_type;
 			$jobs_by_format[ $forced_key ] = $job0;
 		} else {
 			foreach ( $jobs as $job ) {
@@ -1977,8 +2010,8 @@ class Extension_ImageService_Plugin_Admin {
 				}
 
 				if ( $mime_type && isset( $job['job_id'] ) && isset( $job['signature'] ) ) {
-					$format_key = str_replace( 'image/', '', strtolower( $mime_type ) );
-					$job['mime_type'] = $mime_type;
+					$format_key                    = str_replace( 'image/', '', strtolower( $mime_type ) );
+					$job['mime_type']              = $mime_type;
 					$jobs_by_format[ $format_key ] = $job;
 				}
 			}
@@ -2059,7 +2092,7 @@ class Extension_ImageService_Plugin_Admin {
 			}
 
 			// Check if there are any optimizations to revert.
-			$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
+			$postmeta          = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$has_optimizations = false;
 
 			if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) && ! empty( $postmeta['post_children'] ) ) {
@@ -2226,12 +2259,9 @@ class Extension_ImageService_Plugin_Admin {
 			<div class="notice notice-error is-dismissible">
 				<p>
 					<?php
-					printf(
-						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-						esc_html__( 'WP Cron is not working as expected, which is required for image format conversions.  %2$sLearn more%3$s.', 'w3-total-cache' ),
-						'W3 Total Cache',
-						'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/enable-wp-cron/?utm_source=w3tc&utm_medium=wp_cron&utm_campaign=imageservice' ) . '">',
-						'</a>'
+					esc_html_e(
+						'WP-Cron is not working as expected, which is required for image format conversions. Enable WP-Cron, or configure a server-side cron job to run WordPress scheduled events, for image conversion to work.',
+						'w3-total-cache'
 					);
 					?>
 				</p>

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -36,21 +37,21 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	/**
 	 * Constructs the CDN Engine CloudFront instance.
 	 *
-	 * @param array $config Configuration settings.
+	 * @param array $w3tc_config Configuration settings.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'id' => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 
-		$this->s3 = new CdnEngine_S3( $config );
+		$this->s3 = new CdnEngine_S3( $w3tc_config );
 	}
 
 	/**
@@ -97,10 +98,10 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 			$scheme = $this->_get_scheme();
 
 			// it does not support '+', requires '%2B'.
-			$path = str_replace( '+', '%2B', $path );
-			$url  = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+			$path     = str_replace( '+', '%2B', $path );
+			$w3tc_url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
 
-			return $url;
+			return $w3tc_url;
 		}
 
 		return false;
@@ -153,11 +154,11 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 			return false;
 		}
 
-		$paths = array();
+		$w3tc_paths = array();
 
-		foreach ( $files as $file ) {
-			$remote_file = $file['remote_path'];
-			$paths[]     = '/' . $remote_file;
+		foreach ( $files as $w3tc_file ) {
+			$remote_file  = $w3tc_file['remote_path'];
+			$w3tc_paths[] = '/' . $remote_file;
 		}
 
 		try {
@@ -167,8 +168,8 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 					'InvalidationBatch' => array(
 						'CallerReference' => 'w3tc-' . microtime(),
 						'Paths'           => array(
-							'Items'    => $paths,
-							'Quantity' => count( $paths ),
+							'Items'    => $w3tc_paths,
+							'Quantity' => count( $w3tc_paths ),
 						),
 					),
 				)
@@ -196,17 +197,17 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	public function get_region() {
 		switch ( $this->_config['bucket_location'] ) {
 			case 'us-east-1':
-				$region = '';
+				$w3tc_region = '';
 				break;
 			case 'us-east-1-e':
-				$region = 'us-east-1.';
+				$w3tc_region = 'us-east-1.';
 				break;
 			default:
-				$region = $this->_config['bucket_location'] . '.';
+				$w3tc_region = $this->_config['bucket_location'] . '.';
 				break;
 		}
 
-		return $region;
+		return $w3tc_region;
 	}
 
 	/**
@@ -278,14 +279,14 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		}
 
 		if ( ! empty( $this->_config['cname'] ) ) {
-			$domains = (array) $this->_config['cname'];
-			$cnames  = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
+			$domains     = (array) $this->_config['cname'];
+			$w3tc_cnames = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
 
 			foreach ( $domains as $domain ) {
 				$_domains = array_map( 'trim', explode( ',', $domain ) );
 
 				foreach ( $_domains as $_domain ) {
-					if ( ! in_array( $_domain, $cnames, true ) ) {
+					if ( ! in_array( $_domain, $w3tc_cnames, true ) ) {
 						$error = sprintf( 'Domain name %s is not in distribution <acronym title="Canonical Name">CNAME</acronym> list.', $_domain );
 
 						return false;
@@ -321,13 +322,13 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		$this->s3->create_container();
 
 		// plugin cant set CNAMEs list since it CloudFront requires certificate to be specified associated with it.
-		$cnames = array();
+		$w3tc_cnames = array();
 
 		// make distibution.
 		$origin_domain = $this->_get_origin();
 
 		try {
-			$result = $this->api->createDistribution(
+			$w3tc_result = $this->api->createDistribution(
 				array(
 					'DistributionConfig' => array(
 						'CallerReference'      => $origin_domain,
@@ -382,15 +383,15 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 							'Quantity' => 1,
 						),
 						'Aliases'              => array(
-							'Items'    => $cnames,
-							'Quantity' => count( $cnames ),
+							'Items'    => $w3tc_cnames,
+							'Quantity' => count( $w3tc_cnames ),
 						),
 					),
 				)
 			);
 
 			// extract domain dynamic part stored later in a config.
-			$domain       = $result['Distribution']['DomainName'];
+			$domain       = $w3tc_result['Distribution']['DomainName'];
 			$container_id = '';
 			if ( preg_match( '~^(.+)\.cloudfront\.net$~', $domain, $matches ) ) {
 				$container_id = $matches[1];
@@ -456,8 +457,8 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		$items = $dists['DistributionList']['Items'];
 		foreach ( $items as $dist ) {
 			if ( isset( $dist['Origins']['Items'] ) ) {
-				foreach ( $dist['Origins']['Items'] as $o ) {
-					if ( isset( $o['DomainName'] ) && $o['DomainName'] === $origin ) {
+				foreach ( $dist['Origins']['Items'] as $w3tc_o ) {
+					if ( isset( $w3tc_o['DomainName'] ) && $w3tc_o['DomainName'] === $origin ) {
 						return $dist;
 					}
 				}

@@ -19,10 +19,10 @@ class UsageStatistics_GeneralPage {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_general() {
-		$o = new UsageStatistics_GeneralPage();
+		$w3tc_o = new UsageStatistics_GeneralPage();
 
-		add_filter( 'w3tc_settings_general_anchors', array( $o, 'w3tc_settings_general_anchors' ) );
-		add_action( 'w3tc_settings_general_boxarea_stats', array( $o, 'w3tc_settings_general_boxarea_stats' ) );
+		add_filter( 'w3tc_settings_general_anchors', array( $w3tc_o, 'w3tc_settings_general_anchors' ) );
+		add_action( 'w3tc_settings_general_boxarea_stats', array( $w3tc_o, 'w3tc_settings_general_boxarea_stats' ) );
 	}
 
 	/**

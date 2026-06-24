@@ -22,31 +22,31 @@ class DbCache_Core {
 	 *               authentication details, and protocol settings.
 	 */
 	public function get_usage_statistics_cache_config() {
-		$c      = Dispatcher::config();
-		$engine = $c->get_string( 'dbcache.engine' );
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_engine = $w3tc_c->get_string( 'dbcache.engine' );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'memcached':
 				$engine_config = array(
-					'servers'           => $c->get_array( 'dbcache.memcached.servers' ),
-					'persistent'        => $c->get_boolean( 'dbcache.memcached.persistent' ),
-					'aws_autodiscovery' => $c->get_boolean( 'dbcache.memcached.aws_autodiscovery' ),
-					'username'          => $c->get_string( 'dbcache.memcached.username' ),
-					'password'          => $c->get_string( 'dbcache.memcached.password' ),
-					'binary_protocol'   => $c->get_boolean( 'dbcache.memcached.binary_protocol' ),
+					'servers'           => $w3tc_c->get_array( 'dbcache.memcached.servers' ),
+					'persistent'        => $w3tc_c->get_boolean( 'dbcache.memcached.persistent' ),
+					'aws_autodiscovery' => $w3tc_c->get_boolean( 'dbcache.memcached.aws_autodiscovery' ),
+					'username'          => $w3tc_c->get_string( 'dbcache.memcached.username' ),
+					'password'          => $w3tc_c->get_string( 'dbcache.memcached.password' ),
+					'binary_protocol'   => $w3tc_c->get_boolean( 'dbcache.memcached.binary_protocol' ),
 				);
 				break;
 
 			case 'redis':
 				$engine_config = array(
-					'servers'                 => $c->get_array( 'dbcache.redis.servers' ),
-					'verify_tls_certificates' => $c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
-					'persistent'              => $c->get_boolean( 'dbcache.redis.persistent' ),
-					'timeout'                 => $c->get_integer( 'dbcache.redis.timeout' ),
-					'retry_interval'          => $c->get_integer( 'dbcache.redis.retry_interval' ),
-					'read_timeout'            => $c->get_integer( 'dbcache.redis.read_timeout' ),
-					'dbid'                    => $c->get_integer( 'dbcache.redis.dbid' ),
-					'password'                => $c->get_string( 'dbcache.redis.password' ),
+					'servers'                 => $w3tc_c->get_array( 'dbcache.redis.servers' ),
+					'verify_tls_certificates' => $w3tc_c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
+					'persistent'              => $w3tc_c->get_boolean( 'dbcache.redis.persistent' ),
+					'timeout'                 => $w3tc_c->get_integer( 'dbcache.redis.timeout' ),
+					'retry_interval'          => $w3tc_c->get_integer( 'dbcache.redis.retry_interval' ),
+					'read_timeout'            => $w3tc_c->get_integer( 'dbcache.redis.read_timeout' ),
+					'dbid'                    => $w3tc_c->get_integer( 'dbcache.redis.dbid' ),
+					'password'                => $w3tc_c->get_string( 'dbcache.redis.password' ),
 				);
 				break;
 
@@ -54,7 +54,7 @@ class DbCache_Core {
 				$engine_config = array();
 		}
 
-		$engine_config['engine'] = $engine;
+		$engine_config['engine'] = $w3tc_engine;
 
 		return $engine_config;
 	}

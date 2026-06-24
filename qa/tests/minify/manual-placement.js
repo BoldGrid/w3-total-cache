@@ -136,5 +136,7 @@ async function checkPlacement(comments, helperComments, cssOrJs) {
 	}
 
 	let minifiedComments = html.match(reg);
+	expect(minifiedComments,
+		`expected a minified ${cssOrJs} placement for "${comments}" matching ${reg}`).is.not.null;
 	expect(minifiedComments.length).equals(1);
 }

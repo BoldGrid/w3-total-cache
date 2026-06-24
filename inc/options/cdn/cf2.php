@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cf2.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -82,7 +89,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<td>
 		<?php echo esc_html( Util_Environment::host_port() ); ?>
 		<input id="cdn_create_container"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'cf2', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create distribution', 'w3-total-cache' ); ?>" />
+			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'cf2', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_create_container' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create distribution', 'w3-total-cache' ); ?>" />
 		<span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
 	</td>
 </tr>
@@ -146,7 +153,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<input id="cdn_cf2_id" type="text" name="cdn__cf2__id"
 			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'cdn.cf2.id' ) ); ?>" size="18" style="text-align: right;" />.cloudfront.net or <acronym title="Canonical Name">CNAME</acronym>:
 		<?php
-		$cnames = $this->_config->get_array( 'cdn.cf2.cname' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.cf2.cname' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -183,6 +190,6 @@ if ( ! defined( 'W3TC' ) ) {
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 'cf2', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test CloudFront distribution', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 'cf2', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test CloudFront distribution', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

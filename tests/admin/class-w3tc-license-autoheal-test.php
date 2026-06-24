@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -38,7 +38,7 @@ use W3TC\Licensing_Plugin_Admin;
  * cache is read, the key is valid and the EDD recheck should fire
  * immediately.
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 
@@ -68,7 +68,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * Ensure the cache temp directory the Config save() path expects is
 	 * present — some WP test fixtures don't provision it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -83,7 +83,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	/**
 	 * Tear down the HTTP mock between tests so the filter doesn't leak.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -98,7 +98,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * cache/tmp dir the WP test fixtures don't always provision and
 	 * which we don't need exercised for this guard test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $pairs Map of config key => value to apply.
 	 *
@@ -120,7 +120,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * Reflectively mutates the Dispatcher ConfigState singleton's `_data`
 	 * map without going through `save()`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $pairs Map of state key => value to apply.
 	 *
@@ -145,7 +145,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * Builds a `pre_http_request` filter that intercepts EDD licensing
 	 * calls and returns a canned active response.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -191,7 +191,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * early via the rate-limit gate and the user stays in the broken
 	 * state for up to 5 days.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -240,7 +240,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * rate-limit gate should keep its 5-day cache to avoid hammering
 	 * the EDD API on every admin page load.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -275,7 +275,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * that case, not a stuck cache. Bypassing the gate would just
 	 * pound the EDD API with empty keys on every admin page load.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return void
 	 */
@@ -308,7 +308,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	 * Reflectively invokes the private `maybe_update_license_status()`
 	 * so we can assert the guard logic without exposing internals.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param Licensing_Plugin_Admin $admin The licensing admin component.
 	 *

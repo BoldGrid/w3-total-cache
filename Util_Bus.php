@@ -14,33 +14,33 @@ class Util_Bus {
 	/**
 	 * Add W3TC action callback
 	 *
-	 * @param string $key      Key.
+	 * @param string $w3tc_key      Key.
 	 * @param mixed  $callback Callback.
 	 *
 	 * @return void
 	 */
-	public static function add_ob_callback( $key, $callback ) {
-		$GLOBALS['_w3tc_ob_callbacks'][ $key ] = $callback;
+	public static function add_ob_callback( $w3tc_key, $callback ) {
+		$GLOBALS['w3tc_ob_callbacks'][ $w3tc_key ] = $callback;
 	}
 
 	/**
 	 * Do W3TC action callbacks
 	 *
 	 * @param array $order Order.
-	 * @param mixed $value Value.
+	 * @param mixed $w3tc_value Value.
 	 *
 	 * @return mixed
 	 */
-	public static function do_ob_callbacks( $order, $value ) {
-		foreach ( $order as $key ) {
-			if ( isset( $GLOBALS['_w3tc_ob_callbacks'][ $key ] ) ) {
-				$callback = $GLOBALS['_w3tc_ob_callbacks'][ $key ];
+	public static function do_ob_callbacks( $order, $w3tc_value ) {
+		foreach ( $order as $w3tc_key ) {
+			if ( isset( $GLOBALS['w3tc_ob_callbacks'][ $w3tc_key ] ) ) {
+				$callback = $GLOBALS['w3tc_ob_callbacks'][ $w3tc_key ];
 				if ( is_callable( $callback ) ) {
-					$value = call_user_func( $callback, $value );
+					$w3tc_value = call_user_func( $callback, $w3tc_value );
 				}
 			}
 		}
 
-		return $value;
+		return $w3tc_value;
 	}
 }

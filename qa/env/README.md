@@ -108,4 +108,4 @@ executes tests inside, builds summary report
 
 `800-report-generate` - builds summary report in working/summary.html file
 
-`dev-box-start apache-php73-wp52-single test-box` - creates test machine
+`dev-box-start nginx-php74-wp69-single test-box` - creates test machine

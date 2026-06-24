@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -97,7 +98,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		<b>or</b>
-		<input id="cdn_create_container" class="button {type: 's3', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create as new bucket', 'w3-total-cache' ); ?>" /> <span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_create_container" class="button {type: 's3', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_create_container' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create as new bucket', 'w3-total-cache' ); ?>" /> <span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
 	</td>
 </tr>
 <tr>
@@ -158,16 +159,16 @@ if ( ! defined( 'W3TC' ) ) {
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cdn_s3_bucket = $this->_config->get_string( 'cdn.s3.bucket' );
-		if ( '' !== $cdn_s3_bucket ) {
-			echo esc_html( $cdn_s3_bucket ) . '.s3.amazonaws.com ';
+		$w3tc_cdn_s3_bucket = $this->_config->get_string( 'cdn.s3.bucket' );
+		if ( '' !== $w3tc_cdn_s3_bucket ) {
+			echo esc_html( $w3tc_cdn_s3_bucket ) . '.s3.amazonaws.com ';
 		} else {
 			echo '&lt;bucket&gt;.s3.amazonaws.com ';
 		}
 
 		esc_html_e( 'or CNAME:', 'w3-total-cache' );
 
-		$cnames = $this->_config->get_array( 'cdn.s3.cname' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.s3.cname' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -210,6 +211,6 @@ if ( ! defined( 'W3TC' ) ) {
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 's3', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test S3 upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 's3', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test S3 upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>
