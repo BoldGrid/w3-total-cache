@@ -1466,6 +1466,10 @@ jQuery(function () {
           ),
           username: jQuery("#memcached_username").val(),
           password: jQuery("#memcached_password").val(),
+          // Masked field submits empty once stored; send the owning module so the server can fall back to the saved value.
+          module: (jQuery("#memcached_password").attr("name") || "").split(
+            "__",
+          )[0],
           _wpnonce: jQuery(this).metadata().nonce,
         },
         function (data) {
@@ -1499,6 +1503,8 @@ jQuery(function () {
           ).is(":checked"),
           dbid: jQuery("#redis_dbid").val(),
           password: jQuery("#redis_password").val(),
+          // Masked field submits empty once stored; send the owning module so the server can fall back to the saved value.
+          module: (jQuery("#redis_password").attr("name") || "").split("__")[0],
           _wpnonce: jQuery(this).metadata().nonce,
         },
         function (data) {

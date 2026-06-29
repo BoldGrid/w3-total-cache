@@ -263,18 +263,27 @@ class Config {
 	 * `load()` while `wp_salt()` is still undefined. We skip the eager
 	 * decrypt in that window so {@see Util_Crypto::derive_key()} doesn't
 	 * take its `SECURE_AUTH_KEY|AUTH_KEY` fallback branch — which derives a
-	 * different key than `wp_salt('secure_auth')` and would HMAC-fail every
-	 * secret, collapsing each one to `''` for the rest of the request.
+	 * different key than `wp_salt('secure_auth')` and would fail to verify
+	 * every value, collapsing each one to `''` for the rest of the request.
 	 *
 	 * By the time admin / settings / CDN code calls `$w3tc_config->get_string()`,
 	 * `wp_salt()` has loaded, so we decrypt then and cache the plaintext
 	 * back into `$_data` so subsequent reads are plain hash lookups.
 	 *
+	 * The runtime cache engines (Redis / Memcached page, object, db and minify
+	 * caches) are different: they read their stored connection values during the
+	 * same pre-pluggable window, and unlike the license/CDN consumers they have
+	 * no later post-pluggable read to fall back on. {@see Util_Crypto::key_salt()}
+	 * reproduces `wp_salt('secure_auth')` from the wp-config salt constants so we
+	 * can resolve those early when the constants are present; otherwise the
+	 * engine would receive the raw `enc:v1:...` envelope instead of the stored
+	 * value.
+	 *
 	 * @since 2.10.0
 	 *
 	 * @param mixed $w3tc_value Value to inspect; mutated in place when an
-	 *                     envelope is successfully decrypted (or collapsed
-	 *                     to '' on HMAC tamper).
+	 *                     envelope is successfully decrypted (or collapsed to ''
+	 *                     when it cannot be verified in the post-pluggable window).
 	 *
 	 * @return void
 	 */
@@ -282,11 +291,37 @@ class Config {
 		if ( ! is_string( $w3tc_value ) || 0 !== strncmp( $w3tc_value, 'enc:v1:', 7 ) ) {
 			return;
 		}
-		if ( ! \function_exists( 'wp_salt' ) || ! class_exists( '\W3TC\Util_Crypto' ) ) {
+		if ( ! class_exists( '\W3TC\Util_Crypto' ) ) {
 			return;
 		}
-		$plain      = Util_Crypto::envelope_decrypt( $w3tc_value );
-		$w3tc_value = ( false === $plain ) ? '' : $plain;
+
+		$wp_salt_ready = \function_exists( 'wp_salt' );
+
+		/*
+		 * Before pluggable.php defines wp_salt(), only attempt a decrypt when
+		 * the wp-config salt constants are available — Util_Crypto::key_salt()
+		 * reproduces wp_salt('secure_auth') from them, so the derived key
+		 * matches encrypt time. Without those constants we cannot derive the
+		 * right key this early; leave the envelope intact so a later save()
+		 * does not persist an unverified collapse over a recoverable value.
+		 */
+		if ( ! $wp_salt_ready && ! Util_Crypto::salt_constants_available() ) {
+			return;
+		}
+
+		$plain = Util_Crypto::envelope_decrypt( $w3tc_value );
+
+		if ( false !== $plain ) {
+			$w3tc_value = $plain;
+		} elseif ( $wp_salt_ready ) {
+			/*
+			 * Rotated salt (or otherwise unrecoverable) in the post-pluggable
+			 * window: collapse so the consumer treats it as needing re-entry.
+			 * Pre-pluggable we deliberately leave the envelope in place
+			 * (non-destructive) — see the guard above.
+			 */
+			$w3tc_value = '';
+		}
 	}
 
 	/**

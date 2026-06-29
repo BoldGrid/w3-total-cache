@@ -61,6 +61,33 @@ class Generic_AdminActions_Test {
 	}
 
 	/**
+	 * Resolves the saved cache auth value for the module under test.
+	 *
+	 * Masked {@see Util_Ui::secret_input()} fields submit an empty value once a
+	 * value is stored, so the "Test" button would otherwise connect with an
+	 * empty value and fail after every save. The settings page posts the module
+	 * that owns the field (the `{module}__{engine}__password` field-name prefix)
+	 * so we can read the stored value back from config here — it resolves
+	 * transparently because this admin request runs after `pluggable.php`.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $engine Cache engine identifier: 'redis' or 'memcached'.
+	 *
+	 * @return string Stored value, or '' when the module is unknown / unset.
+	 */
+	private function stored_cache_password( $engine ) {
+		$module  = Util_Request::get_string( 'module', '' );
+		$allowed = array( 'pgcache', 'dbcache', 'objectcache', 'minify' );
+
+		if ( ! in_array( $module, $allowed, true ) ) {
+			return '';
+		}
+
+		return $this->_config->get_string( $module . '.' . $engine . '.password' );
+	}
+
+	/**
 	 * Test memcached
 	 *
 	 * @return void
@@ -80,6 +107,11 @@ class Generic_AdminActions_Test {
 		$password = isset( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified upstream by the admin-action dispatcher.
 			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- password is opaque secret used only as the auth credential to memcached; nonce verified upstream by the admin-action dispatcher.
 			: '';
+
+		// A masked field submits empty once stored — fall back to the saved value.
+		if ( '' === $password ) {
+			$password = $this->stored_cache_password( 'memcached' );
+		}
 
 		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
 	}
@@ -101,6 +133,11 @@ class Generic_AdminActions_Test {
 		$password = isset( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified upstream by the admin-action dispatcher.
 			? (string) wp_unslash( $_POST['password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- password is opaque secret used only as the auth credential to redis; nonce verified upstream by the admin-action dispatcher.
 			: '';
+
+		// A masked field submits empty once stored — fall back to the saved value.
+		if ( '' === $password ) {
+			$password = $this->stored_cache_password( 'redis' );
+		}
 
 		if ( empty( $servers ) ) {
 			$success = false;
