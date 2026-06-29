@@ -585,17 +585,44 @@ function toggle_fragmentcache_notice() {
 // On document ready.
 jQuery(function () {
   // Per-handler tokens live on the button (data-w3tc-nonce) or in w3tc_admin_nonces; copy into the form field before submit.
+  // Track the last-clicked w3tc_ submit button so the handler copies its nonce, not the first-in-DOM button's (the General Settings form holds both Save and flush buttons).
+  var w3tcLastSubmitter = null;
   jQuery(document).on(
     "click",
     'input[type=submit][name^="w3tc_"]',
     function () {
+      w3tcLastSubmitter = this;
       w3tcSetAdminSubmitNonce(this);
     },
   );
-  jQuery(document).on("submit", "form", function () {
-    var $submitter = jQuery(this).find('input[type=submit][name^="w3tc_"]:focus');
+  jQuery(document).on("submit", "form", function (event) {
+    var form = this;
+    // Pick the submit control the user actually triggered, with fallbacks.
+    var native = event.originalEvent ? event.originalEvent.submitter : null;
+    var $submitter = jQuery();
+    if (
+      native &&
+      native.form === form &&
+      jQuery(native).is('input[type=submit][name^="w3tc_"]')
+    ) {
+      $submitter = jQuery(native);
+    }
+    if (
+      !$submitter.length &&
+      w3tcLastSubmitter &&
+      w3tcLastSubmitter.form === form
+    ) {
+      $submitter = jQuery(w3tcLastSubmitter);
+    }
     if (!$submitter.length) {
-      $submitter = jQuery(this).find('input[type=submit][name^="w3tc_"]').first();
+      $submitter = jQuery(form).find(
+        'input[type=submit][name^="w3tc_"]:focus',
+      );
+    }
+    if (!$submitter.length) {
+      $submitter = jQuery(form)
+        .find('input[type=submit][name^="w3tc_"]')
+        .first();
     }
     if ($submitter.length) {
       w3tcSetAdminSubmitNonce($submitter[0]);
