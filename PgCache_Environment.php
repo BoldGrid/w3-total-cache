@@ -1267,6 +1267,26 @@ class PgCache_Environment {
 			$rules .= "}\n";
 		}
 
+		/**
+		 * Filter: Allow extensions to append nginx rewrite-suppression conditions.
+		 *
+		 * Mirrors the Apache "w3tc_pagecache_rules_apache_rewrite_cond" filter. The
+		 * returned string is emitted alongside the built-in reject conditions (POST,
+		 * non-empty query string, rejected cookies / user agents); hooked code should
+		 * append `if (...) { set $w3tc_rewrite 0; }` blocks so matching requests skip
+		 * the static page-cache rewrite and fall through to PHP. The returned string
+		 * is normalized to end with a single newline before it is appended.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param string $rewrite_conditions Nginx rewrite-suppression conditions buffer (starts empty).
+		 */
+		$rewrite_cond = (string) \apply_filters( 'w3tc_pagecache_rules_nginx_rewrite_cond', '' );
+		if ( '' !== $rewrite_cond ) {
+			// Normalize to exactly one trailing newline so a callback that omits it cannot glue the next rule on.
+			$rules .= rtrim( $rewrite_cond, "\n" ) . "\n";
+		}
+
 		// Check mobile groups.
 		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
 			$mobile_groups = array_reverse( $w3tc_config->get_array( 'mobile.rgroups' ) );
