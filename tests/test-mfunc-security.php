@@ -489,9 +489,9 @@ $reset_callbacks();
 $raw_php = '<!-- mfunc ' . $token . ' phpinfo(); --><!-- /mfunc ' . $token . ' -->';
 $result  = $grabber->_parse_dynamic( $raw_php );
 assert_true(
-	'[4a] Raw-PHP mfunc payload is refused (no eval, error sentinel)',
+	'[4a] Raw-PHP mfunc payload is refused (not executed, renders empty)',
 	false === strpos( $result, 'phpinfo' )
-		&& false !== strpos( $result, 'refused' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -502,7 +502,7 @@ $result      = $grabber->_parse_dynamic( $raw_between );
 assert_true(
 	'[4b] Raw-PHP between-tags mfunc is refused',
 	false === strpos( $result, 'phpinfo' )
-		&& false !== strpos( $result, 'refused' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -513,7 +513,7 @@ $result   = $grabber->_parse_dynamic( $lfi );
 assert_true(
 	'[4c] mclude with file-path payload is refused',
 	false === strpos( $result, 'root:' )
-		&& false !== strpos( $result, 'refused' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -527,7 +527,7 @@ $result   = $grabber->_parse_dynamic( $unsigned );
 assert_true(
 	'[4d] mfunc with call:slug but no HMAC is refused',
 	false === strpos( $result, 'USER:alice' )
-		&& false !== strpos( $result, 'refused' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -541,7 +541,7 @@ $result     = $grabber->_parse_dynamic( $wrong_hmac );
 assert_true(
 	'[4e] mfunc with wrong HMAC is refused (cache-poisoning defense)',
 	false === strpos( $result, 'USER:alice' )
-		&& false !== strpos( $result, 'HMAC mismatch' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -574,7 +574,7 @@ $result      = $grabber->_parse_dynamic( $bad_tag );
 assert_true(
 	'[4g] mfunc with valid HMAC but unregistered slug is refused',
 	false === strpos( $result, 'OTHER' )
-		&& false !== strpos( $result, 'not registered' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -591,7 +591,7 @@ $result          = $grabber->_parse_dynamic( $mclude_tag );
 assert_true(
 	'[4h] mclude with valid HMAC but unregistered slug is refused',
 	false === strpos( $result, 'OTHER' )
-		&& false !== strpos( $result, 'not registered' ),
+		&& '' === $result,
 	"result: $result"
 );
 
@@ -617,8 +617,8 @@ $hmac        = $grabber->_dynamic_hmac( 'mfunc', 'render_user', $args_json );
 $tag         = '<!-- mfunc ' . $token . ' call:render_user ' . $args_json . ' hmac:' . $hmac . ' --><!-- /mfunc ' . $token . ' -->';
 $result      = $grabber->_parse_dynamic( $tag );
 assert_true(
-	'[4j] Empty callback registry refuses dispatch (no callbacks registered)',
-	false !== strpos( $result, 'registry is empty' ),
+	'[4j] Empty callback registry refuses dispatch (renders empty)',
+	'' === $result,
 	"result: $result"
 );
 
@@ -753,8 +753,8 @@ assert_true(
  * `wp_salt()` IS defined. The HMAC key MUST be derived from
  * constants available before pluggable (AUTH_KEY / AUTH_SALT), not
  * from `wp_salt()`, otherwise the keys diverge and a regular cache
- * HIT renders the "HMAC mismatch" sentinel in place of every
- * callback's output. We simulate the boundary by mutating what
+ * HIT drops every callback's output (renders empty) in place of
+ * the real content. We simulate the boundary by mutating what
  * `wp_salt()` returns between sign and dispatch: if the HMAC
  * derivation consults `wp_salt()`, dispatch breaks; if it doesn't,
  * the round-trip succeeds.
@@ -781,8 +781,7 @@ $bound_out                 = $grabber->_parse_dynamic( $bound_tag );
 
 assert_true(
 	'[4n.bound] HMAC key is stable across wp_salt() boundary (advanced-cache.php fix)',
-	false !== strpos( $bound_out, 'USER:alice' )
-		&& false === strpos( $bound_out, 'HMAC mismatch' ),
+	'USER:alice' === $bound_out,
 	"result: $bound_out"
 );
 
@@ -802,7 +801,7 @@ $result      = $grabber->_parse_dynamic( $tampered );
 assert_true(
 	'[4o] Tampered args after signing is refused (HMAC mismatch)',
 	false === strpos( $result, 'OUT:bob' )
-		&& false !== strpos( $result, 'HMAC mismatch' ),
+		&& '' === $result,
 	"result: $result"
 );
 

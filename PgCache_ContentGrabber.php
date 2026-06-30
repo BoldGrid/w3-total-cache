@@ -2259,6 +2259,20 @@ class PgCache_ContentGrabber {
 	 * The HMAC envelope (`hmac:<hex>`) is added automatically at
 	 * cache-write time; emitters MUST NOT compute it themselves.
 	 *
+	 * **Migrating a legacy tag.** A pre-2.10.0 tag that embedded raw PHP, e.g.
+	 * `<!-- mfunc TOKEN --> echo my_widget(); <!-- /mfunc TOKEN -->`, is no
+	 * longer dispatched (it renders as empty output). Move the logic into a
+	 * registered callback and emit the `call:<slug>` form instead:
+	 *
+	 *     add_filter( 'w3tc_dynamic_callbacks', function( $cbs ) {
+	 *         $cbs['my_widget'] = function( $args, $kind ) {
+	 *             return my_widget();
+	 *         };
+	 *         return $cbs;
+	 *     } );
+	 *
+	 *     <!-- mfunc TOKEN call:my_widget {} --><!-- /mfunc TOKEN -->
+	 *
 	 * **Cache-miss fallback content.** Use the *inline-header* form (with the
 	 * `call:slug` descriptor inside the opening comment) if you want HTML
 	 * placed between the comments to survive a cache miss. The *body-form*
@@ -2458,35 +2472,30 @@ class PgCache_ContentGrabber {
 	 * @param string $slug Callback slug.
 	 * @param array  $args Decoded JSON args.
 	 *
-	 * @return string The callback's HTML output, or an error sentinel.
+	 * @return string The callback's HTML output, or an empty string when the tag cannot be dispatched.
 	 */
 	private function _dispatch_dynamic_callback( $kind, $slug, $args ) {
 		$callbacks = $this->_get_dynamic_callbacks();
 
 		if ( empty( $callbacks ) ) {
-			return \htmlspecialchars(
-				sprintf( 'W3TC dynamic %s registry is empty; no callbacks registered.', $kind ),
-				ENT_QUOTES,
-				'UTF-8'
-			);
+			$this->_log_dynamic_deprecation( $kind, sprintf( 'no callbacks registered (slug "%s")', $slug ) );
+
+			return '';
 		}
 
 		if ( ! isset( $callbacks[ $slug ] ) || ! \is_callable( $callbacks[ $slug ] ) ) {
-			return \htmlspecialchars(
-				sprintf( 'W3TC dynamic %s slug "%s" is not registered.', $kind, $slug ),
-				ENT_QUOTES,
-				'UTF-8'
-			);
+			$this->_log_dynamic_deprecation( $kind, sprintf( 'unregistered slug "%s"', $slug ) );
+
+			return '';
 		}
 
 		try {
 			$w3tc_output = \call_user_func( $callbacks[ $slug ], $args, $kind );
 		} catch ( \Throwable $ex ) {
-			return \htmlspecialchars(
-				sprintf( 'W3TC dynamic %s slug "%s" raised an exception.', $kind, $slug ),
-				ENT_QUOTES,
-				'UTF-8'
-			);
+			// Log the exception class only (not its message) so the operator notice stays actionable without leaking detail.
+			$this->_log_dynamic_deprecation( $kind, sprintf( 'slug "%s" raised %s', $slug, \get_class( $ex ) ) );
+
+			return '';
 		}
 
 		if ( ! \is_string( $w3tc_output ) ) {
@@ -2535,7 +2544,7 @@ class PgCache_ContentGrabber {
 	 * @param string $kind    'mfunc' or 'mclude'.
 	 * @param array  $matches preg_replace_callback matches: [0]=full, [1]=header, [2]=body.
 	 *
-	 * @return string
+	 * @return string Callback output, or an empty string when the tag is refused.
 	 */
 	private function _dispatch_dynamic( $kind, $matches ) {
 		$header = isset( $matches[1] ) ? trim( $matches[1] ) : '';
@@ -2549,13 +2558,10 @@ class PgCache_ContentGrabber {
 		$parsed    = $this->_parse_dynamic_header( $candidate );
 
 		if ( null === $parsed ) {
+			// Render nothing to visitors; the operator log above records the tag to migrate.
 			$this->_log_dynamic_deprecation( $kind, 'raw payload (no call:slug + hmac envelope)' );
 
-			return \htmlspecialchars(
-				sprintf( 'W3TC dynamic %s tag refused: missing call:slug + hmac envelope.', $kind ),
-				ENT_QUOTES,
-				'UTF-8'
-			);
+			return '';
 		}
 
 		$expected = $this->_dynamic_hmac( $kind, $parsed['slug'], $parsed['args_json'] );
@@ -2563,11 +2569,7 @@ class PgCache_ContentGrabber {
 		if ( ! \hash_equals( $expected, $parsed['hmac'] ) ) {
 			$this->_log_dynamic_deprecation( $kind, 'HMAC mismatch' );
 
-			return \htmlspecialchars(
-				sprintf( 'W3TC dynamic %s tag refused: HMAC mismatch.', $kind ),
-				ENT_QUOTES,
-				'UTF-8'
-			);
+			return '';
 		}
 
 		return $this->_dispatch_dynamic_callback( $kind, $parsed['slug'], $this->_decode_dynamic_args( $parsed['args_json'] ) );
@@ -2584,7 +2586,7 @@ class PgCache_ContentGrabber {
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string The callback's output, or an error message.
+	 * @return string The callback's output, or an empty string when refused.
 	 */
 	public function _parse_dynamic_mfunc( $matches ) {
 		return $this->_dispatch_dynamic( 'mfunc', $matches );
@@ -2602,7 +2604,7 @@ class PgCache_ContentGrabber {
 	 *
 	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string The callback's output, or an error message.
+	 * @return string The callback's output, or an empty string when refused.
 	 */
 	public function _parse_dynamic_mclude( $matches ) {
 		return $this->_dispatch_dynamic( 'mclude', $matches );
@@ -2619,10 +2621,9 @@ class PgCache_ContentGrabber {
 	 * are signed in place, because dispatch accepts both shapes.
 	 *
 	 * Tags whose payload is not in the safe `call:<slug>` form are left
-	 * unsigned — at dispatch time they will fall through to the
-	 * deprecation path and refuse to execute.  This is intentional: it
-	 * makes back-compat behavior visible (an error in place of the tag)
-	 * rather than silently dropping the tag at write time.
+	 * unsigned — at dispatch time they fall through to the deprecation path,
+	 * render as empty output, and emit a rate-limited operator notice naming
+	 * the tag to migrate.
 	 *
 	 * @since 2.10.0
 	 *
