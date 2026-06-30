@@ -101,9 +101,9 @@ class Util_Crypto {
 	 * cipher key and the MAC key cryptographically independent.
 	 *
 	 * Both keys are tied to `wp_salt('secure_auth')` so the keying
-	 * material rotates whenever the operator rotates that salt. Falls
-	 * back to a mix of AUTH_KEY + SECURE_AUTH_KEY when `wp_salt()` is
-	 * unavailable (CLI helpers, standalone tests).
+	 * material rotates whenever the operator rotates that salt. The
+	 * salt itself is resolved by {@see self::key_salt()}, which keeps the
+	 * derived key identical whether or not `wp_salt()` has loaded yet.
 	 *
 	 * @since 2.10.0
 	 *
@@ -113,14 +113,68 @@ class Util_Crypto {
 	 * @return string Raw 32-byte HMAC-SHA256 output.
 	 */
 	private static function derive_key( $purpose = 'enc' ) {
+		return \hash_hmac( 'sha256', 'w3tc:envelope:' . $purpose, self::key_salt(), true );
+	}
+
+	/**
+	 * Resolves the salt the envelope key is derived from.
+	 *
+	 * The salt must be identical at encrypt time (admin context, `wp_salt()`
+	 * available) and at decrypt time — including the early-bootstrap window
+	 * where `advanced-cache.php` and the object-cache drop-ins read stored
+	 * values before `wp-includes/pluggable.php` defines `wp_salt()`. If the two
+	 * differ, the derived key differs and the stored value cannot be recovered.
+	 *
+	 * Resolution order:
+	 *
+	 * 1. `wp_salt('secure_auth')` when available — authoritative; honours a
+	 *    `salt` filter and DB-stored salts.
+	 * 2. Otherwise reproduce what `wp_salt('secure_auth')` returns from the
+	 *    wp-config.php constants `SECURE_AUTH_KEY . SECURE_AUTH_SALT`. For the
+	 *    common case (all eight keys/salts defined in wp-config.php, no `salt`
+	 *    filter) this is byte-identical to (1), so a value stored in admin can
+	 *    be read back during the pre-pluggable bootstrap.
+	 * 3. Last-resort fallback for standalone CLI helpers / unit tests with no
+	 *    salts defined at all. Values keyed here cannot be read back in any
+	 *    other context, but nothing in a real install relies on it.
+	 *
+	 * Installs relying on auto-generated (DB-stored) salts or a `salt` filter —
+	 * where (2) cannot reproduce (1) — cannot resolve stored values
+	 * pre-pluggable; the caller leaves the envelope intact rather than
+	 * discarding it (see {@see \W3TC\Config::_maybe_lazy_decrypt()}).
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string Salt string fed to {@see self::derive_key()}.
+	 */
+	private static function key_salt() {
 		if ( \function_exists( 'wp_salt' ) ) {
-			$salt = (string) \wp_salt( 'secure_auth' );
-		} else {
-			$salt = ( defined( 'SECURE_AUTH_KEY' ) ? (string) SECURE_AUTH_KEY : '' )
-				. '|' . ( defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : '' );
+			return (string) \wp_salt( 'secure_auth' );
 		}
 
-		return \hash_hmac( 'sha256', 'w3tc:envelope:' . $purpose, $salt, true );
+		if ( self::salt_constants_available() ) {
+			return (string) SECURE_AUTH_KEY . (string) SECURE_AUTH_SALT;
+		}
+
+		return ( defined( 'SECURE_AUTH_KEY' ) ? (string) SECURE_AUTH_KEY : '' )
+			. '|' . ( defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : '' );
+	}
+
+	/**
+	 * True when the wp-config.php salt constants needed to reproduce
+	 * `wp_salt('secure_auth')` without `wp_salt()` are defined and non-empty.
+	 *
+	 * Used both by {@see self::key_salt()} (to pick the early-bootstrap branch)
+	 * and by {@see \W3TC\Config::_maybe_lazy_decrypt()} (to decide whether a
+	 * pre-pluggable decrypt can be trusted to use the right key).
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool
+	 */
+	public static function salt_constants_available() {
+		return defined( 'SECURE_AUTH_KEY' ) && SECURE_AUTH_KEY
+			&& defined( 'SECURE_AUTH_SALT' ) && SECURE_AUTH_SALT;
 	}
 
 	/**

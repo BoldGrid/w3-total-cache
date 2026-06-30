@@ -611,13 +611,26 @@ class Cdn_AdminActions {
 					'privkey' => 'cdn.ftp.privkey',
 				);
 			case 's3':
-				return array( 'secret' => 'cdn.s3.secret' );
+				return array(
+					'key'    => 'cdn.s3.key',
+					'secret' => 'cdn.s3.secret',
+				);
 			case 's3_compatible':
-				return array( 'secret' => 'cdn.s3_compatible.secret' );
+				// s3_compatible reuses the shared cdn.s3.* config keys (see Cdn_Core::get_cdn()).
+				return array(
+					'key'    => 'cdn.s3.key',
+					'secret' => 'cdn.s3.secret',
+				);
 			case 'cf':
-				return array( 'secret' => 'cdn.cf.secret' );
+				return array(
+					'key'    => 'cdn.cf.key',
+					'secret' => 'cdn.cf.secret',
+				);
 			case 'cf2':
-				return array( 'secret' => 'cdn.cf2.secret' );
+				return array(
+					'key'    => 'cdn.cf2.key',
+					'secret' => 'cdn.cf2.secret',
+				);
 			case 'rscf':
 				return array( 'key' => 'cdn.rscf.key' );
 			case 'azure':
