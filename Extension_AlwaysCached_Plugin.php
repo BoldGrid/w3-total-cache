@@ -44,6 +44,7 @@ class Extension_AlwaysCached_Plugin {
 		add_filter( 'w3tc_pagecache_flush_url', array( $this, 'w3tc_pagecache_flush_url' ), 1000 );
 		add_filter( 'w3tc_pagecache_flush_all_groups', array( $this, 'w3tc_pagecache_flush_all_groups' ), 1000 );
 		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond', array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
+		add_filter( 'w3tc_pagecache_rules_nginx_rewrite_cond', array( $this, 'w3tc_pagecache_rules_nginx_rewrite_cond' ) );
 
 		// Cron job.
 		add_action( 'w3tc_alwayscached_wp_cron', array( $this, 'w3tc_alwayscached_wp_cron' ) );
@@ -147,6 +148,32 @@ class Extension_AlwaysCached_Plugin {
 	 */
 	public function w3tc_pagecache_rules_apache_rewrite_cond( $rewrite_conditions ) {
 		$rewrite_conditions .= "    RewriteCond %{HTTP:w3tcalwayscached} =\"\"\n";
+		return $rewrite_conditions;
+	}
+
+	/**
+	 * Adds AlwaysCached nginx rules.
+	 *
+	 * Emits the nginx counterpart of {@see self::w3tc_pagecache_rules_apache_rewrite_cond()}:
+	 * when the AlwaysCached loopback request arrives carrying the "w3tcalwayscached"
+	 * header, suppress the static-cache rewrite so the request falls through to PHP
+	 * and regenerates the page (which then echoes back the "w3tcalwayscached" response
+	 * header the worker checks for). Without it, nginx (Disk: Enhanced) serves the
+	 * existing cache file, PHP never runs, the response header is absent, and the
+	 * worker reports the queue item failed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $rewrite_conditions Nginx rules buffer.
+	 *
+	 * @return string
+	 */
+	public function w3tc_pagecache_rules_nginx_rewrite_cond( $rewrite_conditions ) {
+		// A prior callback may have left the buffer without a trailing newline.
+		if ( '' !== $rewrite_conditions && "\n" !== substr( $rewrite_conditions, -1 ) ) {
+			$rewrite_conditions .= "\n";
+		}
+		$rewrite_conditions .= "if (\$http_w3tcalwayscached != \"\") {\n    set \$w3tc_rewrite 0;\n}\n";
 		return $rewrite_conditions;
 	}
 
