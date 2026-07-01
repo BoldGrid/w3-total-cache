@@ -744,7 +744,6 @@ class PgCache_Environment {
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CORE . "\n";
-		$rules .= "Options -MultiViews\n";
 		$rules .= "<IfModule mod_rewrite.c>\n";
 		$rules .= "    RewriteEngine On\n";
 		$rules .= '    RewriteBase ' . $rewrite_base . "\n";
