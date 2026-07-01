@@ -633,7 +633,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge Current Page', 'w3-total-cache' ),
 						'href'   => Util_Nonce::admin_nonce_url(
-							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
 							'w3tc_flush_post'
 						),
 					);
