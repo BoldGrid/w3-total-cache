@@ -1169,6 +1169,38 @@ class Config {
 			return;
 		}
 
+		/*
+		 * Mirror the guard in {@see self::decrypt_secrets()}: the envelope key
+		 * is derived from `wp_salt('secure_auth')`, and `wp_salt()` is the only
+		 * authoritative source of that key. It cannot be reliably reproduced
+		 * from the wp-config salt constants: WordPress ignores any key/salt
+		 * value that is duplicated across schemes (the `$duplicated_keys`
+		 * logic in `wp_salt()`), honours a `salt` filter, and generates and
+		 * stores its own random salts in the database when the constants are
+		 * absent or duplicated. In every one of those cases
+		 * `SECURE_AUTH_KEY . SECURE_AUTH_SALT` differs from what `wp_salt()`
+		 * returns.
+		 *
+		 * Encrypting before `wp_salt()` is defined (early bootstrap — the
+		 * page-cache / object-cache drop-ins, or a plugin's `run()` that saves
+		 * config on the `plugins_loaded` side of `wp-includes/pluggable.php`)
+		 * therefore risks keying the envelope with a salt that will not match
+		 * at decrypt time, silently collapsing every secret to '' on the next
+		 * admin read.
+		 *
+		 * Skip encryption in that window: the value is persisted in whatever
+		 * form the in-memory config already holds — a legacy plaintext value
+		 * stays plaintext (matching the pre-2.10.0 behaviour and the
+		 * {@see Util_Crypto::is_available()} fallback), while an already-wrapped
+		 * value stays wrapped, because {@see self::decrypt_secrets()} and
+		 * {@see self::_maybe_lazy_decrypt()} leave envelopes intact pre-pluggable.
+		 * It is (re-)wrapped by the first save that runs with `wp_salt()`
+		 * available.
+		 */
+		if ( ! \function_exists( 'wp_salt' ) ) {
+			return;
+		}
+
 		$secret_keys = self::secret_keys();
 		if ( empty( $secret_keys ) ) {
 			return;
