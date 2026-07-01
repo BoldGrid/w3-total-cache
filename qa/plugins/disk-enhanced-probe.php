@@ -144,7 +144,6 @@ echo wp_json_encode(
 		'apache_cond_exists'     => ( '' !== $apache_cond_resolved && file_exists( $apache_cond_resolved ) ),
 		'htaccess_core'          => ( false !== strpos( $htaccess, W3TC_MARKER_BEGIN_PGCACHE_CORE ) ),
 		'htaccess_uri'           => ( false !== strpos( $htaccess, 'W3TC_URI_PATH_SLASH' ) ),
-		'htaccess_multiviews'    => ( false !== strpos( $htaccess, 'Options -MultiViews' ) ),
 		'apache_prefix_sample'   => $apache_prefix,
 	)
 );
