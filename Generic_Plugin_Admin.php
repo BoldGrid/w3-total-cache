@@ -934,7 +934,7 @@ class Generic_Plugin_Admin {
 							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
 							'</a>.<br/>',
 							'<br/>',
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
 							'</a>'
 						),
 						array(
@@ -1174,7 +1174,7 @@ class Generic_Plugin_Admin {
 			$capability = 'manage_options';
 		}
 
-		$actions[ Util_Nonce::admin_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc_flush_all' ) ] = array(
+		$actions[ Util_Nonce::admin_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc_flush_all' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
 			$capability,
 		);
