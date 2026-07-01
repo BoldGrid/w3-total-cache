@@ -165,7 +165,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 				array(
 					'a'       => array(
-						'herf' => array(),
+						'href' => array(),
 					),
 					'em'      => array(),
 					'acronym' => array(
