@@ -123,7 +123,7 @@
   function ea(a) {
     if (!(a instanceof Array)) {
       a = q(a);
-      for (var b, c = []; !(b = a.next()).done; ) c.push(b.value);
+      for (var b, c = []; !(b = a.next()).done;) c.push(b.value);
       a = c;
     }
     return a;
@@ -211,7 +211,7 @@
       e(f, 0);
     };
     c.prototype.l = function () {
-      for (; this.g && this.g.length; ) {
+      for (; this.g && this.g.length;) {
         var f = this.g;
         this.g = [];
         for (var g = 0; g < f.length; ++g) {
@@ -420,7 +420,7 @@
       this.g = (g += Math.random() + 1).toString();
       if (k) {
         k = q(k);
-        for (var m; !(m = k.next()).done; )
+        for (var m; !(m = k.next()).done;)
           ((m = m.value), this.set(m[0], m[1]));
       }
     }
@@ -496,8 +496,8 @@
       var m = g.g;
       return da(function () {
         if (m) {
-          for (; m.head != g.g; ) m = m.v;
-          for (; m.next != m.head; )
+          for (; m.head != g.g;) m = m.v;
+          for (; m.next != m.head;)
             return ((m = m.next), { done: !1, value: k(m) });
           m = null;
         }
@@ -526,7 +526,7 @@
       this.size = 0;
       if (g) {
         g = q(g);
-        for (var k; !(k = g.next()).done; )
+        for (var k; !(k = g.next()).done;)
           ((k = k.value), this.set(k[0], k[1]));
       }
     }
@@ -625,7 +625,7 @@
       });
     };
     e.prototype.forEach = function (g, k) {
-      for (var m = this.entries(), n; !(n = m.next()).done; )
+      for (var m = this.entries(), n; !(n = m.next()).done;)
         ((n = n.value), g.call(k, n[1], n[0], this));
     };
     e.prototype[Symbol.iterator] = e.prototype.entries;
@@ -691,7 +691,7 @@
           var d = v(this, b, "endsWith");
           void 0 === c && (c = d.length);
           c = Math.max(0, Math.min(c | 0, d.length));
-          for (var e = b.length; 0 < e && 0 < c; )
+          for (var e = b.length; 0 < e && 0 < c;)
             if (d[--c] != b[--e]) return !1;
           return 0 >= e;
         };
@@ -719,7 +719,7 @@
             e = d.length,
             h = b.length;
           c = Math.max(0, Math.min(c | 0, d.length));
-          for (var f = 0; f < h && c < e; ) if (d[c++] != b[f++]) return !1;
+          for (var f = 0; f < h && c < e;) if (d[c++] != b[f++]) return !1;
           return f >= h;
         };
   });
@@ -740,7 +740,7 @@
           if (0 > b || 1342177279 < b)
             throw new RangeError("Invalid count value");
           b |= 0;
-          for (var d = ""; b; ) if ((b & 1 && (d += c), (b >>>= 1))) c += c;
+          for (var d = ""; b;) if ((b & 1 && (d += c), (b >>>= 1))) c += c;
           return d;
         };
   });
@@ -761,7 +761,7 @@
               b[Symbol.iterator];
           if ("function" == typeof h) {
             b = h.call(b);
-            for (var f = 0; !(h = b.next()).done; )
+            for (var f = 0; !(h = b.next()).done;)
               e.push(c.call(d, h.value, f++));
           } else
             for (h = b.length, f = 0; f < h; f++) e.push(c.call(d, b[f], f));
@@ -841,10 +841,10 @@
           d = 0 > d ? Math.max(h + d, 0) : Math.min(d, h);
           e = 0 > e ? Math.max(h + e, 0) : Math.min(e, h);
           if (c < d)
-            for (; d < e; )
+            for (; d < e;)
               d in this ? (this[c++] = this[d++]) : (delete this[c++], d++);
           else
-            for (e = Math.min(e, h + d - c), c += e - d; e > d; )
+            for (e = Math.min(e, h + d - c), c += e - d; e > d;)
               --e in this ? (this[--c] = this[e]) : delete this[--c];
           return this;
         };
@@ -938,7 +938,7 @@
       : function (b) {
           b = Number(b);
           if (0.25 > b && -0.25 < b) {
-            for (var c = b, d = 1, e = b, h = 0, f = 1; h != e; )
+            for (var c = b, d = 1, e = b, h = 0, f = 1; h != e;)
               ((c *= b), (f *= -1), (e = (h = e) + (f * c) / ++d));
             return e;
           }
@@ -992,7 +992,7 @@
       : function (b) {
           b = Number(b);
           if (0.25 > b && -0.25 < b) {
-            for (var c = b, d = 1, e = b, h = 0; h != e; )
+            for (var c = b, d = 1, e = b, h = 0; h != e;)
               ((c *= b / ++d), (e = (h = e) + c));
             return e;
           }
@@ -1367,7 +1367,7 @@
     return a || Object.getPrototypeOf;
   });
   function ua(a, b) {
-    for (; a; ) {
+    for (; a;) {
       var c = Reflect.getOwnPropertyDescriptor(a, b);
       if (c) return c;
       a = Reflect.getPrototypeOf(a);
@@ -1444,7 +1444,7 @@
       this.g = new Map();
       if (c) {
         c = q(c);
-        for (var d; !(d = c.next()).done; ) this.add(d.value);
+        for (var d; !(d = c.next()).done;) this.add(d.value);
       }
       this.size = this.g.size;
     }
@@ -1686,7 +1686,7 @@
       this.g = new WeakMap();
       if (c) {
         c = q(c);
-        for (var d; !(d = c.next()).done; ) this.add(d.value);
+        for (var d; !(d = c.next()).done;) this.add(d.value);
       }
     }
     if (
@@ -1759,7 +1759,7 @@
     a[0] in c ||
       "undefined" == typeof c.execScript ||
       c.execScript("var " + a[0]);
-    for (var d; a.length && (d = a.shift()); )
+    for (var d; a.length && (d = a.shift());)
       a.length || void 0 === b
         ? c[d] && c[d] !== Object.prototype[d]
           ? (c = c[d])
@@ -2696,7 +2696,7 @@
       else if (-1 != e.indexOf("./") || -1 != e.indexOf("/.")) {
         d = 0 == e.lastIndexOf("/", 0);
         e = e.split("/");
-        for (var h = [], f = 0; f < e.length; ) {
+        for (var h = [], f = 0; f < e.length;) {
           var g = e[f++];
           "." == g
             ? d && f == e.length && h.push("")
@@ -3050,7 +3050,7 @@
       };
   }
   function Mb() {
-    for (var a; (a = Fb()); ) {
+    for (var a; (a = Fb());) {
       try {
         a.h.call(a.g);
       } catch (b) {
@@ -3256,7 +3256,7 @@
     return b;
   }
   R.prototype.u = function () {
-    for (var a; (a = Tb(this)); ) Ub(this, a, this.g, this.o);
+    for (var a; (a = Tb(this));) Ub(this, a, this.g, this.o);
     this.m = !1;
   };
   function Ub(a, b, c, d) {
@@ -3368,7 +3368,7 @@
     }
     a.g && (a.g.u--, delete a.g);
     b = a.h;
-    for (var d = (c = !1); a.l.length && !a.o; ) {
+    for (var d = (c = !1); a.l.length && !a.o;) {
       var e = a.l.shift(),
         h = e[0],
         f = e[1];
@@ -3577,7 +3577,7 @@
   }
   function wc(a) {
     a = a || "";
-    for (var b = a.replace(/-/g, "_").toLowerCase(); "string" === typeof b; )
+    for (var b = a.replace(/-/g, "_").toLowerCase(); "string" === typeof b;)
       ((a = b), (b = Ga[b]), b === a && (b = !1));
     b ||
       (a.match(/_[^_]+$/)

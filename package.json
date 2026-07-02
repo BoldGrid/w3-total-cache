@@ -3,8 +3,8 @@
         "install:deps": "composer install --no-interaction --prefer-dist -o && yarn install --frozen-lockfile",
         "css-lint": "stylelint \"**/*.{css,scss}\" --ignore-path .stylelintignore",
         "css-lint-fix": "stylelint \"**/*.{css,scss}\" --ignore-path .stylelintignore --fix",
-        "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --list-different",
-        "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --write",
+        "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --list-different",
+        "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --write",
         "php-lint": "find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \\; > /dev/null",
         "upgrade:deps": "composer update --with-all-dependencies && yarn upgrade",
         "update:since": "bash bin/update-since-versions.sh"

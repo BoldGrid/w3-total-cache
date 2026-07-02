@@ -18,31 +18,31 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env  = requireRoot('lib/environment');
-const sys  = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: environments('blog') */
 
-describe('CDN engine: s3 form-save', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("CDN engine: s3 form-save", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	it('cdn.s3.* keys round-trip', async() => {
-		await w3tc.assertEngineSaveRoundTrip(adminPage, 'cdn', 's3', {
-			'cdn.s3.key':             'AKIAIOSFODNN7QATEST',
-			'cdn.s3.secret':          'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
-			'cdn.s3.bucket':          'w3tc-qa-bucket',
-			'cdn.s3.bucket.location': 'us-west-2',
-			'cdn.s3.ssl':             'auto',
-			'cdn.s3.public_objects':  'enabled'
-		});
-	});
+  it("cdn.s3.* keys round-trip", async () => {
+    await w3tc.assertEngineSaveRoundTrip(adminPage, "cdn", "s3", {
+      "cdn.s3.key": "AKIAIOSFODNN7QATEST",
+      "cdn.s3.secret": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      "cdn.s3.bucket": "w3tc-qa-bucket",
+      "cdn.s3.bucket.location": "us-west-2",
+      "cdn.s3.ssl": "auto",
+      "cdn.s3.public_objects": "enabled",
+    });
+  });
 });

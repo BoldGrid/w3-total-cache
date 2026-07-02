@@ -1,145 +1,179 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect     = require('chai').expect;
-const log        = require('mocha-logger');
-const util       = require('util');
-const exec       = util.promisify(require('child_process').exec);
-const puppeteer  = require('puppeteer');
-const fs         = require('fs');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
+const puppeteer = require("puppeteer");
+const fs = require("fs");
 fs.readFileAsync = util.promisify(fs.readFile);
-const dom        = requireRoot('lib/dom');
-const env        = requireRoot('lib/environment');
-const sys        = requireRoot('lib/sys');
-const w3tc       = requireRoot('lib/w3tc');
-const wp         = requireRoot('lib/wp');
+const dom = requireRoot("lib/dom");
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
+const wp = requireRoot("lib/wp");
 
 /**environments: environments('blog') */
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  after(sys.after);
 
-	before(async() => {
-		global.browserI  = await puppeteer.launch({
-			ignoreHTTPSErrors: true,
-			args: [
-				'--no-sandbox',
-				'--disable-setuid-sandbox',
-				'--disable-dev-shm-usage',
-				'--disable-accelerated-2d-canvas',
-				'--no-first-run',
-				'--no-zygote',
-				'--disable-gpu',
-				'--incognito',
-				'--ignore-certificate-errors'
-			]
-		});
+  before(async () => {
+    global.browserI = await puppeteer.launch({
+      ignoreHTTPSErrors: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--disable-gpu",
+        "--incognito",
+        "--ignore-certificate-errors",
+      ],
+    });
 
-		global.browser  = await puppeteer.launch({
-			ignoreHTTPSErrors: true,
-			args: [
-				'--no-sandbox',
-				'--disable-setuid-sandbox',
-				'--disable-dev-shm-usage',
-				'--disable-accelerated-2d-canvas',
-				'--no-first-run',
-				'--no-zygote',
-				'--disable-gpu',
-				'--ignore-certificate-errors'
-			]
-		});
+    global.browser = await puppeteer.launch({
+      ignoreHTTPSErrors: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--disable-gpu",
+        "--ignore-certificate-errors",
+      ],
+    });
 
-		await sys.restoreStateW3tcInactive();
+    await sys.restoreStateW3tcInactive();
 
-		global.adminPage = await browser.newPage();
-		adminPage.setViewport({width: 1900, height: 1000});
-		await wp.login(adminPage);
+    global.adminPage = await browser.newPage();
+    adminPage.setViewport({ width: 1900, height: 1000 });
+    await wp.login(adminPage);
 
-		global.page = await browserI.newPage();
-		page.setViewport({width: 1900, height: 1000});
-	});
+    global.page = await browserI.newPage();
+    page.setViewport({ width: 1900, height: 1000 });
+  });
 
-	it('copy qa files', async() => {
-		await sys.copyPhpToRoot('../../plugins/upgrade/generic.php');
-	});
+  it("copy qa files", async () => {
+    await sys.copyPhpToRoot("../../plugins/upgrade/generic.php");
+  });
 
-	it('take old w3tc', async() => {
-		let old = {
-			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip',
-			output: '/share/w3tc-2-8-8.zip',
-			content: "'2.8.8'"
-		};
+  it("take old w3tc", async () => {
+    let old = {
+      repo: "https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip",
+      output: "/share/w3tc-2-8-8.zip",
+      content: "'2.8.8'",
+    };
 
-		log.log('Installing old W3TC (' + old.content + ')...');
+    log.log("Installing old W3TC (" + old.content + ")...");
 
-		const r1 = await exec('curl --silent ' + old.repo + ' --output ' + old.output);
-		const r2 = await exec('/share/scripts/w3tc-umount.sh');
-		const r3 = await exec('unzip -q ' + old.output +' -d ' + env.wpPluginsPath);
-		console.log(r3);
-		let content = await fs.readFileAsync(env.wpPluginsPath + 'w3-total-cache/w3-total-cache-api.php' );
-		expect(content.indexOf(old.content) > 0).true;
-	});
+    const r1 = await exec(
+      "curl --silent " + old.repo + " --output " + old.output,
+    );
+    const r2 = await exec("/share/scripts/w3tc-umount.sh");
+    const r3 = await exec(
+      "unzip -q " + old.output + " -d " + env.wpPluginsPath,
+    );
+    console.log(r3);
+    let content = await fs.readFileAsync(
+      env.wpPluginsPath + "w3-total-cache/w3-total-cache-api.php",
+    );
+    expect(content.indexOf(old.content) > 0).true;
+  });
 
-	it('Fix DbCache_WpdbBase.php for WP >= 6.1', async() => {
-		// Prevent deprecated error on older version of W3TC in WP >= 6.1.
-		if (parseFloat(env.wpVersion) >= 6.1) {
-			log.log('Fixing DbCache_WpdbBase.php for WP >= 6.1 (' + env.wpVersion + ')...');
-			await exec('cp -pf /share/w3tc/DbCache_WpdbBase.php ' + env.wpPluginsPath + 'w3-total-cache/');
-		}
-	});
+  it("Fix DbCache_WpdbBase.php for WP >= 6.1", async () => {
+    // Prevent deprecated error on older version of W3TC in WP >= 6.1.
+    if (parseFloat(env.wpVersion) >= 6.1) {
+      log.log(
+        "Fixing DbCache_WpdbBase.php for WP >= 6.1 (" + env.wpVersion + ")...",
+      );
+      await exec(
+        "cp -pf /share/w3tc/DbCache_WpdbBase.php " +
+          env.wpPluginsPath +
+          "w3-total-cache/",
+      );
+    }
+  });
 
-	it('Fix Util_Request.php for PHP >= 8.5', async() => {
-		// Prevent (double) cast deprecation on older W3TC releases under PHP 8.5+.
-		if (parseFloat(env.phpVersion) >= 8.5) {
-			log.log('Fixing Util_Request.php for PHP >= 8.5 (' + env.phpVersion + ')...');
-			await exec('cp -pf /share/w3tc/Util_Request.php ' + env.wpPluginsPath + 'w3-total-cache/');
-		}
-	});
+  it("Fix Util_Request.php for PHP >= 8.5", async () => {
+    // Prevent (double) cast deprecation on older W3TC releases under PHP 8.5+.
+    if (parseFloat(env.phpVersion) >= 8.5) {
+      log.log(
+        "Fixing Util_Request.php for PHP >= 8.5 (" + env.phpVersion + ")...",
+      );
+      await exec(
+        "cp -pf /share/w3tc/Util_Request.php " +
+          env.wpPluginsPath +
+          "w3-total-cache/",
+      );
+    }
+  });
 
-	it('Mark 2.8.6 generic tasks complete', async() => {
-		await w3tc.w3tcMarkGenericTasksVersionsComplete('2.8.6');
-	});
+  it("Mark 2.8.6 generic tasks complete", async () => {
+    await w3tc.w3tcMarkGenericTasksVersionsComplete("2.8.6");
+  });
 
-	it('activate w3tc', async() => {
-		await wp.networkActivatePlugin(adminPage, 'w3-total-cache/w3-total-cache.php');
-	});
+  it("activate w3tc", async () => {
+    await wp.networkActivatePlugin(
+      adminPage,
+      "w3-total-cache/w3-total-cache.php",
+    );
+  });
 
-	it('set options', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			'dbcache__enabled': true,
-			'dbcache__engine': 'file',
-			'objectcache__enabled': true,
-			'objectcache__engine': 'file',
-			'browsercache__enabled': true,
-			'pgcache__enabled': true,
-			'pgcache__engine': 'file',
-		});
+  it("set options", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      dbcache__enabled: true,
+      dbcache__engine: "file",
+      objectcache__enabled: true,
+      objectcache__engine: "file",
+      browsercache__enabled: true,
+      pgcache__enabled: true,
+      pgcache__engine: "file",
+    });
 
-		await sys.afterRulesChange();
-	});
+    await sys.afterRulesChange();
+  });
 
-	it('check works', async() => {
-		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
-	});
+  it("check works", async () => {
+    await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+  });
 
- 	it('upgrade w3tc to actual version', async() => {
-		const r1 = await exec('sudo /share/scripts/w3tc-mount.sh');
-		await sys.afterSourceFileContentsChanges();
-		expect(fs.existsSync(env.wpPluginsPath + 'w3-total-cache/Base_Page_Settings.php'));
-	});
+  it("upgrade w3tc to actual version", async () => {
+    const r1 = await exec("sudo /share/scripts/w3tc-mount.sh");
+    await sys.afterSourceFileContentsChanges();
+    expect(
+      fs.existsSync(
+        env.wpPluginsPath + "w3-total-cache/Base_Page_Settings.php",
+      ),
+    );
+  });
 
-	it('flush', async() => {
-		await w3tc.flushAll(adminPage);
-	});
+  it("flush", async () => {
+    await w3tc.flushAll(adminPage);
+  });
 
-	it('check works', async() => {
-		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
-		let content = await page.content();
+  it("check works", async () => {
+    await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+    let content = await page.content();
 
-		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using Disk'), 'Object cache is enabled');
-		expect(content).matches(new RegExp('Page Caching using Disk'), 'Page caching is enabled');
-		expect(content).matches(new RegExp('Database Caching.+?using Disk'), 'Database Caching is enabled');
-	});
+    expect(content).matches(
+      new RegExp("Object Caching \\d+\\/\\d+ objects using Disk"),
+      "Object cache is enabled",
+    );
+    expect(content).matches(
+      new RegExp("Page Caching using Disk"),
+      "Page caching is enabled",
+    );
+    expect(content).matches(
+      new RegExp("Database Caching.+?using Disk"),
+      "Database Caching is enabled",
+    );
+  });
 });

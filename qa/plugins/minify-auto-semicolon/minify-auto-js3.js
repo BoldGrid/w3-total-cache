@@ -1,3 +1,3 @@
-jQuery(document).ready(function() {
-	jQuery('#js3').text('passed');
+jQuery(document).ready(function () {
+  jQuery("#js3").text("passed");
 });

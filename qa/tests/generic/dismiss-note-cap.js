@@ -25,17 +25,17 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
-const util   = require('util');
-const execFile = util.promisify(require('child_process').execFile);
+const expect = require("chai").expect;
+const log = require("mocha-logger");
+const util = require("util");
+const execFile = util.promisify(require("child_process").execFile);
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: environments('blog') */
 
@@ -45,7 +45,7 @@ const w3tc = requireRoot('lib/w3tc');
  * via wp-cli read-back. The handler doesn't validate against a
  * known-keys list (it's a generic dismiss endpoint), so this works.
  */
-const PROBE_NOTE = 'qa_probe_dismiss_note_' + Date.now();
+const PROBE_NOTE = "qa_probe_dismiss_note_" + Date.now();
 
 /**
  * Run PHP in WP context without a shell so `$variables` are not
@@ -56,31 +56,37 @@ const PROBE_NOTE = 'qa_probe_dismiss_note_' + Date.now();
  * @return {Promise<string>} Trimmed stdout.
  */
 async function wpEval(php) {
-	let r = await execFile('sudo', [
-		'-u', 'www-data',
-		'wp', 'eval', php,
-		'--path=' + env.wpPath,
-	]);
-	return (r.stdout || '').trim();
+  let r = await execFile("sudo", [
+    "-u",
+    "www-data",
+    "wp",
+    "eval",
+    php,
+    "--path=" + env.wpPath,
+  ]);
+  return (r.stdout || "").trim();
 }
 
 async function readNoteFlag(noteKey) {
-	/**
-	 * Read through `Dispatcher::config()` so file (`w3tc-config/`) and
-	 * DB (`w3tc_config_{blog_id}`) backends both resolve. Return `null`
-	 * when the slot has never been written (distinct from `false`).
-	 */
-	let configKey = 'notes.' + noteKey;
-	let php = '$d=json_decode(\\W3TC\\Dispatcher::config()->export(),true);' +
-		'$k=' + JSON.stringify(configKey) + ';' +
-		'echo json_encode(array_key_exists($k,$d)?$d[$k]:null);';
-	try {
-		let raw = await wpEval(php);
-		return JSON.parse(raw);
-	} catch (e) {
-		log.log('readNoteFlag failed: ' + (e.stderr || e.message || e));
-		return undefined;
-	}
+  /**
+   * Read through `Dispatcher::config()` so file (`w3tc-config/`) and
+   * DB (`w3tc_config_{blog_id}`) backends both resolve. Return `null`
+   * when the slot has never been written (distinct from `false`).
+   */
+  let configKey = "notes." + noteKey;
+  let php =
+    "$d=json_decode(\\W3TC\\Dispatcher::config()->export(),true);" +
+    "$k=" +
+    JSON.stringify(configKey) +
+    ";" +
+    "echo json_encode(array_key_exists($k,$d)?$d[$k]:null);";
+  try {
+    let raw = await wpEval(php);
+    return JSON.parse(raw);
+  } catch (e) {
+    log.log("readNoteFlag failed: " + (e.stderr || e.message || e));
+    return undefined;
+  }
 }
 
 /**
@@ -93,77 +99,93 @@ async function readNoteFlag(noteKey) {
  * @return {Promise<string>}
  */
 async function dashboardAdminNonce(action) {
-	return w3tc.adminActionNonce(adminPage, action, env.adminUrl, 'w3tc_dashboard');
+  return w3tc.adminActionNonce(
+    adminPage,
+    action,
+    env.adminUrl,
+    "w3tc_dashboard",
+  );
 }
 
-describe('Admin-note dismiss endpoint capability gate', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("Admin-note dismiss endpoint capability gate", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	/**
-	 * Feature side: admin GET to the dismiss endpoint sets the
-	 * option to false. We assert by reading the option back via
-	 * wp-cli; the response body itself is a redirect, not a
-	 * status report.
-	 */
-	it('admin GET to w3tc_default_hide_note sets notes.<key>=false', async() => {
-		let nonce = await dashboardAdminNonce('w3tc_default_hide_note');
+  /**
+   * Feature side: admin GET to the dismiss endpoint sets the
+   * option to false. We assert by reading the option back via
+   * wp-cli; the response body itself is a redirect, not a
+   * status report.
+   */
+  it("admin GET to w3tc_default_hide_note sets notes.<key>=false", async () => {
+    let nonce = await dashboardAdminNonce("w3tc_default_hide_note");
 
-		expect(await readNoteFlag(PROBE_NOTE)).equals(null);
+    expect(await readNoteFlag(PROBE_NOTE)).equals(null);
 
-		/**
-		 * Match `Util_Ui::button_hide_note()` URL shape; top-level
-		 * navigation keeps the admin auth cookies on the request.
-		 */
-		let dismissUrl = env.adminUrl + 'admin.php?page=w3tc_dashboard' +
-			'&w3tc_default_hide_note&note=' + encodeURIComponent(PROBE_NOTE) +
-			'&_wpnonce=' + encodeURIComponent(nonce);
-		let dismissResponse = await adminPage.goto(dismissUrl,
-			{waitUntil: 'domcontentloaded'});
-		log.log('admin dismiss navigation status ' + dismissResponse.status());
+    /**
+     * Match `Util_Ui::button_hide_note()` URL shape; top-level
+     * navigation keeps the admin auth cookies on the request.
+     */
+    let dismissUrl =
+      env.adminUrl +
+      "admin.php?page=w3tc_dashboard" +
+      "&w3tc_default_hide_note&note=" +
+      encodeURIComponent(PROBE_NOTE) +
+      "&_wpnonce=" +
+      encodeURIComponent(nonce);
+    let dismissResponse = await adminPage.goto(dismissUrl, {
+      waitUntil: "domcontentloaded",
+    });
+    log.log("admin dismiss navigation status " + dismissResponse.status());
 
-		let bodyText = await adminPage.evaluate(() => document.body.innerText);
-		expect(bodyText.indexOf('The link you followed has expired')).equals(-1);
-		expect(bodyText.indexOf('You do not have sufficient permissions')).equals(-1);
+    let bodyText = await adminPage.evaluate(() => document.body.innerText);
+    expect(bodyText.indexOf("The link you followed has expired")).equals(-1);
+    expect(bodyText.indexOf("You do not have sufficient permissions")).equals(
+      -1,
+    );
 
-		/**
-		 * Read back through wp-cli; the handler calls $config->save()
-		 * before redirecting, so the config blob is flushed.
-		 */
-		let val = await readNoteFlag(PROBE_NOTE);
-		log.log('after admin dismiss: notes.' + PROBE_NOTE + ' = ' + JSON.stringify(val));
-		expect(val).equals(false);
-		log.success('admin can dismiss note');
-	});
+    /**
+     * Read back through wp-cli; the handler calls $config->save()
+     * before redirecting, so the config blob is flushed.
+     */
+    let val = await readNoteFlag(PROBE_NOTE);
+    log.log(
+      "after admin dismiss: notes." + PROBE_NOTE + " = " + JSON.stringify(val),
+    );
+    expect(val).equals(false);
+    log.success("admin can dismiss note");
+  });
 
-	/**
-	 * Regression side: unauthenticated request to the same URL
-	 * must NOT flip the flag. `_require_admin_cap()` returns 403
-	 * via `wp_die()` before the config write.
-	 */
-	it('anon request to w3tc_default_hide_note does NOT flip notes.<key>', async() => {
-		let probeKey = 'qa_anon_probe_' + Date.now();
-		let triggerUrl = env.adminUrl +
-			'admin.php?page=w3tc_dashboard&w3tc_default_hide_note&note=' + probeKey;
+  /**
+   * Regression side: unauthenticated request to the same URL
+   * must NOT flip the flag. `_require_admin_cap()` returns 403
+   * via `wp_die()` before the config write.
+   */
+  it("anon request to w3tc_default_hide_note does NOT flip notes.<key>", async () => {
+    let probeKey = "qa_anon_probe_" + Date.now();
+    let triggerUrl =
+      env.adminUrl +
+      "admin.php?page=w3tc_dashboard&w3tc_default_hide_note&note=" +
+      probeKey;
 
-		expect(await readNoteFlag(probeKey)).equals(null);
+    expect(await readNoteFlag(probeKey)).equals(null);
 
-		/**
-		 * Anonymous GET — `sys.httpGet()` includes no cookies, so
-		 * the request is unauthenticated.
-		 */
-		let r;
-		try {
-			r = await sys.httpGet(triggerUrl, {followRedirects: true});
-		} catch (e) {
-			log.log('anon GET error (expected for some configs): ' + e);
-		}
-		if (r) {
-			log.log('anon GET status: ' + r.statusCode);
-		}
+    /**
+     * Anonymous GET — `sys.httpGet()` includes no cookies, so
+     * the request is unauthenticated.
+     */
+    let r;
+    try {
+      r = await sys.httpGet(triggerUrl, { followRedirects: true });
+    } catch (e) {
+      log.log("anon GET error (expected for some configs): " + e);
+    }
+    if (r) {
+      log.log("anon GET status: " + r.statusCode);
+    }
 
-		expect(await readNoteFlag(probeKey)).equals(null);
-		log.success('anon request was rejected — notes.' + probeKey + ' is unset');
-	});
+    expect(await readNoteFlag(probeKey)).equals(null);
+    log.success("anon request was rejected — notes." + probeKey + " is unset");
+  });
 });

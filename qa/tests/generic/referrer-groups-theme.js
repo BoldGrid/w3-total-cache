@@ -1,121 +1,137 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: multiply(environments('blog'), environments('cache')) */
 
 let otherTheme;
 
-log.log('WordPress version number: ' + parseFloat(env.wpVersion));
+log.log("WordPress version number: " + parseFloat(env.wpVersion));
 
 if (parseFloat(env.wpVersion) < 6.1) {
-	otherTheme = 'twentytwenty/twentytwenty';
+  otherTheme = "twentytwenty/twentytwenty";
 } else if (parseFloat(env.wpVersion) < 6.4) {
-	otherTheme = 'twentytwentythree/twentytwentythree';
+  otherTheme = "twentytwentythree/twentytwentythree";
 } else if (parseFloat(env.wpVersion) < 6.7) {
-	otherTheme = 'twentytwentyfour/twentytwentyfour';
+  otherTheme = "twentytwentyfour/twentytwentyfour";
 } else {
-	otherTheme = 'twentytwentyfive/twentytwentyfive';
+  otherTheme = "twentytwentyfive/twentytwentyfive";
 }
 
-log.log('Switch to theme: ' + otherTheme);
+log.log("Switch to theme: " + otherTheme);
 
-let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/i, 'for-tests.wp.sandbox') +
-	'referrer-groups.php?path=' + env.blogSiteUrl;
+let pluginUrl =
+  env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/i, "for-tests.wp.sandbox") +
+  "referrer-groups.php?path=" +
+  env.blogSiteUrl;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("copy files", async () => {
+    await sys.copyPhpToRoot("../../plugins/generic/referrer-groups.php");
+  });
 
+  it("set options", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+      pgcache__engine: env.cacheEngineLabel,
+    });
+  });
 
-	it('copy files', async() => {
-		await sys.copyPhpToRoot('../../plugins/generic/referrer-groups.php');
-	});
+  it("add referrer group", async () => {
+    await adminPage.goto(
+      env.networkAdminUrl + "admin.php?page=w3tc_cachegroups",
+    );
+    adminPage._overwriteSystemDialogPrompt = true;
+    adminPage.once("dialog", async (dialog) => {
+      log.log("fill prompt");
+      await dialog.accept("test_group");
+      adminPage._overwriteSystemDialogPrompt = false;
+    });
 
+    await adminPage.click("#referrer_add");
 
+    log.log("wait button to create elements");
+    await adminPage.waitForSelector("#referrer_groups_test_group_redirect");
 
-	it('set options', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true,
-			pgcache__engine: env.cacheEngineLabel
-		});
-	});
+    await adminPage.$eval(
+      "#referrer_groups_test_group_referrers",
+      (e) => (e.value = "for-tests\\.wp\\.sandbox(\\/wp\\/)?"),
+    );
+    await adminPage.$eval(
+      "#referrer_groups_test_group_theme",
+      (e, v) => (e.value = v),
+      otherTheme,
+    );
 
+    let saveSelector = 'input[name="w3tc_save_options"]';
+    await Promise.all([
+      adminPage.evaluate(
+        (saveSelector) => document.querySelector(saveSelector).click(),
+        saveSelector,
+      ),
+      adminPage.waitForNavigation(),
+    ]);
 
+    //checking if the group was created
+    expect(await adminPage.content()).contains(
+      "Plugin configuration successfully updated",
+    );
+  });
 
-	it('add referrer group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
-		adminPage._overwriteSystemDialogPrompt = true;
-		adminPage.once('dialog', async dialog => {
-  			log.log('fill prompt');
-  			await dialog.accept('test_group');
-			adminPage._overwriteSystemDialogPrompt = false;
-		});
+  it("theme changed", async () => {
+    log.log("opening " + pluginUrl);
+    await page.goto(pluginUrl);
 
-		await adminPage.click('#referrer_add');
+    let helloWorld = "#hello-world";
+    await Promise.all([
+      page.evaluate(
+        (helloWorld) => document.querySelector(helloWorld).click(),
+        helloWorld,
+      ),
+      page.waitForNavigation(),
+    ]);
 
-		log.log('wait button to create elements');
-		await adminPage.waitForSelector('#referrer_groups_test_group_redirect');
+    let theme = otherTheme.split("/");
 
-		await adminPage.$eval('#referrer_groups_test_group_referrers',
-			(e) => e.value = 'for-tests\\.wp\\.sandbox(\\/wp\\/)?');
-		await adminPage.$eval('#referrer_groups_test_group_theme',
-			(e, v) => e.value = v, otherTheme);
+    let css;
+    if (theme[0] == "twentytwenty") {
+      css = await page.$eval("#twentytwenty-style-css", (e) =>
+        e.getAttribute("href"),
+      );
+    } else if (theme[0] == "twentytwentythree") {
+      css = await page.$eval("#wp-webfonts-inline-css", (e) => e.innerHTML);
+    } else if (["twentytwentyfour", "twentytwentyfive"].includes(theme[0])) {
+      css = await page.$eval(
+        parseFloat(env.wpVersion) >= 6.7
+          ? ".wp-fonts-local"
+          : "#wp-fonts-local",
+        (e) => e.innerHTML,
+      );
+    } else {
+      css = await page.$eval('link[type="text/css"]', (e) =>
+        e.getAttribute("href"),
+      );
+    }
 
-		let saveSelector = 'input[name="w3tc_save_options"]';
-		await Promise.all([
-			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
-			adminPage.waitForNavigation()
-		]);
-
-		//checking if the group was created
-		expect(await adminPage.content()).contains('Plugin configuration successfully updated');
-	});
-
-
-
-	it('theme changed', async() => {
-		log.log('opening ' + pluginUrl);
-		await page.goto(pluginUrl);
-
-		let helloWorld = '#hello-world';
-		await Promise.all([
-			page.evaluate((helloWorld) => document.querySelector(helloWorld).click(), helloWorld),
-			page.waitForNavigation()
-		]);
-
-		let theme = otherTheme.split('/');
-
-		let css;
-		if (theme[0] == 'twentytwenty') {
-			css = await page.$eval('#twentytwenty-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentythree') {
-			css = await page.$eval('#wp-webfonts-inline-css',
-				(e) => e.innerHTML);
-		} else if (['twentytwentyfour', 'twentytwentyfive'].includes(theme[0])) {
-			css = await page.$eval(
-				parseFloat(env.wpVersion) >= 6.7 ? '.wp-fonts-local': '#wp-fonts-local',
-				(e) => e.innerHTML
-			);
-		} else {
-			css = await page.$eval('link[type="text/css"]',
-				(e) => e.getAttribute('href'));
-		}
-
-		if (['twentytwentythree', 'twentytwentyfour', 'twentytwentyfive'].includes(theme[0])) {
-			expect(css).contains('themes/' + theme[0] + '/assets/');
-		} else {
-			expect(css).contains('themes/' + theme[0] + '/style.css');
-		}
-	});
+    if (
+      ["twentytwentythree", "twentytwentyfour", "twentytwentyfive"].includes(
+        theme[0],
+      )
+    ) {
+      expect(css).contains("themes/" + theme[0] + "/assets/");
+    } else {
+      expect(css).contains("themes/" + theme[0] + "/style.css");
+    }
+  });
 });

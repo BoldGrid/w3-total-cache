@@ -35,17 +35,17 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
-const util   = require('util');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
+const util = require("util");
 
-const execAsync = util.promisify(require('child_process').exec);
+const execAsync = util.promisify(require("child_process").exec);
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
 
 /**environments: environments('blog') */
 
@@ -54,14 +54,14 @@ const sys = requireRoot('lib/sys');
  * w3test fails if the error log is non-empty after the suite.
  */
 async function clearAuthzProbeErrorLog() {
-	if (typeof sys.clearHttpErrorLog === 'function') {
-		await sys.clearHttpErrorLog();
-		return;
-	}
-	const errlog = process.env.W3D_HTTP_SERVER_ERROR_LOG_FILENAME;
-	if (errlog) {
-		await execAsync('truncate -s 0 ' + errlog);
-	}
+  if (typeof sys.clearHttpErrorLog === "function") {
+    await sys.clearHttpErrorLog();
+    return;
+  }
+  const errlog = process.env.W3D_HTTP_SERVER_ERROR_LOG_FILENAME;
+  if (errlog) {
+    await execAsync("truncate -s 0 " + errlog);
+  }
 }
 
 /**
@@ -70,18 +70,18 @@ async function clearAuthzProbeErrorLog() {
  * added should also be added here.
  */
 const DENY_LIST = [
-	'config-db-sample.php',
-	'dbcluster-config-sample.php',
-	'varnish-sample-config.vcl',
-	'nginx-network-sample-config.conf',
-	'nginx-standalone-sample-config.conf',
-	'apc.ini',
-	'eaccelerator.ini',
-	'memcache.ini',
-	'opcache.ini',
-	'php.append.ini',
-	'xcache.ini',
-	's3-sample-policy.txt'
+  "config-db-sample.php",
+  "dbcluster-config-sample.php",
+  "varnish-sample-config.vcl",
+  "nginx-network-sample-config.conf",
+  "nginx-standalone-sample-config.conf",
+  "apc.ini",
+  "eaccelerator.ini",
+  "memcache.ini",
+  "opcache.ini",
+  "php.append.ini",
+  "xcache.ini",
+  "s3-sample-policy.txt",
 ];
 
 /**
@@ -90,115 +90,127 @@ const DENY_LIST = [
  * verbatim and the deny rule failed.
  */
 const SOURCE_MARKERS = [
-	'<?php',
-	'vcl 4.0',
-	'memcache.session',
-	'memcache.allow_failover',
-	'opcache.enable',
-	'extension=',
-	'Statement'
+  "<?php",
+  "vcl 4.0",
+  "memcache.session",
+  "memcache.allow_failover",
+  "opcache.enable",
+  "extension=",
+  "Statement",
 ];
 
-describe('rt9-28 ini/* sample-config deny regression', function() {
-	this.timeout(sys.suiteTimeout);
-	before(async function() {
-		await sys.beforeDefault();
-		/**
-		 * fix_in_wpadmin (which writes the nginx ini/ deny block) runs
-		 * from admin_notices on a rendered W3TC page only, not the
-		 * dashboard login in beforeDefault. Use `networkAdminUrl`:
-		 * `w3tc_general` is not `visible_always`, so on multisite
-		 * (default `common.force_master`) it is unregistered on the
-		 * per-site admin and `env.adminUrl` would serve WP's "not
-		 * allowed" page — which never fires admin_notices, so the
-		 * deny block would never be written. Single-site: same URL.
-		 */
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
-			{waitUntil: 'domcontentloaded'});
-		await sys.afterRulesChange();
-	});
-	after(async function() {
-		await clearAuthzProbeErrorLog();
-		await sys.after();
-	});
+describe("rt9-28 ini/* sample-config deny regression", function () {
+  this.timeout(sys.suiteTimeout);
+  before(async function () {
+    await sys.beforeDefault();
+    /**
+     * fix_in_wpadmin (which writes the nginx ini/ deny block) runs
+     * from admin_notices on a rendered W3TC page only, not the
+     * dashboard login in beforeDefault. Use `networkAdminUrl`:
+     * `w3tc_general` is not `visible_always`, so on multisite
+     * (default `common.force_master`) it is unregistered on the
+     * per-site admin and `env.adminUrl` would serve WP's "not
+     * allowed" page — which never fires admin_notices, so the
+     * deny block would never be written. Single-site: same URL.
+     */
+    await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_general", {
+      waitUntil: "domcontentloaded",
+    });
+    await sys.afterRulesChange();
+  });
+  after(async function () {
+    await clearAuthzProbeErrorLog();
+    await sys.after();
+  });
 
-	it('every shipped sample-config file returns deny on anon GET', async() => {
-		let pluginUri = env.blogPluginsUri + '/w3-total-cache/ini/';
-		let baseUrl   = env.scheme + '://' + env.blogHost +
-			env.wpMaybeColonPort + pluginUri;
-		log.log('probing ' + baseUrl + ' for sample-config files');
+  it("every shipped sample-config file returns deny on anon GET", async () => {
+    let pluginUri = env.blogPluginsUri + "/w3-total-cache/ini/";
+    let baseUrl =
+      env.scheme + "://" + env.blogHost + env.wpMaybeColonPort + pluginUri;
+    log.log("probing " + baseUrl + " for sample-config files");
 
-		let failures = [];
+    let failures = [];
 
-		for (let i = 0; i < DENY_LIST.length; i++) {
-			let file = DENY_LIST[i];
-			let url  = baseUrl + file;
-			let r;
-			try {
-				r = await sys.httpGet(url);
-			} catch (e) {
-				log.log('   ' + file + ' -> network error: ' + e);
-				continue;
-			}
+    for (let i = 0; i < DENY_LIST.length; i++) {
+      let file = DENY_LIST[i];
+      let url = baseUrl + file;
+      let r;
+      try {
+        r = await sys.httpGet(url);
+      } catch (e) {
+        log.log("   " + file + " -> network error: " + e);
+        continue;
+      }
 
-			log.log('   ' + file + ' -> ' + r.statusCode);
+      log.log("   " + file + " -> " + r.statusCode);
 
-			/**
-			 * Acceptable outcomes: 403 (deny rule), 404 (the file
-			 * is genuinely missing on this WP version). 200 with
-			 * an empty body is acceptable for `index.html` only —
-			 * not for the sample templates themselves.
-			 */
-			if (r.statusCode === 403 || r.statusCode === 404) {
-				continue;
-			}
+      /**
+       * Acceptable outcomes: 403 (deny rule), 404 (the file
+       * is genuinely missing on this WP version). 200 with
+       * an empty body is acceptable for `index.html` only —
+       * not for the sample templates themselves.
+       */
+      if (r.statusCode === 403 || r.statusCode === 404) {
+        continue;
+      }
 
-			/**
-			 * Anything else: dump body markers; if any source
-			 * marker is present, the deny failed.
-			 */
-			let body = (r.body || '').substring(0, 4096);
-			let leaked = SOURCE_MARKERS.filter((m) => body.indexOf(m) !== -1);
-			if (leaked.length > 0) {
-				failures.push({
-					file: file,
-					status: r.statusCode,
-					leaked: leaked
-				});
-			}
-		}
+      /**
+       * Anything else: dump body markers; if any source
+       * marker is present, the deny failed.
+       */
+      let body = (r.body || "").substring(0, 4096);
+      let leaked = SOURCE_MARKERS.filter((m) => body.indexOf(m) !== -1);
+      if (leaked.length > 0) {
+        failures.push({
+          file: file,
+          status: r.statusCode,
+          leaked: leaked,
+        });
+      }
+    }
 
-		if (failures.length > 0) {
-			log.log('FAILURES:');
-			for (let f of failures) {
-				log.log('   ' + f.file + ' status=' + f.status +
-					' markers=' + f.leaked.join(','));
-			}
-		}
-		expect(failures).is.empty;
-		log.success('no sample-config file served verbatim from ini/');
-	});
+    if (failures.length > 0) {
+      log.log("FAILURES:");
+      for (let f of failures) {
+        log.log(
+          "   " +
+            f.file +
+            " status=" +
+            f.status +
+            " markers=" +
+            f.leaked.join(","),
+        );
+      }
+    }
+    expect(failures).is.empty;
+    log.success("no sample-config file served verbatim from ini/");
+  });
 
-	/**
-	 * Defense-in-depth: the .htaccess dotfile block. A direct
-	 * fetch of `ini/.htaccess` itself must also be denied — even
-	 * if the directory deny were lifted, this would catch it.
-	 * On nginx the same outcome (403/404) is enforced by the
-	 * `location ~* /w3-total-cache/ini/ { deny all; }` rule.
-	 */
-	it('ini/.htaccess itself is denied', async() => {
-		let url = env.scheme + '://' + env.blogHost + env.wpMaybeColonPort +
-			env.blogPluginsUri + '/w3-total-cache/ini/.htaccess';
-		let r;
-		try {
-			r = await sys.httpGet(url);
-		} catch (e) {
-			log.log('network error for .htaccess: ' + e);
-			return;
-		}
-		log.log('.htaccess -> ' + r.statusCode);
-		expect([403, 404]).contains(r.statusCode);
-		expect(r.body || '').not.contains('Require all denied');
-		log.success('ini/.htaccess content not exposed');
-	});
+  /**
+   * Defense-in-depth: the .htaccess dotfile block. A direct
+   * fetch of `ini/.htaccess` itself must also be denied — even
+   * if the directory deny were lifted, this would catch it.
+   * On nginx the same outcome (403/404) is enforced by the
+   * `location ~* /w3-total-cache/ini/ { deny all; }` rule.
+   */
+  it("ini/.htaccess itself is denied", async () => {
+    let url =
+      env.scheme +
+      "://" +
+      env.blogHost +
+      env.wpMaybeColonPort +
+      env.blogPluginsUri +
+      "/w3-total-cache/ini/.htaccess";
+    let r;
+    try {
+      r = await sys.httpGet(url);
+    } catch (e) {
+      log.log("network error for .htaccess: " + e);
+      return;
+    }
+    log.log(".htaccess -> " + r.statusCode);
+    expect([403, 404]).contains(r.statusCode);
+    expect(r.body || "").not.contains("Require all denied");
+    log.success("ini/.htaccess content not exposed");
+  });
 });
