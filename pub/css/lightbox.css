@@ -158,7 +158,7 @@ th.minify-files-add, td.minify-files-add {
 }
 
 .w3tc-overlay label {
-    line-height: 1.9986363100000002em;
+    line-height: 1.9986363100000002;
     font-weight:700;
 }
 
@@ -329,7 +329,7 @@ fieldset[disabled] .btn {
 	text-decoration: none;
 }
 
-.w3tc-overlay btn.palette-turquoise {
+.w3tc-overlay .btn.palette-turquoise {
     border-bottom-color: #1abc9c;
 }
 
@@ -520,7 +520,7 @@ padding: 10px 20px 20px 20px;
 }
 
 .w3tc_change_label {
-    color:black;
+    color:#000;
     font-weight:inherit;
 }
 

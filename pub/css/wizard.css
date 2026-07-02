@@ -210,7 +210,7 @@ ul#w3tc-options-menu {
 
 .widefat thead th,
 .widefat td {
-    line-height: 1em;
+    line-height: 1;
 }
 
 /* Image optimization slide */

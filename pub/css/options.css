@@ -512,7 +512,7 @@ textarea.w3tc-error {
 	border-radius: 8px;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
-	line-height: 100%;
+	line-height: 1;
 }
 
 .minify-files li:hover {
@@ -522,7 +522,7 @@ textarea.w3tc-error {
 .minify-files th,
 .minify-files td {
 	width: auto;
-	line-height: 100%;
+	line-height: 1;
 	padding: 3px 3px;
 	font-weight: 400;
 	text-align: left;
@@ -550,7 +550,7 @@ textarea.w3tc-error {
 }
 
 .w3tc-pro-services-content p span.dashicons-yes-alt {
-	color:green;
+	color:#008000;
 }
 
 .performance_page_w3tc_general #preview-button {
@@ -856,16 +856,16 @@ th.w3tc_extensions_manage_column_check {
 }
 
 .button.w3tc-gopro-button {
-	border-color: darkgreen;
-	box-shadow: 0 1px 0 darkgreen;
-	background: green;
+	border-color: #006400;
+	box-shadow: 0 1px 0 #006400;
+	background: #008000;
 	color: #fff;
 }
 
 .button.w3tc-gopro-button:hover,
 .button.w3tc-gopro-button:focus {
-	border-color: green;
-	box-shadow: 0 1px 0 green;
+	border-color: #008000;
+	box-shadow: 0 1px 0 #008000;
 	background: #090;
 	color: #fff;
 }
@@ -1119,7 +1119,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro::after,
 }
 
 .w3tc-label-success {
-	background: green;
+	background: #008000;
 }
 
 .w3tc-label-danger {
@@ -1266,8 +1266,8 @@ td .w3tc-control-after span {
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button {
-	border-color: darkgreen;
-	background: green;
+	border-color: #006400;
+	background: #008000;
 	color: #fff;
 	box-shadow: unset;
 }
@@ -1276,7 +1276,7 @@ td .w3tc-control-after span {
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin:focus,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:hover,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:focus {
-	border-color: green;
+	border-color: #008000;
 	background: #090;
 	box-shadow: unset;
 }
@@ -1335,8 +1335,8 @@ td .w3tc-control-after span {
 	white-space: normal;
 	float: left;
 	clear: both;
-	border-color: darkgreen;
-	background: green;
+	border-color: #006400;
+	background: #008000;
 	color: #fff;
 	box-shadow: unset;
 }
