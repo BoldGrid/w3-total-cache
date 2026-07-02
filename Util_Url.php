@@ -159,7 +159,7 @@ class Util_Url {
 	 * (intranet, staging, split-horizon DNS), where a resolution-based
 	 * check like {@see self::is_public_host()} would refuse them.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.1
 	 *
 	 * @param string $w3tc_url Candidate URL.
 	 *

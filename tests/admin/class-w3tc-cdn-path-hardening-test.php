@@ -110,7 +110,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	 * URLs targeting the install's own host pass the self-host check
 	 * regardless of what the hostname resolves to.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.1
 	 */
 	public function test_util_url_self_host_url_accepts_own_host() {
 		$this->assertTrue(
@@ -121,7 +121,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * The self-host check refuses other hosts and non-http schemes.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.1
 	 */
 	public function test_util_url_self_host_url_refuses_other_hosts() {
 		$this->assertFalse( Util_Url::is_self_host_url( 'http://other-host.example/file.js' ) );
