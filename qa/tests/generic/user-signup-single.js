@@ -1,18 +1,18 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
-const util = require('util');
-const fs = require('fs');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
+const util = require("util");
+const fs = require("fs");
 
 fs.readFileAsync = util.promisify(fs.readFile);
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
+const wp = requireRoot("lib/wp");
 
 /**environments:
 variable_equals('W3D_WP_NETWORK', ['single'],
@@ -25,122 +25,155 @@ variable_equals('W3D_WP_NETWORK', ['single'],
 
 let testUserPassword;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("copy qa files", async () => {
+    await sys.copyPhpToPath(
+      "../../plugins/user-signup.php",
+      env.wpContentPath + "mu-plugins",
+    );
+  });
 
+  it("set options", async () => {
+    let ocdcengine =
+      env.cacheEngineLabel == "file_generic" ? "file" : env.cacheEngineLabel;
 
-	it('copy qa files', async() => {
-		await sys.copyPhpToPath('../../plugins/user-signup.php',
-			env.wpContentPath + 'mu-plugins');
-	});
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      dbcache__enabled: true,
+      pgcache__enabled: true,
+      objectcache__enabled: true,
+      dbcache__engine: ocdcengine,
+      pgcache__engine: env.cacheEngineLabel,
+      objectcache__engine: ocdcengine,
+      browsercache__enabled: false,
+    });
 
+    await sys.afterRulesChange();
+  });
 
+  it("enable users registration", async () => {
+    await adminPage.goto(env.networkAdminUrl + "options-general.php");
 
-	it('set options', async() => {
-		let ocdcengine = (env.cacheEngineLabel == 'file_generic' ? 'file' :
-			env.cacheEngineLabel);
+    let usersCanRegister = "#users_can_register";
+    await adminPage.evaluate(
+      (usersCanRegister) => document.querySelector(usersCanRegister).click(),
+      usersCanRegister,
+    );
 
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			dbcache__enabled: true,
-			pgcache__enabled: true,
-			objectcache__enabled: true,
-			dbcache__engine: ocdcengine,
-			pgcache__engine: env.cacheEngineLabel,
-			objectcache__engine: ocdcengine,
-			browsercache__enabled: false
-		});
+    let submitButton = "#submit";
+    await Promise.all([
+      adminPage.evaluate(
+        (submitButton) => document.querySelector(submitButton).click(),
+        submitButton,
+      ),
+      adminPage.waitForNavigation(),
+    ]);
 
-		await sys.afterRulesChange();
-	});
+    let checked = await adminPage.$eval("#users_can_register", (e) =>
+      e.getAttribute("checked"),
+    );
+    expect(checked).equals("checked");
+  });
 
+  it("signup", async () => {
+    await page.goto(env.blogSiteUrl + "wp-login.php?action=register");
 
+    await page.$eval(
+      "#user_login",
+      (e, v) => {
+        e.value = v;
+      },
+      "testuser",
+    );
+    await page.$eval(
+      "#user_email",
+      (e, v) => {
+        e.value = v;
+      },
+      "test2@example.com",
+    );
 
-	it('enable users registration', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'options-general.php');
+    let wpSubmitButton = "#wp-submit";
+    await Promise.all([
+      page.evaluate(
+        (wpSubmitButton) => document.querySelector(wpSubmitButton).click(),
+        wpSubmitButton,
+      ),
+      page.waitForNavigation({ timeout: 300000 }),
+    ]);
 
-		let usersCanRegister = '#users_can_register';
-		await adminPage.evaluate((usersCanRegister) => document.querySelector(usersCanRegister).click(), usersCanRegister);
+    expect(page.url()).equals(
+      env.blogSiteUrl.toLowerCase() + "wp-login.php?checkemail=registered",
+    );
 
-		let submitButton = '#submit';
-		await Promise.all([
-			adminPage.evaluate((submitButton) => document.querySelector(submitButton).click(), submitButton),
-			adminPage.waitForNavigation()
-		]);
+    let successMessage = await page.$eval(".message", (e) => e.innerHTML);
+    expect(successMessage).contains("Registration complete");
+  });
 
-		let checked = await adminPage.$eval('#users_can_register',
-			(e) => e.getAttribute('checked'));
-		expect(checked).equals('checked');
-	});
+  it("signup verification", async () => {
+    let mail = await fs.readFileAsync(env.wpContentPath + "mail.txt", "utf8");
+    console.log(mail);
+    let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
+    if (m == null) {
+      m = mail.match(/visit the following address:\s*(http[^\s]+)/m);
+    }
+    let followUrl = m[1];
 
+    log.log("found " + followUrl);
+    await page.goto(followUrl);
+    await page.waitForFunction(function () {
+      return (
+        document.getElementById("pass1") &&
+        document.getElementById("pass1").value != ""
+      );
+    });
 
+    testUserPassword = await page.$eval("#pass1", (e) => e.value);
 
-	it('signup', async() => {
-		await page.goto(env.blogSiteUrl + 'wp-login.php?action=register');
+    log.log("got password " + testUserPassword);
+    let wpSubmitButton = "#wp-submit";
+    await Promise.all([
+      page.evaluate(
+        (wpSubmitButton) => document.querySelector(wpSubmitButton).click(),
+        wpSubmitButton,
+      ),
+      page.waitForNavigation(),
+    ]);
 
-		await page.$eval('#user_login', (e, v) => { e.value = v }, 'testuser');
-		await page.$eval('#user_email', (e, v) => { e.value = v }, 'test2@example.com');
+    expect(await page.content()).contains("Your password has been reset");
 
-		let wpSubmitButton = '#wp-submit';
-		await Promise.all([
-			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-			page.waitForNavigation({timeout: 300000}),
-		]);
+    log.log("user pw " + testUserPassword);
+  });
 
-		expect(page.url()).equals(env.blogSiteUrl.toLowerCase() +
-			'wp-login.php?checkemail=registered');
+  it("check login works", async () => {
+    await page.goto(env.blogSiteUrl + "wp-login.php");
+    await page.$eval(
+      "#user_login",
+      (e, v) => {
+        e.value = v;
+      },
+      "testuser",
+    );
+    await page.$eval(
+      "#user_pass",
+      (e, v) => {
+        e.value = v;
+      },
+      testUserPassword,
+    );
 
-		let successMessage = await page.$eval('.message', (e) => e.innerHTML);
-		expect(successMessage).contains('Registration complete');
-	});
+    let wpSubmitButton = "#wp-submit";
+    await Promise.all([
+      page.evaluate(
+        (wpSubmitButton) => document.querySelector(wpSubmitButton).click(),
+        wpSubmitButton,
+      ),
+      page.waitForNavigation({ timeout: 300000 }),
+    ]);
 
-
-
-	it('signup verification', async() => {
-		let mail = await fs.readFileAsync(env.wpContentPath + 'mail.txt', 'utf8');
-		console.log(mail);
-		let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
-		if (m == null) {
-			m = mail.match(/visit the following address:\s*(http[^\s]+)/m);
-		}
-		let followUrl = m[1];
-
-		log.log('found ' + followUrl);
-		await page.goto(followUrl);
-		await page.waitForFunction(function() {
-			return document.getElementById('pass1') &&
-				document.getElementById('pass1').value != '';
-		});
-
-		testUserPassword = await page.$eval('#pass1', (e) => e.value);
-
-		log.log('got password ' + testUserPassword);
-		let wpSubmitButton = '#wp-submit';
-		await Promise.all([
-			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-			page.waitForNavigation()
-		]);
-
-		expect(await page.content()).contains('Your password has been reset');
-
-		log.log('user pw ' + testUserPassword);
-	});
-
-
-
-	it('check login works', async() => {
-		await page.goto(env.blogSiteUrl + 'wp-login.php');
-		await page.$eval('#user_login', (e, v) => { e.value = v }, 'testuser');
-		await page.$eval('#user_pass', (e, v) => { e.value = v }, testUserPassword);
-
-		let wpSubmitButton = '#wp-submit';
-		await Promise.all([
-			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-			page.waitForNavigation({timeout: 300000}),
-		]);
-
-		expect(await page.title()).contains('Profile');
-	});
+    expect(await page.title()).contains("Profile");
+  });
 });

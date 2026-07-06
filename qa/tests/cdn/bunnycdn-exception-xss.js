@@ -29,15 +29,15 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env  = requireRoot('lib/environment');
-const sys  = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: environments('blog') */
 
@@ -47,75 +47,92 @@ const w3tc = requireRoot('lib/w3tc');
  * and `$ex->getMessage()` includes the offending input. If the
  * escape regressed, this token would land unescaped in the popup.
  */
-const XSS_MARKER = '<script>window.__w3tc_bunnycdn_xss_fired=1</script>';
+const XSS_MARKER = "<script>window.__w3tc_bunnycdn_xss_fired=1</script>";
 
-describe('sec-xss BunnyCDN configured-popup exception regression', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("sec-xss BunnyCDN configured-popup exception regression", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	it('exception message in BunnyCDN configured popup is escaped on render', async() => {
-		/**
-		 * Activate the BunnyCDN extension and switch CDN engine to
-		 * it. We never expect the actual API to succeed; we just
-		 * need the popup to render its error branch.
-		 */
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			cdn__enabled: true,
-			cdn__engine: 'bunnycdn'
-		});
+  it("exception message in BunnyCDN configured popup is escaped on render", async () => {
+    /**
+     * Activate the BunnyCDN extension and switch CDN engine to
+     * it. We never expect the actual API to succeed; we just
+     * need the popup to render its error branch.
+     */
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      cdn__enabled: true,
+      cdn__engine: "bunnycdn",
+    });
 
-		/**
-		 * Write a pull-zone name that embeds the XSS marker.
-		 * Using `setOptionInternal` bypasses any sanitization at
-		 * the form-save boundary, mirroring an admin who pasted
-		 * the value from a contaminated source.
-		 */
-		await w3tc.setOptionInternal(adminPage, 'cdn.bunnycdn.pull_zone_name', XSS_MARKER);
-		// Set an invalid API key so the SDK throws on first contact.
-		await w3tc.setOptionInternal(adminPage, 'cdn.bunnycdn.account_api_key', 'invalid_key_for_xss_probe');
+    /**
+     * Write a pull-zone name that embeds the XSS marker.
+     * Using `setOptionInternal` bypasses any sanitization at
+     * the form-save boundary, mirroring an admin who pasted
+     * the value from a contaminated source.
+     */
+    await w3tc.setOptionInternal(
+      adminPage,
+      "cdn.bunnycdn.pull_zone_name",
+      XSS_MARKER,
+    );
+    // Set an invalid API key so the SDK throws on first contact.
+    await w3tc.setOptionInternal(
+      adminPage,
+      "cdn.bunnycdn.account_api_key",
+      "invalid_key_for_xss_probe",
+    );
 
-		/**
-		 * Navigate to the popup-rendering URL. The handler is
-		 * registered as a wp_ajax_w3tc_* action; we drive it
-		 * through `admin-ajax.php`. The exact action name comes
-		 * from `Cdn_BunnyCdn_Popup::w3tc_ajax_extension_bunnycdn_view_configured`.
-		 */
-		let popupResp = await adminPage.evaluate(async function(adminUrl, marker) {
-			let body = new URLSearchParams();
-			body.append('action', 'w3tc_ajax_extension_bunnycdn_view_configured');
-			let r = await fetch(adminUrl + 'admin-ajax.php', {
-				method: 'POST', body: body, credentials: 'include'
-			});
-			let text = await r.text();
-			return {status: r.status, marker: marker, body: text};
-		}, env.adminUrl, XSS_MARKER);
+    /**
+     * Navigate to the popup-rendering URL. The handler is
+     * registered as a wp_ajax_w3tc_* action; we drive it
+     * through `admin-ajax.php`. The exact action name comes
+     * from `Cdn_BunnyCdn_Popup::w3tc_ajax_extension_bunnycdn_view_configured`.
+     */
+    let popupResp = await adminPage.evaluate(
+      async function (adminUrl, marker) {
+        let body = new URLSearchParams();
+        body.append("action", "w3tc_ajax_extension_bunnycdn_view_configured");
+        let r = await fetch(adminUrl + "admin-ajax.php", {
+          method: "POST",
+          body: body,
+          credentials: "include",
+        });
+        let text = await r.text();
+        return { status: r.status, marker: marker, body: text };
+      },
+      env.adminUrl,
+      XSS_MARKER,
+    );
 
-		log.log('popup AJAX status: ' + popupResp.status);
-		log.log('popup body length: ' + popupResp.body.length);
+    log.log("popup AJAX status: " + popupResp.status);
+    log.log("popup body length: " + popupResp.body.length);
 
-		/**
-		 * The escaped form looks like
-		 * `&lt;script&gt;window.__w3tc_bunnycdn_xss_fired=1&lt;/script&gt;`.
-		 * A regression would emit it raw, in which case the body
-		 * would contain the literal `<script>` opener.
-		 */
-		expect(popupResp.body).not.contains(XSS_MARKER);
-		expect(popupResp.body).not.contains('<script>window.__w3tc_bunnycdn_xss_fired');
+    /**
+     * The escaped form looks like
+     * `&lt;script&gt;window.__w3tc_bunnycdn_xss_fired=1&lt;/script&gt;`.
+     * A regression would emit it raw, in which case the body
+     * would contain the literal `<script>` opener.
+     */
+    expect(popupResp.body).not.contains(XSS_MARKER);
+    expect(popupResp.body).not.contains(
+      "<script>window.__w3tc_bunnycdn_xss_fired",
+    );
 
-		/**
-		 * Also assert via the live DOM: rendering the body in the
-		 * admin context must NOT set the window flag.
-		 */
-		await adminPage.evaluate((html) => {
-			let d = document.createElement('div');
-			d.innerHTML = html;
-			document.body.appendChild(d);
-		}, popupResp.body);
+    /**
+     * Also assert via the live DOM: rendering the body in the
+     * admin context must NOT set the window flag.
+     */
+    await adminPage.evaluate((html) => {
+      let d = document.createElement("div");
+      d.innerHTML = html;
+      document.body.appendChild(d);
+    }, popupResp.body);
 
-		let xssFired = await adminPage.evaluate(
-			() => typeof window.__w3tc_bunnycdn_xss_fired !== 'undefined');
-		expect(xssFired).equals(false);
-		log.success('BunnyCDN exception sink does not echo raw HTML');
-	});
+    let xssFired = await adminPage.evaluate(
+      () => typeof window.__w3tc_bunnycdn_xss_fired !== "undefined",
+    );
+    expect(xssFired).equals(false);
+    log.success("BunnyCDN exception sink does not echo raw HTML");
+  });
 });

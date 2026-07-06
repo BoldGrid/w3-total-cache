@@ -22,83 +22,90 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env  = requireRoot('lib/environment');
-const sys  = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: environments('blog') */
 
-describe('PageSpeed dashboard render + AJAX wiring', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("PageSpeed dashboard render + AJAX wiring", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	it('w3tc_pagespeed renders container + analyze button', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_pagespeed',
-			{waitUntil: 'domcontentloaded'});
+  it("w3tc_pagespeed renders container + analyze button", async () => {
+    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_pagespeed", {
+      waitUntil: "domcontentloaded",
+    });
 
-		// Wizard skip if present.
-		if (await adminPage.$('#w3tc-wizard-skip') != null) {
-			await Promise.all([
-				adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
-				adminPage.waitForNavigation({timeout: 300000})
-			]);
-			await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_pagespeed',
-				{waitUntil: 'domcontentloaded'});
-		}
+    // Wizard skip if present.
+    if ((await adminPage.$("#w3tc-wizard-skip")) != null) {
+      await Promise.all([
+        adminPage.evaluate(() =>
+          document.querySelector("#w3tc-wizard-skip").click(),
+        ),
+        adminPage.waitForNavigation({ timeout: 300000 }),
+      ]);
+      await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_pagespeed", {
+        waitUntil: "domcontentloaded",
+      });
+    }
 
-		// Page must mount the analysis container.
-		let container = await adminPage.$('#w3tcps_container');
-		expect(container).not.equal(null);
-		log.success('PageSpeed container rendered');
+    // Page must mount the analysis container.
+    let container = await adminPage.$("#w3tcps_container");
+    expect(container).not.equal(null);
+    log.success("PageSpeed container rendered");
 
-		// Refresh / Analyze button (class, not id — see PageSpeed_Page_View.php).
-		let analyzeBtn = await adminPage.$('.w3tcps_analyze');
-		expect(analyzeBtn).not.equal(null);
-		log.success('PageSpeed analyze button present');
-	});
+    // Refresh / Analyze button (class, not id — see PageSpeed_Page_View.php).
+    let analyzeBtn = await adminPage.$(".w3tcps_analyze");
+    expect(analyzeBtn).not.equal(null);
+    log.success("PageSpeed analyze button present");
+  });
 
-	/**
-	 * AJAX wiring check: when the button is clicked, the page
-	 * should issue an admin-ajax request with
-	 * `w3tc_action=pagespeed_data`. We listen for the request and
-	 * resolve when seen. We don't care about the response — the
-	 * goal is just to prove the click-to-AJAX wiring is intact.
-	 */
-	it('Refresh Analysis button triggers pagespeed_data AJAX', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_pagespeed',
-			{waitUntil: 'domcontentloaded'});
+  /**
+   * AJAX wiring check: when the button is clicked, the page
+   * should issue an admin-ajax request with
+   * `w3tc_action=pagespeed_data`. We listen for the request and
+   * resolve when seen. We don't care about the response — the
+   * goal is just to prove the click-to-AJAX wiring is intact.
+   */
+  it("Refresh Analysis button triggers pagespeed_data AJAX", async () => {
+    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_pagespeed", {
+      waitUntil: "domcontentloaded",
+    });
 
-		/**
-		 * Page load auto-triggers one pagespeed_data request; wait for
-		 * it to finish before listening for the click-triggered call.
-		 */
-		await adminPage.waitForResponse(
-			(response) => response.url().indexOf('w3tc_action=pagespeed_data') !== -1,
-			{timeout: 120000});
+    /**
+     * Page load auto-triggers one pagespeed_data request; wait for
+     * it to finish before listening for the click-triggered call.
+     */
+    await adminPage.waitForResponse(
+      (response) => response.url().indexOf("w3tc_action=pagespeed_data") !== -1,
+      { timeout: 120000 },
+    );
 
-		let ajaxSeen = false;
-		let listener = (request) => {
-			if (request.url().indexOf('w3tc_action=pagespeed_data') !== -1) {
-				ajaxSeen = true;
-			}
-		};
-		adminPage.on('request', listener);
+    let ajaxSeen = false;
+    let listener = (request) => {
+      if (request.url().indexOf("w3tc_action=pagespeed_data") !== -1) {
+        ajaxSeen = true;
+      }
+    };
+    adminPage.on("request", listener);
 
-		await adminPage.evaluate(
-			() => document.querySelector('.w3tcps_analyze').click());
+    await adminPage.evaluate(() =>
+      document.querySelector(".w3tcps_analyze").click(),
+    );
 
-		// Give the JS controller a moment to fire the AJAX.
-		await new Promise((r) => setTimeout(r, 5000));
-		adminPage.off('request', listener);
+    // Give the JS controller a moment to fire the AJAX.
+    await new Promise((r) => setTimeout(r, 5000));
+    adminPage.off("request", listener);
 
-		expect(ajaxSeen).equals(true);
-		log.success('pagespeed_data AJAX was requested on button click');
-	});
+    expect(ajaxSeen).equals(true);
+    log.success("pagespeed_data AJAX was requested on button click");
+  });
 });

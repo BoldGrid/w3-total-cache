@@ -429,6 +429,12 @@ if ( ! function_exists( 'get_site_transient' ) ) {
 		return true;
 	}
 }
+if ( ! function_exists( 'did_action' ) ) {
+	$GLOBALS['__test_did_action'] = array();
+	function did_action( $hook ) {
+		return ! empty( $GLOBALS['__test_did_action'][ $hook ] );
+	}
+}
 if ( ! function_exists( 'wp_salt' ) ) {
 	/**
 	 * Controllable stub. The value `wp_salt()` returns is mutable through
@@ -620,6 +626,30 @@ assert_true(
 	'[4j] Empty callback registry refuses dispatch (renders empty)',
 	'' === $result,
 	"result: $result"
+);
+
+// ── 4j.early. advanced-cache.php path: empty registry before muplugins_loaded is silent ──
+$reset_callbacks();
+$GLOBALS['__test_did_wrong']   = array();
+$GLOBALS['__test_did_action']  = array();
+$GLOBALS['__test_transients']  = array();
+$result = $grabber->_parse_dynamic( $tag );
+assert_true(
+	'[4j.early] Empty registry before muplugins_loaded refuses without logging',
+	'' === $result && 0 === count( $GLOBALS['__test_did_wrong'] ),
+	"result: $result, did_wrong: " . count( $GLOBALS['__test_did_wrong'] )
+);
+
+// ── 4j.post-mu. After muplugins_loaded, empty registry is operator-visible ──
+$reset_callbacks();
+$GLOBALS['__test_did_wrong']  = array();
+$GLOBALS['__test_did_action'] = array( 'muplugins_loaded' => true );
+$GLOBALS['__test_transients'] = array();
+$result = $grabber->_parse_dynamic( $tag );
+assert_true(
+	'[4j.post-mu] Empty registry after muplugins_loaded logs refusal',
+	'' === $result && 1 === count( $GLOBALS['__test_did_wrong'] ),
+	"result: $result, did_wrong: " . count( $GLOBALS['__test_did_wrong'] )
 );
 
 // ── 4k. _sign_dynamic_tags adds an HMAC envelope to a call:slug tag ──

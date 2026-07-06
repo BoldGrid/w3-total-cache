@@ -27,14 +27,14 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
 
 /**environments: environments('blog') */
 
@@ -48,71 +48,76 @@ const sys = requireRoot('lib/sys');
  * - `AUTH_KEY`            — wp-config salt block
  */
 const LEAK_MARKERS = [
-	'DB_PASSWORD',
-	'AUTH_KEY',
-	'SECURE_AUTH_KEY',
-	'LOGGED_IN_KEY',
-	'NONCE_KEY',
-	'AUTH_SALT',
-	'phpinfo()',
-	'Loaded Configuration File',
-	'allow_url_fopen',
-	'_SERVER["HTTP_HOST"]'
+  "DB_PASSWORD",
+  "AUTH_KEY",
+  "SECURE_AUTH_KEY",
+  "LOGGED_IN_KEY",
+  "NONCE_KEY",
+  "AUTH_SALT",
+  "phpinfo()",
+  "Loaded Configuration File",
+  "allow_url_fopen",
+  '_SERVER["HTTP_HOST"]',
 ];
 
-describe('Support page render + sec-info-leak regression', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("Support page render + sec-info-leak regression", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	it('?page=w3tc_support renders without fatal error', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_support',
-			{waitUntil: 'domcontentloaded'});
+  it("?page=w3tc_support renders without fatal error", async () => {
+    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
+      waitUntil: "domcontentloaded",
+    });
 
-		// Skip wizard if shown.
-		if (await adminPage.$('#w3tc-wizard-skip') != null) {
-			await Promise.all([
-				adminPage.evaluate(() => document.querySelector('#w3tc-wizard-skip').click()),
-				adminPage.waitForNavigation({timeout: 300000})
-			]);
-			await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_support',
-				{waitUntil: 'domcontentloaded'});
-		}
+    // Skip wizard if shown.
+    if ((await adminPage.$("#w3tc-wizard-skip")) != null) {
+      await Promise.all([
+        adminPage.evaluate(() =>
+          document.querySelector("#w3tc-wizard-skip").click(),
+        ),
+        adminPage.waitForNavigation({ timeout: 300000 }),
+      ]);
+      await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
+        waitUntil: "domcontentloaded",
+      });
+    }
 
-		let pageHtml = await adminPage.content();
-		expect(pageHtml).not.contains('Fatal error');
-		expect(pageHtml).not.contains('Parse error');
-		expect(pageHtml).not.contains('Uncaught');
+    let pageHtml = await adminPage.content();
+    expect(pageHtml).not.contains("Fatal error");
+    expect(pageHtml).not.contains("Parse error");
+    expect(pageHtml).not.contains("Uncaught");
 
-		/**
-		 * Something support-page-shaped must be in the response.
-		 * The Wufoo embed loads cross-origin so its iframe shell
-		 * is what we can assert from this side of the network.
-		 */
-		let hasSupportMarker =
-			pageHtml.indexOf('wufoo') !== -1 ||
-			pageHtml.indexOf('support') !== -1 ||
-			pageHtml.indexOf('Support') !== -1;
-		expect(hasSupportMarker).equals(true);
-		log.success('Support page rendered without fatal error');
-	});
+    /**
+     * Something support-page-shaped must be in the response.
+     * The Wufoo embed loads cross-origin so its iframe shell
+     * is what we can assert from this side of the network.
+     */
+    let hasSupportMarker =
+      pageHtml.indexOf("wufoo") !== -1 ||
+      pageHtml.indexOf("support") !== -1 ||
+      pageHtml.indexOf("Support") !== -1;
+    expect(hasSupportMarker).equals(true);
+    log.success("Support page rendered without fatal error");
+  });
 
-	/**
-	 * Regression: load the page and assert NONE of the wp-config /
-	 * phpinfo marker strings appear. The sec-info-leak fix removed
-	 * the one-click diagnostic exfil and the marker strings are
-	 * the proof that the leak vector is closed.
-	 */
-	it('Support page response carries no wp-config / phpinfo markers', async() => {
-		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_support',
-			{waitUntil: 'domcontentloaded'});
+  /**
+   * Regression: load the page and assert NONE of the wp-config /
+   * phpinfo marker strings appear. The sec-info-leak fix removed
+   * the one-click diagnostic exfil and the marker strings are
+   * the proof that the leak vector is closed.
+   */
+  it("Support page response carries no wp-config / phpinfo markers", async () => {
+    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
+      waitUntil: "domcontentloaded",
+    });
 
-		let pageHtml = await adminPage.content();
-		let leaks = LEAK_MARKERS.filter((m) => pageHtml.indexOf(m) !== -1);
-		if (leaks.length > 0) {
-			log.log('LEAKED markers: ' + leaks.join(', '));
-		}
-		expect(leaks).is.empty;
-		log.success('Support page does not echo wp-config / phpinfo markers');
-	});
+    let pageHtml = await adminPage.content();
+    let leaks = LEAK_MARKERS.filter((m) => pageHtml.indexOf(m) !== -1);
+    if (leaks.length > 0) {
+      log.log("LEAKED markers: " + leaks.join(", "));
+    }
+    expect(leaks).is.empty;
+    log.success("Support page does not echo wp-config / phpinfo markers");
+  });
 });

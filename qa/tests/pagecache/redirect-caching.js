@@ -1,14 +1,14 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
+const wp = requireRoot("lib/wp");
 
 // file_generic doesnt support redirect caching
 /**environments:
@@ -22,64 +22,61 @@ variable_equals('W3D_WP_NETWORK', ['single'],
 
 let testPageUrl;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("copy theme files", async () => {
+    let theme = await wp.getCurrentTheme(adminPage);
+    let themePath = env.wpContentPath + "themes/" + theme;
+    await sys.copyPhpToPath("../../plugins/pagecache/*", `${themePath}/qa`);
+    await wp.addQaBootstrap(
+      adminPage,
+      `${themePath}/functions.php`,
+      "/qa/redirect-caching-redirect-sc.php",
+    );
+  });
 
+  it("set options", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+      browsercache__enabled: false,
+      pgcache__engine: env.cacheEngineLabel,
+    });
 
-	it('copy theme files', async() => {
-		let theme = await wp.getCurrentTheme(adminPage);
-		let themePath = env.wpContentPath + 'themes/' + theme;
-		await sys.copyPhpToPath('../../plugins/pagecache/*', `${themePath}/qa`);
-		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`,
-			'/qa/redirect-caching-redirect-sc.php');
-	});
+    await sys.afterRulesChange();
+  });
 
+  it("create test page", async () => {
+    let testPage = await wp.postCreate(adminPage, {
+      type: "page",
+      title: "test",
+      content: "test [w3tcqa]",
+    });
 
+    testPageUrl = testPage.url;
+  });
 
-	it('set options', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true,
-			browsercache__enabled: false,
-			pgcache__engine: env.cacheEngineLabel
-		});
+  it("redirect works", async () => {
+    await page.goto(testPageUrl);
+    expect(page.url()).equals(
+      env.scheme + "://for-tests.sandbox" + env.wpMaybeColonPort + "/",
+    );
+  });
 
-		await sys.afterRulesChange();
-	});
+  it("switch off redirect", async () => {
+    await wp.addWpConfigConstant(
+      adminPage,
+      "W3TCQA_NO_REDIRECT",
+      "no_redirect",
+    );
+  });
 
-
-
-	it('create test page', async() => {
-		let testPage = await wp.postCreate(adminPage, {
-			type: 'page',
-			title: 'test',
-			content: 'test [w3tcqa]'
-		});
-
-		testPageUrl = testPage.url;
-	});
-
-
-
-	it('redirect works', async() => {
-		await page.goto(testPageUrl);
-		expect(page.url()).equals(env.scheme + '://for-tests.sandbox' +
-			env.wpMaybeColonPort + '/');
-	});
-
-
-
-	it('switch off redirect', async() => {
-		await wp.addWpConfigConstant(adminPage, 'W3TCQA_NO_REDIRECT', 'no_redirect');
-	});
-
-
-
-	it('check redirect still happens - since cached', async() => {
-		await page.goto(testPageUrl);
-		expect(page.url()).equals(env.scheme + '://for-tests.sandbox' +
-			env.wpMaybeColonPort + '/');
-	});
+  it("check redirect still happens - since cached", async () => {
+    await page.goto(testPageUrl);
+    expect(page.url()).equals(
+      env.scheme + "://for-tests.sandbox" + env.wpMaybeColonPort + "/",
+    );
+  });
 });

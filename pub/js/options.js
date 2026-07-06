@@ -615,9 +615,7 @@ jQuery(function () {
       $submitter = jQuery(w3tcLastSubmitter);
     }
     if (!$submitter.length) {
-      $submitter = jQuery(form).find(
-        'input[type=submit][name^="w3tc_"]:focus',
-      );
+      $submitter = jQuery(form).find('input[type=submit][name^="w3tc_"]:focus');
     }
     if (!$submitter.length) {
       $submitter = jQuery(form)

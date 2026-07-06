@@ -2296,6 +2296,21 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Whether mu-plugins have had a chance to register dynamic callbacks.
+	 *
+	 * `advanced-cache.php` may serve a dynamic cache hit before
+	 * `muplugins_loaded`, so an empty registry there is expected rather
+	 * than a misconfiguration worth logging.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool
+	 */
+	private function _dynamic_callbacks_may_be_registered() {
+		return \function_exists( 'did_action' ) && \did_action( 'muplugins_loaded' );
+	}
+
+	/**
 	 * Returns the HMAC secret used to sign dynamic-fragment payloads.
 	 *
 	 * Derived directly from `AUTH_KEY` + `AUTH_SALT` rather than
@@ -2478,7 +2493,9 @@ class PgCache_ContentGrabber {
 		$callbacks = $this->_get_dynamic_callbacks();
 
 		if ( empty( $callbacks ) ) {
-			$this->_log_dynamic_deprecation( $kind, sprintf( 'no callbacks registered (slug "%s")', $slug ) );
+			if ( $this->_dynamic_callbacks_may_be_registered() ) {
+				$this->_log_dynamic_deprecation( $kind, sprintf( 'no callbacks registered (slug "%s")', $slug ) );
+			}
 
 			return '';
 		}

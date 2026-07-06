@@ -162,7 +162,7 @@ class Extension_AlwaysCached_Plugin {
 	 * existing cache file, PHP never runs, the response header is absent, and the
 	 * worker reports the queue item failed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.1
 	 *
 	 * @param string $rewrite_conditions Nginx rules buffer.
 	 *

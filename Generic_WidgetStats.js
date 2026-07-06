@@ -103,7 +103,10 @@ jQuery(document).ready(function ($) {
       } else {
         pagecache_hits = Number(entry.php_requests_pagecache_hit || 0);
       }
-      processed_data["page_cache"]["data"].push([row.timestamp, pagecache_hits]);
+      processed_data["page_cache"]["data"].push([
+        row.timestamp,
+        pagecache_hits,
+      ]);
       processed_data["object_cache"]["data"].push([
         row.timestamp,
         Number(entry.objectcache_get_hits || 0),

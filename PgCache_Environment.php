@@ -1276,7 +1276,7 @@ class PgCache_Environment {
 		 * the static page-cache rewrite and fall through to PHP. The returned string
 		 * is normalized to end with a single newline before it is appended.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.1
 		 *
 		 * @param string $rewrite_conditions Nginx rewrite-suppression conditions buffer (starts empty).
 		 */

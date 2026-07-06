@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.10.0
+Stable tag: 2.10.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,15 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.1 =
+* Fix: General Settings: "The link you followed has expired" when emptying all caches
+* Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
+* Fix: At-rest credentials: Defer encryption until WordPress salts are available
+* Fix: Always Cached: Queue regeneration on nginx with Disk: Enhanced page cache
+* Fix: mfunc: Render unrecognized dynamic-fragment tags as empty output
+* Fix: Apache: Remove Options -MultiViews from root .htaccess (HTTP 500 on restrictive AllowOverride)
+* Fix: Multisite: Admin page links in network admin
+
 = 2.10.0 =
 * Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
 * Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
@@ -536,6 +545,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added Premium Services tabs
 
 == Upgrade Notice ==
+
+= 2.10.1 =
+This update resolves regressions introduced in 2.10.0. Users who upgraded to 2.10.0 are encouraged to update.
 
 = 2.10.0 =
 This is a MAJOR security update that resolves multiple vulnerabilities. All users are strongly urged to update to this version as soon as possible.

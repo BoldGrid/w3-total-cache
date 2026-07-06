@@ -28,101 +28,129 @@
  */
 
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log    = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env  = requireRoot('lib/environment');
-const sys  = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: environments('blog') */
 
-const PEEK_PASSWORD = 'PEEK_ME_THIS_MUST_NOT_LAND_IN_RESPONSE';
+const PEEK_PASSWORD = "PEEK_ME_THIS_MUST_NOT_LAND_IN_RESPONSE";
 
-describe('rt9-12 memcached/redis test-handler entry-method regression', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("rt9-12 memcached/redis test-handler entry-method regression", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
-	/**
-	 * Feature side: the dashboard handler is reachable to an
-	 * authenticated admin via the JS test buttons' jQuery.post call.
-	 * We replicate that POST in the admin context (not click the
-	 * button, because the button is rendered conditionally on the
-	 * active cache engine being memcached/redis — we want this spec
-	 * to run on every cache engine matrix entry).
-	 */
-	it('admin POST to w3tc_test_memcached returns JSON test result', async() => {
-		// Any W3TC admin screen localizes w3tc_admin_nonces; dbcache is a stable entry point.
-		let nonce = await w3tc.adminActionNonce(
-			adminPage, 'w3tc_test_memcached', env.networkAdminUrl, 'w3tc_dbcache');
+  /**
+   * Feature side: the dashboard handler is reachable to an
+   * authenticated admin via the JS test buttons' jQuery.post call.
+   * We replicate that POST in the admin context (not click the
+   * button, because the button is rendered conditionally on the
+   * active cache engine being memcached/redis — we want this spec
+   * to run on every cache engine matrix entry).
+   */
+  it("admin POST to w3tc_test_memcached returns JSON test result", async () => {
+    // Any W3TC admin screen localizes w3tc_admin_nonces; dbcache is a stable entry point.
+    let nonce = await w3tc.adminActionNonce(
+      adminPage,
+      "w3tc_test_memcached",
+      env.networkAdminUrl,
+      "w3tc_dbcache",
+    );
 
-		let result = await adminPage.evaluate(async function(networkAdminUrl, nonce) {
-			let body = new URLSearchParams();
-			body.append('w3tc_test_memcached', '1');
-			body.append('servers', '127.0.0.1:11211');
-			body.append('_wpnonce', nonce);
-			let r = await fetch(networkAdminUrl + 'admin.php?page=w3tc_dashboard', {
-				method: 'POST',
-				body: body,
-				credentials: 'include'
-			});
-			return {status: r.status, text: await r.text()};
-		}, env.networkAdminUrl, nonce);
+    let result = await adminPage.evaluate(
+      async function (networkAdminUrl, nonce) {
+        let body = new URLSearchParams();
+        body.append("w3tc_test_memcached", "1");
+        body.append("servers", "127.0.0.1:11211");
+        body.append("_wpnonce", nonce);
+        let r = await fetch(networkAdminUrl + "admin.php?page=w3tc_dashboard", {
+          method: "POST",
+          body: body,
+          credentials: "include",
+        });
+        return { status: r.status, text: await r.text() };
+      },
+      env.networkAdminUrl,
+      nonce,
+    );
 
-		log.log('POST status ' + result.status);
-		/**
-		 * Either 200 with a JSON result body (memcached available
-		 * or not) or a JSON error — both signal the handler ran. We
-		 * only care that the entry method (POST) was accepted.
-		 */
-		expect(result.status).is.oneOf([200, 400]);
-	});
+    log.log("POST status " + result.status);
+    /**
+     * Either 200 with a JSON result body (memcached available
+     * or not) or a JSON error — both signal the handler ran. We
+     * only care that the entry method (POST) was accepted.
+     */
+    expect(result.status).is.oneOf([200, 400]);
+  });
 
-	/**
-	 * Regression side: a manual GET with `password=PEEK_ME` on the
-	 * URL must be rejected with 405 before the handler executes. The
-	 * `Allow: POST` header must be present, and the response body
-	 * must NOT contain the password string.
-	 */
-	it('GET ?w3tc_test_memcached=1&password=... returns 405 with Allow: POST and no password echo', async() => {
-		let nonce = await w3tc.adminActionNonce(
-			adminPage, 'w3tc_test_memcached', env.networkAdminUrl, 'w3tc_dbcache');
+  /**
+   * Regression side: a manual GET with `password=PEEK_ME` on the
+   * URL must be rejected with 405 before the handler executes. The
+   * `Allow: POST` header must be present, and the response body
+   * must NOT contain the password string.
+   */
+  it("GET ?w3tc_test_memcached=1&password=... returns 405 with Allow: POST and no password echo", async () => {
+    let nonce = await w3tc.adminActionNonce(
+      adminPage,
+      "w3tc_test_memcached",
+      env.networkAdminUrl,
+      "w3tc_dbcache",
+    );
 
-		let probeUrl = env.networkAdminUrl + 'admin.php?page=w3tc_dashboard' +
-			'&w3tc_test_memcached=1' +
-			'&servers=127.0.0.1%3A11211' +
-			'&password=' + encodeURIComponent(PEEK_PASSWORD) +
-			'&_wpnonce=' + encodeURIComponent(nonce);
+    let probeUrl =
+      env.networkAdminUrl +
+      "admin.php?page=w3tc_dashboard" +
+      "&w3tc_test_memcached=1" +
+      "&servers=127.0.0.1%3A11211" +
+      "&password=" +
+      encodeURIComponent(PEEK_PASSWORD) +
+      "&_wpnonce=" +
+      encodeURIComponent(nonce);
 
-		let response = await adminPage.goto(probeUrl, {waitUntil: 'domcontentloaded'});
-		let body = await adminPage.content();
+    let response = await adminPage.goto(probeUrl, {
+      waitUntil: "domcontentloaded",
+    });
+    let body = await adminPage.content();
 
-		log.log('GET probe returned status ' + response.status());
-		expect(response.status()).equals(405);
-		expect(response.headers()['allow'] || '').to.match(/POST/i);
-		expect(body).not.contains(PEEK_PASSWORD);
-	});
+    log.log("GET probe returned status " + response.status());
+    expect(response.status()).equals(405);
+    expect(response.headers()["allow"] || "").to.match(/POST/i);
+    expect(body).not.contains(PEEK_PASSWORD);
+  });
 
-	it('GET ?w3tc_test_redis=1&password=... returns 405 with Allow: POST and no password echo', async() => {
-		let nonce = await w3tc.adminActionNonce(
-			adminPage, 'w3tc_test_redis', env.networkAdminUrl, 'w3tc_dbcache');
+  it("GET ?w3tc_test_redis=1&password=... returns 405 with Allow: POST and no password echo", async () => {
+    let nonce = await w3tc.adminActionNonce(
+      adminPage,
+      "w3tc_test_redis",
+      env.networkAdminUrl,
+      "w3tc_dbcache",
+    );
 
-		let probeUrl = env.networkAdminUrl + 'admin.php?page=w3tc_dashboard' +
-			'&w3tc_test_redis=1' +
-			'&servers=127.0.0.1%3A6379' +
-			'&password=' + encodeURIComponent(PEEK_PASSWORD) +
-			'&_wpnonce=' + encodeURIComponent(nonce);
+    let probeUrl =
+      env.networkAdminUrl +
+      "admin.php?page=w3tc_dashboard" +
+      "&w3tc_test_redis=1" +
+      "&servers=127.0.0.1%3A6379" +
+      "&password=" +
+      encodeURIComponent(PEEK_PASSWORD) +
+      "&_wpnonce=" +
+      encodeURIComponent(nonce);
 
-		let response = await adminPage.goto(probeUrl, {waitUntil: 'domcontentloaded'});
-		let body = await adminPage.content();
+    let response = await adminPage.goto(probeUrl, {
+      waitUntil: "domcontentloaded",
+    });
+    let body = await adminPage.content();
 
-		log.log('GET probe returned status ' + response.status());
-		expect(response.status()).equals(405);
-		expect(response.headers()['allow'] || '').to.match(/POST/i);
-		expect(body).not.contains(PEEK_PASSWORD);
-	});
+    log.log("GET probe returned status " + response.status());
+    expect(response.status()).equals(405);
+    expect(response.headers()["allow"] || "").to.match(/POST/i);
+    expect(body).not.contains(PEEK_PASSWORD);
+  });
 });
