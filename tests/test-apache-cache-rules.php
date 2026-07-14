@@ -8,33 +8,33 @@
  * @since   X.X.X
  */
 
-if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
+if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
 	return;
 }
 
-if ( ! defined( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE' ) ) {
-	define( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE', '# BEGIN W3TC Page Cache cache' );
+if ( ! \defined( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE' ) ) {
+	\define( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE', '# BEGIN W3TC Page Cache cache' );
 }
 
-if ( ! defined( 'W3TC_MARKER_END_PGCACHE_CACHE' ) ) {
-	define( 'W3TC_MARKER_END_PGCACHE_CACHE', '# END W3TC Page Cache cache' );
+if ( ! \defined( 'W3TC_MARKER_END_PGCACHE_CACHE' ) ) {
+	\define( 'W3TC_MARKER_END_PGCACHE_CACHE', '# END W3TC Page Cache cache' );
 }
 
-if ( ! defined( 'W3TC_MARKER_BEGIN_MINIFY_CACHE' ) ) {
-	define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
+if ( ! \defined( 'W3TC_MARKER_BEGIN_MINIFY_CACHE' ) ) {
+	\define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
 }
 
-if ( ! defined( 'W3TC_MARKER_END_MINIFY_CACHE' ) ) {
-	define( 'W3TC_MARKER_END_MINIFY_CACHE', '# END W3TC Minify cache' );
+if ( ! \defined( 'W3TC_MARKER_END_MINIFY_CACHE' ) ) {
+	\define( 'W3TC_MARKER_END_MINIFY_CACHE', '# END W3TC Minify cache' );
 }
 
-if ( ! function_exists( 'get_option' ) ) {
+if ( ! \function_exists( 'get_option' ) ) {
 	function get_option( $name ) {
 		return 'blog_charset' === $name ? 'UTF-8' : false;
 	}
 }
 
-if ( ! function_exists( 'get_bloginfo' ) ) {
+if ( ! \function_exists( 'get_bloginfo' ) ) {
 	function get_bloginfo( $show ) {
 		return 'pingback_url' === $show ? 'https://example.test/xmlrpc.php' : '';
 	}
