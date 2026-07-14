@@ -10,7 +10,7 @@ const sys = requireRoot("lib/sys");
 const w3tc = requireRoot("lib/w3tc");
 const wp = requireRoot("lib/wp");
 
-// file_generic doesnt support redirect caching
+// Redirect responses should not be stored by page cache.
 /**environments:
 variable_equals('W3D_WP_NETWORK', ['single'],
 	multiply(
@@ -73,10 +73,11 @@ describe("", function () {
     );
   });
 
-  it("check redirect still happens - since cached", async () => {
+  it("check redirect no longer happens", async () => {
     await page.goto(testPageUrl);
-    expect(page.url()).equals(
-      env.scheme + "://for-tests.sandbox" + env.wpMaybeColonPort + "/",
-    );
+    expect(page.url()).equals(testPageUrl);
+
+    let content = await page.content();
+    expect(content).contains("no redirect");
   });
 });

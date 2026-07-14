@@ -331,6 +331,7 @@ class PgCache_Plugin {
 				'php_requests_pagecache_miss_logged_in',
 				'php_requests_pagecache_miss_mfunc',
 				'php_requests_pagecache_miss_query_string',
+				'php_requests_pagecache_miss_redirect',
 				'php_requests_pagecache_miss_third_party',
 				'php_requests_pagecache_miss_wp_admin',
 				'pagecache_requests_time_10ms',
