@@ -80,6 +80,7 @@ class Cache_File_Generic extends Cache_File {
 		@fputs( $fp, $w3tc_value['content'] );
 
 		if ( $this->_locking ) {
+			@\fflush( $fp );
 			@flock( $fp, LOCK_UN );
 		}
 

@@ -163,6 +163,7 @@ class Cache_File extends Cache_Base {
 		@fputs( $fp, @serialize( $content ) );
 
 		if ( $this->_locking ) {
+			@\fflush( $fp );
 			@flock( $fp, LOCK_UN );
 		}
 
@@ -316,6 +317,7 @@ class Cache_File extends Cache_Base {
 				@fputs( $fp, pack( 'L', 0 ) ); // make it expired.
 
 				if ( $this->_locking ) {
+					@\fflush( $fp );
 					@flock( $fp, LOCK_UN );
 				}
 
