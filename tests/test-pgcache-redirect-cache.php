@@ -77,7 +77,7 @@ namespace W3TC {
 
 namespace {
 	if ( ! \function_exists( 'w3tc_apply_filters' ) ) {
-		function w3tc_apply_filters( $tag, $value ) {
+		function w3tc_apply_filters( $tag, $value, ...$args ) {
 			return $value;
 		}
 	}
