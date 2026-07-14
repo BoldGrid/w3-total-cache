@@ -160,6 +160,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'miss_query_string'
 			);
 			$this->summary_item(
+				'php_php_requests_pagecache_miss_redirect',
+				esc_html__( 'Redirect', 'w3-total-cache' ),
+				false,
+				'ustats_php_php_requests_pagecache_miss_level2',
+				'',
+				'miss_redirect'
+			);
+			$this->summary_item(
 				'php_php_requests_pagecache_miss_third_party',
 				esc_html__( 'Third Party', 'w3-total-cache' ),
 				false,

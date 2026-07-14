@@ -854,19 +854,10 @@ class PgCache_ContentGrabber {
 		}
 
 		if ( isset( $response_headers['kv']['location'] ) ) {
-			/**
-			 * Dont cache query-string normalization redirects (e.g. from wp core) when cache key is normalized,
-			 * since that cause redirect loop.
-			 */
+			$this->cache_reject_reason = 'Redirect response';
+			$this->process_status      = 'miss_redirect';
 
-			if (
-				$this->_get_page_key( $this->_page_key_extension ) === $this->_get_page_key(
-					$this->_page_key_extension,
-					$response_headers['kv']['location']
-				)
-			) {
-				$this->cache_reject_reason = 'Normalization redirect';
-				$this->process_status      = 'miss_normalization_redirect';
+			if ( ! $this->_enhanced_mode ) {
 				return false;
 			}
 		}
