@@ -130,13 +130,14 @@ namespace {
 		return $reflection->invoke( $object, $buffer, $headers );
 	}
 
-	function pgcr_new_grabber() {
+	function pgcr_new_grabber( $enhanced_mode = false ) {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 		$_SERVER['REQUEST_URI']    = '/';
 
 		$grabber = new W3TC_Test_PgCacheRedirectGrabber();
 
 		pgcr_set_private_property( $grabber, '_caching', true );
+		pgcr_set_private_property( $grabber, '_enhanced_mode', $enhanced_mode );
 		pgcr_set_private_property(
 			$grabber,
 			'_request_url_fragments',
@@ -190,6 +191,14 @@ namespace {
 		'Redirect rejection status is recorded',
 		'miss_redirect',
 		pgcr_get_private_property( $redirect_grabber, 'process_status' )
+	);
+
+	$enhanced_redirect_grabber = pgcr_new_grabber( true );
+
+	pgcr_assert_same(
+		'Enhanced redirect responses can reach existing cleanup path',
+		true,
+		pgcr_can_write_cache( $enhanced_redirect_grabber, '', $redirect_headers )
 	);
 
 	$html_grabber = pgcr_new_grabber();
