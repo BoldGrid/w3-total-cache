@@ -659,9 +659,14 @@ class Minify_Environment {
 		$cache_control = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.cssjs.cache.control' ) );
 		$etag          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
 		$w3tc          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.cssjs.w3tc' ) );
+		$compatibility = $w3tc_config->get_boolean( 'pgcache.compatibility' );
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_MINIFY_CACHE . "\n";
+		// workaround for .gzip.
+		if ( $compatibility ) {
+			$rules .= "Options -MultiViews\n";
+		}
 
 		if ( $etag ) {
 			$rules .= "FileETag MTime Size\n";
