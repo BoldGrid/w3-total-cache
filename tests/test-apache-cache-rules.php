@@ -120,6 +120,22 @@ acr_assert(
 	$pgcache_rules
 );
 
+$pgcache_disk_enhanced_rules = acr_rules_from_private_generator(
+	'\W3TC\PgCache_Environment',
+	'rules_cache_generate_apache',
+	array(
+		'pgcache.compatibility' => false,
+		'pgcache.enabled'       => true,
+		'pgcache.engine'        => 'file_generic',
+	)
+);
+
+acr_assert(
+	'[3] page cache disk enhanced rules skip compatibility block',
+	false === \strpos( $pgcache_disk_enhanced_rules, '<Files ~' ),
+	$pgcache_disk_enhanced_rules
+);
+
 $minify_rules = acr_rules_from_private_generator(
 	'\W3TC\Minify_Environment',
 	'rules_cache_generate_apache',
@@ -127,12 +143,12 @@ $minify_rules = acr_rules_from_private_generator(
 );
 
 acr_assert(
-	'[3] minify cache rules omit Options -MultiViews',
+	'[4] minify cache rules omit Options -MultiViews',
 	false === \strpos( $minify_rules, "Options -MultiViews\n" ),
 	$minify_rules
 );
 acr_assert(
-	'[4] minify cache rules still include cache markers',
+	'[5] minify cache rules still include cache markers',
 	false !== \strpos( $minify_rules, W3TC_MARKER_BEGIN_MINIFY_CACHE ) &&
 		false !== \strpos( $minify_rules, W3TC_MARKER_END_MINIFY_CACHE ),
 	$minify_rules

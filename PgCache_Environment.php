@@ -1664,23 +1664,19 @@ class PgCache_Environment {
 		$charset      = get_option( 'blog_charset' );
 		$pingback_url = get_bloginfo( 'pingback_url' );
 
-		$browsercache         = $w3tc_config->get_boolean( 'browsercache.enabled' );
-		$brotli               = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
-		$compression          = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
-		$expires              = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.expires' ) );
-		$lifetime             = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.html.lifetime' ) : 0 );
-		$cache_control        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.cache.control' ) );
-		$etag                 = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
-		$w3tc                 = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.w3tc' ) );
-		$compatibility        = $w3tc_config->get_boolean( 'pgcache.compatibility' );
-		$disk_enhanced_apache = (
-			$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
-			'file_generic' === $w3tc_config->get_string( 'pgcache.engine' )
-		);
+		$browsercache  = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
+		$compression   = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
+		$expires       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.expires' ) );
+		$lifetime      = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.html.lifetime' ) : 0 );
+		$cache_control = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.cache.control' ) );
+		$etag          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
+		$w3tc          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.w3tc' ) );
+		$compatibility = $w3tc_config->get_boolean( 'pgcache.compatibility' );
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\n";
-		if ( $compatibility || $disk_enhanced_apache ) {
+		if ( $compatibility ) {
 			// allow to read files by apache if they are blocked at some level above.
 			$rules .= "<Files ~ \"\.(html|html_gzip|html_br|xml|xml_gzip|xml_br)$\">\n";
 
