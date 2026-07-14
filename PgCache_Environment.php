@@ -1681,8 +1681,6 @@ class PgCache_Environment {
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\n";
 		if ( $compatibility || $disk_enhanced_apache ) {
-			$rules .= "Options -MultiViews\n";
-
 			// allow to read files by apache if they are blocked at some level above.
 			$rules .= "<Files ~ \"\.(html|html_gzip|html_br|xml|xml_gzip|xml_br)$\">\n";
 
