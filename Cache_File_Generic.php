@@ -78,6 +78,12 @@ class Cache_File_Generic extends Cache_File {
 		}
 
 		@fputs( $fp, $w3tc_value['content'] );
+
+		if ( $this->_locking ) {
+			@\fflush( $fp );
+			@flock( $fp, LOCK_UN );
+		}
+
 		@fclose( $fp );
 
 		$chmod = 0644;
@@ -86,10 +92,6 @@ class Cache_File_Generic extends Cache_File {
 		}
 
 		@chmod( $tmppath, $chmod );
-
-		if ( $this->_locking ) {
-			@flock( $fp, LOCK_UN );
-		}
 
 		// some hostings create files with restrictive permissions not allowing apache to read it later.
 		@chmod( $path, 0644 );
@@ -293,11 +295,11 @@ class Cache_File_Generic extends Cache_File {
 			$var .= @fread( $fp, 4096 );
 		}
 
-		@fclose( $fp );
-
 		if ( $this->_locking ) {
 			@flock( $fp, LOCK_UN );
 		}
+
+		@fclose( $fp );
 
 		$headers = array();
 		if ( '.xml' === substr( $path, -4 ) ) {
