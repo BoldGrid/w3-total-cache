@@ -17,8 +17,13 @@ if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
 	return;
 }
 
+if ( \version_compare( PHP_VERSION, '8.0.0', '<' ) ) {
+	echo 'SKIP: file-cache locking teardown regression requires PHP 8+ for TypeError handling.' . "\n";
+	exit( 0 );
+}
+
 $plugin_root = realpath( __DIR__ . '/..' );
-$cache_root  = $plugin_root . '/.cursor/working/test-cache-file-locking-cache';
+$cache_root  = \sys_get_temp_dir() . '/w3tc-cache-file-locking-' . \getmypid() . '-' . \uniqid();
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', $plugin_root . '/' );
@@ -123,7 +128,9 @@ function cfl_assert_no_type_error( $callable, $label ) {
 }
 
 cfl_rmtree( $cache_root );
-mkdir( $cache_root, 0777, true );
+if ( ! @\mkdir( $cache_root, 0777, true ) && ! \is_dir( $cache_root ) ) {
+	cfl_fail( 'Could not create cache test directory: ' . $cache_root );
+}
 
 $config = array(
 	'cache_dir'        => $cache_root,
@@ -212,7 +219,7 @@ $generic_got = cfl_assert_no_type_error(
 	'Cache_File_Generic::get() raised TypeError with locking enabled'
 );
 
-if ( ! is_array( $generic_got ) || false === strpos( $generic_got['content'], 'generic' ) ) {
+if ( ! \is_array( $generic_got ) || ! isset( $generic_got['content'] ) || false === \strpos( $generic_got['content'], 'generic' ) ) {
 	cfl_fail( 'Cache_File_Generic round-trip get() mismatch after set()' );
 }
 cfl_pass( 'Cache_File_Generic round-trip get() after set()' );
