@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.10.1
+Stable tag: 2.10.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -364,6 +364,11 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
 
 = 2.10.1 =
 * Fix: General Settings: "The link you followed has expired" when emptying all caches

@@ -1,5 +1,10 @@
 === W3 Total Cache Changelog ===
 
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
+
 = 2.10.1 =
 * Fix: General Settings: "The link you followed has expired" when emptying all caches
 * Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
