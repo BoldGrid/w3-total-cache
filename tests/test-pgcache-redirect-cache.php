@@ -200,6 +200,16 @@ namespace {
 		true,
 		pgcr_can_write_cache( $enhanced_redirect_grabber, '', $redirect_headers )
 	);
+	pgcr_assert_same(
+		'Enhanced redirect rejection reason is recorded',
+		'Redirect response',
+		pgcr_get_private_property( $enhanced_redirect_grabber, 'cache_reject_reason' )
+	);
+	pgcr_assert_same(
+		'Enhanced redirect rejection status is recorded',
+		'miss_redirect',
+		pgcr_get_private_property( $enhanced_redirect_grabber, 'process_status' )
+	);
 
 	$html_grabber = pgcr_new_grabber();
 	$html_headers = array(

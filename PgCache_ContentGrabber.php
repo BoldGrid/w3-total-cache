@@ -853,10 +853,13 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		if ( isset( $response_headers['kv']['location'] ) && ! $this->_enhanced_mode ) {
+		if ( isset( $response_headers['kv']['location'] ) ) {
 			$this->cache_reject_reason = 'Redirect response';
 			$this->process_status      = 'miss_redirect';
-			return false;
+
+			if ( ! $this->_enhanced_mode ) {
+				return false;
+			}
 		}
 
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' === $_SERVER['REQUEST_METHOD'] ) {
