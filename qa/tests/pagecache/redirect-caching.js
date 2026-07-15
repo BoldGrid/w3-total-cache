@@ -22,6 +22,10 @@ variable_equals('W3D_WP_NETWORK', ['single'],
 
 let testPageUrl;
 
+function browserUrl(url) {
+  return new URL(url).toString();
+}
+
 describe("", function () {
   this.timeout(sys.suiteTimeout);
   before(sys.beforeDefault);
@@ -75,7 +79,7 @@ describe("", function () {
 
   it("check redirect no longer happens", async () => {
     await page.goto(testPageUrl);
-    expect(page.url()).equals(testPageUrl);
+    expect(page.url()).equals(browserUrl(testPageUrl));
 
     let content = await page.content();
     expect(content).contains("no redirect");
