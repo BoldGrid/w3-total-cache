@@ -152,15 +152,9 @@ class Varnish_Flush {
 		list( $varnish_host, $varnish_port ) = Util_Content::endpoint_to_host_port( $varnish_server, 80 );
 
 		/**
-		 * Refuse outbound purge requests targeting cloud metadata
-		 * (169.254.169.254), link-local, or other reserved ranges, and
-		 * refuse loopback except on common HTTP/Varnish ports. RFC1918
-		 * hosts (10.x / 172.16-31.x / 192.168.x) remain allowed.
-		 * Loopback on ports 80/443/8080/6081/6082 is allowed so
-		 * Cloudways and sidecar Varnish keep working; loopback on
-		 * Redis/memcached/MySQL ports stays blocked (rt9-127).
-		 * Filterable via `w3tc_varnish_skip_host_check` for audited
-		 * exceptions.
+		 * Allow RFC1918 and loopback-on-HTTP-port targets; refuse
+		 * link-local, reserved, and loopback on non-HTTP ports.
+		 * Opt out per host via `w3tc_varnish_skip_host_check`.
 		 */
 		if ( ! \apply_filters(
 			'w3tc_varnish_skip_host_check',

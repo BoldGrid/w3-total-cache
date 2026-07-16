@@ -270,12 +270,10 @@ class Util_Url {
 	 * dangerous set for SSRF — while leaving RFC1918 ranges valid.
 	 *
 	 * Use this (not {@see self::is_public_ip()}) at sinks like
-	 * Varnish purge where the legitimate destination is intentionally
-	 * a private-network host but a forged config value pointing at
-	 * cloud metadata must be refused. Loopback is intentionally
-	 * refused here; Varnish callers that need Cloudways-style
-	 * `127.0.0.1:8080` should use {@see self::is_safe_varnish_purge_target()}
-	 * which re-allows loopback only on HTTP/Varnish ports.
+	 * Varnish purge where the destination may be a private-network
+	 * host. Loopback is refused here; callers that need loopback on
+	 * an HTTP/Varnish port should use
+	 * {@see self::is_safe_varnish_purge_target()}.
 	 *
 	 * @since 2.10.0
 	 *
@@ -373,7 +371,7 @@ class Util_Url {
 	 * Returns true when `$ip` is a loopback address (IPv4 `127.0.0.0/8`
 	 * or IPv6 `::1`, including IPv4-mapped `::ffff:127.x.x.x`).
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 *
 	 * @param string $ip IP literal (v4 or v6).
 	 *
@@ -405,12 +403,9 @@ class Util_Url {
 	}
 
 	/**
-	 * Returns true when `$host` is a hostname or IP literal that
-	 * resolves only to loopback addresses (and resolves to at least
-	 * one address). Used to recognize Cloudways / sidecar Varnish
-	 * targets such as `127.0.0.1` and `localhost`.
+	 * Returns true when `$host` resolves only to loopback addresses.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 *
 	 * @param string $host Hostname or IP literal (no scheme, no port).
 	 *
@@ -460,12 +455,11 @@ class Util_Url {
 	}
 
 	/**
-	 * Returns true when `$port` is a common HTTP / Varnish listen port
-	 * safe to target on loopback for PURGE (not Redis, memcached, MySQL).
+	 * Returns true when `$port` is a common HTTP / Varnish listen port.
 	 *
-	 * Filterable via `w3tc_varnish_http_ports` for unusual deployments.
+	 * Filterable via `w3tc_varnish_http_ports`.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 *
 	 * @param int $port Destination port.
 	 *
@@ -477,7 +471,7 @@ class Util_Url {
 		/**
 		 * Filters the HTTP/Varnish ports allowed for loopback PURGE.
 		 *
-		 * @since 2.10.3
+		 * @since X.X.X
 		 *
 		 * @param int[] $ports Allowed destination ports.
 		 */
@@ -490,17 +484,12 @@ class Util_Url {
 	}
 
 	/**
-	 * Returns true when `$host`:`$port` is a safe Varnish PURGE target.
+	 * Returns true when `$host`:`$port` is an allowed Varnish PURGE target.
 	 *
-	 * Accepts the same destinations as {@see self::host_resolves_safe_internal()}
-	 * (RFC1918 + public; still refuses link-local / metadata), AND also
-	 * accepts loopback (`127.0.0.1`, `localhost`, `::1`) when the port is
-	 * a common HTTP/Varnish port. That restores Cloudways and other
-	 * sidecar-Varnish setups without re-enabling the rt9-127 abuse case
-	 * of pointing PURGE at `127.0.0.1:6379` (Redis), `:11211`
-	 * (memcached), `:3306` (MySQL), etc.
+	 * Same hosts as {@see self::host_resolves_safe_internal()}, plus
+	 * loopback when the port is a common HTTP/Varnish listen port.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 *
 	 * @param string     $host Hostname or IP literal (no scheme, no port).
 	 * @param int|string $port Destination port.

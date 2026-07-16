@@ -177,7 +177,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Loopback classification for the Varnish PURGE exception path.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 */
 	public function test_is_loopback_ip_classifies_ranges_correctly() {
 		$this->assertTrue( Util_Url::is_loopback_ip( '127.0.0.1' ) );
@@ -194,14 +194,12 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Cloudways-style loopback Varnish on HTTP ports must be allowed;
-	 * the rt9-127 abuse cases (Redis / memcached / MySQL / metadata)
-	 * must still be refused.
+	 * Loopback on HTTP/Varnish ports is allowed; other loopback ports
+	 * and link-local destinations are refused.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 */
-	public function test_is_safe_varnish_purge_target_allows_cloudways_blocks_ssrf() {
-		// Cloudways / sidecar Varnish — loopback + HTTP/Varnish ports.
+	public function test_is_safe_varnish_purge_target_allows_loopback_http_ports() {
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 80 ) );
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 8080 ) );
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6081 ) );
@@ -209,18 +207,14 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( 'localhost', 8080 ) );
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '::1', 80 ) );
 
-		// RFC1918 internal Varnish — still allowed on any port policy
-		// of host_resolves_safe_internal (port unused once host is safe).
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '10.0.0.1', 80 ) );
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '192.168.1.10', 8080 ) );
 
-		// rt9-127: loopback to non-HTTP service ports must stay blocked.
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6379 ) );
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 11211 ) );
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 3306 ) );
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( 'localhost', 6379 ) );
 
-		// Cloud metadata / link-local still refused regardless of port.
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 80 ) );
 		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 8080 ) );
 	}
@@ -228,7 +222,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Operators can extend the HTTP-port allow-list via filter.
 	 *
-	 * @since 2.10.3
+	 * @since X.X.X
 	 */
 	public function test_is_varnish_http_port_filterable() {
 		$this->assertFalse( Util_Url::is_varnish_http_port( 9080 ) );
