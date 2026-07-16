@@ -62,7 +62,7 @@ class W3TCG_Google_Model implements ArrayAccess
         $val = null;
       }
 
-      if ($this->isAssociativeArray($val)) {
+      if (is_array($val) && $this->isAssociativeArray($val)) {
         if (isset($this->$keyDataType) && 'map' == $this->$keyDataType) {
           foreach ($val as $arrayKey => $arrayItem) {
               $this->modelData[$key][$arrayKey] =
