@@ -152,35 +152,30 @@ class Varnish_Flush {
 		list( $varnish_host, $varnish_port ) = Util_Content::endpoint_to_host_port( $varnish_server, 80 );
 
 		/**
-		 * Refuse outbound purge requests targeting cloud metadata
-		 * (169.254.169.254), loopback (127.0.0.0/8), or any other
-		 * reserved range. Varnish legitimately runs on RFC1918 hosts
-		 * (10.x / 172.16-31.x / 192.168.x) so we use
-		 * `host_resolves_safe_internal()` here rather than the strict
-		 * `is_public_host()`. The check covers both literal IPs in the
-		 * admin-set `varnish.servers` value and hostnames that resolve
-		 * to a dangerous range via DNS. Filterable so an operator with
-		 * an audited reason — e.g. a sidecar Varnish on `127.0.0.1` —
-		 * can opt out per-host.
+		 * Allow RFC1918 and loopback-on-HTTP-port targets; refuse
+		 * link-local, reserved, and loopback on non-HTTP ports.
+		 * Opt out per host via `w3tc_varnish_skip_host_check`.
 		 */
 		if ( ! \apply_filters(
 			'w3tc_varnish_skip_host_check',
 			false,
 			$varnish_host,
 			$varnish_port
-		) && ! Util_Url::host_resolves_safe_internal( $varnish_host ) ) {
+		) && ! Util_Url::is_safe_varnish_purge_target( $varnish_host, $varnish_port ) ) {
 			$this->_log(
 				$w3tc_url,
 				sprintf(
-					'Refused PURGE to %s — host is loopback, link-local, or reserved range.',
-					$varnish_host
+					'Refused PURGE to %s:%d — host/port is not a safe Varnish target (link-local, reserved, or loopback on a non-HTTP port).',
+					$varnish_host,
+					(int) $varnish_port
 				)
 			);
 			return new \WP_Error(
 				'http_request_failed',
 				sprintf(
-					'Refused to send Varnish PURGE to %s: host is loopback, link-local, or a reserved range. Set varnish.servers to a routable internal host, or filter `w3tc_varnish_skip_host_check` to opt out.',
-					$varnish_host
+					'Refused to send Varnish PURGE to %1$s:%2$d: destination is link-local/reserved, or loopback on a non-HTTP port. Use a routable internal host, an HTTP/Varnish port on loopback (80, 443, 8080, 6081, 6082), or filter `w3tc_varnish_skip_host_check` to opt out.',
+					$varnish_host,
+					(int) $varnish_port
 				)
 			);
 		}

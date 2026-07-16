@@ -173,4 +173,66 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 		$this->assertFalse( Util_Url::is_public_ip( '' ) );
 		$this->assertFalse( Util_Url::is_public_ip( 'not an ip' ) );
 	}
+
+	/**
+	 * Loopback classification for the Varnish PURGE exception path.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_is_loopback_ip_classifies_ranges_correctly() {
+		$this->assertTrue( Util_Url::is_loopback_ip( '127.0.0.1' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '127.255.255.254' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '::1' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '::ffff:127.0.0.1' ) );
+
+		$this->assertFalse( Util_Url::is_loopback_ip( '10.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '192.168.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '169.254.169.254' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '8.8.8.8' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '::ffff:10.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '' ) );
+	}
+
+	/**
+	 * Loopback on HTTP/Varnish ports is allowed; other loopback ports
+	 * and link-local destinations are refused.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_is_safe_varnish_purge_target_allows_loopback_http_ports() {
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 80 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 8080 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6081 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 443 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( 'localhost', 8080 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '::1', 80 ) );
+
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '10.0.0.1', 80 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '192.168.1.10', 8080 ) );
+
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6379 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 11211 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 3306 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( 'localhost', 6379 ) );
+
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 80 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 8080 ) );
+	}
+
+	/**
+	 * Operators can extend the HTTP-port allow-list via filter.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_is_varnish_http_port_filterable() {
+		$this->assertFalse( Util_Url::is_varnish_http_port( 9080 ) );
+
+		$callback = static function ( $ports ) {
+			$ports[] = 9080;
+			return $ports;
+		};
+		\add_filter( 'w3tc_varnish_http_ports', $callback );
+		$this->assertTrue( Util_Url::is_varnish_http_port( 9080 ) );
+		\remove_filter( 'w3tc_varnish_http_ports', $callback );
+	}
 }
