@@ -17,13 +17,15 @@ namespace W3TC;
  *
  * Every outbound `wp_remote_*` call where the URL is admin-influenced
  * (license API override, AlwaysCached queue, recursive sitemap
- * fetcher, varnish purge, forums-api tab id, etc.) MUST run through
- * {@see self::is_public_host()} before issuing the request. Without
- * this check, a `wp_remote_get( $admin_url )` whose `$admin_url`
- * carries an internal-range value would target internal services:
- * AWS instance metadata at `169.254.169.254`, a Redis at
- * `127.0.0.1:6379`, an RFC1918 neighbour, the WordPress front-end
- * (`http://0.0.0.0/`), etc.
+ * fetcher, forums-api tab id, etc.) MUST run through
+ * {@see self::is_public_host()} before issuing the request. Varnish
+ * PURGE uses {@see self::is_safe_varnish_purge_target()} instead,
+ * because legitimate destinations are often RFC1918 or loopback on
+ * an HTTP port. Without these checks, a `wp_remote_get( $admin_url )`
+ * whose `$admin_url` carries an internal-range value would target
+ * internal services: AWS instance metadata at `169.254.169.254`, a
+ * Redis at `127.0.0.1:6379`, an RFC1918 neighbour, the WordPress
+ * front-end (`http://0.0.0.0/`), etc.
  *
  * **Residual risk: DNS rebinding.** `gethostbynamel()` resolves once
  * at check time; a hostile resolver can return a public IP for the
@@ -270,7 +272,10 @@ class Util_Url {
 	 * Use this (not {@see self::is_public_ip()}) at sinks like
 	 * Varnish purge where the legitimate destination is intentionally
 	 * a private-network host but a forged config value pointing at
-	 * cloud metadata or `127.0.0.1:6379` must be refused.
+	 * cloud metadata must be refused. Loopback is intentionally
+	 * refused here; Varnish callers that need Cloudways-style
+	 * `127.0.0.1:8080` should use {@see self::is_safe_varnish_purge_target()}
+	 * which re-allows loopback only on HTTP/Varnish ports.
 	 *
 	 * @since 2.10.0
 	 *
@@ -362,6 +367,153 @@ class Util_Url {
 
 		// Refuse hosts with no resolved address at all.
 		return ! empty( $ipv4_set ) || ! empty( $ipv6_set );
+	}
+
+	/**
+	 * Returns true when `$ip` is a loopback address (IPv4 `127.0.0.0/8`
+	 * or IPv6 `::1`, including IPv4-mapped `::ffff:127.x.x.x`).
+	 *
+	 * @since 2.10.3
+	 *
+	 * @param string $ip IP literal (v4 or v6).
+	 *
+	 * @return bool
+	 */
+	public static function is_loopback_ip( $ip ) {
+		if ( ! \is_string( $ip ) || '' === $ip ) {
+			return false;
+		}
+
+		if ( false !== \stripos( $ip, '::ffff:' ) ) {
+			$tail = \substr( $ip, \stripos( $ip, '::ffff:' ) + 7 );
+			if ( false !== \filter_var( $tail, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				return self::is_loopback_ip( $tail );
+			}
+		}
+
+		if ( false !== \filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return 0 === \strpos( $ip, '127.' );
+		}
+
+		if ( false !== \filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$packed = @\inet_pton( $ip );
+			$loop   = @\inet_pton( '::1' );
+			return false !== $packed && false !== $loop && $packed === $loop;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true when `$host` is a hostname or IP literal that
+	 * resolves only to loopback addresses (and resolves to at least
+	 * one address). Used to recognize Cloudways / sidecar Varnish
+	 * targets such as `127.0.0.1` and `localhost`.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @param string $host Hostname or IP literal (no scheme, no port).
+	 *
+	 * @return bool
+	 */
+	public static function host_resolves_loopback_only( $host ) {
+		if ( ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		if ( '[' === \substr( $host, 0, 1 ) && ']' === \substr( $host, -1 ) ) {
+			$host = \substr( $host, 1, -1 );
+		}
+
+		if ( false !== \filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return self::is_loopback_ip( $host );
+		}
+
+		$ipv4_set = @\gethostbynamel( $host );
+		if ( false === $ipv4_set ) {
+			$ipv4_set = array();
+		}
+		foreach ( $ipv4_set as $ip ) {
+			if ( ! \is_string( $ip ) || ! self::is_loopback_ip( $ip ) ) {
+				return false;
+			}
+		}
+
+		$ipv6_set = array();
+		if ( \function_exists( 'dns_get_record' ) ) {
+			$aaaa = @\dns_get_record( $host, DNS_AAAA );
+			if ( \is_array( $aaaa ) ) {
+				foreach ( $aaaa as $rec ) {
+					if ( isset( $rec['ipv6'] ) && \is_string( $rec['ipv6'] ) ) {
+						$ipv6_set[] = $rec['ipv6'];
+					}
+				}
+			}
+		}
+		foreach ( $ipv6_set as $ip ) {
+			if ( ! self::is_loopback_ip( $ip ) ) {
+				return false;
+			}
+		}
+
+		return ! empty( $ipv4_set ) || ! empty( $ipv6_set );
+	}
+
+	/**
+	 * Returns true when `$port` is a common HTTP / Varnish listen port
+	 * safe to target on loopback for PURGE (not Redis, memcached, MySQL).
+	 *
+	 * Filterable via `w3tc_varnish_http_ports` for unusual deployments.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @param int $port Destination port.
+	 *
+	 * @return bool
+	 */
+	public static function is_varnish_http_port( $port ) {
+		$port  = (int) $port;
+		$ports = array( 80, 443, 8080, 6081, 6082 );
+		/**
+		 * Filters the HTTP/Varnish ports allowed for loopback PURGE.
+		 *
+		 * @since 2.10.3
+		 *
+		 * @param int[] $ports Allowed destination ports.
+		 */
+		$ports = \apply_filters( 'w3tc_varnish_http_ports', $ports );
+		if ( ! \is_array( $ports ) ) {
+			return false;
+		}
+		$ports = \array_map( 'intval', $ports );
+		return \in_array( $port, $ports, true );
+	}
+
+	/**
+	 * Returns true when `$host`:`$port` is a safe Varnish PURGE target.
+	 *
+	 * Accepts the same destinations as {@see self::host_resolves_safe_internal()}
+	 * (RFC1918 + public; still refuses link-local / metadata), AND also
+	 * accepts loopback (`127.0.0.1`, `localhost`, `::1`) when the port is
+	 * a common HTTP/Varnish port. That restores Cloudways and other
+	 * sidecar-Varnish setups without re-enabling the rt9-127 abuse case
+	 * of pointing PURGE at `127.0.0.1:6379` (Redis), `:11211`
+	 * (memcached), `:3306` (MySQL), etc.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @param string     $host Hostname or IP literal (no scheme, no port).
+	 * @param int|string $port Destination port.
+	 *
+	 * @return bool
+	 */
+	public static function is_safe_varnish_purge_target( $host, $port ) {
+		if ( self::host_resolves_safe_internal( $host ) ) {
+			return true;
+		}
+
+		return self::host_resolves_loopback_only( $host )
+			&& self::is_varnish_http_port( $port );
 	}
 
 	/**
