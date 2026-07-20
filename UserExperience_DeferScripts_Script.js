@@ -1,5 +1,5 @@
 (function (w, k, o) {
-  var t = setTimeout(f, { config_timeout });
+  var t = setTimeout(f, {config_timeout});
   k.forEach(function (e) {
     w.addEventListener(e, f, o);
   });
