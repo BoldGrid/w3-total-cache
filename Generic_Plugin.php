@@ -1087,7 +1087,7 @@ class Generic_Plugin {
 	private function is_rest_ob_request() {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-		return Util_Environment::is_rest_request( $request_uri );
+		return (bool) Util_Environment::is_rest_request( $request_uri );
 	}
 
 	/**
