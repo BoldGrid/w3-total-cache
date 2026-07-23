@@ -938,8 +938,19 @@ class Generic_Plugin {
 			return $buffer;
 		}
 
+		$is_rest_request = $this->is_rest_ob_request();
+		if ( $is_rest_request && ! $this->should_ob_process_rest() ) {
+			return $buffer;
+		}
+
 		if ( $this->is_wp_die && ! apply_filters( 'w3tc_process_wp_die', false, $buffer ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			// wp_die is dynamic output (usually fatal errors), dont process it.
+		} elseif ( $is_rest_request ) {
+			// REST caching enabled: pagecache only — skip HTML processors on JSON.
+			$buffer = Util_Bus::do_ob_callbacks(
+				array( 'pagecache' ),
+				$buffer
+			);
 		} else {
 			$buffer = apply_filters( 'w3tc_process_content', $buffer );
 
@@ -1050,12 +1061,44 @@ class Generic_Plugin {
 		}
 
 		/**
+		 * Skip REST API requests unless page-cache REST caching is enabled.
+		 * Uses URL detection because REST_REQUEST is defined later (parse_request).
+		 */
+		if ( $this->is_rest_ob_request() && ! $this->should_ob_process_rest() ) {
+			return false;
+		}
+
+		/**
 		 * Do not skip output buffering based on User-Agent: the value is client-controlled.
 		 * A request claiming "W3 Total Cache" would previously bypass ob_callback, skipping
 		 * page-cache processing and emitting W3TC_DYNAMIC_SECURITY in unprocessed mfunc/mclude.
 		 */
 
 		return true;
+	}
+
+	/**
+	 * Whether the current request looks like a REST API call for OB gating.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private function is_rest_ob_request() {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		return (bool) Util_Environment::is_rest_request( $request_uri );
+	}
+
+	/**
+	 * Whether REST responses should run through the page-cache OB path.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private function should_ob_process_rest() {
+		return 'cache' === $this->_config->get_string( 'pgcache.rest' );
 	}
 
 	/**

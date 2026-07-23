@@ -226,4 +226,157 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 			'can_ob() must remain true when HTTP_USER_AGENT contains W3TC_POWERED_BY (client-controlled).'
 		);
 	}
+
+	/**
+	 * can_ob() must reject REST-shaped URLs before REST_REQUEST is defined.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_rejects_rest_request_uri() {
+		global $w3tc_w3_late_init;
+
+		$prev_late                 = $w3tc_w3_late_init;
+		$w3tc_w3_late_init         = false;
+		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
+		$config                    = \W3TC\Dispatcher::config();
+		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', '' );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertFalse(
+			$can_ob,
+			'can_ob() must return false for /wp-json/ requests when pgcache.rest is not cache.'
+		);
+	}
+
+	/**
+	 * can_ob() must allow REST when page-cache REST caching is enabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_allows_rest_when_pgcache_rest_cache_enabled() {
+		global $w3tc_w3_late_init;
+
+		$prev_late                 = $w3tc_w3_late_init;
+		$w3tc_w3_late_init         = false;
+		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
+		$config                    = \W3TC\Dispatcher::config();
+		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', 'cache' );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertTrue(
+			$can_ob,
+			'can_ob() must return true for REST URIs when pgcache.rest is cache.'
+		);
+	}
+
+	/**
+	 * ob_callback() must return REST JSON unchanged when REST caching is off.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_short_circuits_rest_when_not_caching() {
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', '' );
+
+		$minify_ran = false;
+		\W3TC\Util_Bus::add_ob_callback(
+			'minify',
+			function ( $buffer ) use ( &$minify_ran ) {
+				$minify_ran = true;
+				return $buffer . '-minified';
+			}
+		);
+
+		$json   = '{"id":1,"title":"Hello"}';
+		$result = $this->plugin->ob_callback( $json );
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+
+		$this->assertSame( $json, $result );
+		$this->assertFalse( $minify_ran, 'HTML processors must not run on REST responses when not caching REST.' );
+	}
+
+	/**
+	 * With REST caching enabled, ob_callback() must run pagecache only.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_runs_pagecache_only_for_cached_rest() {
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', 'cache' );
+
+		$minify_ran    = false;
+		$pagecache_ran = false;
+		\W3TC\Util_Bus::add_ob_callback(
+			'minify',
+			function ( $buffer ) use ( &$minify_ran ) {
+				$minify_ran = true;
+				return $buffer . '-minified';
+			}
+		);
+		\W3TC\Util_Bus::add_ob_callback(
+			'pagecache',
+			function ( $buffer ) use ( &$pagecache_ran ) {
+				$pagecache_ran = true;
+				return $buffer . '-cached';
+			}
+		);
+
+		$json   = '{"id":1}';
+		$result = $this->plugin->ob_callback( $json );
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+
+		$this->assertSame( '{"id":1}-cached', $result );
+		$this->assertTrue( $pagecache_ran );
+		$this->assertFalse( $minify_ran, 'Minify must not run on REST JSON even when REST caching is enabled.' );
+	}
 }
