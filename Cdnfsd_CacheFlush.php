@@ -40,7 +40,7 @@ class Cdnfsd_CacheFlush {
 		$w3tc_config      = Dispatcher::config();
 		$common           = Dispatcher::component( 'Cdn_Core' );
 		$default_override = Cdn_Util::get_flush_manually_default_override();
-		if ( $w3tc_config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
+		if ( $w3tc_config->get_boolean( 'cdn.flush_manually' ) === $default_override ) {
 			// in this mode flush only on purge button clicks.
 			if ( ! isset( $extras['ui_action'] ) ) {
 				return true;
