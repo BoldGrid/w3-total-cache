@@ -224,8 +224,8 @@ fa_assert(
  * [11] Confirm the exploit precondition: the PoC token parses as MANUAL (empty hash),
  * which is exactly the branch the fix guards.
  */
-define( 'MINIFY_AUTO_FILENAME_REGEX_T', '([a-zA-Z0-9-_]+)\\.(css|js)([?].*)?' );
-define( 'MINIFY_MANUAL_FILENAME_REGEX_T', '([a-f0-9]+)\\.(.+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
+define( 'MINIFY_AUTO_FILENAME_REGEX_T', '([a-zA-Z0-9_-]+)\\.(css|js)([?].*)?' );
+define( 'MINIFY_MANUAL_FILENAME_REGEX_T', '([a-f0-9]+)\\.([a-zA-Z0-9_-]+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
 $poc_token   = '87fee.default.include.452061.js';
 $is_auto     = (bool) preg_match( '~^' . MINIFY_AUTO_FILENAME_REGEX_T . '$~', $poc_token );
 $is_manual   = (bool) preg_match( '~^' . MINIFY_MANUAL_FILENAME_REGEX_T . '$~', $poc_token );

@@ -9,8 +9,8 @@ namespace W3TC;
 
 defined( 'ABSPATH' ) || exit;
 // Define repeated regex to simplify changes.
-define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9-_]+)\\.(css|js)([?].*)?' );
-define( 'W3TC_MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.(.+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
+define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9_-]+)\\.(css|js)([?].*)?' );
+define( 'W3TC_MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.([a-zA-Z0-9_-]+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
 
 /**
  * Class Minify_MinifiedFileRequestHandler
