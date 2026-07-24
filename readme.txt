@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.10.2
+Stable tag: 2.10.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,11 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
+
 = 2.10.2 =
 * Fix: Disk cache: Restore file-locking writes on PHP 8+
 * Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
@@ -550,6 +555,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added Premium Services tabs
 
 == Upgrade Notice ==
+
+= 2.10.3 =
+This update resolves Block Editor save failures related to output buffering and restores Defer Scripts timeout configuration. All users are encouraged to update.
 
 = 2.10.1 =
 This update resolves regressions introduced in 2.10.0. Users who upgraded to 2.10.0 are encouraged to update.
