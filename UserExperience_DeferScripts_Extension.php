@@ -194,7 +194,7 @@ class UserExperience_DeferScripts_Extension {
 
 		$content = file_get_contents( W3TC_DIR . '/UserExperience_DeferScripts_Script.js' );
 		$content = str_replace(
-			'{config_timeout}',
+			'{ config_timeout }',
 			$config_timeout,
 			$content
 		);
