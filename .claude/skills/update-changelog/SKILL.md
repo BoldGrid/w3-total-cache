@@ -111,6 +111,7 @@ On a full release branch, also align (outside this skill's scope unless requeste
 - `w3-total-cache.php` `Version:` header
 - `w3-total-cache-api.php` `W3TC_VERSION`
 - `readme.txt` `Stable tag:` line
+- Run `yarn run update:since` after the version bump and commit the `@since X.X.X` → current-version replacements before tagging (so placeholders do not remain in the git tag; packaging alone is not enough)
 
 Do **not** bump version numbers or edit POT/`readme.txt` stable tag on `master` per project policy — only on release branches when explicitly requested.
 

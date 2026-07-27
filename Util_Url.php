@@ -371,7 +371,7 @@ class Util_Url {
 	 * Returns true when `$ip` is a loopback address (IPv4 `127.0.0.0/8`
 	 * or IPv6 `::1`, including IPv4-mapped `::ffff:127.x.x.x`).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 *
 	 * @param string $ip IP literal (v4 or v6).
 	 *
@@ -405,7 +405,7 @@ class Util_Url {
 	/**
 	 * Returns true when `$host` resolves only to loopback addresses.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 *
 	 * @param string $host Hostname or IP literal (no scheme, no port).
 	 *
@@ -459,7 +459,7 @@ class Util_Url {
 	 *
 	 * Filterable via `w3tc_varnish_http_ports`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 *
 	 * @param int $port Destination port.
 	 *
@@ -471,7 +471,7 @@ class Util_Url {
 		/**
 		 * Filters the HTTP/Varnish ports allowed for loopback PURGE.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.2
 		 *
 		 * @param int[] $ports Allowed destination ports.
 		 */
@@ -489,7 +489,7 @@ class Util_Url {
 	 * Same hosts as {@see self::host_resolves_safe_internal()}, plus
 	 * loopback when the port is a common HTTP/Varnish listen port.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 *
 	 * @param string     $host Hostname or IP literal (no scheme, no port).
 	 * @param int|string $port Destination port.

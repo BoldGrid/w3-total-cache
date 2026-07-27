@@ -6,7 +6,7 @@
  * Run with: php tests/test-minify-cache-id-path.php
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.3
  */
 
 if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {

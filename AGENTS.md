@@ -27,7 +27,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - WordPress Documentation Standards for JavaScript: https://developer.wordpress.org/coding-standards/inline-documentation-standards/javascript/
 
 ## Contribution Process
-- Add `@since X.X.X` to all new doc blocks. After bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements on `master` before tagging.
+- Add `@since X.X.X` to all new doc blocks. When prepping a release branch, after bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements before tagging so placeholders do not ship in the git tag (the packaging script also runs this, but only for the built artifact).
 - Do not update POT files -- it's done in our build process.
 - Do not change the `readme.txt` file -- it's done on release branches.
 - Do not increment the plugin version number -- it's done in our build process.

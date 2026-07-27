@@ -39,7 +39,7 @@ class Minify_Cache_File {
 	 *
 	 * @return string|false Absolute path under `_path`, or false when rejected.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 */
 	private function _path_for_id($id)
 	{

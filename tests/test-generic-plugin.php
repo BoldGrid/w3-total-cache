@@ -230,7 +230,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * can_ob() must reject REST-shaped URLs before REST_REQUEST is defined.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return void
 	 */
@@ -265,7 +265,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * can_ob() must allow REST when page-cache REST caching is enabled.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return void
 	 */
@@ -300,7 +300,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * ob_callback() must return REST JSON unchanged when REST caching is off.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return void
 	 */
@@ -337,7 +337,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * With REST caching enabled, ob_callback() must run pagecache only.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return void
 	 */

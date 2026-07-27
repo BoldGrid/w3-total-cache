@@ -128,7 +128,7 @@ Component suffixes indicate role:
 - Prefix all global namespace function calls with a backslash (e.g., `\strlen()`)
 - Opening parenthesis of multi-line function calls must be the last content on the line
 - Do not make unrelated coding-standards fixes in changed files
-- Add `@since X.X.X` to all new doc blocks. After bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements on `master` before tagging.
+- Add `@since X.X.X` to all new doc blocks. When prepping a release branch, after bumping `Version` in `w3-total-cache.php`, run `yarn run update:since` and commit the replacements before tagging so placeholders do not ship in the git tag (the packaging script also runs this, but only for the built artifact).
 
 ### Contribution Notes
 - Do not update POT files, `readme.txt`, or the plugin version — all handled in the build process

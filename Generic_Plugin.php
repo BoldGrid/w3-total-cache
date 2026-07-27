@@ -1080,7 +1080,7 @@ class Generic_Plugin {
 	/**
 	 * Whether the current request looks like a REST API call for OB gating.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return bool
 	 */
@@ -1093,7 +1093,7 @@ class Generic_Plugin {
 	/**
 	 * Whether REST responses should run through the page-cache OB path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.3
 	 *
 	 * @return bool
 	 */

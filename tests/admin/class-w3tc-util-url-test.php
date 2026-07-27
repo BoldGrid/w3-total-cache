@@ -177,7 +177,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Loopback classification for the Varnish PURGE exception path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 */
 	public function test_is_loopback_ip_classifies_ranges_correctly() {
 		$this->assertTrue( Util_Url::is_loopback_ip( '127.0.0.1' ) );
@@ -197,7 +197,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	 * Loopback on HTTP/Varnish ports is allowed; other loopback ports
 	 * and link-local destinations are refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 */
 	public function test_is_safe_varnish_purge_target_allows_loopback_http_ports() {
 		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 80 ) );
@@ -222,7 +222,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Operators can extend the HTTP-port allow-list via filter.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.2
 	 */
 	public function test_is_varnish_http_port_filterable() {
 		$this->assertFalse( Util_Url::is_varnish_http_port( 9080 ) );
