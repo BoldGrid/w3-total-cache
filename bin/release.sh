@@ -14,7 +14,7 @@ rm -rf .claude .cursor .github qa
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
 
-# Update @since 2.10.0 placeholders (no-op when already applied on master).
+# Replace any leftover @since X.X.X placeholders (prefer yarn run update:since on the release branch before tagging).
 chmod +x ./bin/update-since-versions.sh && ./bin/update-since-versions.sh
 
 # Install WP-CLI

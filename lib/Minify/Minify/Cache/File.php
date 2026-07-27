@@ -33,6 +33,63 @@ class Minify_Cache_File {
 	}
 
 	/**
+	 * Resolve a cache id to a path under the cache root.
+	 *
+	 * @param string $id Cache id (filename or relative nested key).
+	 *
+	 * @return string|false Absolute path under `_path`, or false when rejected.
+	 *
+	 * @since 2.10.3
+	 */
+	private function _path_for_id($id)
+	{
+		if (!is_string($id) || '' === $id || false !== strpos($id, "\0")) {
+			return false;
+		}
+
+		$id_norm = str_replace('\\', '/', $id);
+		if (false !== strpos($id_norm, '..')) {
+			return false;
+		}
+
+		if ('/' === $id_norm[0] || preg_match('#^[a-zA-Z]:/#', $id_norm)) {
+			return false;
+		}
+
+		$base = realpath($this->_path);
+		if (false === $base) {
+			return false;
+		}
+
+		$base_norm   = rtrim(str_replace('\\', '/', $base), '/');
+		$base_prefix = $base_norm . '/';
+		$candidate   = $base_prefix . $id_norm;
+
+		$probe = $candidate;
+		while (true) {
+			$fs = realpath($probe);
+			if (false !== $fs) {
+				$resolved = str_replace('\\', '/', $fs);
+				if ($resolved !== $base_norm && 0 !== strpos($resolved, $base_prefix)) {
+					return false;
+				}
+				break;
+			}
+
+			$parent = dirname($probe);
+			if ($parent === $probe || '' === $parent) {
+				if (0 !== strpos(str_replace('\\', '/', $candidate), $base_prefix)) {
+					return false;
+				}
+				break;
+			}
+			$probe = $parent;
+		}
+
+		return $candidate;
+	}
+
+	/**
 	 * Write data to cache.
 	 *
 	 * @param string $id cache id (e.g. a filename)
@@ -43,7 +100,11 @@ class Minify_Cache_File {
 	 */
 	public function store($id, $data)
 	{
-		$path = $this->_path . '/' . $id;
+		$path = $this->_path_for_id($id);
+		if (false === $path) {
+			return false;
+		}
+
 		$flag = $this->_locking ? LOCK_EX : null;
 
 		if (is_file($path)) {
@@ -85,11 +146,16 @@ class Minify_Cache_File {
 	 *
 	 * @param string $id cache id (e.g. a filename)
 	 *
-	 * @return int size in bytes
+	 * @return int|false Size in bytes, or false when the cache id is rejected or unreadable.
 	 */
 	public function getSize($id)
 	{
-		return filesize($this->_path . '/' . $id);
+		$path = $this->_path_for_id($id);
+		if (false === $path) {
+			return false;
+		}
+
+		return filesize($path);
 	}
 
 	/**
@@ -103,7 +169,11 @@ class Minify_Cache_File {
 	 */
 	public function isValid($id, $srcMtime)
 	{
-		$file = $this->_path . '/' . $id;
+		$file = $this->_path_for_id($id);
+		if (false === $file) {
+			return false;
+		}
+
 		return (is_file($file) && (filemtime($file) >= $srcMtime));
 	}
 
@@ -114,7 +184,10 @@ class Minify_Cache_File {
 	 */
 	public function display($id)
 	{
-		$path = $this->_path . '/' . $id;
+		$path = $this->_path_for_id($id);
+		if (false === $path) {
+			return false;
+		}
 
 		$fp = @fopen($path, 'rb');
 
@@ -141,7 +214,10 @@ class Minify_Cache_File {
 	 */
 	public function fetch($id)
 	{
-		$path = $this->_path . '/' . $id;
+		$path = $this->_path_for_id($id);
+		if (false === $path) {
+			return false;
+		}
 
 		$data = @file_get_contents($path . '_meta');
 		if ( ! empty( $data ) ) {

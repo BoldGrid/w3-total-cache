@@ -1,5 +1,10 @@
 === W3 Total Cache Changelog ===
 
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
+
 = 2.10.2 =
 * Fix: Disk cache: Restore file-locking writes on PHP 8+
 * Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
