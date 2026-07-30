@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -157,6 +158,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'ustats_php_php_requests_pagecache_miss_level2',
 				'',
 				'miss_query_string'
+			);
+			$this->summary_item(
+				'php_php_requests_pagecache_miss_redirect',
+				esc_html__( 'Redirect', 'w3-total-cache' ),
+				false,
+				'ustats_php_php_requests_pagecache_miss_level2',
+				'',
+				'miss_redirect'
 			);
 			$this->summary_item(
 				'php_php_requests_pagecache_miss_third_party',

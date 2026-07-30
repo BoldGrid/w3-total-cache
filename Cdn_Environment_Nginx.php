@@ -20,7 +20,7 @@ class Cdn_Environment_Nginx {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor for initializing the CDN environment with the given configuration.
@@ -29,10 +29,10 @@ class Cdn_Environment_Nginx {
 	 * an array or object that contains various settings required to generate the appropriate Nginx rules and
 	 * configurations for the CDN environment.
 	 *
-	 * @param mixed $config The configuration object or array used to initialize the CDN environment.
+	 * @param mixed $w3tc_config The configuration object or array used to initialize the CDN environment.
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**
@@ -53,8 +53,8 @@ class Cdn_Environment_Nginx {
 			$rules = $rule . "\n";
 		}
 
-		if ( $this->c->get_boolean( 'cdn.cors_header' ) ) {
-			$rules_a   = Dispatcher::nginx_rules_for_browsercache_section( $this->c, 'other', true );
+		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
+			$rules_a   = Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, 'other', true );
 			$rules_a[] = 'add_header Access-Control-Allow-Origin "*";';
 
 			$rules .= "location ~ \\.(ttf|ttc|otf|eot|woff|woff2|font.css)\$ {\n    " . implode( "\n    ", $rules_a ) . "\n}\n";
@@ -79,7 +79,7 @@ class Cdn_Environment_Nginx {
 	 * @return string|null The canonical header rule, or null if the rule is not enabled.
 	 */
 	public function generate_canonical( $cdnftp = false ) {
-		if ( ! $this->c->get_boolean( 'cdn.canonical_header' ) ) {
+		if ( ! $this->w3tc_c->get_boolean( 'cdn.canonical_header' ) ) {
 			return null;
 		}
 
@@ -102,7 +102,7 @@ class Cdn_Environment_Nginx {
 	 */
 	public function w3tc_browsercache_rules_section_extensions( $extensions, $section ) {
 		// CDN adds own rules for those extensions.
-		if ( $this->c->get_boolean( 'cdn.cors_header' ) ) {
+		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
 			unset( $extensions['ttf|ttc'] );
 			unset( $extensions['otf'] );
 			unset( $extensions['eot'] );

@@ -16,7 +16,7 @@ class Minify_AutoCss {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Buffer
@@ -77,23 +77,23 @@ class Minify_AutoCss {
 	/**
 	 * Constructor method for initializing the Minify_AutoCss class.
 	 *
-	 * @param object $config          Configuration object containing settings.
+	 * @param object $w3tc_config          Configuration object containing settings.
 	 * @param string $buffer          The content buffer to process.
 	 * @param object $minify_helpers  Helper object for minification operations.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config, $buffer, $minify_helpers ) {
-		$this->config         = $config;
-		$this->debug          = $config->get_boolean( 'minify.debug' );
+	public function __construct( $w3tc_config, $buffer, $minify_helpers ) {
+		$this->w3tc_config    = $w3tc_config;
+		$this->debug          = $w3tc_config->get_boolean( 'minify.debug' );
 		$this->buffer         = $buffer;
 		$this->minify_helpers = $minify_helpers;
 
 		// ignored files.
-		$this->ignore_css_files = $this->config->get_array( 'minify.reject.files.css' );
+		$this->ignore_css_files = $this->w3tc_config->get_array( 'minify.reject.files.css' );
 		$this->ignore_css_files = array_map( array( '\W3TC\Util_Environment', 'normalize_file' ), $this->ignore_css_files );
 
-		$this->embed_to_html = $this->config->get_boolean( 'minify.css.embed' );
+		$this->embed_to_html = $this->w3tc_config->get_boolean( 'minify.css.embed' );
 	}
 
 	/**
@@ -122,8 +122,8 @@ class Minify_AutoCss {
 		$this->embed_pos       = null;
 		$this->files_to_minify = array();
 
-		$count = count( $style_tags );
-		for ( $n = 0; $n < $count; $n++ ) {
+		$w3tc_count = count( $style_tags );
+		for ( $n = 0; $n < $w3tc_count; $n++ ) {
 			$this->process_style_tag( $style_tags[ $n ], $n );
 		}
 
@@ -165,16 +165,16 @@ class Minify_AutoCss {
 
 		$style_href   = null;
 		$causes_flush = true;
-		if ( preg_match( '~<link\s+([^>]+)/?>(.*</link>)?~Uis', $style_tag, $match ) ) {
+		if ( preg_match( '~<link\s+([^>]+)/?>(.*</link>)?~Uis', $style_tag, $w3tc_match ) ) {
 			// all link tags dont cause automatic flush since its minified or its not style <link> tag.
 			$causes_flush = false;
 
 			$attrs        = array();
 			$attr_matches = null;
-			if ( preg_match_all( '~(\w+)=["\']([^"\']*)["\']~', $match[1], $attr_matches, PREG_SET_ORDER ) ) {
+			if ( preg_match_all( '~(\w+)=["\']([^"\']*)["\']~', $w3tc_match[1], $attr_matches, PREG_SET_ORDER ) ) {
 				foreach ( $attr_matches as $attr_match ) {
-					$name           = strtolower( $attr_match[1] );
-					$attrs[ $name ] = trim( $attr_match[2] );
+					$w3tc_name           = strtolower( $attr_match[1] );
+					$attrs[ $w3tc_name ] = trim( $attr_match[2] );
 				}
 			}
 
@@ -192,7 +192,7 @@ class Minify_AutoCss {
 		}
 
 		if ( $causes_flush ) {
-			$data = array(
+			$w3tc_data = array(
 				'style_tag_original' => $style_tag,
 				'style_tag_new'      => $style_tag,
 				'style_tag_number'   => $style_tag_number,
@@ -201,13 +201,13 @@ class Minify_AutoCss {
 				'buffer'             => $this->buffer,
 			);
 
-			$data         = apply_filters( 'w3tc_minify_css_do_local_style_minification', $data );
-			$this->buffer = $data['buffer'];
+			$w3tc_data    = apply_filters( 'w3tc_minify_css_do_local_style_minification', $w3tc_data );
+			$this->buffer = $w3tc_data['buffer'];
 
-			if ( $data['should_replace'] ) {
+			if ( $w3tc_data['should_replace'] ) {
 				$this->buffer = substr_replace(
 					$this->buffer,
-					$data['style_tag_new'],
+					$w3tc_data['style_tag_new'],
 					$tag_pos,
 					strlen( $style_tag )
 				);
@@ -231,30 +231,30 @@ class Minify_AutoCss {
 		}
 
 		$style_href = Util_Environment::url_relative_to_full( $style_href );
-		$file       = Util_Environment::url_to_docroot_filename( $style_href );
+		$w3tc_file  = Util_Environment::url_to_docroot_filename( $style_href );
 
-		$step1_result = $this->minify_helpers->is_file_for_minification( $style_href, $file );
+		$step1_result = $this->minify_helpers->is_file_for_minification( $style_href, $w3tc_file );
 		if ( 'url' === $step1_result ) {
-			$file = $style_href;
+			$w3tc_file = $style_href;
 		}
 
 		$step1 = ! empty( $step1_result );
-		$step2 = ! in_array( $file, $this->ignore_css_files, true );
+		$step2 = ! in_array( $w3tc_file, $this->ignore_css_files, true );
 
 		$do_tag_minification = $step1 && $step2;
-		$do_tag_minification = apply_filters( 'w3tc_minify_css_do_tag_minification', $do_tag_minification, $style_tag, $file );
+		$do_tag_minification = apply_filters( 'w3tc_minify_css_do_tag_minification', $do_tag_minification, $style_tag, $w3tc_file );
 
 		if ( ! $do_tag_minification ) {
 			if ( $this->debug ) {
 				Minify_Core::log(
-					'file ' . $file .
+					'file ' . $w3tc_file .
 					' didnt pass minification check:' .
 					' file_for_min: ' . ( $step1 ? 'true' : 'false' ) .
 					' ignore_css_files: ' . ( $step2 ? 'true' : 'false' )
 				);
 			}
 
-			$data = array(
+			$w3tc_data = array(
 				'style_tag_original' => $style_tag,
 				'style_tag_new'      => $style_tag,
 				'style_tag_number'   => $style_tag_number,
@@ -264,13 +264,13 @@ class Minify_AutoCss {
 				'buffer'             => $this->buffer,
 			);
 
-			$data         = apply_filters( 'w3tc_minify_css_do_excluded_tag_style_minification', $data );
-			$this->buffer = $data['buffer'];
+			$w3tc_data    = apply_filters( 'w3tc_minify_css_do_excluded_tag_style_minification', $w3tc_data );
+			$this->buffer = $w3tc_data['buffer'];
 
-			if ( $data['should_replace'] ) {
+			if ( $w3tc_data['should_replace'] ) {
 				$this->buffer = substr_replace(
 					$this->buffer,
-					$data['style_tag_new'],
+					$w3tc_data['style_tag_new'],
 					$tag_pos,
 					strlen( $style_tag )
 				);
@@ -281,7 +281,7 @@ class Minify_AutoCss {
 			return;
 		}
 
-		$this->debug_minified_urls[] = $file;
+		$this->debug_minified_urls[] = $w3tc_file;
 		$this->buffer                = substr_replace(
 			$this->buffer,
 			'',
@@ -294,9 +294,9 @@ class Minify_AutoCss {
 			$this->embed_pos = $tag_pos;
 		}
 
-		$this->files_to_minify[] = $file;
+		$this->files_to_minify[] = $w3tc_file;
 
-		if ( 'minify' === $this->config->get_string( 'minify.css.method' ) ) {
+		if ( 'minify' === $this->w3tc_config->get_string( 'minify.css.method' ) ) {
 			$this->flush_collected( '' );
 		}
 	}
@@ -322,36 +322,36 @@ class Minify_AutoCss {
 		$embed_pos = $this->embed_pos;
 
 		// build minified style tag.
-		$data = array(
+		$w3tc_data = array(
 			'files_to_minify' => $this->files_to_minify,
 			'embed_pos'       => $embed_pos,
 			'buffer'          => $this->buffer,
 			'embed_to_html'   => $this->embed_to_html,
 		);
 
-		$data         = apply_filters( 'w3tc_minify_css_step', $data );
-		$this->buffer = $data['buffer'];
+		$w3tc_data    = apply_filters( 'w3tc_minify_css_step', $w3tc_data );
+		$this->buffer = $w3tc_data['buffer'];
 
-		if ( ! empty( $data['files_to_minify'] ) ) {
+		if ( ! empty( $w3tc_data['files_to_minify'] ) ) {
 			$style_data = $this->minify_helpers->generate_css_style_tag(
-				$data['files_to_minify'],
-				$data['embed_to_html']
+				$w3tc_data['files_to_minify'],
+				$w3tc_data['embed_to_html']
 			);
 
-			$data['style_to_embed_url']  = $style_data['url'];
-			$data['style_to_embed_body'] = $style_data['body'];
-			$data                        = apply_filters( 'w3tc_minify_css_step_style_to_embed', $data );
-			$this->buffer                = $data['buffer'];
+			$w3tc_data['style_to_embed_url']  = $style_data['url'];
+			$w3tc_data['style_to_embed_body'] = $style_data['body'];
+			$w3tc_data                        = apply_filters( 'w3tc_minify_css_step_style_to_embed', $w3tc_data );
+			$this->buffer                     = $w3tc_data['buffer'];
 
-			if ( $this->config->getf_boolean( 'minify.css.http2push' ) ) {
-				$this->minify_helpers->http2_header_add( $data['style_to_embed_url'], 'style' );
+			if ( $this->w3tc_config->getf_boolean( 'minify.css.http2push' ) ) {
+				$this->minify_helpers->http2_header_add( $w3tc_data['style_to_embed_url'], 'style' );
 			}
 
 			// replace.
 			$this->buffer = substr_replace(
 				$this->buffer,
-				$data['style_to_embed_body'],
-				$data['embed_pos'],
+				$w3tc_data['style_to_embed_body'],
+				$w3tc_data['embed_pos'],
 				0
 			);
 		}

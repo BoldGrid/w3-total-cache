@@ -27,27 +27,27 @@ class Extension_WordPressSeo_Plugin_Admin {
 	/**
 	 * Removes a setting link for the WordPress SEO extension.
 	 *
-	 * @param array $links Array of current settings links.
+	 * @param array $w3tc_links Array of current settings links.
 	 *
 	 * @return array Modified array of settings links.
 	 */
-	public function remove_settings( $links ) {
-		array_pop( $links );
-		return $links;
+	public function remove_settings( $w3tc_links ) {
+		array_pop( $w3tc_links );
+		return $w3tc_links;
 	}
 
 	/**
 	 * Retrieves extension details for WordPress SEO.
 	 *
 	 * @param array  $extensions Array of existing extensions.
-	 * @param object $config     Configuration object.
+	 * @param object $w3tc_config     Configuration object.
 	 *
 	 * @return array Modified array of extensions.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
-		$message = array();
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
+		$w3tc_message = array();
 		if ( ! self::criteria_match() ) {
-			$message[] = 'Optimizes "Yoast SEO" plugin, which is not active';
+			$w3tc_message[] = 'Optimizes "Yoast SEO" plugin, which is not active';
 		}
 
 		$extensions['wordpress-seo'] = array(
@@ -60,7 +60,7 @@ class Extension_WordPressSeo_Plugin_Admin {
 			'settings_exists' => true,
 			'version'         => '0.1',
 			'enabled'         => self::criteria_match(),
-			'requirements'    => implode( ', ', $message ),
+			'requirements'    => implode( ', ', $w3tc_message ),
 			'path'            => 'w3-total-cache/Extension_WordPressSeo_Plugin.php',
 		);
 
@@ -70,21 +70,21 @@ class Extension_WordPressSeo_Plugin_Admin {
 	/**
 	 * Adds hooks related to the WordPress SEO extension.
 	 *
-	 * @param array $hooks Array of existing hooks.
+	 * @param array $w3tc_hooks Array of existing hooks.
 	 *
 	 * @return array Modified array of hooks.
 	 */
-	public static function w3tc_extensions_hooks( $hooks ) {
+	public static function w3tc_extensions_hooks( $w3tc_hooks ) {
 		if ( ! self::show_notice() ) {
-			return $hooks;
+			return $w3tc_hooks;
 		}
 
-		if ( ! isset( $hooks['filters']['w3tc_notes'] ) ) {
-			$hooks['filters']['w3tc_notes'] = array();
+		if ( ! isset( $w3tc_hooks['filters']['w3tc_notes'] ) ) {
+			$w3tc_hooks['filters']['w3tc_notes'] = array();
 		}
 
-		$hooks['filters']['w3tc_notes'][] = 'w3tc_notes_wordpress_seo';
-		return $hooks;
+		$w3tc_hooks['filters']['w3tc_notes'][] = 'w3tc_notes_wordpress_seo';
+		return $w3tc_hooks;
 	}
 
 	/**
@@ -93,8 +93,8 @@ class Extension_WordPressSeo_Plugin_Admin {
 	 * @return bool True if the notice should be shown, false otherwise.
 	 */
 	private static function show_notice() {
-		$config = Dispatcher::config();
-		if ( $config->is_extension_active( 'wordpress-seo' ) ) {
+		$w3tc_config = Dispatcher::config();
+		if ( $w3tc_config->is_extension_active( 'wordpress-seo' ) ) {
 			return false;
 		}
 
@@ -113,18 +113,18 @@ class Extension_WordPressSeo_Plugin_Admin {
 	/**
 	 * Adds a note about activating the WordPress SEO extension for W3 Total Cache.
 	 *
-	 * @param array $notes Array of current notes.
+	 * @param array $w3tc_notes Array of current notes.
 	 *
 	 * @return array Modified array of notes.
 	 */
-	public static function w3tc_notes_wordpress_seo( $notes ) {
+	public static function w3tc_notes_wordpress_seo( $w3tc_notes ) {
 		if ( ! self::show_notice() ) {
-			return $notes;
+			return $w3tc_notes;
 		}
 
 		$extension_id = 'wordpress-seo';
 
-		$notes[ $extension_id ] = sprintf(
+		$w3tc_notes[ $extension_id ] = sprintf(
 			// Translators: 1 opening HTML link to extensions page, 2 closing HTML link
 			// Translators: 3 opening HTML link to activate extensionlink, 4 button link.
 			__(
@@ -146,7 +146,7 @@ class Extension_WordPressSeo_Plugin_Admin {
 			)
 		);
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -167,10 +167,10 @@ class Extension_WordPressSeo_Plugin_Admin {
 	 */
 	public function activate() {
 		try {
-			$config = Dispatcher::config();
-			$config->set( 'pgcache.prime.enabled', true );
-			$config->set( 'pgcache.prime.sitemap', '/sitemap_index.xml' );
-			$config->save();
+			$w3tc_config = Dispatcher::config();
+			$w3tc_config->set( 'pgcache.prime.enabled', true );
+			$w3tc_config->set( 'pgcache.prime.sitemap', '/sitemap_index.xml' );
+			$w3tc_config->save();
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}
 	}
@@ -184,9 +184,9 @@ class Extension_WordPressSeo_Plugin_Admin {
 	 */
 	public function deactivate() {
 		try {
-			$config = Dispatcher::config();
-			$config->set( 'pgcache.prime.enabled', false );
-			$config->save();
+			$w3tc_config = Dispatcher::config();
+			$w3tc_config->set( 'pgcache.prime.enabled', false );
+			$w3tc_config->save();
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}
 	}

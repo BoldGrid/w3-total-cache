@@ -8,6 +8,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
@@ -30,7 +31,7 @@ defined( 'W3TC' ) || die();
 		</div>
 		<div class="w3tc_bunnycdn_tools">
 			<ul class="w3tc_bunnycdn_ul">
-				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
+				<li><a class="button" href="<?php echo \esc_url( Util_Nonce::admin_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc_flush_cdn' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
 			</ul>
 			<p>
 				<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_CDN_URL ); ?>"><?php esc_html_e( 'Click here', 'w3-total-cache' ); ?></a>
@@ -51,7 +52,7 @@ defined( 'W3TC' ) || die();
 			);
 			?>
 		</p>
-		<a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' ) ); ?>">
+		<a class="button" href="<?php echo \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ); ?>">
 			<?php \esc_html_e( 'Premium Services', 'w3-total-cache' ); ?>
 		</a>
 		</div>

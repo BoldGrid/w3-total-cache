@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: s3_compatible.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -46,8 +53,17 @@ Util_Ui::config_item(
 <tr>
 	<th><label for="cdn_s3_secret"><?php esc_html_e( 'Secret key:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_s3_secret" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__s3__secret" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.s3.secret' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_s3_secret',
+				'name'        => 'cdn__s3__secret',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.s3.secret' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
@@ -115,7 +131,7 @@ Util_Ui::config_item(
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cnames = $this->_config->get_array( 'cdn.s3.cname' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.s3.cname' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -149,6 +165,6 @@ Util_Ui::config_item(
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 's3_compatible', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test S3 upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 's3_compatible', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test S3 upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

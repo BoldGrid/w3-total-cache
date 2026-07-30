@@ -75,31 +75,31 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	/**
 	 * Constructor to initialize the Google Drive CDN engine.
 	 *
-	 * @param array $config {
+	 * @param array $w3tc_config {
 	 *     Configuration options for the Google Drive CDN engine.
 	 *
 	 *     @type string   $client_id                 The client ID for the Google Drive API.
-	 *     @type string   $refresh_token             The refresh token for authentication.
+	 *     @type string   $w3tc_refresh_token             The refresh token for authentication.
 	 *     @type string   $root_folder_id            The root folder ID for the Google Drive.
 	 *     @type string   $root_url                  The root URL for the Google Drive CDN.
 	 *     @type callable $new_access_token_callback Callback function for new access token.
-	 *     @type string   $access_token              The access token for authentication.
+	 *     @type string   $w3tc_access_token              The access token for authentication.
 	 * }
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
 
-		$this->_client_id                 = $config['client_id'];
-		$this->_refresh_token             = $config['refresh_token'];
-		$this->_root_folder_id            = $config['root_folder_id'];
-		$this->_root_url                  = rtrim( $config['root_url'], '/' ) . '/';
-		$this->_new_access_token_callback = $config['new_access_token_callback'];
+		$this->_client_id                 = $w3tc_config['client_id'];
+		$this->_refresh_token             = $w3tc_config['refresh_token'];
+		$this->_root_folder_id            = $w3tc_config['root_folder_id'];
+		$this->_root_url                  = rtrim( $w3tc_config['root_url'], '/' ) . '/';
+		$this->_new_access_token_callback = $w3tc_config['new_access_token_callback'];
 
 		global $wpdb;
 		$this->_tablename_pathmap = $wpdb->base_prefix . W3TC_CDN_TABLE_PATHMAP;
 
 		try {
-			$this->_init_service( $config['access_token'] );
+			$this->_init_service( $w3tc_config['access_token'] );
 		} catch ( \Exception $e ) {
 			$this->_service = null;
 		}
@@ -108,18 +108,18 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	/**
 	 * Initializes the Google Drive service with the provided access token.
 	 *
-	 * @param string $access_token The access token used to authenticate with the Google Drive API.
+	 * @param string $w3tc_access_token The access token used to authenticate with the Google Drive API.
 	 *
 	 * @throws \Exception If the client ID or access token is missing, or if the service initialization fails.
 	 */
-	private function _init_service( $access_token ) {
-		if ( empty( $this->_client_id ) || empty( $access_token ) ) {
+	private function _init_service( $w3tc_access_token ) {
+		if ( empty( $this->_client_id ) || empty( $w3tc_access_token ) ) {
 			throw new \Exception( \esc_html__( 'Service not configured.', 'w3-total-cache' ) );
 		}
 
 		$client = new \W3TCG_Google_Client();
 		$client->setClientId( $this->_client_id );
-		$client->setAccessToken( $access_token );
+		$client->setAccessToken( $w3tc_access_token );
 		$this->_service = new \W3TCG_Google_Service_Drive( $client );
 	}
 
@@ -130,7 +130,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 * @throws \Exception If the refresh request fails or returns an error.
 	 */
 	private function _refresh_token() {
-		$result = wp_remote_post(
+		$w3tc_result = wp_remote_post(
 			W3TC_GOOGLE_DRIVE_AUTHORIZE_URL,
 			array(
 				'body' => array(
@@ -140,15 +140,15 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 			)
 		);
 
-		if ( is_wp_error( $result ) ) {
-			throw new \Exception( esc_html( $result ) );
-		} elseif ( 200 !== (int) $result['response']['code'] ) {
-			throw new \Exception( wp_kses_post( $result['body'] ) );
+		if ( is_wp_error( $w3tc_result ) ) {
+			throw new \Exception( esc_html( $w3tc_result ) );
+		} elseif ( 200 !== (int) $w3tc_result['response']['code'] ) {
+			throw new \Exception( wp_kses_post( $w3tc_result['body'] ) );
 		}
 
-		$access_token = $result['body'];
-		call_user_func( $this->_new_access_token_callback, $access_token );
-		$this->_init_service( $access_token );
+		$w3tc_access_token = $w3tc_result['body'];
+		call_user_func( $this->_new_access_token_callback, $w3tc_access_token );
+		$this->_init_service( $w3tc_access_token );
 	}
 
 	/**
@@ -167,22 +167,22 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		}
 
 		$allow_refresh_token = true;
-		$result              = true;
+		$w3tc_result         = true;
 
 		$files_chunks = array_chunk( $files, 20 );
 		foreach ( $files_chunks as $files_chunk ) {
-			$r = $this->_upload_chunk(
+			$w3tc_r = $this->_upload_chunk(
 				$files_chunk,
 				$results,
 				$force_rewrite,
 				$timeout_time,
 				$allow_refresh_token
 			);
-			if ( 'refresh_required' === $r ) {
+			if ( 'refresh_required' === $w3tc_r ) {
 				$allow_refresh_token = false;
 				$this->_refresh_token();
 
-				$r = $this->_upload_chunk(
+				$w3tc_r = $this->_upload_chunk(
 					$files_chunk,
 					$results,
 					$force_rewrite,
@@ -191,34 +191,34 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 				);
 			}
 
-			if ( 'success' !== $r ) {
-				$result = false;
+			if ( 'success' !== $w3tc_r ) {
+				$w3tc_result = false;
 			}
 
-			if ( 'timeout' === $r ) {
+			if ( 'timeout' === $w3tc_r ) {
 				return 'timeout';
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
 	 * Converts file properties to a Google Drive path.
 	 *
-	 * @param object $file The file object containing properties to convert.
+	 * @param object $w3tc_file The file object containing properties to convert.
 	 *
 	 * @return string|null The constructed path or null if no valid path properties are found.
 	 */
-	private function _properties_to_path( $file ) {
+	private function _properties_to_path( $w3tc_file ) {
 		$path_pieces = array();
-		foreach ( $file->properties as $p ) {
-			$k = ( 'path' === $p->key ) ? 'path1' : $p->key;
+		foreach ( $w3tc_file->properties as $w3tc_p ) {
+			$k = ( 'path' === $w3tc_p->key ) ? 'path1' : $w3tc_p->key;
 			if ( ! preg_match( '/^path[0-9]+$/', $k ) ) {
 					continue;
 			}
 
-			$path_pieces[ $k ] = $p->value;
+			$path_pieces[ $k ] = $w3tc_p->value;
 		}
 
 		if ( 0 === count( $path_pieces ) ) {
@@ -243,15 +243,15 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	private function _path_to_properties( $path ) {
 		$chunks     = str_split( $path, 55 );
 		$properties = array();
-		$i          = 1;
+		$w3tc_i     = 1;
 
 		foreach ( $chunks as $chunk ) {
-			$p            = new \W3TCG_Google_Service_Drive_Property();
-			$p->key       = 'path' . $i;
-			$p->value     = $chunk;
-			$properties[] = $p;
+			$w3tc_p        = new \W3TCG_Google_Service_Drive_Property();
+			$w3tc_p->key   = 'path' . $w3tc_i;
+			$w3tc_p->value = $chunk;
+			$properties[]  = $w3tc_p;
 
-			++$i;
+			++$w3tc_i;
 		}
 
 		return $properties;
@@ -271,9 +271,9 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 * @throws \W3TCG_Google_Auth_Exception If the file update/insert fails.
 	 */
 	private function _upload_chunk( $files, &$results, $force_rewrite, $timeout_time, $allow_refresh_token ) {
-		list( $result, $listed_files ) = $this->list_files_chunk( $files, $allow_refresh_token, $timeout_time );
-		if ( 'success' !== $result ) {
-			return $result;
+		list( $w3tc_result, $listed_files ) = $this->list_files_chunk( $files, $allow_refresh_token, $timeout_time );
+		if ( 'success' !== $w3tc_result ) {
+			return $w3tc_result;
 		}
 
 		$files_by_path = array();
@@ -316,19 +316,19 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 
 				$mtime = @filemtime( $local_path );
 
-				$p            = new \W3TCG_Google_Service_Drive_Property();
-				$p->key       = 'mtime';
-				$p->value     = $mtime;
-				$properties[] = $p;
+				$w3tc_p        = new \W3TCG_Google_Service_Drive_Property();
+				$w3tc_p->key   = 'mtime';
+				$w3tc_p->value = $mtime;
+				$properties[]  = $w3tc_p;
 
 				if ( ! $force_rewrite && isset( $files_by_path[ $remote_path ] ) ) {
 					$existing_file  = $files_by_path[ $remote_path ];
 					$existing_size  = $existing_file->fileSize; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$existing_mtime = 0;
 					if ( is_array( $existing_file->properties ) ) {
-						foreach ( $existing_file->properties as $p ) {
-							if ( 'mtime' === $p->key ) {
-								$existing_mtime = $p->value;
+						foreach ( $existing_file->properties as $w3tc_p ) {
+							if ( 'mtime' === $w3tc_p->key ) {
+								$existing_mtime = $w3tc_p->value;
 							}
 						}
 					}
@@ -349,13 +349,13 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 				$content = file_get_contents( $local_path );
 			}
 
-			$file = new \W3TCG_Google_Service_Drive_DriveFile();
-			$file->setTitle( $title );
-			$file->setProperties( $properties );
+			$w3tc_file = new \W3TCG_Google_Service_Drive_DriveFile();
+			$w3tc_file->setTitle( $title );
+			$w3tc_file->setProperties( $properties );
 
 			$parent = new \W3TCG_Google_Service_Drive_ParentReference();
 			$parent->setId( $parent_id );
-			$file->setParents( array( $parent ) );
+			$w3tc_file->setParents( array( $parent ) );
 
 			try {
 				try {
@@ -365,7 +365,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 
 						$created_file = $this->_service->files->update(
 							$existing_file->id,
-							$file,
+							$w3tc_file,
 							array(
 								'data'       => $content,
 								'uploadType' => 'media',
@@ -373,7 +373,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 						);
 					} else {
 						$created_file = $this->_service->files->insert(
-							$file,
+							$w3tc_file,
 							array(
 								'data'       => $content,
 								'uploadType' => 'media',
@@ -412,31 +412,31 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 
 				delete_transient( 'w3tc_cdn_google_drive_folder_ids' );
 
-				$results[] = $this->_get_result(
+				$results[]   = $this->_get_result(
 					$file_descriptor['local_path'],
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					'Failed to upload file ' . $remote_path . ' ' . $details,
 					$file_descriptor
 				);
-				$result    = 'with_errors';
+				$w3tc_result = 'with_errors';
 				continue;
 			} catch ( \Exception $e ) {
 				delete_transient( 'w3tc_cdn_google_drive_folder_ids' );
 
-				$results[] = $this->_get_result(
+				$results[]   = $this->_get_result(
 					$file_descriptor['local_path'],
 					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					'Failed to upload file ' . $remote_path,
 					$file_descriptor
 				);
-				$result    = 'with_errors';
+				$w3tc_result = 'with_errors';
 				continue;
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -452,24 +452,24 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 */
 	public function delete( $files, &$results ) {
 		$allow_refresh_token = true;
-		$result              = true;
+		$w3tc_result         = true;
 
 		$files_chunks = array_chunk( $files, 20 );
 		foreach ( $files_chunks as $files_chunk ) {
-			$r = $this->_delete_chunk( $files_chunk, $results, $allow_refresh_token );
-			if ( 'refresh_required' === $r ) {
+			$w3tc_r = $this->_delete_chunk( $files_chunk, $results, $allow_refresh_token );
+			if ( 'refresh_required' === $w3tc_r ) {
 				$allow_refresh_token = false;
 				$this->_refresh_token();
 
-				$r = $this->_delete_chunk( $files_chunk, $results, $allow_refresh_token );
+				$w3tc_r = $this->_delete_chunk( $files_chunk, $results, $allow_refresh_token );
 			}
 
-			if ( 'success' !== $r ) {
-				$result = false;
+			if ( 'success' !== $w3tc_r ) {
+				$w3tc_result = false;
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -484,34 +484,34 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 * @return string One of the following: 'success', 'with_errors', or 'refresh_required'.
 	 */
 	private function _delete_chunk( $files, &$results, $allow_refresh_token ) {
-		list( $result, $listed_files ) = $this->list_files_chunk( $files, $allow_refresh_token );
-		if ( 'success' !== $result ) {
-			return $result;
+		list( $w3tc_result, $listed_files ) = $this->list_files_chunk( $files, $allow_refresh_token );
+		if ( 'success' !== $w3tc_result ) {
+			return $w3tc_result;
 		}
 
-		foreach ( $listed_files->items as $item ) {
+		foreach ( $listed_files->items as $w3tc_item ) {
 			try {
-				$this->_service->files->delete( $item->id );
+				$this->_service->files->delete( $w3tc_item->id );
 
 				$results[] = $this->_get_result(
-					$item->title,
-					$item->title,
+					$w3tc_item->title,
+					$w3tc_item->title,
 					W3TC_CDN_RESULT_OK,
 					'OK'
 				);
 			} catch ( \Exception $e ) {
-				$results[] = $this->_get_result(
+				$results[]   = $this->_get_result(
 					'',
 					'',
 					W3TC_CDN_RESULT_ERROR,
-					'Failed to delete file ' . $item->title
+					'Failed to delete file ' . $w3tc_item->title
 				);
-				$result    = 'with_errors';
+				$w3tc_result = 'with_errors';
 				continue;
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -630,23 +630,30 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 * This method checks if the folder exists, creates it if necessary, and resolves its ID.
 	 *
 	 * @param string $root_id The parent folder ID.
-	 * @param string $folder  The folder name.
+	 * @param string $w3tc_folder  The folder name.
 	 *
 	 * @return string The resolved folder ID.
 	 */
-	private function parent_id_resolve_step( $root_id, $folder ) {
+	private function parent_id_resolve_step( $root_id, $w3tc_folder ) {
 		// decode top folder.
 		$ids_string = get_transient( 'w3tc_cdn_google_drive_folder_ids' );
-		$ids        = @unserialize( $ids_string );
+		$ids        = @unserialize( $ids_string, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-		if ( isset( $ids[ $root_id . '_' . $folder ] ) ) {
-			return $ids[ $root_id . '_' . $folder ];
+		// `allowed_classes => false` substitutes `__PHP_Incomplete_Class` for any
+		// serialized object payload; array-offset access on that would fatal.
+		// Normalize to an empty array up-front so every later access is safe.
+		if ( ! is_array( $ids ) ) {
+			$ids = array();
+		}
+
+		if ( isset( $ids[ $root_id . '_' . $w3tc_folder ] ) ) {
+			return $ids[ $root_id . '_' . $w3tc_folder ];
 		}
 
 		// find folder.
 		$items = $this->_service->files->listFiles(
 			array(
-				'q' => '"' . $root_id . '" in parents and title = "' . $folder . '" and mimeType = "application/vnd.google-apps.folder" and trashed = false',
+				'q' => '"' . $root_id . '" in parents and title = "' . $w3tc_folder . '" and mimeType = "application/vnd.google-apps.folder" and trashed = false',
 			)
 		);
 
@@ -654,18 +661,18 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 			$id = $items[0]->id;
 		} else {
 			// create folder.
-			$file = new \W3TCG_Google_Service_Drive_DriveFile(
+			$w3tc_file = new \W3TCG_Google_Service_Drive_DriveFile(
 				array(
-					'title'    => $folder,
+					'title'    => $w3tc_folder,
 					'mimeType' => 'application/vnd.google-apps.folder',
 				)
 			);
 
 			$parent = new \W3TCG_Google_Service_Drive_ParentReference();
 			$parent->setId( $root_id );
-			$file->setParents( array( $parent ) );
+			$w3tc_file->setParents( array( $parent ) );
 
-			$created_file = $this->_service->files->insert( $file );
+			$created_file = $this->_service->files->insert( $w3tc_file );
 			$id           = $created_file->id;
 
 			$permission = new \W3TCG_Google_Service_Drive_Permission();
@@ -676,11 +683,8 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 			$this->_service->permissions->insert( $id, $permission );
 		}
 
-		if ( ! is_array( $ids ) ) {
-			$ids = array();
-		}
-
-		$ids[ $root_id . '_' . $folder ] = $id;
+		// `$ids` was normalized to an array immediately after unserialize() above.
+		$ids[ $root_id . '_' . $w3tc_folder ] = $id;
 		set_transient( 'w3tc_cdn_google_drive_folder_ids', serialize( $ids ) );
 
 		return $id;
@@ -698,19 +702,19 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	public function test( &$error ) {
 		$test_content = '' . wp_rand();
 
-		$file    = array(
+		$w3tc_file = array(
 			'local_path'  => 'n/a',
 			'remote_path' => '/folder/test.txt',
 			'content'     => $test_content,
 		);
-		$results = array();
+		$results   = array();
 
-		if ( ! $this->upload( array( $file ), $results ) ) {
-			$error = sprintf( 'Unable to upload file %s', $file['remote_path'] );
+		if ( ! $this->upload( array( $w3tc_file ), $results ) ) {
+			$error = sprintf( 'Unable to upload file %s', $w3tc_file['remote_path'] );
 			return false;
 		}
-		if ( ! $this->delete( array( $file ), $results ) ) {
-			$error = sprintf( 'Unable to delete file %s', $file['remote_path'] );
+		if ( ! $this->delete( array( $w3tc_file ), $results ) ) {
+			$error = sprintf( 'Unable to delete file %s', $w3tc_file['remote_path'] );
 			return false;
 		}
 
@@ -806,9 +810,9 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		$props = $this->_path_to_properties( $path );
 		$q     = 'trashed = false';
 		foreach ( $props as $prop ) {
-				$key   = $prop->key;
-				$value = str_replace( "'", "\\'", $prop->value );
-				$q    .= " and properties has { key='$key' and value='$value' and visibility='PRIVATE' }";
+				$w3tc_key   = $prop->key;
+				$w3tc_value = str_replace( "'", "\\'", $prop->value );
+				$q         .= " and properties has { key='$w3tc_key' and value='$w3tc_value' and visibility='PRIVATE' }";
 		}
 
 		try {

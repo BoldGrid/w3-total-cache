@@ -124,14 +124,14 @@ class Util_Content {
 	 * @return array
 	 */
 	public static function endpoint_to_host_port( $server, $port_default = 0 ) {
-		$p = strrpos( $server, ':' );
-		if ( 'unix:' === substr( $server, 0, 5 ) || false === $p ) {
+		$w3tc_p = strrpos( $server, ':' );
+		if ( 'unix:' === substr( $server, 0, 5 ) || false === $w3tc_p ) {
 			return array( trim( $server ), $port_default );
 		}
 
 		return array(
-			trim( substr( $server, 0, $p ) ),
-			(int) substr( $server, $p + 1 ),
+			trim( substr( $server, 0, $w3tc_p ) ),
+			(int) substr( $server, $w3tc_p + 1 ),
 		);
 	}
 }

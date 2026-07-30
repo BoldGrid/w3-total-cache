@@ -37,9 +37,9 @@ class Cdnfsd_Plugin {
 	 * @return void
 	 */
 	public function run() {
-		$engine = $this->_config->get_string( 'cdnfsd.engine' );
+		$w3tc_engine = $this->_config->get_string( 'cdnfsd.engine' );
 
-		if ( ! Util_Environment::is_w3tc_pro( $this->_config ) || empty( $engine ) ) {
+		if ( ! Util_Environment::is_w3tc_pro( $this->_config ) || empty( $w3tc_engine ) ) {
 			return;
 		}
 
@@ -63,8 +63,8 @@ class Cdnfsd_Plugin {
 	 * @return array Modified array of strings with the CDN footer comment.
 	 */
 	public function w3tc_footer_comment( $strings ) {
-		$config = Dispatcher::config();
-		$via    = $config->get_string( 'cdnfsd.engine' );
+		$w3tc_config = Dispatcher::config();
+		$via         = $w3tc_config->get_string( 'cdnfsd.engine' );
 
 		$strings[] = sprintf(
 			// Translators: 1 via value.

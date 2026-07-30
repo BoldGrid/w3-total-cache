@@ -21,9 +21,9 @@ class Util_Rule {
 	 */
 	public static function is_permalink_rules() {
 		if ( ( Util_Environment::is_apache() || Util_Environment::is_litespeed() ) && ! Util_Environment::is_wpmu() ) {
-			$path = self::get_pgcache_rules_core_path();
-			$data = @file_get_contents( $path );
-			return $data && strstr( $data, W3TC_MARKER_BEGIN_WORDPRESS ) !== false;
+			$path      = self::get_pgcache_rules_core_path();
+			$w3tc_data = @file_get_contents( $path );
+			return $w3tc_data && strstr( $w3tc_data, W3TC_MARKER_BEGIN_WORDPRESS ) !== false;
 		}
 
 		return true;
@@ -32,16 +32,121 @@ class Util_Rule {
 	/**
 	 * Removes empty elements
 	 *
-	 * @param array $a Input array.
+	 * @param array $w3tc_a Input array.
 	 *
 	 * @return void
 	 */
-	public static function array_trim( &$a ) {
-		for ( $n = count( $a ) - 1; $n >= 0; $n-- ) {
-			if ( empty( $a[ $n ] ) ) {
-				array_splice( $a, $n, 1 );
+	public static function array_trim( &$w3tc_a ) {
+		for ( $n = count( $w3tc_a ) - 1; $n >= 0; $n-- ) {
+			if ( empty( $w3tc_a[ $n ] ) ) {
+				array_splice( $w3tc_a, $n, 1 );
 			}
 		}
+	}
+
+	/**
+	 * Strips characters that would terminate or escape an Apache /
+	 * Nginx directive line when an admin-supplied config value is
+	 * concatenated into `.htaccess` or `nginx.conf`.
+	 *
+	 * The W3TC `*_Environment.php` writers compose server-config blocks
+	 * by string concatenation:
+	 *
+	 *     $rules .= '    Header set Content-Security-Policy "' . $csp . "\"\n";
+	 *
+	 * If `$csp` contains a literal newline, the generated block looks
+	 * like
+	 *
+	 *     Header set Content-Security-Policy "default-src 'self';
+	 *     SetHandler application/x-httpd-php"
+	 *
+	 * — the newline ends the `Header set` directive and the next line
+	 * is parsed by Apache as a fresh directive whose body is supplied
+	 * by the config value.
+	 *
+	 * The strip set:
+	 *
+	 *  - `\r\n`     — terminates the current directive in both Apache
+	 *                 and Nginx.
+	 *  - `\x00`     — NUL byte; truncates the rest of the string in
+	 *                 some downstream consumers and confuses log
+	 *                 readers.
+	 *  - `<` `>`    — Apache uses `<Directive>...</Directive>` for
+	 *                 sectional containers; an unexpected `<Files>` /
+	 *                 `<Location>` block could change the file-handler
+	 *                 for a glob supplied via the config value.
+	 *  - `"`        — every emitter wraps the value in a double-quoted
+	 *                 directive argument (Apache `Header set X "$v"`,
+	 *                 Nginx `add_header X "$v";`). A literal `"` would
+	 *                 close the quoted string and let subsequent bytes
+	 *                 become a fresh directive token.
+	 *
+	 * Note: `;` is preserved deliberately. The only legitimate users
+	 * of the helper are CSP / referrer-policy / HSTS-style values, all
+	 * of which use `;` as an in-directive separator AND only land in
+	 * quoted-string contexts (Apache `Header set`, Nginx `add_header`,
+	 * or regex alternations like `RewriteCond ... !(<v>)`) where `;`
+	 * carries no directive-terminating semantics.
+	 *
+	 * Returns `''` for non-strings so the helper is safe to call on
+	 * an `isset()`-result value without an extra type check at the
+	 * caller.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param mixed $w3tc_value Raw config value about to be written into a
+	 *                     server-config file.
+	 *
+	 * @return string Sanitised value safe to embed inside a quoted
+	 *                directive argument.
+	 */
+	public static function sanitize_directive_value( $w3tc_value ) {
+		if ( ! \is_string( $w3tc_value ) ) {
+			return '';
+		}
+
+		return \preg_replace( '/[\r\n\x00<>"]/', '', $w3tc_value );
+	}
+
+	/**
+	 * Validates an admin-supplied custom server-rules file path
+	 * (`config.path`).
+	 *
+	 * `config.path` is a free-text general-settings field ("Nginx server
+	 * configuration file path") that lets operators point W3TC at the
+	 * nginx / LiteSpeed config file its rule block is written into — which
+	 * legitimately lives outside the document root (e.g.
+	 * `/etc/nginx/conf.d/w3tc.conf`). Because the value is written to disk
+	 * verbatim by the environment writers, an unconstrained value is an
+	 * arbitrary-file-write primitive (drop a `.php` payload into the
+	 * docroot, or an extensionless write to `/etc/cron.d`, `/etc/sudoers`,
+	 * a php-fpm pool include, …).
+	 *
+	 * The rules file is, by definition, a server-config file, so we require
+	 * a `.conf` extension and reject null bytes and `..` traversal. That
+	 * preserves every legitimate use (the built-in defaults `nginx.conf` /
+	 * `litespeed.conf` and any real `*.conf` include path) while blocking
+	 * the documented write-to-RCE targets. Invalid values fall back to the
+	 * safe in-site-root default.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $path Admin-configured path.
+	 *
+	 * @return bool True when the path is an acceptable rules-file target.
+	 */
+	private static function is_valid_custom_rules_path( $path ) {
+		if ( ! is_string( $path ) || '' === $path || false !== strpos( $path, "\0" ) ) {
+			return false;
+		}
+
+		$normalized = Util_Environment::normalize_path( $path );
+
+		if ( preg_match( '~(?:^|/)\.\.(?:/|$)~', $normalized ) ) {
+			return false;
+		}
+
+		return (bool) preg_match( '~\.conf$~i', $normalized );
 	}
 
 	/**
@@ -50,11 +155,11 @@ class Util_Rule {
 	 * @return string
 	 */
 	public static function get_nginx_rules_path() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$path = $config->get_string( 'config.path' );
+		$path = $w3tc_config->get_string( 'config.path' );
 
-		if ( ! $path ) {
+		if ( ! self::is_valid_custom_rules_path( $path ) ) {
 			$path = Util_Environment::site_path() . 'nginx.conf';
 		}
 
@@ -67,11 +172,11 @@ class Util_Rule {
 	 * @return string
 	 */
 	public static function get_litespeed_rules_path() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$path = $config->get_string( 'config.path' );
+		$path = $w3tc_config->get_string( 'config.path' );
 
-		if ( ! $path ) {
+		if ( ! self::is_valid_custom_rules_path( $path ) ) {
 			$path = Util_Environment::site_path() . 'litespeed.conf';
 		}
 
@@ -247,9 +352,9 @@ class Util_Rule {
 	 * @return string
 	 */
 	public static function erase_rules( $rules, $start, $end ) {
-		$r = '~' . Util_Environment::preg_quote( $start ) . "\n.*?" . Util_Environment::preg_quote( $end ) . "\n*~s";
+		$w3tc_r = '~' . Util_Environment::preg_quote( $start ) . "\n.*?" . Util_Environment::preg_quote( $end ) . "\n*~s";
 
-		$rules = preg_replace( $r, '', $rules );
+		$rules = preg_replace( $w3tc_r, '', $rules );
 		$rules = self::trim_rules( $rules );
 
 		return $rules;
@@ -286,45 +391,45 @@ class Util_Rule {
 			return;
 		}
 
-		$data = @file_get_contents( $path );
-		if ( empty( $data ) ) {
-			$data = '';
+		$w3tc_data = @file_get_contents( $path );
+		if ( empty( $w3tc_data ) ) {
+			$w3tc_data = '';
 		}
 
 		$modified = false;
 		if ( $remove_wpsc ) {
 			if (
 				self::has_rules(
-					$data,
+					$w3tc_data,
 					W3TC_MARKER_BEGIN_PGCACHE_WPSC,
 					W3TC_MARKER_END_PGCACHE_WPSC
 				)
 			) {
-				$data     = self::erase_rules(
-					$data,
+				$w3tc_data = self::erase_rules(
+					$w3tc_data,
 					W3TC_MARKER_BEGIN_PGCACHE_WPSC,
 					W3TC_MARKER_END_PGCACHE_WPSC
 				);
-				$modified = true;
+				$modified  = true;
 			}
 		}
 
 		if ( empty( $rules ) ) {
 			// rules removal mode.
-			$rules_present = ( strpos( $data, $start ) !== false );
+			$rules_present = ( strpos( $w3tc_data, $start ) !== false );
 			if ( ! $modified && ! $rules_present ) {
 				return;
 			}
 		} else {
 			// rules creation mode.
-			$rules_missing = ( strstr( self::clean_rules( $data ), self::clean_rules( $rules ) ) === false );
+			$rules_missing = ( strstr( self::clean_rules( $w3tc_data ), self::clean_rules( $rules ) ) === false );
 			if ( ! $modified && ! $rules_missing ) {
 				return;
 			}
 		}
 
-		$replace_start = strpos( $data, $start );
-		$replace_end   = strpos( $data, $end );
+		$replace_start = strpos( $w3tc_data, $start );
+		$replace_end   = strpos( $w3tc_data, $end );
 
 		if ( false !== $replace_start && false !== $replace_end && $replace_start < $replace_end ) {
 			// old rules exists, replace mode.
@@ -336,7 +441,7 @@ class Util_Rule {
 			$search = $order;
 
 			foreach ( $search as $string => $length ) {
-				$replace_start = strpos( $data, $string );
+				$replace_start = strpos( $w3tc_data, $string );
 
 				if ( false !== $replace_start ) {
 					$replace_start += $length;
@@ -345,19 +450,37 @@ class Util_Rule {
 			}
 		}
 
+		$w3tc_data_before = $w3tc_data;
+
 		if ( false !== $replace_start ) {
-			$data = self::trim_rules( substr_replace( $data, $rules, $replace_start, $replace_length ) );
+			$w3tc_data = self::trim_rules( substr_replace( $w3tc_data, $rules, $replace_start, $replace_length ) );
 		} else {
-			$data = self::trim_rules( rtrim( $data ) . "\n" . $rules );
+			$w3tc_data = self::trim_rules( rtrim( $w3tc_data ) . "\n" . $rules );
+		}
+
+		if ( ! $modified && ( $w3tc_data === $w3tc_data_before || self::clean_rules( $w3tc_data_before ) === self::clean_rules( $w3tc_data ) ) ) {
+			return;
+		}
+
+		$nginx_rules_path = self::get_nginx_rules_path();
+		if (
+			! empty( $nginx_rules_path ) &&
+			$path === $nginx_rules_path &&
+			@file_exists( $path )
+		) {
+			$on_disk = @file_get_contents( $path );
+			if ( false !== $on_disk && self::clean_rules( $on_disk ) === self::clean_rules( $w3tc_data ) ) {
+				return;
+			}
 		}
 
 		if ( strpos( $path, W3TC_CACHE_DIR ) === false || Util_Environment::is_nginx() ) {
 			// writing to system rules file, may be potentially write-protected.
 			try {
-				Util_WpFile::write_to_file( $path, $data );
+				Util_WpFile::write_to_file( $path, $w3tc_data );
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 				if ( false !== $replace_start ) {
-					$message = sprintf(
+					$w3tc_message = sprintf(
 						// Translators: 1 path, 2 starting line, 3 ending line, 4 opening HTML strong tag, 5 closing HTML strong tag.
 						__(
 							'Edit file %4$s%1$s%5$s and replace all lines between and including %4$s%2$s%5$s and %4$s%3$s%5$s markers with:',
@@ -370,7 +493,7 @@ class Util_Rule {
 						'</strong>'
 					);
 				} else {
-					$message = sprintf(
+					$w3tc_message = sprintf(
 						// Translators: 1 path, 2 opening HTML strong tag, 3 closing HTML strong tag.
 						__(
 							'Edit file %2$s%1$s%3$s and add the following rules above the WordPress directives:',
@@ -385,7 +508,7 @@ class Util_Rule {
 				$ex = new Util_WpFile_FilesystemModifyException(
 					$ex->getMessage(),
 					$ex->credentials_form(),
-					$message,
+					$w3tc_message,
 					$path,
 					$rules
 				);
@@ -399,7 +522,7 @@ class Util_Rule {
 				Util_File::mkdir_from( dirname( $path ), W3TC_CACHE_DIR );
 			}
 
-			if ( ! @file_put_contents( $path, $data ) ) {
+			if ( ! @file_put_contents( $path, $w3tc_data ) ) {
 				try {
 					Util_WpFile::delete_folder(
 						dirname( $path ),
@@ -418,21 +541,99 @@ class Util_Rule {
 			}
 			@chmod( $path, $chmod );
 		}
+	}
 
-		self::after_rules_modified();
+	/**
+	 * Fingerprint of the W3TC-managed nginx rules file on disk.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string
+	 */
+	public static function nginx_rules_file_fingerprint() {
+		$path = self::get_nginx_rules_path();
+
+		if ( empty( $path ) || ! @file_exists( $path ) ) {
+			return self::nginx_rules_fingerprint( '' );
+		}
+
+		$content = @file_get_contents( $path );
+		if ( false === $content ) {
+			$content = '';
+		}
+
+		return self::nginx_rules_fingerprint( $content );
+	}
+
+	/**
+	 * Fingerprint of nginx rules content for dismiss / re-notify tracking.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $rules_content Raw rules file or block content.
+	 *
+	 * @return string
+	 */
+	public static function nginx_rules_fingerprint( $rules_content ) {
+		return \md5( self::clean_rules( (string) $rules_content ) );
+	}
+
+	/**
+	 * Update nginx-restart notice state once per environment-fix pass.
+	 *
+	 * Individual `add_rules()` calls can touch the same nginx.conf several
+	 * times while handlers run; evaluating notice state after the full pass
+	 * avoids clearing a dismiss when the net file content is unchanged.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $fingerprint_before Fingerprint captured before the fix pass.
+	 *
+	 * @return void
+	 */
+	public static function finalize_nginx_restart_notice_after_environment_fix( $fingerprint_before ) {
+		if ( ! Util_Environment::is_nginx() ) {
+			return;
+		}
+
+		$fingerprint_after = self::nginx_rules_file_fingerprint();
+		$state             = Dispatcher::config_state_master();
+		$dismiss_fp        = $state->get_string( 'common.nginx_rules_dismiss_fingerprint', '' );
+		$hide              = $state->get_boolean( 'common.hide_note_nginx_restart_required' );
+
+		if ( $fingerprint_before === $fingerprint_after ) {
+			if (
+				$hide ||
+				( '' !== $dismiss_fp && $dismiss_fp === $fingerprint_after )
+			) {
+				$state->set( 'common.hide_note_nginx_restart_required', true );
+				$state->save();
+			}
+			return;
+		}
+
+		$state->set( 'common.show_note.nginx_restart_required', true );
+
+		if ( '' === $dismiss_fp || $dismiss_fp !== $fingerprint_after ) {
+			$state->set( 'common.hide_note_nginx_restart_required', false );
+		}
+
+		$state->save();
 	}
 
 	/**
 	 * Called when rules are modified, sets notification
 	 *
+	 * @deprecated 2.10.0 Notice state is finalized in {@see self::finalize_nginx_restart_notice_after_environment_fix()}.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string|null $path         Rules file path that was written.
+	 * @param string|null $new_content  Post-write rules file content.
+	 *
 	 * @return void
 	 */
-	public static function after_rules_modified() {
-		if ( Util_Environment::is_nginx() ) {
-			$state = Dispatcher::config_state_master();
-			$state->set( 'common.show_note.nginx_restart_required', true );
-			$state->save();
-		}
+	public static function after_rules_modified( $path = null, $new_content = null ) {
 	}
 
 	/**
@@ -450,19 +651,19 @@ class Util_Rule {
 			return;
 		}
 
-		$data = @file_get_contents( $path );
-		if ( false === $data ) {
+		$w3tc_data = @file_get_contents( $path );
+		if ( false === $w3tc_data ) {
 			return;
 		}
 
-		if ( false === strstr( $data, $start ) ) {
+		if ( false === strstr( $w3tc_data, $start ) ) {
 			return;
 		}
 
-		$data = self::erase_rules( $data, $start, $end );
+		$w3tc_data = self::erase_rules( $w3tc_data, $start, $end );
 
 		try {
-			Util_WpFile::write_to_file( $path, $data );
+			Util_WpFile::write_to_file( $path, $w3tc_data );
 		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 			$exs->push(
 				new Util_WpFile_FilesystemModifyException(
@@ -497,10 +698,10 @@ class Util_Rule {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
 				if ( Util_Environment::is_wpmu() ) {
-					$url   = get_home_url();
-					$match = null;
-					if ( preg_match( '~http(s)?://(.+?)(/)?$~', $url, $match ) ) {
-						$home_path = $match[2];
+					$w3tc_url   = get_home_url();
+					$w3tc_match = null;
+					if ( preg_match( '~http(s)?://(.+?)(/)?$~', $w3tc_url, $w3tc_match ) ) {
+						$home_path = $w3tc_match[2];
 
 						return W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . $home_path . DIRECTORY_SEPARATOR . '.htaccess';
 					}
@@ -550,21 +751,21 @@ class Util_Rule {
 	 * Takes an array of extensions single per row and/or extensions delimited by |
 	 *
 	 * @param unknown $extensions Extensions.
-	 * @param unknown $ext        Extension.
+	 * @param unknown $w3tc_ext        Extension.
 	 *
 	 * @return array
 	 */
-	public static function remove_extension_from_list( $extensions, $ext ) {
+	public static function remove_extension_from_list( $extensions, $w3tc_ext ) {
 		$size = count( $extensions );
-		for ( $i = 0; $i < $size; $i++ ) {
-			if ( $extensions[ $i ] === $ext ) {
-				unset( $extensions[ $i ] );
+		for ( $w3tc_i = 0; $w3tc_i < $size; $w3tc_i++ ) {
+			if ( $extensions[ $w3tc_i ] === $w3tc_ext ) {
+				unset( $extensions[ $w3tc_i ] );
 				return $extensions;
-			} elseif ( false !== strpos( $extensions[ $i ], $ext ) && false !== strpos( $extensions[ $i ], '|' ) ) {
-				$exts = explode( '|', $extensions[ $i ] );
-				$key  = array_search( $ext, $exts, true );
-				unset( $exts[ $key ] );
-				$extensions[ $i ] = implode( '|', $exts );
+			} elseif ( false !== strpos( $extensions[ $w3tc_i ], $w3tc_ext ) && false !== strpos( $extensions[ $w3tc_i ], '|' ) ) {
+				$exts     = explode( '|', $extensions[ $w3tc_i ] );
+				$w3tc_key = array_search( $w3tc_ext, $exts, true );
+				unset( $exts[ $w3tc_key ] );
+				$extensions[ $w3tc_i ] = implode( '|', $exts );
 				return $extensions;
 			}
 		}

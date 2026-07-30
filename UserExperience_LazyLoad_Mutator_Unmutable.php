@@ -95,8 +95,8 @@ class UserExperience_LazyLoad_Mutator_Unmutable {
 	 * @return string The generated placeholder key.
 	 */
 	public function placeholder( $matches ) {
-		$key                        = '{' . $this->placeholder_base . count( $this->placeholders ) . '}';
-		$this->placeholders[ $key ] = $matches[0];
-		return $key;
+		$w3tc_key                        = '{' . $this->placeholder_base . count( $this->placeholders ) . '}';
+		$this->placeholders[ $w3tc_key ] = $matches[0];
+		return $w3tc_key;
 	}
 }

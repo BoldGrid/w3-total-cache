@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 	<?php esc_html_e( 'Genesis extension is currently ', 'w3-total-cache' ); ?>
 	<?php
-	if ( $config->is_extension_active_frontend( 'genesis.theme' ) ) {
+	if ( $w3tc_config->is_extension_active_frontend( 'genesis.theme' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
 	} else {
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
@@ -212,9 +213,9 @@ if ( ! defined( 'W3TC' ) ) {
 			<td><?php esc_html_e( 'Select hooks', 'w3-total-cache' ); ?></td>
 			<td>
 				<?php
-				$saved_hooks = $config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
-				$name        = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
-				$hooks       = array(
+				$w3tc_saved_hooks = $w3tc_config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
+				$w3tc_name        = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
+				$w3tc_hooks       = array(
 					'genesis_header'    => esc_html__( 'Header', 'w3-total-cache' ),
 					'genesis_footer'    => esc_html__( 'Footer', 'w3-total-cache' ),
 					'genesis_sidebar'   => esc_html__( 'Sidebar', 'w3-total-cache' ),
@@ -228,15 +229,15 @@ if ( ! defined( 'W3TC' ) ) {
 				);
 				?>
 
-				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $name ); ?>" value="" />
-				<?php foreach ( $hooks as $hook => $hook_label ) : ?>
-					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?>
-						type="checkbox" name="<?php echo esc_attr( $name ); ?>[]"
-						value="<?php echo esc_attr( $hook ); ?>"
-						<?php checked( in_array( $hook, $saved_hooks, true ) ); ?>
-						id="role_<?php echo esc_attr( $hook ); ?>" />
-					<label for="role_<?php echo esc_attr( $hook ); ?>">
-						<?php echo esc_html( $hook_label ); ?>
+				<input <?php disabled( $w3tc_config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $w3tc_name ); ?>" value="" />
+				<?php foreach ( $w3tc_hooks as $w3tc_hook => $w3tc_hook_label ) : ?>
+					<input <?php disabled( $w3tc_config->is_sealed( 'genesis.theme' ) ); ?>
+						type="checkbox" name="<?php echo esc_attr( $w3tc_name ); ?>[]"
+						value="<?php echo esc_attr( $w3tc_hook ); ?>"
+						<?php checked( in_array( $w3tc_hook, $w3tc_saved_hooks, true ) ); ?>
+						id="role_<?php echo esc_attr( $w3tc_hook ); ?>" />
+					<label for="role_<?php echo esc_attr( $w3tc_hook ); ?>">
+						<?php echo esc_html( $w3tc_hook_label ); ?>
 					</label><br />
 				<?php endforeach; ?>
 
@@ -249,18 +250,18 @@ if ( ! defined( 'W3TC' ) ) {
 			<td><?php esc_html_e( 'Select roles:', 'w3-total-cache' ); ?></td>
 			<td>
 				<?php
-				$saved_roles = $config->get_array( array( 'genesis.theme', 'reject_roles' ) );
-				$name        = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_roles' ) );
+				$w3tc_saved_roles = $w3tc_config->get_array( array( 'genesis.theme', 'reject_roles' ) );
+				$w3tc_name        = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_roles' ) );
 				?>
-				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="" />
-				<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?>
-						type="checkbox" name="<?php echo esc_attr( $name ); ?>[]"
-						value="<?php echo esc_attr( $role_name ); ?>"
-						<?php checked( in_array( $role_name, $saved_roles, true ) ); ?>
-						id="role_<?php echo esc_attr( $role_name ); ?>" />
-					<label for="role_<?php echo esc_attr( $role_name ); ?>">
-						<?php echo esc_html( $role_data['name'] ); ?>
+				<input type="hidden" name="<?php echo esc_attr( $w3tc_name ); ?>" value="" />
+				<?php foreach ( get_editable_roles() as $w3tc_role_name => $w3tc_role_data ) : ?>
+					<input <?php disabled( $w3tc_config->is_sealed( 'genesis.theme' ) ); ?>
+						type="checkbox" name="<?php echo esc_attr( $w3tc_name ); ?>[]"
+						value="<?php echo esc_attr( $w3tc_role_name ); ?>"
+						<?php checked( in_array( $w3tc_role_name, $w3tc_saved_roles, true ) ); ?>
+						id="role_<?php echo esc_attr( $w3tc_role_name ); ?>" />
+					<label for="role_<?php echo esc_attr( $w3tc_role_name ); ?>">
+						<?php echo esc_html( $w3tc_role_data['name'] ); ?>
 					</label>
 				<?php endforeach; ?>
 				<p class="description">

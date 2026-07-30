@@ -25,14 +25,14 @@ class Util_Admin {
 	 * @param string $page           Page.
 	 */
 	public static function redirect( $params = array(), $check_referrer = false, $page = '' ) {
-		$url      = Util_Request::get_string( 'redirect' );
+		$w3tc_url = Util_Request::get_string( 'redirect' );
 		$page_url = Util_Request::get_string( 'page' );
 
-		if ( empty( $url ) ) {
+		if ( empty( $w3tc_url ) ) {
 			if ( $check_referrer && ! empty( $_SERVER['HTTP_REFERER'] ) ) {
-				$url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+				$w3tc_url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 			} else {
-				$url = 'admin.php';
+				$w3tc_url = 'admin.php';
 
 				if ( empty( $page ) ) {
 					$page = $page_url;
@@ -42,7 +42,18 @@ class Util_Admin {
 			}
 		}
 
-		Util_Environment::redirect( $url, $params );
+		/**
+		 * `$w3tc_url` may originate from the `?redirect=` request parameter, which is
+		 * attacker-controlled. Pass it through wp_validate_redirect() so a host
+		 * outside the WP install resolves to admin_url() rather than producing
+		 * an open redirect via the raw `Location:` header emitted downstream.
+		 * Relative paths (the common `admin.php?page=...` shape) pass through
+		 * unchanged because wp_validate_redirect() treats hostless URLs as same-
+		 * host.
+		 */
+		$w3tc_url = wp_validate_redirect( $w3tc_url, admin_url() );
+
+		Util_Environment::redirect( $w3tc_url, $params );
 	}
 
 	/**
@@ -52,16 +63,16 @@ class Util_Admin {
 	 *
 	 * @param array $params         Parameters.
 	 * @param array $errors         Errors.
-	 * @param array $notes          Notes.
+	 * @param array $w3tc_notes          Notes.
 	 * @param bool  $check_referrer Check referrer.
 	 * @return void
 	 */
-	public static function redirect_with_custom_messages( $params, $errors = null, $notes = null, $check_referrer = false ) {
-		if ( empty( $errors ) && self::single_system_item( $notes ) ) {
-			self::redirect( array_merge( $params, array( 'w3tc_note' => $notes[0] ) ), $check_referrer );
+	public static function redirect_with_custom_messages( $params, $errors = null, $w3tc_notes = null, $check_referrer = false ) {
+		if ( empty( $errors ) && self::single_system_item( $w3tc_notes ) ) {
+			self::redirect( array_merge( $params, array( 'w3tc_note' => $w3tc_notes[0] ) ), $check_referrer );
 			return;
 		}
-		if ( self::single_system_item( $errors ) && empty( $notes ) ) {
+		if ( self::single_system_item( $errors ) && empty( $w3tc_notes ) ) {
 			self::redirect( array_merge( $params, array( 'w3tc_error' => $errors[0] ) ), $check_referrer );
 			return;
 		}
@@ -72,7 +83,7 @@ class Util_Admin {
 			array(
 				$message_id => array(
 					'errors' => $errors,
-					'notes'  => $notes,
+					'notes'  => $w3tc_notes,
 				),
 			),
 			'yes'
@@ -84,7 +95,7 @@ class Util_Admin {
 
 
 	/**
-	 * Special redirect with ability to pass custom_message_id based on $data.
+	 * Special redirect with ability to pass custom_message_id based on $w3tc_data.
 	 *   query_string
 	 *   actions - which actions to call on render
 	 *   errors
@@ -92,25 +103,25 @@ class Util_Admin {
 	 *
 	 * @static
 	 *
-	 * @param array $data Data.
+	 * @param array $w3tc_data Data.
 	 */
-	public static function redirect_with_custom_messages2( $data ) {
-		if ( ! isset( $data['query_string']['page'] ) ) {
-			$data['query_string']['page'] = Util_Request::get_string( 'page' );
+	public static function redirect_with_custom_messages2( $w3tc_data ) {
+		if ( ! isset( $w3tc_data['query_string']['page'] ) ) {
+			$w3tc_data['query_string']['page'] = Util_Request::get_string( 'page' );
 
-			if ( 'w3tc_extensions' === $data['query_string']['page'] ) {
-				$data['query_string']['extension'] = Util_Request::get_string( 'extension' );
-				$data['query_string']['action']    = Util_Request::get_string( 'action' );
+			if ( 'w3tc_extensions' === $w3tc_data['query_string']['page'] ) {
+				$w3tc_data['query_string']['extension'] = Util_Request::get_string( 'extension' );
+				$w3tc_data['query_string']['action']    = Util_Request::get_string( 'action' );
 			}
 		}
 
 		$message_id = uniqid();
 
-		update_option( 'w3tc_message', array( $message_id => $data ), 'yes' );
+		update_option( 'w3tc_message', array( $message_id => $w3tc_data ), 'yes' );
 
-		$data['query_string']['w3tc_message'] = $message_id;
+		$w3tc_data['query_string']['w3tc_message'] = $message_id;
 
-		Util_Environment::redirect( 'admin.php', $data['query_string'] );
+		Util_Environment::redirect( 'admin.php', $w3tc_data['query_string'] );
 	}
 
 
@@ -120,16 +131,16 @@ class Util_Admin {
 	 * @static
 	 *
 	 * @param array $errors Errors.
-	 * @param array $notes  Notes.
+	 * @param array $w3tc_notes  Notes.
 	 */
-	public static function custom_message_id( $errors = null, $notes = null ) {
+	public static function custom_message_id( $errors = null, $w3tc_notes = null ) {
 		$message_id = uniqid();
 		update_option(
 			'w3tc_message',
 			array(
 				$message_id => array(
 					'errors' => $errors,
-					'notes'  => $notes,
+					'notes'  => $w3tc_notes,
 				),
 			),
 			'yes'
@@ -143,17 +154,17 @@ class Util_Admin {
 	 *
 	 * @static
 	 *
-	 * @param array $a Array.
+	 * @param array $w3tc_a Array.
 	 * @return bool
 	 */
-	public static function single_system_item( $a ) {
-		if ( ! is_array( $a ) || count( $a ) !== 1 ) {
+	public static function single_system_item( $w3tc_a ) {
+		if ( ! is_array( $w3tc_a ) || count( $w3tc_a ) !== 1 ) {
 			return false;
 		}
 
-		$first_key = array_keys( $a );
+		$first_key = array_keys( $w3tc_a );
 		$first_key = $first_key[0];
-		$pos       = strpos( $a[ $first_key ], ' ' );
+		$pos       = strpos( $w3tc_a[ $first_key ], ' ' );
 
 		if ( false === $pos ) {
 			return true;
@@ -252,9 +263,9 @@ class Util_Admin {
 			$old_bc_dependencies_values = array();
 			$new_bc_dependencies_values = array();
 
-			foreach ( $browsercache_dependencies as $key ) {
-				$old_bc_dependencies_values[] = $old_config->get( $key );
-				$new_bc_dependencies_values[] = $new_config->get( $key );
+			foreach ( $browsercache_dependencies as $w3tc_key ) {
+				$old_bc_dependencies_values[] = $old_config->get( $w3tc_key );
+				$new_bc_dependencies_values[] = $new_config->get( $w3tc_key );
 			}
 
 			if ( serialize( $old_bc_dependencies_values ) !== serialize( $new_bc_dependencies_values ) ) {
@@ -342,8 +353,8 @@ class Util_Admin {
 				);
 			}
 
-			$modules = Dispatcher::component( 'ModuleStatus' );
-			if ( $modules->is_running( 'cdn' ) ) {
+			$w3tc_modules = Dispatcher::component( 'ModuleStatus' );
+			if ( $w3tc_modules->is_running( 'cdn' ) ) {
 				$pgcache_dependencies = array_merge(
 					$pgcache_dependencies,
 					array(
@@ -374,12 +385,6 @@ class Util_Admin {
 						'cdn.azuremi.ssl',
 						'cdn.mirror.domain',
 						'cdn.mirror.ssl',
-						'cdn.cotendo.domain',
-						'cdn.cotendo.ssl',
-						'cdn.edgecast.domain',
-						'cdn.edgecast.ssl',
-						'cdn.att.domain',
-						'cdn.att.ssl',
 						'cdn.reject.logged_roles',
 						'cdn.reject.roles',
 						'cdn.reject.ua',
@@ -499,8 +504,8 @@ class Util_Admin {
 				);
 			}
 
-			$modules = Dispatcher::component( 'ModuleStatus' );
-			if ( $modules->is_running( 'cdn' ) ) {
+			$w3tc_modules = Dispatcher::component( 'ModuleStatus' );
+			if ( $w3tc_modules->is_running( 'cdn' ) ) {
 				$minify_dependencies = array_merge( $minify_dependencies, array( 'cdn.engine', 'cdn.enabled' ) );
 			} elseif ( $old_config->get_boolean( 'cdn.enabled' ) && ! $new_config->get_boolean( 'cdn.enabled' ) ) {
 				$minify_dependencies = array_merge( $minify_dependencies, array( 'cdn.enabled' ) );
@@ -708,10 +713,10 @@ class Util_Admin {
 		$upload  = array();
 		$results = array();
 
-		foreach ( $files as $file ) {
+		foreach ( $files as $w3tc_file ) {
 			$upload[] = $common->build_file_descriptor(
-				$common->docroot_filename_to_absolute_path( $file ),
-				$common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $file ) )
+				$common->docroot_filename_to_absolute_path( $w3tc_file ),
+				$common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $w3tc_file ) )
 			);
 		}
 
@@ -723,20 +728,20 @@ class Util_Admin {
 	 *
 	 * @static
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 * @return void
 	 */
-	public static function cdn_upload_browsercache( $config ) {
+	public static function cdn_upload_browsercache( $w3tc_config ) {
 		$common = Dispatcher::component( 'Cdn_Core' );
 
 		Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$ce    = Dispatcher::component( 'Cdn_Environment' );
-		$rules = $ce->rules_generate_for_ftp( $config );
+		$rules = $ce->rules_generate_for_ftp( $w3tc_config );
 
-		if ( $config->get_boolean( 'browsercache.enabled' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
 			$be     = Dispatcher::component( 'BrowserCache_Environment' );
-			$rules .= $be->rules_cache_generate_for_ftp( $config );
+			$rules .= $be->rules_cache_generate_for_ftp( $w3tc_config );
 		}
 
 		$cdn_path = Util_Rule::get_cdn_rules_path();
@@ -811,11 +816,11 @@ class Util_Admin {
 	 * @return string
 	 */
 	public static function get_current_extension() {
-		$page      = Util_Request::get_string( 'page' );
-		$extension = Util_Request::get_string( 'extension' );
+		$page           = Util_Request::get_string( 'page' );
+		$w3tc_extension = Util_Request::get_string( 'extension' );
 
-		if ( substr( $page, 0, 5 ) === 'w3tc_' && ! empty( $extension ) ) {
-			return $extension;
+		if ( substr( $page, 0, 5 ) === 'w3tc_' && ! empty( $w3tc_extension ) ) {
+			return $w3tc_extension;
 		}
 
 		return '';
@@ -860,12 +865,12 @@ class Util_Admin {
 	 * @since  2.8.1
 	 * @static
 	 *
-	 * @param  Config $config W3TC configuration object.
+	 * @param  Config $w3tc_config W3TC configuration object.
 	 * @param  string $event Event name (optional).
 	 * @return void
 	 */
-	public static function fix_on_event( Config $config, ?string $event = '' ): void {
+	public static function fix_on_event( Config $w3tc_config, ?string $event = '' ): void {
 		$environment = Dispatcher::component( 'Root_Environment' );
-		$environment->fix_on_event( $config, $event );
+		$environment->fix_on_event( $w3tc_config, $event );
 	}
 }

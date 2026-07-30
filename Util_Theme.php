@@ -62,11 +62,11 @@ class Util_Theme {
 
 		$themes = array();
 		foreach ( wp_get_themes() as $theme ) {
-			$name = $theme->get( 'Name' );
-			if ( isset( $wp_themes[ $name ] ) ) {
-				$themes[ $name . '/' . $theme->get_stylesheet() ] = $theme;
+			$w3tc_name = $theme->get( 'Name' );
+			if ( isset( $wp_themes[ $w3tc_name ] ) ) {
+				$themes[ $w3tc_name . '/' . $theme->get_stylesheet() ] = $theme;
 			} else {
-				$themes[ $name ] = $theme;
+				$themes[ $w3tc_name ] = $theme;
 			}
 		}
 
@@ -98,8 +98,8 @@ class Util_Theme {
 		$wp_themes = self::get_themes();
 
 		foreach ( $wp_themes as $wp_theme ) {
-			$theme_key            = self::get_theme_key( $wp_theme['Theme Root'], $wp_theme['Template'], $wp_theme['Stylesheet'] );
-			$themes[ $theme_key ] = $wp_theme['Name'];
+			$w3tc_theme_key            = self::get_theme_key( $wp_theme['Theme Root'], $wp_theme['Template'], $wp_theme['Stylesheet'] );
+			$themes[ $w3tc_theme_key ] = $wp_theme['Name'];
 		}
 
 		return $themes;
@@ -108,16 +108,16 @@ class Util_Theme {
 	/**
 	 * Returns minify groups
 	 *
-	 * @param string $theme_name Theme name.
+	 * @param string $w3tc_theme_name Theme name.
 	 *
 	 * @return array
 	 */
-	public static function get_theme_templates( $theme_name ) {
+	public static function get_theme_templates( $w3tc_theme_name ) {
 		$groups = array(
 			'default' => __( 'All Templates', 'w3-total-cache' ),
 		);
 
-		$templates = self::get_theme_files( $theme_name );
+		$templates = self::get_theme_files( $w3tc_theme_name );
 
 		foreach ( $templates as $template ) {
 			$basename = basename( $template, '.php' );
@@ -131,11 +131,11 @@ class Util_Theme {
 	/**
 	 * Returns array of theme groups
 	 *
-	 * @param string $theme_name Theme name.
+	 * @param string $w3tc_theme_name Theme name.
 	 *
 	 * @return array
 	 */
-	public static function get_theme_files( $theme_name ) {
+	public static function get_theme_files( $w3tc_theme_name ) {
 		$patterns = array(
 			'404',
 			'search',
@@ -157,7 +157,7 @@ class Util_Theme {
 		);
 
 		$templates = array();
-		$theme     = self::get( $theme_name );
+		$theme     = self::get( $w3tc_theme_name );
 
 		if ( $theme && isset( $theme['Template Files'] ) ) {
 			$template_files = (array) $theme['Template Files'];

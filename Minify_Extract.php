@@ -59,10 +59,10 @@ class Minify_Extract {
 
 		$matches = null;
 		if ( preg_match_all( '~<link\s+([^>]+)/?>(.*</link>)?~Uis', $content, $matches, PREG_SET_ORDER ) ) {
-			foreach ( $matches as $match ) {
+			foreach ( $matches as $w3tc_match ) {
 				$attrs        = array();
 				$attr_matches = null;
-				if ( preg_match_all( '~(\w+)=["\']([^"\']*)["\']~', $match[1], $attr_matches, PREG_SET_ORDER ) ) {
+				if ( preg_match_all( '~(\w+)=["\']([^"\']*)["\']~', $w3tc_match[1], $attr_matches, PREG_SET_ORDER ) ) {
 					foreach ( $attr_matches as $attr_match ) {
 						$attrs[ $attr_match[1] ] = trim( $attr_match[2] );
 					}
@@ -77,14 +77,14 @@ class Minify_Extract {
 						stristr( $attrs['media'], 'print' ) === false
 					)
 				) {
-					$tags_files[] = array( $match[0], $attrs['href'] );
+					$tags_files[] = array( $w3tc_match[0], $attrs['href'] );
 				}
 			}
 		}
 
 		if ( preg_match_all( '~@import\s+(url\s*)?\(?["\']?\s*([^"\'\)\s]+)\s*["\']?\)?[^;]*;?~is', $content, $matches, PREG_SET_ORDER ) ) {
-			foreach ( $matches as $match ) {
-				$tags_files[] = array( $match[0], $match[2] );
+			foreach ( $matches as $w3tc_match ) {
+				$tags_files[] = array( $w3tc_match[0], $w3tc_match[2] );
 			}
 		}
 

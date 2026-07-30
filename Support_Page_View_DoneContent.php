@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 <div style="text-align: center; font-weight: bold; margin-top: 50px">

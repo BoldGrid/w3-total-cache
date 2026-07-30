@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -24,13 +25,13 @@ class Cdnfsd_CloudFront_Popup {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdnfsd_CloudFront_Popup();
+		$w3tc_o = new Cdnfsd_CloudFront_Popup();
 
-		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_intro', array( $o, 'w3tc_ajax_cdn_cloudfront_fsd_intro' ) );
-		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_list_distributions', array( $o, 'w3tc_ajax_cdn_cloudfront_fsd_list_distributions' ) );
-		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_view_distribution', array( $o, 'w3tc_ajax_cdn_cloudfront_fsd_view_distribution' ) );
-		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution', array( $o, 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution' ) );
-		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip', array( $o, 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip' ) );
+		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_intro', array( $w3tc_o, 'w3tc_ajax_cdn_cloudfront_fsd_intro' ) );
+		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_list_distributions', array( $w3tc_o, 'w3tc_ajax_cdn_cloudfront_fsd_list_distributions' ) );
+		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_view_distribution', array( $w3tc_o, 'w3tc_ajax_cdn_cloudfront_fsd_view_distribution' ) );
+		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution', array( $w3tc_o, 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution' ) );
+		add_action( 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip', array( $w3tc_o, 'w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip' ) );
 	}
 
 	/**
@@ -50,7 +51,7 @@ class Cdnfsd_CloudFront_Popup {
 	 * @return void
 	 */
 	private function render_intro( $details ) {
-		$config         = Dispatcher::config();
+		$w3tc_config    = Dispatcher::config();
 		$url_obtain_key = Util_Ui::url(
 			array(
 				'page' => 'w3tc_dashboard',
@@ -106,15 +107,15 @@ class Cdnfsd_CloudFront_Popup {
 		$items = array();
 
 		if ( isset( $distributions['DistributionList']['Items'] ) ) {
-			foreach ( $distributions['DistributionList']['Items'] as $i ) {
-				if ( empty( $i['Comment'] ) ) {
-					$i['Comment'] = $i['DomainName'];
+			foreach ( $distributions['DistributionList']['Items'] as $w3tc_i ) {
+				if ( empty( $w3tc_i['Comment'] ) ) {
+					$w3tc_i['Comment'] = $w3tc_i['DomainName'];
 				}
-				if ( isset( $i['Origins']['Items'][0]['DomainName'] ) ) {
-					$i['Origin_DomainName'] = $i['Origins']['Items'][0]['DomainName'];
+				if ( isset( $w3tc_i['Origins']['Items'][0]['DomainName'] ) ) {
+					$w3tc_i['Origin_DomainName'] = $w3tc_i['Origins']['Items'][0]['DomainName'];
 				}
 
-				$items[] = $i;
+				$items[] = $w3tc_i;
 			}
 		}
 
@@ -164,8 +165,8 @@ class Cdnfsd_CloudFront_Popup {
 			$details['distribution_comment'] = Util_Request::get( 'comment_new' );
 		} else {
 			try {
-				$api          = $this->_api( $access_key, $secret_key );
-				$distribution = $api->getDistribution( array( 'Id' => $distribution_id ) );
+				$api               = $this->_api( $access_key, $secret_key );
+				$w3tc_distribution = $api->getDistribution( array( 'Id' => $distribution_id ) );
 			} catch ( \Exception $ex ) {
 				$this->render_intro(
 					array(
@@ -175,25 +176,25 @@ class Cdnfsd_CloudFront_Popup {
 				exit();
 			}
 
-			if ( isset( $distribution['Distribution']['DistributionConfig'] ) ) {
-				$c = $distribution['Distribution']['DistributionConfig'];
+			if ( isset( $w3tc_distribution['Distribution']['DistributionConfig'] ) ) {
+				$w3tc_c = $w3tc_distribution['Distribution']['DistributionConfig'];
 			} else {
-				$c = array();
+				$w3tc_c = array();
 			}
 
-			if ( ! empty( $c['Comment'] ) ) {
-				$details['distribution_comment'] = $c['Comment'];
+			if ( ! empty( $w3tc_c['Comment'] ) ) {
+				$details['distribution_comment'] = $w3tc_c['Comment'];
 			} else {
-				$details['distribution_comment'] = $c['DomainName'];
+				$details['distribution_comment'] = $w3tc_c['DomainName'];
 			}
 
-			if ( isset( $c['Origins']['Items']['Origin'] ) ) {
-				$details['origin']['current'] = $c['Origins']['Items']['Origin'][0]['DomainName'];
+			if ( isset( $w3tc_c['Origins']['Items']['Origin'] ) ) {
+				$details['origin']['current'] = $w3tc_c['Origins']['Items']['Origin'][0]['DomainName'];
 				$details['origin']['new']     = $details['origin']['current'];
 			}
 
-			if ( isset( $c['DefaultCacheBehavior'] ) && isset( $c['DefaultCacheBehavior']['ForwardedValues'] ) ) {
-				$b = $c['DefaultCacheBehavior']['ForwardedValues'];
+			if ( isset( $w3tc_c['DefaultCacheBehavior'] ) && isset( $w3tc_c['DefaultCacheBehavior']['ForwardedValues'] ) ) {
+				$b = $w3tc_c['DefaultCacheBehavior']['ForwardedValues'];
 			} else {
 				$b = array();
 			}
@@ -210,8 +211,8 @@ class Cdnfsd_CloudFront_Popup {
 
 			$details['forward_host']['current'] = false;
 			if ( isset( $b['Headers']['Items']['Name'] ) ) {
-				foreach ( $b['Headers']['Items']['Name'] as $name ) {
-					if ( 'Host' === $name ) {
+				foreach ( $b['Headers']['Items']['Name'] as $w3tc_name ) {
+					if ( 'Host' === $w3tc_name ) {
 						$details['forward_host']['current'] = true;
 					}
 				}
@@ -338,7 +339,7 @@ class Cdnfsd_CloudFront_Popup {
 
 		$origin_id = wp_rand();
 
-		$distribution = array(
+		$w3tc_distribution = array(
 			'DistributionConfig' => array(
 				'CallerReference'      => $origin_id,
 				'Comment'              => Util_Request::get( 'distribution_comment' ),
@@ -406,11 +407,11 @@ class Cdnfsd_CloudFront_Popup {
 			$api = $this->_api( $access_key, $secret_key );
 			if ( empty( $distribution_id ) ) {
 
-				$response        = $api->createDistribution( $distribution );
+				$response        = $api->createDistribution( $w3tc_distribution );
 				$distribution_id = $response['Distribution']['Id'];
 			} else {
-				$distribution['Id'] = $distribution_id;
-				$response           = $api->UpdateDistribution( $distribution );
+				$w3tc_distribution['Id'] = $distribution_id;
+				$response                = $api->UpdateDistribution( $w3tc_distribution );
 			}
 		} catch ( \Aws\Exception\AwsException $ex ) {
 			$this->render_intro(
@@ -430,16 +431,16 @@ class Cdnfsd_CloudFront_Popup {
 
 		$distribution_domain = $response['Distribution']['DomainName'];
 
-		$c = Dispatcher::config();
-		$c->set( 'cdnfsd.cloudfront.access_key', $access_key );
-		$c->set( 'cdnfsd.cloudfront.secret_key', $secret_key );
-		$c->set( 'cdnfsd.cloudfront.distribution_id', $distribution_id );
-		$c->set( 'cdnfsd.cloudfront.distribution_domain', $distribution_domain );
+		$w3tc_c = Dispatcher::config();
+		$w3tc_c->set( 'cdnfsd.cloudfront.access_key', $access_key );
+		$w3tc_c->set( 'cdnfsd.cloudfront.secret_key', $secret_key );
+		$w3tc_c->set( 'cdnfsd.cloudfront.distribution_id', $distribution_id );
+		$w3tc_c->set( 'cdnfsd.cloudfront.distribution_domain', $distribution_domain );
 
-		$c->save();
+		$w3tc_c->save();
 
 		$details = array(
-			'name'             => $distribution['DistributionConfig']['Comment'],
+			'name'             => $w3tc_distribution['DistributionConfig']['Comment'],
 			'home_domain'      => Util_Environment::home_url_host(),
 			'dns_cname_target' => $distribution_domain,
 		);
@@ -463,8 +464,8 @@ class Cdnfsd_CloudFront_Popup {
 		$origin_id = wp_rand();
 
 		try {
-			$api          = $this->_api( $access_key, $secret_key );
-			$distribution = $api->getDistribution( array( 'Id' => $distribution_id ) );
+			$api               = $this->_api( $access_key, $secret_key );
+			$w3tc_distribution = $api->getDistribution( array( 'Id' => $distribution_id ) );
 		} catch ( \Exception $ex ) {
 			$this->render_intro(
 				array(
@@ -474,21 +475,21 @@ class Cdnfsd_CloudFront_Popup {
 			exit();
 		}
 
-		if ( isset( $distribution['Distribution']['DomainName'] ) ) {
-			$distribution_domain = $distribution['Distribution']['DomainName'];
+		if ( isset( $w3tc_distribution['Distribution']['DomainName'] ) ) {
+			$distribution_domain = $w3tc_distribution['Distribution']['DomainName'];
 		} else {
 			$distribution_domain = 'n/a';
 		}
 
-		$c = Dispatcher::config();
-		$c->set( 'cdnfsd.cloudfront.access_key', $access_key );
-		$c->set( 'cdnfsd.cloudfront.secret_key', $secret_key );
-		$c->set( 'cdnfsd.cloudfront.distribution_id', $distribution_id );
-		$c->set( 'cdnfsd.cloudfront.distribution_domain', $distribution_domain );
-		$c->save();
+		$w3tc_c = Dispatcher::config();
+		$w3tc_c->set( 'cdnfsd.cloudfront.access_key', $access_key );
+		$w3tc_c->set( 'cdnfsd.cloudfront.secret_key', $secret_key );
+		$w3tc_c->set( 'cdnfsd.cloudfront.distribution_id', $distribution_id );
+		$w3tc_c->set( 'cdnfsd.cloudfront.distribution_domain', $distribution_domain );
+		$w3tc_c->save();
 
 		$details = array(
-			'name'             => $distribution['Distribution']['Comment'],
+			'name'             => $w3tc_distribution['Distribution']['Comment'],
 			'home_domain'      => Util_Environment::home_url_host(),
 			'dns_cname_target' => $distribution_domain,
 		);

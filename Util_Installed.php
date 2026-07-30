@@ -91,17 +91,17 @@ class Util_Installed {
 	 * @return bool
 	 */
 	public static function memcached_auth() {
-		static $r = null;
-		if ( is_null( $r ) ) {
+		static $w3tc_r = null;
+		if ( is_null( $w3tc_r ) ) {
 			if ( ! class_exists( '\Memcached' ) ) {
-				$r = false;
+				$w3tc_r = false;
 			} else {
-				$o = new \Memcached();
-				$r = method_exists( $o, 'setSaslAuthData' );
+				$w3tc_o = new \Memcached();
+				$w3tc_r = method_exists( $w3tc_o, 'setSaslAuthData' );
 			}
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
@@ -137,17 +137,17 @@ class Util_Installed {
 	 * @return bool
 	 */
 	public static function memcache_auth() {
-		static $r = null;
-		if ( is_null( $r ) ) {
+		static $w3tc_r = null;
+		if ( is_null( $w3tc_r ) ) {
 			if ( ! class_exists( '\Memcached' ) ) {
-				$r = false;
+				$w3tc_r = false;
 			} else {
-				$o = new \Memcached();
-				$r = method_exists( $o, 'setSaslAuthData' );
+				$w3tc_o = new \Memcached();
+				$w3tc_r = method_exists( $w3tc_o, 'setSaslAuthData' );
 			}
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
@@ -199,9 +199,9 @@ class Util_Installed {
 	public static function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		static $results = array();
 
-		$key = md5( implode( '', $servers ) );
+		$w3tc_key = md5( implode( '', $servers ) );
 
-		if ( ! isset( $results[ $key ] ) ) {
+		if ( ! isset( $results[ $w3tc_key ] ) ) {
 			$memcached = Cache::instance(
 				'memcached',
 				array(
@@ -222,10 +222,10 @@ class Util_Installed {
 
 			$memcached->set( $test_string, $test_value, 60 );
 
-			$test_value      = $memcached->get( $test_string );
-			$results[ $key ] = ( ! empty( $test_value['content'] ) && $test_value['content'] === $test_string );
+			$test_value           = $memcached->get( $test_string );
+			$results[ $w3tc_key ] = ( ! empty( $test_value['content'] ) && $test_value['content'] === $test_string );
 		}
 
-		return $results[ $key ];
+		return $results[ $w3tc_key ];
 	}
 }

@@ -35,12 +35,12 @@ class Mobile_Redirect {
 	 * @return void
 	 */
 	public function __construct() {
-		$config = Dispatcher::config();
-		if ( $config->get_boolean( 'mobile.enabled' ) ) {
+		$w3tc_config = Dispatcher::config();
+		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
 			$this->_mobile = Dispatcher::component( 'Mobile_UserAgent' );
 		}
 
-		if ( $config->get_boolean( 'referrer.enabled' ) ) {
+		if ( $w3tc_config->get_boolean( 'referrer.enabled' ) ) {
 			$this->_referrer = Dispatcher::component( 'Mobile_Referrer' );
 		}
 	}

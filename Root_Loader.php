@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class: Root_Loader
  *
@@ -35,48 +36,48 @@ class Root_Loader {
 	 * @return void
 	 */
 	public function __construct() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		$plugins   = array();
 		$plugins[] = new Generic_Plugin();
 
-		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'dbcache.enabled' ) ) {
 			$plugins[] = new DbCache_Plugin();
 		}
 
-		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
+		if ( $w3tc_c->getf_boolean( 'objectcache.enabled' ) ) {
 			$plugins[] = new ObjectCache_Plugin();
 		}
 
-		if ( $c->get_boolean( 'pgcache.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'pgcache.enabled' ) ) {
 			$plugins[] = new PgCache_Plugin();
 		}
 
-		if ( $c->get_boolean( 'cdn.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'cdn.enabled' ) ) {
 			$plugins[] = new Cdn_Plugin();
 		}
 
-		if ( $c->get_boolean( 'cdnfsd.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'cdnfsd.enabled' ) ) {
 			$plugins[] = new Cdnfsd_Plugin();
 		}
 
-		if ( $c->get_boolean( 'lazyload.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'lazyload.enabled' ) ) {
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
 		}
 
-		if ( $c->get_boolean( 'browsercache.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'browsercache.enabled' ) ) {
 			$plugins[] = new BrowserCache_Plugin();
 		}
 
-		if ( $c->get_boolean( 'minify.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'minify.enabled' ) ) {
 			$plugins[] = new Minify_Plugin();
 		}
 
-		if ( $c->get_boolean( 'varnish.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'varnish.enabled' ) ) {
 			$plugins[] = new Varnish_Plugin();
 		}
 
-		if ( $c->get_boolean( 'stats.enabled' ) ) {
+		if ( $w3tc_c->get_boolean( 'stats.enabled' ) ) {
 			$plugins[] = new UsageStatistics_Plugin();
 		}
 
@@ -91,12 +92,14 @@ class Root_Loader {
 			$plugins[] = new PgCache_Plugin_Admin();
 			$plugins[] = new Minify_Plugin_Admin();
 			$plugins[] = new Generic_WidgetSpreadTheWord_Plugin();
+			$plugins[] = new Generic_Plugin_WidgetForum();
+			$plugins[] = new Generic_Plugin_WidgetNews();
 			$plugins[] = new SystemOpCache_Plugin_Admin();
 
 			$plugins[] = new Cdn_Plugin_Admin();
 			$plugins[] = new Cdnfsd_Plugin_Admin();
 
-			$cdn_engine = $c->get_string( 'cdn.engine' );
+			$w3tc_cdn_engine = $w3tc_c->get_string( 'cdn.engine' );
 
 			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
@@ -105,7 +108,7 @@ class Root_Loader {
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
 			$plugins[] = new Licensing_Plugin_Admin();
 
-			if ( $c->get_boolean( 'pgcache.enabled' ) || $c->get_boolean( 'varnish.enabled' ) ) {
+			if ( $w3tc_c->get_boolean( 'pgcache.enabled' ) || $w3tc_c->get_boolean( 'varnish.enabled' ) ) {
 				$plugins[] = new Generic_Plugin_AdminRowActions();
 			}
 
@@ -113,7 +116,7 @@ class Root_Loader {
 			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();
-		} elseif ( $c->get_boolean( 'jquerymigrate.disabled' ) ) {
+		} elseif ( $w3tc_c->get_boolean( 'jquerymigrate.disabled' ) ) {
 			$plugins[] = new UserExperience_Plugin_Jquery();
 		}
 
@@ -143,8 +146,8 @@ class Root_Loader {
 		}
 
 		if ( method_exists( $GLOBALS['wpdb'], 'on_w3tc_plugins_loaded' ) ) {
-			$o = $GLOBALS['wpdb'];
-			$o->on_w3tc_plugins_loaded();
+			$w3tc_o = $GLOBALS['wpdb'];
+			$w3tc_o->on_w3tc_plugins_loaded();
 		}
 
 		$this->run_extensions();
@@ -178,29 +181,33 @@ class Root_Loader {
 	 * @return void
 	 */
 	public function run_extensions() {
-		$c          = Dispatcher::config();
-		$extensions = $c->get_array( 'extensions.active' );
+		$w3tc_c     = Dispatcher::config();
+		$extensions = $w3tc_c->get_array( 'extensions.active' );
 
-		$frontend = $c->get_array( 'extensions.active_frontend' );
-		foreach ( $frontend as $extension => $nothing ) {
-			if ( isset( $extensions[ $extension ] ) ) {
-				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( $path, '/' ) );
+		/**
+		 * Layer 1 of the file-inclusion playbook: drop raw-config-path
+		 * concatenation in favour of a slug -> known-path allowlist
+		 * resolved by Util_Extension::resolve(). The legacy config shape
+		 * (`slug => relative-path`) is normalized read-side via
+		 * convert_legacy_entries(); entries whose key is not in the
+		 * hard-coded allowlist -- or whose path value doesn't match the
+		 * canonical path for that slug -- are silently dropped, not
+		 * included.
+		 *
+		 * @since 2.10.0
+		 */
+		$extensions = Util_Extension::convert_legacy_entries( $extensions );
 
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+		$frontend = Util_Extension::convert_legacy_entries( $w3tc_c->get_array( 'extensions.active_frontend' ) );
+		foreach ( $frontend as $w3tc_extension => $nothing ) {
+			if ( isset( $extensions[ $w3tc_extension ] ) ) {
+				Util_Extension::include_once( $w3tc_extension );
 			}
 		}
 
 		if ( is_admin() ) {
-			foreach ( $extensions as $extension => $path ) {
-				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
-
-				if ( file_exists( $filename ) ) {
-					include_once $filename;
-				}
+			foreach ( $extensions as $w3tc_extension => $nothing ) {
+				Util_Extension::include_once( $w3tc_extension );
 			}
 		}
 
@@ -211,8 +218,8 @@ class Root_Loader {
 		}
 
 		// Hide Image Service converted images.
-		$settings   = $c->get_array( 'imageservice' );
-		$visibility = isset( $settings['visibility'] ) ? $settings['visibility'] : 'never';
+		$w3tc_settings = $w3tc_c->get_array( 'imageservice' );
+		$visibility    = isset( $w3tc_settings['visibility'] ) ? $w3tc_settings['visibility'] : 'never';
 
 		if ( 'never' === $visibility || ( 'extension' === $visibility && ! isset( $extensions['imageservice'] ) ) ) {
 			add_action(
@@ -240,12 +247,12 @@ class Root_Loader {
 		}
 
 		if ( function_exists( 'get_current_screen' ) ) {
-			$screen = get_current_screen();
+			$w3tc_screen = get_current_screen();
 		} else {
 			return;
 		}
 
-		if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
+		if ( ! $w3tc_screen || 'upload' !== $w3tc_screen->id || 'attachment' !== $w3tc_screen->post_type ) {
 			return;
 		}
 

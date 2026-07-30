@@ -1,119 +1,121 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
+const wp = requireRoot("lib/wp");
 
 /**environments: multiply(environments('blog'), environments('pagecache')) */
 
 let testPageUrl;
 let testPageAmpUrls;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("copy theme files", async () => {
+    let theme = await wp.getCurrentTheme(adminPage);
+    let themePath = env.wpContentPath + "themes/" + theme;
+    await sys.copyPhpToPath("../../plugins/pagecache/*", `${themePath}/qa`);
+    await wp.addQaBootstrap(
+      adminPage,
+      `${themePath}/functions.php`,
+      "/qa/template-amp-sc.php",
+    );
+    await sys.copyPhpToRoot("../../plugins/cache-entry.php");
+  });
 
+  it("set options", async () => {
+    await w3tc.activateExtension(adminPage, "amp");
+    await w3tc.setOptionInternal(adminPage, ["amp", "url_type"], "querystring");
+    await w3tc.setOptionInternal(adminPage, ["amp", "url_postfix"], "amp");
 
-	it('copy theme files', async() => {
-		let theme = await wp.getCurrentTheme(adminPage);
-		let themePath = env.wpContentPath + 'themes/' + theme;
-		await sys.copyPhpToPath('../../plugins/pagecache/*', `${themePath}/qa`);
-		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/template-amp-sc.php');
-		await sys.copyPhpToRoot('../../plugins/cache-entry.php');
-	});
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+      browsercache__enabled: false,
+      pgcache__engine: env.cacheEngineLabel,
+    });
 
+    await sys.afterRulesChange();
+  });
 
+  it("create test page", async () => {
+    let testPage = await wp.postCreate(adminPage, {
+      type: "page",
+      title: "test",
+      content: "page content [w3tcqa]",
+    });
+    testPageUrl = testPage.url;
+    testPageAmpUrls = [
+      testPage.url + "?amp",
+      testPage.url + "?amp=",
+      testPage.url + "?amp=1",
+    ];
+    log.log("amp page " + testPageAmpUrls);
+  });
 
-	it('set options', async() => {
-		await w3tc.activateExtension(adminPage, 'amp');
-		await w3tc.setOptionInternal(adminPage, ['amp', 'url_type'], 'querystring');
-		await w3tc.setOptionInternal(adminPage, ['amp', 'url_postfix'], 'amp');
+  it("check amp page", async () => {
+    await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
+    expect(await page.content()).contains("!regular-page!");
 
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true,
-			browsercache__enabled: false,
-			pgcache__engine: env.cacheEngineLabel
-		});
+    let testPageAmpUrl = testPageAmpUrls[0];
+    log.log("check " + testPageAmpUrl);
+    await w3tc.gotoWithPotentialW3TCRepeat(page, testPageAmpUrl);
+    expect(await page.content()).contains("!amp-page!");
 
-		await sys.afterRulesChange();
-	});
+    // trying to write a dummy word into the cached file
+    await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, "_amp");
+    //box.onPageChangedOutside(test);
 
+    // checking if the file was not regenerated again
+    log.log(
+      'Going to the page to check if the file has "test of cache" text...',
+    );
+    await page.goto(testPageAmpUrl);
+    expect(await page.content()).contains("Test of cache");
 
+    await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, "_amp");
 
-	it('create test page', async() => {
-	    let testPage = await wp.postCreate(adminPage, {
-	        type: 'page',
-	        title: 'test',
-	        content: 'page content [w3tcqa]'
-	    });
-	    testPageUrl = testPage.url;
-		testPageAmpUrls = [
-			testPage.url + '?amp',
-			testPage.url + '?amp=',
-			testPage.url + '?amp=1'
-		];
-		log.log('amp page ' + testPageAmpUrls);
-	});
+    log.log(
+      'Going2 to the homepage to check if the file has "test of cache" text...',
+    );
+    //box.onPageChangedOutside(test);
+    let response = await page.goto(testPageAmpUrl);
+    let html = await page.content();
+    expect(html.match(/Test of cache/g).length).equals(2);
 
+    for (testPageAmpUrl2 of testPageAmpUrls) {
+      log.log("check alternative amp " + testPageAmpUrl2);
+      let response = await page.goto(testPageAmpUrl2);
+      let html = await page.content();
+      expect(html).contains("!amp-page!");
+      expect(html).contains("Test of cache");
 
+      if (env.cacheEngineLabel == "file_generic") {
+        log.log("make sure not passed to PHP fallback and handled by rules");
+        let headers = response.headers();
 
-	it('check amp page', async() => {
-		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
-		expect(await page.content()).contains('!regular-page!');
+        console.log(headers);
+        phpResponse = headers["w3tc_php"] != null;
 
-		let testPageAmpUrl = testPageAmpUrls[0];
-		log.log('check ' + testPageAmpUrl);
-		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageAmpUrl);
-		expect(await page.content()).contains('!amp-page!');
+        if (env.boxName.indexOf("php55") >= 0) {
+          log.error(
+            "php handled here in apache 2.4.7 - skip it since its apache bug",
+          );
+        } else {
+          expect(phpResponse).is.false;
+        }
+      }
+    }
 
-		// trying to write a dummy word into the cached file
-		await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, '_amp');
-		//box.onPageChangedOutside(test);
-
-		// checking if the file was not regenerated again
-		log.log('Going to the page to check if the file has "test of cache" text...');
-		await page.goto(testPageAmpUrl);
-		expect(await page.content()).contains('Test of cache');
-
-		await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, '_amp');
-
-		log.log('Going2 to the homepage to check if the file has "test of cache" text...');
-		//box.onPageChangedOutside(test);
-		let response = await page.goto(testPageAmpUrl);
-		let html = await page.content();
-		expect(html.match(/Test of cache/g).length).equals(2);
-
-		for (testPageAmpUrl2 of testPageAmpUrls) {
-			log.log('check alternative amp ' + testPageAmpUrl2);
-			let response = await page.goto(testPageAmpUrl2);
-			let html = await page.content();
-			expect(html).contains('!amp-page!');
-			expect(html).contains('Test of cache');
-
-			if (env.cacheEngineLabel == 'file_generic') {
-				log.log('make sure not passed to PHP fallback and handled by rules');
-				let headers = response.headers();
-
-				console.log(headers);
-				phpResponse = (headers['w3tc_php'] != null);
-
-				if (env.boxName.indexOf('php55') >= 0) {
-					log.error('php handled here in apache 2.4.7 - skip it since its apache bug');
-				} else {
-					expect(phpResponse).is.false;
-				}
-			}
-		}
-
-		await page.goto(testPageUrl);
-		expect(await page.content()).contains('!regular-page!');
-	});
+    await page.goto(testPageUrl);
+    expect(await page.content()).contains("!regular-page!");
+  });
 });

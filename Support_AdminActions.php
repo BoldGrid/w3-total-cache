@@ -20,28 +20,32 @@ class Support_AdminActions {
 	 *
 	 * phpcs:disable WordPress.CodeAnalysis.AssignmentInCondition
 	 * phpcs:disable Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
-	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_phpinfo
 	 *
 	 * @return void
 	 */
 	public function w3tc_support_send_details() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
+
+		Util_Debug::audit_log(
+			'support_send',
+			array( 'destination' => W3TC_SUPPORT_REQUEST_URL )
+		);
 
 		$post = array();
 
-		foreach ( $_GET as $p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$post[ $p ] = Util_Request::get( $p );
+		foreach ( $_GET as $w3tc_p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$post[ $w3tc_p ] = Util_Request::get( $w3tc_p );
 		}
 
 		$post['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$post['version']    = W3TC_VERSION;
 
 		$license_level = 'community';
-		if ( Util_Environment::is_w3tc_pro( $c ) ) {
+		if ( Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
 			$license_level = 'pro';
 		}
 
-		$post['license_level'] = $license_level . ' ' . $c->get_string( 'plugin.license_key' );
+		$post['license_level'] = $license_level . ' ' . $w3tc_c->get_string( 'plugin.license_key' );
 
 		// Add attachments.
 		$attachments = array();
@@ -58,25 +62,40 @@ class Support_AdminActions {
 		// Attach config files.
 		$handle = opendir( W3TC_CONFIG_DIR );
 		if ( $handle ) {
-			$entry = @readdir( $handle );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry || 'index.html' === $entry ) {
-					$entry = @readdir( $handle );
+			$w3tc_entry = @readdir( $handle );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry || 'index.html' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $handle );
 					continue;
 				}
 
-				$attach_file[] = W3TC_CONFIG_DIR . '/' . $entry;
+				$attach_file[] = W3TC_CONFIG_DIR . '/' . $w3tc_entry;
 
-				$entry = @readdir( $handle );
+				$w3tc_entry = @readdir( $handle );
 			}
 			closedir( $handle );
 		}
 
+		$wp_config_path = Util_Environment::wp_config_path();
+
 		foreach ( $attach_files as $attach_file ) {
 			if ( $attach_file && file_exists( $attach_file ) && ! in_array( $attach_file, $attachments, true ) ) {
+				$content = file_get_contents( $attach_file );
+
+				/**
+				 * /214: the wp-config.php attachment ships the
+				 * DB password and every auth key/salt to a remote
+				 * endpoint. Strip those `define()` blocks before
+				 * transmission; everything else in the file remains
+				 * useful for support diagnosis.
+				 */
+				if ( $wp_config_path && $attach_file === $wp_config_path ) {
+					$content = Util_Debug::redact_secrets( $content );
+				}
+
 				$attachments[] = array(
 					'filename' => basename( $attach_file ),
-					'content'  => file_get_contents( $attach_file ),
+					'content'  => $content,
 				);
 			}
 		}
@@ -90,16 +109,14 @@ class Support_AdminActions {
 			'content'  => $server_info,
 		);
 
-		// Attach phpinfo.
-		ob_start();
-		phpinfo();
-		$php_info = ob_get_contents();
-		ob_end_clean();
-
-		$attachments[] = array(
-			'filename' => 'php_info.html',
-			'content'  => $php_info,
-		);
+		/**
+		 * Phpinfo() output includes the full $_SERVER environment
+		 * (cookie names, request URIs, loaded module paths) and a number
+		 * of configure-time PHP constants. The support payload already
+		 * includes server_info.txt and the redacted wp-config.php, which
+		 * together cover the operator-useful subset of phpinfo() without
+		 * those extra fields.
+		 */
 
 		// Attach self-test.
 		ob_start();
@@ -118,17 +135,17 @@ class Support_AdminActions {
 			W3TC_SUPPORT_REQUEST_URL,
 			array(
 				'body'    => $post,
-				'timeout' => $c->get_integer( 'timelimit.email_send' ),
+				'timeout' => $w3tc_c->get_integer( 'timelimit.email_send' ),
 			)
 		);
 
 		if ( ! is_wp_error( $response ) ) {
-			$result = 200 === $response['response']['code'] && 'ok' === $response['body'];
+			$w3tc_result = 200 === $response['response']['code'] && 'ok' === $response['body'];
 		} else {
-			$result = false;
+			$w3tc_result = false;
 		}
 
-		echo $result ? 'ok' : 'error';
+		echo $w3tc_result ? 'ok' : 'error';
 	}
 
 	/**

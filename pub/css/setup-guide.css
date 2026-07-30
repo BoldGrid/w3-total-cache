@@ -10,7 +10,7 @@
 }
 
 .w3tc-option-disabled {
-	color: darkgray;
+	color: #a9a9a9;
 }
 
 #w3tc-browsercache-table tr {
@@ -35,5 +35,5 @@ p#w3tc-breadcrumb {
 }
 
 .w3tc-wizard-slides p {
-	line-height: 1.2em !important;
+	line-height: 1.2 !important;
 }

@@ -1,22 +1,29 @@
 <?php
+/**
+ * File: memcached_extension.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
 /*
- * Requires $module variable
+ * Requires $w3tc_module variable
  */
 ?>
 <tr>
 	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<textarea id="memcached_servers" name="<?php echo esc_attr( $module ); ?>__memcached__servers" <?php Util_Ui::sealing_disabled( $module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $config->get_array( array( $module, 'memcached.servers' ) ) ) ); ?></textarea>
-		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
+		<textarea id="memcached_servers" name="<?php echo esc_attr( $w3tc_module ); ?>__memcached__servers" <?php Util_Ui::sealing_disabled( $w3tc_module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $w3tc_config->get_array( array( $w3tc_module, 'memcached.servers' ) ) ) ); ?></textarea>
+		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_test_memcached' ) ); ?>'}"
+			<?php Util_Ui::sealing_disabled( $w3tc_module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
 		<p class="description"><?php esc_html_e( 'Enter one server definition per line: e.g. 127.0.0.1:11211 or domain.com:11211.', 'w3-total-cache' ); ?></p>
@@ -26,7 +33,7 @@ $config = Dispatcher::config();
 
 Util_Ui::config_item(
 	array(
-		'key'            => array( $module, 'memcached.persistent' ),
+		'key'            => array( $w3tc_module, 'memcached.persistent' ),
 		'label'          => __( 'Use persistent connection:', 'w3-total-cache' ),
 		'control'        => 'checkbox',
 		'checkbox_label' => Util_ConfigLabel::get( 'memcached.persistent' ),
@@ -36,7 +43,7 @@ Util_Ui::config_item(
 
 Util_Ui::config_item(
 	array(
-		'key'            => array( $module, 'memcached.aws_autodiscovery' ),
+		'key'            => array( $w3tc_module, 'memcached.aws_autodiscovery' ),
 		'label'          => __( 'Node Auto Discovery:', 'w3-total-cache' ),
 		'control'        => 'checkbox',
 		'checkbox_label' => 'Amazon Node Auto Discovery',
@@ -51,7 +58,7 @@ Util_Ui::config_item(
 
 Util_Ui::config_item(
 	array(
-		'key'         => array( $module, 'memcached.username' ),
+		'key'         => array( $w3tc_module, 'memcached.username' ),
 		'label'       => Util_ConfigLabel::get( 'memcached.username' ),
 		'control'     => 'textbox',
 		'disabled'    => ( Util_Installed::memcache_auth() ? null : true ),
@@ -65,7 +72,7 @@ Util_Ui::config_item(
 
 Util_Ui::config_item(
 	array(
-		'key'         => array( $module, 'memcached.password' ),
+		'key'         => array( $w3tc_module, 'memcached.password' ),
 		'label'       => Util_ConfigLabel::get( 'memcached.password' ),
 		'control'     => 'textbox',
 		'disabled'    => ( Util_Installed::memcache_auth() ? null : true ),

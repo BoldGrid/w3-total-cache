@@ -47,25 +47,25 @@ class ConfigCompiler {
 	/**
 	 * Determines if a child key is sealed based on master and child configurations.
 	 *
-	 * @param string $key         The configuration key to check.
+	 * @param string $w3tc_key         The configuration key to check.
 	 * @param array  $master_data The master configuration data.
 	 * @param array  $child_data  The child configuration data.
 	 *
 	 * @return bool True if the key is sealed; false otherwise.
 	 */
-	public static function child_key_sealed( $key, $master_data, $child_data ) {
+	public static function child_key_sealed( $w3tc_key, $master_data, $child_data ) {
 		if ( isset( $master_data['common.force_master'] ) && (bool) $master_data['common.force_master'] ) {
 			return true;
 		}
 
 		// affects rules which are global, not possible to overload.
-		if ( 'pgcache.engine' === $key && 'file_generic' === $master_data['pgcache.engine'] ) {
+		if ( 'pgcache.engine' === $w3tc_key && 'file_generic' === $master_data['pgcache.engine'] ) {
 			return true;
 		}
 
 		if (
 			in_array(
-				$key,
+				$w3tc_key,
 				array(
 					'minify.rewrite',
 					'browsercache.rewrite',
@@ -85,7 +85,7 @@ class ConfigCompiler {
 		// extension settings sealing
 		// e.g. array('newrelic' , '...') is controlled
 		// by 'newrelic.configuration_overloaded'].
-		$block_key = ( is_array( $key ) ? $key[0] : $key );
+		$block_key = ( is_array( $w3tc_key ) ? $w3tc_key[0] : $w3tc_key );
 
 		if (
 			isset( $child_data[ $block_key ] ) &&
@@ -95,17 +95,17 @@ class ConfigCompiler {
 			return false;
 		}
 
-		if ( ! is_array( $key ) ) {
-			if ( substr( $key, strlen( $key ) - strlen( $overloads_postfix ), strlen( $overloads_postfix ) ) === $overloads_postfix ) {
+		if ( ! is_array( $w3tc_key ) ) {
+			if ( substr( $w3tc_key, strlen( $w3tc_key ) - strlen( $overloads_postfix ), strlen( $overloads_postfix ) ) === $overloads_postfix ) {
 				return false;
 			}
 
 			// default sealing.
-			foreach ( $overloading_keys_scope as $i ) {
-				$overloading_key = $i['key'];
+			foreach ( $w3tc_overloading_keys_scope as $w3tc_i ) {
+				$overloading_key = $w3tc_i['key'];
 
 				// check if this key is allowed by overloading-mark key.
-				if ( substr( $key, 0, strlen( $i['prefix'] ) ) === $i['prefix'] ) {
+				if ( substr( $w3tc_key, 0, strlen( $w3tc_i['prefix'] ) ) === $w3tc_i['prefix'] ) {
 					if ( ! isset( $child_data[ $overloading_key ] ) ) {
 						return true;
 					}
@@ -131,11 +131,11 @@ class ConfigCompiler {
 		if ( file_exists( $filename ) && is_readable( $filename ) ) {
 			// including file directly instead of read+eval causes constant problems
 			// with APC, ZendCache, and WSOD in a case of broken config file.
-			$content = @file_get_contents( $filename );
-			$config  = @json_decode( $content, true );
+			$content     = @file_get_contents( $filename );
+			$w3tc_config = @json_decode( $content, true );
 
-			if ( is_array( $config ) ) {
-				return $config;
+			if ( is_array( $w3tc_config ) ) {
+				return $w3tc_config;
 			}
 		}
 
@@ -155,11 +155,11 @@ class ConfigCompiler {
 		$this->_preview = $preview;
 
 		include W3TC_DIR . '/ConfigKeys.php';
-		$this->_keys = $keys;
+		$this->_keys = $w3tc_keys;
 
 		// move _date to initial state.
-		foreach ( $this->_keys as $key => $value ) {
-			$this->_data[ $key ] = $value['default'];
+		foreach ( $this->_keys as $w3tc_key => $w3tc_value ) {
+			$this->_data[ $w3tc_key ] = $w3tc_value['default'];
 		}
 
 		$this->_data['version'] = W3TC_VERSION;
@@ -170,30 +170,30 @@ class ConfigCompiler {
 	/**
 	 * Loads the configuration data from various sources.
 	 *
-	 * @param array|null $data Optional data to load. If null, data will be loaded from storage.
+	 * @param array|null $w3tc_data Optional data to load. If null, data will be loaded from storage.
 	 *
 	 * @return void
 	 */
-	public function load( $data = null ) {
+	public function load( $w3tc_data = null ) {
 		// apply data from master config.
-		if ( is_null( $data ) ) {
-			$data = Config::util_array_from_storage( 0, $this->_preview );
+		if ( is_null( $w3tc_data ) ) {
+			$w3tc_data = Config::util_array_from_storage( 0, $this->_preview );
 		}
-		if ( is_null( $data ) && $this->_preview ) {
+		if ( is_null( $w3tc_data ) && $this->_preview ) {
 			// try to read production data when preview not available.
-			$data = Config::util_array_from_storage( 0, false );
+			$w3tc_data = Config::util_array_from_storage( 0, false );
 		}
 
 		// try to get legacy v2 data.
-		if ( is_null( $data ) ) {
+		if ( is_null( $w3tc_data ) ) {
 			$master_filename = Config::util_config_filename_legacy_v2( 0, $this->_preview );
-			$data            = self::util_array_from_file_legacy_v2( $master_filename );
+			$w3tc_data       = self::util_array_from_file_legacy_v2( $master_filename );
 		}
 
-		if ( is_array( $data ) ) {
-			$data = $this->upgrade( $data );
-			foreach ( $data as $key => $value ) {
-				$this->_data[ $key ] = $value;
+		if ( is_array( $w3tc_data ) ) {
+			$w3tc_data = $this->upgrade( $w3tc_data );
+			foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+				$this->_data[ $w3tc_key ] = $w3tc_value;
 			}
 		}
 
@@ -202,23 +202,23 @@ class ConfigCompiler {
 		}
 
 		// apply child config.
-		$data = Config::util_array_from_storage( $this->_blog_id, $this->_preview );
-		if ( is_null( $data ) && $this->_preview ) {
+		$w3tc_data = Config::util_array_from_storage( $this->_blog_id, $this->_preview );
+		if ( is_null( $w3tc_data ) && $this->_preview ) {
 			// try to read production data when preview not available.
-			$data = Config::util_array_from_storage( $this->_blog_id, false );
+			$w3tc_data = Config::util_array_from_storage( $this->_blog_id, false );
 		}
 
 		// try to get legacy v2 data.
-		if ( is_null( $data ) ) {
+		if ( is_null( $w3tc_data ) ) {
 			$child_filename = Config::util_config_filename_legacy_v2( $this->_blog_id, $this->_preview );
-			$data           = self::util_array_from_file_legacy_v2( $child_filename );
+			$w3tc_data      = self::util_array_from_file_legacy_v2( $child_filename );
 		}
 
-		if ( is_array( $data ) ) {
-			$data = $this->upgrade( $data );
-			foreach ( $data as $key => $value ) {
-				if ( ! self::child_key_sealed( $key, $this->_data, $data ) ) {
-					$this->_data[ $key ] = $value;
+		if ( is_array( $w3tc_data ) ) {
+			$w3tc_data = $this->upgrade( $w3tc_data );
+			foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+				if ( ! self::child_key_sealed( $w3tc_key, $this->_data, $w3tc_data ) ) {
+					$this->_data[ $w3tc_key ] = $w3tc_value;
 				}
 			}
 		}
@@ -227,13 +227,13 @@ class ConfigCompiler {
 	/**
 	 * Applies provided data to the configuration.
 	 *
-	 * @param array $data The data to apply to the configuration.
+	 * @param array $w3tc_data The data to apply to the configuration.
 	 *
 	 * @return void
 	 */
-	public function apply_data( $data ) {
-		foreach ( $data as $key => $value ) {
-			$this->_data[ $key ] = $value;
+	public function apply_data( $w3tc_data ) {
+		foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+			$this->_data[ $w3tc_key ] = $w3tc_value;
 		}
 	}
 
@@ -252,27 +252,40 @@ class ConfigCompiler {
 	 * @return void
 	 */
 	public function save() {
-		$data = array(
+		$w3tc_data = array(
 			'version' => $this->_data['version'],
 		);
 
 		if ( $this->is_master() ) {
-			foreach ( $this->_data as $key => $value ) {
-				$data[ $key ] = $this->_data[ $key ];
+			foreach ( $this->_data as $w3tc_key => $w3tc_value ) {
+				$w3tc_data[ $w3tc_key ] = $this->_data[ $w3tc_key ];
 			}
 		} else {
 			// write only overwrited keys.
 			$master = new ConfigCompiler( 0, $this->_preview );
 			$master->load();
 
-			foreach ( $this->_data as $key => $value ) {
-				if ( ! self::child_key_sealed( $key, $master->_data, $this->_data ) ) {
-					$data[ $key ] = $this->_data[ $key ];
+			// The master config is read from disk as `enc:v1:...` for
+			// secret keys; the child config we're saving holds those
+			// keys as plaintext. Decrypt the master copy so the
+			// seal-comparison below is a like-for-like check, otherwise
+			// every child save would think every secret had changed.
+			Config::decrypt_secrets( $master->_data );
+
+			foreach ( $this->_data as $w3tc_key => $w3tc_value ) {
+				if ( ! self::child_key_sealed( $w3tc_key, $master->_data, $this->_data ) ) {
+					$w3tc_data[ $w3tc_key ] = $this->_data[ $w3tc_key ];
 				}
 			}
 		}
 
-		ConfigUtil::save_item( $this->_blog_id, $this->_preview, $data );
+		// Encrypt credential-typed keys (`flags.secret => true`) before
+		// they hit master.php. The in-memory `$this->_data` stays in
+		// plaintext so callers reading their values during the same
+		// request continue to see decrypted strings.
+		Config::encrypt_secrets( $w3tc_data );
+
+		ConfigUtil::save_item( $this->_blog_id, $this->_preview, $w3tc_data );
 	}
 
 	/**
@@ -425,8 +438,8 @@ class ConfigCompiler {
 			$file_data['extensions.active'] = $active;
 
 			$active_frontend = array();
-			foreach ( $active as $key => $value ) {
-				$active_frontend[ $key ] = '*';
+			foreach ( $active as $w3tc_key => $w3tc_value ) {
+				$active_frontend[ $w3tc_key ] = '*';
 			}
 
 			$file_data['extensions.active_frontend'] = $active_frontend;
@@ -524,15 +537,15 @@ class ConfigCompiler {
 	 * This method migrates extension-specific settings to the proper structure
 	 * within the configuration data.
 	 *
-	 * @param array  $a         Reference to the configuration data array.
-	 * @param string $extension The extension key to check and migrate.
+	 * @param array  $w3tc_a         Reference to the configuration data array.
+	 * @param string $w3tc_extension The extension key to check and migrate.
 	 *
 	 * @return void
 	 */
-	private function _set_if_exists_extension( &$a, $extension ) {
-		if ( isset( $a['extensions.settings'] ) && isset( $a['extensions.settings'][ $extension ] ) ) {
-			$a[ $extension ] = $a['extensions.settings'][ $extension ];
-			unset( $a['extensions.settings'][ $extension ] );
+	private function _set_if_exists_extension( &$w3tc_a, $w3tc_extension ) {
+		if ( isset( $w3tc_a['extensions.settings'] ) && isset( $w3tc_a['extensions.settings'][ $w3tc_extension ] ) ) {
+			$w3tc_a[ $w3tc_extension ] = $w3tc_a['extensions.settings'][ $w3tc_extension ];
+			unset( $w3tc_a['extensions.settings'][ $w3tc_extension ] );
 		}
 	}
 
@@ -542,17 +555,17 @@ class ConfigCompiler {
 	 * This method checks if the specified key exists in the data array and, if so,
 	 * moves its value to the designated nested configuration structure.
 	 *
-	 * @param array  $a        Reference to the configuration data array.
+	 * @param array  $w3tc_a        Reference to the configuration data array.
 	 * @param string $old_key  The existing key to check in the data array.
 	 * @param string $new_key0 The primary key for the new nested structure.
 	 * @param string $new_key1 The secondary key for the new nested structure.
 	 *
 	 * @return void
 	 */
-	private function _set_if_exists( &$a, $old_key, $new_key0, $new_key1 ) {
-		if ( isset( $a[ $old_key ] ) ) {
-			$a[ $new_key0 ][ $new_key1 ] = $a[ $old_key ];
-			unset( $a[ $old_key ] );
+	private function _set_if_exists( &$w3tc_a, $old_key, $new_key0, $new_key1 ) {
+		if ( isset( $w3tc_a[ $old_key ] ) ) {
+			$w3tc_a[ $new_key0 ][ $new_key1 ] = $w3tc_a[ $old_key ];
+			unset( $w3tc_a[ $old_key ] );
 		}
 	}
 }

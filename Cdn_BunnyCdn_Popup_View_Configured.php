@@ -8,12 +8,25 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
 <?php if ( ! empty( $error_messages ) ) : ?>
 	<div class="error">
-		<?php echo $error_messages; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php
+		/**
+		 * Escape at the sink. `$error_messages` is the join of one or
+		 * more `Cdn_BunnyCdn_Api`-side `\Exception::getMessage()`
+		 * values (see `Cdn_BunnyCdn_Popup::view_configured()` — the
+		 * `add_edge_rule` catch concatenates `$ex->getMessage()` to
+		 * the translated prefix without escaping). A BunnyCDN edge or
+		 * SDK error containing `<script>` would render here. Pin the
+		 * escape at this echo so a future supplier-side regression
+		 * (or a new try/catch added upstream) can't introduce a sink.
+		 */
+		echo nl2br( esc_html( (string) $error_messages ) );
+		?>
 	</div>
 <?php endif; ?>
 <form class="w3tc_cdn_bunnycdn_form">

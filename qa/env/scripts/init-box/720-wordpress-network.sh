@@ -1,4 +1,12 @@
-LIMITED="sudo -u www-data"
+#!/usr/bin/env bash
+
+set -e
+
+set -a
+[ -r /etc/environment ] && . /etc/environment
+set +a
+
+LIMITED="sudo -u www-data --preserve-env=PATH"
 
 if [ "$W3D_WP_NETWORK" = "subdomain" ]; then
     WP_NETWORK_OPTIONS="--subdomains"
@@ -9,8 +17,15 @@ fi
 
 if [ "$W3D_WP_NETWORK" = "subdir" ]; then
     WP_B2_SLUG="b2"
-    WP_B2_HOMEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}/b2${W3D_WP_HOME_URI}"
-    WP_B2_SITEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}/b2${W3D_WP_SITE_URI}"
+    # pathwp (home and site both under /wp/): subsites live at /wp/b2/, not /b2/wp/.
+    # Must match 100-generate-envs blog-2 URLs or wp-cli --url below exits under set -e.
+    if [ "$W3D_WP_HOME_URI" = "$W3D_WP_SITE_URI" ]; then
+        WP_B2_HOMEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}${W3D_WP_HOME_URI}b2/"
+        WP_B2_SITEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}${W3D_WP_SITE_URI}b2/"
+    else
+        WP_B2_HOMEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}/b2${W3D_WP_HOME_URI}"
+        WP_B2_SITEURL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}/b2${W3D_WP_SITE_URI}"
+    fi
 fi
 
 cd $W3D_WP_PATH

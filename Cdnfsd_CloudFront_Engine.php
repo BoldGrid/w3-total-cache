@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -41,17 +42,17 @@ class Cdnfsd_CloudFront_Engine {
 	/**
 	 * Constructor for the CloudFront engine.
 	 *
-	 * @param array $config Configuration array with keys:
+	 * @param array $w3tc_config Configuration array with keys:
 	 *                      'access_key'      - AWS access key.
 	 *                      'secret_key'      - AWS secret key.
 	 *                      'distribution_id' - CloudFront distribution ID.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$this->access_key      = $config['access_key'];
-		$this->secret_key      = $config['secret_key'];
-		$this->distribution_id = $config['distribution_id'];
+	public function __construct( $w3tc_config = array() ) {
+		$this->access_key      = $w3tc_config['access_key'];
+		$this->secret_key      = $w3tc_config['secret_key'];
+		$this->distribution_id = $w3tc_config['distribution_id'];
 	}
 
 	/**
@@ -65,8 +66,8 @@ class Cdnfsd_CloudFront_Engine {
 		$api = $this->_api();
 
 		$uris = array();
-		foreach ( $urls as $url ) {
-			$parsed       = wp_parse_url( $url );
+		foreach ( $urls as $w3tc_url ) {
+			$parsed       = wp_parse_url( $w3tc_url );
 			$relative_url = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
 				( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 			$uris[]       = $relative_url;

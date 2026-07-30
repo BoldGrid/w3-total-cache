@@ -1,73 +1,88 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
+const wp = requireRoot("lib/wp");
 
 /**environments: environments('blog') */
 
 let testPageUrl;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("set options", async () => {
+    /**
+     * The eval()/include primitives behind mfunc/mclude were removed; the
+     * dispatcher now only honours `call:<slug>` payloads against callbacks
+     * registered via the `w3tc_dynamic_callbacks` filter. This mu-plugin
+     * registers `qa_multiply` which returns `a * b` so the test below can
+     * assert on the same `4428840` (= 5678 * 780) hit indicator.
+     */
+    await sys.copyPhpToPath(
+      "../../plugins/pagecache/dynamic-mfunc-callback.php",
+      env.wpContentPath + "mu-plugins",
+    );
 
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+      browsercache__enabled: true,
+      pgcache__engine: "file",
+    });
 
-	it('set options', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true,
-			browsercache__enabled: true,
-			pgcache__engine: 'file'
-		});
+    /**
+     * Late init: cache HIT must run `_parse_dynamic` after MU-plugins
+     * register `w3tc_dynamic_callbacks` (see dynamic-late-init.js).
+     */
+    await w3tc.setOptions(adminPage, "w3tc_pgcache", {
+      pgcache_late_init: true,
+    });
 
-		await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
-			browsercache__html__compression: true,
-			browsercache__html__etag: false,
-			browsercache__html__expires: false,
-			browsercache__html__last_modified: false
-		});
+    await w3tc.setOptions(adminPage, "w3tc_browsercache", {
+      browsercache__html__compression: true,
+      browsercache__html__etag: false,
+      browsercache__html__expires: false,
+      browsercache__html__last_modified: false,
+    });
 
-		await wp.addWpConfigConstant(adminPage, 'W3TC_DYNAMIC_SECURITY', 'phptest');
-		await sys.afterRulesChange();
-	});
+    await wp.addWpConfigConstant(adminPage, "W3TC_DYNAMIC_SECURITY", "phptest");
+    await sys.afterRulesChange();
+  });
 
+  it("create test page", async () => {
+    let testPage = await wp.postCreate(adminPage, {
+      type: "post",
+      title: "post_1_title",
+      content:
+        '<!-- mfunc phptest call:qa_multiply {"a":5678,"b":780} --><!-- /mfunc phptest -->',
+    });
 
+    testPageUrl = testPage.url;
+  });
 
-	it('create test page', async() => {
-		let testPage = await wp.postCreate(adminPage, {
-			type: 'post',
-			title: 'post_1_title',
-			content: '<!-- mfunc phptest --> echo 5678 * 780; <!-- /mfunc phptest -->'
-		});
+  it("check mfunc works", async () => {
+    await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 
-		testPageUrl = testPage.url;
-	});
+    let content = await page.content();
+    expect(content).not.contains("call:qa_multiply");
+    expect(content).contains("4428840");
+  });
 
+  it("check mfunc works for 2nd request", async () => {
+    await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
+    let response = await page.goto(testPageUrl);
+    expect(response.headers()["content-encoding"]).equals("gzip");
 
-
-	it('check mfunc works', async() => {
-		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
-
-		let content = await page.content();
-		expect(content).not.contains('echo');
-		expect(content).contains('4428840');
-	});
-
-	it('check mfunc works for 2nd request', async() => {
-		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
-		let response = await page.goto(testPageUrl);
-		expect(response.headers()['content-encoding']).equals('gzip');
-
-		let content = await page.content();
-		expect(content).not.contains('echo');
-		expect(content).contains('4428840');
-	});
+    let content = await page.content();
+    expect(content).not.contains("call:qa_multiply");
+    expect(content).contains("4428840");
+  });
 });

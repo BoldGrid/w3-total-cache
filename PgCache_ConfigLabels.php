@@ -28,15 +28,61 @@ class PgCache_ConfigLabels {
 				'pgcache.cache.home'                => 'posts' === get_option( 'show_on_front' ) ? __( 'Cache front page', 'w3-total-cache' ) : __( 'Cache posts page', 'w3-total-cache' ),
 				'pgcache.reject.front_page'         => __( 'Don\'t cache front page', 'w3-total-cache' ),
 				'pgcache.cache.feed'                => __( 'Cache feeds: site, categories, tags, comments', 'w3-total-cache' ),
-				'pgcache.cache.ssl'                 => __( 'Cache <acronym title="Secure Socket Layer">SSL</acronym> (<acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym>) requests', 'w3-total-cache' ),
-				'pgcache.cache.query'               => __( 'Cache <acronym title="Uniform Resource Identifier">URI</acronym>s with query string variables', 'w3-total-cache' ),
+				'pgcache.cache.ssl'                 => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for SSL, 2: opening acronym tag for HTTPS, 3: closing acronym tag.
+						__(
+							'Cache %1$sSSL%3$s (%2$sHTTPS%3$s>) requests',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Secure Socket Layer', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol over SSL', 'w3-total-cache' ) . '">'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'pgcache.cache.query'               => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for URI, 2: closing acronym tag.
+						__(
+							'Cache %1$sURI%2$s with query string variables',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'pgcache.cache.404'                 => __( 'Cache 404 (not found) pages', 'w3-total-cache' ),
 				'pgcache.reject.logged'             => __( 'Don\'t cache pages for logged in users', 'w3-total-cache' ),
 				'pgcache.reject.logged_roles'       => __( 'Don\'t cache pages for following user roles', 'w3-total-cache' ),
 				'pgcache.prime.enabled'             => __( 'Automatically prime the page cache', 'w3-total-cache' ),
 				'pgcache.prime.interval'            => __( 'Update interval:', 'w3-total-cache' ),
 				'pgcache.prime.limit'               => __( 'Pages per interval:', 'w3-total-cache' ),
-				'pgcache.prime.sitemap'             => __( 'Sitemap <acronym title="Uniform Resource Indicator">URL</acronym>:', 'w3-total-cache' ),
+				'pgcache.prime.sitemap'             => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for URL, 2: closing acronym tag.
+						__(
+							'Sitemap %1$sURL%2$s:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'pgcache.prime.post.enabled'        => __( 'Preload cache upon publishing a post', 'w3-total-cache' ),
 				'pgcache.prime.post.update.enabled' => __( 'Preload cache upon updating a post', 'w3-total-cache' ),
 				'pgcache.purge.front_page'          => __( 'Front page', 'w3-total-cache' ),
@@ -57,8 +103,39 @@ class PgCache_ConfigLabels {
 				'pgcache.purge.pages'               => __( 'Additional pages:', 'w3-total-cache' ),
 				'pgcache.purge.sitemap_regex'       => __( 'Purge sitemaps:', 'w3-total-cache' ),
 				'pgcache.compatibility'             => __( 'Enable', 'w3-total-cache' ),
-				'pgcache.remove_charset'            => __( 'Disable <acronym title="Unicode Transformation Format">UTF</acronym>-8 blog charset support', 'w3-total-cache' ),
-				'pgcache.reject.request_head'       => __( ' Disable caching of HEAD <acronym title="Hypertext Transfer Protocol">HTTP</acronym> requests', 'w3-total-cache' ),
+				'pgcache.remove_charset'            => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for UTF, 2: closing acronym tag.
+						__(
+							'Disable %1$sUTF%2$s-8 blog charset support',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Unicode Transformation Format', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+
+				'pgcache.reject.request_head'       => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							' Disable caching of HEAD %1$sHTTP%2$s requests',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'pgcache.lifetime'                  => __( 'Maximum lifetime of cache objects:', 'w3-total-cache' ),
 				'pgcache.file.gc'                   => __( 'Garbage collection interval:', 'w3-total-cache' ),
 				'pgcache.comment_cookie_ttl'        => __( 'Comment cookie lifetime:', 'w3-total-cache' ),
@@ -73,7 +150,24 @@ class PgCache_ConfigLabels {
 				'pgcache.accept.files'              => __( 'Cache exception list:', 'w3-total-cache' ),
 				'pgcache.accept.uri'                => __( 'Non-trailing slash pages:', 'w3-total-cache' ),
 				'pgcache.cache.headers'             => __( 'Specify page headers:', 'w3-total-cache' ),
-				'pgcache.cache.nginx_handle_xml'    => __( 'Handle <acronym title="Extensible Markup Language">XML</acronym> mime type', 'w3-total-cache' ),
+				'pgcache.cache.nginx_handle_xml'    => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for UTF, 2: closing acronym tag.
+						__(
+							'Handle %1$sXML%2$s mime type',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Unicode Transformation Format', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'pgcache.mirrors.enabled'           => __( 'Cache alias hostnames:', 'w3-total-cache' ),
+				'pgcache.mirrors.home_urls'         => __( 'Additional home URLs:', 'w3-total-cache' ),
 			)
 		);
 	}

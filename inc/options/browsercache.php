@@ -1,11 +1,18 @@
 <?php
+/**
+ * File: browsercache.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$security_session_values = array(
+$w3tc_security_session_values = array(
 	''    => 'Default',
 	'on'  => 'Enable',
 	'off' => 'Disable',
@@ -13,6 +20,51 @@ $security_session_values = array(
 
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
+
+<?php
+$w3tc_browsercache_doc_url           = 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/';
+$w3tc_browsercache_learn_more_link   = static function ( $anchor, $setting_label ) use ( $w3tc_browsercache_doc_url ) {
+	if ( empty( $anchor ) || empty( $setting_label ) ) {
+		return '';
+	}
+
+	$title = sprintf(
+		/* translators: %s: Browser Cache setting name. */
+		__( 'Learn more about %s', 'w3-total-cache' ),
+		$setting_label
+	);
+
+	return ' <a target="_blank" href="' . esc_url( $w3tc_browsercache_doc_url . '#' . $anchor ) . '" title="' . esc_attr( $title ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>';
+};
+$w3tc_browsercache_anchor_allowed    = array(
+	'a'    => array(
+		'class'  => array(),
+		'href'   => array(),
+		'title'  => array(),
+		'target' => array(),
+	),
+	'span' => array(
+		'class' => array(),
+	),
+);
+$w3tc_browsercache_learn_more_output = static function ( $anchor, $config_key = '', $custom_label = '' ) use ( $w3tc_browsercache_learn_more_link ) {
+	if ( empty( $anchor ) ) {
+		return '';
+	}
+
+	$w3tc_label = $custom_label;
+
+	if ( empty( $w3tc_label ) && ! empty( $config_key ) ) {
+		$w3tc_label = Util_Ui::config_label( $config_key );
+	}
+
+	if ( empty( $w3tc_label ) ) {
+		$w3tc_label = $anchor;
+	}
+
+	return $w3tc_browsercache_learn_more_link( $anchor, wp_strip_all_tags( $w3tc_label ) );
+};
+?>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<p>
@@ -86,10 +138,12 @@ $security_session_values = array(
 						<input id="browsercache_last_modified" type="checkbox" name="expires"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 							value="1"<?php checked( $browsercache_last_modified, true ); ?> />
-						<?php esc_html_e( 'Set Last-Modified header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.last_modified' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-last-modified-header' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-last-modified-header', 'browsercache.cssjs.last_modified' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
@@ -97,38 +151,50 @@ $security_session_values = array(
 					<label>
 						<input id="browsercache_expires" type="checkbox" name="expires"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-							value="1"<?php checked( $browsercache_expires, true ); ?> /> <?php esc_html_e( 'Set expires header', 'w3-total-cache' ); ?>
+							value="1"<?php checked( $browsercache_expires, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.expires' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-expires-header' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-expires-header', 'browsercache.cssjs.expires' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_cache_control" type="checkbox"
-						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="cache_control" value="1"<?php checked( $browsercache_cache_control, true ); ?> /> <?php esc_html_e( 'Set cache control header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="cache_control" value="1"<?php checked( $browsercache_cache_control, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.cache.control' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-cache-control-header' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-cache-control-header', 'browsercache.cssjs.cache.control' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_etag" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="etag" value="1"<?php checked( $browsercache_etag, true ); ?> /> <?php esc_html_e( 'Set entity tag (ETag)', 'w3-total-cache' ); ?>
+						name="etag" value="1"<?php checked( $browsercache_etag, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.etag' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-entity-tag-etag' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-entity-tag-etag', 'browsercache.cssjs.etag' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_w3tc" type="checkbox" name="w3tc"
-						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="1" <?php checked( $browsercache_w3tc, true ); ?> /> <?php esc_html_e( 'Set W3 Total Cache header', 'w3-total-cache' ); ?>
+						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="1" <?php checked( $browsercache_w3tc, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.w3tc' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-w3-total-cache-header' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-w3-total-cache-header', 'browsercache.cssjs.w3tc' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
@@ -136,27 +202,12 @@ $security_session_values = array(
 					<label><input id="browsercache_compression" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="compression"<?php checked( $browsercache_compression, true ); ?> value="1" />
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-								__(
-									'Enable %1$sHTTP%2$s (gzip) compression',
-									'w3-total-cache'
-								),
-								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
-								'</acronym>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
-						);
-						?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpgzip-compression' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpgzip-compression', 'browsercache.cssjs.compression' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
@@ -165,46 +216,34 @@ $security_session_values = array(
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						<?php echo ! function_exists( 'brotli_compress' ) ? 'disabled="disabled"' : ''; ?>
 						name="compression"<?php checked( $browsercache_brotli, true ); ?> value="1" />
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-								__(
-									'Enable %1$sHTTP%2$s (brotli) compression',
-									'w3-total-cache'
-								),
-								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
-								'</acronym>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
-						);
-						?>
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpbrotli-compression' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpbrotli-compression', 'browsercache.cssjs.brotli' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_replace" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="replace" value="1"<?php checked( $browsercache_replace, true ); ?> /> <?php esc_html_e( 'Prevent caching of objects after settings change', 'w3-total-cache' ); ?>
+						name="replace" value="1"<?php checked( $browsercache_replace, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.replace' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#prevent-caching-of-objects-after-settings-change' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'prevent-caching-of-objects-after-settings-change', 'browsercache.cssjs.replace' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_querystring" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-						name="querystring" value="1"<?php checked( $browsercache_querystring, true ); ?> /> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?>
+						name="querystring" value="1"<?php checked( $browsercache_querystring, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.querystring' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#remove-query-strings-from-static-resources' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -224,6 +263,7 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'remove-query-strings-from-static-resources', 'browsercache.querystring' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
@@ -232,7 +272,6 @@ $security_session_values = array(
 					<label for="browsercache_replace_exceptions">
 						<?php Util_Ui::e_config_label( 'browsercache.replace.exceptions' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#prevent-caching-exception-list' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<textarea id="browsercache_replace_exceptions"
@@ -257,6 +296,7 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'prevent-caching-exception-list', 'browsercache.replace.exceptions' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</td>
 			</tr>
@@ -265,17 +305,22 @@ $security_session_values = array(
 					<label>
 						<input id="browsercache_nocookies" type="checkbox"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
-							name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ); ?> /> <?php esc_html_e( "Don't set cookies for static files", 'w3-total-cache' ); ?>
-						<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#dont-set-cookies-for-static-files' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
+							name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ); ?> />
+						<?php Util_Ui::e_config_label( 'browsercache.cssjs.nocookies' ); ?>
 					</label>
-					<p class="description"><?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'dont-set-cookies-for-static-files', 'browsercache.cssjs.nocookies' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.no404wp', ! Util_Rule::can_check_rules() ); ?> <?php Util_Ui::e_config_label( 'browsercache.no404wp' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#do-not-process-404-errors-for-static-objects-with-wordpress' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce server load by allowing the web server to handle 404 (not found) errors for static files (images etc).', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce server load by allowing the web server to handle 404 (not found) errors for static files (images etc).', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'do-not-process-404-errors-for-static-objects-with-wordpress', 'browsercache.no404wp' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -303,7 +348,6 @@ $security_session_values = array(
 					<label for="browsercache_no404wp_exceptions">
 						<?php Util_Ui::e_config_label( 'browsercache.no404wp.exceptions' ); ?>
 					</label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#404-error-exception-list' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<textarea id="browsercache_no404wp_exceptions"
@@ -328,6 +372,7 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( '404-error-exception-list', 'browsercache.no404wp.exceptions' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</td>
 			</tr>
@@ -337,7 +382,6 @@ $security_session_values = array(
 					'key'            => 'browsercache.rewrite',
 					'disabled'       => Util_Ui::sealing_disabled( 'browsercache.' ),
 					'control'        => 'checkbox',
-					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#rewriteurlstructure-of-objects' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'checkbox_label' => wp_kses(
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -369,7 +413,7 @@ $security_session_values = array(
 								'title' => array(),
 							),
 						)
-					),
+					) . $w3tc_browsercache_learn_more_output( 'rewriteurlstructure-of-objects', 'browsercache.rewrite' ),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);
@@ -409,59 +453,83 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.last_modified' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.last_modified' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-last-modified-header-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-last-modified-header-cssjs', 'browsercache.cssjs.last_modified' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.expires' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.expires' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-expires-header-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-expires-header-cssjs', 'browsercache.cssjs.expires' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th>
 					<label for="browsercache_cssjs_lifetime"><?php Util_Ui::e_config_label( 'browsercache.cssjs.lifetime' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#expires-header-lifetime-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<input id="browsercache_cssjs_lifetime" type="text"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="browsercache__cssjs__lifetime" value="<?php echo esc_attr( $this->_config->get_integer( 'browsercache.cssjs.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: Resource type. */
+							esc_html__( 'Specify how long %s files should be cached (in seconds).', 'w3-total-cache' ),
+							esc_html__( 'CSS and JS', 'w3-total-cache' )
+						);
+						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'expires-header-lifetime-cssjs', 'browsercache.cssjs.lifetime' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.cache.control' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.cache.control' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-cache-control-header-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-cache-control-header-cssjs', 'browsercache.cssjs.cache.control' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th>
 					<label for="browsercache_cssjs_cache_policy"><?php Util_Ui::e_config_label( 'browsercache.cssjs.cache.policy' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#cache-control-policy-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<select id="browsercache_cssjs_cache_policy"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="browsercache__cssjs__cache__policy">
 						<?php
-						$value         = $this->_config->get_string( 'browsercache.cssjs.cache.policy' );
-						$cssjs_expires = $this->_config->get_boolean( 'browsercache.cssjs.expires' );
+						$w3tc_value         = $this->_config->get_string( 'browsercache.cssjs.cache.policy' );
+						$w3tc_cssjs_expires = $this->_config->get_boolean( 'browsercache.cssjs.expires' );
 						?>
-						<option value="cache"<?php selected( $value, 'cache' ); ?>>cache ("public")</option>
-						<option value="cache_public_maxage"<?php selected( $value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $cssjs_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
-						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $cssjs_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
-						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
-						<option value="cache_immutable"<?php selected( $value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
-						<option value="cache_immutable_nomaxage"<?php selected( $value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache"<?php selected( $w3tc_value, 'cache' ); ?>>cache ("public")</option>
+						<option value="cache_public_maxage"<?php selected( $w3tc_value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $w3tc_cssjs_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
+						<option value="cache_validation"<?php selected( $w3tc_value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_maxage"<?php selected( $w3tc_value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $w3tc_cssjs_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_noproxy"<?php selected( $w3tc_value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $w3tc_value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $w3tc_value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable"<?php selected( $w3tc_value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable_nomaxage"<?php selected( $w3tc_value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
 					</select>
-					<?php if ( $is_nginx && $cssjs_expires ) : ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: Resource type. */
+							esc_html__( 'Choose the Cache-Control policy applied to %s responses.', 'w3-total-cache' ),
+							esc_html__( 'CSS and JS', 'w3-total-cache' )
+						);
+						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'cache-control-policy-cssjs', 'browsercache.cssjs.cache.policy' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
+					<?php if ( $is_nginx && $w3tc_cssjs_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
 					<?php endif; ?>
 				</td>
@@ -469,42 +537,51 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.etag' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.etag' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-entity-tag-etag-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-entity-tag-etag-cssjs', 'browsercache.cssjs.etag' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.w3tc' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.w3tc' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-w3-total-cache-header-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-w3-total-cache-header-cssjs', 'browsercache.cssjs.w3tc' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enable-http-gzip-compression-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enable-http-gzip-compression-cssjs', 'browsercache.cssjs.compression' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enable-http-brotli-compression-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enable-http-brotli-compression-cssjs', 'browsercache.cssjs.brotli' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.replace' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.replace' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#prevent-caching-of-objects-after-settings-change-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'prevent-caching-of-objects-after-settings-change-cssjs', 'browsercache.cssjs.replace' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.querystring' ); ?> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#remove-query-strings-from-static-resources-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
+					<?php $this->checkbox( 'browsercache.cssjs.querystring' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.querystring' ); ?></label>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -524,14 +601,17 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'remove-query-strings-from-static-resources-cssjs', 'browsercache.cssjs.querystring' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.nocookies' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.nocookies' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#disable-cookies-for-static-files-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'disable-cookies-for-static-files-cssjs', 'browsercache.cssjs.nocookies' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 		</table>
@@ -569,21 +649,24 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.last_modified' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.last_modified' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-last-modified-header-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-last-modified-header-htmlxml', 'browsercache.html.last_modified' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.expires' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.expires' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-expires-header-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-expires-header-htmlxml', 'browsercache.html.expires' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th style="width: 250px;">
 					<label for="browsercache_html_lifetime"><?php Util_Ui::e_config_label( 'browsercache.html.lifetime' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#expires-header-lifetime-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<input id="browsercache_html_lifetime" type="text" name="browsercache__html__lifetime"
@@ -604,37 +687,49 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'expires-header-lifetime-htmlxml', 'browsercache.html.lifetime' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.cache.control' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.cache.control' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-cache-control-header-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-cache-control-header-htmlxml', 'browsercache.html.cache.control' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th>
 					<label for="browsercache_html_cache_policy"><?php Util_Ui::e_config_label( 'browsercache.html.cache.policy' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#cache-control-policy-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<select id="browsercache_html_cache_policy" name="browsercache__html__cache__policy"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>>
 						<?php
-						$value        = $this->_config->get_string( 'browsercache.html.cache.policy' );
-						$html_expires = $this->_config->get_boolean( 'browsercache.html.expires' );
+						$w3tc_value        = $this->_config->get_string( 'browsercache.html.cache.policy' );
+						$w3tc_html_expires = $this->_config->get_boolean( 'browsercache.html.expires' );
 						?>
-						<option value="cache"<?php selected( $value, 'cache' ); ?>>cache ("public")</option>
-						<option value="cache_public_maxage"<?php selected( $value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $html_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
-						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $html_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
-						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
+						<option value="cache"<?php selected( $w3tc_value, 'cache' ); ?>>cache ("public")</option>
+						<option value="cache_public_maxage"<?php selected( $w3tc_value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $w3tc_html_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
+						<option value="cache_validation"<?php selected( $w3tc_value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_maxage"<?php selected( $w3tc_value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $w3tc_html_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_noproxy"<?php selected( $w3tc_value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $w3tc_value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $w3tc_value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
 					</select>
-					<?php if ( $is_nginx && $html_expires ) : ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: Resource type. */
+							esc_html__( 'Choose the Cache-Control policy applied to %s responses.', 'w3-total-cache' ),
+							esc_html__( 'HTML and XML', 'w3-total-cache' )
+						);
+						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'cache-control-policy-htmlxml', 'browsercache.html.cache.policy' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
+					<?php if ( $is_nginx && $w3tc_html_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
 					<?php endif; ?>
 				</td>
@@ -642,29 +737,37 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.etag' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.etag' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-entity-tag-etag-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-entity-tag-etag-htmlxml', 'browsercache.html.etag' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.w3tc' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.w3tc' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-w3-total-cache-header-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-w3-total-cache-header-htmlxml', 'browsercache.html.w3tc' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.compression' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpgzip-compression-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpgzip-compression-htmlxml', 'browsercache.html.compression' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.html.brotli' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpbrotli-compression-htmlxml' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpbrotli-compression-htmlxml', 'browsercache.html.brotli' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 		</table>
@@ -676,59 +779,83 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.last_modified' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.last_modified' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-last-modified-header-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-last-modified-header-media', 'browsercache.other.last_modified' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.expires' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.expires' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-expires-header-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-expires-header-media', 'browsercache.other.expires' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th style="width: 250px;">
 					<label for="browsercache_other_lifetime"><?php Util_Ui::e_config_label( 'browsercache.other.lifetime' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#expires-header-lifetime-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<input id="browsercache_other_lifetime" type="text"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="browsercache__other__lifetime" value="<?php echo esc_attr( $this->_config->get_integer( 'browsercache.other.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: Resource type. */
+							esc_html__( 'Specify how long %s files should be cached (in seconds).', 'w3-total-cache' ),
+							esc_html__( 'media and other files', 'w3-total-cache' )
+						);
+						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'expires-header-lifetime-media', 'browsercache.other.lifetime' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.cache.control' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.cache.control' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-cache-control-header-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-cache-control-header-media', 'browsercache.other.cache.control' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th>
 					<label for="browsercache_other_cache_policy"><?php Util_Ui::e_config_label( 'browsercache.other.cache.policy' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#cache-control-policy-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 				</th>
 				<td>
 					<select id="browsercache_other_cache_policy"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						name="browsercache__other__cache__policy">
 						<?php
-						$value         = $this->_config->get_string( 'browsercache.other.cache.policy' );
-						$other_expires = $this->_config->get_string( 'browsercache.other.expires' );
+						$w3tc_value         = $this->_config->get_string( 'browsercache.other.cache.policy' );
+						$w3tc_other_expires = $this->_config->get_string( 'browsercache.other.expires' );
 						?>
-						<option value="cache"<?php selected( $value, 'cache' ); ?>><?php esc_html_e( 'cache ("public")', 'w3-total-cache' ); ?></option>
-						<option value="cache_public_maxage"<?php selected( $value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $other_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
-						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $other_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
-						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
-						<option value="cache_immutable"<?php selected( $value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
-						<option value="cache_immutable_nomaxage"<?php selected( $value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache"<?php selected( $w3tc_value, 'cache' ); ?>><?php esc_html_e( 'cache ("public")', 'w3-total-cache' ); ?></option>
+						<option value="cache_public_maxage"<?php selected( $w3tc_value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $w3tc_other_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
+						<option value="cache_validation"<?php selected( $w3tc_value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_maxage"<?php selected( $w3tc_value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $w3tc_other_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="cache_noproxy"<?php selected( $w3tc_value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $w3tc_value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $w3tc_value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable"<?php selected( $w3tc_value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable_nomaxage"<?php selected( $w3tc_value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
 					</select>
-					<?php if ( $is_nginx && $other_expires ) : ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: Resource type. */
+							esc_html__( 'Choose the Cache-Control policy applied to %s responses.', 'w3-total-cache' ),
+							esc_html__( 'media and other files', 'w3-total-cache' )
+						);
+						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'cache-control-policy-media', 'browsercache.other.cache.policy' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
+					<?php if ( $is_nginx && $w3tc_other_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
 					<?php endif; ?>
 				</td>
@@ -736,42 +863,51 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.etag' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.etag' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-entity-tag-etag-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-entity-tag-etag-media', 'browsercache.other.etag' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.w3tc' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.w3tc' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#set-w3-total-cache-header-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'set-w3-total-cache-header-media', 'browsercache.other.w3tc' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.compression' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpgzip-compression-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpgzip-compression-media', 'browsercache.other.compression' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpbrotli-compression-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'enablehttpbrotli-compression-media', 'browsercache.other.brotli' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.replace' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.replace' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#prevent-caching-of-objects-after-settings-change-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'prevent-caching-of-objects-after-settings-change-media', 'browsercache.other.replace' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.other.querystring' ); ?> <?php esc_html_e( 'Remove query strings from static resources', 'w3-total-cache' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#remove-query-strings-from-static-resources-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
+					<?php $this->checkbox( 'browsercache.other.querystring' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.querystring' ); ?></label>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -791,14 +927,17 @@ $security_session_values = array(
 							)
 						);
 						?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'remove-query-strings-from-static-resources-media', 'browsercache.other.querystring' ), $w3tc_browsercache_anchor_allowed ); ?>
 					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.nocookies' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.nocookies' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#disable-cookies-for-static-files-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
-					<p class="description"><?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php esc_html_e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?>
+						<?php echo wp_kses( $w3tc_browsercache_learn_more_output( 'disable-cookies-for-static-files-media', 'browsercache.other.nocookies' ), $w3tc_browsercache_anchor_allowed ); ?>
+					</p>
 				</th>
 			</tr>
 		</table>

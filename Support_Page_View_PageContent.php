@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <div id="wufoo-m5pom8z0qy59rm"></div>

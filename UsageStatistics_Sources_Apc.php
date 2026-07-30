@@ -29,8 +29,8 @@ class UsageStatistics_Sources_Apc {
 	 *                                  an associative array containing module details.
 	 */
 	public function __construct( $server_descriptors ) {
-		foreach ( $server_descriptors as $module_key => $i ) {
-			$this->module_names[] = $i['name'];
+		foreach ( $server_descriptors as $module_key => $w3tc_i ) {
+			$this->module_names[] = $w3tc_i['name'];
 		}
 	}
 

@@ -1,166 +1,176 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
 /**environments: multiply(environments('blog'), environments('pagecache')) */
 
 let otherTheme;
 
-log.log('WordPress version number: ' + parseFloat(env.wpVersion));
+log.log("WordPress version number: " + parseFloat(env.wpVersion));
 
-if (parseFloat(env.wpVersion) < 4.4) {
-	otherTheme = 'twentythirteen/twentythirteen';
-} else if (parseFloat(env.wpVersion) < 4.7) {
-	otherTheme = 'twentyfourteen/twentyfourteen';
-} else if (parseFloat(env.wpVersion) < 5.0) {
-	otherTheme = 'twentyfifteen/twentyfifteen';
-} else if (parseFloat(env.wpVersion) < 5.5) {
-	otherTheme = 'twentysixteen/twentysixteen';
-} else if (parseFloat(env.wpVersion) < 5.9) {
-	otherTheme = 'twentynineteen/twentynineteen';
-} else if (parseFloat(env.wpVersion) < 6.1) {
-	otherTheme = 'twentytwenty/twentytwenty';
+if (parseFloat(env.wpVersion) < 6.1) {
+  otherTheme = "twentytwenty/twentytwenty";
 } else if (parseFloat(env.wpVersion) < 6.4) {
-	otherTheme = 'twentytwentythree/twentytwentythree';
+  otherTheme = "twentytwentythree/twentytwentythree";
 } else if (parseFloat(env.wpVersion) < 6.7) {
-	otherTheme = 'twentytwentyfour/twentytwentyfour';
+  otherTheme = "twentytwentyfour/twentytwentyfour";
 } else {
-	// WP 6.7.
-	otherTheme = 'twentytwentyfive/twentytwentyfive';
+  otherTheme = "twentytwentyfive/twentytwentyfive";
 }
 
-log.log('Switch to theme: ' + otherTheme);
+log.log("Switch to theme: " + otherTheme);
 
-let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/, 'for-tests.wp.sandbox') +
-	'user-agent-groups.php?path=' + env.blogSiteUrl;
+let pluginUrl =
+  env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/, "for-tests.wp.sandbox") +
+  "user-agent-groups.php?path=" +
+  env.blogSiteUrl;
 
-describe('', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("copy files", async () => {
+    await sys.copyPhpToRoot("../../plugins/generic/user-agent-groups.php");
+  });
 
+  it("set options", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+      pgcache__engine: env.cacheEngineLabel,
+    });
 
-	it('copy files', async() => {
-		await sys.copyPhpToRoot('../../plugins/generic/user-agent-groups.php');
-	});
+    await w3tc.setOptions(adminPage, "w3tc_pgcache", {
+      pgcache__cache__home: true,
+    });
 
+    // Plain page-cache keys (no _gzip segment) so backend probes match runtime writes.
+    await w3tc.setOptions(adminPage, "w3tc_browsercache", {
+      browsercache__html__etag: false,
+      browsercache__html__last_modified: false,
+      browsercache__html__compression: false,
+    });
+  });
 
+  it("add user agent group", async () => {
+    await adminPage.goto(
+      env.networkAdminUrl + "admin.php?page=w3tc_cachegroups",
+    );
+    await adminPage.waitForSelector("#mobile_add");
+    adminPage._overwriteSystemDialogPrompt = true;
 
-	it('set options', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true,
-			pgcache__engine: env.cacheEngineLabel
-		});
-	});
+    const dialogPromise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error("Dialog did not appear within timeout"));
+      }, 10000);
 
+      adminPage.once("dialog", async (dialog) => {
+        clearTimeout(timeout);
+        log.log("fill prompt");
+        await dialog.accept("test1");
+        adminPage._overwriteSystemDialogPrompt = false;
+        resolve();
+      });
+    });
 
+    await Promise.all([adminPage.click("#mobile_add"), dialogPromise]);
 
-	it('add user agent group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
-		adminPage._overwriteSystemDialogPrompt = true;
-		adminPage.once('dialog', async dialog => {
-  			log.log('fill prompt');
-  			await dialog.accept('test1');
-			adminPage._overwriteSystemDialogPrompt = false;
-		});
+    log.log("wait button to create elements");
+    await adminPage.waitForSelector("#mobile_groups_test1_redirect");
 
-		await adminPage.click('#mobile_add');
+    await adminPage.$eval(
+      "#mobile_groups_test1_agents",
+      (e) => (e.value = "safari"),
+    );
+    await adminPage.$eval(
+      "#mobile_groups_test1_theme",
+      (e, v) => (e.value = v),
+      otherTheme,
+    );
 
-		log.log('wait button to create elements');
-		await adminPage.waitForSelector('#mobile_groups_test1_redirect');
+    let saveSelector = 'input[name="w3tc_save_options"]';
+    await Promise.all([
+      adminPage.evaluate(
+        (saveSelector) => document.querySelector(saveSelector).click(),
+        saveSelector,
+      ),
+      adminPage.waitForNavigation(),
+    ]);
 
-		await adminPage.$eval('#mobile_groups_test1_agents',
-			(e) => e.value = 'safari');
-		await adminPage.$eval('#mobile_groups_test1_theme',
-			(e, v) => e.value = v, otherTheme);
+    //checking if the group was created
+    expect(await adminPage.content()).contains(
+      "Plugin configuration successfully updated",
+    );
+  });
 
-		let saveSelector = 'input[name="w3tc_save_options"]';
-		await Promise.all([
-			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
-			adminPage.waitForNavigation()
-		]);
+  it("create 2 copies of page", async () => {
+    await page.setUserAgent(sys.qaPageCacheUserAgent);
+    await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+    w3tc.expectPageCachingMethod(await page.content(), env.cacheEngineName);
 
-		//checking if the group was created
-		expect(await adminPage.content()).contains('Plugin configuration successfully updated');
-	});
+    await page.setUserAgent(sys.qaPageCacheSafariUserAgent);
+    await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+    w3tc.expectPageCachingMethod(await page.content(), env.cacheEngineName);
 
+    let theme = otherTheme.split("/");
 
+    let css;
+    if (theme[0] == "twentytwenty") {
+      css = await page.$eval("#twentytwenty-style-css", (e) =>
+        e.getAttribute("href"),
+      );
+    } else if (theme[0] == "twentytwentythree") {
+      css = await page.$eval("#wp-webfonts-inline-css", (e) => e.innerHTML);
+    } else if (["twentytwentyfour", "twentytwentyfive"].includes(theme[0])) {
+      css = await page.$eval(
+        parseFloat(env.wpVersion) >= 6.7
+          ? ".wp-fonts-local"
+          : "#wp-fonts-local",
+        (e) => e.innerHTML,
+      );
+    } else {
+      css = await page.$eval('link[type="text/css"]', (e) =>
+        e.getAttribute("href"),
+      );
+    }
 
-	it('create 2 copies of page', async() => {
-		await page.setUserAgent(
-			'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-			'Chrome/40.0.2214.111');
-		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+    if (
+      ["twentytwentythree", "twentytwentyfour", "twentytwentyfive"].includes(
+        theme[0],
+      )
+    ) {
+      expect(css).contains("themes/" + theme[0] + "/assets/");
+    } else {
+      expect(css).contains("themes/" + theme[0] + "/style.css");
+    }
+  });
 
-		await page.setUserAgent(
-			'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-			'Safari/537.36');
-		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
+  it("check 2 copies exists in a cache", async () => {
+    let checkUrl =
+      env.blogSiteUrl +
+      "user-agent-groups.php?engine=" +
+      env.cacheEngineLabel +
+      "&url=" +
+      env.homeUrl +
+      "&blog_id=" +
+      env.blogId;
 
-		let theme = otherTheme.split('/');
+    log.log(`opening ${checkUrl}`);
 
-		let css;
-		if (theme[0] == 'twentythirteen') {
-			css = await page.$eval('#twentythirteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentyfourteen') {
-			css = await page.$eval('#twentyfourteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentyfifteen') {
-		 	css = await page.$eval('#twentyfifteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentysixteen') {
-		 	css = await page.$eval('#twentysixteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentynineteen') {
-			css = await page.$eval('#twentynineteen-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwenty') {
-			css = await page.$eval('#twentytwenty-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentyone') {
-			css = await page.$eval('#twenty-twenty-one-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentytwo') {
-			css = await page.$eval('#twentytwentytwo-style-css',
-				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentythree') {
-			css = await page.$eval('#wp-webfonts-inline-css',
-				(e) => e.innerHTML);
-		} else if (['twentytwentyfour', 'twentytwentyfive'].includes(theme[0])) {
-			css = await page.$eval(
-				parseFloat(env.wpVersion) >= 6.7 ? '.wp-fonts-local': '#wp-fonts-local',
-				(e) => e.innerHTML
-			);
-		} else {
-			css = await page.$eval('link[type="text/css"]',
-				(e) => e.getAttribute('href'));
-		}
+    await page.goto(checkUrl);
+    let content = await page.content();
 
-		if (['twentytwentythree', 'twentytwentyfour', 'twentytwentyfive'].includes(theme[0])) {
-			expect(css).contains('themes/' + theme[0] + '/assets/');
-		} else {
-			expect(css).contains('themes/' + theme[0] + '/style.css');
-		}
-	});
+    if (content.indexOf("ok") < 0) {
+      log.error("probe diagnostics: " + content);
+    }
 
-
-
-	it('check 2 copies exists in a cache', async() => {
-		let checkUrl = env.blogSiteUrl + 'user-agent-groups.php?engine=' + env.cacheEngineLabel +
-			'&url=' + env.homeUrl + '&blog_id=' + env.blogId;
-
-		log.log(`opening ${checkUrl}`);
-
-		await page.goto(checkUrl);
-		expect(await page.content()).contains('ok');
-	});
+    expect(content).contains("ok");
+  });
 });

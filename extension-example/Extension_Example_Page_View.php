@@ -1,4 +1,10 @@
 <?php
+/**
+ * Example extension settings page view.
+ *
+ * @package W3TCExample
+ */
+
 namespace W3TCExample;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -13,12 +19,10 @@ if ( ! defined( 'W3TC' ) ) {
 
 <div class="metabox-holder">
 <?php
-// render settings box header.
 \W3TC\Util_Ui::postbox_header( 'Example extension' );
 ?>
 <table class="form-table">
 	<?php
-	// render controls showing content of w3tc configuration options.
 	\W3TC\Util_Ui::config_item(
 		array(
 			'key'            => array( 'example', 'is_title_postfix' ),
@@ -38,9 +42,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </table>
 <?php
-// render save button for ::config_item controls.
 \W3TC\Util_Ui::button_config_save( 'extension_example' );
-// render settings box footer.
 \W3TC\Util_Ui::postbox_footer();
 ?>
 </div>

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -30,12 +31,12 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 	/**
 	 * Constructor for the CDN Engine CloudFront class.
 	 *
-	 * @param array $config Configuration array for CloudFront client.
+	 * @param array $w3tc_config Configuration array for CloudFront client.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
 	}
 
 	/**
@@ -98,11 +99,11 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 			return false;
 		}
 
-		$paths = array();
+		$w3tc_paths = array();
 
-		foreach ( $files as $file ) {
-			$remote_file = $file['remote_path'];
-			$paths[]     = '/' . $remote_file;
+		foreach ( $files as $w3tc_file ) {
+			$remote_file  = $w3tc_file['remote_path'];
+			$w3tc_paths[] = '/' . $remote_file;
 		}
 
 		try {
@@ -112,8 +113,8 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 					'InvalidationBatch' => array(
 						'CallerReference' => 'w3tc-' . microtime(),
 						'Paths'           => array(
-							'Items'    => $paths,
-							'Quantity' => count( $paths ),
+							'Items'    => $w3tc_paths,
+							'Quantity' => count( $w3tc_paths ),
 						),
 					),
 				)
@@ -201,14 +202,14 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		}
 
 		if ( ! empty( $this->_config['cname'] ) ) {
-			$domains = (array) $this->_config['cname'];
-			$cnames  = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
+			$domains     = (array) $this->_config['cname'];
+			$w3tc_cnames = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
 
 			foreach ( $domains as $domain ) {
 				$_domains = array_map( 'trim', explode( ',', $domain ) );
 
 				foreach ( $_domains as $_domain ) {
-					if ( ! in_array( $_domain, $cnames, true ) ) {
+					if ( ! in_array( $_domain, $w3tc_cnames, true ) ) {
 						$error = sprintf( 'Domain name %s is not in distribution <acronym title="Canonical Name">CNAME</acronym> list.', $_domain );
 
 						return false;
@@ -241,13 +242,13 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		$this->_init();
 
 		// plugin cant set CNAMEs list since it CloudFront requires certificate to be specified associated with it.
-		$cnames = array();
+		$w3tc_cnames = array();
 
 		// make distibution.
 		$origin_domain = $this->_get_origin();
 
 		try {
-			$result = $this->api->createDistribution(
+			$w3tc_result = $this->api->createDistribution(
 				array(
 					'DistributionConfig' => array(
 						'CallerReference'      => $origin_domain,
@@ -314,15 +315,15 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 							'Quantity' => 1,
 						),
 						'Aliases'              => array(
-							'Items'    => $cnames,
-							'Quantity' => count( $cnames ),
+							'Items'    => $w3tc_cnames,
+							'Quantity' => count( $w3tc_cnames ),
 						),
 					),
 				)
 			);
 
 			// extract domain dynamic part stored later in a config.
-			$domain       = $result['Distribution']['DomainName'];
+			$domain       = $w3tc_result['Distribution']['DomainName'];
 			$container_id = '';
 			if ( preg_match( '~^(.+)\.cloudfront\.net$~', $domain, $matches ) ) {
 				$container_id = $matches[1];
@@ -391,8 +392,8 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		$items = $dists['DistributionList']['Items'];
 		foreach ( $items as $dist ) {
 			if ( isset( $dist['Origins']['Items'] ) ) {
-				foreach ( $dist['Origins']['Items'] as $o ) {
-					if ( isset( $o['DomainName'] ) && $o['DomainName'] === $origin ) {
+				foreach ( $dist['Origins']['Items'] as $w3tc_o ) {
+					if ( isset( $w3tc_o['DomainName'] ) && $w3tc_o['DomainName'] === $origin ) {
 						return $dist;
 					}
 				}

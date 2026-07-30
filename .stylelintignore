@@ -1,0 +1,7 @@
+vendor/**
+node_modules/**
+lib/**
+qa/**
+tests/**
+bin/**
+tools/**

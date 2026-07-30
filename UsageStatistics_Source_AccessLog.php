@@ -17,6 +17,13 @@ namespace W3TC;
  */
 class UsageStatistics_Source_AccessLog {
 	/**
+	 * Path to the access log file.
+	 *
+	 * @var string
+	 */
+	private $accesslog_filename;
+
+	/**
 	 * Regular expression for parsing access log lines.
 	 *
 	 * @var string
@@ -146,12 +153,12 @@ class UsageStatistics_Source_AccessLog {
 	 * webserver type, and log filename. It also generates a regular expression for parsing the log entries based
 	 * on the webserver type (Nginx or Apache).
 	 *
-	 * @param array $data Data array containing the log format, webserver type, and log filename.
+	 * @param array $w3tc_data Data array containing the log format, webserver type, and log filename.
 	 */
-	public function __construct( $data ) {
-		$format                   = $data['format'];
-		$webserver                = $data['webserver'];
-		$this->accesslog_filename = str_replace( '://', '/', $data['filename'] );
+	public function __construct( $w3tc_data ) {
+		$format                   = $w3tc_data['format'];
+		$webserver                = $w3tc_data['webserver'];
+		$this->accesslog_filename = str_replace( '://', '/', $w3tc_data['filename'] );
 
 		if ( 'nginx' === $webserver ) {
 			$line_regexp = $this->logformat_to_regexp_nginx( $format );
@@ -275,8 +282,8 @@ class UsageStatistics_Source_AccessLog {
 		$n = 0;
 		if ( $skip_first_line ) {
 			for ( ; $n < $s_length; $n++ ) {
-				$c = substr( $s, $n, 1 );
-				if ( "\r" === $c || "\n" === $c ) {
+				$w3tc_c = substr( $s, $n, 1 );
+				if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 					$unparsed_head = substr( $s, 0, $n + 1 );
 					break;
 				}
@@ -288,8 +295,8 @@ class UsageStatistics_Source_AccessLog {
 		$line_element_start = $n;
 
 		for ( ; $n < $s_length; $n++ ) {
-			$c = substr( $s, $n, 1 );
-			if ( "\r" === $c || "\n" === $c ) {
+			$w3tc_c = substr( $s, $n, 1 );
+			if ( "\r" === $w3tc_c || "\n" === $w3tc_c ) {
 				if ( $n > $line_start ) {
 					$lines[] = substr( $s, $line_start, $n - $line_start );
 				}
@@ -312,16 +319,16 @@ class UsageStatistics_Source_AccessLog {
 	 * This method processes a single line from the access log, extracting relevant data (such as request time)
 	 * and categorizing the request as either dynamic or static. It updates the statistics for the current history item.
 	 *
-	 * @param string $line The line from the access log to process.
+	 * @param string $w3tc_line The line from the access log to process.
 	 */
-	private function push_line( $line ) {
+	private function push_line( $w3tc_line ) {
 		$e = array();
-		preg_match( $this->line_regexp, $line, $e );
+		preg_match( $this->line_regexp, $w3tc_line, $e );
 
-		$e = apply_filters( 'w3tc_ustats_access_log_line_elements', $e, $line );
+		$e = apply_filters( 'w3tc_ustats_access_log_line_elements', $e, $w3tc_line );
 		if ( ! isset( $e['request_line'] ) || ! isset( $e['date'] ) ) {
 			if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
-				Util_Debug::log( 'time', "line $line cant be parsed using regexp $this->line_regexp, request_line or date elements missing" );
+				Util_Debug::log( 'time', "line $w3tc_line cant be parsed using regexp $this->line_regexp, request_line or date elements missing" );
 			}
 
 			return;
@@ -355,12 +362,12 @@ class UsageStatistics_Source_AccessLog {
 
 		if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
 			if ( $time < $this->min_time ) {
-				$this->min_line = $line;
+				$this->min_line = $w3tc_line;
 				$this->min_time = $time;
 			}
 
 			if ( $time > $this->max_time ) {
-				$this->max_line = $line;
+				$this->max_line = $w3tc_line;
 				$this->max_time = $time;
 			}
 		}

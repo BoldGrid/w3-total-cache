@@ -6,6 +6,7 @@
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+ * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
  *
  * @package W3TC
  */
@@ -57,17 +58,17 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 	require_once W3TC_DIR . '/w3-total-cache-api.php';
 
 	// no caching during activation.
-	$is_installing = ( defined( 'WP_INSTALLING' ) && WP_INSTALLING );
+	$w3tc_is_installing = ( defined( 'WP_INSTALLING' ) && WP_INSTALLING );
 
-	$config = \W3TC\Dispatcher::config();
-	if ( ( ! $is_installing && $config->get_boolean( 'dbcache.enabled' ) && class_exists( '\W3TC\Util_File' ) ) ||
-		\W3TC\Util_Environment::is_dbcluster( $config ) ) {
+	$w3tc_config = \W3TC\Dispatcher::config();
+	if ( ( ! $w3tc_is_installing && $w3tc_config->get_boolean( 'dbcache.enabled' ) && class_exists( '\W3TC\Util_File' ) ) ||
+		\W3TC\Util_Environment::is_dbcluster( $w3tc_config ) ) {
 
 		if ( defined( 'DB_TYPE' ) ) {
-			$db_driver_path = sprintf( '%s/Db/%s.php', W3TC_LIB_DIR, DB_TYPE );
+			$w3tc_db_driver_path = sprintf( '%s/Db/%s.php', W3TC_LIB_DIR, DB_TYPE );
 
-			if ( file_exists( $db_driver_path ) ) {
-				require_once $db_driver_path;
+			if ( file_exists( $w3tc_db_driver_path ) ) {
+				require_once $w3tc_db_driver_path;
 			} else {
 				die(
 					wp_kses(
@@ -79,7 +80,7 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 							),
 							'<strong>',
 							'</strong>',
-							esc_html( $db_driver_path )
+							esc_html( $w3tc_db_driver_path )
 						),
 						array( 'strong' => array() )
 					)

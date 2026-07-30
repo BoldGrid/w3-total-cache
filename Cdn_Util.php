@@ -14,24 +14,20 @@ namespace W3TC;
  */
 class Cdn_Util {
 	/**
-	 * Check whether $engine is correct CDN engine
+	 * Check whether $w3tc_engine is correct CDN engine
 	 *
-	 * @param string $engine CDN engine.
+	 * @param string $w3tc_engine CDN engine.
 	 *
 	 * @return bool
 	 */
-	public static function is_engine( $engine ) {
+	public static function is_engine( $w3tc_engine ) {
 		return in_array(
-			$engine,
+			$w3tc_engine,
 			array(
-				'akamai',
-				'att',
 				'azure',
 				'azuremi',
 				'cf',
 				'cf2',
-				'cotendo',
-				'edgecast',
 				'ftp',
 				'google_drive',
 				'mirror',
@@ -47,21 +43,17 @@ class Cdn_Util {
 	/**
 	 * Returns true if CDN engine is mirror.
 	 *
-	 * @param string $engine CDN engine.
+	 * @param string $w3tc_engine CDN engine.
 	 * @static
 	 *
 	 * @return bool
 	 */
-	public static function is_engine_mirror( $engine ) {
+	public static function is_engine_mirror( $w3tc_engine ) {
 		return in_array(
-			$engine,
+			$w3tc_engine,
 			array(
 				'mirror',
-				'cotendo',
 				'cf2',
-				'akamai',
-				'edgecast',
-				'att',
 				'rackspace_cdn',
 				'bunnycdn',
 			),
@@ -72,30 +64,27 @@ class Cdn_Util {
 	/**
 	 * Returns true if CDN engine is mirror.
 	 *
-	 * @param string $engine CDN engine.
+	 * @param string $w3tc_engine CDN engine.
 	 *
 	 * @return bool
 	 */
-	public static function is_engine_push( $engine ) {
-		return ! self::is_engine_mirror( $engine );
+	public static function is_engine_push( $w3tc_engine ) {
+		return ! self::is_engine_mirror( $w3tc_engine );
 	}
 
 	/**
 	 * Returns true if CDN has purge all support.
 	 *
-	 * @param unknown $engine CDN engine.
+	 * @param unknown $w3tc_engine CDN engine.
 	 *
 	 * @return bool
 	 */
-	public static function can_purge_all( $engine ) {
+	public static function can_purge_all( $w3tc_engine ) {
 		return in_array(
-			$engine,
+			$w3tc_engine,
 			array(
-				'att',
 				'bunnycdn',
 				'cf2',
-				'cotendo',
-				'edgecast',
 			),
 			true
 		);
@@ -104,22 +93,18 @@ class Cdn_Util {
 	/**
 	 * Returns true if CDN engine is supporting purge.
 	 *
-	 * @param string $engine CDN engine.
+	 * @param string $w3tc_engine CDN engine.
 	 *
 	 * @return bool
 	 */
-	public static function can_purge( $engine ) {
+	public static function can_purge( $w3tc_engine ) {
 		return in_array(
-			$engine,
+			$w3tc_engine,
 			array(
-				'akamai',
-				'att',
 				'azure',
 				'azuremi',
 				'cf',
 				'cf2',
-				'cotendo',
-				'edgecast',
 				'ftp',
 				'rscf',
 				's3',
@@ -132,12 +117,12 @@ class Cdn_Util {
 	/**
 	 * Returns true if CDN supports realtime purge. That is purging on post changes, comments etc.
 	 *
-	 * @param unknown $engine CDN engine.
+	 * @param unknown $w3tc_engine CDN engine.
 	 *
 	 * @return bool
 	 */
-	public static function supports_realtime_purge( $engine ) {
-		return ! in_array( $engine, array( 'cf2' ), true );
+	public static function supports_realtime_purge( $w3tc_engine ) {
+		return ! in_array( $w3tc_engine, array( 'cf2' ), true );
 	}
 
 	/**
@@ -166,13 +151,13 @@ class Cdn_Util {
 		$dir = @opendir( $search_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $dir ) {
-			$entry = @readdir( $dir ); // Initialize before the loop.
-			while ( false !== $entry ) {
-				if ( '.' !== $entry && '..' !== $entry && ! in_array( $entry, $ignore, true ) ) {
-					$path = $search_dir . '/' . $entry;
+			$w3tc_entry = @readdir( $dir ); // Initialize before the loop.
+			while ( false !== $w3tc_entry ) {
+				if ( '.' !== $w3tc_entry && '..' !== $w3tc_entry && ! in_array( $w3tc_entry, $ignore, true ) ) {
+					$path = $search_dir . '/' . $w3tc_entry;
 
 					if ( @is_dir( $path ) && $recursive ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-						array_push( $stack, $entry );
+						array_push( $stack, $w3tc_entry );
 						$files = array_merge(
 							$files,
 							self::search_files(
@@ -186,16 +171,16 @@ class Cdn_Util {
 					} else {
 						$regexp = '~^(' . self::get_regexp_by_mask( $mask ) . ')$~i';
 
-						if ( preg_match( $regexp, $entry ) ) {
+						if ( preg_match( $regexp, $w3tc_entry ) ) {
 							$tmp     = '' !== $base_dir ? $base_dir . '/' : '';
-							$p       = implode( '/', $stack );
-							$tmp    .= '' !== $p ? $p . '/' : '';
-							$files[] = $tmp . $entry;
+							$w3tc_p  = implode( '/', $stack );
+							$tmp    .= '' !== $w3tc_p ? $w3tc_p . '/' : '';
+							$files[] = $tmp . $w3tc_entry;
 						}
 					}
 				}
 
-				$entry = @readdir( $dir ); // Re-assign for the next iteration.
+				$w3tc_entry = @readdir( $dir ); // Re-assign for the next iteration.
 			}
 
 			@closedir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -247,11 +232,11 @@ class Cdn_Util {
 	/**
 	 * Replaces folder placeholders.
 	 *
-	 * @param string $file Replacement value.
+	 * @param string $w3tc_file Replacement value.
 	 *
 	 * @return string
 	 */
-	public static function replace_folder_placeholders( $file ) {
+	public static function replace_folder_placeholders( $w3tc_file ) {
 		static $content_dir, $plugin_dir, $upload_dir;
 		if ( empty( $content_dir ) ) {
 			$content_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR );
@@ -268,21 +253,21 @@ class Cdn_Util {
 			$upload_dir = str_replace( Util_Environment::document_root(), '', $upload_dir['basedir'] );
 			$upload_dir = trim( $upload_dir, '/' );
 		}
-		$file = str_replace( '{wp_content_dir}', $content_dir, $file );
-		$file = str_replace( '{plugins_dir}', $plugin_dir, $file );
-		$file = str_replace( '{uploads_dir}', $upload_dir, $file );
+		$w3tc_file = str_replace( '{wp_content_dir}', $content_dir, $w3tc_file );
+		$w3tc_file = str_replace( '{plugins_dir}', $plugin_dir, $w3tc_file );
+		$w3tc_file = str_replace( '{uploads_dir}', $upload_dir, $w3tc_file );
 
-		return $file;
+		return $w3tc_file;
 	}
 
 	/**
 	 * Replaces folder placeholders URI.
 	 *
-	 * @param string $file Replacement value.
+	 * @param string $w3tc_file Replacement value.
 	 *
 	 * @return string
 	 */
-	public static function replace_folder_placeholders_to_uri( $file ) {
+	public static function replace_folder_placeholders_to_uri( $w3tc_file ) {
 		static $content_uri, $plugins_uri, $uploads_uri;
 		if ( empty( $content_uri ) ) {
 			$content_uri = Util_Environment::url_to_uri( content_url() );
@@ -295,11 +280,11 @@ class Cdn_Util {
 				$uploads_uri = '';
 			}
 		}
-		$file = str_replace( '{wp_content_dir}', $content_uri, $file );
-		$file = str_replace( '{plugins_dir}', $plugins_uri, $file );
-		$file = str_replace( '{uploads_dir}', $uploads_uri, $file );
+		$w3tc_file = str_replace( '{wp_content_dir}', $content_uri, $w3tc_file );
+		$w3tc_file = str_replace( '{plugins_dir}', $plugins_uri, $w3tc_file );
+		$w3tc_file = str_replace( '{uploads_dir}', $uploads_uri, $w3tc_file );
 
-		return $file;
+		return $w3tc_file;
 	}
 
 	/**
@@ -307,12 +292,12 @@ class Cdn_Util {
 	 *
 	 * @since 2.2.6
 	 *
-	 * @param string $cdn_engine CDN engine value.
+	 * @param string $w3tc_cdn_engine CDN engine value.
 	 *
 	 * @return boolean default value override;
 	 */
-	public static function get_flush_manually_default_override( $cdn_engine = null ) {
+	public static function get_flush_manually_default_override( $w3tc_cdn_engine = null ) {
 		$override_targets = array( 's3', 'cf', 'cf2' );
-		return in_array( $cdn_engine, $override_targets, true );
+		return in_array( $w3tc_cdn_engine, $override_targets, true );
 	}
 }

@@ -61,19 +61,19 @@ class Cdn_CacheFlush {
 	 * This method purges the cache for the provided URL. It parses the URL, constructs the appropriate CDN path,
 	 * and triggers the cache purge operation through the CDN service.
 	 *
-	 * @param string $url The URL whose cache needs to be purged.
+	 * @param string $w3tc_url The URL whose cache needs to be purged.
 	 *
 	 * @return void
 	 */
-	public function purge_url( $url ) {
+	public function purge_url( $w3tc_url ) {
 		$common                = Dispatcher::component( 'Cdn_Core' );
 		$results               = array();
 		$files                 = array();
-		$parsed                = wp_parse_url( $url );
+		$parsed                = wp_parse_url( $w3tc_url );
 		$local_site_path       = isset( $parsed['path'] ) ? ltrim( $parsed['path'], '/' ) : '';
 		$remote_path           = $common->uri_to_cdn_uri( $local_site_path );
 		$files[]               = $common->build_file_descriptor( $local_site_path, $remote_path );
-		$this->_flushed_urls[] = $url;
+		$this->_flushed_urls[] = $w3tc_url;
 		$common->purge( $files, $results );
 	}
 
@@ -92,11 +92,11 @@ class Cdn_CacheFlush {
 			$results = array();
 			$common->purge_all( $results );
 
-			$count = 999;
+			$w3tc_count = 999;
 
 			$this->flush_operation_requested = false;
 		}
 
-		return $count;
+		return $w3tc_count;
 	}
 }

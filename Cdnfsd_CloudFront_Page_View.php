@@ -7,12 +7,13 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$key        = $config->get_string( 'cdnfsd.cloudfront.access_key' );
-$authorized = ! empty( $key );
+$w3tc_key        = $w3tc_config->get_string( 'cdnfsd.cloudfront.access_key' );
+$w3tc_authorized = ! empty( $w3tc_key );
 
 ?>
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration-fsd' ); ?>
@@ -24,7 +25,7 @@ $authorized = ! empty( $key );
 					</label>
 				</th>
 				<td>
-					<?php if ( $authorized ) : ?>
+					<?php if ( $w3tc_authorized ) : ?>
 						<input class="w3tc_cdn_cloudfront_fsd_authorize button-primary"
 							type="button" value="<?php esc_attr_e( 'Reauthorize', 'w3-total-cache' ); ?>" />
 					<?php else : ?>
@@ -34,7 +35,7 @@ $authorized = ! empty( $key );
 				</td>
 			</tr>
 
-			<?php if ( $authorized ) : ?>
+			<?php if ( $w3tc_authorized ) : ?>
 			<tr>
 				<th>
 					<label>
@@ -62,7 +63,7 @@ $authorized = ! empty( $key );
 					</label>
 				</th>
 				<td class="w3tc_config_value_text">
-					<?php echo esc_html( $config->get_string( 'cdnfsd.cloudfront.distribution_domain' ) ); ?>
+					<?php echo esc_html( $w3tc_config->get_string( 'cdnfsd.cloudfront.distribution_domain' ) ); ?>
 					<p class="description">
 						The website domain has to be a CNAME pointing to this
 						<acronym title="Content Delivery Network">CDN</acronym> domain

@@ -36,19 +36,19 @@ class Cdn_Environment {
 	 * based on the CDN configuration. If there are any exceptions during this process, they are
 	 * collected and thrown at the end.
 	 *
-	 * @param Config $config           The configuration object containing the settings to be checked.
+	 * @param Config $w3tc_config           The configuration object containing the settings to be checked.
 	 * @param bool   $force_all_checks Whether to force all checks, bypassing any cached results.
 	 *
 	 * @return void
 	 *
 	 * @throws Util_Environment_Exception Environment exception.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
 
-		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
-			if ( $config->get_boolean( 'cdn.enabled' ) ) {
-				$this->rules_add( $config, $exs );
+		if ( $w3tc_config->get_boolean( 'config.check' ) || $force_all_checks ) {
+			if ( $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
+				$this->rules_add( $w3tc_config, $exs );
 			} else {
 				$this->rules_remove( $exs );
 			}
@@ -65,7 +65,7 @@ class Cdn_Environment {
 	 * This method processes the CDN settings based on the given event. It may unschedule or schedule cron jobs
 	 * related to queue processing and file uploads based on configuration changes.
 	 *
-	 * @param Config      $config     The configuration object containing the CDN settings.
+	 * @param Config      $w3tc_config     The configuration object containing the CDN settings.
 	 * @param string      $event      The event that triggered the action.
 	 * @param Config|null $old_config The old configuration values before the update.
 	 *
@@ -73,9 +73,9 @@ class Cdn_Environment {
 	 *
 	 * @throws Util_Environment_Exception Environment exception.
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->get_boolean( 'cdn.enabled' ) && ! Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) {
-			if ( null !== $old_config && $config->get_integer( 'cdn.queue.interval' ) !== $old_config->get_integer( 'cdn.queue.interval' ) ) {
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		if ( $w3tc_config->get_boolean( 'cdn.enabled' ) && ! Cdn_Util::is_engine_mirror( $w3tc_config->get_string( 'cdn.engine' ) ) ) {
+			if ( null !== $old_config && $w3tc_config->get_integer( 'cdn.queue.interval' ) !== $old_config->get_integer( 'cdn.queue.interval' ) ) {
 				$this->unschedule_queue_process();
 			}
 
@@ -87,11 +87,11 @@ class Cdn_Environment {
 		}
 
 		if (
-			$config->get_boolean( 'cdn.enabled' ) &&
-			$config->get_boolean( 'cdn.autoupload.enabled' ) &&
-			! Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) )
+			$w3tc_config->get_boolean( 'cdn.enabled' ) &&
+			$w3tc_config->get_boolean( 'cdn.autoupload.enabled' ) &&
+			! Cdn_Util::is_engine_mirror( $w3tc_config->get_string( 'cdn.engine' ) )
 		) {
-			if ( null !== $old_config && $config->get_integer( 'cdn.autoupload.interval' ) !== $old_config->get_integer( 'cdn.autoupload.interval' ) ) {
+			if ( null !== $old_config && $w3tc_config->get_integer( 'cdn.autoupload.interval' ) !== $old_config->get_integer( 'cdn.autoupload.interval' ) ) {
 				$this->unschedule_upload();
 			}
 
@@ -104,7 +104,7 @@ class Cdn_Environment {
 
 		$exs = new Util_Environment_Exceptions();
 
-		if ( $config->get_boolean( 'cdn.enabled' ) ) {
+		if ( $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
 			try {
 				$this->handle_tables(
 					'activate' === $event, // drop state on activation.
@@ -147,20 +147,20 @@ class Cdn_Environment {
 	 * This method generates and returns the necessary CDN rewrite rules, including those for FTP
 	 * and browser cache, based on the current configuration.
 	 *
-	 * @param Config $config The configuration object containing the CDN settings.
+	 * @param Config $w3tc_config The configuration object containing the CDN settings.
 	 *
 	 * @return array|null The CDN rewrite rules or null if the CDN is not enabled.
 	 */
-	public function get_required_rules( $config ) {
-		if ( ! $config->get_boolean( 'cdn.enabled' ) ) {
+	public function get_required_rules( $w3tc_config ) {
+		if ( ! $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
 			return null;
 		}
 
 		$rewrite_rules = array();
-		$rules         = $this->rules_generate( $config );
+		$rules         = $this->rules_generate( $w3tc_config );
 
 		if ( strlen( $rules ) > 0 ) {
-			if ( 'ftp' === $config->get_string( 'cdn.engine' ) ) {
+			if ( 'ftp' === $w3tc_config->get_string( 'cdn.engine' ) ) {
 				$common          = Dispatcher::component( 'Cdn_Core' );
 				$domain          = $common->get_cdn()->get_domain();
 				$cdn_rules_path  = sprintf( 'ftp://%s/%s', $domain, Util_Rule::get_cdn_rules_path() );
@@ -184,12 +184,12 @@ class Cdn_Environment {
 	 *
 	 * This method returns the instructions for database setup when the CDN module is enabled.
 	 *
-	 * @param Config $config The configuration object containing the CDN settings.
+	 * @param Config $w3tc_config The configuration object containing the CDN settings.
 	 *
 	 * @return array|null The instructions for configuring the CDN, or null if CDN is not enabled.
 	 */
-	public function get_instructions( $config ) {
-		if ( ! $config->get_boolean( 'cdn.enabled' ) ) {
+	public function get_instructions( $w3tc_config ) {
+		if ( ! $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
 			return null;
 		}
 
@@ -209,12 +209,12 @@ class Cdn_Environment {
 	 * This method generates CDN rules specifically for FTP configurations, adding additional
 	 * logic if required based on the configuration.
 	 *
-	 * @param Config $config The configuration object containing the CDN settings.
+	 * @param Config $w3tc_config The configuration object containing the CDN settings.
 	 *
 	 * @return string The generated FTP-specific CDN rules.
 	 */
-	public function rules_generate_for_ftp( $config ) {
-		return $this->rules_generate( $config, true );
+	public function rules_generate_for_ftp( $w3tc_config ) {
+		return $this->rules_generate( $w3tc_config, true );
 	}
 
 	/**
@@ -381,16 +381,16 @@ class Cdn_Environment {
 	 * This method adds CDN-related rules to the specified configuration. It leverages the `Util_Rule` class to insert these
 	 * rules into the appropriate cache file. The rules are wrapped with markers to ensure they are added in the correct position.
 	 *
-	 * @param object $config The configuration object containing CDN settings.
+	 * @param object $w3tc_config The configuration object containing CDN settings.
 	 * @param array  $exs    The existing rules to which the new rules will be added.
 	 *
 	 * @return void
 	 */
-	private function rules_add( $config, $exs ) {
+	private function rules_add( $w3tc_config, $exs ) {
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_browsercache_rules_cache_path(),
-			$this->rules_generate( $config ),
+			$this->rules_generate( $w3tc_config ),
 			W3TC_MARKER_BEGIN_CDN,
 			W3TC_MARKER_END_CDN,
 			array(
@@ -430,20 +430,20 @@ class Cdn_Environment {
 	 * This method generates rules for the CDN based on the server environment. It detects whether the server is using Nginx,
 	 * LiteSpeed, or Apache and calls the corresponding method to generate the rules for that environment.
 	 *
-	 * @param object $config   The configuration object containing CDN settings.
+	 * @param object $w3tc_config   The configuration object containing CDN settings.
 	 * @param bool   $cdnftp   Whether FTP settings should be included in the rules.
 	 *
 	 * @return string The generated CDN rules for the environment.
 	 */
-	private function rules_generate( $config, $cdnftp = false ) {
+	private function rules_generate( $w3tc_config, $cdnftp = false ) {
 		if ( Util_Environment::is_nginx() ) {
-			$o = new Cdn_Environment_Nginx( $config );
-			return $o->generate( $cdnftp );
+			$w3tc_o = new Cdn_Environment_Nginx( $w3tc_config );
+			return $w3tc_o->generate( $cdnftp );
 		} elseif ( Util_Environment::is_litespeed() ) {
-			$o = new Cdn_Environment_LiteSpeed( $config );
-			return $o->generate( $cdnftp );
+			$w3tc_o = new Cdn_Environment_LiteSpeed( $w3tc_config );
+			return $w3tc_o->generate( $cdnftp );
 		} else {
-			return $this->rules_generate_apache( $config, $cdnftp );
+			return $this->rules_generate_apache( $w3tc_config, $cdnftp );
 		}
 	}
 
@@ -453,18 +453,18 @@ class Cdn_Environment {
 	 * This method generates the CDN rules specifically for Apache-based environments. It adds rules for canonical URLs, CORS,
 	 * and other CDN-specific headers.
 	 *
-	 * @param object $config   The configuration object containing CDN settings.
+	 * @param object $w3tc_config   The configuration object containing CDN settings.
 	 * @param bool   $cdnftp   Whether FTP settings should be included in the rules.
 	 *
 	 * @return string The generated Apache-specific CDN rules.
 	 */
-	private function rules_generate_apache( $config, $cdnftp ) {
+	private function rules_generate_apache( $w3tc_config, $cdnftp ) {
 		$rules = '';
-		if ( $config->get_boolean( 'cdn.canonical_header' ) ) {
-			$rules .= $this->canonical( $cdnftp, $config->get_boolean( 'cdn.cors_header' ) );
+		if ( $w3tc_config->get_boolean( 'cdn.canonical_header' ) ) {
+			$rules .= $this->canonical( $cdnftp, $w3tc_config->get_boolean( 'cdn.cors_header' ) );
 		}
 
-		if ( $config->get_boolean( 'cdn.cors_header' ) ) {
+		if ( $w3tc_config->get_boolean( 'cdn.cors_header' ) ) {
 			$rules .= $this->allow_origin( $cdnftp );
 		}
 
@@ -523,14 +523,14 @@ class Cdn_Environment {
 	 * @return string The generated CORS allow origin rule.
 	 */
 	private function allow_origin( $cdnftp = false ) {
-		$r  = "<IfModule mod_headers.c>\n";
-		$r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
-		$r .= "</IfModule>\n";
+		$w3tc_r  = "<IfModule mod_headers.c>\n";
+		$w3tc_r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
+		$w3tc_r .= "</IfModule>\n";
 
 		if ( ! $cdnftp ) {
-			return $r;
+			return $w3tc_r;
 		} else {
-			return "<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" . $r . "</FilesMatch>\n";
+			return "<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" . $w3tc_r . "</FilesMatch>\n";
 		}
 	}
 
@@ -541,18 +541,18 @@ class Cdn_Environment {
 	 * (Nginx or LiteSpeed) and generates the appropriate extension rules based on the server.
 	 *
 	 * @param array  $extensions The existing list of extensions to be cached.
-	 * @param object $config     The configuration object containing CDN settings.
+	 * @param object $w3tc_config     The configuration object containing CDN settings.
 	 * @param string $section    The section of the configuration to add the rules to.
 	 *
 	 * @return array The updated list of extensions with CDN-related rules.
 	 */
-	public function w3tc_browsercache_rules_section_extensions( $extensions, $config, $section ) {
+	public function w3tc_browsercache_rules_section_extensions( $extensions, $w3tc_config, $section ) {
 		if ( Util_Environment::is_nginx() ) {
-			$o          = new Cdn_Environment_Nginx( $config );
-			$extensions = $o->w3tc_browsercache_rules_section_extensions( $extensions, $section );
+			$w3tc_o     = new Cdn_Environment_Nginx( $w3tc_config );
+			$extensions = $w3tc_o->w3tc_browsercache_rules_section_extensions( $extensions, $section );
 		} elseif ( Util_Environment::is_litespeed() ) {
-			$o          = new Cdn_Environment_LiteSpeed( $config );
-			$extensions = $o->w3tc_browsercache_rules_section_extensions( $extensions, $section );
+			$w3tc_o     = new Cdn_Environment_LiteSpeed( $w3tc_config );
+			$extensions = $w3tc_o->w3tc_browsercache_rules_section_extensions( $extensions, $section );
 		}
 
 		return $extensions;
@@ -565,15 +565,15 @@ class Cdn_Environment {
 	 * for LiteSpeed servers, ensuring that the correct rules are added for CDN caching.
 	 *
 	 * @param string $section_rules The existing section rules to be updated.
-	 * @param object $config        The configuration object containing CDN settings.
+	 * @param object $w3tc_config        The configuration object containing CDN settings.
 	 * @param string $section       The section of the configuration to add the rules to.
 	 *
 	 * @return string The updated section rules with CDN-related browser cache rules.
 	 */
-	public function w3tc_browsercache_rules_section( $section_rules, $config, $section ) {
+	public function w3tc_browsercache_rules_section( $section_rules, $w3tc_config, $section ) {
 		if ( Util_Environment::is_litespeed() ) {
-			$o             = new Cdn_Environment_LiteSpeed( $config );
-			$section_rules = $o->w3tc_browsercache_rules_section( $section_rules, $section );
+			$w3tc_o        = new Cdn_Environment_LiteSpeed( $w3tc_config );
+			$section_rules = $w3tc_o->w3tc_browsercache_rules_section( $section_rules, $section );
 		}
 		return $section_rules;
 	}

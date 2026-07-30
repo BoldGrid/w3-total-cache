@@ -26,22 +26,89 @@ class Cdn_ConfigLabels {
 		return array_merge(
 			$config_labels,
 			array(
-				'cdn.enabled'             => '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>:',
-				'cdn.engine'              => '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>' . __( ' Type:', 'w3-total-cache' ),
-				'cdn.debug'               => '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>',
-				'cdnfsd.debug'            => '<acronym title="' . __( 'Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'FSD', 'w3-total-cache' ) . '</acronym> <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>',
+				'cdn.enabled'             => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CDN, 2: closing acronym tag, 3: CDN abbreviation.
+						__(
+							'%1$s%3$s%2$s:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						esc_html__( 'CDN', 'w3-total-cache' )
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'cdn.engine'              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CDN, 2: closing acronym tag, 3: CDN abbreviation, 4: type label.
+						__(
+							'%1$s%3$s%2$s %4$s',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						esc_html__( 'CDN', 'w3-total-cache' ),
+						esc_html__( 'Type:', 'w3-total-cache' )
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'cdn.debug'               => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for CDN, 2: closing acronym tag.
+						__(
+							'%1$sCDN%2$s',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'cdnfsd.debug'            => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for FSD, 2: closing acronym tag, 3: opening acronym tag for CDN, 4: closing acronym tag for CDN, 5: FSD acronym, 6: CDN acronym.
+						__(
+							'%1$s%5$s%2$s %3$s%6$s%4$s',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Full Site Delivery', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						esc_html__( 'FSD', 'w3-total-cache' ),
+						esc_html__( 'CDN', 'w3-total-cache' )
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'cdn.uploads.enable'      => __( 'Host attachments', 'w3-total-cache' ),
 				'cdn.includes.enable'     => __( 'Host wp-includes/ files', 'w3-total-cache' ),
 				'cdn.theme.enable'        => __( 'Host theme files', 'w3-total-cache' ),
 				'cdn.minify.enable'       => wp_kses(
 					sprintf(
-						// Translators: 1 acronym for CSS, 2 acronym for JS.
+						// translators: 1: acronym tag for CSS, 2: acronym tag for JS.
 						__(
 							'Host minified %1$s and %2$s files',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . __( 'CSS', 'w3-total-cache' ) . '</acronym>',
-						'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">' . __( 'JS', 'w3-total-cache' ) . '</acronym>'
+						'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
+						'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(
@@ -55,13 +122,13 @@ class Cdn_ConfigLabels {
 				'cdn.canonical_header'    => __( 'Add canonical header', 'w3-total-cache' ),
 				'cdn.reject.ssl'          => wp_kses(
 					sprintf(
-						// Translators: 1 acronym for CDN, 2 acroym for SSL.
+						// translators: 1: acronym tag for CDN, 2: acronym tag for SSL.
 						__(
 							'Disable %1$s on %2$s pages',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>',
-						'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">' . __( 'SSL', 'w3-total-cache' ) . '</acronym>'
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>',
+						'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">' . esc_html__( 'SSL', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(
@@ -71,12 +138,12 @@ class Cdn_ConfigLabels {
 				),
 				'cdn.admin.media_library' => wp_kses(
 					sprintf(
-						// Translators: 1 acronym for CDN.
+						// translators: 1: acronym tag for CDN.
 						__(
 							'Use %1$s links for the Media Library on admin pages',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(
@@ -86,12 +153,12 @@ class Cdn_ConfigLabels {
 				),
 				'cdn.reject.logged_roles' => wp_kses(
 					sprintf(
-						// Translators: 1 acronym for CDN.
+						// translators: 1: acronym tag for CDN.
 						__(
 							'Disable %1$s for the following roles',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(
@@ -101,12 +168,12 @@ class Cdn_ConfigLabels {
 				),
 				'cdn.reject.uri'          => wp_kses(
 					sprintf(
-						// Translators: 1 acronym for CDN.
+						// translators: 1: acronym tag for CDN.
 						__(
 							'Disable %1$s on the following pages:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(

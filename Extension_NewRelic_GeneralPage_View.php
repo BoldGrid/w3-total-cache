@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -59,31 +60,42 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 <table class="form-table">
 	<tr>
 		<th>
-			<label for="newrelic_api_key">
-				<?php
-				echo wp_kses(
-					sprintf(
+			<?php
+			echo wp_kses(
+				sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-						__(
-							'%1$sAPI%2$s key:',
-							'w3-total-cache'
-						),
-						'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-						'</acronym>'
+					__(
+						'%1$sAPI%2$s key:',
+						'w3-total-cache'
 					),
-					array(
-						'acronym' => array(
-							'title' => array(),
-						),
-					)
-				);
-				?>
-			</label>
+					'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			);
+			?>
 		</th>
 		<td class="w3tc-td-with-button">
-			<?php echo esc_html( $config->get_string( array( 'newrelic', 'api_key' ) ) ); ?>
-			<input type="button" class="button w3tcnr_configure" value="Configure"
+			<?php
+			$w3tc_has_api_key = '' !== $w3tc_config->get_string( array( 'newrelic', 'api_key' ) );
+			$w3tc_nr_sealed   = $w3tc_config->is_sealed( 'newrelic' );
+			?>
+			<input type="button" class="button w3tcnr_configure" value="<?php esc_attr_e( 'Configure', 'w3-total-cache' ); ?>"
 				<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
+			<?php if ( $w3tc_has_api_key && ! $w3tc_nr_sealed ) : ?>
+				<p class="w3tc-newrelic-api-key-clear">
+					<input class="w3tc-ignore-change" type="hidden" name="newrelic___api_key" value="" />
+					<label for="newrelic_api_key__w3tc_clear">
+						<input class="w3tc-ignore-change" type="checkbox" id="newrelic_api_key__w3tc_clear"
+							name="newrelic___api_key__w3tc_clear" value="1" />
+						<?php esc_html_e( 'Remove on save', 'w3-total-cache' ); ?>
+					</label>
+				</p>
+			<?php endif; ?>
 		</td>
 	</tr>
 	<tr>
@@ -92,7 +104,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		</th>
 		<td class="w3tc-td-with-button">
 			<?php
-			if ( 'browser' === $config->get_string( array( 'newrelic', 'monitoring_type' ) ) ) {
+			if ( 'browser' === $w3tc_config->get_string( array( 'newrelic', 'monitoring_type' ) ) ) {
 				echo '(browser) ';
 			}
 

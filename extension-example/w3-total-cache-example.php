@@ -1,16 +1,18 @@
 <?php
-/*
-Plugin Name: W3 Total Cache Example Extension
-Description: W3 Total Cache Example Extension
-Version: 1.0
-Plugin URI: https://www.w3-edge.com/wordpress-plugins/w3-total-cache/
-Author: Frederick Townes
-Author URI: http://www.linkedin.com/in/fredericktownes
-Network: True
-*/
+/**
+ * Plugin Name: W3 Total Cache Example Extension
+ * Description: W3 Total Cache Example Extension
+ * Version: 1.0
+ * Plugin URI: https://www.w3-edge.com/wordpress-plugins/w3-total-cache/
+ * Author: Frederick Townes
+ * Author URI: http://www.linkedin.com/in/fredericktownes
+ * Network: True
+ *
+ * @package W3TCExample
+ */
 
 /*
-  Copyright (c) 2009 Frederick Townes <ftownes@w3-edge.com>
+	Copyright (c) 2009 Frederick Townes <ftownes@w3-edge.com>
 
 	W3 Total Cache is distributed under the GNU General Public License, Version 2,
 	June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
@@ -33,14 +35,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class autoloader
+ * Class autoloader.
  *
- * @param string $class Classname
+ * @param string $w3tc_class Class name.
+ *
+ * @return void
  */
-function w3tc_example_class_autoload( $class ) {
-	if ( substr( $class, 0, 12 ) == 'W3TCExample\\' ) {
-		$filename = dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
-			substr( $class, 12 ) . '.php';
+function w3tc_example_class_autoload( $w3tc_class ) {
+	if ( substr( $w3tc_class, 0, 12 ) == 'W3TCExample\\' ) {
+		$filename = __DIR__ . DIRECTORY_SEPARATOR .
+			substr( $w3tc_class, 12 ) . '.php';
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			if ( ! file_exists( $filename ) ) {

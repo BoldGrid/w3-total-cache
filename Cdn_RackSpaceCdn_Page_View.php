@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -15,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th style="width: 300px;"><label><?php esc_html_e( 'Authorize:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php if ( $authorized ) : ?>
+		<?php if ( $w3tc_authorized ) : ?>
 			<input class="w3tc_cdn_rackspace_authorize button" type="button"
 				value="<?php esc_attr_e( 'Reauthorize', 'w3-total-cache' ); ?>" />
 		<?php else : ?>
@@ -25,23 +26,23 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 
-<?php if ( $authorized ) : ?>
+<?php if ( $w3tc_authorized ) : ?>
 	<tr>
 		<th><?php esc_html_e( 'Username:', 'w3-total-cache' ); ?></th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.rackspace_cdn.user_name' ) ); ?>
+			<?php echo esc_html( $w3tc_config->get_string( 'cdn.rackspace_cdn.user_name' ) ); ?>
 		</td>
 	</tr>
 	<tr>
 		<th><?php esc_html_e( 'Region:', 'w3-total-cache' ); ?></th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.rackspace_cdn.region' ) ); ?>
+			<?php echo esc_html( $w3tc_config->get_string( 'cdn.rackspace_cdn.region' ) ); ?>
 		</td>
 	</tr>
 	<tr>
 		<th><?php esc_html_e( 'Service:', 'w3-total-cache' ); ?></th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.rackspace_cdn.service.name' ) ); ?>
+			<?php echo esc_html( $w3tc_config->get_string( 'cdn.rackspace_cdn.service.name' ) ); ?>
 		</td>
 	</tr>
 	<tr>
@@ -74,12 +75,12 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php echo esc_html( $access_url_full ); ?>
 		</td>
 	</tr>
-	<?php if ( $config->get_string( 'cdn.rackspace_cdn.service.protocol' ) === 'http' ) : ?>
+	<?php if ( $w3tc_config->get_string( 'cdn.rackspace_cdn.service.protocol' ) === 'http' ) : ?>
 		<tr>
 			<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 			<td>
 				<?php
-				$cnames = $config->get_array( 'cdn.rackspace_cdn.domains' );
+				$w3tc_cnames = $w3tc_config->get_array( 'cdn.rackspace_cdn.domains' );
 				include W3TC_INC_DIR . '/options/cdn/common/cnames-readonly.php';
 				?>
 				<input class="w3tc_cdn_rackspace_configure_domains button" type="button"
@@ -114,7 +115,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 			<td>
 				<?php
-				$cnames = $config->get_array( 'cdn.rackspace_cdn.domains' );
+				$w3tc_cnames = $w3tc_config->get_array( 'cdn.rackspace_cdn.domains' );
 				include W3TC_INC_DIR . '/options/cdn/common/cnames-readonly.php';
 				?>
 				<input name="w3tc_cdn_rackspace_cdn_domains_reload"
@@ -138,7 +139,7 @@ if ( ! defined( 'W3TC' ) ) {
 								)
 							);
 							?>
-						" />
+						" <?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_cdn_rackspace_cdn_domains_reload' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 				<p class="description">
 					<?php
 					echo wp_kses(
@@ -168,7 +169,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<tr>
 		<th colspan="2">
 			<input id="cdn_test"
-				class="button {type: 'rackspace_cdn', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+				class="button {type: 'rackspace_cdn', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}"
 				type="button"
 				value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 			<span id="cdn_test_status" class="w3tc-status w3tc-process"></span>

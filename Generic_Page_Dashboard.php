@@ -50,7 +50,7 @@ class Generic_Page_Dashboard extends Base_Page_Settings {
 
 		$browsercache_enabled = $module_status->is_enabled( 'browsercache' );
 
-		$enabled = $module_status->plugin_is_enabled();
+		$w3tc_enabled = $module_status->plugin_is_enabled();
 
 		$can_empty_memcache = $module_status->can_empty_memcache();
 
@@ -60,7 +60,7 @@ class Generic_Page_Dashboard extends Base_Page_Settings {
 
 		$can_empty_varnish = $module_status->can_empty_varnish();
 
-		$cdn_enabled      = $module_status->is_enabled( 'cdn' );
+		$w3tc_cdn_enabled = $module_status->is_enabled( 'cdn' );
 		$cdn_mirror_purge = Cdn_Util::can_purge_all( $module_status->get_module_engine( 'cdn' ) );
 
 		// Required for Update Media Query String button.

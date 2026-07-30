@@ -19,11 +19,11 @@ class Extension_NewRelic_Popup {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Extension_NewRelic_Popup();
+		$w3tc_o = new Extension_NewRelic_Popup();
 
-		add_action( 'w3tc_ajax_newrelic_popup', array( $o, 'w3tc_ajax_newrelic_popup' ) );
-		add_action( 'w3tc_ajax_newrelic_list_applications', array( $o, 'w3tc_ajax_newrelic_list_applications' ) );
-		add_action( 'w3tc_ajax_newrelic_apply_configuration', array( $o, 'w3tc_ajax_newrelic_apply_configuration' ) );
+		add_action( 'w3tc_ajax_newrelic_popup', array( $w3tc_o, 'w3tc_ajax_newrelic_popup' ) );
+		add_action( 'w3tc_ajax_newrelic_list_applications', array( $w3tc_o, 'w3tc_ajax_newrelic_list_applications' ) );
+		add_action( 'w3tc_ajax_newrelic_apply_configuration', array( $w3tc_o, 'w3tc_ajax_newrelic_apply_configuration' ) );
 	}
 
 	/**
@@ -32,11 +32,11 @@ class Extension_NewRelic_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_newrelic_popup() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		$this->render_intro(
 			array(
-				'api_key' => $c->get_string( array( 'newrelic', 'api_key' ) ),
+				'api_key' => $w3tc_c->get_string( array( 'newrelic', 'api_key' ) ),
 			)
 		);
 	}
@@ -61,24 +61,52 @@ class Extension_NewRelic_Popup {
 	 */
 	public function w3tc_ajax_newrelic_list_applications() {
 		$api_key = Util_Request::get_string( 'api_key' );
-		$c       = Dispatcher::config();
+		$w3tc_c  = Dispatcher::config();
 		$details = array(
 			'api_key'                => $api_key,
-			'monitoring_type'        => $c->get_string( array( 'newrelic', 'monitoring_type' ) ),
-			'apm.application_name'   => $c->get_string( array( 'newrelic', 'apm.application_name' ) ),
-			'browser.application_id' => $c->get_string( array( 'newrelic', 'browser.application_id' ) ),
+			'monitoring_type'        => $w3tc_c->get_string( array( 'newrelic', 'monitoring_type' ) ),
+			'apm.application_name'   => $w3tc_c->get_string( array( 'newrelic', 'apm.application_name' ) ),
+			'browser.application_id' => $w3tc_c->get_string( array( 'newrelic', 'browser.application_id' ) ),
 		);
 
-		if ( 'browser' !== $details['monitoring_type'] ) {
-			$details['monitoring_type'] = 'apm';
-		}
-
-		$service = new Extension_NewRelic_Service( $api_key );
-
+		$w3tc_service = new Extension_NewRelic_Service( $api_key );
 		try {
 			$api                             = new Extension_NewRelic_Api( $api_key );
-			$details['apm_applications']     = $service->get_applications();
-			$details['browser_applications'] = $api->get_browser_applications();
+			$details['apm_applications']     = array_values(
+				array_filter(
+					$w3tc_service->get_applications(),
+					static function ( $w3tc_name ) {
+						if ( ! is_string( $w3tc_name ) ) {
+							return false;
+						}
+
+						$trimmed = trim( $w3tc_name );
+						return '' !== $trimmed && 'null' !== strtolower( $trimmed );
+					}
+				)
+			);
+			$apm_names_lower                 = array_map( 'strtolower', $details['apm_applications'] );
+			$details['browser_applications'] = array_values(
+				array_filter(
+					$api->get_browser_applications(),
+					function ( $app ) use ( $apm_names_lower ) {
+						if ( ! is_array( $app ) ) {
+							return false;
+						}
+
+						$w3tc_name = isset( $app['name'] ) ? trim( (string) $app['name'] ) : '';
+						$has_id    = isset( $app['id'] ) && '' !== (string) $app['id'];
+						$has_name  = '' !== $w3tc_name && 'null' !== strtolower( $w3tc_name );
+						$has_key   = isset( $app['browser_monitoring_key'] ) && '' !== trim( (string) $app['browser_monitoring_key'] );
+
+						// Only treat real Browser apps (they expose a browser monitoring key).
+						// If an APM app shares the same name and no separate Browser app exists, skip it.
+						$is_duplicate_apm = in_array( strtolower( $w3tc_name ), $apm_names_lower, true );
+
+						return $has_id && $has_name && $has_key && ! $is_duplicate_apm;
+					}
+				)
+			);
 		} catch ( \Exception $ex ) {
 			$details = array(
 				'api_key'       => $api_key,
@@ -88,7 +116,17 @@ class Extension_NewRelic_Popup {
 			return;
 		}
 
-		$details['browser_disabled'] = ! Util_Environment::is_w3tc_pro( $c );
+		// Clear selection if the stored monitoring type has no available apps.
+		$monitoring_type = $details['monitoring_type'];
+		if ( 'apm' === $monitoring_type && empty( $details['apm_applications'] ) ) {
+			$details['monitoring_type'] = '';
+		} elseif ( 'browser' === $monitoring_type && empty( $details['browser_applications'] ) ) {
+			$details['monitoring_type'] = '';
+		} elseif ( 'apm' !== $monitoring_type && 'browser' !== $monitoring_type ) {
+			$details['monitoring_type'] = '';
+		}
+
+		$details['browser_disabled'] = ! Util_Environment::is_w3tc_pro( $w3tc_c );
 
 		include W3TC_DIR . '/Extension_NewRelic_Popup_View_ListApplications.php';
 	}
@@ -99,23 +137,33 @@ class Extension_NewRelic_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_newrelic_apply_configuration() {
-		$api_key                = Util_Request::get_string( 'api_key' );
-		$monitoring_type        = Util_Request::get_string( 'monitoring_type', 'apm' );
-		$apm_application_name   = Util_Request::get_string( 'apm_application_name' );
-		$browser_application_id = Util_Request::get_string( 'browser_application_id' );
-		$c                      = Dispatcher::config();
+		$api_key                     = Util_Request::get_string( 'api_key' );
+		$monitoring_type             = Util_Request::get_string( 'monitoring_type', 'apm' );
+		$w3tc_apm_application_name   = Util_Request::get_string( 'apm_application_name' );
+		$w3tc_browser_application_id = Util_Request::get_string( 'browser_application_id' );
+		$w3tc_c                      = Dispatcher::config();
 
-		$c->set( array( 'newrelic', 'api_key' ), $api_key );
+		$w3tc_c->set( array( 'newrelic', 'api_key' ), $api_key );
 
 		if ( 'apm' === $monitoring_type ) {
-			$c->set( array( 'newrelic', 'monitoring_type' ), 'apm' );
-			$c->set( array( 'newrelic', 'apm.application_name' ), $apm_application_name );
+			$w3tc_c->set( array( 'newrelic', 'monitoring_type' ), 'apm' );
+			$w3tc_c->set( array( 'newrelic', 'apm.application_name' ), $w3tc_apm_application_name );
 		} else {
-			$c->set( array( 'newrelic', 'monitoring_type' ), 'browser' );
-			$c->set( array( 'newrelic', 'browser.application_id' ), $browser_application_id );
+			$w3tc_c->set( array( 'newrelic', 'monitoring_type' ), 'browser' );
+			$w3tc_c->set( array( 'newrelic', 'browser.application_id' ), $w3tc_browser_application_id );
 		}
 
-		$c->save();
+		// Resolve and persist account id when available.
+		try {
+			$w3tc_service = new Extension_NewRelic_Service( $api_key );
+			$account_id   = $w3tc_service->get_account_id();
+			if ( $account_id ) {
+				$w3tc_c->set( array( 'newrelic', 'account_id' ), $account_id );
+			}
+		} catch ( \Exception $ignored ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		}
+
+		$w3tc_c->save();
 
 		// flush cached values on api key change to allow to reset it from ui if something goes wrong.
 		update_option( 'w3tc_nr_account_id', '' );
@@ -128,6 +176,8 @@ class Extension_NewRelic_Popup {
 			)
 		);
 
-		echo esc_url( 'Location admin.php?page=w3tc_general&' . $postfix );
+		// Note: this response is parsed by JS (see `pub/js/lightbox.js`) and assigned to `window.location`.
+		// Do NOT use `esc_url()` here (it HTML-entity encodes `&` into `&#038;`, which becomes a broken fragment).
+		echo 'Location ' . \esc_url_raw( 'admin.php?page=w3tc_general&' . $postfix );
 	}
 }

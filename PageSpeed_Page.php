@@ -39,7 +39,7 @@ class PageSpeed_Page {
 		wp_register_script(
 			'w3tc-pagespeed',
 			esc_url( plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ) ),
-			array(),
+			array( 'w3tc-nonce' ),
 			W3TC_VERSION,
 			true
 		);
@@ -71,7 +71,7 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function render() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		require W3TC_DIR . '/PageSpeed_Page_View.php';
 	}
@@ -85,7 +85,7 @@ class PageSpeed_Page {
 	 */
 	public function w3tc_ajax_pagespeed_data() {
 		$encoded_url        = Util_Request::get( 'url' );
-		$url                = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
+		$w3tc_url           = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
 		$api_response       = null;
 		$api_response_error = null;
 
@@ -98,10 +98,10 @@ class PageSpeed_Page {
 		}
 
 		if ( is_null( $api_response ) ) {
-			$config       = Dispatcher::config();
-			$access_token = ! empty( $config->get_string( 'widget.pagespeed.access_token' ) ) ? $config->get_string( 'widget.pagespeed.access_token' ) : null;
+			$w3tc_config       = Dispatcher::config();
+			$w3tc_access_token = ! empty( $w3tc_config->get_string( 'widget.pagespeed.access_token' ) ) ? $w3tc_config->get_string( 'widget.pagespeed.access_token' ) : null;
 
-			if ( empty( $access_token ) ) {
+			if ( empty( $w3tc_access_token ) ) {
 				echo wp_json_encode(
 					array(
 						'missing_token' => sprintf(
@@ -117,13 +117,13 @@ class PageSpeed_Page {
 				return;
 			}
 
-			$w3_pagespeed = new PageSpeed_Api( $access_token );
-			$api_response = $w3_pagespeed->analyze( $url );
+			$w3tc_w3_pagespeed = new PageSpeed_Api( $w3tc_access_token );
+			$api_response      = $w3tc_w3_pagespeed->analyze( $w3tc_url );
 
 			if ( ! $api_response ) {
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>',
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>',
 				);
 				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} elseif ( ! empty( $api_response['error'] ) ) {
@@ -132,7 +132,7 @@ class PageSpeed_Page {
 
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
 						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
 						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
 				);
@@ -145,7 +145,7 @@ class PageSpeed_Page {
 
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
 						<p>' . esc_html__( 'Mobile response Code : ', 'w3-total-cache' ) . $mobile_error_code . '</p>
 						<p>' . esc_html__( 'Mobile response Message : ', 'w3-total-cache' ) . $mobile_error_message . '</p>
 						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
@@ -163,76 +163,46 @@ class PageSpeed_Page {
 		include __DIR__ . '/PageSpeed_Page_View_FromAPI.php';
 		$content = ob_get_contents();
 		ob_end_clean();
-		echo wp_json_encode(
-			array(
-				'w3tcps_domain'                   => $url,
-				'w3tcps_score'                    => array(
-					'mobile'  => $api_response['mobile']['score'],
-					'desktop' => $api_response['desktop']['score'],
-				),
-				'w3tcps_first_contentful_paint'   => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['first-contentful-paint']['score'],
-						'displayValue' => $api_response['mobile']['first-contentful-paint']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['first-contentful-paint']['score'],
-						'displayValue' => $api_response['desktop']['first-contentful-paint']['displayValue'],
-					),
-				),
-				'w3tcps_largest_contentful_paint' => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['largest-contentful-paint']['score'],
-						'displayValue' => $api_response['mobile']['largest-contentful-paint']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['largest-contentful-paint']['score'],
-						'displayValue' => $api_response['desktop']['largest-contentful-paint']['displayValue'],
-					),
-				),
-				'w3tcps_interactive'              => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['interactive']['score'],
-						'displayValue' => $api_response['mobile']['interactive']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['interactive']['score'],
-						'displayValue' => $api_response['desktop']['interactive']['displayValue'],
-					),
-				),
-				'w3tcps_cumulative_layout_shift'  => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['cumulative-layout-shift']['score'],
-						'displayValue' => $api_response['mobile']['cumulative-layout-shift']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['cumulative-layout-shift']['score'],
-						'displayValue' => $api_response['desktop']['cumulative-layout-shift']['displayValue'],
-					),
-				),
-				'w3tcps_total_blocking_time'      => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['total-blocking-time']['score'],
-						'displayValue' => $api_response['mobile']['total-blocking-time']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['total-blocking-time']['score'],
-						'displayValue' => $api_response['desktop']['total-blocking-time']['displayValue'],
-					),
-				),
-				'w3tcps_speed_index'              => array(
-					'mobile'  => array(
-						'score'        => $api_response['mobile']['speed-index']['score'],
-						'displayValue' => $api_response['mobile']['speed-index']['displayValue'],
-					),
-					'desktop' => array(
-						'score'        => $api_response['desktop']['speed-index']['score'],
-						'displayValue' => $api_response['desktop']['speed-index']['displayValue'],
-					),
-				),
-				'w3tcps_content'                  => $content,
-				'w3tcps_timestamp'                => ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '',
-			)
+
+		/*
+		 * Build the response metric-by-metric. A strategy (mobile/desktop) that errored carries an
+		 * 'error' entry instead of metric data, so reading its keys directly would emit "Undefined index"
+		 * notices that corrupt the JSON payload. Util_PageSpeed::get_value_recursive() returns null for any
+		 * missing key, keeping the response well-formed regardless of partial failures.
+		 */
+		$w3tcps_metrics = array(
+			'w3tcps_first_contentful_paint'   => 'first-contentful-paint',
+			'w3tcps_largest_contentful_paint' => 'largest-contentful-paint',
+			'w3tcps_interactive'              => 'interactive',
+			'w3tcps_cumulative_layout_shift'  => 'cumulative-layout-shift',
+			'w3tcps_total_blocking_time'      => 'total-blocking-time',
+			'w3tcps_speed_index'              => 'speed-index',
 		);
+
+		$w3tcps_response = array(
+			'w3tcps_domain' => $w3tc_url,
+			'w3tcps_score'  => array(
+				'mobile'  => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', 'score' ) ),
+				'desktop' => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', 'score' ) ),
+			),
+		);
+
+		foreach ( $w3tcps_metrics as $w3tcps_key => $w3tcps_metric ) {
+			$w3tcps_response[ $w3tcps_key ] = array(
+				'mobile'  => array(
+					'score'        => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', $w3tcps_metric, 'score' ) ),
+					'displayValue' => Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', $w3tcps_metric, 'displayValue' ) ),
+				),
+				'desktop' => array(
+					'score'        => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', $w3tcps_metric, 'score' ) ),
+					'displayValue' => Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', $w3tcps_metric, 'displayValue' ) ),
+				),
+			);
+		}
+
+		$w3tcps_response['w3tcps_content']   = $content;
+		$w3tcps_response['w3tcps_timestamp'] = ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '';
+
+		echo wp_json_encode( $w3tcps_response );
 	}
 }

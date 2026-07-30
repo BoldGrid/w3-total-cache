@@ -26,10 +26,10 @@ class Cdnfsd_Core {
 		static $engine_object = null;
 
 		if ( is_null( $engine_object ) ) {
-			$c      = Dispatcher::config();
-			$engine = $c->get_string( 'cdnfsd.engine' );
+			$w3tc_c      = Dispatcher::config();
+			$w3tc_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'cloudflare':
 					$engine_object = null; // Extension handles everything.
 					break;
@@ -37,9 +37,9 @@ class Cdnfsd_Core {
 				case 'transparentcdn':
 					$engine_object = new Cdnfsd_TransparentCDN_Engine(
 						array(
-							'company_id'    => $c->get_string( 'cdnfsd.transparentcdn.company_id' ),
-							'client_id'     => $c->get_string( 'cdnfsd.transparentcdn.client_id' ),
-							'client_secret' => $c->get_string( 'cdnfsd.transparentcdn.client_secret' ),
+							'company_id'    => $w3tc_c->get_string( 'cdnfsd.transparentcdn.company_id' ),
+							'client_id'     => $w3tc_c->get_string( 'cdnfsd.transparentcdn.client_id' ),
+							'client_secret' => $w3tc_c->get_string( 'cdnfsd.transparentcdn.client_secret' ),
 						)
 					);
 					break;
@@ -47,9 +47,9 @@ class Cdnfsd_Core {
 				case 'cloudfront':
 					$engine_object = new Cdnfsd_CloudFront_Engine(
 						array(
-							'access_key'      => $c->get_string( 'cdnfsd.cloudfront.access_key' ),
-							'secret_key'      => $c->get_string( 'cdnfsd.cloudfront.secret_key' ),
-							'distribution_id' => $c->get_string( 'cdnfsd.cloudfront.distribution_id' ),
+							'access_key'      => $w3tc_c->get_string( 'cdnfsd.cloudfront.access_key' ),
+							'secret_key'      => $w3tc_c->get_string( 'cdnfsd.cloudfront.secret_key' ),
+							'distribution_id' => $w3tc_c->get_string( 'cdnfsd.cloudfront.distribution_id' ),
 						)
 					);
 					break;
@@ -57,8 +57,8 @@ class Cdnfsd_Core {
 				case 'bunnycdn':
 					$engine_object = new Cdnfsd_BunnyCdn_Engine(
 						array(
-							'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
-							'pull_zone_id'    => $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+							'account_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
+							'pull_zone_id'    => $w3tc_c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
 						)
 					);
 					break;
@@ -69,7 +69,7 @@ class Cdnfsd_Core {
 							sprintf(
 								// Translators: 1 Engine name.
 								\__( 'Unknown engine: %1$s', 'w3-total-cache' ),
-								$engine
+								$w3tc_engine
 							)
 						)
 					);

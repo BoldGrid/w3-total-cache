@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -14,7 +14,7 @@ use W3TC\Util_Request;
 /**
  * Class: Util_Request_Test
  *
- * @since X.X.X
+ * @since 2.8.11
  */
 class W3tc_Util_Request_Test extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -26,7 +26,7 @@ class W3tc_Util_Request_Test extends WP_UnitTestCase {
 	/**
 	* Test retrieving different types from request.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_get_various_types() {
 		$_GET['str']     = ' value ';
@@ -45,7 +45,7 @@ class W3tc_Util_Request_Test extends WP_UnitTestCase {
 	/**
 	* Test get_as_array() for prefixed parameters.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_get_as_array() {
 		$_GET['pre_one'] = '1';

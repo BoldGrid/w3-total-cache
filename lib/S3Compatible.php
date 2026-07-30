@@ -1093,7 +1093,21 @@ final class S3Request
 		if ($this->response->error === false && isset($this->response->headers['type']) &&
 		$this->response->headers['type'] == 'application/xml' && isset($this->response->body))
 		{
-			$this->response->body = simplexml_load_string($this->response->body);
+			/**
+			 * W3TC FIX (rt9-32 XXE): harden XML parsing against external-entity
+			 * expansion. LIBXML_NONET blocks network entity fetches; on PHP < 8.0
+			 * disable the external-entity loader (deprecated / a no-op on 8.0+,
+			 * where libxml refuses external entities by default) so file:// and
+			 * http:// SYSTEM entities are refused regardless of the libxml build.
+			 */
+			$w3tc_prev_loader = null;
+			if (PHP_VERSION_ID < 80000 && function_exists('libxml_disable_entity_loader')) {
+				$w3tc_prev_loader = libxml_disable_entity_loader(true);
+			}
+			$this->response->body = simplexml_load_string($this->response->body, 'SimpleXMLElement', LIBXML_NONET);
+			if (null !== $w3tc_prev_loader) {
+				libxml_disable_entity_loader($w3tc_prev_loader);
+			}
 
 			// Grab S3 errors
 			if (!in_array($this->response->code, array(200, 204, 206)) &&

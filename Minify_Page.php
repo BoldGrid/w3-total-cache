@@ -27,22 +27,22 @@ class Minify_Page extends Base_Page_Settings {
 	 * @return void
 	 */
 	public function view() {
-		$minify_enabled = $this->_config->get_boolean( 'minify.enabled' );
-		$config_state   = Dispatcher::config_state();
+		$minify_enabled    = $this->_config->get_boolean( 'minify.enabled' );
+		$w3tc_config_state = Dispatcher::config_state();
 
 		$minify_rewrite_disabled = ! Util_Rule::can_check_rules() || $this->_config->is_sealed( 'minify.rewrite' );
 		$themes                  = Util_Theme::get_themes_by_key();
-		$templates               = array();
+		$w3tc_templates          = array();
 
 		$current_theme     = Util_Theme::get_current_theme_name();
 		$current_theme_key = '';
 
-		foreach ( $themes as $theme_key => $theme_name ) {
-			if ( $theme_name === $current_theme ) {
-				$current_theme_key = $theme_key;
+		foreach ( $themes as $w3tc_theme_key => $w3tc_theme_name ) {
+			if ( $w3tc_theme_name === $current_theme ) {
+				$current_theme_key = $w3tc_theme_key;
 			}
 
-			$templates[ $theme_key ] = Util_Theme::get_theme_templates( $theme_name );
+			$w3tc_templates[ $w3tc_theme_key ] = Util_Theme::get_theme_templates( $w3tc_theme_name );
 		}
 
 		$css_imports_values = array(
@@ -53,11 +53,11 @@ class Minify_Page extends Base_Page_Settings {
 
 		$auto = $this->_config->get_boolean( 'minify.auto' );
 
-		$js_theme  = Util_Request::get_string( 'js_theme', $current_theme_key );
-		$js_groups = $this->_config->get_array( 'minify.js.groups' );
+		$w3tc_js_theme = Util_Request::get_string( 'js_theme', $current_theme_key );
+		$js_groups     = $this->_config->get_array( 'minify.js.groups' );
 
-		$css_theme  = Util_Request::get_string( 'css_theme', $current_theme_key );
-		$css_groups = $this->_config->get_array( 'minify.css.groups' );
+		$w3tc_css_theme = Util_Request::get_string( 'css_theme', $current_theme_key );
+		$css_groups     = $this->_config->get_array( 'minify.css.groups' );
 
 		$js_engine   = $this->_config->get_string( 'minify.js.engine' );
 		$css_engine  = $this->_config->get_string( 'minify.css.engine' );
@@ -83,11 +83,11 @@ class Minify_Page extends Base_Page_Settings {
 		$current_theme     = Util_Theme::get_current_theme_name();
 		$current_theme_key = array_search( $current_theme, $themes, true );
 
-		$theme_key  = Util_Request::get_string( 'theme_key', $current_theme_key );
-		$theme_name = ( isset( $themes[ $theme_key ] ) ? $themes[ $theme_key ] : $current_theme );
+		$w3tc_theme_key  = Util_Request::get_string( 'theme_key', $current_theme_key );
+		$w3tc_theme_name = ( isset( $themes[ $w3tc_theme_key ] ) ? $themes[ $w3tc_theme_key ] : $current_theme );
 
-		$templates       = Util_Theme::get_theme_templates( $theme_name );
-		$recommendations = $this->get_theme_recommendations( $theme_name );
+		$w3tc_templates  = Util_Theme::get_theme_templates( $w3tc_theme_name );
+		$recommendations = $this->get_theme_recommendations( $w3tc_theme_name );
 
 		list ( $js_groups, $css_groups ) = $recommendations;
 
@@ -98,33 +98,33 @@ class Minify_Page extends Base_Page_Settings {
 		$checked_css  = array();
 		$locations_js = array();
 
-		if ( isset( $minify_js_groups[ $theme_key ] ) ) {
-			foreach ( (array) $minify_js_groups[ $theme_key ] as $template => $locations ) {
-				foreach ( (array) $locations as $location => $config ) {
-					if ( isset( $config['files'] ) ) {
-						foreach ( (array) $config['files'] as $file ) {
-							if ( ! isset( $js_groups[ $template ] ) || ! in_array( $file, $js_groups[ $template ], true ) ) {
-								$js_groups[ $template ][] = $file;
+		if ( isset( $minify_js_groups[ $w3tc_theme_key ] ) ) {
+			foreach ( (array) $minify_js_groups[ $w3tc_theme_key ] as $template => $locations ) {
+				foreach ( (array) $locations as $location => $w3tc_config ) {
+					if ( isset( $w3tc_config['files'] ) ) {
+						foreach ( (array) $w3tc_config['files'] as $w3tc_file ) {
+							if ( ! isset( $js_groups[ $template ] ) || ! in_array( $w3tc_file, $js_groups[ $template ], true ) ) {
+								$js_groups[ $template ][] = $w3tc_file;
 							}
 
-							$checked_js[ $template ][ $file ]   = true;
-							$locations_js[ $template ][ $file ] = $location;
+							$checked_js[ $template ][ $w3tc_file ]   = true;
+							$locations_js[ $template ][ $w3tc_file ] = $location;
 						}
 					}
 				}
 			}
 		}
 
-		if ( isset( $minify_css_groups[ $theme_key ] ) ) {
-			foreach ( (array) $minify_css_groups [ $theme_key ] as $template => $locations ) {
-				foreach ( (array) $locations as $location => $config ) {
-					if ( isset( $config['files'] ) ) {
-						foreach ( (array) $config['files'] as $file ) {
-							if ( ! isset( $css_groups[ $template ] ) || ! in_array( $file, $css_groups[ $template ], true ) ) {
-								$css_groups[ $template ][] = $file;
+		if ( isset( $minify_css_groups[ $w3tc_theme_key ] ) ) {
+			foreach ( (array) $minify_css_groups [ $w3tc_theme_key ] as $template => $locations ) {
+				foreach ( (array) $locations as $location => $w3tc_config ) {
+					if ( isset( $w3tc_config['files'] ) ) {
+						foreach ( (array) $w3tc_config['files'] as $w3tc_file ) {
+							if ( ! isset( $css_groups[ $template ] ) || ! in_array( $w3tc_file, $css_groups[ $template ], true ) ) {
+								$css_groups[ $template ][] = $w3tc_file;
 							}
 
-							$checked_css[ $template ][ $file ] = true;
+							$checked_css[ $template ][ $w3tc_file ] = true;
 						}
 					}
 				}
@@ -137,13 +137,13 @@ class Minify_Page extends Base_Page_Settings {
 	/**
 	 * Retrieves the theme URLs for a given theme name.
 	 *
-	 * @param string $theme_name The name of the theme to retrieve URLs for.
+	 * @param string $w3tc_theme_name The name of the theme to retrieve URLs for.
 	 *
 	 * @return array An associative array where the keys are template names and the values are their respective URLs.
 	 */
-	public function get_theme_urls( $theme_name ) {
+	public function get_theme_urls( $w3tc_theme_name ) {
 		$urls  = array();
-		$theme = Util_Theme::get( $theme_name );
+		$theme = Util_Theme::get( $w3tc_theme_name );
 
 		if ( $theme && isset( $theme['Template Files'] ) ) {
 			$front_page_template = false;
@@ -504,31 +504,31 @@ class Minify_Page extends Base_Page_Settings {
 	/**
 	 * Retrieves the theme recommendations (JS and CSS files) based on the specified theme.
 	 *
-	 * @param string $theme_name The name of the theme for which to get recommendations.
+	 * @param string $w3tc_theme_name The name of the theme for which to get recommendations.
 	 *
 	 * @return array An array containing the theme recommendations, categorized by JS and CSS files.
 	 *
 	 * @throws \Exception If an error occurs while processing the recommendations.
 	 */
-	public function get_theme_recommendations( $theme_name ) {
-		$urls = $this->get_theme_urls( $theme_name );
+	public function get_theme_recommendations( $w3tc_theme_name ) {
+		$urls = $this->get_theme_urls( $w3tc_theme_name );
 
 		$js_groups  = array();
 		$css_groups = array();
 
 		@set_time_limit( $this->_config->get_integer( 'timelimit.minify_recommendations' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-		foreach ( $urls as $template => $url ) {
+		foreach ( $urls as $template => $w3tc_url ) {
 			// Append theme identifier.
-			$url .= ( strstr( $url, '?' ) !== false ? '&' : '?' ) . 'w3tc_theme=' . rawurlencode( $theme_name );
+			$w3tc_url .= ( strstr( $w3tc_url, '?' ) !== false ? '&' : '?' ) . 'w3tc_theme=' . rawurlencode( $w3tc_theme_name );
 
 			// If preview mode enabled append w3tc_preview.
 			if ( $this->_config->is_preview() ) {
-				$url .= '&w3tc_preview=1';
+				$w3tc_url .= '&w3tc_preview=1';
 			}
 
 			// Get page contents.
-			$response = Util_Http::get( $url );
+			$response = Util_Http::get( $w3tc_url );
 
 			if (
 				! is_wp_error( $response ) &&
@@ -540,11 +540,11 @@ class Minify_Page extends Base_Page_Settings {
 					)
 				)
 			) {
-				$js_files  = $this->get_recommendations_js( $response['body'] );
-				$css_files = $this->get_recommendations_css( $response['body'] );
+				$w3tc_js_files  = $this->get_recommendations_js( $response['body'] );
+				$w3tc_css_files = $this->get_recommendations_css( $response['body'] );
 
-				$js_groups[ $template ]  = $js_files;
-				$css_groups[ $template ] = $css_files;
+				$js_groups[ $template ]  = $w3tc_js_files;
+				$css_groups[ $template ] = $w3tc_css_files;
 			}
 		}
 
@@ -571,29 +571,29 @@ class Minify_Page extends Base_Page_Settings {
 		$all_files = array();
 
 		foreach ( $groups as $template => $files ) {
-			foreach ( $files as $file ) {
-				if ( ! isset( $all_files[ $file ] ) ) {
-					$all_files[ $file ] = 0;
+			foreach ( $files as $w3tc_file ) {
+				if ( ! isset( $all_files[ $w3tc_file ] ) ) {
+					$all_files[ $w3tc_file ] = 0;
 				}
 
-				++$all_files[ $file ];
+				++$all_files[ $w3tc_file ];
 			}
 		}
 
 		// Determine default group files.
 		$default_files = array();
-		$count         = count( $groups );
+		$w3tc_count    = count( $groups );
 
 		foreach ( $all_files as $all_file => $all_file_count ) {
 			// If file usage count == groups count then file is common.
-			if ( $count === $all_file_count ) {
+			if ( $w3tc_count === $all_file_count ) {
 				$default_files[] = $all_file;
 
 				// If common file found unset it from all groups.
 				foreach ( $groups as $template => $files ) {
-					foreach ( $files as $index => $file ) {
-						if ( $file === $all_file ) {
-							array_splice( $groups[ $template ], $index, 1 );
+					foreach ( $files as $w3tc_index => $w3tc_file ) {
+						if ( $w3tc_file === $all_file ) {
+							array_splice( $groups[ $template ], $w3tc_index, 1 );
 							if ( ! count( $groups[ $template ] ) ) {
 								unset( $groups[ $template ] );
 							}

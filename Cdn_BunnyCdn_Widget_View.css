@@ -1,7 +1,7 @@
 .w3tc-widget-bunnycdn-logo {
 	width: 150px;
 	height: 50px;
-	background: url('pub/img/w3tc_bunnycdn_logo.svg') 0 8px no-repeat;
+	background: url(pub/img/w3tc_bunnycdn_logo.svg) 0 8px no-repeat;
 	float: left;
 }
 
@@ -10,7 +10,6 @@
 }
 
 .w3tc_bunnycdn_summary_h4 {
-	text-align: center;
 	color: #8F8F8F;
 	text-align: left;
 	margin: 0;
@@ -34,14 +33,14 @@
 
 .w3tc_bunnycdn_summary_col1 {
 	display: block;
-	font-weight: bold;
+	font-weight: 700;
 	width: 90px;
 	float:left;
 }
 
 .w3tc_bunnycdn_summary_col2 {
 	display: block;
-	font-weight: bold;
+	font-weight: 700;
 	width: 80px;
 	float:left;
 }

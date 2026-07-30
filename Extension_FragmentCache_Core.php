@@ -31,27 +31,27 @@ class Extension_FragmentCache_Core {
 	/**
 	 * Registers a fragment cache group with specific actions and expiration time.
 	 *
-	 * @param string $group     Name of the group to register.
+	 * @param string $w3tc_group     Name of the group to register.
 	 * @param array  $actions   List of actions associated with the group.
 	 * @param int    $expiration Expiration time for the group in seconds.
 	 *
 	 * @return void
 	 */
-	public function register_group( $group, $actions, $expiration ) {
-		$this->_register_group( $group, $actions, $expiration, false );
+	public function register_group( $w3tc_group, $actions, $expiration ) {
+		$this->_register_group( $w3tc_group, $actions, $expiration, false );
 	}
 
 	/**
 	 * Registers a global fragment cache group with specific actions and expiration time.
 	 *
-	 * @param string $group     Name of the global group to register.
+	 * @param string $w3tc_group     Name of the global group to register.
 	 * @param array  $actions   List of actions associated with the global group.
 	 * @param int    $expiration Expiration time for the global group in seconds.
 	 *
 	 * @return void
 	 */
-	public function register_global_group( $group, $actions, $expiration ) {
-		$this->_register_group( $group, $actions, $expiration, true );
+	public function register_global_group( $w3tc_group, $actions, $expiration ) {
+		$this->_register_group( $w3tc_group, $actions, $expiration, true );
 	}
 
 	/**
@@ -59,15 +59,15 @@ class Extension_FragmentCache_Core {
 	 *
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 	 *
-	 * @param string $group       Name of the group to register.
+	 * @param string $w3tc_group       Name of the group to register.
 	 * @param array  $actions     List of actions associated with the group.
 	 * @param int    $expiration  Expiration time for the group in seconds.
 	 * @param bool   $global_flag Whether the group is global.
 	 *
 	 * @return void
 	 */
-	private function _register_group( $group, $actions, $expiration, $global_flag ) {
-		if ( empty( $group ) ) {
+	private function _register_group( $w3tc_group, $actions, $expiration, $global_flag ) {
+		if ( empty( $w3tc_group ) ) {
 			return;
 		}
 
@@ -76,7 +76,7 @@ class Extension_FragmentCache_Core {
 			trigger_error( __METHOD__ . ' needs expiration parameter to be an int.', E_USER_WARNING );
 		}
 
-		$this->_fragment_groups[ $group ] = array(
+		$this->_fragment_groups[ $w3tc_group ] = array(
 			'actions'    => $actions,
 			'expiration' => $expiration,
 			'global'     => $global_flag,
@@ -86,7 +86,7 @@ class Extension_FragmentCache_Core {
 			if ( ! isset( $this->_actions[ $action ] ) ) {
 				$this->_actions[ $action ] = array();
 			}
-			$this->_actions[ $action ][] = $group;
+			$this->_actions[ $action ][] = $w3tc_group;
 		}
 	}
 
@@ -114,15 +114,15 @@ class Extension_FragmentCache_Core {
 	 * @return void
 	 */
 	public function cleanup() {
-		$c      = Dispatcher::config();
-		$engine = $c->get_string( array( 'fragmentcache', 'engine' ) );
+		$w3tc_c      = Dispatcher::config();
+		$w3tc_engine = $w3tc_c->get_string( array( 'fragmentcache', 'engine' ) );
 
-		switch ( $engine ) {
+		switch ( $w3tc_engine ) {
 			case 'file':
 				$w3_cache_file_cleaner = new Cache_File_Cleaner(
 					array(
 						'cache_dir'       => Util_Environment::cache_blog_dir( 'fragment' ),
-						'clean_timelimit' => $c->get_integer( 'timelimit.cache_gc' ),
+						'clean_timelimit' => $w3tc_c->get_integer( 'timelimit.cache_gc' ),
 					)
 				);
 

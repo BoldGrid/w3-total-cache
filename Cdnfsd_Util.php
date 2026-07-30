@@ -14,12 +14,12 @@ class Cdnfsd_Util {
 	/**
 	 * Engine name retrieval.
 	 *
-	 * @param string $engine The name of the engine to retrieve.
+	 * @param string $w3tc_engine The name of the engine to retrieve.
 	 *
 	 * @return string The name of the engine.
 	 */
-	public static function engine_name( $engine ) {
-		return $engine;
+	public static function engine_name( $w3tc_engine ) {
+		return $w3tc_engine;
 	}
 
 	/**

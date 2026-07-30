@@ -1,22 +1,29 @@
 <?php
+/**
+ * File: googleccjs2.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$compilation_levels = array(
+$w3tc_compilation_levels = array(
 	'WHITESPACE_ONLY'        => __( 'Whitespace only', 'w3-total-cache' ),
 	'SIMPLE_OPTIMIZATIONS'   => __( 'Simple optimizations', 'w3-total-cache' ),
 	'ADVANCED_OPTIMIZATIONS' => __( 'Advanced optimizations', 'w3-total-cache' ),
 );
 
-$compilation_level = $this->_config->get_string( 'minify.ccjs.options.compilation_level' );
+$w3tc_compilation_level = $this->_config->get_string( 'minify.ccjs.options.compilation_level' );
 ?>
 <tr>
 	<th>&nbsp;</th>
 	<td>
-		<input class="minifier_test js_enabled button {type: 'googleccjs', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+		<input class="minifier_test js_enabled button {type: 'googleccjs', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_test_minifier' ) ); ?>'}"
 			type="button" value="<?php esc_attr_e( 'Test Closure Compiler', 'w3-total-cache' ); ?>" />
 		<span class="minifier_test_status w3tc-status w3tc-process"></span>
 	</td>
@@ -26,9 +33,9 @@ $compilation_level = $this->_config->get_string( 'minify.ccjs.options.compilatio
 	<td>
 		<select id="minify_ccjs_options_compilation_level" class="js_enabled" name="minify__ccjs__options__compilation_level"
 			<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ) : ?>
-				<option value="<?php echo esc_attr( $compilation_level_key ); ?>" <?php selected( $compilation_level, $compilation_level_key ); ?>>
-					<?php echo esc_html( $compilation_level_name ); ?>
+			<?php foreach ( $w3tc_compilation_levels as $w3tc_compilation_level_key => $w3tc_compilation_level_name ) : ?>
+				<option value="<?php echo esc_attr( $w3tc_compilation_level_key ); ?>" <?php selected( $w3tc_compilation_level, $w3tc_compilation_level_key ); ?>>
+					<?php echo esc_html( $w3tc_compilation_level_name ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>

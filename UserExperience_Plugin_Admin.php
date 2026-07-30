@@ -55,11 +55,11 @@ class UserExperience_Plugin_Admin {
 	 * User Experience features like deferring scripts, preloading requests, and more.
 	 *
 	 * @param array  $extensions The existing W3TC extensions.
-	 * @param object $config     The W3TC configuration object.
+	 * @param object $w3tc_config     The W3TC configuration object.
 	 *
 	 * @return array The modified W3TC extensions array with added User Experience extensions.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$extensions['user-experience-defer-scripts']    = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-defer-scripts',

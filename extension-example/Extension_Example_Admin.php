@@ -1,19 +1,27 @@
 <?php
+/**
+ * Example extension admin bootstrap.
+ *
+ * @package W3TCExample
+ */
+
 namespace W3TCExample;
 
 /**
  * Backend functionality of an extension.
- * This class is loaded only for wp-admin/ requests
+ *
+ * Loaded only for wp-admin requests.
  */
 class Extension_Example_Admin {
 	/**
-	 * w3tc_extensions filter handler
+	 * W3tc_extensions filter handler.
 	 *
-	 * @param array  $extensions array of extension descriptors to fill
-	 * @param Config $config     w3-total-cache configuration
+	 * @param array        $extensions Extension descriptors to fill.
+	 * @param \W3TC\Config $w3tc_config     W3 Total Cache configuration.
+	 *
 	 * @return array
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$extensions['example'] = array(
 			'name'            => 'Example Extension',
 			'author'          => 'W3 EDGE',
@@ -31,14 +39,14 @@ class Extension_Example_Admin {
 		return $extensions;
 	}
 
-
-
 	/**
-	 * Entry point of extension for wp-admin/ requests
-	 * Called from Extension_Example.php
+	 * Entry point of extension for wp-admin requests.
+	 *
+	 * Called from Extension_Example.php.
+	 *
+	 * @return void
 	 */
 	public function run() {
-		// handle settings page of this extension
 		add_action(
 			'w3tc_extension_page_example',
 			array(
@@ -47,7 +55,6 @@ class Extension_Example_Admin {
 			)
 		);
 
-		// get control when configuration is changed by user
 		add_action(
 			'w3tc_config_ui_save',
 			array(
@@ -58,7 +65,6 @@ class Extension_Example_Admin {
 			2
 		);
 
-		// Register widget on W3 Total Cache Dashboard page
 		add_action(
 			'w3tc_widget_setup',
 			array(
@@ -67,7 +73,6 @@ class Extension_Example_Admin {
 			)
 		);
 
-		// get control when extension is deactivated
 		add_action(
 			'w3tc_deactivate_extension_example',
 			array(
@@ -75,65 +80,64 @@ class Extension_Example_Admin {
 				'w3tc_deactivate_extension',
 			)
 		);
-
 	}
 
-
-
 	/**
-	 * Show settings page
+	 * Show settings page.
+	 *
+	 * @return void
 	 */
 	public function w3tc_extension_page() {
-		include dirname( __FILE__ ) . '/Extension_Example_Page_View.php';
+		include __DIR__ . '/Extension_Example_Page_View.php';
 	}
 
-
-
 	/**
-	 * Get control when configuration is changed by user
+	 * Get control when configuration is changed by user.
+	 *
+	 * @param \W3TC\Config $w3tc_config     New configuration.
+	 * @param \W3TC\Config $old_config Previous configuration.
+	 *
+	 * @return void
 	 */
-	public function w3tc_config_ui_save( $config, $old_config ) {
-		if ( $config->get( array( 'example', 'is_title_postfix' ) ) !=
+	public function w3tc_config_ui_save( $w3tc_config, $old_config ) {
+		if ( $w3tc_config->get( array( 'example', 'is_title_postfix' ) ) !=
 			$old_config->get( array( 'example', 'is_title_postfix' ) ) ||
-			$config->get( array( 'example', 'title_postfix' ) ) !=
+			$w3tc_config->get( array( 'example', 'title_postfix' ) ) !=
 			$old_config->get( array( 'example', 'title_postfix' ) ) ) {
-			// flush all content caches, since our extension will now alter
-			// content
 			w3tc_flush_posts();
 		}
 	}
 
-
-
 	/**
-	 * Registers widget on W3 Total Cache Dashboard page
+	 * Registers widget on W3 Total Cache Dashboard page.
+	 *
+	 * @return void
 	 */
 	public function w3tc_widget_setup() {
-		$screen = get_current_screen();
+		$w3tc_screen = get_current_screen();
 		add_meta_box(
 			'example',
 			'example',
 			array( $this, 'widget_content' ),
-			$screen,
+			$w3tc_screen,
 			'normal',
 			'core'
 		);
 	}
 
-
-
 	/**
-	 * Renders content of widget
+	 * Renders content of widget.
+	 *
+	 * @return void
 	 */
 	public function widget_content() {
 		echo "Example extension's widget";
 	}
 
-
-
 	/**
 	 * Called when extension is deactivated.
-	 * Perform a cleanup here
+	 *
+	 * @return void
 	 */
 	public function w3tc_deactivate_extension() {
 	}

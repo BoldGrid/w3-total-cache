@@ -4,14 +4,18 @@ def run
 	puts '--- cleanup'
 	system 'echo $W3D_INSTANCE_ID'
 	system 'cat /etc/hostname'
-	system_assert '/share/scripts/w3tc-umount.sh'
 
-	system 'rm -rf /var/www/wp-sandbox'
+	system_assert '. /etc/environment; /share/scripts/validate-wordpress-tree.sh /var/www/backup-final-wp-sandbox'
+
+	system_assert '. /etc/environment; /share/scripts/w3tc-umount.sh'
+
+	system_assert 'rsync -a --delete /var/www/backup-final-wp-sandbox/ /var/www/wp-sandbox/'
 	system 'rm -rf /var/www/for-tests-sandbox/*'
-	system_assert 'cp -r /var/www/backup-final-wp-sandbox /var/www/wp-sandbox'
-	system_assert '/share/scripts/w3tc-mount.sh'
+	system_assert '. /etc/environment; /share/scripts/w3tc-mount.sh'
 	system_assert 'chown -R www-data:www-data /var/www/wp-sandbox'
 	system_assert 'mysql </var/www/backup-final.sql'
+
+	system_assert '. /etc/environment; /share/scripts/validate-wordpress-tree.sh /var/www/wp-sandbox'
 
 	if ENV['W3D_HTTP_SERVER'] == 'litespeed'
 		system_assert 'cp /usr/local/lsws/conf/vhosts/wp-sandbox-backup.conf /usr/local/lsws/conf/vhosts/wp-sandbox.conf'

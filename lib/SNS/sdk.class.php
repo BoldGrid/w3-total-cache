@@ -19,9 +19,9 @@
 // CORE DEPENDENCIES
 
 // Look for include file in the same directory (e.g. `./config.inc.php`).
-if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php'))
+if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.inc.php'))
 {
-	include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php';
+	include_once __DIR__ . DIRECTORY_SEPARATOR . 'config.inc.php';
 }
 // Fallback to `~/.aws/sdk/config.inc.php`
 elseif (getenv('HOME') && file_exists(getenv('HOME') . DIRECTORY_SEPARATOR . '.aws' . DIRECTORY_SEPARATOR . 'sdk' . DIRECTORY_SEPARATOR . 'config.inc.php'))
@@ -1000,7 +1000,7 @@ class CFRuntime
 		$parsed_url = parse_url('http://' . $domain);
 
 		// Set the proper host header.
-		if (isset($parsed_url['port']) && (integer) $parsed_url['port'] !== 80 && (integer) $parsed_url['port'] !== 443)
+		if (isset($parsed_url['port']) && (int) $parsed_url['port'] !== 80 && (int) $parsed_url['port'] !== 443)
 		{
 			$host_header = strtolower($parsed_url['host']) . ':' . $parsed_url['port'];
 		}
@@ -1193,12 +1193,12 @@ class CFRuntime
 		$data = new $this->response_class($headers, $this->parse_callback($request->get_response_body(), $headers), $request->get_response_code());
 
 		// Was it Amazon's fault the request failed? Retry the request until we reach $max_retries.
-		if ((integer) $request->get_response_code() === 500 || (integer) $request->get_response_code() === 503)
+		if ((int) $request->get_response_code() === 500 || (int) $request->get_response_code() === 503)
 		{
 			if ($redirects <= $this->max_retries)
 			{
 				// Exponential backoff
-				$delay = (integer) (pow(4, $redirects) * 100000);
+				$delay = (int) (pow(4, $redirects) * 100000);
 				usleep($delay);
 				$data = $this->authenticate($action, $opt, $domain, $signature_version, ++$redirects);
 			}
@@ -1217,7 +1217,7 @@ class CFRuntime
 	 * @param CFBatchRequest $queue (Optional) The <CFBatchRequest> instance to use for managing batch requests. If not available, it generates a new instance of <CFBatchRequest>.
 	 * @return $this A reference to the current instance.
 	 */
-	public function batch(CFBatchRequest &$queue = null)
+	public function batch(?CFBatchRequest &$queue = null)
 	{
 		if ($queue)
 		{
@@ -1543,7 +1543,7 @@ class CFLoader
 	 */
 	public static function autoloader($class)
 	{
-		$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+		$path = __DIR__ . DIRECTORY_SEPARATOR;
 
 		// Amazon SDK classes
 		if (strstr($class, 'Amazon'))

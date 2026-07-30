@@ -11,10 +11,11 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * UserExperience Preload Requests Extension.
  *
- * @since 2.5.1
+ * @since 2.6.0
  */
 class UserExperience_Preload_Requests_Extension {
 	/**
@@ -22,27 +23,27 @@ class UserExperience_Preload_Requests_Extension {
 	 *
 	 * @var object
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * User Experience DNS Prefetc constructor.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 */
 	public function __construct() {
-		$this->config = Dispatcher::config();
+		$this->w3tc_config = Dispatcher::config();
 	}
 
 	/**
 	 * Runs User Experience DNS Prefetc feature.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
 	public function run() {
-		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
-			$this->config->set_extension_active_frontend( 'user-experience-preload-requests', false );
+		if ( ! Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+			$this->w3tc_config->set_extension_active_frontend( 'user-experience-preload-requests', false );
 			return;
 		}
 
@@ -63,7 +64,7 @@ class UserExperience_Preload_Requests_Extension {
 	/**
 	 * Renders the user experience Preload Requests settings page.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
@@ -76,18 +77,18 @@ class UserExperience_Preload_Requests_Extension {
 	/**
 	 * Specify config key typing for fields that need it.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 *
-	 * @param mixed $descriptor Descriptor.
-	 * @param mixed $key Compound key array.
+	 * @param mixed $w3tc_descriptor Descriptor.
+	 * @param mixed $w3tc_key Compound key array.
 	 *
 	 * @return array
 	 */
-	public function w3tc_config_key_descriptor( $descriptor, $key ) {
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
 		if (
-			is_array( $key ) &&
+			is_array( $w3tc_key ) &&
 			in_array(
-				implode( '.', $key ),
+				implode( '.', $w3tc_key ),
 				array(
 					'user-experience-preload-requests.dns-prefetch',
 					'user-experience-preload-requests.preconnect',
@@ -102,89 +103,89 @@ class UserExperience_Preload_Requests_Extension {
 				true
 			)
 		) {
-			$descriptor = array( 'type' => 'array' );
+			$w3tc_descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+		return $w3tc_descriptor;
 	}
 
 	/**
 	 * Performs actions on save.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 *
-	 * @param array $data Array of save data.
+	 * @param array $w3tc_data Array of save data.
 	 *
 	 * @return array
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		$new_includes = $new_config->get_array( array( 'user-experience-preload-requests', 'includes' ) );
 		$old_includes = $old_config->get_array( array( 'user-experience-preload-requests', 'includes' ) );
 
-		if ( $new_includes !== $old_includes && $this->config->get_boolean( 'pgcache.enabled' ) ) {
+		if ( $new_includes !== $old_includes && $this->w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
 			$state = Dispatcher::config_state();
 			$state->set( 'common.show_note.flush_posts_needed', true );
 			$state->save();
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
 	 * Applies the Preload Requests headers for wp_head and admin_head.
 	 *
-	 * @since 2.5.1
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
 	public function w3tc_preload_requests_headers() {
 		// Preconnect hints should be printed first so they take priority. If not supported then dns-prefetch will be the fallback.
-		$preconnect = $this->config->get_array( array( 'user-experience-preload-requests', 'preconnect' ) );
-		foreach ( $preconnect as $url ) {
-			echo '<link rel="preconnect" href="' . esc_url( $url ) . '" crossorigin>';
+		$preconnect = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preconnect' ) );
+		foreach ( $preconnect as $w3tc_url ) {
+			echo '<link rel="preconnect" href="' . esc_url( $w3tc_url ) . '" crossorigin>';
 		}
 
-		$dns_prefetch = $this->config->get_array( array( 'user-experience-preload-requests', 'dns-prefetch' ) );
-		foreach ( $dns_prefetch as $url ) {
-			echo '<link rel="dns-prefetch" href="' . esc_url( $url ) . '">';
+		$dns_prefetch = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'dns-prefetch' ) );
+		foreach ( $dns_prefetch as $w3tc_url ) {
+			echo '<link rel="dns-prefetch" href="' . esc_url( $w3tc_url ) . '">';
 		}
 
-		$preload_css = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-css' ) );
-		foreach ( $preload_css as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="style">';
+		$preload_css = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-css' ) );
+		foreach ( $preload_css as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="style">';
 		}
 
-		$preload_js = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-js' ) );
-		foreach ( $preload_js as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="script">';
+		$preload_js = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-js' ) );
+		foreach ( $preload_js as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="script">';
 		}
 
-		$preload_fonts = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-fonts' ) );
-		foreach ( $preload_fonts as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="font" type="font/woff2">';
+		$preload_fonts = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-fonts' ) );
+		foreach ( $preload_fonts as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="font" type="font/woff2">';
 		}
 
-		$preload_images = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-images' ) );
-		foreach ( $preload_images as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="image">';
+		$preload_images = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-images' ) );
+		foreach ( $preload_images as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="image">';
 		}
 
-		$preload_videos = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-videos' ) );
-		foreach ( $preload_videos as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="video">';
+		$preload_videos = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-videos' ) );
+		foreach ( $preload_videos as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="video">';
 		}
 
-		$preload_audio = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-audio' ) );
-		foreach ( $preload_audio as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="audio">';
+		$preload_audio = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-audio' ) );
+		foreach ( $preload_audio as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="audio">';
 		}
 
-		$preload_documents = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-documents' ) );
-		foreach ( $preload_documents as $url ) {
-			echo '<link rel="preload" href="' . esc_url( $url ) . '" as="document">';
+		$preload_documents = $this->w3tc_config->get_array( array( 'user-experience-preload-requests', 'preload-documents' ) );
+		foreach ( $preload_documents as $w3tc_url ) {
+			echo '<link rel="preload" href="' . esc_url( $w3tc_url ) . '" as="document">';
 		}
 	}
 
@@ -196,11 +197,11 @@ class UserExperience_Preload_Requests_Extension {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		$config            = Dispatcher::config();
-		$extensions_active = $config->get_array( 'extensions.active' );
-		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-preload-requests', $extensions_active );
+		$w3tc_config       = Dispatcher::config();
+		$extensions_active = $w3tc_config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $w3tc_config ) && array_key_exists( 'user-experience-preload-requests', $extensions_active );
 	}
 }
 
-$o = new UserExperience_Preload_Requests_Extension();
-$o->run();
+$w3tc_o = new UserExperience_Preload_Requests_Extension();
+$w3tc_o->run();

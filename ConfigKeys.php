@@ -9,13 +9,14 @@
  * phpcs:disable Squiz.PHP.CommentedOutCode.Found
  */
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Descriptors of configuration keys for config
  *
  * Reminder: The maximum length of keys cannot exceed 64 chars. This is the limit for the name attribute in form fields.
  */
 
-$keys = array(
+$w3tc_keys = array(
 	'cluster.messagebus.debug'                             => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -31,10 +32,12 @@ $keys = array(
 	'cluster.messagebus.sns.api_key'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // AWS SNS API key — encrypted at rest.
 	),
 	'cluster.messagebus.sns.api_secret'                    => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cluster.messagebus.sns.topic_arn'                     => array(
 		'type'    => 'string',
@@ -59,6 +62,7 @@ $keys = array(
 	'dbcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array( 'no_import' => true ), // Switches code path into a different engine; set only via dedicated page.
 	),
 	'dbcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -93,6 +97,7 @@ $keys = array(
 	'dbcache.memcached.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'dbcache.memcached.binary_protocol'                    => array(
 		'type'    => 'boolean',
@@ -115,6 +120,7 @@ $keys = array(
 	'dbcache.redis.password'                               => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'dbcache.redis.dbid'                                   => array(
 		'type'    => 'integer',
@@ -281,6 +287,7 @@ $keys = array(
 	'objectcache.engine'                                   => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'objectcache.file.locking'                             => array(
 		'type'    => 'boolean',
@@ -307,6 +314,7 @@ $keys = array(
 	'objectcache.memcached.password'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'objectcache.memcached.binary_protocol'                => array(
 		'type'    => 'boolean',
@@ -329,6 +337,7 @@ $keys = array(
 	'objectcache.redis.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'objectcache.redis.dbid'                               => array(
 		'type'    => 'integer',
@@ -392,6 +401,7 @@ $keys = array(
 	'pgcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file_generic',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'pgcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -430,6 +440,7 @@ $keys = array(
 	'pgcache.memcached.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'pgcache.memcached.binary_protocol'                    => array(
 		'type'    => 'boolean',
@@ -452,6 +463,7 @@ $keys = array(
 	'pgcache.redis.password'                               => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'pgcache.redis.dbid'                                   => array(
 		'type'    => 'integer',
@@ -824,6 +836,7 @@ $keys = array(
 	'minify.memcached.password'                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'minify.memcached.binary_protocol'                     => array(
 		'type'    => 'boolean',
@@ -846,6 +859,7 @@ $keys = array(
 	'minify.redis.password'                                => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'minify.redis.dbid'                                    => array(
 		'type'    => 'integer',
@@ -922,6 +936,7 @@ $keys = array(
 	'minify.css.engine'                                    => array(
 		'type'    => 'string',
 		'default' => 'css',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.css.method'                                    => array(
 		'type'    => 'string',
@@ -962,6 +977,7 @@ $keys = array(
 	'minify.js.engine'                                     => array(
 		'type'    => 'string',
 		'default' => 'js',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.js.method'                                     => array(
 		'type'    => 'string',
@@ -1006,10 +1022,12 @@ $keys = array(
 	'minify.yuijs.path.java'                               => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ), // OS command-injection target; set only via dedicated page.
 	),
 	'minify.yuijs.path.jar'                                => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuijs.options.line-break'                      => array(
 		'type'    => 'integer',
@@ -1030,10 +1048,12 @@ $keys = array(
 	'minify.yuicss.path.java'                              => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuicss.path.jar'                               => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.yuicss.options.line-break'                     => array(
 		'type'    => 'integer',
@@ -1042,10 +1062,12 @@ $keys = array(
 	'minify.ccjs.path.java'                                => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.ccjs.path.jar'                                 => array(
 		'type'    => 'string',
 		'default' => 'compiler.jar',
+		'flags'   => array( 'no_import' => true ),
 	),
 	'minify.ccjs.options.compilation_level'                => array(
 		'type'    => 'string',
@@ -1182,6 +1204,33 @@ $keys = array(
 	'cdn.engine'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'no_import' => true ),
+		/**
+		 * The cdn.engine key is interpolated into the X-W3TC-CDN
+		 * Response header by Cdn_Plugin::send_headers. Without an
+		 * allowlist, an admin-settable value could carry CRLF and
+		 * inject arbitrary response headers (defense-in-depth on
+		 * PHP 7.x; PHP 8.3 already rejects raw CRLF in header()).
+		 * Enum derives from the supported engines listed in
+		 * Cdn_Core_Admin and Cache::engine_name; empty string is
+		 * the "no CDN" default and must remain valid.
+		 */
+		'enum'    => array(
+			'',
+			'azure',
+			'azuremi',
+			'bunnycdn',
+			'cf',
+			'cf2',
+			'cloudfront',
+			'ftp',
+			'google_drive',
+			'mirror',
+			'rackspace_cdn',
+			'rscf',
+			's3',
+			's3_compatible',
+		),
 	),
 	'cdn.uploads.enable'                                   => array(
 		'type'    => 'boolean',
@@ -1277,6 +1326,7 @@ $keys = array(
 	'cdn.ftp.pass'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // FTP password — encrypted at rest.
 	),
 	'cdn.ftp.path'                                         => array(
 		'type'    => 'string',
@@ -1305,6 +1355,7 @@ $keys = array(
 	'cdn.ftp.privkey'                                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // SFTP private key — encrypted at rest.
 	),
 	'cdn.google_drive.client_id'                           => array(
 		'type'    => 'string',
@@ -1313,6 +1364,7 @@ $keys = array(
 	'cdn.google_drive.refresh_token'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.google_drive.folder.id'                           => array(
 		'type'    => 'string',
@@ -1329,10 +1381,12 @@ $keys = array(
 	'cdn.s3.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // S3 access key ID — encrypted at rest.
 	),
 	'cdn.s3.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // S3 secret key.
 	),
 	'cdn.s3.bucket'                                        => array(
 		'type'    => 'string',
@@ -1361,10 +1415,12 @@ $keys = array(
 	'cdn.cf.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf.bucket'                                        => array(
 		'type'    => 'string',
@@ -1393,10 +1449,12 @@ $keys = array(
 	'cdn.cf2.key'                                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf2.secret'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.cf2.id'                                           => array(
 		'type'    => 'string',
@@ -1417,6 +1475,7 @@ $keys = array(
 	'cdn.rscf.key'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.rscf.location'                                    => array(
 		'type'    => 'string',
@@ -1441,6 +1500,7 @@ $keys = array(
 	'cdn.rackspace_cdn.api_key'                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.rackspace_cdn.region'                             => array(
 		'type'    => 'string',
@@ -1473,6 +1533,7 @@ $keys = array(
 	'cdn.azure.key'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cdn.azure.container'                                  => array(
 		'type'    => 'string',
@@ -1511,86 +1572,6 @@ $keys = array(
 		'default' => array(),
 	),
 	'cdn.mirror.ssl'                                       => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.cotendo.username'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.cotendo.password'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.cotendo.zones'                                    => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.cotendo.domain'                                   => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.cotendo.ssl'                                      => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.akamai.username'                                  => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.akamai.password'                                  => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.akamai.email_notification'                        => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.akamai.action'                                    => array(
-		'type'    => 'string',
-		'default' => 'invalidate',
-	),
-	'cdn.akamai.zone'                                      => array(
-		'type'    => 'string',
-		'default' => 'production',
-	),
-	'cdn.akamai.domain'                                    => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.akamai.ssl'                                       => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.edgecast.account'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.edgecast.token'                                   => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.edgecast.domain'                                  => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.edgecast.ssl'                                     => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.att.account'                                      => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.att.token'                                        => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.att.domain'                                       => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.att.ssl'                                          => array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
@@ -1872,6 +1853,9 @@ $keys = array(
 	'browsercache.security.xfo.allow'                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'directive_string' => true,
+		),
 	),
 	'browsercache.security.xss'                            => array(
 		'type'    => 'boolean',
@@ -1880,6 +1864,7 @@ $keys = array(
 	'browsercache.security.xss.directive'                  => array(
 		'type'    => 'string',
 		'default' => 'block',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.xcto'                           => array(
 		'type'    => 'boolean',
@@ -1889,21 +1874,25 @@ $keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.pkp.pin'                        => array(
+	'browsercache.security.pkp.pin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.pkp.pin.backup'                 => array(
+	'browsercache.security.pkp.pin.backup' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.pkp.extra'                      => array(
 		'type'    => 'string',
 		'default' => 'maxage',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.pkp.report.url'                 => array(
+	'browsercache.security.pkp.report.url' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.pkp.report.only'                => array(
 		'type'    => 'string',
@@ -1916,198 +1905,245 @@ $keys = array(
 	'browsercache.security.referrer.policy.directive'      => array(
 		'type'    => 'string',
 		'default' => 'no-referrer-when-downgrade',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.csp'                            => array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.csp.reporturi'                  => array(
+	'browsercache.security.csp.reporturi' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.reportto'                   => array(
+	'browsercache.security.csp.reportto' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.base'                       => array(
+	'browsercache.security.csp.base' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.frame'                      => array(
+	'browsercache.security.csp.frame' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.connect'                    => array(
+	'browsercache.security.csp.connect' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.font'                       => array(
+	'browsercache.security.csp.font' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.script'                     => array(
+	'browsercache.security.csp.script' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.style'                      => array(
+	'browsercache.security.csp.style' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.img'                        => array(
+	'browsercache.security.csp.img' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.media'                      => array(
+	'browsercache.security.csp.media' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.object'                     => array(
+	'browsercache.security.csp.object' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.plugin'                     => array(
+	'browsercache.security.csp.plugin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.form'                       => array(
+	'browsercache.security.csp.form' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.frame.ancestors'            => array(
+	'browsercache.security.csp.frame.ancestors' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.sandbox'                    => array(
+	'browsercache.security.csp.sandbox' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.child'                      => array(
+	'browsercache.security.csp.child' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.manifest'                   => array(
+	'browsercache.security.csp.manifest' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.scriptelem'                 => array(
+	'browsercache.security.csp.scriptelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.scriptattr'                 => array(
+	'browsercache.security.csp.scriptattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.styleelem'                  => array(
+	'browsercache.security.csp.styleelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.styleattr'                  => array(
+	'browsercache.security.csp.styleattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.worker'                     => array(
+	'browsercache.security.csp.worker' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.default'                    => array(
+	'browsercache.security.csp.default' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.cspro'                          => array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.cspro.reporturi'                => array(
+	'browsercache.security.cspro.reporturi' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.reportto'                 => array(
+	'browsercache.security.cspro.reportto' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.base'                     => array(
+	'browsercache.security.cspro.base' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.frame'                    => array(
+	'browsercache.security.cspro.frame' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.connect'                  => array(
+	'browsercache.security.cspro.connect' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.font'                     => array(
+	'browsercache.security.cspro.font' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.script'                   => array(
+	'browsercache.security.cspro.script' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.style'                    => array(
+	'browsercache.security.cspro.style' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.img'                      => array(
+	'browsercache.security.cspro.img' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.media'                    => array(
+	'browsercache.security.cspro.media' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.object'                   => array(
+	'browsercache.security.cspro.object' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.plugin'                   => array(
+	'browsercache.security.cspro.plugin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.form'                     => array(
+	'browsercache.security.cspro.form' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.frame.ancestors'          => array(
+	'browsercache.security.cspro.frame.ancestors' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.sandbox'                  => array(
+	'browsercache.security.cspro.sandbox' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.child'                    => array(
+	'browsercache.security.cspro.child' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.manifest'                 => array(
+	'browsercache.security.cspro.manifest' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.scriptelem'               => array(
+	'browsercache.security.cspro.scriptelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.scriptattr'               => array(
+	'browsercache.security.cspro.scriptattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.styleelem'                => array(
+	'browsercache.security.cspro.styleelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.styleattr'                => array(
+	'browsercache.security.cspro.styleattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.worker'                   => array(
+	'browsercache.security.cspro.worker' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.default'                  => array(
+	'browsercache.security.cspro.default' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.fp'                             => array(
 		'type'    => 'boolean',
@@ -2471,19 +2507,23 @@ $keys = array(
 	'extensions.active'                                    => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ), // File-inclusion target; managed via Extensions UI only.
 	),
 	'extensions.active_frontend'                           => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'extensions.active_dropin'                             => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'plugin.license_key'                                   => array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		'flags'       => array( 'secret' => true ), // EDD license key — encrypted at rest.
 	),
 	'plugin.type'                                          => array(
 		'type'        => 'string',
@@ -2500,6 +2540,8 @@ $keys = array(
 			'compression' => 'lossy',
 			'auto'        => 'enabled',
 			'visibility'  => 'never',
+			'webp'        => true,
+			'avif'        => true,
 		),
 	),
 	'imageservice.configuration_overloaded'                => array(
@@ -2571,7 +2613,7 @@ $keys = array(
 /*
  * Descriptors how sealed configuration keys affect overriding
  */
-$overloading_keys_scope = array(
+$w3tc_overloading_keys_scope = array(
 	array(
 		'key'    => 'browsercache.configuration_overloaded',
 		'prefix' => 'browsercache.',

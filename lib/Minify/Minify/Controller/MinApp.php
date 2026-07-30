@@ -153,6 +153,20 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         return $options;
                     }
                 }
+                /**
+                 * W3TC FIX (CVE-2026-9282): restrict f_array entries to CSS/JS
+                 * assets. The W3TC request handler now only populates f_array
+                 * from the server-side hash lookup and clears any request-
+                 * supplied value in manual mode, but enforce a hard extension
+                 * allowlist at the sink as defense in depth so this file-read
+                 * loop can never serve wp-config.php or any other non-asset
+                 * file inside the docroot.
+                 */
+                $w3tc_ext = strtolower(pathinfo($realpath, PATHINFO_EXTENSION));
+                if ('css' !== $w3tc_ext && 'js' !== $w3tc_ext) {
+                    $this->log("Refusing non-CSS/JS file \"{$realpath}\" requested via f_array");
+                    continue;
+                }
                 try {
                     parent::checkNotHidden($realpath);
                     parent::checkAllowDirs($realpath, $allowDirs, $uri);

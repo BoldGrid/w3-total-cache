@@ -1,132 +1,102 @@
 function requireRoot(p) {
-	return require('../../' + p);
+  return require("../../" + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
-const util = require('util');
+const expect = require("chai").expect;
+const log = require("mocha-logger");
+const fs = require("fs");
+const path = require("path");
+const util = require("util");
 
 fs.writeFileAsync = util.promisify(fs.writeFile);
 
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
+const env = requireRoot("lib/environment");
+const sys = requireRoot("lib/sys");
+const w3tc = requireRoot("lib/w3tc");
 
-describe('import/export config', function() {
-	this.timeout(sys.suiteTimeout);
-	before(sys.beforeDefault);
-	after(sys.after);
+describe("import/export config", function () {
+  this.timeout(sys.suiteTimeout);
+  before(sys.beforeDefault);
+  after(sys.after);
 
+  it("set options to something non-default", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: true,
+    });
+  });
 
+  it("export config", async () => {
+    await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_general");
+    log.log("Downloading (exporting) config file...");
 
-	it('set options to something non-default', async() => {
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: true
-		});
-	});
+    let exportBody = await adminPage.evaluate(async () => {
+      const btn = document.querySelector('input[name="w3tc_config_export"]');
+      const form = btn.closest("form");
+      const fd = new FormData(form);
+      fd.set("w3tc_config_export", btn.value);
+      const nonce =
+        btn.getAttribute("data-w3tc-nonce") ||
+        (typeof w3tc_admin_nonces !== "undefined" &&
+          w3tc_admin_nonces.w3tc_config_export) ||
+        "";
+      if (nonce) {
+        fd.set("_wpnonce", nonce);
+      }
+      const r = await fetch(form.action, {
+        method: "POST",
+        body: fd,
+        credentials: "same-origin",
+      });
+      if (!r.ok) {
+        throw new Error("export HTTP " + r.status);
+      }
+      return await r.text();
+    });
 
+    expect(exportBody.trim().charAt(0)).equals("{");
+    let exported = JSON.parse(exportBody);
+    expect(exported["pgcache.enabled"]).true;
 
+    const exportPath = path.join(env.wpPath, "export-data.json");
+    log.log("writing file " + exportPath);
+    await fs.writeFileAsync(exportPath, exportBody, "utf8");
+  });
 
-	it('export config', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general');
-		log.log('Downloading (exporting) config file...');
+  it("import", async () => {
+    //change settings again
+    await w3tc.setOptions(adminPage, "w3tc_general", {
+      pgcache__enabled: false,
+    });
 
-		let cookies = await adminPage.cookies();
+    // checking if we disabled pgcache
+    await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_general");
+    let checked = await adminPage.$eval("#pgcache__enabled", (e) =>
+      e.getAttribute("checked"),
+    );
+    expect(checked).null;
 
-		await adminPage.setRequestInterception(true);
+    const exportPath = path.join(env.wpPath, "export-data.json");
 
-		let requestPromise = new Promise(resolve => {
-		    adminPage.once('request', request => {
-		        request.abort();
-		        resolve(request);
-		    });
-		});
+    // uploading our exported before config
+    log.log("importing file " + exportPath);
+    let fileInput = await adminPage.$("input[name=config_file]");
+    await fileInput.uploadFile(exportPath);
 
-		let configExport = 'input[name="w3tc_config_export"]';
-		await adminPage.evaluate((configExport) => document.querySelector(configExport).click(), configExport);
+    await Promise.all([
+      adminPage.click('input[name="w3tc_config_import"]'),
+      adminPage.waitForNavigation({ timeout: 300000 }),
+    ]);
 
-		let request = await requestPromise;
+    await w3tc.expectW3tcErrors(adminPage, false);
+    expect(await w3tc.getConfigOption("pgcache.enabled", "boolean")).true;
 
-		let headers = request.headers();
-		headers.Cookie = cookies.map(ck => ck.name + '=' + ck.value).join(';');
-
-		log.log('doing download');
-		let r = await httpPost(request.url(), request.postData(), headers);
-		log.log('writing file');
-		await fs.writeFileAsync(env.wpPath + '/export-data.json', r.body, 'utf8');
-		await adminPage.setRequestInterception(false);
-	});
-
-
-
-	it('import', async() => {
-		//change settings again
-		await w3tc.setOptions(adminPage, 'w3tc_general', {
-			pgcache__enabled: false
-		});
-
-		// checking if we disabled pgcache
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general');
-		let checked = await adminPage.$eval('#pgcache__enabled', (e) => e.getAttribute('checked'));
-		expect(checked).null;
-
-		// uploading our exported before config
-		log.log('importing file');
-		let fileInput = await adminPage.$('input[name=config_file]');
-		await fileInput.uploadFile(env.wpPath + '/export-data.json');
-
-		let configImport = 'input[name=w3tc_config_import]';
-		await Promise.all([
-			adminPage.evaluate((configImport) => document.querySelector(configImport).click(), configImport),
-			adminPage.waitForNavigation({timeout: 300000})
-		]);
-
-		//checking if all settings was exported
-		let checked2 = await adminPage.$eval('#pgcache__enabled', (e) => e.getAttribute('checked'));
-		expect(checked2).equals('checked');
-	});
+    //checking if all settings was exported
+    await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_general", {
+      waitUntil: "domcontentloaded",
+    });
+    let checked2 = await adminPage.$eval("#pgcache__enabled", (e) =>
+      e.getAttribute("checked"),
+    );
+    expect(checked2).equals("checked");
+  });
 });
-
-
-
-function httpPost(url, data, headers) {
-	process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-
-	let p = new Promise((resolve, reject) => {
-		let httpModule = (url.substr(0, 7) == 'http://' ? http : https);
-
-		const u = new URL(url);
-		const options = {
-			hostname: u.hostname,
-			port: env.httpServerPort,
-			path: u.pathname + u.search,
-			method: 'POST',
-			headers: headers
-	  	};
-
-		let request = httpModule.request(options, (response) => {
-			let responseData = '';
-			response.on('data', (chunk) => {
-				responseData += chunk;
-			});
-
-			response.on('end', () => {
-				resolve({
-					headers: response.headers,
-					body: responseData
-				});
-			});
-
-		}).on('error', (err) => {
-			reject(err.message);
-		});
-
-		request.write(data);
-		request.end();
-	});
-
-	return p;
-}

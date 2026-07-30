@@ -1,13 +1,16 @@
 @media screen and (max-width: 900px) {
+
     .w3tc-card-container {
         grid-template-columns: 1fr 1fr;
     }
 }
 
 @media screen and (max-width: 560px) {
+
     .w3tc-card-container {
         grid-template-columns: 1fr;
     }
+
 	.w3tc-card-container-new {
 		grid-template-columns: 1fr;
 		row-gap: 2em;
@@ -15,6 +18,7 @@
 }
 
 @media screen and (min-width: 560px) {
+
     .w3tc-card-container-new {
 		grid-template-columns: repeat(auto-fit, minmax(275px, .4fr));
 		grid-gap: 3em 4%;
@@ -22,18 +26,22 @@
 }
 
 @media screen and (min-width: 900px) {
+
     .w3tc-card-container {
         grid-template-columns: 1fr 1fr 1fr;
     }
+
 	.w3tc-card-container-new {
         grid-gap: 3.75em 5%;
     }
 }
 
 @media screen and (min-width: 1400px) {
+
     .w3tc-card-container {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
+
 	.w3tc-card-container-new {
         grid-gap: 6em 7%;
     }
@@ -76,8 +84,6 @@
 	margin: 10px 0 1em !important;
 	box-shadow: 0 1px 1px -1px #888;
 	background: #fff;
-	background-image: none;
-	background-image: none;
 	padding: 33px 10px !important;
 	background-image: linear-gradient( to right, #f9f9f9, #f9f9f9, #f9f9f9, #f0f0f0, #e7f3f3, #56bec1, #16252c);
 	position: relative;
@@ -86,7 +92,7 @@
 }
 
 .w3tc-card-container-title::after {
-	background-image: url("../img/transparent-comet.png");
+	background-image: url(../img/transparent-comet.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 	background-size: 100% 100%;
@@ -107,7 +113,7 @@
 }
 
 .w3tc-card-container-new .w3tc-card {
-	box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;;
+	box-shadow: rgb(38, 57, 77) 0 20px 30px -10px;;
 	border: none;
 }
 

@@ -40,14 +40,14 @@ class Cache_File_Cleaner {
 	/**
 	 * PHP5-style constructor
 	 *
-	 * @param array $config Config.
+	 * @param array $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$this->_cache_dir       = ( isset( $config['cache_dir'] ) ? trim( $config['cache_dir'] ) : 'cache' );
-		$this->_clean_timelimit = ( isset( $config['clean_timelimit'] ) ? (int) $config['clean_timelimit'] : 180 );
-		$this->_exclude         = ( isset( $config['exclude'] ) ? (array) $config['exclude'] : array() );
+	public function __construct( $w3tc_config = array() ) {
+		$this->_cache_dir       = ( isset( $w3tc_config['cache_dir'] ) ? trim( $w3tc_config['cache_dir'] ) : 'cache' );
+		$this->_clean_timelimit = ( isset( $w3tc_config['clean_timelimit'] ) ? (int) $w3tc_config['clean_timelimit'] : 180 );
+		$this->_exclude         = ( isset( $w3tc_config['exclude'] ) ? (array) $w3tc_config['exclude'] : array() );
 	}
 
 	/**
@@ -84,20 +84,20 @@ class Cache_File_Cleaner {
 		$dir = @opendir( $path );
 
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
 				foreach ( $this->_exclude as $mask ) {
-					if ( fnmatch( $mask, basename( $entry ) ) ) {
+					if ( fnmatch( $mask, basename( $w3tc_entry ) ) ) {
 						continue 2;
 					}
 				}
 
-				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
+				$full_path = $path . DIRECTORY_SEPARATOR . $w3tc_entry;
 
 				if ( @is_dir( $full_path ) ) {
 					$this->_clean( $full_path );
@@ -105,7 +105,7 @@ class Cache_File_Cleaner {
 					@unlink( $full_path );
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -119,15 +119,15 @@ class Cache_File_Cleaner {
 	/**
 	 * Check if file is valid
 	 *
-	 * @param string $file File.
+	 * @param string $w3tc_file File.
 	 *
 	 * @return bool
 	 */
-	public function is_valid( $file ) {
+	public function is_valid( $w3tc_file ) {
 		$valid = false;
 
-		if ( file_exists( $file ) ) {
-			$fp = @fopen( $file, 'rb' );
+		if ( file_exists( $w3tc_file ) ) {
+			$fp = @fopen( $w3tc_file, 'rb' );
 
 			if ( $fp ) {
 				$expires = @fread( $fp, 4 );

@@ -9,49 +9,50 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
 
 <div id="bunnycdn-widget" class="w3tc_bunnycdn_signup">
 	<?php
-	$cdn_engine  = $c->get_string( 'cdn.engine' );
-	$cdn_enabled = $c->get_boolean( 'cdn.enabled' );
-	$cdn_name    = Cache::engine_name( $cdn_engine );
+	$w3tc_cdn_engine  = $w3tc_c->get_string( 'cdn.engine' );
+	$w3tc_cdn_enabled = $w3tc_c->get_boolean( 'cdn.enabled' );
+	$w3tc_cdn_name    = Cache::engine_name( $w3tc_cdn_engine );
 
-	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
-	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
-	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
+	$w3tc_cdnfsd_engine  = $w3tc_c->get_string( 'cdnfsd.engine' );
+	$w3tc_cdnfsd_enabled = $w3tc_c->get_boolean( 'cdnfsd.enabled' );
+	$w3tc_cdnfsd_name    = Cache::engine_name( $w3tc_cdnfsd_engine );
 
 	// Check if BunnyCDN is selected but not fully configured.
-	$is_bunny_cdn_incomplete = (
+	$w3tc_is_bunny_cdn_incomplete = (
 		(
-			$cdn_enabled &&
-			'bunnycdn' === $cdn_engine &&
-			empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) )
+			$w3tc_cdn_enabled &&
+			'bunnycdn' === $w3tc_cdn_engine &&
+			empty( $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) )
 		) ||
 		(
-			$cdnfsd_enabled &&
-			'bunnycdn' === $cdnfsd_engine &&
-			empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) )
+			$w3tc_cdnfsd_enabled &&
+			'bunnycdn' === $w3tc_cdnfsd_engine &&
+			empty( $w3tc_c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) )
 		)
 	);
 
 	// Check if a non-BunnyCDN is configured.
-	$is_other_cdn_configured = (
+	$w3tc_is_other_cdn_configured = (
 		(
-			$cdn_enabled &&
-			! empty( $cdn_engine ) &&
-			'bunnycdn' !== $cdn_engine
+			$w3tc_cdn_enabled &&
+			! empty( $w3tc_cdn_engine ) &&
+			'bunnycdn' !== $w3tc_cdn_engine
 		) ||
 		(
-			$cdnfsd_enabled &&
-			! empty( $cdnfsd_engine ) &&
-			'bunnycdn' !== $cdnfsd_engine
+			$w3tc_cdnfsd_enabled &&
+			! empty( $w3tc_cdnfsd_engine ) &&
+			'bunnycdn' !== $w3tc_cdnfsd_engine
 		)
 	);
 
-	if ( $is_bunny_cdn_incomplete ) {
+	if ( $w3tc_is_bunny_cdn_incomplete ) {
 		// BunnyCDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
@@ -72,35 +73,35 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 		<?php
-	} elseif ( $is_other_cdn_configured ) {
+	} elseif ( $w3tc_is_other_cdn_configured ) {
 		// A CDN is configured but it is not BunnyCDN.
 		?>
 		<p class="notice notice-error">
 			<?php
 			switch ( true ) {
-				case $cdn_enabled && ! empty( $cdn_engine ) && $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
-					$cdn_label =
-						$cdn_name .
+				case $w3tc_cdn_enabled && ! empty( $w3tc_cdn_engine ) && $w3tc_cdnfsd_enabled && ! empty( $w3tc_cdnfsd_engine ):
+					$w3tc_cdn_label =
+						$w3tc_cdn_name .
 						' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>' .
 						' ' . __( 'and', 'w3-total-cache' ) . ' ' .
-						$cdnfsd_name .
+						$w3tc_cdnfsd_name .
 						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
 					break;
 
-				case $cdn_enabled && ! empty( $cdn_engine ):
-					$cdn_label =
-						$cdn_name .
+				case $w3tc_cdn_enabled && ! empty( $w3tc_cdn_engine ):
+					$w3tc_cdn_label =
+						$w3tc_cdn_name .
 						' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
 					break;
 
-				case $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
-					$cdn_label =
-						$cdnfsd_name .
+				case $w3tc_cdnfsd_enabled && ! empty( $w3tc_cdnfsd_engine ):
+					$w3tc_cdn_label =
+						$w3tc_cdnfsd_name .
 						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
 					break;
 
 				default:
-					$cdn_label =
+					$w3tc_cdn_label =
 						__( 'Unknown', 'w3-total-cache' ) .
 						' <acronym title="' . __( 'Content Delivery Network / Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN / CDN FSD', 'w3-total-cache' ) . '</acronym>';
 					break;
@@ -110,7 +111,7 @@ defined( 'W3TC' ) || die();
 				sprintf(
 					// translators: 1 configured CDN/CDN FSD label.
 					__( 'W3 Total Cache has detected that you are using the %1$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
-					$cdn_label
+					$w3tc_cdn_label
 				),
 				array(
 					'acronym' => array(
@@ -190,11 +191,11 @@ defined( 'W3TC' ) || die();
 		?>
 	</p>
 
-	<a class="button-primary" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ), 'w3tc' ) ); ?>">
+	<a class="button-primary" href="<?php echo \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ); ?>">
 		<?php \esc_html_e( 'Authorize', 'w3-total-cache' ); ?>
 	</a>
 
-	<a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' ) ); ?>">
+	<a class="button" href="<?php echo \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ); ?>">
 		<?php \esc_html_e( 'Premium Services', 'w3-total-cache' ); ?>
 	</a>
 </div>

@@ -100,6 +100,32 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test rmdir handles malformed paths without warnings.
+	 *
+	 * @since 2.8.15
+	 */
+	public function test_rmdir_with_malformed_path() {
+		$path   = W3TC_DIR . '//test-dir-' . \gmdate( 'c' );
+		$errors = array();
+
+		\set_error_handler(
+			function ( $errno, $errstr ) use ( &$errors ) {
+				$errors[] = $errstr;
+				return true;
+			}
+		);
+
+		try {
+			$this->assertNull( \W3TC\Util_File::rmdir( $path ) );
+		} finally {
+			\restore_error_handler();
+		}
+
+		$this->assertEmpty( $errors );
+		$this->assertFalse( \file_exists( \W3TC\Util_Environment::realpath( $path ) ) );
+	}
+
+	/**
 	 * Test emptydir.
 	 *
 	 * @since 2.3.1
@@ -352,7 +378,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
        /**
         * Test check_htaccess creates file and returns expected boolean.
         *
-        * @since X.X.X
+        * @since 2.8.11
         */
        public function test_check_htaccess() {
                $dir = W3TC_CACHE_TMP_DIR . '/htaccess-test';

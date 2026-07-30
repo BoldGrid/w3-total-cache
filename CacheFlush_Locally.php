@@ -110,13 +110,13 @@ class CacheFlush_Locally {
 	 *
 	 * Triggers the `w3tc_flush_fragmentcache_group` and `w3tc_flush_after_fragmentcache_group` actions.
 	 *
-	 * @param string $group The fragment cache group to flush.
+	 * @param string $w3tc_group The fragment cache group to flush.
 	 *
 	 * @return bool Always true.
 	 */
-	public function fragmentcache_flush_group( $group ) {
-		do_action( 'w3tc_flush_fragmentcache_group', $group );
-		do_action( 'w3tc_flush_after_fragmentcache_group', $group );
+	public function fragmentcache_flush_group( $w3tc_group ) {
+		do_action( 'w3tc_flush_fragmentcache_group', $w3tc_group );
+		do_action( 'w3tc_flush_after_fragmentcache_group', $w3tc_group );
 
 		return true;
 	}
@@ -240,8 +240,8 @@ class CacheFlush_Locally {
 	 * @return bool True on success, false on failure.
 	 */
 	public function opcache_flush() {
-		$o = Dispatcher::component( 'SystemOpCache_Core' );
-		return $o->flush();
+		$w3tc_o = Dispatcher::component( 'SystemOpCache_Core' );
+		return $w3tc_o->flush();
 	}
 
 	/**
@@ -291,22 +291,22 @@ class CacheFlush_Locally {
 	public function flush_all( $extras ) {
 		static $default_actions_added = false;
 		if ( ! $default_actions_added ) {
-			$config = Dispatcher::config();
+			$w3tc_config = Dispatcher::config();
 
 			$opcache = Dispatcher::component( 'SystemOpCache_Core' );
 			if ( $opcache->is_enabled() ) {
 				add_action( 'w3tc_flush_all', array( $this, 'opcache_flush' ), 50, 1 );
 			}
 
-			if ( $config->get_boolean( 'dbcache.enabled' ) ) {
+			if ( $w3tc_config->get_boolean( 'dbcache.enabled' ) ) {
 				add_action( 'w3tc_flush_all', array( $this, 'dbcache_flush' ), 100, 2 );
 			}
 
-			if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
+			if ( $w3tc_config->getf_boolean( 'objectcache.enabled' ) ) {
 				add_action( 'w3tc_flush_all', array( $this, 'objectcache_flush' ), 200, 1 );
 			}
 
-			if ( $config->get_boolean( 'minify.enabled' ) ) {
+			if ( $w3tc_config->get_boolean( 'minify.enabled' ) ) {
 				add_action( 'w3tc_flush_all', array( $this, 'minifycache_flush_all' ), 1000, 1 );
 			}
 
@@ -324,15 +324,15 @@ class CacheFlush_Locally {
 	 *
 	 * Executes the `w3tc_flush_group` action if the `w3tc_preflush_group` filter allows it.
 	 *
-	 * @param string $group  The name of the group to flush.
+	 * @param string $w3tc_group  The name of the group to flush.
 	 * @param mixed  $extras Additional data passed to the filter and action.
 	 *
 	 * @return void
 	 */
-	public function flush_group( $group, $extras ) {
-		$do_flush = apply_filters( 'w3tc_preflush_group', true, $group, $extras );
+	public function flush_group( $w3tc_group, $extras ) {
+		$do_flush = apply_filters( 'w3tc_preflush_group', true, $w3tc_group, $extras );
 		if ( $do_flush ) {
-			do_action( 'w3tc_flush_group', $group, $extras );
+			do_action( 'w3tc_flush_group', $w3tc_group, $extras );
 		}
 	}
 
@@ -341,15 +341,15 @@ class CacheFlush_Locally {
 	 *
 	 * Executes the `w3tc_flush_url` action if the `w3tc_preflush_url` filter allows it.
 	 *
-	 * @param string $url    The URL to flush.
+	 * @param string $w3tc_url    The URL to flush.
 	 * @param mixed  $extras Optional. Additional data passed to the filter and action.
 	 *
 	 * @return void
 	 */
-	public function flush_url( $url, $extras = null ) {
+	public function flush_url( $w3tc_url, $extras = null ) {
 		$do_flush = apply_filters( 'w3tc_preflush_url', true, $extras );
 		if ( $do_flush ) {
-			do_action( 'w3tc_flush_url', $url, $extras );
+			do_action( 'w3tc_flush_url', $w3tc_url, $extras );
 		}
 	}
 
@@ -378,13 +378,13 @@ class CacheFlush_Locally {
 	public function execute_delayed_operations() {
 		static $default_actions_added = false;
 		if ( ! $default_actions_added ) {
-			$config = Dispatcher::config();
+			$w3tc_config = Dispatcher::config();
 
-			if ( $config->get_boolean( 'pgcache.enabled' ) ) {
+			if ( $w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
 				add_filter( 'w3tc_flush_execute_delayed_operations', array( $this, '_execute_delayed_operations_pgcache' ), 1100 );
 			}
 
-			if ( $config->get_boolean( 'varnish.enabled' ) ) {
+			if ( $w3tc_config->get_boolean( 'varnish.enabled' ) ) {
 				add_filter( 'w3tc_flush_execute_delayed_operations', array( $this, '_execute_delayed_operations_varnish' ), 2000 );
 			}
 
@@ -408,8 +408,8 @@ class CacheFlush_Locally {
 	 * @return array Updated list of actions performed.
 	 */
 	public function _execute_delayed_operations_pgcache( $actions_made ) {
-		$o             = Dispatcher::component( 'PgCache_Flush' );
-		$count_flushed = $o->flush_post_cleanup();
+		$w3tc_o        = Dispatcher::component( 'PgCache_Flush' );
+		$count_flushed = $w3tc_o->flush_post_cleanup();
 		if ( $count_flushed > 0 ) {
 			$actions_made[] = array( 'module' => 'pgcache' );
 		}
@@ -427,8 +427,8 @@ class CacheFlush_Locally {
 	 * @return array Updated list of actions performed.
 	 */
 	public function _execute_delayed_operations_varnish( $actions_made ) {
-		$o             = Dispatcher::component( 'Varnish_Flush' );
-		$count_flushed = $o->flush_post_cleanup();
+		$w3tc_o        = Dispatcher::component( 'Varnish_Flush' );
+		$count_flushed = $w3tc_o->flush_post_cleanup();
 		if ( $count_flushed > 0 ) {
 			$actions_made[] = array( 'module' => 'varnish' );
 		}

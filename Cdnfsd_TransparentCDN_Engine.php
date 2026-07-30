@@ -9,6 +9,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_CDN_TRANSPARENTCDN_PURGE_URL' ) ) {
 	define( 'W3TC_CDN_TRANSPARENTCDN_PURGE_URL', 'https://api.transparentcdn.com/v1/companies/%s/invalidate/' );
 }
@@ -21,7 +22,7 @@ if ( ! defined( 'W3TC_CDN_TRANSPARENTCDN_AUTHORIZATION_URL' ) ) {
 /**
  * Class: Cdn_TransparentCDN_Api
  *
- * @since 0.15.0
+ * @since 2.0.0
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
@@ -49,29 +50,29 @@ class Cdn_TransparentCDN_Api {
 	/**
 	 * Constructs the Cdn_TransparentCDN_Api object with the provided configuration.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
-	 * @param array $config Configuration array to initialize the API.
+	 * @param array $w3tc_config Configuration array to initialize the API.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'company_id'    => '',
 				'client_id'     => '',
 				'client_secret' => '',
 			),
-			$config
+			$w3tc_config
 		);
 
-		$this->_config = $config;
+		$this->_config = $w3tc_config;
 	}
 
 	/**
 	 * Purges the specified URLs from the content delivery network.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @param array $urls Array of URLs to purge from the CDN.
 	 *
@@ -94,10 +95,10 @@ class Cdn_TransparentCDN_Api {
 
 		$invalidation_urls = array();
 		// Included a regex filter because some of our clients reported receiving urls as "True" or "False".
-		foreach ( $urls as $url ) {
+		foreach ( $urls as $w3tc_url ) {
 			// Oh array_map+lambdas, how I miss u...
-			if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
-				$invalidation_urls[] = $url;
+			if ( filter_var( $w3tc_url, FILTER_VALIDATE_URL ) ) {
+				$invalidation_urls[] = $w3tc_url;
 			}
 		}
 
@@ -111,7 +112,7 @@ class Cdn_TransparentCDN_Api {
 	/**
 	 * Purges content from the CDN for the provided list of files.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @param array  $files  Array of file URLs to purge.
 	 * @param string $error  Reference to a string where error messages will be stored.
@@ -121,8 +122,8 @@ class Cdn_TransparentCDN_Api {
 	 * @throws \Exception If there is an issue with the HTTP request.
 	 */
 	public function _purge_content( $files, &$error ) {
-		$url  = sprintf( W3TC_CDN_TRANSPARENTCDN_PURGE_URL, $this->_config['company_id'] );
-		$args = array(
+		$w3tc_url = sprintf( W3TC_CDN_TRANSPARENTCDN_PURGE_URL, $this->_config['company_id'] );
+		$args     = array(
 			'method'     => 'POST',
 			'user-agent' => W3TC_POWERED_BY,
 			'headers'    => array(
@@ -133,7 +134,7 @@ class Cdn_TransparentCDN_Api {
 			'body'       => wp_json_encode( array( 'urls' => $files ) ),
 		);
 
-		$response = wp_remote_request( $url, $args );
+		$response = wp_remote_request( $w3tc_url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			$error = implode( '; ', $response->get_error_messages() );
@@ -184,7 +185,7 @@ class Cdn_TransparentCDN_Api {
 	/**
 	 * Purges all content from the CDN.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @param array $results Reference to an array where results will be stored.
 	 *
@@ -199,7 +200,7 @@ class Cdn_TransparentCDN_Api {
 	/**
 	 * Retrieves an authentication token for making API requests.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @return bool True if token retrieval is successful, false otherwise.
 	 *
@@ -236,7 +237,7 @@ class Cdn_TransparentCDN_Api {
 /**
  * Class: Cdnfsd_TransparentCDN_Engine
  *
- * @since 0.15.0
+ * @since 2.0.0
  *
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
@@ -248,25 +249,25 @@ class Cdnfsd_TransparentCDN_Engine {
 	 *
 	 * @var array
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Constructs the Cdnfsd_TransparentCDN_Engine object with configuration options.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
-	 * @param array $config Configuration options to initialize the engine.
+	 * @param array $w3tc_config Configuration options to initialize the engine.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$this->config = $config;
+	public function __construct( $w3tc_config = array() ) {
+		$this->w3tc_config = $w3tc_config;
 	}
 
 	/**
 	 * Flushes specific URLs from the CDN.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @param array $urls An array of URLs to be purged from the CDN.
 	 *
@@ -275,14 +276,14 @@ class Cdnfsd_TransparentCDN_Engine {
 	 * @throws \Exception If the API key is not provided or an error occurs during the purge process.
 	 */
 	public function flush_urls( $urls ) {
-		if ( empty( $this->config['client_id'] ) ) {
+		if ( empty( $this->w3tc_config['client_id'] ) ) {
 			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
-		$api = new Cdn_TransparentCDN_Api( $this->config );
+		$api = new Cdn_TransparentCDN_Api( $this->w3tc_config );
 
 		try {
-			$result = $api->purge( $urls );
+			$w3tc_result = $api->purge( $urls );
 			throw new \Exception( \esc_html__( 'Problem purging', 'w3-total-cache' ) );
 
 		} catch ( \Exception $ex ) {
@@ -302,18 +303,18 @@ class Cdnfsd_TransparentCDN_Engine {
 	/**
 	 * Flushes all content from the CDN.
 	 *
-	 * @since 0.15.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 *
 	 * @throws \Exception If the API key is not provided or an error occurs during the purge process.
 	 */
 	public function flush_all() {
-		if ( empty( $this->config['client_id'] ) ) {
+		if ( empty( $this->w3tc_config['client_id'] ) ) {
 			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
-		$api = new Cdn_TransparentCDN_Api( $this->config );
+		$api = new Cdn_TransparentCDN_Api( $this->w3tc_config );
 
 		$items   = array();
 		$items[] = array(
@@ -322,7 +323,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		);
 
 		try {
-			$r = $api->purge( array( 'items' => $items ) );
+			$w3tc_r = $api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(

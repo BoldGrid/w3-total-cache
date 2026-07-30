@@ -8,27 +8,28 @@
  *
  * @package W3TC
  *
- * @uses Config      $c      Configuration object.
+ * @uses Config      $w3tc_c      Configuration object.
  * @uses array       $counts Image Service media counts.
- * @uses array|false $usage  API usage statistics.
+ * @uses array|false $w3tc_usage  API usage statistics.
  */
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c      = Dispatcher::config();
-$is_pro = Util_Environment::is_w3tc_pro( $c );
-$usage  = Extension_ImageService_Plugin::get_api()->get_usage();
+$w3tc_c      = Dispatcher::config();
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
+$w3tc_usage  = Extension_ImageService_Plugin::get_api()->get_usage();
 ?>
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
 <p>
-	Total Cache WebP Converter is currently
+	Total Cache Image Converter is currently
 <?php
-if ( $c->is_extension_active( 'imageservice' ) ) {
+if ( $w3tc_c->is_extension_active( 'imageservice' ) ) {
 	?>
 	<span class="w3tc-enabled">enabled</span>
 	<?php
@@ -100,6 +101,46 @@ Util_Ui::config_item(
 		'disabled'         => false,
 	)
 );
+
+$w3tc_settings = $w3tc_c->get_array( 'imageservice' );
+// Default to true for webp if not set (backward compatibility).
+$w3tc_webp_enabled = isset( $w3tc_settings['webp'] ) ? (bool) $w3tc_settings['webp'] : true;
+// Default to true for avif if not set.  We need to make sure this is true for the Pro version.
+$w3tc_avif_enabled = isset( $w3tc_settings['avif'] ) ? (bool) $w3tc_settings['avif'] : true;
+
+Util_Ui::config_item(
+	array(
+		'key'            => array(
+			'imageservice',
+			'webp',
+		),
+		'label'          => esc_html__( 'Output formats:', 'w3-total-cache' ),
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'WebP', 'w3-total-cache' ),
+		'value'          => $w3tc_webp_enabled,
+		'description'    => esc_html__( 'Convert images to WebP format.', 'w3-total-cache' ),
+		'disabled'       => false,
+	)
+);
+
+Util_Ui::config_item_pro(
+	array(
+		'key'            => array(
+			'imageservice',
+			'avif',
+		),
+		'label'          => ' ',
+		'control'        => 'checkbox',
+		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
+		'value'          => $w3tc_avif_enabled,
+		'disabled'       => ! $w3tc_is_pro,
+		'excerpt'        => esc_html__( 'Convert images to AVIF format for even better compression and performance.', 'w3-total-cache' ),
+		'description'    => array(
+			esc_html__( 'AVIF (AV1 Image File Format) is a modern image format that provides superior compression compared to WebP and traditional formats like JPEG and PNG. With AVIF conversion, you can achieve significantly smaller file sizes while maintaining high image quality, resulting in faster page load times and improved user experience.', 'w3-total-cache' ),
+		),
+		'wrap_separate'  => true,
+	)
+);
 ?>
 	</table>
 
@@ -108,7 +149,7 @@ Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
 
-if ( ! $is_pro ) {
+if ( ! $w3tc_is_pro ) {
 	?>
 	<div class="w3tc-gopro-manual-wrap">
 		<?php
@@ -121,10 +162,10 @@ if ( ! $is_pro ) {
 					'w3-total-cache'
 				),
 				'<p>',
-				$usage['limit_hourly_unlicensed'],
-				$usage['limit_monthly_unlicensed'],
+				$w3tc_usage['limit_hourly_unlicensed'],
+				$w3tc_usage['limit_monthly_unlicensed'],
 				'<br/><br/>',
-				$usage['limit_hourly_licensed'],
+				$w3tc_usage['limit_hourly_licensed'],
 				'</p>'
 			),
 			array(
@@ -136,7 +177,7 @@ if ( ! $is_pro ) {
 			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'+9',
 			__( 'Points', 'w3-total-cache' ),
-			__( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			__( 'In one recent test, converting images to modern formats like WebP or AVIF added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
 			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof'
 		);
 		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
@@ -227,24 +268,24 @@ Util_Ui::postbox_header(
 			</td>
 		</tr>
 		<tr>
-			<th><?php esc_html_e( 'WebP Converter API usage:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Image Converter API usage:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-usage">
 					<tr>
 						<td><?php esc_html_e( 'Hourly requests:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-imageservice-usage-hourly"><?php echo esc_html( $usage['usage_hourly'] ); ?></td>
+						<td id="w3tc-imageservice-usage-hourly"><?php echo esc_html( $w3tc_usage['usage_hourly'] ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Hourly limit:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-imageservice-limit-hourly"><?php echo esc_html( $usage['limit_hourly'] ); ?></td>
+						<td id="w3tc-imageservice-limit-hourly"><?php echo esc_html( $w3tc_usage['limit_hourly'] ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Monthly requests:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-imageservice-usage-monthly"><?php echo esc_html( $usage['usage_monthly'] ); ?></td>
+						<td id="w3tc-imageservice-usage-monthly"><?php echo esc_html( $w3tc_usage['usage_monthly'] ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Monthly limit:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-imageservice-limit-monthly"><?php echo esc_html( $usage['limit_monthly'] ); ?></td>
+						<td id="w3tc-imageservice-limit-monthly"><?php echo esc_html( $w3tc_usage['limit_monthly'] ); ?></td>
 					</tr>
 					<tr><td height="10"></td></tr>
 					<tr>

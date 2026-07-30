@@ -39,20 +39,20 @@ class Util_WpFile_FilesystemModifyException extends Util_WpFile_FilesystemOperat
 	 * modification description, filename, and optional file contents. It also invokes the parent class's
 	 * constructor to initialize shared properties.
 	 *
-	 * @param string $message The message to associate with the object.
+	 * @param string $w3tc_message The message to associate with the object.
 	 * @param string $credentials_form The credentials form content.
 	 * @param string $modification_description A description of the modification being made.
 	 * @param string $filename The name of the file associated with the modification.
 	 * @param string $file_contents Optional. The contents of the file. Defaults to an empty string.
 	 */
 	public function __construct(
-		$message,
+		$w3tc_message,
 		$credentials_form,
 		$modification_description,
 		$filename,
 		$file_contents = ''
 	) {
-		parent::__construct( $message, $credentials_form );
+		parent::__construct( $w3tc_message, $credentials_form );
 
 		$this->modification_description = $modification_description;
 		$this->filename                 = $filename;

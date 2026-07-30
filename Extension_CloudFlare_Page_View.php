@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 	<?php esc_html_e( 'Cloudflare extension is currently ', 'w3-total-cache' ); ?>
 	<?php
-	if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
+	if ( $w3tc_config->is_extension_active_frontend( 'cloudflare' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
 	} else {
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
@@ -27,7 +28,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<p>
 		<?php
 		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
+			Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_cloudflare_flush' ) ),
 			array(
 				'input' => array(
 					'type'  => array(),
@@ -76,7 +77,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<label><?php esc_attr_e( 'Zone:', 'w3-total-cache' ); ?></label>
 					</th>
 					<td class="w3tc_config_value_text">
-						<?php echo esc_html( $config->get_string( array( 'cloudflare', 'zone_name' ) ) ); ?>
+						<?php echo esc_html( $w3tc_config->get_string( array( 'cloudflare', 'zone_name' ) ) ); ?>
 					</td>
 				</tr>
 			<?php endif ?>
@@ -99,7 +100,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<table class="form-table">
 				<?php
 				self::cloudflare_checkbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'development_mode',
 						'label'       => esc_html__( 'Development mode:', 'w3-total-cache' ),
@@ -107,7 +108,7 @@ if ( ! defined( 'W3TC' ) ) {
 					)
 				);
 				self::cloudflare_selectbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'cache_level',
 						'label'       => esc_html__( 'Cache level:', 'w3-total-cache' ),
@@ -121,7 +122,7 @@ if ( ! defined( 'W3TC' ) ) {
 					)
 				);
 				self::cloudflare_checkbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'sort_query_string_for_cache',
 						'label'       => esc_html__( 'Query string sorting:', 'w3-total-cache' ),
@@ -129,7 +130,7 @@ if ( ! defined( 'W3TC' ) ) {
 					)
 				);
 				self::cloudflare_selectbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'browser_cache_ttl',
 						'label'       => wp_kses(
@@ -203,7 +204,7 @@ if ( ! defined( 'W3TC' ) ) {
 					)
 				);
 				self::cloudflare_selectbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'challenge_ttl',
 						'label'       => wp_kses(
@@ -257,7 +258,7 @@ if ( ! defined( 'W3TC' ) ) {
 					)
 				);
 				self::cloudflare_selectbox(
-					$settings,
+					$w3tc_settings,
 					array(
 						'key'         => 'edge_cache_ttl',
 						'label'       => esc_html__( 'Edge cache TTL:', 'w3-total-cache' ),
@@ -317,7 +318,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Content Processing', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_selectbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'rocket_loader',
 					'label'       => esc_html__( 'Rocket Loader:', 'w3-total-cache' ),
@@ -331,7 +332,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'minify_js',
 					'label'       => wp_kses(
@@ -354,7 +355,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'minify_css',
 					'label'       => wp_kses(
@@ -377,7 +378,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'minify_html',
 					'label'       => wp_kses(
@@ -415,7 +416,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'server_side_exclude',
 					'label'       => esc_html__( 'Server side exclude:', 'w3-total-cache' ),
@@ -423,7 +424,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'email_obfuscation',
 					'label'       => esc_html__( 'Email obfuscation:', 'w3-total-cache' ),
@@ -431,7 +432,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'response_buffering',
 					'label'       => esc_html__( 'Response buffering"', 'w3-total-cache' ),
@@ -439,7 +440,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'prefetch_preload',
 					'label'       => esc_html__( 'Prefetch preload:', 'w3-total-cache' ),
@@ -447,7 +448,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'mobile_redirect',
 					'label'       => esc_html__( 'Mobile redirect:', 'w3-total-cache' ),
@@ -455,7 +456,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'origin_error_page_pass_thru',
 					'label'       => esc_html__( 'Enable error pages:', 'w3-total-cache' ),
@@ -468,7 +469,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Image Processing', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'hotlink_protection',
 					'label'       => esc_html__( 'Hotlink protection:', 'w3-total-cache' ),
@@ -476,7 +477,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'mirage',
 					'label'       => esc_html__( 'Mirage:', 'w3-total-cache' ),
@@ -484,7 +485,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_selectbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'polish',
 					'label'       => esc_html__( 'Images polishing:', 'w3-total-cache' ),
@@ -503,7 +504,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Protection', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_selectbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'security_level',
 					'label'       => esc_html__( 'Security level:', 'w3-total-cache' ),
@@ -519,7 +520,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'browser_check',
 					'label'       => esc_html__( 'Browser integrity check:', 'w3-total-cache' ),
@@ -527,7 +528,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'always_online',
 					'label'       => esc_html__( 'Always online:', 'w3-total-cache' ),
@@ -535,7 +536,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'waf',
 					'label'       => esc_html__( 'Web application firewall:', 'w3-total-cache' ),
@@ -543,7 +544,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'advanced_ddos',
 					'label'       => wp_kses(
@@ -566,7 +567,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_selectbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'max_upload',
 					'label'       => esc_html__( 'Max upload:', 'w3-total-cache' ),
@@ -617,7 +618,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			echo '<table class="form-table">';
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'ip_geolocation',
 					'label'       => wp_kses(
@@ -655,7 +656,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'ipv6',
 					'label'       => esc_html__( 'IPv6:', 'w3-total-cache' ),
@@ -663,7 +664,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'true_client_ip_header',
 					'label'       => esc_html__( 'True client IP:', 'w3-total-cache' ),
@@ -695,7 +696,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			echo '<table class="form-table">';
 			self::cloudflare_selectbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'ssl',
 					'label'       => wp_kses(
@@ -740,7 +741,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'security_header',
 					'label'       => wp_kses(
@@ -778,7 +779,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'tls_1_2_only',
 					'label'       => wp_kses(
@@ -816,7 +817,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			self::cloudflare_checkbox(
-				$settings,
+				$w3tc_settings,
 				array(
 					'key'         => 'tls_client_auth',
 					'label'       => '<acronym title="Transport Layer Security">TLS</acronym> client auth:',

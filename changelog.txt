@@ -1,5 +1,79 @@
 === W3 Total Cache Changelog ===
 
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
+
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
+
+= 2.10.1 =
+* Fix: General Settings: "The link you followed has expired" when emptying all caches
+* Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
+* Fix: At-rest credentials: Defer encryption until WordPress salts are available
+* Fix: Always Cached: Queue regeneration on nginx with Disk: Enhanced page cache
+* Fix: mfunc: Render unrecognized dynamic-fragment tags as empty output
+* Fix: Apache: Remove Options -MultiViews from root .htaccess (HTTP 500 on restrictive AllowOverride)
+* Fix: Multisite: Admin page links in network admin
+
+= 2.10.0 =
+* Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
+* Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
+* Security: Strengthened protections against code, command, and file-inclusion injection
+* Security: Hardened processing of dynamic and cached content, including data serialization
+* Security: Restricted outbound server-side requests to mitigate server-side request forgery (SSRF)
+* Security: Restricted configuration changes to prevent unauthorized modification
+* Security: Improved handling of stored credentials, cookies, and generated server-configuration files
+* Security: Reduced potential information disclosure and improved security logging
+
+= 2.9.4 =
+* Fix: Output buffering: Reverted to previous output buffering from 2.9.1
+* Fix: Cloudflare: Token/Key validation
+* Fix: Prevent mfunc processing bypss by user-agent
+
+= 2.9.3 =
+* Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
+* Fix: Output buffering: Add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g. FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
+
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
+
+= 2.9.1 =
+* Fix: Image Converter: Reset request when status is 404
+* Fix: Image Converter: Better handling of separate format requests
+* Fix: Image Converter: UI/JS changes
+* Fix: Config caching/saving issue
+
+= 2.9.0 =
+* Feature: Next-Gen AVIF image conversion (Pro)
+* Feature: Added notices for some billing issues
+* Fix: Bunny CDN purge section
+* Fix: New Relic API
+* Fix: Nginx + Memcached Unix socket compatability
+* Update: Setup Guide Wizard and test improvements
+* Update: WebP Converter renamed to Image Converter
+
+= 2.8.15 =
+* Fix: Elementor: Carousel lazy load
+* Fix: Elementor: Cache clearing issues
+* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
+* Fix: Better validation for file directory cleanup
+* Fix: Bunny CDN: Settings page purge URL section
+* Fix: Minify: Auto JS: Handle async and defer attributes with values
+* Fix: Google PageSpeed: Lighthouse changes
+* Fix: Cloudflare: Undefined array warning
+* Fix: Rackspace API: Reponse code handling
+* Fix: License deactivation messages
+* Update: ChartJS updated to v4.4.1
+* Enhancement: Added support links
+
 = 2.8.14 =
 * Fix: Better logic for mfunc/mclude processing
 * Enhancement: More consistent purge notices
@@ -10,7 +84,7 @@
 * Fix: Discard simplexml errors
 * Fix: Missing text domains
 * Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: WebP Converter: WP_Query optimizations
+* Enhancement: Image Converter: WP_Query optimizations
 
 = 2.8.12 =
 * Fix: Lazy load background-image style handing
@@ -87,7 +161,7 @@
 * Update: Added "immutable" options for cache-control headers
 * Update: Added WP-CLI command descriptions
 * Update: CDN widget notices for BunnyCDN
-* Update: WebP Converter widget notice
+* Update: Image Converter widget notice
 
 = 2.8.2 =
 * Fix: Added additional user capability checks
@@ -210,7 +284,7 @@
 * Update: Added "Learn more" links
 
 = 2.6.1 =
-* Fix: WebP Converter extension activation
+* Fix: Image Converter extension activation
 * Fix: Media Library upload may fail when using Bunny CDN
 * Fix: Cloudflare API error when updating certain settings
 * Fix: Lazy Loading issue with the Delay Scripts feature enabled
@@ -235,8 +309,8 @@
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
 * Fix: Cache Groups delete button not working for added groups
-* Update: Renamed Image Service feature to WebP Converter
-* Update: Added WebP Converter block to General Settings page along with link to navigation bar
+* Update: Renamed Image Service feature to Image Converter
+* Update: Added Image Converter block to General Settings page along with link to navigation bar
 * Update: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
 
 = 2.4.1 =

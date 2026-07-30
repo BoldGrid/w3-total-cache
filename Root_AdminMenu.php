@@ -160,8 +160,8 @@ class Root_AdminMenu {
 
 		uasort(
 			$pages,
-			function ( $a, $b ) {
-				return ( $a['order'] - $b['order'] );
+			function ( $w3tc_a, $b ) {
+				return ( $w3tc_a['order'] - $b['order'] );
 			}
 		);
 
@@ -183,7 +183,7 @@ class Root_AdminMenu {
 
 		foreach ( $pages as $slug => $titles ) {
 			if ( $is_master || $titles['visible_always'] || $remaining_visible ) {
-				$hook = add_submenu_page(
+				$w3tc_hook = add_submenu_page(
 					'w3tc_dashboard',
 					$titles['page_title'] . ' | W3 Total Cache',
 					$titles['menu_text'],
@@ -198,7 +198,7 @@ class Root_AdminMenu {
 					)
 				);
 
-				$submenu_pages[] = $hook;
+				$submenu_pages[] = $w3tc_hook;
 			}
 		}
 
@@ -272,8 +272,8 @@ class Root_AdminMenu {
 				break;
 
 			case 'w3tc_stats':
-				$p = new UsageStatistics_Page();
-				$p->render();
+				$w3tc_p = new UsageStatistics_Page();
+				$w3tc_p->render();
 				break;
 
 			case 'w3tc_support':

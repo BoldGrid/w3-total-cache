@@ -1,9 +1,9 @@
 === W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
-Requires at least: 5.3
-Tested up to: 6.8
-Stable tag: 2.8.14
+Requires at least: 6.0
+Tested up to: 7.0
+Stable tag: 2.10.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Caching of (minified and compressed) pages and posts in memory or on disk or on (FSD) CDN (by user agent group)
 * Caching of (minified and compressed) CSS and JavaScript in memory, on disk or on CDN
 * Caching of feeds (site, categories, tags, comments, search results) in memory or on disk or on CDN
-* Caching of search results pages (i.e. URIs with query string variables) in memory or on disk
+* Caching of search results pages (i.e., URIs with query string variables) in memory or on disk
 * Caching of database objects in memory or on disk
 * Caching of objects in memory or on disk
 * Caching of fragments in memory or on disk
@@ -45,7 +45,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Minification of posts and pages and RSS feeds
 * Minification of inline, embedded or 3rd party JavaScript with automated updates to assets
 * Minification of inline, embedded or 3rd party CSS with automated updates to assets
-* Defer non critical CSS and Javascript for rendering pages faster than ever before
+* Defer non-critical CSS and JavaScript for rendering pages faster than ever before
 * Defer offscreen images using Lazy Load to improve the user experience
 * Browser caching using cache-control, future expire headers and entity tags (ETag) with "cache-busting"
 * JavaScript grouping by template (home page, post page etc) with embed location control
@@ -57,7 +57,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
-* WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
+* Image Converter extension provides modern image format conversion (e.g., WebP, AVIF) from common image formats (on upload and on demand)
 
 <h3>W3 Total Cache Pro Features</h3>
 
@@ -124,9 +124,9 @@ This feature caches API responses, reducing server load and speeding up API inte
 * Reduced the Average Server Load by 24% under during a major traffic spike (Before: 34.55 / After: 26.19)
 * [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/)
 
-<h4>WebP Images</h4>
+<h4>Modern Image Formats</h4>
 
-Converts images to the WebP format, which is more efficient and faster to load.
+Converts images to modern formats like WebP or AVIF, which are more efficient and faster to load.
 
 * Added over 9 points to the Google PageSpeed score (Before: 84.67 / After: 93.83)
 * [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/)
@@ -181,7 +181,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, WordPress 6.0 or higher with PHP 7.4 or higher is required.
 
 = Why doesn't minify work for me? =
 
@@ -298,11 +298,11 @@ Typically, you should tell your web host about the permission issue and they sho
 
 You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.php to circumvent the file and folder checks.
 
-= Does the WebP Converter extension use a lot of resources to convert images to WebP? =
+= Does the Image Converter extension use a lot of resources to convert images to modern formats like WebP or AVIF? =
 
-No.  The WebP Converter extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
+No.  The Image Converter extension converts common image file formats to modern formats like WebP or AVIF using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
 
-= Is image data retained by the Total Cache WebP Converter API? =
+= Is image data retained by the Total Cache Image Converter API? =
 
 Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
@@ -321,6 +321,9 @@ You will be able to see the results instantly on each page load, but for tangibl
 Yes! Please [reach out to us](https://www.w3-edge.com/contact/) and we'll get you acclimated so you can "set it and forget it."
 
 Install the plugin to read the full FAQ on the plugins FAQ tab.
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the W3 Total Cache plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/d5047161-3e39-4462-9250-1b04385021dd). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
 
 == Installation ==
 
@@ -362,6 +365,80 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
+
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
+
+= 2.10.1 =
+* Fix: General Settings: "The link you followed has expired" when emptying all caches
+* Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
+* Fix: At-rest credentials: Defer encryption until WordPress salts are available
+* Fix: Always Cached: Queue regeneration on nginx with Disk: Enhanced page cache
+* Fix: mfunc: Render unrecognized dynamic-fragment tags as empty output
+* Fix: Apache: Remove Options -MultiViews from root .htaccess (HTTP 500 on restrictive AllowOverride)
+* Fix: Multisite: Admin page links in network admin
+
+= 2.10.0 =
+* Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
+* Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
+* Security: Strengthened protections against code, command, and file-inclusion injection
+* Security: Hardened processing of dynamic and cached content, including data serialization
+* Security: Restricted outbound server-side requests to mitigate server-side request forgery (SSRF)
+* Security: Restricted configuration changes to prevent unauthorized modification
+* Security: Improved handling of stored credentials, cookies, and generated server-configuration files
+* Security: Reduced potential information disclosure and improved security logging
+
+= 2.9.4 =
+* Fix: Output buffering: Reverted to the previous output buffering from 2.9.1
+* Fix: Cloudflare: Token/Key validation
+* Fix: Prevent mfunc processing bypass by user-agent
+
+= 2.9.3 =
+* Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
+* Fix: Output buffering: Add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g., FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
+
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
+
+= 2.9.1 =
+* Fix: Image Converter: Reset request when status is 404
+* Fix: Image Converter: Better handling of separate format requests
+* Fix: Image Converter: UI/JS changes
+* Fix: Config caching/saving issue
+
+= 2.9.0 =
+* Feature: Next-Gen AVIF image conversion (Pro)
+* Feature: Added notices for some billing issues
+* Fix: Bunny CDN purge section
+* Fix: New Relic API
+* Fix: Nginx + Memcached Unix socket compatability
+* Update: Setup Guide Wizard and test improvements
+* Update: WebP Converter renamed to Image Converter
+
+= 2.8.15 =
+* Fix: Elementor: Carousel lazy load
+* Fix: Elementor: Cache clearing issues
+* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
+* Fix: Better validation for file directory cleanup
+* Fix: Bunny CDN: Settings page purge URL section
+* Fix: Minify: Auto JS: Handle async and defer attributes with values
+* Fix: Google PageSpeed: Lighthouse changes
+* Fix: Cloudflare: Undefined array warning
+* Fix: Rackspace API: Response code handling
+* Fix: License deactivation messages
+* Update: ChartJS updated to v4.4.1
+* Enhancement: Added support links
+
 = 2.8.14 =
 * Fix: Better logic for mfunc/mclude processing
 * Enhancement: More consistent purge notices
@@ -372,10 +449,10 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Discard simplexml errors
 * Fix: Missing text domains
 * Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: WebP Converter: WP_Query optimizations
+* Enhancement: Image Converter: WP_Query optimizations
 
 = 2.8.12 =
-* Fix: Lazy load background-image style handing
+* Fix: Lazy load background-image style handling
 * Fix: Elementor: Also flush Object Cache after Page Cache is flushed
 * Fix: Canonicalize Cache read path to avoid variants
 
@@ -424,13 +501,13 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
 * Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
 * Enhancement: Added an email field to the exit survey for requesting help
-* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
+* Enhancement: Added a pop-up modal to accept the risk when enabling Object Cache using Disk
 
 = 2.8.5 =
 * Fix: CDN: Amazon S3 long hostname for default region
 * Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
 * Fix: WP-CLI: Remove HTML in output
-* Enhancement: Simplified license messsaging
+* Enhancement: Simplified license messaging
 
 = 2.8.4 =
 * Fix: Deactivation modal JS error
@@ -449,7 +526,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added "immutable" options for cache-control headers
 * Update: Added WP-CLI command descriptions
 * Update: CDN widget notices for BunnyCDN
-* Update: WebP Converter widget notice
+* Update: Image Converter widget notice
 
 = 2.8.2 =
 * Fix: Added additional user capability checks
@@ -479,8 +556,20 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Upgrade Notice ==
 
+= 2.10.3 =
+This update resolves Block Editor save failures related to output buffering and restores Defer Scripts timeout configuration. All users are encouraged to update.
+
+= 2.10.1 =
+This update resolves regressions introduced in 2.10.0. Users who upgraded to 2.10.0 are encouraged to update.
+
+= 2.10.0 =
+This is a MAJOR security update that resolves multiple vulnerabilities. All users are strongly urged to update to this version as soon as possible.
+
+= 2.9.4 =
+This is a security update.  Users who implement mfunc/mclude should update to this version.
+
 = 2.8.13 =
-This is a security update.  Users that implement mfunc/mclude should update to this version.
+This is a security update.  Users who implement mfunc/mclude should update to this version.
 
 = 2.8.2 =
 This is a security update.  All users are encouraged to update to this version.
@@ -513,10 +602,10 @@ Thanks for using W3 Total Cache! This release introduces hundreds of well-tested
 This release includes various fixes for MaxCDN and minify users. As always there are general stability / compatibility improvements. Make sure to test in a sandbox or staging environment and report any issues via the bug submission form available on the support tab of the plugin.
 
 = 0.9.2.10 =
-This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatbility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
+This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatibility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
 
 = 0.9.2.9 =
-This release addresses security issues for Cloudflare users as well as users that implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
+This release addresses security issues for Cloudflare users as well as users who implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
 
 = 0.9.2.8 =
 WordPress attempts to use built-in support for managing files had issues. File management is a critical issue that will cause lots of issues if it doesn't work perfectly. This release is an attempt to restore file management back to the reliability of previous versions.

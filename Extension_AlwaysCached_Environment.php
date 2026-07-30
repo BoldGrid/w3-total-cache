@@ -40,7 +40,7 @@ class Extension_AlwaysCached_Environment {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param Config      $config     Config data.
+	 * @param Config      $w3tc_config     Config data.
 	 * @param string      $event      Event key.
 	 * @param Config|null $old_config Old config data.
 	 *
@@ -48,7 +48,7 @@ class Extension_AlwaysCached_Environment {
 	 *
 	 * @return void|null
 	 */
-	public static function fix_on_event( $config, $event, $old_config = null ) {
+	public static function fix_on_event( $w3tc_config, $event, $old_config = null ) {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
 			return null;
 		}
@@ -99,11 +99,11 @@ class Extension_AlwaysCached_Environment {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param Config $config Config data.
+	 * @param Config $w3tc_config Config data.
 	 *
 	 * @return array|null
 	 */
-	public function get_instructions( $config ) {
+	public function get_instructions( $w3tc_config ) {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
 			return null;
 		}

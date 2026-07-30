@@ -44,25 +44,25 @@ class Generic_Page_General extends Base_Page_Settings {
 	 */
 	public function view() {
 		if ( isset( $_REQUEST['view'] ) && 'purge_log' === $_REQUEST['view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$p = new Generic_Page_PurgeLog();
-			$p->render_content();
+			$w3tc_p = new Generic_Page_PurgeLog();
+			$w3tc_p->render_content();
 			exit;
 		}
 
 		$current_user  = wp_get_current_user();
 		$config_master = $this->_config_master;
 
-		$modules = Dispatcher::component( 'ModuleStatus' );
+		$w3tc_modules = Dispatcher::component( 'ModuleStatus' );
 
-		$pgcache_enabled      = $modules->is_enabled( 'pgcache' );
-		$dbcache_enabled      = $modules->is_enabled( 'dbcache' );
-		$objectcache_enabled  = $modules->is_enabled( 'objectcache' );
-		$browsercache_enabled = $modules->is_enabled( 'browsercache' );
-		$minify_enabled       = $modules->is_enabled( 'minify' );
-		$cdn_enabled          = $modules->is_enabled( 'cdn' );
-		$varnish_enabled      = $modules->is_enabled( 'varnish' );
+		$pgcache_enabled      = $w3tc_modules->is_enabled( 'pgcache' );
+		$dbcache_enabled      = $w3tc_modules->is_enabled( 'dbcache' );
+		$objectcache_enabled  = $w3tc_modules->is_enabled( 'objectcache' );
+		$browsercache_enabled = $w3tc_modules->is_enabled( 'browsercache' );
+		$minify_enabled       = $w3tc_modules->is_enabled( 'minify' );
+		$w3tc_cdn_enabled     = $w3tc_modules->is_enabled( 'cdn' );
+		$varnish_enabled      = $w3tc_modules->is_enabled( 'varnish' );
 
-		$enabled = $modules->plugin_is_enabled();
+		$w3tc_enabled = $w3tc_modules->plugin_is_enabled();
 
 		$check_rules = Util_Rule::can_check_rules();
 
@@ -72,11 +72,11 @@ class Generic_Page_General extends Base_Page_Settings {
 			)
 		);
 
-		$can_empty_file = $modules->can_empty_file();
+		$can_empty_file = $w3tc_modules->can_empty_file();
 
-		$can_empty_varnish = $modules->can_empty_varnish();
+		$can_empty_varnish = $w3tc_modules->can_empty_varnish();
 
-		$cdn_mirror_purge = Cdn_Util::can_purge_all( $modules->get_module_engine( 'cdn' ) );
+		$cdn_mirror_purge = Cdn_Util::can_purge_all( $w3tc_modules->get_module_engine( 'cdn' ) );
 
 		$file_nfs     = ( $this->_config->get_boolean( 'pgcache.file.nfs' ) || $this->_config->get_boolean( 'minify.file.nfs' ) );
 		$file_locking = ( $this->_config->get_boolean( 'dbcache.file.locking' ) || $this->_config->get_boolean( 'objectcache.file.locking' ) || $this->_config->get_boolean( 'pgcache.file.locking' ) || $this->_config->get_boolean( 'minify.file.locking' ) );
@@ -87,7 +87,7 @@ class Generic_Page_General extends Base_Page_Settings {
 			get_transient( 'w3tc_license_status' ) !== 'host_valid'
 		);
 
-		$is_pro = Util_Environment::is_w3tc_pro( $this->_config );
+		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 
 		$custom_areas = apply_filters( 'w3tc_settings_general_anchors', array() );
 

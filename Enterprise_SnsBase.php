@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
@@ -82,25 +83,25 @@ class Enterprise_SnsBase {
 	 *
 	 * Writes a message with an optional backtrace to the log file if debugging is enabled.
 	 *
-	 * @param string $message   The message to log.
+	 * @param string $w3tc_message   The message to log.
 	 * @param array  $backtrace Optional. The backtrace data to log.
 	 *
 	 * @return bool Whether the log was successfully written.
 	 */
-	protected function _log( $message, $backtrace = null ) {
+	protected function _log( $w3tc_message, $backtrace = null ) {
 		if ( ! $this->_debug ) {
 			return true;
 		}
 
-		$data = sprintf( "[%s] %s\n", gmdate( 'r' ), $message );
+		$w3tc_data = sprintf( "[%s] %s\n", gmdate( 'r' ), $w3tc_message );
 		if ( $backtrace ) {
-			$debug = print_r( $backtrace, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-			$data .= $debug . "\n";
+			$debug      = print_r( $backtrace, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+			$w3tc_data .= $debug . "\n";
 		}
-		$data = strtr( $data, '<>', '..' );
+		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'sns' );
 
-		return @file_put_contents( $filename, $data, FILE_APPEND );
+		return @file_put_contents( $filename, $w3tc_data, FILE_APPEND );
 	}
 }

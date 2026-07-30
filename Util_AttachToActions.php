@@ -28,22 +28,22 @@ class Util_AttachToActions {
 
 		$attached = true;
 
-		$o = new Util_AttachToActions();
+		$w3tc_o = new Util_AttachToActions();
 
 		// posts.
-		add_action( 'pre_post_update', array( $o, 'on_pre_post_update' ), 0, 2 );
-		add_action( 'save_post', array( $o, 'on_post_change' ), 0, 2 );
-		add_filter( 'pre_trash_post', array( $o, 'on_post_change' ), 0, 2 );
-		add_action( 'before_delete_post', array( $o, 'on_post_change' ), 0, 2 );
-		add_action( 'attachment_updated', array( $o, 'on_post_change' ), 0, 2 );
+		add_action( 'pre_post_update', array( $w3tc_o, 'on_pre_post_update' ), 0, 2 );
+		add_action( 'save_post', array( $w3tc_o, 'on_post_change' ), 0, 2 );
+		add_filter( 'pre_trash_post', array( $w3tc_o, 'on_post_change' ), 0, 2 );
+		add_action( 'before_delete_post', array( $w3tc_o, 'on_post_change' ), 0, 2 );
+		add_action( 'attachment_updated', array( $w3tc_o, 'on_post_change' ), 0, 2 );
 
 		// comments.
-		add_action( 'comment_post', array( $o, 'on_comment_change' ), 0 );
-		add_action( 'edit_comment', array( $o, 'on_comment_change' ), 0 );
-		add_action( 'delete_comment', array( $o, 'on_comment_change' ), 0 );
-		add_action( 'wp_set_comment_status', array( $o, 'on_comment_status' ), 0, 2 );
-		add_action( 'trackback_post', array( $o, 'on_comment_change' ), 0 );
-		add_action( 'pingback_post', array( $o, 'on_comment_change' ), 0 );
+		add_action( 'comment_post', array( $w3tc_o, 'on_comment_change' ), 0 );
+		add_action( 'edit_comment', array( $w3tc_o, 'on_comment_change' ), 0 );
+		add_action( 'delete_comment', array( $w3tc_o, 'on_comment_change' ), 0 );
+		add_action( 'wp_set_comment_status', array( $w3tc_o, 'on_comment_status' ), 0, 2 );
+		add_action( 'trackback_post', array( $w3tc_o, 'on_comment_change' ), 0 );
+		add_action( 'pingback_post', array( $w3tc_o, 'on_comment_change' ), 0 );
 
 		/**
 		 * Fires after the theme is switched.
@@ -145,7 +145,7 @@ class Util_AttachToActions {
 			 * @param WP_Site $new_site New site object.
 			 * @param WP_Site $old_site Old site object.
 			 */
-			add_action( 'wp_update_site', array( $o, 'on_update_site' ), 0, 2 );
+			add_action( 'wp_update_site', array( $w3tc_o, 'on_update_site' ), 0, 2 );
 		}
 	}
 
@@ -155,24 +155,42 @@ class Util_AttachToActions {
 	 * @link https://developer.wordpress.org/reference/hooks/pre_post_update/
 	 *
 	 * @param integer $post_id Post ID.
-	 * @param array   $data    Array of unslashed post data.
+	 * @param array   $w3tc_data    Array of unslashed post data.
 	 *
 	 * @return void
 	 */
-	public function on_pre_post_update( $post_id, $data = null ) {
-		if ( is_null( $data ) ) {
-			$data = get_post( $post_id, ARRAY_A );
+	public function on_pre_post_update( $post_id, $w3tc_data = null ) {
+		if ( is_null( $w3tc_data ) ) {
+			$w3tc_data = get_post( $post_id, ARRAY_A );
 		}
 
-		// if attachment changed - parent post has to be flushed
-		// since there are usually attachments content like title
-		// on the page (gallery).
-		if ( isset( $data['post_type'] ) && 'attachment' === $data['post_type'] ) {
-			$post_id = $data['post_parent'];
-			$data    = get_post( $post_id, ARRAY_A );
+		/**
+		 * If attachment changed - parent post has to be flushed
+		 * since there are usually attachments content like title
+		 * on the page (gallery).
+		 */
+		if ( isset( $w3tc_data['post_type'] ) && 'attachment' === $w3tc_data['post_type'] ) {
+			$post_id   = $w3tc_data['post_parent'];
+			$w3tc_data = get_post( $post_id, ARRAY_A );
 		}
 
-		if ( ! isset( $data['post_status'] ) || 'draft' !== $data['post_status'] ) {
+		/**
+		 * Step 1: gate on the incoming (new) status being `draft`. Anything
+		 * other than a draft submission is irrelevant to this handler.
+		 */
+		if ( ! isset( $w3tc_data['post_status'] ) || 'draft' !== $w3tc_data['post_status'] ) {
+			return;
+		}
+
+		/**
+		 * Step 2: gate on the previous (current-on-disk) status being
+		 * `publish`. Combined with step 1 above this is a strict
+		 * publish → draft transition. Without this check, new drafts and
+		 * Gutenberg autosaves (which also report `post_status = draft`)
+		 * would trigger spurious cache flushes.
+		 */
+		$old_post = \get_post( $post_id );
+		if ( ! $old_post || 'publish' !== $old_post->post_status ) {
 			return;
 		}
 
@@ -197,17 +215,17 @@ class Util_AttachToActions {
 			$post = get_post( $post_id );
 		}
 
-		$config     = Dispatcher::config();
-		$cacheflush = Dispatcher::component( 'CacheFlush' );
+		$w3tc_config = Dispatcher::config();
+		$cacheflush  = Dispatcher::component( 'CacheFlush' );
 
 		// If the post is an attachment, we need to get and flush its parent post.
 		if ( isset( $post->post_type ) && 'attachment' === $post->post_type &&
-			Util_Environment::is_flushable_post( get_post( $post->post_parent ), 'posts', $config ) ) {
+			Util_Environment::is_flushable_post( get_post( $post->post_parent ), 'posts', $w3tc_config ) ) {
 				$cacheflush->flush_post( $post->post_parent );
 		}
 
 		// Check if the original post is flushable.
-		if ( Util_Environment::is_flushable_post( $post, 'posts', $config ) ) {
+		if ( Util_Environment::is_flushable_post( $post, 'posts', $w3tc_config ) ) {
 			$cacheflush->flush_post( $post_id );
 		}
 

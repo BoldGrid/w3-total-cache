@@ -24,12 +24,12 @@ class Util_WpFile_FilesystemRmException extends Util_WpFile_FilesystemOperationE
 	 * This constructor sets up the object by assigning a message, credentials form,
 	 * and filename. It also calls the parent class's constructor to handle shared initialization.
 	 *
-	 * @param string $message The message to associate with the object.
+	 * @param string $w3tc_message The message to associate with the object.
 	 * @param string $credentials_form The credentials form content.
 	 * @param string $filename The name or path of the file associated with the object.
 	 */
-	public function __construct( $message, $credentials_form, $filename ) {
-		parent::__construct( $message, $credentials_form );
+	public function __construct( $w3tc_message, $credentials_form, $filename ) {
+		parent::__construct( $w3tc_message, $credentials_form );
 
 		$this->filename = $filename;
 	}

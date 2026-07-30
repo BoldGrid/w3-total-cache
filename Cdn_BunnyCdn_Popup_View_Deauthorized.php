@@ -5,13 +5,14 @@
  * @since   2.6.0
  * @package W3TC
  *
- * @param Config $config               W3TC configuration.
+ * @param Config $w3tc_config               W3TC configuration.
  * @param string $delete_pull_zone     Delete pull zon choice ("yes").
  * @param string $delete_error_message An error message if there was an error trying to delete the pull zone.  String already escaped.
  */
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
@@ -19,8 +20,16 @@ defined( 'W3TC' ) || die();
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
+		/**
+		 * Escape at the sink. `$delete_error_message` is the raw
+		 * `\Exception::getMessage()` from the BunnyCDN deauthorise
+		 * path — a SDK error containing `<script>` would render here
+		 * if echoed unescaped. The docblock above claimed "String
+		 * already escaped" but the supplier-side path doesn't
+		 * actually guarantee that, so we pin the escape at the echo.
+		 */
 		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
-		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo esc_html( (string) $delete_error_message ) . '.';
 		?>
 	</div>
 <?php endif; ?>

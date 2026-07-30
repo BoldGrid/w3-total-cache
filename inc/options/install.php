@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: install.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -23,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'On the "%1$sGeneral%2$s" tab and select your caching methods for page, database and minify. In most cases, "disk enhanced" mode for page cache, "disk" mode for minify and "disk" mode for database caching are "good" settings.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -43,7 +50,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'1. The "Compatibility Mode" option found in the advanced section of the %1$s"Page Cache Settings"%2$s tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20%% at scale.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -109,7 +116,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 					'</a>',
 					'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>'
@@ -145,7 +152,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'</em>',
 					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
 					'</a>',
 					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
@@ -158,7 +165,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 				array(
 					'a'       => array(
-						'herf' => array(),
+						'href' => array(),
 					),
 					'em'      => array(),
 					'acronym' => array(
@@ -180,7 +187,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_dbcache' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dbcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -204,7 +211,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_objectcache' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_objectcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -228,7 +235,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cachegroups' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cachegroups' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -245,18 +252,18 @@ if ( ! defined( 'W3TC' ) ) {
 	<hr />
 	<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
 		<h3 id="rules"><?php esc_html_e( 'Rewrite Rules (based on active settings)', 'w3-total-cache' ); ?></h3>
-		<?php foreach ( $rewrite_rules_descriptors as $descriptor ) : ?>
-			<p><strong><?php echo esc_html( $descriptor['filename'] ); ?>:</strong></p>
-			<pre class="code"><?php echo esc_html( $descriptor['content'] ); ?></pre>
+		<?php foreach ( $rewrite_rules_descriptors as $w3tc_descriptor ) : ?>
+			<p><strong><?php echo esc_html( $w3tc_descriptor['filename'] ); ?>:</strong></p>
+			<pre class="code"><?php echo esc_html( $w3tc_descriptor['content'] ); ?></pre>
 		<?php endforeach; ?>
 		<hr />
 	<?php endif; ?>
 	<?php if ( count( $other_areas ) ) : ?>
 		<h3 id="other"><?php esc_html_e( 'Other', 'w3-total-cache' ); ?></h3>
-		<?php foreach ( $other_areas as $area => $descriptors ) : ?>
-			<?php foreach ( $descriptors as $descriptor ) : ?>
-				<p><strong><?php echo esc_html( $descriptor['title'] ); ?>:</strong></p>
-				<pre class="code"><?php echo esc_html( $descriptor['content'] ); ?></pre>
+		<?php foreach ( $other_areas as $w3tc_area => $w3tc_descriptors ) : ?>
+			<?php foreach ( $w3tc_descriptors as $w3tc_descriptor ) : ?>
+				<p><strong><?php echo esc_html( $w3tc_descriptor['title'] ); ?>:</strong></p>
+				<pre class="code"><?php echo esc_html( $w3tc_descriptor['content'] ); ?></pre>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
 		<hr />

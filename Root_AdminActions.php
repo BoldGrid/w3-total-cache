@@ -73,6 +73,41 @@ class Root_AdminActions {
 	}
 
 	/**
+	 * Whether the dispatcher can invoke a handler method for this action.
+	 *
+	 * Unlike {@see self::exists()}, which matches only the longest handler
+	 * prefix, this mirrors the method-resolution rules in {@see self::execute()}
+	 * so display-only query keys and bare prefix stubs (e.g. `w3tc_flush`)
+	 * do not trip the admin-action nonce gate on a normal page load.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $action Handler request key.
+	 *
+	 * @return bool
+	 */
+	public function is_dispatchable( $action ) {
+		$handler = $this->_get_handler( $action );
+		if ( '' === $handler ) {
+			return false;
+		}
+
+		$handler_class_fullname = '\\W3TC\\' . $handler;
+		if ( ! \class_exists( $handler_class_fullname ) ) {
+			return false;
+		}
+
+		$handler_object = new $handler_class_fullname();
+		$action_details = explode( '~', $action );
+
+		if ( count( $action_details ) > 1 ) {
+			return \method_exists( $handler_object, $action_details[0] );
+		}
+
+		return \method_exists( $handler_object, $action );
+	}
+
+	/**
 	 * Retrieves the handler class for the given action.
 	 *
 	 * @param string $action The action to retrieve the handler for.
@@ -105,7 +140,7 @@ class Root_AdminActions {
 		$candidate_prefix = '';
 		$candidate_class  = '';
 
-		foreach ( $handlers as $prefix => $class ) {
+		foreach ( $handlers as $prefix => $w3tc_class ) {
 			$v1 = "w3tc_$prefix";
 			$v2 = "w3tc_save_$prefix";
 
@@ -114,7 +149,7 @@ class Root_AdminActions {
 				substr( $action, 0, strlen( $v2 ) ) === $v2
 			) {
 				if ( strlen( $candidate_prefix ) < strlen( $prefix ) ) {
-					$candidate_class  = $class;
+					$candidate_class  = $w3tc_class;
 					$candidate_prefix = $prefix;
 				}
 			}

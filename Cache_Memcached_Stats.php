@@ -46,10 +46,10 @@ class Cache_Memcached_Stats {
 
 		$response = array();
 		while ( ( ! feof( $handle ) ) ) {
-			$line       = fgets( $handle );
-			$response[] = $line;
+			$w3tc_line  = fgets( $handle );
+			$response[] = $w3tc_line;
 
-			if ( $this->end( $line, $command ) ) {
+			if ( $this->end( $w3tc_line, $command ) ) {
 				break;
 			}
 		}
@@ -90,9 +90,9 @@ class Cache_Memcached_Stats {
 	public function parse( $lines ) {
 		$return = array();
 
-		foreach ( $lines as $line ) {
-			$data     = explode( ' ', $line );
-			$return[] = $data;
+		foreach ( $lines as $w3tc_line ) {
+			$w3tc_data = explode( ' ', $w3tc_line );
+			$return[]  = $w3tc_data;
 		}
 
 		return $return;
@@ -106,22 +106,22 @@ class Cache_Memcached_Stats {
 	 * @return array|null An array of slab IDs, or null on failure.
 	 */
 	public function slabs() {
-		$result = $this->request( 'stats slabs' );
-		if ( is_null( $result ) ) {
+		$w3tc_result = $this->request( 'stats slabs' );
+		if ( is_null( $w3tc_result ) ) {
 			return null;
 		}
 
-		$result = $this->parse( $result );
-		$slabs  = array();
+		$w3tc_result = $this->parse( $w3tc_result );
+		$slabs       = array();
 
-		foreach ( $result as $line_words ) {
+		foreach ( $w3tc_result as $line_words ) {
 			if ( count( $line_words ) < 2 ) {
 				continue;
 			}
 
-			$key = explode( ':', $line_words[1] );
-			if ( (int) $key[0] > 0 ) {
-				$slabs[ $key[0] ] = '*';
+			$w3tc_key = explode( ':', $line_words[1] );
+			if ( (int) $w3tc_key[0] > 0 ) {
+				$slabs[ $w3tc_key[0] ] = '*';
 			}
 		}
 
@@ -138,12 +138,12 @@ class Cache_Memcached_Stats {
 	 * @return array|null An array of cachedump data, or null on failure.
 	 */
 	public function cachedump( $slab_id ) {
-		$result = $this->request( 'stats cachedump ' . $slab_id . ' 0' );
-		if ( is_null( $result ) ) {
+		$w3tc_result = $this->request( 'stats cachedump ' . $slab_id . ' 0' );
+		if ( is_null( $w3tc_result ) ) {
 			return null;
 		}
 
 		// return pure data to limit memory usage.
-		return $result;
+		return $w3tc_result;
 	}
 }

@@ -11,6 +11,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * UserExperience Remove Css/Js Extension.
  *
@@ -22,7 +23,7 @@ class UserExperience_Remove_CssJs_Extension {
 	 *
 	 * @var object
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Mutator.
@@ -37,7 +38,7 @@ class UserExperience_Remove_CssJs_Extension {
 	 * @since 2.7.0
 	 */
 	public function __construct() {
-		$this->config = Dispatcher::config();
+		$this->w3tc_config = Dispatcher::config();
 	}
 
 	/**
@@ -55,8 +56,8 @@ class UserExperience_Remove_CssJs_Extension {
 		*/
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
-			$this->config->set_extension_active_frontend( 'user-experience-remove-cssjs', false );
+		if ( ! Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+			$this->w3tc_config->set_extension_active_frontend( 'user-experience-remove-cssjs', false );
 			return;
 		}
 
@@ -106,7 +107,7 @@ class UserExperience_Remove_CssJs_Extension {
 			return $buffer;
 		}
 
-		$this->mutator = new UserExperience_Remove_CssJs_Mutator( $this->config );
+		$this->mutator = new UserExperience_Remove_CssJs_Mutator( $this->w3tc_config );
 
 		$buffer = $this->mutator->run( $buffer );
 
@@ -177,17 +178,17 @@ class UserExperience_Remove_CssJs_Extension {
 	 *
 	 * @since 2.7.0
 	 *
-	 * @param mixed $descriptor Descriptor.
-	 * @param mixed $key Compound key array.
+	 * @param mixed $w3tc_descriptor Descriptor.
+	 * @param mixed $w3tc_key Compound key array.
 	 *
 	 * @return array
 	 */
-	public function w3tc_config_key_descriptor( $descriptor, $key ) {
-		if ( is_array( $key ) && 'user-experience-remove-cssjs.includes' === implode( '.', $key ) ) {
-			$descriptor = array( 'type' => 'array' );
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) && 'user-experience-remove-cssjs.includes' === implode( '.', $w3tc_key ) ) {
+			$w3tc_descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+		return $w3tc_descriptor;
 	}
 
 	/**
@@ -195,15 +196,15 @@ class UserExperience_Remove_CssJs_Extension {
 	 *
 	 * @since 2.7.0
 	 *
-	 * @param array $data Array of save data.
+	 * @param array $w3tc_data Array of save data.
 	 * @param array $page String page value.
 	 *
 	 * @return array
 	 */
-	public function w3tc_save_options( $data, $page ) {
+	public function w3tc_save_options( $w3tc_data, $page ) {
 		if ( 'w3tc_userexperience' === $page ) {
-			$new_config =& $data['new_config'];
-			$old_config =& $data['old_config'];
+			$new_config =& $w3tc_data['new_config'];
+			$old_config =& $w3tc_data['old_config'];
 
 			$old_cssjs_includes = $old_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 			$old_cssjs_singles  = $old_config->get_array( 'user-experience-remove-cssjs-singles' );
@@ -214,12 +215,12 @@ class UserExperience_Remove_CssJs_Extension {
 				$raw_cssjs_singles = $new_config->get_array( 'user-experience-remove-cssjs-singles' );
 
 				$new_cssjs_singles = array();
-				foreach ( $raw_cssjs_singles as $single_id => $single_config ) {
-					if ( ! empty( $single_config['url_pattern'] ) && ! empty( $single_config['action'] ) && ( is_string( $single_config['includes'] ) || is_string( $single_config['includes_content'] ) ) ) {
-						$new_cssjs_singles[ $single_id ]['url_pattern']      = preg_replace( '/\?.*$/', '', filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL ) );
-						$new_cssjs_singles[ $single_id ]['action']           = $single_config['action'];
-						$new_cssjs_singles[ $single_id ]['includes']         = Util_Environment::textarea_to_array( $single_config['includes'] );
-						$new_cssjs_singles[ $single_id ]['includes_content'] = Util_Environment::textarea_to_array( $single_config['includes_content'] );
+				foreach ( $raw_cssjs_singles as $w3tc_single_id => $w3tc_single_config ) {
+					if ( ! empty( $w3tc_single_config['url_pattern'] ) && ! empty( $w3tc_single_config['action'] ) && ( is_string( $w3tc_single_config['includes'] ) || is_string( $w3tc_single_config['includes_content'] ) ) ) {
+						$new_cssjs_singles[ $w3tc_single_id ]['url_pattern']      = preg_replace( '/\?.*$/', '', filter_var( $w3tc_single_config['url_pattern'], FILTER_SANITIZE_URL ) );
+						$new_cssjs_singles[ $w3tc_single_id ]['action']           = $w3tc_single_config['action'];
+						$new_cssjs_singles[ $w3tc_single_id ]['includes']         = Util_Environment::textarea_to_array( $w3tc_single_config['includes'] );
+						$new_cssjs_singles[ $w3tc_single_id ]['includes_content'] = Util_Environment::textarea_to_array( $w3tc_single_config['includes_content'] );
 					}
 				}
 				$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
@@ -241,7 +242,7 @@ class UserExperience_Remove_CssJs_Extension {
 			}
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -252,11 +253,11 @@ class UserExperience_Remove_CssJs_Extension {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		$config            = Dispatcher::config();
-		$extensions_active = $config->get_array( 'extensions.active' );
-		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-remove-cssjs', $extensions_active );
+		$w3tc_config       = Dispatcher::config();
+		$extensions_active = $w3tc_config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $w3tc_config ) && array_key_exists( 'user-experience-remove-cssjs', $extensions_active );
 	}
 }
 
-$o = new UserExperience_Remove_CssJs_Extension();
-$o->run();
+$w3tc_o = new UserExperience_Remove_CssJs_Extension();
+$w3tc_o->run();

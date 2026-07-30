@@ -26,11 +26,11 @@ class Util_WpFile_FilesystemOperationException extends \Exception {
 	 * This constructor sets up the object by assigning a message and, optionally, a credentials form.
 	 * It also calls the parent class's constructor to handle shared initialization.
 	 *
-	 * @param string      $message          The message to associate with the object.
+	 * @param string      $w3tc_message          The message to associate with the object.
 	 * @param string|null $credentials_form Optional. The credentials form content. Defaults to null if not provided.
 	 */
-	public function __construct( $message, $credentials_form = null ) {
-		parent::__construct( $message );
+	public function __construct( $w3tc_message, $credentials_form = null ) {
+		parent::__construct( $w3tc_message );
 		$this->credentials_form = $credentials_form;
 	}
 

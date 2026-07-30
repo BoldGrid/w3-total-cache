@@ -72,7 +72,7 @@ class W3TCG_Google_IO_Curl extends W3TCG_Google_IO_Abstract
     }
 
     if (!isset($this->options[CURLOPT_CAINFO])) {
-      curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__) . '/cacerts.pem');
+      curl_setopt($curl, CURLOPT_CAINFO, __DIR__ . '/cacerts.pem');
     }
 
     $response = curl_exec($curl);

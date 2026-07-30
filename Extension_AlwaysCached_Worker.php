@@ -49,22 +49,22 @@ class Extension_AlwaysCached_Worker {
 				break;
 			}
 
-			$item = Extension_AlwaysCached_Queue::pop_item_begin();
+			$w3tc_item = Extension_AlwaysCached_Queue::pop_item_begin();
 
-			if ( empty( $item ) ) {
+			if ( empty( $w3tc_item ) ) {
 				esc_html_e( "\nQueue is empty.", 'w3-total-cache' );
 				break;
 			}
 
-			echo esc_html( sprintf( "\n%s ", $item['key'] ) );
+			echo esc_html( sprintf( "\n%s ", $w3tc_item['key'] ) );
 
-			$result = self::process_item( $item );
+			$w3tc_result = self::process_item( $w3tc_item );
 
-			if ( 'ok' === $result ) {
+			if ( 'ok' === $w3tc_result ) {
 				esc_html_e( 'ok', 'w3-total-cache' );
-				Extension_AlwaysCached_Queue::pop_item_finish( $item );
+				Extension_AlwaysCached_Queue::pop_item_finish( $w3tc_item );
 				update_option( 'w3tc_alwayscached_worker_timestamp', gmdate( 'Y-m-d G:i:s' ) );
-			} elseif ( 'postpone' === $result ) {
+			} elseif ( 'postpone' === $w3tc_result ) {
 				esc_html_e( 'postponed', 'w3-total-cache' );
 			} else {
 				esc_html_e( 'failed', 'w3-total-cache' );
@@ -83,13 +83,13 @@ class Extension_AlwaysCached_Worker {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $item Item.
+	 * @param array $w3tc_item Item.
 	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	public static function process_item( $item, $ajax = false ) {
-		return self::process_item_url( $item, $ajax );
+	public static function process_item( $w3tc_item, $ajax = false ) {
+		return self::process_item_url( $w3tc_item, $ajax );
 	}
 
 	/**
@@ -97,42 +97,57 @@ class Extension_AlwaysCached_Worker {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array $item Item.
+	 * @param array $w3tc_item Item.
 	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	private static function process_item_url( $item, $ajax = false ) {
+	private static function process_item_url( $w3tc_item, $ajax = false ) {
 		if ( ! $ajax ) {
 			echo esc_html(
 				sprintf(
 					// translators: 1 item URL.
 					__( 'regenerate %s... ', 'w3-total-cache' ),
-					$item['url']
+					$w3tc_item['url']
 				)
 			);
 		}
 
-		$result = wp_remote_request(
-			$item['url'],
+		/**
+		 * The queue is populated from admin-set URLs; an untrusted
+		 * caller who reaches the queue-write surface (a config-write
+		 * pathway that doesn't already validate the URL, a future
+		 * schema change) could enqueue a URL pointing at AWS instance
+		 * metadata, a Redis bound to localhost, or an RFC1918
+		 * neighbour. Refuse anything that doesn't resolve to a public
+		 * IP before the wp_remote_request fires.
+		 */
+		if ( ! Util_Url::is_public_host( $w3tc_item['url'] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'AlwaysCached refused non-public URL' );
+			return 'failed';
+		}
+
+		$w3tc_result = wp_remote_request(
+			$w3tc_item['url'],
 			array(
 				'headers' => array(
-					'w3tcalwayscached' => $item['key'],
+					'w3tcalwayscached' => $w3tc_item['key'],
 				),
 			)
 		);
 
 		if (
-			is_wp_error( $result )
-			|| empty( $result['response']['code'] )
-			|| 500 === $result['response']['code']
+			is_wp_error( $w3tc_result )
+			|| empty( $w3tc_result['response']['code'] )
+			|| 500 === $w3tc_result['response']['code']
 		) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'failed to handle queue url' . $item['url'] );
+			error_log( 'failed to handle queue url' . $w3tc_item['url'] );
 			return 'failed';
 		}
 
-		if ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
+		if ( empty( $w3tc_result['headers'] ) || empty( $w3tc_result['headers']['w3tcalwayscached'] ) ) {
 			if ( ! $ajax ) {
 				esc_html_e( "\n  no evidence of cache refresh, will reprocess on next schedule/run\n  ", 'w3-total-cache' );
 			}

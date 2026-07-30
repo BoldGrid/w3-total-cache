@@ -17,10 +17,10 @@ class Extension_FragmentCache_GeneralPage {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_general() {
-		$o = new Extension_FragmentCache_GeneralPage();
+		$w3tc_o = new Extension_FragmentCache_GeneralPage();
 
-		add_filter( 'w3tc_settings_general_anchors', array( $o, 'w3tc_settings_general_anchors' ) );
-		add_action( 'w3tc_settings_general_boxarea_fragmentcache', array( $o, 'w3tc_settings_general_boxarea_fragmentcache' ) );
+		add_filter( 'w3tc_settings_general_anchors', array( $w3tc_o, 'w3tc_settings_general_anchors' ) );
+		add_action( 'w3tc_settings_general_boxarea_fragmentcache', array( $w3tc_o, 'w3tc_settings_general_boxarea_fragmentcache' ) );
 	}
 
 	/**

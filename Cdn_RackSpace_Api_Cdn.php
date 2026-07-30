@@ -39,20 +39,50 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Constructor for initializing the API client with configuration.
 	 *
-	 * @param array $config {
+	 * @param array $w3tc_config {
 	 *     Configuration array containing the following keys.
 	 *
-	 *     @type string $access_token             Access token for API authentication.
+	 *     @type string $w3tc_access_token             Access token for API authentication.
 	 *     @type string $access_region_descriptor Region descriptor for the API.
 	 *     @type bool   $new_access_required      Flag indicating if new access is required.
 	 * }
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$this->_access_token             = $config['access_token'];
-		$this->_access_region_descriptor = $config['access_region_descriptor'];
-		$this->_new_access_required      = $config['new_access_required'];
+	public function __construct( $w3tc_config = array() ) {
+		$this->_access_token             = $w3tc_config['access_token'];
+		$this->_access_region_descriptor = self::_sanitize_region_descriptor( $w3tc_config['access_region_descriptor'] );
+		$this->_new_access_required      = $w3tc_config['new_access_required'];
+	}
+
+	/**
+	 * Strip attacker-controlled URL bases out of the
+	 * `access_region_descriptor` before any `_wp_remote_*` method can
+	 * use them. See {@see Cdn_RackSpace_Api_CloudFiles::_sanitize_region_descriptor()}
+	 * for the rationale; this class uses the `cdn.publicURL` key
+	 * instead of `object-store.publicURL`.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param mixed $w3tc_descriptor Raw descriptor.
+	 *
+	 * @return array
+	 */
+	private static function _sanitize_region_descriptor( $w3tc_descriptor ) {
+		if ( ! \is_array( $w3tc_descriptor ) ) {
+			return array();
+		}
+		$suffixes = array( '.rackspacecloud.com', '.rackcdn.com' );
+		if (
+			! empty( $w3tc_descriptor['cdn.publicURL'] )
+			&& ! Util_Url::is_https_public_host_with_suffix(
+				$w3tc_descriptor['cdn.publicURL'],
+				$suffixes
+			)
+		) {
+			unset( $w3tc_descriptor['cdn.publicURL'] );
+		}
+		return $w3tc_descriptor;
 	}
 
 	/**
@@ -61,29 +91,29 @@ class Cdn_RackSpace_Api_Cdn {
 	 * @return array An array of services or an empty array if no services are found.
 	 */
 	public function services() {
-		$r = $this->_wp_remote_get( '/services' );
-		if ( ! isset( $r['services'] ) ) {
+		$w3tc_r = $this->_wp_remote_get( '/services' );
+		if ( ! isset( $w3tc_r['services'] ) ) {
 			return array();
 		}
 
-		return $r['services'];
+		return $w3tc_r['services'];
 	}
 
 	/**
 	 * Retrieves details of a specific service.
 	 *
-	 * @param string $service The service identifier.
+	 * @param string $w3tc_service The service identifier.
 	 *
 	 * @return array The response containing the service details.
 	 */
-	public function service_get( $service ) {
-		$response = $this->_wp_remote_get( '/services/' . $service );
+	public function service_get( $w3tc_service ) {
+		$response = $this->_wp_remote_get( '/services/' . $w3tc_service );
 
 		// expand links to links_by_rel.
 		if ( isset( $response['links'] ) ) {
 			$by_rel = array();
-			foreach ( $response['links'] as $r ) {
-				$by_rel[ $r['rel'] ] = $r;
+			foreach ( $response['links'] as $w3tc_r ) {
+				$by_rel[ $w3tc_r['rel'] ] = $w3tc_r;
 			}
 			$response['links_by_rel'] = $by_rel;
 		}
@@ -94,7 +124,7 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Creates a new service with the given data.
 	 *
-	 * @param array $data {
+	 * @param array $w3tc_data {
 	 *     The data used to create the service.
 	 *
 	 *     @type string $flavor_id The flavor ID for the service. Defaults to 'cdn'.
@@ -102,13 +132,13 @@ class Cdn_RackSpace_Api_Cdn {
 	 *
 	 * @return mixed The response from the API on success, or an error on failure.
 	 */
-	public function service_create( $data ) {
+	public function service_create( $w3tc_data ) {
 		// required static.
-		$data['flavor_id'] = 'cdn';
+		$w3tc_data['flavor_id'] = 'cdn';
 
 		return $this->_wp_remote_post(
 			'/services',
-			wp_json_encode( $data ),
+			wp_json_encode( $w3tc_data ),
 			array(
 				'Accept'       => 'application/json',
 				'Content-type' => 'application/json',
@@ -120,14 +150,14 @@ class Cdn_RackSpace_Api_Cdn {
 	 * Updates an existing service with new data.
 	 *
 	 * @param string $service_id The service identifier.
-	 * @param array  $data       The data to update the service.
+	 * @param array  $w3tc_data       The data to update the service.
 	 *
 	 * @return mixed The response from the API on success, or an error on failure.
 	 */
-	public function service_set( $service_id, $data ) {
+	public function service_set( $service_id, $w3tc_data ) {
 		return $this->_wp_remote_patch(
 			'/services/' . $service_id,
-			wp_json_encode( $data ),
+			wp_json_encode( $w3tc_data ),
 			array(
 				'Accept'       => 'application/json',
 				'Content-type' => 'application/json',
@@ -139,12 +169,12 @@ class Cdn_RackSpace_Api_Cdn {
 	 * Purges a specific URL from the cache for a given service.
 	 *
 	 * @param string $service_id The service identifier.
-	 * @param string $url        The URL to be purged.
+	 * @param string $w3tc_url        The URL to be purged.
 	 *
 	 * @return mixed The response from the API on success, or an error on failure.
 	 */
-	public function purge( $service_id, $url ) {
-		return $this->_wp_remote_delete( '/services/' . $service_id . '/assets?url=' . rawurlencode( $url ) );
+	public function purge( $service_id, $w3tc_url ) {
+		return $this->_wp_remote_delete( '/services/' . $service_id . '/assets?url=' . rawurlencode( $w3tc_url ) );
 	}
 
 	/**
@@ -158,18 +188,22 @@ class Cdn_RackSpace_Api_Cdn {
 		if ( ! empty( $this->_access_region_descriptor['cdn.publicURL'] ) ) {
 			$url_base = $this->_access_region_descriptor['cdn.publicURL'];
 
-			$result = wp_remote_get(
+			$w3tc_result = wp_remote_get(
 				$url_base . $uri . '?format=json',
 				array(
 					'headers' => 'X-Auth-Token: ' . $this->_access_token,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * Disabled SSL certificate path.
+					 *
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => __DIR__ . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 				)
 			);
 
-			$r = self::_decode_response_json( $result );
-			if ( ! $r['auth_required'] ) {
-				return $r['response_json'];
+			$w3tc_r = self::_decode_response_json( $w3tc_result );
+			if ( ! $w3tc_r['auth_required'] ) {
+				return $w3tc_r['response_json'];
 			}
 		}
 
@@ -196,20 +230,24 @@ class Cdn_RackSpace_Api_Cdn {
 			$url_base                = $this->_access_region_descriptor['cdn.publicURL'];
 			$headers['X-Auth-Token'] = $this->_access_token;
 
-			$result = wp_remote_post(
+			$w3tc_result = wp_remote_post(
 				$url_base . $uri,
 				array(
 					'headers' => $headers,
 					'body'    => $body,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * Disabled SSL certificate path.
+					 *
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => __DIR__ . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'PATCH',
 				)
 			);
 
-			$r = self::_decode_response( $result );
-			if ( ! $r['auth_required'] ) {
-				$location = explode( '/', $result['headers']['location'] );
+			$w3tc_r = self::_decode_response( $w3tc_result );
+			if ( ! $w3tc_r['auth_required'] ) {
+				$location = explode( '/', $w3tc_result['headers']['location'] );
 
 				return $location[ count( $location ) - 1 ];
 			}
@@ -238,19 +276,23 @@ class Cdn_RackSpace_Api_Cdn {
 			$url_base                = $this->_access_region_descriptor['cdn.publicURL'];
 			$headers['X-Auth-Token'] = $this->_access_token;
 
-			$result = wp_remote_post(
+			$w3tc_result = wp_remote_post(
 				$url_base . $uri,
 				array(
 					'headers' => $headers,
 					'body'    => $body,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem'
+					/**
+					 * Disabled SSL certificate path.
+					 *
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => __DIR__ . '/Cdn_RackSpace_Api_CaCert.pem'
+					 */
 				)
 			);
 
-			$r = self::_decode_response( $result );
-			if ( ! $r['auth_required'] ) {
-				$location = explode( '/', $result['headers']['location'] );
+			$w3tc_r = self::_decode_response( $w3tc_result );
+			if ( ! $w3tc_r['auth_required'] ) {
+				$location = explode( '/', $w3tc_result['headers']['location'] );
 
 				return $location[ count( $location ) - 1 ];
 			}
@@ -278,18 +320,22 @@ class Cdn_RackSpace_Api_Cdn {
 			$url_base                = $this->_access_region_descriptor['cdn.publicURL'];
 			$headers['X-Auth-Token'] = $this->_access_token;
 
-			$result = wp_remote_post(
+			$w3tc_result = wp_remote_post(
 				$url_base . $uri,
 				array(
 					'headers' => $headers,
-					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-					// 'sslcertificates' => dirname( __FILE__ ) . '/Cdn_RackSpace_Api_CaCert.pem',
+					/**
+					 * Disabled SSL certificate path.
+					 *
+					 * phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+					 * 'sslcertificates' => __DIR__ . '/Cdn_RackSpace_Api_CaCert.pem',
+					 */
 					'method'  => 'DELETE',
 				)
 			);
 
-			$r = self::_decode_response( $result );
-			if ( ! $r['auth_required'] ) {
+			$w3tc_r = self::_decode_response( $w3tc_result );
+			if ( ! $w3tc_r['auth_required'] ) {
 				return;
 			}
 		}
@@ -302,41 +348,41 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Decodes the JSON response from the API for a GET request.
 	 *
-	 * @param mixed $result The result from the GET request.
+	 * @param mixed $w3tc_result The result from the GET request.
 	 *
 	 * @return array The decoded response JSON.
 	 *
 	 * @throws \Exception If the response is not valid or contains errors.
 	 */
-	private static function _decode_response_json( $result ) {
-		if ( is_wp_error( $result ) ) {
+	private static function _decode_response_json( $w3tc_result ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		if ( empty( $result['body'] ) ) {
+		if ( empty( $w3tc_result['body'] ) ) {
 			$response_json = array();
 		} else {
-			if ( 'Unauthorized' === $result['body'] ) {
+			if ( 'Unauthorized' === $w3tc_result['body'] ) {
 				return array(
 					'response_json' => array(),
 					'auth_required' => true,
 				);
 			}
 
-			$response_json = @json_decode( $result['body'], true );
+			$response_json = @json_decode( $w3tc_result['body'], true );
 			if ( is_null( $response_json ) ) {
 				throw new \Exception(
 					sprintf(
 						// Translators: 1 Result body.
 						\esc_html__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-						\wp_kses_post( $result['body'] )
+						\wp_kses_post( $w3tc_result['body'] )
 					)
 				);
 			}
 		}
 
-		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
-			throw new \Exception( \wp_kses_post( $result['body'] ) );
+		if ( ! in_array( (int) $w3tc_result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
+			throw new \Exception( \wp_kses_post( $w3tc_result['body'] ) );
 		}
 
 		return array(
@@ -348,19 +394,19 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Decodes the response from the API for a PATCH or POST request.
 	 *
-	 * @param mixed $result The result from the PATCH or POST request.
+	 * @param mixed $w3tc_result The result from the PATCH or POST request.
 	 *
 	 * @return array The decoded response.
 	 *
 	 * @throws \Exception If the response contains errors or is unauthorized.
 	 */
-	private static function _decode_response( $result ) {
-		if ( is_wp_error( $result ) ) {
+	private static function _decode_response( $w3tc_result ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
-			if ( 'Unauthorized' === $result['response']['message'] ) {
+		if ( ! in_array( (int) $w3tc_result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
+			if ( 'Unauthorized' === $w3tc_result['response']['message'] ) {
 				return array(
 					'response_json' => array(),
 					'auth_required' => true,
@@ -368,14 +414,14 @@ class Cdn_RackSpace_Api_Cdn {
 			}
 
 			// try to decode response.
-			$response_json = @json_decode( $result['body'], true );
+			$response_json = @json_decode( $w3tc_result['body'], true );
 			if ( is_null( $response_json ) || ! isset( $response_json['message'] ) ) {
 				throw new \Exception(
 					\esc_html(
 						sprintf(
 							// Translators: 1 Response message.
 							\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-							$result['response']['message']
+							$w3tc_result['response']['message']
 						)
 					)
 				);

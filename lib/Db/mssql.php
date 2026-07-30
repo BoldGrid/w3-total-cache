@@ -433,7 +433,7 @@ class DbCache_WpdbBase extends \SQL_Translations {
         /**
          * A textual description of the last query/get_row/get_var call
          *
-         * @since unknown
+         * @since 0.71
          * @access public
          * @var string
          */
@@ -1059,7 +1059,7 @@ class DbCache_WpdbBase extends \SQL_Translations {
 
                 // some queries are made before the plugins have been loaded, and thus cannot be filtered with this method
                 if ( function_exists( 'apply_filters' ) )
-                        $query = apply_filters( 'query', $query );
+                        $query = apply_filters( 'w3tc_dbcluster_query', $query );
 
                 $return_val = 0;
                 $this->flush();
@@ -1137,7 +1137,7 @@ class DbCache_WpdbBase extends \SQL_Translations {
                 }
 
                 if ( function_exists( 'apply_filters' ) )
-                    apply_filters( 'after_query', $query );
+                    apply_filters( 'w3tc_dbcluster_after_query', $query );
 
                 return $return_val;
         }
@@ -1707,7 +1707,7 @@ class Fields_map
      */
     function __construct() {
         $folder = basename(WPMU_PLUGIN_DIR);
-        $this->filepath = trim(str_replace($folder . '/wp-db-abstraction/translations/sqlsrv', '', strtr(dirname(__FILE__), '\\', '/')), '/') . '/fields_map.parsed_types.php';
+        $this->filepath = trim(str_replace($folder . '/wp-db-abstraction/translations/sqlsrv', '', strtr(__DIR__, '\\', '/')), '/') . '/fields_map.parsed_types.php';
     }
 
     /**

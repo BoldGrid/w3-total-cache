@@ -36,7 +36,7 @@ class Cdn_RackSpaceCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
-		wp_enqueue_script( 'w3tc_cdn_rackspace', plugins_url( 'Cdn_RackSpaceCdn_Page_View.js', W3TC_FILE ), array( 'jquery' ), '1.0', false );
+		wp_enqueue_script( 'w3tc_cdn_rackspace', plugins_url( 'Cdn_RackSpaceCdn_Page_View.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ), '1.0', false );
 	}
 
 	/**
@@ -49,14 +49,14 @@ class Cdn_RackSpaceCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_cdn_boxarea_configuration() {
-		$config     = Dispatcher::config();
-		$api_key    = $config->get_string( 'cdn.rackspace_cdn.api_key' );
-		$authorized = ! empty( $api_key );
+		$w3tc_config     = Dispatcher::config();
+		$api_key         = $w3tc_config->get_string( 'cdn.rackspace_cdn.api_key' );
+		$w3tc_authorized = ! empty( $api_key );
 
 		$access_url_full = '';
-		if ( $authorized ) {
-			$p               = $config->get_string( 'cdn.rackspace_cdn.service.protocol' );
-			$access_url_full = ( 'https' === $p ? 'https://' : 'http://' ) . $config->get_string( 'cdn.rackspace_cdn.service.access_url' );
+		if ( $w3tc_authorized ) {
+			$w3tc_p          = $w3tc_config->get_string( 'cdn.rackspace_cdn.service.protocol' );
+			$access_url_full = ( 'https' === $w3tc_p ? 'https://' : 'http://' ) . $w3tc_config->get_string( 'cdn.rackspace_cdn.service.access_url' );
 		}
 
 		include W3TC_DIR . '/Cdn_RackSpaceCdn_Page_View.php';

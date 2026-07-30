@@ -16,7 +16,7 @@ class Util_WpFile_FilesystemRmdirException extends Util_WpFile_FilesystemOperati
 	 *
 	 * @var string
 	 */
-	private $folder;
+	private $w3tc_folder;
 
 	/**
 	 * Initializes the object with a message and an optional credentials form.
@@ -24,14 +24,14 @@ class Util_WpFile_FilesystemRmdirException extends Util_WpFile_FilesystemOperati
 	 * This constructor sets up the object by assigning a message and, optionally, a credentials form.
 	 * It also calls the parent class's constructor to handle shared initialization.
 	 *
-	 * @param string      $message          The message to associate with the object.
+	 * @param string      $w3tc_message          The message to associate with the object.
 	 * @param string|null $credentials_form Optional. The credentials form content. Defaults to null if not provided.
-	 * @param string      $folder           The folder that caused the exception.
+	 * @param string      $w3tc_folder           The folder that caused the exception.
 	 */
-	public function __construct( $message, $credentials_form, $folder ) {
-		parent::__construct( $message, $credentials_form );
+	public function __construct( $w3tc_message, $credentials_form, $w3tc_folder ) {
+		parent::__construct( $w3tc_message, $credentials_form );
 
-		$this->folder = $folder;
+		$this->w3tc_folder = $w3tc_folder;
 	}
 
 	/**
@@ -40,6 +40,6 @@ class Util_WpFile_FilesystemRmdirException extends Util_WpFile_FilesystemOperati
 	 * @return string The folder path or name assigned to the object.
 	 */
 	public function folder() {
-		return $this->folder;
+		return $this->w3tc_folder;
 	}
 }

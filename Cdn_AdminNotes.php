@@ -23,22 +23,53 @@ class Cdn_AdminNotes {
 	 *
 	 * phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
 	 *
-	 * @param array $notes Array of existing admin notices.
+	 * @param array $w3tc_notes Array of existing admin notices.
 	 *
 	 * @return array Updated array of admin notices.
 	 */
-	public function w3tc_notes( array $notes ): array {
-		$config     = Dispatcher::config();
-		$state      = Dispatcher::config_state();
-		$cdn_engine = $config->get_string( 'cdn.engine' );
-		$page       = Util_Request::get_string( 'page' );
+	public function w3tc_notes( array $w3tc_notes ): array {
+		$w3tc_config     = Dispatcher::config();
+		$state           = Dispatcher::config_state();
+		$w3tc_cdn_engine = $w3tc_config->get_string( 'cdn.engine' );
+		$page            = Util_Request::get_string( 'page' );
 
-		if ( ! Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
+		/**
+		 * One-shot notice when the previously-configured engine was
+		 * auto-disabled by Cdn_Plugin::migrate_removed_engines() (i.e.
+		 * the install was on akamai / cotendo / edgecast / att before
+		 * this upgrade and the upstream service is gone). The notice
+		 * dismisses itself on click via the standard
+		 * `w3tc_default_config_state` flow.
+		 */
+		if ( $state->get_boolean( 'cdn.show_note_removed_engine' ) ) {
+			$removed_engine = $state->get_string( 'cdn.removed_engine_was' );
+			$removed_label  = '' === $removed_engine ? __( 'your previously configured engine', 'w3-total-cache' ) : $removed_engine;
+
+			$w3tc_notes['cdn_removed_engine'] = sprintf(
+				// translators: 1: Removed engine slug, 2: Anchor open, 3: Anchor close, 4: Hide-note button.
+				__(
+					'CDN was disabled because %1$s has been removed (the upstream service is no longer available). %2$sPick a different engine on the CDN page%3$s to restore CDN delivery. %4$s',
+					'w3-total-cache'
+				),
+				'<strong>' . esc_html( $removed_label ) . '</strong>',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'</a>',
+				Util_Ui::button_hide_note2(
+					array(
+						'w3tc_default_config_state' => 'y',
+						'key'                       => 'cdn.show_note_removed_engine',
+						'value'                     => 'false',
+					)
+				)
+			);
+		}
+
+		if ( ! Cdn_Util::is_engine_mirror( $w3tc_cdn_engine ) ) {
 			/**
 			 * Show notification after theme change.
 			 */
 			if ( $state->get_boolean( 'cdn.show_note_theme_changed' ) ) {
-				$notes['cdn_theme_changed'] = sprintf(
+				$w3tc_notes['cdn_theme_changed'] = sprintf(
 					// translators: 1: Button code, 2: Button code.
 					__( 'The active theme has changed, please %1$s now to ensure proper operation. %2$s', 'w3-total-cache' ),
 					Util_Ui::button_popup( __( 'upload active theme files', 'w3-total-cache' ), 'cdn_export', 'cdn_export_type=theme' ),
@@ -56,7 +87,7 @@ class Cdn_AdminNotes {
 			 * Show notification after WP upgrade.
 			 */
 			if ( $state->get_boolean( 'cdn.show_note_wp_upgraded' ) ) {
-				$notes['cdn_wp_upgraded'] = sprintf(
+				$w3tc_notes['cdn_wp_upgraded'] = sprintf(
 					// translators: 1: Button code, 2: Button code.
 					__( 'Upgraded WordPress? Please %1$s files now to ensure proper operation. %2$s', 'w3-total-cache' ),
 					Util_Ui::button_popup( 'upload wp-includes', 'cdn_export', 'cdn_export_type=includes' ),
@@ -77,28 +108,28 @@ class Cdn_AdminNotes {
 				$state->get_boolean( 'cdn.show_note_cdn_reupload' ) ) {
 				$cdn_upload_buttons = array();
 
-				if ( $config->get_boolean( 'cdn.includes.enable' ) ) {
+				if ( $w3tc_config->get_boolean( 'cdn.includes.enable' ) ) {
 					$cdn_upload_buttons[] = Util_Ui::button_popup( 'wp-includes', 'cdn_export', 'cdn_export_type=includes' );
 				}
 
-				if ( $config->get_boolean( 'cdn.theme.enable' ) ) {
+				if ( $w3tc_config->get_boolean( 'cdn.theme.enable' ) ) {
 					$cdn_upload_buttons[] = Util_Ui::button_popup( 'theme files', 'cdn_export', 'cdn_export_type=theme' );
 				}
 
 				if (
-					$config->get_boolean( 'minify.enabled' ) &&
-					$config->get_boolean( 'cdn.minify.enable' ) &&
-					! $config->get_boolean( 'minify.auto' )
+					$w3tc_config->get_boolean( 'minify.enabled' ) &&
+					$w3tc_config->get_boolean( 'cdn.minify.enable' ) &&
+					! $w3tc_config->get_boolean( 'minify.auto' )
 				) {
 					$cdn_upload_buttons[] = Util_Ui::button_popup( 'minify files', 'cdn_export', 'cdn_export_type=minify' );
 				}
 
-				if ( $config->get_boolean( 'cdn.custom.enable' ) ) {
+				if ( $w3tc_config->get_boolean( 'cdn.custom.enable' ) ) {
 					$cdn_upload_buttons[] = Util_Ui::button_popup( 'custom files', 'cdn_export', 'cdn_export_type=custom' );
 				}
 
 				if ( $state->get_boolean( 'cdn.show_note_cdn_upload' ) ) {
-					$notes[] = sprintf(
+					$w3tc_notes[] = sprintf(
 						// translators: 1: Button code, 2: Button code, 3: Button code.
 						__(
 							'Make sure to %1$s and upload the %2$s, files to the <acronym title="Content Delivery Network">CDN</acronym> to ensure proper operation. %3$s',
@@ -117,7 +148,7 @@ class Cdn_AdminNotes {
 				}
 
 				if ( $state->get_boolean( 'cdn.show_note_cdn_reupload' ) ) {
-					$notes[] = sprintf(
+					$w3tc_notes[] = sprintf(
 						// translators: 1: Button code, 2: Button code, 3: Button code.
 						__(
 							'Settings that affect Browser Cache settings for files hosted by the CDN have been changed. To apply the new settings %1$s and %2$s. %3$s',
@@ -141,7 +172,7 @@ class Cdn_AdminNotes {
 		 * Check CURL extension.
 		 */
 		if ( ! $state->get_boolean( 'cdn.hide_note_no_curl' ) && ! function_exists( 'curl_init' ) ) {
-			$notes[] = sprintf(
+			$w3tc_notes[] = sprintf(
 				// translators: 1: Button code.
 				__( 'The <strong>CURL PHP</strong> extension is not available. Please install it to enable S3 or CloudFront functionality. %1$s', 'w3-total-cache' ),
 				Util_Ui::button_hide_note2(
@@ -154,7 +185,7 @@ class Cdn_AdminNotes {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -169,11 +200,11 @@ class Cdn_AdminNotes {
 	 * @return array Updated array of admin errors.
 	 */
 	public function w3tc_errors( array $errors ): array {
-		$c          = Dispatcher::config();
-		$state      = Dispatcher::config_state();
-		$cdn_engine = $c->get_string( 'cdn.engine' );
+		$w3tc_c          = Dispatcher::config();
+		$state           = Dispatcher::config_state();
+		$w3tc_cdn_engine = $w3tc_c->get_string( 'cdn.engine' );
 
-		if ( Cdn_Util::is_engine_push( $cdn_engine ) ) {
+		if ( Cdn_Util::is_engine_push( $w3tc_cdn_engine ) ) {
 			/**
 			 * Show notification if upload queue is not empty.
 			 */
@@ -231,59 +262,43 @@ class Cdn_AdminNotes {
 		 */
 		$error = '';
 		switch ( true ) {
-			case ( 'ftp' === $cdn_engine && ! count( $c->get_array( 'cdn.ftp.domain' ) ) ):
+			case ( 'ftp' === $w3tc_cdn_engine && ! count( $w3tc_c->get_array( 'cdn.ftp.domain' ) ) ):
 				$errors['cdn_ftp_empty'] = __(
 					'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: The <strong>"Replace default hostname with"</strong> field cannot be empty. Enter <acronym title="Content Delivery Network">CDN</acronym> provider hostname <a href="?page=w3tc_cdn#configuration">here</a>. <em>(This is the hostname used in order to view objects in a browser.)</em>',
 					'w3-total-cache'
 				);
 				break;
 
-			case ( 's3' === $cdn_engine && ( empty( $c->get_string( 'cdn.s3.key' ) ) || empty( $c->get_string( 'cdn.s3.secret' ) ) || empty( $c->get_string( 'cdn.s3.bucket' ) ) ) ):
+			case ( 's3' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.s3.key' ) ) || empty( $w3tc_c->get_string( 'cdn.s3.secret' ) ) || empty( $w3tc_c->get_string( 'cdn.s3.bucket' ) ) ) ):
 				$error = __( 'The <strong>"Access key", "Secret key" and "Bucket"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'cf' === $cdn_engine && ( empty( $c->get_string( 'cdn.cf.key' ) ) || empty( $c->get_string( 'cdn.cf.secret' ) ) || empty( $c->get_string( 'cdn.cf.bucket' ) ) || ( empty( $c->get_string( 'cdn.cf.id' ) ) && empty( $c->get_array( 'cdn.cf.cname' ) ) ) ) ):
+			case ( 'cf' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.cf.key' ) ) || empty( $w3tc_c->get_string( 'cdn.cf.secret' ) ) || empty( $w3tc_c->get_string( 'cdn.cf.bucket' ) ) || ( empty( $w3tc_c->get_string( 'cdn.cf.id' ) ) && empty( $w3tc_c->get_array( 'cdn.cf.cname' ) ) ) ) ):
 				$error = __( 'The <strong>"Access key", "Secret key", "Bucket" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'cf2' === $cdn_engine && ( empty( $c->get_string( 'cdn.cf2.key' ) ) || empty( $c->get_string( 'cdn.cf2.secret' ) ) || ( empty( $c->get_string( 'cdn.cf2.id' ) ) && empty( $c->get_array( 'cdn.cf2.cname' ) ) ) ) ):
+			case ( 'cf2' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.cf2.key' ) ) || empty( $w3tc_c->get_string( 'cdn.cf2.secret' ) ) || ( empty( $w3tc_c->get_string( 'cdn.cf2.id' ) ) && empty( $w3tc_c->get_array( 'cdn.cf2.cname' ) ) ) ) ):
 				$error = __( 'The <strong>"Access key", "Secret key" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'rscf' === $cdn_engine && ( empty( $c->get_string( 'cdn.rscf.user' ) ) || empty( $c->get_string( 'cdn.rscf.key' ) ) || empty( $c->get_string( 'cdn.rscf.container' ) ) ) ):
+			case ( 'rscf' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.rscf.user' ) ) || empty( $w3tc_c->get_string( 'cdn.rscf.key' ) ) || empty( $w3tc_c->get_string( 'cdn.rscf.container' ) ) ) ):
 				$error = __( 'The <strong>"Username", "API key", "Container" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'azure' === $cdn_engine && ( empty( $c->get_string( 'cdn.azure.user' ) ) || empty( $c->get_string( 'cdn.azure.key' ) ) || empty( $c->get_string( 'cdn.azure.container' ) ) ) ):
+			case ( 'azure' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.azure.user' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.key' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.container' ) ) ) ):
 				$error = __( 'The <strong>"Account name", "Account key" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'azuremi' === $cdn_engine && empty( getenv( 'APPSETTING_WEBSITE_SITE_NAME' ) ) ):
+			case ( 'azuremi' === $w3tc_cdn_engine && empty( getenv( 'APPSETTING_WEBSITE_SITE_NAME' ) ) ):
 				$error = __( 'Microsoft Azure using Managed Identities is only available for "WordPress on App Service".', 'w3-total-cache' );
 				break;
 
-			case ( 'azuremi' === $cdn_engine && ( empty( $c->get_string( 'cdn.azuremi.user' ) ) || empty( $c->get_string( 'cdn.azuremi.clientid' ) ) || empty( $c->get_string( 'cdn.azuremi.container' ) ) ) ):
+			case ( 'azuremi' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.azuremi.user' ) ) || empty( $w3tc_c->get_string( 'cdn.azuremi.clientid' ) ) || empty( $w3tc_c->get_string( 'cdn.azuremi.container' ) ) ) ):
 				$error = __( 'The <strong>"Account name", "Entra client ID" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'mirror' === $cdn_engine && empty( $c->get_array( 'cdn.mirror.domain' ) ) ):
+			case ( 'mirror' === $w3tc_cdn_engine && empty( $w3tc_c->get_array( 'cdn.mirror.domain' ) ) ):
 				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'cotendo' === $cdn_engine && empty( $c->get_array( 'cdn.cotendo.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'edgecast' === $cdn_engine && empty( $c->get_array( 'cdn.edgecast.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'att' === $cdn_engine && empty( $c->get_array( 'cdn.att.domain' ) ) ):
-				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-				break;
-
-			case ( 'akamai' === $cdn_engine && empty( $c->get_array( 'cdn.akamai.domain' ) ) ):
-				$error = 'The <strong>"Replace default hostname with"</strong> field cannot be empty.';
 				break;
 		}
 
@@ -312,18 +327,18 @@ class Cdn_AdminNotes {
 		global $wpdb;
 		$wpdb->hide_errors();
 
-		$result = $wpdb->get_var( sprintf( 'SELECT COUNT(`id`) FROM `%s`', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$w3tc_result = $wpdb->get_var( sprintf( 'SELECT COUNT(`id`) FROM `%s`', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		$error = $wpdb->last_error;
 		if ( $error ) {
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
-				$url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
+				$w3tc_url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
 				throw new \Exception(
 					sprintf(
 						// translators: 1: Error message, 2: Install link.
 						esc_html__( 'Encountered issue with CDN: %1$s. See %2$s for instructions of creating correct table.', 'w3-total-cache' ),
 						esc_html( $wpdb->last_error ),
-						'<a href="' . esc_url( $url ) . '">' . esc_html__( 'Install page', 'w3-total-cache' ) . '</a>'
+						'<a href="' . esc_url( $w3tc_url ) . '">' . esc_html__( 'Install page', 'w3-total-cache' ) . '</a>'
 					)
 				);
 			} else {
@@ -337,6 +352,6 @@ class Cdn_AdminNotes {
 			}
 		}
 
-		return empty( $result );
+		return empty( $w3tc_result );
 	}
 }

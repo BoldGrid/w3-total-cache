@@ -10,6 +10,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
@@ -94,30 +95,30 @@ defined( 'W3TC' ) || die();
 		<li>
 			Web Server:
 			<?php
-			$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+			$w3tc_server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
 
 			switch ( true ) {
-				case stristr( $server_software, 'apache' ) !== false:
+				case stristr( $w3tc_server_software, 'apache' ) !== false:
 					?>
 					<code>Apache</code>
 					<?php
 					break;
-				case stristr( $server_software, 'LiteSpeed' ) !== false:
+				case stristr( $w3tc_server_software, 'LiteSpeed' ) !== false:
 					?>
 					<code>Lite Speed</code>
 					<?php
 					break;
-				case stristr( $server_software, 'nginx' ) !== false:
+				case stristr( $w3tc_server_software, 'nginx' ) !== false:
 					?>
 					<code>nginx</code>
 					<?php
 					break;
-				case stristr( $server_software, 'lighttpd' ) !== false:
+				case stristr( $w3tc_server_software, 'lighttpd' ) !== false:
 					?>
 					<code>lighttpd</code>
 					<?php
 					break;
-				case stristr( $server_software, 'iis' ) !== false:
+				case stristr( $w3tc_server_software, 'iis' ) !== false:
 					?>
 					<code>Microsoft IIS</code>
 					<?php
@@ -301,8 +302,8 @@ defined( 'W3TC' ) || die();
 
 		<li>
 			<?php esc_html_e( 'Open basedir:', 'w3-total-cache' ); ?>
-			<?php $open_basedir = ini_get( 'open_basedir' ); if ( $open_basedir ) : ?>
-				<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'On:', 'w3-total-cache' ); ?> <?php echo esc_html( $open_basedir ); ?></span>
+			<?php $w3tc_open_basedir = ini_get( 'open_basedir' ); if ( $w3tc_open_basedir ) : ?>
+				<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'On:', 'w3-total-cache' ); ?> <?php echo esc_html( $w3tc_open_basedir ); ?></span>
 			<?php else : ?>
 				<span style="padding: 0 2px;background-color: #FFFF00"><?php esc_html_e( 'Off', 'w3-total-cache' ); ?></span>
 			<?php endif; ?>
@@ -364,7 +365,7 @@ defined( 'W3TC' ) || die();
 		<?php
 		if ( Util_Environment::is_apache() ) :
 
-			$modules = array(
+			$w3tc_modules = array(
 				'mod_deflate',
 				'mod_env',
 				'mod_expires',
@@ -378,28 +379,28 @@ defined( 'W3TC' ) || die();
 
 			if ( function_exists( 'apache_get_modules' ) ) {
 				// apache_get_modules only works when PHP is installed as an Apache module.
-				$apache_modules = apache_get_modules();
+				$w3tc_apache_modules = apache_get_modules();
 
 			} elseif ( function_exists( 'exec' ) ) {
 				// alternative modules capture for php CGI.
-				exec( 'apache2 -t -D DUMP_MODULES', $output, $status );
+				exec( 'apache2 -t -D DUMP_MODULES', $w3tc_output, $status );
 
 				if ( 0 !== $status ) {
-					exec( 'httpd -t -D DUMP_MODULES', $output, $status );
+					exec( 'httpd -t -D DUMP_MODULES', $w3tc_output, $status );
 				}
 
-				if ( 0 === $status && 0 < count( $output ) ) {
-					$apache_modules = array();
+				if ( 0 === $status && 0 < count( $w3tc_output ) ) {
+					$w3tc_apache_modules = array();
 
-					foreach ( $output as $line ) {
-						if ( preg_match( '/^\s(\S+)\s\((\S+)\)$/', $line, $matches ) === 1 ) {
-							$apache_modules[] = $matches[1];
+					foreach ( $w3tc_output as $w3tc_line ) {
+						if ( preg_match( '/^\s(\S+)\s\((\S+)\)$/', $w3tc_line, $matches ) === 1 ) {
+							$w3tc_apache_modules[] = $matches[1];
 						}
 					}
 				}
 
 				// modules have slightly different names.
-				$modules = array(
+				$w3tc_modules = array(
 					'deflate_module',
 					'env_module',
 					'expires_module',
@@ -411,16 +412,16 @@ defined( 'W3TC' ) || die();
 					'setenvif_module',
 				);
 			} else {
-				$apache_modules = false;
+				$w3tc_apache_modules = false;
 			}
 
 			?>
 			<h5><?php esc_html_e( 'Detection of the below modules may not be possible on all environments. As such "Not detected" means that the environment disallowed detection for the given module which may still be installed/enabled whereas "Not installed" means the given module was detected but is not installed/detected.', 'w3-total-cache' ); ?></h5>
-			<?php foreach ( $modules as $module ) : ?>
+			<?php foreach ( $w3tc_modules as $w3tc_module ) : ?>
 				<li>
-					<?php echo esc_html( $module ); ?>:
-					<?php if ( ! empty( $apache_modules ) ) : ?>
-						<?php if ( in_array( $module, $apache_modules, true ) ) : ?>
+					<?php echo esc_html( $w3tc_module ); ?>:
+					<?php if ( ! empty( $w3tc_apache_modules ) ) : ?>
+						<?php if ( in_array( $w3tc_module, $w3tc_apache_modules, true ) ) : ?>
 							<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'Installed', 'w3-total-cache' ); ?></span>
 						<?php else : ?>
 							<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Not installed', 'w3-total-cache' ); ?></span>
@@ -434,14 +435,14 @@ defined( 'W3TC' ) || die();
 		<?php endif; ?>
 	</ul>
 	<?php
-	$additional_checks = apply_filters( 'w3tc_compatibility_test', __return_empty_array() );
-	if ( $additional_checks ) :
+	$w3tc_additional_checks = apply_filters( 'w3tc_compatibility_test', __return_empty_array() );
+	if ( $w3tc_additional_checks ) :
 		?>
 		<h4><?php esc_html_e( 'Additional Server Modules', 'w3-total-cache' ); ?></h4>
 		<ul>
 			<?php
-			foreach ( $additional_checks as $check ) :
-				echo '<li>' . wp_kses( $check, Util_Ui::get_allowed_html_for_wp_kses_from_content( $check ) ) . '</li>';
+			foreach ( $w3tc_additional_checks as $w3tc_check ) :
+				echo '<li>' . wp_kses( $w3tc_check, Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_check ) ) . '</li>';
 			endforeach;
 			?>
 		</ul>
@@ -453,7 +454,7 @@ defined( 'W3TC' ) || die();
 
 	<ul>
 		<?php
-		$paths = array_unique(
+		$w3tc_paths = array_unique(
 			array(
 				Util_Rule::get_pgcache_rules_core_path(),
 				Util_Rule::get_browsercache_rules_cache_path(),
@@ -461,19 +462,19 @@ defined( 'W3TC' ) || die();
 		);
 		?>
 		<?php
-		foreach ( $paths as $path ) :
-			if ( $path ) :
+		foreach ( $w3tc_paths as $w3tc_rules_path ) :
+			if ( $w3tc_rules_path ) :
 				?>
 				<li>
-					<?php echo esc_html( $path ); ?>:
-					<?php if ( file_exists( $path ) ) : ?>
-						<?php if ( Util_File::is_writable( $path ) ) : ?>
+					<?php echo esc_html( $w3tc_rules_path ); ?>:
+					<?php if ( file_exists( $w3tc_rules_path ) ) : ?>
+						<?php if ( Util_File::is_writable( $w3tc_rules_path ) ) : ?>
 							<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'OK', 'w3-total-cache' ); ?></span>
 						<?php else : ?>
 							<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Not write-able', 'w3-total-cache' ); ?></span>
 						<?php endif; ?>
 					<?php else : ?>
-						<?php if ( Util_File::is_writable_dir( dirname( $path ) ) ) : ?>
+						<?php if ( Util_File::is_writable_dir( dirname( $w3tc_rules_path ) ) ) : ?>
 							<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'Write-able', 'w3-total-cache' ); ?></span>
 						<?php else : ?>
 							<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Not write-able', 'w3-total-cache' ); ?></span>
@@ -495,11 +496,11 @@ defined( 'W3TC' ) || die();
 		</li>
 
 		<li>
-			<?php $uploads_dir = @wp_upload_dir(); ?>
-			<?php echo esc_html( $uploads_dir['path'] ); ?>:
-			<?php if ( ! empty( $uploads_dir['error'] ) ) : ?>
-				<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Error:', 'w3-total-cache' ); ?> <?php echo esc_html( $uploads_dir['error'] ); ?></span>
-			<?php elseif ( ! Util_File::is_writable_dir( $uploads_dir['path'] ) ) : ?>
+			<?php $w3tc_uploads_dir = @wp_upload_dir(); ?>
+			<?php echo esc_html( $w3tc_uploads_dir['path'] ); ?>:
+			<?php if ( ! empty( $w3tc_uploads_dir['error'] ) ) : ?>
+				<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Error:', 'w3-total-cache' ); ?> <?php echo esc_html( $w3tc_uploads_dir['error'] ); ?></span>
+			<?php elseif ( ! Util_File::is_writable_dir( $w3tc_uploads_dir['path'] ) ) : ?>
 				<span style="padding: 0 2px;background-color: #FF0000; color: #FFFFFF;"><?php esc_html_e( 'Not write-able', 'w3-total-cache' ); ?></span>
 			<?php else : ?>
 				<span style="padding: 0 2px;background-color: #33cc33"><?php esc_html_e( 'OK', 'w3-total-cache' ); ?></span>
@@ -508,8 +509,8 @@ defined( 'W3TC' ) || die();
 
 		<li>
 			<?php esc_html_e( 'Fancy permalinks:', 'w3-total-cache' ); ?>
-			<?php $permalink_structure = get_option( 'permalink_structure' ); if ( $permalink_structure ) : ?>
-				<span style="padding: 0 2px;background-color: #33cc33"><?php echo esc_html( $permalink_structure ); ?></span>
+			<?php $w3tc_permalink_structure = get_option( 'permalink_structure' ); if ( $w3tc_permalink_structure ) : ?>
+				<span style="padding: 0 2px;background-color: #33cc33"><?php echo esc_html( $w3tc_permalink_structure ); ?></span>
 			<?php else : ?>
 				<span style="padding: 0 2px;background-color: #FFFF00"><?php esc_html_e( 'Off', 'w3-total-cache' ); ?></span>
 			<?php endif; ?>

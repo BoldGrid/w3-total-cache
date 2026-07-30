@@ -112,25 +112,25 @@ class Cdn_Core_Admin {
 	 *
 	 * This method fetches queue entries, optionally limiting the number of results returned.
 	 *
-	 * @param int|null $limit The maximum number of queue entries to retrieve, or null for no limit.
+	 * @param int|null $w3tc_limit The maximum number of queue entries to retrieve, or null for no limit.
 	 *
 	 * @return array An associative array of queue items, grouped by command.
 	 */
-	public function queue_get( $limit = null ) {
+	public function queue_get( $w3tc_limit = null ) {
 		global $wpdb;
 
 		$sql = sprintf( 'SELECT * FROM %s%s ORDER BY date', $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
 
-		if ( $limit ) {
-			$sql .= sprintf( ' LIMIT %d', $limit );
+		if ( $w3tc_limit ) {
+			$sql .= sprintf( ' LIMIT %d', $w3tc_limit );
 		}
 
 		$results = $wpdb->get_results( $sql );
 		$queue   = array();
 
 		if ( $results ) {
-			foreach ( (array) $results as $result ) {
-				$queue[ $result->command ][] = $result;
+			foreach ( (array) $results as $w3tc_result ) {
+				$queue[ $w3tc_result->command ][] = $w3tc_result;
 			}
 		}
 
@@ -143,14 +143,14 @@ class Cdn_Core_Admin {
 	 * This method processes the queued commands (upload, delete, or purge) and interacts with the CDN to perform
 	 * the necessary operations on the files. The results are handled accordingly, updating the queue.
 	 *
-	 * @param int $limit The maximum number of items to process from the queue.
+	 * @param int $w3tc_limit The maximum number of items to process from the queue.
 	 *
 	 * @return int The number of items successfully processed.
 	 */
-	public function queue_process( $limit ) {
+	public function queue_process( $w3tc_limit ) {
 		$items = 0;
 
-		$commands      = $this->queue_get( $limit );
+		$commands      = $this->queue_get( $w3tc_limit );
 		$force_rewrite = $this->_config->get_boolean( 'cdn.force.rewrite' );
 
 		if ( count( $commands ) ) {
@@ -162,17 +162,17 @@ class Cdn_Core_Admin {
 				$results = array();
 				$map     = array();
 
-				foreach ( $queue as $result ) {
-					$files[]                    = $common->build_file_descriptor( $result->local_path, $result->remote_path );
-					$map[ $result->local_path ] = $result->id;
+				foreach ( $queue as $w3tc_result ) {
+					$files[]                         = $common->build_file_descriptor( $w3tc_result->local_path, $w3tc_result->remote_path );
+					$map[ $w3tc_result->local_path ] = $w3tc_result->id;
 					++$items;
 				}
 
 				switch ( $command ) {
 					case W3TC_CDN_COMMAND_UPLOAD:
-						foreach ( $files as $file ) {
-							$local_file_name  = $file['local_path'];
-							$remote_file_name = $file['remote_path'];
+						foreach ( $files as $w3tc_file ) {
+							$local_file_name  = $w3tc_file['local_path'];
+							$remote_file_name = $w3tc_file['remote_path'];
 							if ( ! file_exists( $local_file_name ) ) {
 								Dispatcher::create_file_for_cdn( $local_file_name );
 							}
@@ -180,9 +180,9 @@ class Cdn_Core_Admin {
 
 						$cdn->upload( $files, $results, $force_rewrite );
 
-						foreach ( $results as $result ) {
-							if ( W3TC_CDN_RESULT_OK === $result['result'] ) {
-								Dispatcher::on_cdn_file_upload( $result['local_path'] );
+						foreach ( $results as $w3tc_result ) {
+							if ( W3TC_CDN_RESULT_OK === $w3tc_result['result'] ) {
+								Dispatcher::on_cdn_file_upload( $w3tc_result['local_path'] );
 							}
 						}
 						break;
@@ -196,11 +196,11 @@ class Cdn_Core_Admin {
 						break;
 				}
 
-				foreach ( $results as $result ) {
-					if ( W3TC_CDN_RESULT_OK === $result['result'] ) {
-						$this->queue_delete( $map[ $result['local_path'] ] );
+				foreach ( $results as $w3tc_result ) {
+					if ( W3TC_CDN_RESULT_OK === $w3tc_result['result'] ) {
+						$this->queue_delete( $map[ $w3tc_result['local_path'] ] );
 					} else {
-						$this->queue_update( $map[ $result['local_path'] ], $result['error'] );
+						$this->queue_update( $map[ $w3tc_result['local_path'] ], $w3tc_result['error'] );
 					}
 				}
 			}
@@ -217,20 +217,20 @@ class Cdn_Core_Admin {
 	 * It also handles pagination via the limit and offset parameters and updates the provided count and total values
 	 * with the number of results and the total attachment count respectively.
 	 *
-	 * @param int   $limit        The number of attachments to retrieve. If set to 0, no limit is applied.
-	 * @param int   $offset       The offset for retrieving attachments. Defaults to 0.
-	 * @param int   $count        The variable to store the number of attachments retrieved.
+	 * @param int   $w3tc_limit        The number of attachments to retrieve. If set to 0, no limit is applied.
+	 * @param int   $w3tc_offset       The offset for retrieving attachments. Defaults to 0.
+	 * @param int   $w3tc_count        The variable to store the number of attachments retrieved.
 	 * @param int   $total        The variable to store the total number of attachments.
 	 * @param array $results      The variable to store the results of the upload process.
 	 * @param int   $timeout_time The timeout duration for the upload request in seconds. Defaults to 0 (no timeout).
 	 *
 	 * @return void
 	 */
-	public function export_library( $limit, $offset, &$count, &$total, &$results, $timeout_time = 0 ) {
+	public function export_library( $w3tc_limit, $w3tc_offset, &$w3tc_count, &$total, &$results, $timeout_time = 0 ) {
 		global $wpdb;
 
-		$count = 0;
-		$total = 0;
+		$w3tc_count = 0;
+		$total      = 0;
 
 		$upload_info = Util_Http::upload_info();
 
@@ -256,20 +256,20 @@ class Cdn_Core_Admin {
 				$wpdb->prefix
 			);
 
-			if ( $limit ) {
-				$sql .= sprintf( ' LIMIT %d', $limit );
+			if ( $w3tc_limit ) {
+				$sql .= sprintf( ' LIMIT %d', $w3tc_limit );
 
-				if ( $offset ) {
-					$sql .= sprintf( ' OFFSET %d', $offset );
+				if ( $w3tc_offset ) {
+					$sql .= sprintf( ' OFFSET %d', $w3tc_offset );
 				}
 			}
 
 			$posts = $wpdb->get_results( $sql );
 
 			if ( $posts ) {
-				$count = count( $posts );
-				$total = $this->get_attachments_count();
-				$files = array();
+				$w3tc_count = count( $posts );
+				$total      = $this->get_attachments_count();
+				$files      = array();
 
 				$common = Dispatcher::component( 'Cdn_Core' );
 
@@ -277,16 +277,27 @@ class Cdn_Core_Admin {
 					$post_files = array();
 
 					if ( $post->file ) {
-						$file = $common->normalize_attachment_file( $post->file );
+						$w3tc_file = $common->normalize_attachment_file( $post->file );
 
-						$local_file  = $upload_info['basedir'] . '/' . $file;
-						$remote_file = ltrim( $upload_info['baseurlpath'] . $file, '/' );
+						$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
+						$remote_file = ltrim( $upload_info['baseurlpath'] . $w3tc_file, '/' );
 
 						$post_files[] = $common->build_file_descriptor( $local_file, $remote_file );
 					}
 
 					if ( $post->metadata ) {
-						$metadata = @unserialize( $post->metadata );
+						$metadata = @unserialize( $post->metadata, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+
+						/**
+						 * `allowed_classes => false` returns `__PHP_Incomplete_Class`
+						 * for crafted object payloads, but `Cdn_Core::get_metadata_files()`
+						 * dereferences `$metadata['file']` / `['sizes']` directly. Coerce
+						 * non-arrays (corrupted postmeta or crafted payload) to an empty
+						 * array so we just emit zero files instead of fataling.
+						 */
+						if ( ! is_array( $metadata ) ) {
+							$metadata = array();
+						}
 
 						$post_files = array_merge( $post_files, $common->get_metadata_files( $metadata ) );
 					}
@@ -311,20 +322,20 @@ class Cdn_Core_Admin {
 	 *
 	 * phpcs:disable WordPress.Arrays.MultipleStatementAlignment
 	 *
-	 * @param int   $limit   The number of posts to process.
-	 * @param int   $offset  The offset for the posts to process.
-	 * @param int   $count   The number of posts processed.
+	 * @param int   $w3tc_limit   The number of posts to process.
+	 * @param int   $w3tc_offset  The offset for the posts to process.
+	 * @param int   $w3tc_count   The number of posts processed.
 	 * @param int   $total   The total number of posts to import.
 	 * @param array $results An array to hold the results of the import process, including file paths and errors.
 	 *
 	 * @return void
 	 */
-	public function import_library( $limit, $offset, &$count, &$total, &$results ) {
+	public function import_library( $w3tc_limit, $w3tc_offset, &$w3tc_count, &$total, &$results ) {
 		global $wpdb;
 
-		$count   = 0;
-		$total   = 0;
-		$results = array();
+		$w3tc_count = 0;
+		$total      = 0;
+		$results    = array();
 
 		$upload_info                   = Util_Http::upload_info();
 		$uploads_use_yearmonth_folders = get_option( 'uploads_use_yearmonth_folders' );
@@ -351,22 +362,22 @@ class Cdn_Core_Admin {
 				$wpdb->prefix
 			);
 
-			if ( $limit ) {
-				$sql .= sprintf( ' LIMIT %d', $limit );
+			if ( $w3tc_limit ) {
+				$sql .= sprintf( ' LIMIT %d', $w3tc_limit );
 
-				if ( $offset ) {
-					$sql .= sprintf( ' OFFSET %d', $offset );
+				if ( $w3tc_offset ) {
+					$sql .= sprintf( ' OFFSET %d', $w3tc_offset );
 				}
 			}
 
 			$posts = $wpdb->get_results( $sql );
 
 			if ( $posts ) {
-				$count           = count( $posts );
-				$total           = $this->get_import_posts_count();
-				$regexp          = '~(' . $this->get_regexp_by_mask( $this->_config->get_string( 'cdn.import.files' ) ) . ')$~';
-				$config_state    = Dispatcher::config_state();
-				$import_external = $config_state->get_boolean( 'cdn.import.external' );
+				$w3tc_count        = count( $posts );
+				$total             = $this->get_import_posts_count();
+				$regexp            = '~(' . $this->get_regexp_by_mask( $this->_config->get_string( 'cdn.import.files' ) ) . ')$~';
+				$w3tc_config_state = Dispatcher::config_state();
+				$import_external   = $w3tc_config_state->get_boolean( 'cdn.import.external' );
 
 				foreach ( $posts as $post ) {
 					$matches      = null;
@@ -378,8 +389,8 @@ class Cdn_Core_Admin {
 					 * Search for all link and image sources
 					 */
 					if ( preg_match_all( '~(href|src)=[\'"]?([^\'"<>\s]+)[\'"]?~', $post_content, $matches, PREG_SET_ORDER ) ) {
-						foreach ( $matches as $match ) {
-							list( $search, $attribute, $origin ) = $match;
+						foreach ( $matches as $w3tc_match ) {
+							list( $search, $attribute, $origin ) = $w3tc_match;
 
 							/**
 							 * Check if $search is already replaced
@@ -388,8 +399,8 @@ class Cdn_Core_Admin {
 								continue;
 							}
 
-							$error  = '';
-							$result = false;
+							$error       = '';
+							$w3tc_result = false;
 
 							$src = Util_Environment::normalize_file_minify( $origin );
 							$dst = '';
@@ -417,7 +428,7 @@ class Cdn_Core_Admin {
 									 */
 									if ( isset( $attachments[ $src ] ) ) {
 										list( $dst, $dst_url ) = $attachments[ $src ];
-										$result                = true;
+										$w3tc_result           = true;
 									} else {
 										if ( $uploads_use_yearmonth_folders ) {
 											$upload_subdir = gmdate( 'Y/m', strtotime( $post->post_date ) );
@@ -435,8 +446,8 @@ class Cdn_Core_Admin {
 										/**
 										 * Get available filename
 										 */
-										for ( $i = 0; ; $i++ ) {
-											$dst = sprintf( '%s/%s%s%s', $upload_dir, $src_filename, ( $i ? $i : '' ), ( $src_extension ? '.' . $src_extension : '' ) );
+										for ( $w3tc_i = 0; ; $w3tc_i++ ) {
+											$dst = sprintf( '%s/%s%s%s', $upload_dir, $src_filename, ( $w3tc_i ? $w3tc_i : '' ), ( $src_extension ? '.' . $src_extension : '' ) );
 
 											if ( ! file_exists( $dst ) ) {
 												break;
@@ -522,7 +533,7 @@ class Cdn_Core_Admin {
 													$dst_url,
 												);
 
-												$result = true;
+												$w3tc_result = true;
 											} else {
 												$error = 'Unable to insert attachment';
 											}
@@ -532,7 +543,7 @@ class Cdn_Core_Admin {
 									/**
 									 * If attachment was successfully created then replace links
 									 */
-									if ( $result ) {
+									if ( $w3tc_result ) {
 										$replace = sprintf( '%s="%s"', $attribute, $dst_url );
 
 										// replace $search with $replace.
@@ -555,7 +566,7 @@ class Cdn_Core_Admin {
 							$results[] = array(
 								'src'    => $src,
 								'dst'    => $dst_path,
-								'result' => $result,
+								'result' => $w3tc_result,
 								'error'  => $error,
 							);
 						}
@@ -586,27 +597,27 @@ class Cdn_Core_Admin {
 	 * content accordingly.
 	 *
 	 * @param array $names   An array of domain names to be renamed.
-	 * @param int   $limit   The maximum number of posts to process at once (optional).
-	 * @param int   $offset  The offset for pagination (optional).
-	 * @param int   $count   The number of posts processed.
+	 * @param int   $w3tc_limit   The maximum number of posts to process at once (optional).
+	 * @param int   $w3tc_offset  The offset for pagination (optional).
+	 * @param int   $w3tc_count   The number of posts processed.
 	 * @param int   $total   The total number of posts that require renaming.
 	 * @param array $results An array of results showing old and new URLs with status.
 	 *
 	 * @return void
 	 */
-	public function rename_domain( $names, $limit, $offset, &$count, &$total, &$results ) {
+	public function rename_domain( $names, $w3tc_limit, $w3tc_offset, &$w3tc_count, &$total, &$results ) {
 		global $wpdb;
 
 		@set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
-		$count   = 0;
-		$total   = 0;
-		$results = array();
+		$w3tc_count = 0;
+		$total      = 0;
+		$results    = array();
 
 		$upload_info = Util_Http::upload_info();
 
-		foreach ( $names as $index => $name ) {
-			$names[ $index ] = str_ireplace( 'www.', '', $name );
+		foreach ( $names as $w3tc_index => $w3tc_name ) {
+			$names[ $w3tc_index ] = str_ireplace( 'www.', '', $w3tc_name );
 		}
 
 		if ( $upload_info ) {
@@ -625,18 +636,18 @@ class Cdn_Core_Admin {
 				$wpdb->prefix
 			);
 
-			if ( $limit ) {
-				$sql .= sprintf( ' LIMIT %d', $limit );
+			if ( $w3tc_limit ) {
+				$sql .= sprintf( ' LIMIT %d', $w3tc_limit );
 
-				if ( $offset ) {
-					$sql .= sprintf( ' OFFSET %d', $offset );
+				if ( $w3tc_offset ) {
+					$sql .= sprintf( ' OFFSET %d', $w3tc_offset );
 				}
 			}
 
 			$posts = $wpdb->get_results( $sql );
 
 			if ( $posts ) {
-				$count        = count( $posts );
+				$w3tc_count   = count( $posts );
 				$total        = $this->get_rename_posts_count();
 				$names_quoted = array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $names );
 
@@ -646,9 +657,9 @@ class Cdn_Core_Admin {
 					$regexp       = '~(href|src)=[\'"]?(https?://(www\.)?(' . implode( '|', $names_quoted ) . ')' . Util_Environment::preg_quote( $upload_info['baseurlpath'] ) . '([^\'"<>\s]+))[\'"]~';
 
 					if ( preg_match_all( $regexp, $post_content, $matches, PREG_SET_ORDER ) ) {
-						foreach ( $matches as $match ) {
-							$old_url      = $match[2];
-							$new_url      = sprintf( '%s/%s', $upload_info['baseurl'], $match[5] );
+						foreach ( $matches as $w3tc_match ) {
+							$old_url      = $w3tc_match[2];
+							$new_url      = sprintf( '%s/%s', $upload_info['baseurl'], $w3tc_match[5] );
 							$post_content = str_replace( $old_url, $new_url, $post_content );
 
 							$results[] = array(
@@ -811,12 +822,12 @@ class Cdn_Core_Admin {
 			array(
 				'cdn_purge' => sprintf(
 					'<a href="%s">' . __( 'Purge from CDN', 'w3-total-cache' ) . '</a>',
-					wp_nonce_url(
+					Util_Nonce::admin_nonce_url(
 						sprintf(
 							'admin.php?page=w3tc_dashboard&w3tc_cdn_purge_attachment&attachment_id=%d',
 							$post->ID
 						),
-						'w3tc'
+						'w3tc_cdn_purge_attachment'
 					)
 				),
 			)
@@ -845,18 +856,18 @@ class Cdn_Core_Admin {
 		/**
 		 * Check CDN settings
 		 */
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
 
 		switch ( true ) {
 			case (
-				'ftp' === $cdn_engine &&
+				'ftp' === $w3tc_cdn_engine &&
 				! count( $this->_config->get_array( 'cdn.ftp.domain' ) )
 			):
 				$running = false;
 				break;
 
 			case (
-				's3' === $cdn_engine &&
+				's3' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.s3.key' ) ||
 					'' === $this->_config->get_string( 'cdn.s3.secret' ) ||
@@ -867,7 +878,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'cf' === $cdn_engine &&
+				'cf' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.cf.key' ) ||
 					'' === $this->_config->get_string( 'cdn.cf.secret' ) ||
@@ -882,7 +893,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'cf2' === $cdn_engine &&
+				'cf2' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.cf2.key' ) ||
 					'' === $this->_config->get_string( 'cdn.cf2.secret' ) ||
@@ -896,7 +907,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'rscf' === $cdn_engine &&
+				'rscf' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.rscf.user' ) ||
 					'' === $this->_config->get_string( 'cdn.rscf.key' ) ||
@@ -908,7 +919,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'azure' === $cdn_engine &&
+				'azure' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.azure.user' ) ||
 					'' === $this->_config->get_string( 'cdn.azure.key' ) ||
@@ -919,7 +930,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'azuremi' === $cdn_engine &&
+				'azuremi' === $w3tc_cdn_engine &&
 				(
 					'' === $this->_config->get_string( 'cdn.azuremi.user' ) ||
 					'' === $this->_config->get_string( 'cdn.azuremi.clientid' ) ||
@@ -930,36 +941,8 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'mirror' === $cdn_engine &&
+				'mirror' === $w3tc_cdn_engine &&
 				! count( $this->_config->get_array( 'cdn.mirror.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'cotendo' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.cotendo.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'edgecast' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.edgecast.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'att' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.att.domain' ) )
-			):
-				$running = false;
-				break;
-
-			case (
-				'akamai' === $cdn_engine &&
-				! count( $this->_config->get_array( 'cdn.akamai.domain' ) )
 			):
 				$running = false;
 				break;

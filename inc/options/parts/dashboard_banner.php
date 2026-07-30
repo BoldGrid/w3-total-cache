@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: dashboard_banner.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -18,7 +25,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'w3-total-cache'
 					),
 					'<br />',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 					'</a>'
 				),
 				array(

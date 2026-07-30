@@ -23,14 +23,14 @@ class Extension_AlwaysCached_Plugin_Admin {
 	 * @since 2.8.0
 	 *
 	 * @param array  $extensions Extensions list.
-	 * @param Config $config     Config data.
+	 * @param Config $w3tc_config     Config data.
 	 *
 	 * @return array
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$requirements = array();
 
-		if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+		if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 			$requirements[] = __( 'Valid W3 Total Cache Pro license', 'w3-total-cache' );
 		}
 

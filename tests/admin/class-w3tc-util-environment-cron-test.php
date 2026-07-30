@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -14,13 +14,13 @@ use W3TC\Util_Environment;
 /**
  * Class: Util_Environment_Cron_Test
  *
- * @since X.X.X
+ * @since 2.8.11
  */
 class W3tc_Util_Environment_Cron_Test extends WP_UnitTestCase {
 	/**
 	* Test get_cron_schedule_time() matches expected timestamp.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_get_cron_schedule_time() {
 		$now = new DateTime( 'now', wp_timezone() );
@@ -36,7 +36,7 @@ class W3tc_Util_Environment_Cron_Test extends WP_UnitTestCase {
 	/**
 	* Test is_wpcron_working() success and failure via HTTP mocks.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_is_wpcron_working() {
 		// Successful response mock.

@@ -30,16 +30,16 @@ class Cache_Xcache extends Cache_Base {
 	 * If the item does not exist in the cache, it is added with the specified expiration and group. If it already exists,
 	 * the method returns false.
 	 *
-	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $value  The value to store in the cache (passed by reference).
+	 * @param string $w3tc_key    The unique key to identify the cached item.
+	 * @param mixed  $w3tc_value  The value to store in the cache (passed by reference).
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
-	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the item was added successfully, false if the item already exists.
 	 */
-	public function add( $key, &$value, $expire = 0, $group = '' ) {
-		if ( false === $this->get( $key, $group ) ) {
-			return $this->set( $key, $value, $expire, $group );
+	public function add( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( false === $this->get( $w3tc_key, $w3tc_group ) ) {
+			return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 		}
 
 		return false;
@@ -51,21 +51,21 @@ class Cache_Xcache extends Cache_Base {
 	 * This method sets a value in the cache for a given key, with an optional expiration time and group. If the value
 	 * does not have a `key_version`, it is assigned the current group key version.
 	 *
-	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $value  The value to store in the cache.
+	 * @param string $w3tc_key    The unique key to identify the cached item.
+	 * @param mixed  $w3tc_value  The value to store in the cache.
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
-	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the value was successfully stored, false otherwise.
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		if ( ! isset( $value['key_version'] ) ) {
-			$value['key_version'] = $this->_get_key_version( $group );
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( ! isset( $w3tc_value['key_version'] ) ) {
+			$w3tc_value['key_version'] = $this->_get_key_version( $w3tc_group );
 		}
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		return xcache_set( $storage_key, serialize( $value ), $expire );
+		return xcache_set( $storage_key, serialize( $w3tc_value ), $expire );
 	}
 
 	/**
@@ -74,29 +74,35 @@ class Cache_Xcache extends Cache_Base {
 	 * This method retrieves the cached value for a given key, checking if the key version matches the current group key
 	 * version. It also determines whether the cached value is expired and returns a flag indicating if old data is used.
 	 *
-	 * @param string $key   The unique key to identify the cached item.
-	 * @param string $group The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_key   The unique key to identify the cached item.
+	 * @param string $w3tc_group The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return array An array containing the cached value (or null if not found) and a boolean indicating old data usage.
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 
-		$storage_key = $this->get_item_key( $key );
+		$storage_key = $this->get_item_key( $w3tc_key );
 
-		$v = @unserialize( xcache_get( $storage_key ) );
+		$v = $this->_unserialize(
+			xcache_get( $storage_key ),
+			array(
+				'group' => $w3tc_group,
+				'key'   => $w3tc_key,
+			)
+		);
 		if ( ! is_array( $v ) || ! isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
 		}
 
-		$key_version = $this->_get_key_version( $group );
+		$key_version = $this->_get_key_version( $w3tc_group );
 		if ( $v['key_version'] === $key_version ) {
 			return array( $v, $has_old_data );
 		}
 
 		if ( $v['key_version'] > $key_version ) {
 			if ( ! empty( $v['key_version_at_creation'] ) && $v['key_version_at_creation'] !== $key_version ) {
-				$this->_set_key_version( $v['key_version'], $group );
+				$this->_set_key_version( $v['key_version'], $w3tc_group );
 			}
 			return array( $v, $has_old_data );
 		}
@@ -125,16 +131,16 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * This method updates the value for a given key only if the key already exists in the cache.
 	 *
-	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $value  The new value to store in the cache (passed by reference).
+	 * @param string $w3tc_key    The unique key to identify the cached item.
+	 * @param mixed  $w3tc_value  The new value to store in the cache (passed by reference).
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
-	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the value was replaced successfully, false if the key does not exist.
 	 */
-	public function replace( $key, &$value, $expire = 0, $group = '' ) {
-		if ( $this->get( $key, $group ) !== false ) {
-			return $this->set( $key, $value, $expire, $group );
+	public function replace( $w3tc_key, &$w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( $this->get( $w3tc_key, $w3tc_group ) !== false ) {
+			return $this->set( $w3tc_key, $w3tc_value, $expire, $w3tc_group );
 		}
 
 		return false;
@@ -146,16 +152,22 @@ class Cache_Xcache extends Cache_Base {
 	 * If expired data usage is enabled, the key version is set to 0 instead of completely removing the item.
 	 * Otherwise, the item is fully deleted from the cache.
 	 *
-	 * @param string $key   The unique key to identify the cached item.
-	 * @param string $group The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_key   The unique key to identify the cached item.
+	 * @param string $w3tc_group The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the item was deleted successfully, false otherwise.
 	 */
-	public function delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 
 		if ( $this->_use_expired_data ) {
-			$v = @unserialize( xcache_get( $storage_key ) );
+			$v = $this->_unserialize(
+				xcache_get( $storage_key ),
+				array(
+					'group' => $w3tc_group,
+					'key'   => $w3tc_key,
+				)
+			);
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
 				xcache_set( $storage_key, serialize( $v ), 0 );
@@ -172,13 +184,13 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * This method fully deletes the cached item, bypassing any logic for handling expired data.
 	 *
-	 * @param string $key   The unique key to identify the cached item.
-	 * @param string $group The group to which the key belongs. Defaults to an empty string.
+	 * @param string $w3tc_key   The unique key to identify the cached item.
+	 * @param string $w3tc_group The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the item was removed successfully, false otherwise.
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$storage_key = $this->get_item_key( $key );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		return xcache_unset( $storage_key );
 	}
 
@@ -188,14 +200,14 @@ class Cache_Xcache extends Cache_Base {
 	 * This increments the key version for the specified group, effectively invalidating all cache entries
 	 * associated with the current key version.
 	 *
-	 * @param string $group (Optional) The cache group to flush. Default is an empty string, which applies to all groups.
+	 * @param string $w3tc_group (Optional) The cache group to flush. Default is an empty string, which applies to all groups.
 	 *
 	 * @return bool True on success.
 	 */
-	public function flush( $group = '' ) {
-		$this->_get_key_version( $group ); // initialize $this->_key_version.
-		++$this->_key_version[ $group ];
-		$this->_set_key_version( $this->_key_version[ $group ], $group );
+	public function flush( $w3tc_group = '' ) {
+		$this->_get_key_version( $w3tc_group ); // initialize $this->_key_version.
+		++$this->_key_version[ $w3tc_group ];
+		$this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group );
 		return true;
 	}
 
@@ -204,14 +216,14 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * This provides the current key version and the next version to be used for generating ahead-of-time cache.
 	 *
-	 * @param string $group The cache group to retrieve the extension for.
+	 * @param string $w3tc_group The cache group to retrieve the extension for.
 	 *
 	 * @return array An associative array with:
 	 *               - 'key_version' (int): The next key version.
 	 *               - 'key_version_at_creation' (int): The current key version.
 	 */
-	public function get_ahead_generation_extension( $group ) {
-		$v = $this->_get_key_version( $group );
+	public function get_ahead_generation_extension( $w3tc_group ) {
+		$v = $this->_get_key_version( $w3tc_group );
 		return array(
 			'key_version'             => $v + 1,
 			'key_version_at_creation' => $v,
@@ -223,8 +235,8 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * If the provided key version is higher than the current version, the key version is updated.
 	 *
-	 * @param string $group The cache group to update.
-	 * @param array  $extension {
+	 * @param string $w3tc_group The cache group to update.
+	 * @param array  $w3tc_extension {
 	 *     The extension data containing 'key_version'.
 	 *
 	 *     @type string $key_version The version of the cache key.
@@ -232,10 +244,10 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
-		$v = $this->_get_key_version( $group );
-		if ( $extension['key_version'] > $v ) {
-			$this->_set_key_version( $extension['key_version'], $group );
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
+		$v = $this->_get_key_version( $w3tc_group );
+		if ( $w3tc_extension['key_version'] > $v ) {
+			$this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group );
 		}
 	}
 
@@ -253,31 +265,31 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * If no version exists, initializes the version to 1.
 	 *
-	 * @param string $group (Optional) The cache group to retrieve the key version for. Default is an empty string.
+	 * @param string $w3tc_group (Optional) The cache group to retrieve the key version for. Default is an empty string.
 	 *
 	 * @return int The current key version for the specified group.
 	 */
-	private function _get_key_version( $group = '' ) {
-		if ( ! isset( $this->_key_version[ $group ] ) || $this->_key_version[ $group ] <= 0 ) {
-			$v = xcache_get( $this->_get_key_version_key( $group ) );
+	private function _get_key_version( $w3tc_group = '' ) {
+		if ( ! isset( $this->_key_version[ $w3tc_group ] ) || $this->_key_version[ $w3tc_group ] <= 0 ) {
+			$v = xcache_get( $this->_get_key_version_key( $w3tc_group ) );
 			$v = intval( $v );
 
-			$this->_key_version[ $group ] = ( $v > 0 ? $v : 1 );
+			$this->_key_version[ $w3tc_group ] = ( $v > 0 ? $v : 1 );
 		}
 
-		return $this->_key_version[ $group ];
+		return $this->_key_version[ $w3tc_group ];
 	}
 
 	/**
 	 * Sets the key version for a cache group.
 	 *
 	 * @param int    $v     The key version to set.
-	 * @param string $group (Optional) The cache group to set the key version for. Default is an empty string.
+	 * @param string $w3tc_group (Optional) The cache group to set the key version for. Default is an empty string.
 	 *
 	 * @return void
 	 */
-	private function _set_key_version( $v, $group = '' ) {
-		xcache_set( $this->_get_key_version_key( $group ), $v, 0 );
+	private function _set_key_version( $v, $w3tc_group = '' ) {
+		xcache_set( $this->_get_key_version_key( $w3tc_group ), $v, 0 );
 	}
 
 	/**
@@ -286,7 +298,7 @@ class Cache_Xcache extends Cache_Base {
 	 * This method attempts to simulate an atomic check-and-set operation. If the current value does not
 	 * match the old value, the operation fails.
 	 *
-	 * @param string $key       The cache key to update.
+	 * @param string $w3tc_key       The cache key to update.
 	 * @param array  $old_value {
 	 *     The expected current value.
 	 *
@@ -296,14 +308,14 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * @return bool True if the operation succeeds, false otherwise.
 	 */
-	public function set_if_maybe_equals( $key, $old_value, $new_value ) {
+	public function set_if_maybe_equals( $w3tc_key, $old_value, $new_value ) {
 		// cant guarantee atomic action here, filelocks fail often.
-		$value = $this->get( $key );
-		if ( isset( $old_value['content'] ) && $value['content'] !== $old_value['content'] ) {
+		$w3tc_value = $this->get( $w3tc_key );
+		if ( isset( $old_value['content'] ) && $w3tc_value['content'] !== $old_value['content'] ) {
 			return false;
 		}
 
-		return $this->set( $key, $new_value );
+		return $this->set( $w3tc_key, $new_value );
 	}
 
 	/**
@@ -311,47 +323,47 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * If the counter does not exist, initializes it with a value of 0 before incrementing.
 	 *
-	 * @param string $key   The key of the counter to increment.
-	 * @param int    $value The value to increment the counter by.
+	 * @param string $w3tc_key   The key of the counter to increment.
+	 * @param int    $w3tc_value The value to increment the counter by.
 	 *
 	 * @return int|bool The new counter value on success, or false on failure.
 	 */
-	public function counter_add( $key, $value ) {
-		if ( 0 === $value ) {
+	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( 0 === $w3tc_value ) {
 			return true;
 		}
 
-		$storage_key = $this->get_item_key( $key );
-		$r           = xcache_inc( $storage_key, $value );
-		if ( ! $r ) { // it doesnt initialize counter by itself.
-			$this->counter_set( $key, 0 );
+		$storage_key = $this->get_item_key( $w3tc_key );
+		$w3tc_r      = xcache_inc( $storage_key, $w3tc_value );
+		if ( ! $w3tc_r ) { // it doesnt initialize counter by itself.
+			$this->counter_set( $w3tc_key, 0 );
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
 	 * Sets the value of a counter.
 	 *
-	 * @param string $key   The key of the counter to set.
-	 * @param int    $value The value to set the counter to.
+	 * @param string $w3tc_key   The key of the counter to set.
+	 * @param int    $w3tc_value The value to set the counter to.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function counter_set( $key, $value ) {
-		$storage_key = $this->get_item_key( $key );
-		return xcache_set( $storage_key, $value );
+	public function counter_set( $w3tc_key, $w3tc_value ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
+		return xcache_set( $storage_key, $w3tc_value );
 	}
 
 	/**
 	 * Retrieves the value of a counter.
 	 *
-	 * @param string $key The key of the counter to retrieve.
+	 * @param string $w3tc_key The key of the counter to retrieve.
 	 *
 	 * @return int The current counter value, or 0 if the counter does not exist.
 	 */
-	public function counter_get( $key ) {
-		$storage_key = $this->get_item_key( $key );
+	public function counter_get( $w3tc_key ) {
+		$storage_key = $this->get_item_key( $w3tc_key );
 		$v           = (int) xcache_get( $storage_key );
 
 		return $v;

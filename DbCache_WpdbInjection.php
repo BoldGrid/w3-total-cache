@@ -59,13 +59,13 @@ class DbCache_WpdbInjection {
 	 * Inserts data into the specified table.
 	 *
 	 * @param string $table  The table name.
-	 * @param array  $data   The data to insert.
+	 * @param array  $w3tc_data   The data to insert.
 	 * @param mixed  $format Optional. Format of the data.
 	 *
 	 * @return mixed The result of the default insert operation.
 	 */
-	public function insert( $table, $data, $format = null ) {
-		return $this->wpdb_mixin->default_insert( $table, $data, $format );
+	public function insert( $table, $w3tc_data, $format = null ) {
+		return $this->wpdb_mixin->default_insert( $table, $w3tc_data, $format );
 	}
 
 	/**
@@ -82,12 +82,12 @@ class DbCache_WpdbInjection {
 	/**
 	 * Escapes the given data to be safely used in a query.
 	 *
-	 * @param mixed $data The data to escape.
+	 * @param mixed $w3tc_data The data to escape.
 	 *
 	 * @return mixed The escaped data.
 	 */
-	public function _escape( $data ) {
-		return $this->wpdb_mixin->default__escape( $data );
+	public function _escape( $w3tc_data ) {
+		return $this->wpdb_mixin->default__escape( $w3tc_data );
 	}
 
 	/**
@@ -106,28 +106,28 @@ class DbCache_WpdbInjection {
 	 * Replaces data in the specified table.
 	 *
 	 * @param string $table  The table name.
-	 * @param array  $data   The data to replace.
+	 * @param array  $w3tc_data   The data to replace.
 	 * @param mixed  $format Optional. Format of the data.
 	 *
 	 * @return mixed The result of the default replace operation.
 	 */
-	public function replace( $table, $data, $format = null ) {
-		return $this->wpdb_mixin->default_replace( $table, $data, $format );
+	public function replace( $table, $w3tc_data, $format = null ) {
+		return $this->wpdb_mixin->default_replace( $table, $w3tc_data, $format );
 	}
 
 	/**
 	 * Updates data in the specified table.
 	 *
 	 * @param string $table       The table name.
-	 * @param array  $data        The data to update.
+	 * @param array  $w3tc_data        The data to update.
 	 * @param array  $where       The conditions for the update.
 	 * @param mixed  $format      Optional. Format of the data.
 	 * @param mixed  $where_format Optional. Format of the where conditions.
 	 *
 	 * @return mixed The result of the default update operation.
 	 */
-	public function update( $table, $data, $where, $format = null, $where_format = null ) {
-		return $this->wpdb_mixin->default_update( $table, $data, $where, $format, $where_format );
+	public function update( $table, $w3tc_data, $where, $format = null, $where_format = null ) {
+		return $this->wpdb_mixin->default_update( $table, $w3tc_data, $where, $format, $where_format );
 	}
 
 	/**

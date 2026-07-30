@@ -1,12 +1,19 @@
 <?php
+/**
+ * File: list.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
 /**
- *
+ * Extensions list template variables.
  *
  * @var string $extension_status
  * @var int $page
@@ -27,6 +34,16 @@ if ( ! defined( 'W3TC' ) ) {
 
 	<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
 		<div class="alignleft actions">
+			<?php
+			/**
+			 * Bulk activate/deactivate nonce. Verified
+			 * by Extensions_Plugin_Admin::change_extensions_status() via
+			 * Util_Nonce::verify_admin( 'w3tc_extensions_bulk' ).
+			 *
+			 * @since 2.10.0
+			 */
+			wp_nonce_field( 'w3tc_extensions_bulk' );
+			?>
 			<select name="action">
 				<option value="-1" selected="selected"><?php esc_html_e( 'Bulk Actions', 'w3-total-cache' ); ?></option>
 				<option value="activate-selected"><?php esc_html_e( 'Activate', 'w3-total-cache' ); ?></option>
@@ -72,47 +89,47 @@ if ( ! defined( 'W3TC' ) ) {
 	</tfoot>
 	<tbody id="the-list">
 		<?php
-		$cb_id = 0;
-		foreach ( $extension_keys as $extension ) :
-			$meta = $extensions[ $extension ];
-			$meta = $this->default_meta( $meta );
-			if ( ! $meta['public'] ) {
+		$w3tc_cb_id = 0;
+		foreach ( $extension_keys as $w3tc_extension ) :
+			$w3tc_meta = $extensions[ $w3tc_extension ];
+			$w3tc_meta = $this->default_meta( $w3tc_meta );
+			if ( ! $w3tc_meta['public'] ) {
 				continue;
 			}
 
-			$cb_id++;
+			++$w3tc_cb_id;
 
-			do_action( "w3tc_extension_before_row-{$extension}" );
+			do_action( "w3tc_extension_before_row-{$w3tc_extension}" );
 
 			?>
-			<tr id="<?php echo esc_attr( $extension ); ?>" class="<?php echo $this->_config->is_extension_active( $extension ) ? 'active' : 'inactive'; ?>">
+			<tr id="<?php echo esc_attr( $w3tc_extension ); ?>" class="<?php echo $this->_config->is_extension_active( $w3tc_extension ) ? 'active' : 'inactive'; ?>">
 				<th scope="row" class="check-column">
-					<label class="screen-reader-text" for="checkbox_<?php echo esc_attr( $cb_id ); ?>"><?php echo esc_html( sprintf( /* translators: 1 label for Extension select/deselect checkobox */ __( 'Select %1$s', 'w3-total-cache' ), $meta['name'] ) ); ?></label>
-					<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $extension ); ?>" id="checkbox_<?php echo esc_attr( $cb_id ); ?>" class="w3tc_extensions_input_active" <?php disabled( ! $meta['enabled'] ); ?>>
+					<label class="screen-reader-text" for="checkbox_<?php echo esc_attr( $w3tc_cb_id ); ?>"><?php echo esc_html( sprintf( /* translators: 1 label for Extension select/deselect checkobox */ __( 'Select %1$s', 'w3-total-cache' ), $w3tc_meta['name'] ) ); ?></label>
+					<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $w3tc_extension ); ?>" id="checkbox_<?php echo esc_attr( $w3tc_cb_id ); ?>" class="w3tc_extensions_input_active" <?php disabled( ! $w3tc_meta['enabled'] ); ?>>
 				</th>
 				<td class="plugin-title">
-					<strong><?php echo esc_html( $meta['name'] ); ?></strong>
+					<strong><?php echo esc_html( $w3tc_meta['name'] ); ?></strong>
 					<div class="row-actions-visible">
 						<?php
-						if ( $this->_config->is_extension_active( $extension ) ) :
-							$extra_links = array();
+						if ( $this->_config->is_extension_active( $w3tc_extension ) ) :
+							$w3tc_extra_links = array();
 
-							if ( isset( $meta['settings_exists'] ) && $meta['settings_exists'] ) {
-								$extra_links[] = '<a class="edit" href="' .
-									esc_attr( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&extension=%s&action=view', $extension ) ) ) . '">' .
+							if ( isset( $w3tc_meta['settings_exists'] ) && $w3tc_meta['settings_exists'] ) {
+								$w3tc_extra_links[] = '<a class="edit" href="' .
+									esc_attr( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&extension=%s&action=view', $w3tc_extension ) ) ) . '">' .
 									esc_html__( 'Settings', 'w3-total-cache' ) . '</a>';
 							}
 
-							if ( isset( $meta['extra_links'] ) && is_Array( $meta['extra_links'] ) ) {
-								$extra_links = array_merge( $extra_links, $meta['extra_links'] );
+							if ( isset( $w3tc_meta['extra_links'] ) && is_Array( $w3tc_meta['extra_links'] ) ) {
+								$w3tc_extra_links = array_merge( $w3tc_extra_links, $w3tc_meta['extra_links'] );
 							}
 
-							$extra_links = apply_filters( "w3tc_extension_plugin_links_{$extension}", $extra_links );
-							$links       = implode( ' | ', $extra_links );
+							$w3tc_extra_links = apply_filters( "w3tc_extension_plugin_links_{$w3tc_extension}", $w3tc_extra_links );
+							$w3tc_links       = implode( ' | ', $w3tc_extra_links );
 
-							if ( $links ) {
+							if ( $w3tc_links ) {
 								echo wp_kses(
-									$links,
+									$w3tc_links,
 									array(
 										'a' => array(
 											'href'   => array(),
@@ -127,24 +144,24 @@ if ( ! defined( 'W3TC' ) ) {
 							<span class="0"></span>
 
 							<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
-								<?php echo $links ? ' | ' : ''; ?>
+								<?php echo $w3tc_links ? ' | ' : ''; ?>
 								<span class="deactivate">
-									<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=deactivate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Deactivate this extension', 'w3-total-cache' ); ?> ">
+									<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=deactivate&extension=%s&amp;extension_status=%s&amp;paged=%d', $w3tc_extension, $extension_status, $page ) ), 'w3tc_extension_deactivate_' . $w3tc_extension ) ); ?>" title="<?php esc_attr_e( 'Deactivate this extension', 'w3-total-cache' ); ?> ">
 										<?php esc_html_e( 'Deactivate', 'w3-total-cache' ); ?>
 									</a>
 								</span>
 							<?php endif ?>
 						<?php else : ?>
 							<span class="activate">
-								<?php if ( $meta['enabled'] ) : ?>
+								<?php if ( $w3tc_meta['enabled'] ) : ?>
 									<?php if ( ! $this->_config->is_sealed( 'extensions.active' ) ) : ?>
-										<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=activate&extension=%s&amp;extension_status=%s&amp;paged=%d', $extension, $extension_status, $page ) ), 'w3tc' ) ); ?>" title="<?php esc_attr_e( 'Activate this extension', 'w3-total-cache' ); ?> ">
+										<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&action=activate&extension=%s&amp;extension_status=%s&amp;paged=%d', $w3tc_extension, $extension_status, $page ) ), 'w3tc_extension_activate_' . $w3tc_extension ) ); ?>" title="<?php esc_attr_e( 'Activate this extension', 'w3-total-cache' ); ?> ">
 											<?php esc_html_e( 'Activate', 'w3-total-cache' ); ?>
 										</a>
 									<?php endif ?>
 								<?php else : ?>
-									<?php if ( ! empty( $meta['disabled_message'] ) ) : ?>
-										<?php echo esc_html( $meta['disabled_message'] ); ?>
+									<?php if ( ! empty( $w3tc_meta['disabled_message'] ) ) : ?>
+										<?php echo esc_html( $w3tc_meta['disabled_message'] ); ?>
 									<?php else : ?>
 										<?php esc_html_e( 'Disabled: see Requirements', 'w3-total-cache' ); ?>
 									<?php endif; ?>
@@ -156,15 +173,15 @@ if ( ! defined( 'W3TC' ) ) {
 				<td class="column-description desc">
 					<div class="plugin-description">
 						<p>
-							<?php if ( isset( $meta['pro_feature'] ) && $meta['pro_feature'] ) : ?>
+							<?php if ( isset( $w3tc_meta['pro_feature'] ) && $w3tc_meta['pro_feature'] ) : ?>
 								<?php Util_Ui::pro_wrap_maybe_start(); ?>
-								<?php Util_Ui::pro_wrap_description( $meta['pro_excerpt'], $meta['pro_description'], 'extension-' . $extension ); ?>
-								<?php Util_Ui::pro_wrap_maybe_end( "extension_$extension" ); ?>
+								<?php Util_Ui::pro_wrap_description( $w3tc_meta['pro_excerpt'], $w3tc_meta['pro_description'], 'extension-' . $w3tc_extension ); ?>
+								<?php Util_Ui::pro_wrap_maybe_end( "extension_$w3tc_extension" ); ?>
 							<?php else : ?>
-								<?php echo wp_kses( $meta['description'], Util_Ui::get_allowed_html_for_wp_kses_from_content( $meta['description'] ) ); ?>
+								<?php echo wp_kses( $w3tc_meta['description'], Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_meta['description'] ) ); ?>
 							<?php endif ?>
 
-							<?php if ( ! empty( $meta['requirements'] ) ) : ?>
+							<?php if ( ! empty( $w3tc_meta['requirements'] ) ) : ?>
 								<p class="description">
 									<?php
 									echo esc_html(
@@ -174,17 +191,17 @@ if ( ! defined( 'W3TC' ) ) {
 												'Requirements: %s',
 												'w3-total-cache'
 											),
-											apply_filters( "w3tc_extension_requirements-{$extension}", $meta['requirements'] )
+											apply_filters( "w3tc_extension_requirements-{$w3tc_extension}", $w3tc_meta['requirements'] )
 										)
 									);
 									?>
 								</p>
-								<?php do_action( "w3tc_extension_requirements-{$extension}" ); ?>
+								<?php do_action( "w3tc_extension_requirements-{$w3tc_extension}" ); ?>
 							<?php endif ?>
 						</p>
 					</div>
 
-					<div class="<?php echo $this->_config->is_extension_active( $extension ) ? 'active' : 'inactive'; ?> second plugin-version-author-uri">
+					<div class="<?php echo $this->_config->is_extension_active( $w3tc_extension ) ? 'active' : 'inactive'; ?> second plugin-version-author-uri">
 						<?php
 						echo esc_html(
 							sprintf(
@@ -193,7 +210,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Version %s',
 									'w3-total-cache'
 								),
-								$meta['version']
+								$w3tc_meta['version']
 							)
 						);
 						?>
@@ -206,8 +223,8 @@ if ( ! defined( 'W3TC' ) ) {
 									'By %s',
 									'w3-total-cache'
 								),
-								'<a href="' . esc_url( $meta['author_uri'] ) . '" target="_blank" title="' .
-									__( 'Visit author homepage', 'w3-total-cache' ) . '">' . esc_html( $meta['author'] ) . '</a>'
+								'<a href="' . esc_url( $w3tc_meta['author_uri'] ) . '" target="_blank" title="' .
+									__( 'Visit author homepage', 'w3-total-cache' ) . '">' . esc_html( $w3tc_meta['author'] ) . '</a>'
 							),
 							array(
 								'a' => array(
@@ -218,14 +235,14 @@ if ( ! defined( 'W3TC' ) ) {
 						);
 						?>
 						|
-						<a href="<?php echo esc_url( $meta['extension_uri'] ); ?>" target="_blank"
+						<a href="<?php echo esc_url( $w3tc_meta['extension_uri'] ); ?>" target="_blank"
 							title="<?php esc_attr_e( 'Visit extension site', 'w3-total-cache' ); ?>">
 							<?php esc_html_e( 'Visit extension site', 'w3-total-cache' ); ?></a>
 					</div>
 				</td>
 			</tr>
-			<?php do_action( 'w3tc_extension_after_row', $extension ); ?>
-			<?php do_action( "w3tc_extension_after_row-{$extension}" ); ?>
+			<?php do_action( 'w3tc_extension_after_row', $w3tc_extension ); ?>
+			<?php do_action( "w3tc_extension_after_row-{$w3tc_extension}" ); ?>
 		<?php endforeach ?>
 	</tbody>
 </table>

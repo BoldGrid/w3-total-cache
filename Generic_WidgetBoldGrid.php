@@ -22,13 +22,13 @@ class Generic_WidgetBoldGrid {
 			return;
 		}
 
-		$o = new Generic_WidgetBoldGrid();
+		$w3tc_o = new Generic_WidgetBoldGrid();
 
 		Util_Widget::add2(
 			'w3tc_boldgrid',
 			800,
 			'<div class="w3tc-widget-boldgrid-logo"></div>',
-			array( $o, 'widget_form' ),
+			array( $w3tc_o, 'widget_form' ),
 			self_admin_url(
 				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup&amp;TB_iframe=true&amp;width=772&amp;height=550'
 			),
@@ -87,7 +87,7 @@ class Generic_WidgetBoldGrid {
 	 * @return void
 	 */
 	public function widget_form() {
-		$install_url = wp_nonce_url( 'admin.php?page=w3tc_dashboard&w3tc_boldgrid_install', 'w3tc' );
+		$install_url = Util_Nonce::admin_nonce_url( 'admin.php?page=w3tc_dashboard&w3tc_boldgrid_install', 'w3tc_boldgrid_install' );
 
 		include W3TC_DIR . '/Generic_WidgetBoldGrid_View.php';
 	}

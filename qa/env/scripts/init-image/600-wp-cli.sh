@@ -4,6 +4,9 @@ case "${W3D_PHP_VERSION}" in
     "5.3") echo "Installing wp-cli for PHP 5.3"
         curl --silent -o /usr/local/src/wp-cli/bin/wp -L https://github.com/wp-cli/wp-cli/releases/download/v1.5.1/wp-cli-1.5.1.phar
         ;;
+    "8.4"|"8.5") echo "Installing wp-cli nightly for PHP ${W3D_PHP_VERSION}"
+        curl --silent -o /usr/local/src/wp-cli/bin/wp -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar
+        ;;
     *)
         curl --silent -o /usr/local/src/wp-cli/bin/wp -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
         ;;

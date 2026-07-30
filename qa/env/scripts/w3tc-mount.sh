@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -a
+[ -r /etc/environment ] && . /etc/environment
+set +a
+
 sleep 1 # Wait 1 for the last request to finish before deleting the plugin files.
 rm -rf ${W3D_WP_PLUGINS_PATH}/w3-total-cache
 cp -R /share/w3tc ${W3D_WP_PLUGINS_PATH}/w3-total-cache

@@ -8,21 +8,22 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 // Use default values if config is not set.
-$cdn_azuremi_config = array_map(
+$w3tc_cdn_azuremi_config = array_map(
 	/**
 	 * Anonymous function to populate unset config keys using defaults.
 	 *
 	 * @since 2.7.7
 	 *
 	 * @param string|array $default Default configuration .
-	 * @param string|array $config  Stored configuration values.
+	 * @param string|array $w3tc_config  Stored configuration values.
 	 * @return string|array
 	 */
-	function ( $default, $config ) {
-		return empty( $config ) ? $default : $config;
+	function ( $default, $w3tc_config ) {
+		return empty( $w3tc_config ) ? $default : $w3tc_config;
 	},
 	// Default configuration values.
 	array(
@@ -40,36 +41,36 @@ $cdn_azuremi_config = array_map(
 	)
 );
 
-$cdn_azuremi_config['user'] = $cdn_azuremi_config[0];
-unset( $cdn_azuremi_config[0] );
-$cdn_azuremi_config['client_id'] = $cdn_azuremi_config[1];
-unset( $cdn_azuremi_config[1] );
-$cdn_azuremi_config['container'] = $cdn_azuremi_config[2];
-unset( $cdn_azuremi_config[2] );
-$cdn_azuremi_config['cname'] = $cdn_azuremi_config[3];
-unset( $cdn_azuremi_config[3] );
+$w3tc_cdn_azuremi_config['user'] = $w3tc_cdn_azuremi_config[0];
+unset( $w3tc_cdn_azuremi_config[0] );
+$w3tc_cdn_azuremi_config['client_id'] = $w3tc_cdn_azuremi_config[1];
+unset( $w3tc_cdn_azuremi_config[1] );
+$w3tc_cdn_azuremi_config['container'] = $w3tc_cdn_azuremi_config[2];
+unset( $w3tc_cdn_azuremi_config[2] );
+$w3tc_cdn_azuremi_config['cname'] = $w3tc_cdn_azuremi_config[3];
+unset( $w3tc_cdn_azuremi_config[3] );
 
 ?>
 <tr>
 	<th style="width: 300px;"><label for="cdn_azuremi_user"><?php esc_html_e( 'Account name:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<input id="cdn_azuremi_user" class="w3tc-ignore-change" type="text"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__azuremi__user" value="<?php echo esc_attr( $cdn_azuremi_config['user'] ); ?>" size="30" />
+			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__azuremi__user" value="<?php echo esc_attr( $w3tc_cdn_azuremi_config['user'] ); ?>" size="30" />
 	</td>
 </tr>
 <tr>
 	<th><label for="cdn_azuremi_clientid"><?php esc_html_e( 'Entra client ID:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<input id="cdn_azuremi_clientid" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="text" name="cdn__azuremi__clientid" value="<?php echo esc_attr( $cdn_azuremi_config['client_id'] ); ?>" size="60" />
+			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="text" name="cdn__azuremi__clientid" value="<?php echo esc_attr( $w3tc_cdn_azuremi_config['client_id'] ); ?>" size="60" />
 	</td>
 </tr>
 <tr>
 	<th><label for="cdn_azuremi_container"><?php esc_html_e( 'Container:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<input id="cdn_azuremi_container" type="text"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__azuremi__container" value="<?php echo esc_attr( $cdn_azuremi_config['container'] ); ?>" size="30" />
-		<input id="cdn_create_container" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'azuremi', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
+			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__azuremi__container" value="<?php echo esc_attr( $w3tc_cdn_azuremi_config['container'] ); ?>" size="30" />
+		<input id="cdn_create_container" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'azuremi', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_create_container' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
 		<span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
 	</td>
 </tr>
@@ -131,12 +132,12 @@ unset( $cdn_azuremi_config[3] );
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cdn_azure_user = $this->_config->get_string( 'cdn.azuremi.user' );
+		$w3tc_cdn_azure_user = $this->_config->get_string( 'cdn.azuremi.user' );
 
-		if ( empty( $cdn_azure_user ) ) {
+		if ( empty( $w3tc_cdn_azure_user ) ) {
 			echo '&lt;account name&gt;.blob.core.windows.net';
 		} else {
-			echo esc_attr( $cdn_azure_user ) . '.blob.core.windows.net';
+			echo esc_attr( $w3tc_cdn_azure_user ) . '.blob.core.windows.net';
 		}
 
 		echo wp_kses(
@@ -156,13 +157,13 @@ unset( $cdn_azuremi_config[3] );
 			)
 		);
 
-		$cnames = $cdn_azuremi_config['cname'];
+		$w3tc_cnames = $w3tc_cdn_azuremi_config['cname'];
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 	</td>
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 'azuremi', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Microsoft Azure Storage upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 'azuremi', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Microsoft Azure Storage upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

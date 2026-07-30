@@ -18,17 +18,17 @@ class Minify_Environment_LiteSpeed {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor for the Minify_Environment_LiteSpeed class.
 	 *
-	 * @param array $config Configuration array for initializing the class.
+	 * @param array $w3tc_config Configuration array for initializing the class.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**

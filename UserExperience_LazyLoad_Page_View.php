@@ -7,17 +7,18 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c      = Dispatcher::config();
-$is_pro = Util_Environment::is_w3tc_pro( $c );
+$w3tc_c      = Dispatcher::config();
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
 
-$active_plugins          = get_option( 'active_plugins' );
-$is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $active_plugins, true ) );
-$is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $active_plugins, true ) );
-$is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugins, true ) );
+$w3tc_active_plugins          = get_option( 'active_plugins' );
+$w3tc_is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $w3tc_active_plugins, true ) );
+$w3tc_is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $w3tc_active_plugins, true ) );
+$w3tc_is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $w3tc_active_plugins, true ) );
 
 ?>
 <?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'lazy-loading' ); ?>
@@ -127,7 +128,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugi
 						array(
 							'key'            => 'lazyload.googlemaps.wp_google_map_plugin',
 							'control'        => 'checkbox',
-							'disabled'       => ( $is_pro ? ! $is_wp_google_map_plugin : true ),
+							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_wp_google_map_plugin : true ),
 							'checkbox_label' => wp_kses(
 								sprintf(
 									// translators: 1 opening HTML a tag to WordPress Google Map Plugin, 2 closing HTML a tag.
@@ -158,7 +159,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugi
 						array(
 							'key'            => 'lazyload.googlemaps.google_maps_easy',
 							'control'        => 'checkbox',
-							'disabled'       => ( $is_pro ? ! $is_google_maps_easy : true ),
+							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_google_maps_easy : true ),
 							'checkbox_label' => wp_kses(
 								sprintf(
 									// translators: 1 opening HTML a tag to Google Maps Easy plugin, 2 closing HTML a tag.
@@ -189,7 +190,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugi
 						array(
 							'key'            => 'lazyload.googlemaps.wp_google_maps',
 							'control'        => 'checkbox',
-							'disabled'       => ( $is_pro ? ! $is_wp_google_maps : true ),
+							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_wp_google_maps : true ),
 							'checkbox_label' => wp_kses(
 								sprintf(
 									// translators: 1 opening HTML a tag to WordPress Google Maps, 2 closing HTML a tag.
@@ -214,7 +215,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugi
 				?>
 			</div>
 			<?php
-			if ( ! $is_pro ) {
+			if ( ! $w3tc_is_pro ) {
 				Util_Ui::print_score_block(
 					__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'+10',

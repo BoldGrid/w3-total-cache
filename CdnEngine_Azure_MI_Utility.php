@@ -19,7 +19,7 @@ namespace W3TC;
  *
  * This class defines utility functions for Azure blob storage access using Managed Identity.
  *
- * @since   2.7.7
+ * @since   2.8.0
  * @author  Zubair <zmohammed@microsoft.com>
  * @author  BoldGrid <development@boldgrid.com>
  *
@@ -59,7 +59,7 @@ class CdnEngine_Azure_MI_Utility {
 	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
-	 * @return string $access_token
+	 * @return string $w3tc_access_token
 	 * @throws \RuntimeException Runtine Exception.
 	 */
 	public static function get_access_token( string $entra_client_id ): string {
@@ -73,7 +73,7 @@ class CdnEngine_Azure_MI_Utility {
 		}
 
 		// Construct URL for cURL request.
-		$url = $identity_endpoint . '?' . http_build_query(
+		$w3tc_url = $identity_endpoint . '?' . http_build_query(
 			array(
 				'api-version' => self::ENTRA_API_VERSION,
 				'resource'    => self::ENTRA_RESOURCE_URI,
@@ -84,7 +84,7 @@ class CdnEngine_Azure_MI_Utility {
 		// Initialize and execute cURL request.
 		$ch = \curl_init();
 
-		\curl_setopt( $ch, CURLOPT_URL, $url );
+		\curl_setopt( $ch, CURLOPT_URL, $w3tc_url );
 		\curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'GET' );
 		\curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'X-IDENTITY-HEADER: ' . $identity_header ) );
 		\curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
@@ -260,9 +260,9 @@ class CdnEngine_Azure_MI_Utility {
 		string $container_id,
 		string $blob,
 		$contents,
-		string $content_type = null,
-		string $content_md5 = null,
-		string $cache_control = null
+		?string $content_type = null,
+		?string $content_md5 = null,
+		?string $cache_control = null
 	): array {
 		$headers = array(
 			'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
@@ -555,8 +555,8 @@ class CdnEngine_Azure_MI_Utility {
 			);
 		}
 
-		// Parse XML response to array.
-		$xml      = \simplexml_load_string( $response );
+		// Parse XML response to array (with XXE protections).
+		$xml      = Util_Environment::safe_simplexml_load_string( $response );
 		$json     = \json_encode( $xml );
 		$response = \json_decode( $json, true );
 
@@ -663,8 +663,8 @@ class CdnEngine_Azure_MI_Utility {
 			return array();
 		}
 
-		foreach ( $input as $value ) {
-			if ( ! \is_array( $value ) ) {
+		foreach ( $input as $w3tc_value ) {
+			if ( ! \is_array( $w3tc_value ) ) {
 				return array( $input );
 			}
 

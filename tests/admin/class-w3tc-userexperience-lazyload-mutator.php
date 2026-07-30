@@ -5,7 +5,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests/admin
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.10.0
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
@@ -16,13 +16,13 @@ use W3TC\UserExperience_LazyLoad_Mutator;
 /**
  * Class: W3tc_UserExperience_LazyLoad_Test
  *
- * @since X.X.X
+ * @since 2.8.12
  */
 class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Create a mutator instance with a minimal config stub.
 		 *
-		 * @since X.X.X
+		 * @since 2.8.12
 		 *
 		 * @return UserExperience_LazyLoad_Mutator
 		 */
@@ -33,7 +33,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Ensure background styles are offloaded with raw URL only.
 		 *
-		 * @since X.X.X
+		 * @since 2.8.12
 		 */
 		public function test_style_offload_background_strips_url_wrapper() {
 				$mutator = $this->get_mutator();
@@ -56,7 +56,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Ensure background styles are offloaded with raw URL only containing parenthesis.
 		 *
-		 * @since X.X.X
+		 * @since 2.8.12
 		 */
 		public function test_style_offload_background_strips_url_parenthesis_wrapper() {
 			$mutator = $this->get_mutator();
@@ -79,7 +79,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Image tags are converted to lazy load placeholders and attributes.
 		 *
-		 * @since X.X.X
+		 * @since 2.8.12
 		 */
 		public function test_tag_img_content_replace_adds_lazy_attributes() {
 				$mutator = $this->get_mutator();
@@ -98,7 +98,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Elements with background images move URL to data attribute and gain lazy class.
 		 *
-		 * @since X.X.X
+		 * @since 2.8.12
 		 */
 		public function test_tag_with_background_moves_url_to_data_attribute() {
 				$mutator = $this->get_mutator();

@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: rscf.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -36,8 +43,17 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_rscf_key" class="w3tc-ignore-change" type="password"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__rscf__key" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.rscf.key' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_rscf_key',
+				'name'        => 'cdn__rscf__key',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.rscf.key' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <?php
@@ -58,7 +74,7 @@ Util_Ui::config_item(
 		<input id="cdn_rscf_container" type="text" name="cdn__rscf__container"
 			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'cdn.rscf.container' ) ); ?>" size="30" />
 		<input id="cdn_create_container"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'rscf', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
+			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'rscf', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_create_container' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
 		<span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
 	</td>
 </tr>
@@ -120,7 +136,7 @@ Util_Ui::config_item(
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cnames = $this->_config->get_array( 'cdn.rscf.cname' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.rscf.cname' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -147,6 +163,6 @@ Util_Ui::config_item(
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 'rscf', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Cloud Files upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 'rscf', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Cloud Files upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

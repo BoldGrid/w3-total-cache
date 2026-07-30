@@ -24,8 +24,8 @@ class DbCache_Plugin_Admin {
 		$config_labels = new DbCache_ConfigLabels();
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
-		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->get_boolean( 'dbcache.enabled' ) ) {
 			add_filter( 'w3tc_usage_statistics_summary_from_history', array( $this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 			add_filter( 'w3tc_errors', array( $this, 'w3tc_errors' ) );
 		}
@@ -46,8 +46,8 @@ class DbCache_Plugin_Admin {
 		$dbcache_flushes     = Util_UsageStatistics::sum( $history, 'dbcache_flushes' );
 		$dbcache_time_ms     = Util_UsageStatistics::sum( $history, 'dbcache_time_ms' );
 
-		$c = Dispatcher::config();
-		$e = $c->get_string( 'dbcache.engine' );
+		$w3tc_c = Dispatcher::config();
+		$e      = $w3tc_c->get_string( 'dbcache.engine' );
 
 		$summary['dbcache'] = array(
 			'calls_total'      => Util_UsageStatistics::integer( $dbcache_calls_total ),
@@ -69,13 +69,13 @@ class DbCache_Plugin_Admin {
 	 * @return array Updated array of errors including database cache issues, if any.
 	 */
 	public function w3tc_errors( $errors ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'memcached' === $c->get_string( 'dbcache.engine' ) ) {
-			$memcached_servers         = $c->get_array( 'dbcache.memcached.servers' );
-			$memcached_binary_protocol = $c->get_boolean( 'dbcache.memcached.binary_protocol' );
-			$memcached_username        = $c->get_string( 'dbcache.memcached.username' );
-			$memcached_password        = $c->get_string( 'dbcache.memcached.password' );
+		if ( 'memcached' === $w3tc_c->get_string( 'dbcache.engine' ) ) {
+			$memcached_servers         = $w3tc_c->get_array( 'dbcache.memcached.servers' );
+			$memcached_binary_protocol = $w3tc_c->get_boolean( 'dbcache.memcached.binary_protocol' );
+			$memcached_username        = $w3tc_c->get_string( 'dbcache.memcached.username' );
+			$memcached_password        = $w3tc_c->get_string( 'dbcache.memcached.password' );
 
 			if (
 				! Util_Installed::is_memcache_available(
@@ -108,13 +108,13 @@ class DbCache_Plugin_Admin {
 	 *
 	 * Ensures proper scheduling of database cache purge cron jobs based on configuration changes.
 	 *
-	 * @param array $data Contains new and old configuration data.
+	 * @param array $w3tc_data Contains new and old configuration data.
 	 *
 	 * @return array Modified configuration data after applying necessary updates.
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		// Schedule purge if enabled.
 		if ( $new_config->get_boolean( 'dbcache.enabled' ) && $new_config->get_boolean( 'dbcache.wp_cron' ) ) {
@@ -138,6 +138,6 @@ class DbCache_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_dbcache_purge_wpcron' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 }

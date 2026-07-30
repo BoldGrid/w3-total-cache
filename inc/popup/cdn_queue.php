@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_queue.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -24,14 +31,14 @@ if ( ! defined( 'W3TC' ) ) {
 			<th><?php esc_html_e( 'Date', 'w3-total-cache' ); ?></th>
 			<th><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></th>
 		</tr>
-		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_UPLOAD ] as $result ) : ?>
+		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_UPLOAD ] as $w3tc_result ) : ?>
 		<tr>
-			<td><?php echo esc_html( $result->local_path ); ?></td>
-			<td><?php echo esc_html( $result->remote_path ); ?></td>
-			<td><?php echo esc_html( $result->last_error ); ?></td>
-			<td align="center"><?php echo esc_html( $result->date ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->local_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->remote_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->last_error ); ?></td>
+			<td align="center"><?php echo esc_html( $w3tc_result->date ); ?></td>
 			<td align="center">
-				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=upload&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
+				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=upload&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $w3tc_result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
 			</td>
 		</tr>
 		<?php endforeach; ?>
@@ -57,14 +64,14 @@ if ( ! defined( 'W3TC' ) ) {
 			<th width="25%"><?php esc_html_e( 'Date', 'w3-total-cache' ); ?></th>
 			<th width="10%"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></th>
 		</tr>
-		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_DELETE ] as $result ) : ?>
+		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_DELETE ] as $w3tc_result ) : ?>
 		<tr>
-			<td><?php echo esc_html( $result->local_path ); ?></td>
-			<td><?php echo esc_html( $result->remote_path ); ?></td>
-			<td><?php echo esc_html( $result->last_error ); ?></td>
-			<td align="center"><?php echo esc_html( $result->date ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->local_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->remote_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->last_error ); ?></td>
+			<td align="center"><?php echo esc_html( $w3tc_result->date ); ?></td>
 			<td align="center">
-				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=delete&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
+				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=delete&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $w3tc_result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
 			</td>
 		</tr>
 		<?php endforeach; ?>
@@ -87,14 +94,14 @@ if ( ! defined( 'W3TC' ) ) {
 			<th width="25%"><?php esc_html_e( 'Date', 'w3-total-cache' ); ?></th>
 			<th width="10%"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></th>
 		</tr>
-		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_PURGE ] as $result ) : ?>
+		<?php foreach ( (array) $queue[ W3TC_CDN_COMMAND_PURGE ] as $w3tc_result ) : ?>
 		<tr>
-			<td><?php echo esc_html( $result->local_path ); ?></td>
-			<td><?php echo esc_html( $result->remote_path ); ?></td>
-			<td><?php echo esc_html( $result->last_error ); ?></td>
-			<td align="center"><?php echo esc_html( $result->date ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->local_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->remote_path ); ?></td>
+			<td><?php echo esc_html( $w3tc_result->last_error ); ?></td>
+			<td align="center"><?php echo esc_html( $w3tc_result->date ); ?></td>
 			<td align="center">
-				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=purge&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
+				<a href="admin.php?page=w3tc_cdn&amp;w3tc_cdn_queue&amp;cdn_queue_tab=purge&amp;cdn_queue_action=delete&amp;cdn_queue_id=<?php echo esc_attr( $w3tc_result->id ); ?>&amp;_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="cdn_queue_delete"><?php esc_html_e( 'Delete', 'w3-total-cache' ); ?></a>
 			</td>
 		</tr>
 		<?php endforeach; ?>

@@ -19,13 +19,13 @@ class Extension_CloudFlare_AdminActions {
 	 * @throws \Exception If the Cloudflare purge fails.
 	 */
 	public function w3tc_cloudflare_flush() {
-		$c   = Dispatcher::config();
-		$api = new Extension_CloudFlare_Api(
+		$w3tc_c = Dispatcher::config();
+		$api    = new Extension_CloudFlare_Api(
 			array(
-				'email'                 => $c->get_string( array( 'cloudflare', 'email' ) ),
-				'key'                   => $c->get_string( array( 'cloudflare', 'key' ) ),
-				'zone_id'               => $c->get_string( array( 'cloudflare', 'zone_id' ) ),
-				'timelimit_api_request' => $c->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ),
+				'email'                 => $w3tc_c->get_string( array( 'cloudflare', 'email' ) ),
+				'key'                   => $w3tc_c->get_string( array( 'cloudflare', 'key' ) ),
+				'zone_id'               => $w3tc_c->get_string( array( 'cloudflare', 'zone_id' ) ),
+				'timelimit_api_request' => $w3tc_c->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ),
 			)
 		);
 

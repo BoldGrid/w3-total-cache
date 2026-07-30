@@ -20,11 +20,11 @@ class Support_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_support() {
-		$url = get_home_url();
-		if ( 'http://' === substr( $url, 0, 7 ) ) {
-			$url = substr( $url, 7 );
-		} elseif ( 'https://' === substr( $url, 0, 8 ) ) {
-			$url = substr( $url, 8 );
+		$w3tc_url = get_home_url();
+		if ( 'http://' === substr( $w3tc_url, 0, 7 ) ) {
+			$w3tc_url = substr( $w3tc_url, 7 );
+		} elseif ( 'https://' === substr( $w3tc_url, 0, 8 ) ) {
+			$w3tc_url = substr( $w3tc_url, 8 );
 		}
 
 		// values from widget.
@@ -40,10 +40,10 @@ class Support_Page {
 			try {
 				$v = json_decode( $v, true );
 				if ( isset( $v['items'] ) && isset( $v['items'][ $pos ] ) ) {
-					$i                        = $v['items'][ $pos ];
-					$w3tc_support_form_hash   = $i['form_hash'];
-					$w3tc_support_field_name  = $i['parameter_name'];
-					$w3tc_support_field_value = $i['parameter_value'];
+					$w3tc_i                   = $v['items'][ $pos ];
+					$w3tc_support_form_hash   = $w3tc_i['form_hash'];
+					$w3tc_support_field_name  = $w3tc_i['parameter_name'];
+					$w3tc_support_field_value = $w3tc_i['parameter_value'];
 				}
 			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
@@ -57,7 +57,7 @@ class Support_Page {
 			'w3tc-options',
 			'w3tc_support_data',
 			array(
-				'home_url'    => $url,
+				'home_url'    => $w3tc_url,
 				'email'       => get_bloginfo( 'admin_email' ),
 				'first_name'  => $u->first_name,
 				'last_name'   => $u->last_name,
@@ -67,7 +67,8 @@ class Support_Page {
 				'postprocess' => rawurlencode(
 					rawurlencode(
 						Util_Ui::admin_url(
-							wp_nonce_url( 'admin.php', 'w3tc' ) . '&page=w3tc_support&done=1'
+							// The _wpnonce minted here is forwarded by options() into the w3tc_support_send_details action URL.
+							Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_support_send_details' ) . '&page=w3tc_support&done=1'
 						)
 					)
 				),
@@ -89,9 +90,9 @@ class Support_Page {
 			$postprocess_url =
 				'admin.php?page=w3tc_support&w3tc_support_send_details' .
 				'&_wpnonce=' . rawurlencode( Util_Request::get_string( '_wpnonce' ) );
-			foreach ( $_GET as $p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( 'page' !== $p && '_wpnonce' !== $p && 'done' !== $p ) {
-					$postprocess_url .= '&' . rawurlencode( $p ) . '=' . rawurlencode( Util_Request::get_string( $p ) );
+			foreach ( $_GET as $w3tc_p => $v ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( 'page' !== $w3tc_p && '_wpnonce' !== $w3tc_p && 'done' !== $w3tc_p ) {
+					$postprocess_url .= '&' . rawurlencode( $w3tc_p ) . '=' . rawurlencode( Util_Request::get_string( $w3tc_p ) );
 				}
 			}
 

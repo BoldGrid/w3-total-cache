@@ -4,7 +4,7 @@
  *
  * @package W3TC\Tests
  *
- * @since X.X.X
+ * @since 2.10.0
  */
 
 use W3TC\Generic_Plugin;
@@ -12,22 +12,40 @@ use W3TC\Generic_Plugin;
 /**
  * Class Generic_Plugin_DynamicFragments_Test.
  *
- * @since X.X.X
+ * @since 2.8.13
  */
 class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Generic plugin instance under test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @var Generic_Plugin
 	 */
 	protected $plugin;
 
 	/**
+	 * Original output-buffer callbacks.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var array
+	 */
+	protected $original_ob_callbacks = array();
+
+	/**
+	 * Output buffer level before each test.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var int
+	 */
+	protected $initial_ob_level = 0;
+
+	/**
 	 * Sets up test fixtures.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -39,12 +57,31 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		}
 
 		$this->plugin = new Generic_Plugin();
+		$this->initial_ob_level    = ob_get_level();
+		$this->original_ob_callbacks = isset( $GLOBALS['w3tc_ob_callbacks'] ) ? $GLOBALS['w3tc_ob_callbacks'] : array();
+	}
+
+	/**
+	 * Cleans up globals and output buffers after each test.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @return void
+	 */
+	public function tear_down() {
+		$GLOBALS['w3tc_ob_callbacks'] = $this->original_ob_callbacks;
+
+		while ( ob_get_level() > $this->initial_ob_level ) {
+			ob_end_clean();
+		}
+
+		parent::tear_down();
 	}
 
 	/**
 	 * Confirms comment preprocessing strips fragment directives and secrets.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -60,9 +97,41 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Confirms that the no-space bypass variant is stripped from comments.
+	 *
+	 * The attack crafts a tag name where removing the security token via str_replace
+	 * would morph it into a valid mfunc tag, e.g. with token "unit-test-token":
+	 *   <!-- mfuncXunit-test-tokenX --> ... <!-- /mfuncXunit-test-tokenX -->
+	 * becomes <!-- mfuncXX --> after str_replace, which (with the old \s* pattern)
+	 * could then match and be eval()'d. The fix requires \s+ so no-space tags never
+	 * execute, and \s*\S+ in sanitization so they are stripped before storage.
+	 *
+	 * @since 2.9.2
+	 *
+	 * @return void
+	 */
+	public function test_strip_dynamic_fragment_tags_no_space_bypass_is_stripped() {
+		// Craft a tag where the security token is embedded in the keyword so that
+		// str_replace(token, '', ...) would otherwise produce a valid mfunc tag.
+		$token   = W3TC_DYNAMIC_SECURITY;
+		$crafted = '<!-- mfuncA' . $token . 'A -->phpinfo();<!-- /mfuncA' . $token . 'A -->';
+		$comment = array( 'comment_content' => 'Safe text. ' . $crafted );
+
+		$result = $this->plugin->strip_dynamic_fragment_tags_from_comment( $comment );
+
+		$this->assertArrayHasKey( 'comment_content', $result );
+		// The mfunc wrapper itself must be gone.
+		$this->assertStringNotContainsString( 'mfunc', $result['comment_content'] );
+		// The security token must not appear in any form.
+		$this->assertStringNotContainsString( $token, $result['comment_content'] );
+		// Safe surrounding text should be preserved.
+		$this->assertStringContainsString( 'Safe text.', $result['comment_content'] );
+	}
+
+	/**
 	 * Ensures feed filtering removes fragment directives.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -79,7 +148,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Tests REST responses are sanitized outside of edit context.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -108,7 +177,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * Ensures edit-context REST responses remain untouched for editors.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.13
 	 *
 	 * @return void
 	 */
@@ -123,5 +192,191 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $response, $sanitized );
 		$this->assertStringContainsString( W3TC_DYNAMIC_SECURITY, $sanitized->get_data()['rendered'] );
+	}
+
+	/**
+	 * Output buffering must not be disabled for a spoofed W3 Total Cache user-agent (mfunc secret leak).
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_allows_output_buffering_when_user_agent_matches_w3tc_powered_by() {
+		global $w3_late_init;
+
+		$prev_late    = $w3_late_init;
+		$w3_late_init = false;
+		$prev_ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null;
+
+		$_SERVER['HTTP_USER_AGENT'] = W3TC_POWERED_BY;
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		if ( null === $prev_ua ) {
+			unset( $_SERVER['HTTP_USER_AGENT'] );
+		} else {
+			$_SERVER['HTTP_USER_AGENT'] = $prev_ua;
+		}
+
+		$w3_late_init = $prev_late;
+
+		$this->assertTrue(
+			$can_ob,
+			'can_ob() must remain true when HTTP_USER_AGENT contains W3TC_POWERED_BY (client-controlled).'
+		);
+	}
+
+	/**
+	 * can_ob() must reject REST-shaped URLs before REST_REQUEST is defined.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_rejects_rest_request_uri() {
+		global $w3tc_w3_late_init;
+
+		$prev_late                 = $w3tc_w3_late_init;
+		$w3tc_w3_late_init         = false;
+		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
+		$config                    = \W3TC\Dispatcher::config();
+		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', '' );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertFalse(
+			$can_ob,
+			'can_ob() must return false for /wp-json/ requests when pgcache.rest is not cache.'
+		);
+	}
+
+	/**
+	 * can_ob() must allow REST when page-cache REST caching is enabled.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_allows_rest_when_pgcache_rest_cache_enabled() {
+		global $w3tc_w3_late_init;
+
+		$prev_late                 = $w3tc_w3_late_init;
+		$w3tc_w3_late_init         = false;
+		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
+		$config                    = \W3TC\Dispatcher::config();
+		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', 'cache' );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertTrue(
+			$can_ob,
+			'can_ob() must return true for REST URIs when pgcache.rest is cache.'
+		);
+	}
+
+	/**
+	 * ob_callback() must return REST JSON unchanged when REST caching is off.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_short_circuits_rest_when_not_caching() {
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', '' );
+
+		$minify_ran = false;
+		\W3TC\Util_Bus::add_ob_callback(
+			'minify',
+			function ( $buffer ) use ( &$minify_ran ) {
+				$minify_ran = true;
+				return $buffer . '-minified';
+			}
+		);
+
+		$json   = '{"id":1,"title":"Hello"}';
+		$result = $this->plugin->ob_callback( $json );
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+
+		$this->assertSame( $json, $result );
+		$this->assertFalse( $minify_ran, 'HTML processors must not run on REST responses when not caching REST.' );
+	}
+
+	/**
+	 * With REST caching enabled, ob_callback() must run pagecache only.
+	 *
+	 * @since 2.10.3
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_runs_pagecache_only_for_cached_rest() {
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', 'cache' );
+
+		$minify_ran    = false;
+		$pagecache_ran = false;
+		\W3TC\Util_Bus::add_ob_callback(
+			'minify',
+			function ( $buffer ) use ( &$minify_ran ) {
+				$minify_ran = true;
+				return $buffer . '-minified';
+			}
+		);
+		\W3TC\Util_Bus::add_ob_callback(
+			'pagecache',
+			function ( $buffer ) use ( &$pagecache_ran ) {
+				$pagecache_ran = true;
+				return $buffer . '-cached';
+			}
+		);
+
+		$json   = '{"id":1}';
+		$result = $this->plugin->ob_callback( $json );
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+
+		$this->assertSame( '{"id":1}-cached', $result );
+		$this->assertTrue( $pagecache_ran );
+		$this->assertFalse( $minify_ran, 'Minify must not run on REST JSON even when REST caching is enabled.' );
 	}
 }

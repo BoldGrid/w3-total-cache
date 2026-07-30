@@ -24,8 +24,25 @@ class BrowserCache_ConfigLabels {
 			array(
 				'browsercache.enabled'                   => __( 'Browser Cache:', 'w3-total-cache' ),
 				'browsercache.replace.exceptions'        => __( 'Prevent caching exception list:', 'w3-total-cache' ),
+				'browsercache.querystring'               => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.no404wp'                   => __( 'Do not process 404 errors for static objects with WordPress', 'w3-total-cache' ),
 				'browsercache.no404wp.exceptions'        => __( '404 error exception list:', 'w3-total-cache' ),
+				'browsercache.rewrite'                   => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for URL, 2: closing acronym tag.
+						__(
+							'Rewrite %1$sURL%2$s structure of objects',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Universal Resource Locator', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.cssjs.last_modified'       => __( 'Set Last-Modified header', 'w3-total-cache' ),
 				'browsercache.cssjs.expires'             => __( 'Set expires header', 'w3-total-cache' ),
 				'browsercache.cssjs.lifetime'            => __( 'Expires header lifetime:', 'w3-total-cache' ),
@@ -33,9 +50,40 @@ class BrowserCache_ConfigLabels {
 				'browsercache.cssjs.cache.policy'        => __( 'Cache Control policy:', 'w3-total-cache' ),
 				'browsercache.cssjs.etag'                => __( 'Set entity tag (eTag)', 'w3-total-cache' ),
 				'browsercache.cssjs.w3tc'                => __( 'Set W3 Total Cache header', 'w3-total-cache' ),
-				'browsercache.cssjs.compression'         => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ),
-				'browsercache.cssjs.brotli'              => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ),
+				'browsercache.cssjs.compression'         => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (gzip) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'browsercache.cssjs.brotli'              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (brotli) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.cssjs.replace'             => __( 'Prevent caching of objects after settings change', 'w3-total-cache' ),
+				'browsercache.cssjs.querystring'         => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.cssjs.nocookies'           => __( 'Disable cookies for static files', 'w3-total-cache' ),
 				'browsercache.html.last_modified'        => __( 'Set Last-Modified header', 'w3-total-cache' ),
 				'browsercache.html.expires'              => __( 'Set expires header', 'w3-total-cache' ),
@@ -44,8 +92,38 @@ class BrowserCache_ConfigLabels {
 				'browsercache.html.cache.policy'         => __( 'Cache Control policy:', 'w3-total-cache' ),
 				'browsercache.html.etag'                 => __( 'Set entity tag (ETag)', 'w3-total-cache' ),
 				'browsercache.html.w3tc'                 => __( 'Set W3 Total Cache header', 'w3-total-cache' ),
-				'browsercache.html.compression'          => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ),
-				'browsercache.html.brotli'               => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ),
+				'browsercache.html.compression'          => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (gzip) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'browsercache.html.brotli'               => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (brotli) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.other.last_modified'       => __( 'Set Last-Modified header', 'w3-total-cache' ),
 				'browsercache.other.expires'             => __( 'Set expires header', 'w3-total-cache' ),
 				'browsercache.other.lifetime'            => __( 'Expires header lifetime:', 'w3-total-cache' ),
@@ -53,25 +131,131 @@ class BrowserCache_ConfigLabels {
 				'browsercache.other.cache.policy'        => __( 'Cache Control policy:', 'w3-total-cache' ),
 				'browsercache.other.etag'                => __( 'Set entity tag (ETag)', 'w3-total-cache' ),
 				'browsercache.other.w3tc'                => __( 'Set W3 Total Cache header', 'w3-total-cache' ),
-				'browsercache.other.compression'         => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ),
-				'browsercache.other.brotli'              => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ),
+				'browsercache.other.compression'         => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (gzip) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
+				'browsercache.other.brotli'              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Enable %1$sHTTP%2$s (brotli) compression',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.other.replace'             => __( 'Prevent caching of objects after settings change', 'w3-total-cache' ),
+				'browsercache.other.querystring'         => __( 'Remove query strings from static resources', 'w3-total-cache' ),
 				'browsercache.other.nocookies'           => __( 'Disable cookies for static files', 'w3-total-cache' ),
-				'browsercache.security.session.cookie_httponly' => __( 'Access session cookies through the <acronym title="Hypertext Transfer Protocol">HTTP</acronym> only:', 'w3-total-cache' ),
+				'browsercache.security.session.cookie_httponly' => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'Access session cookies through the %1$sHTTP%2$s only:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.security.session.cookie_secure' => __( 'Send session cookies only to secure connections:', 'w3-total-cache' ),
 				'browsercache.security.session.use_only_cookies' => __( 'Use cookies to store session IDs:', 'w3-total-cache' ),
-				'browsercache.hsts'                      => __( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Strict Transport Security policy', 'w3-total-cache' ),
+				'browsercache.hsts'                      => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'%1$sHTTP%2$s Strict Transport Security policy',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.security.hsts.directive'   => __( 'Directive:', 'w3-total-cache' ),
 				'browsercache.security.xfo'              => __( 'X-Frame-Options', 'w3-total-cache' ),
 				'browsercache.security.xfo.directive'    => __( 'Directive:', 'w3-total-cache' ),
-				'browsercache.security.xss'              => __( 'X-<acronym title="Cross-Site Scripting">XSS</acronym>-Protection', 'w3-total-cache' ),
+				'browsercache.security.xss'              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for XSS, 2: closing acronym tag.
+						__(
+							'X-%1$sXSS%2$s-Protection',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Cross-Site Scripting', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.security.xss.directive'    => __( 'Directive:', 'w3-total-cache' ),
 				'browsercache.security.xcto'             => __( 'X-Content-Type-Options', 'w3-total-cache' ),
-				'browsercache.security.pkp'              => __( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Public Key Pinning', 'w3-total-cache' ),
+				'browsercache.security.pkp'              => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
+						__(
+							'%1$sHTTP%2$s Public Key Pinning',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.security.pkp.pin'          => __( 'Public Key:', 'w3-total-cache' ),
 				'browsercache.security.pkp.pin.backup'   => __( 'Public Key (Backup):', 'w3-total-cache' ),
 				'browsercache.security.pkp.extra'        => __( 'Extra Parameters:', 'w3-total-cache' ),
-				'browsercache.security.pkp.report.url'   => __( 'Report <acronym title="Uniform Resource Locator">URL</acronym>:', 'w3-total-cache' ),
+				'browsercache.security.pkp.report.url'   => wp_kses(
+					sprintf(
+						// translators: 1: opening acronym tag for URL, 2: closing acronym tag.
+						__(
+							'Report %1$sURL%2$s:',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				),
 				'browsercache.security.pkp.report.only'  => __( 'Report Mode Only:', 'w3-total-cache' ),
 				'browsercache.security.referrer.policy'  => __( 'Referrer Policy', 'w3-total-cache' ),
 				'browsercache.security.referrer.policy.directive' => __( 'Directive:', 'w3-total-cache' ),

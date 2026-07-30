@@ -32,10 +32,35 @@
         <severity>0</severity>
     </rule>
 
+    <!-- Admin view templates: variables are scoped from the including page class. -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <exclude-pattern>*/inc/options/*</exclude-pattern>
+        <exclude-pattern>*/inc/lightbox/*</exclude-pattern>
+        <exclude-pattern>*/inc/email/*</exclude-pattern>
+        <exclude-pattern>*/inc/mime/*</exclude-pattern>
+        <exclude-pattern>*/inc/popup/*</exclude-pattern>
+        <exclude-pattern>wp-content/object-cache.php</exclude-pattern>
+        <exclude-pattern>wp-content/db.php</exclude-pattern>
+        <exclude-pattern>wp-content/advanced-cache.php</exclude-pattern>
+        <exclude-pattern>w3-total-cache-api.php</exclude-pattern>
+        <exclude-pattern>inc/define.php</exclude-pattern>
+        <exclude-pattern>*/inc/widget/*</exclude-pattern>
+        <exclude-pattern>*/inc/wizard/*</exclude-pattern>
+        <exclude-pattern>*/*_View*.php</exclude-pattern>
+        <exclude-pattern>*/*_Page_View*.php</exclude-pattern>
+        <exclude-pattern>*/*_Popup_View*.php</exclude-pattern>
+    </rule>
+
+    <!-- Exclude example files -->
+    <exclude-pattern>./ini/*</exclude-pattern>
+
     <!-- Exclude dependency packages -->
     <exclude-pattern>./lib/*</exclude-pattern>
     <exclude-pattern>./node_modules/*</exclude-pattern>
     <exclude-pattern>./qa/*</exclude-pattern>
     <exclude-pattern>./tests/*</exclude-pattern>
     <exclude-pattern>./vendor/*</exclude-pattern>
+
+    <!-- Exclude scratch files -->
+    <exclude-pattern>..cursor/working/*</exclude-pattern>
 </ruleset>

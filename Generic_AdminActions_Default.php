@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RecursiveRegexIterator;
@@ -59,11 +60,35 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
+	 * Defence-in-depth capability gate for every public action method
+	 * dispatched through Root_AdminActions. Calls wp_die on failure.
+	 *
+	 * Even though Generic_Plugin_Admin::load() now floors the dispatcher
+	 * at manage_options, this per-handler check guarantees that any
+	 * future caller (custom AJAX route, programmatic invocation) cannot
+	 * bypass the cap gate.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	private function _require_admin_cap() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			wp_die(
+				\esc_html__( 'You do not have sufficient permissions to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+	}
+
+	/**
 	 * Enables preview mode and redirects to the home URL.
 	 *
 	 * @return void
 	 */
 	public function w3tc_default_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( true );
 		Util_Environment::redirect( get_home_url() );
 	}
@@ -74,6 +99,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_stop_previewing() {
+		$this->_require_admin_cap();
 		Util_Environment::set_preview( false );
 		Util_Admin::redirect( array(), true );
 	}
@@ -86,11 +112,12 @@ class Generic_AdminActions_Default {
 	 * @throws \Exception If saving the license key or configuration fails.
 	 */
 	public function w3tc_default_save_license_key() {
-		$license = Util_Request::get_string( 'license_key' );
+		$this->_require_admin_cap();
+		$w3tc_license = Util_Request::get_string( 'license_key' );
 		try {
 			$old_config = new Config();
 
-			$this->_config->set( 'plugin.license_key', $license );
+			$this->_config->set( 'plugin.license_key', $w3tc_license );
 			$this->_config->save();
 
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
@@ -112,28 +139,40 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note() {
-		$note    = Util_Request::get_string( 'note' );
-		$setting = sprintf( 'notes.%s', $note );
+		$this->_require_admin_cap();
+		$w3tc_note    = Util_Request::get_string( 'note' );
+		$w3tc_setting = sprintf( 'notes.%s', $w3tc_note );
 
-		$this->_config->set( $setting, false );
+		$this->_config->set( $w3tc_setting, false );
 		$this->_config->save();
 
-		do_action( "w3tc_hide_button-{$note}" );
+		do_action( "w3tc_hide_button-{$w3tc_note}" );
 		Util_Admin::redirect( array(), true );
 	}
 
 	/**
 	 * Updates a specified configuration state value and saves the changes.
 	 *
+	 * The state-key namespace is shared with restricted-write config
+	 * keys (`license.*`, `common.*`, dismissable-notice flags), so
+	 * the writable set is restricted to {@see ConfigKeysSchema::is_known_state_key()}.
+	 * Unknown keys are silently refused without writing.
+	 *
 	 * @return void
 	 */
 	public function w3tc_default_config_state() {
-		$key   = Util_Request::get_string( 'key' );
-		$value = Util_Request::get_string( 'value' );
+		$this->_require_admin_cap();
+		$w3tc_key   = Util_Request::get_string( 'key' );
+		$w3tc_value = Util_Request::get_string( 'value' );
 
-		$config_state = Dispatcher::config_state_master();
-		$config_state->set( $key, $value );
-		$config_state->save();
+		if ( ! ConfigKeysSchema::is_known_state_key( $w3tc_key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
+
+		$w3tc_config_state = Dispatcher::config_state_master();
+		$w3tc_config_state->set( $w3tc_key, $w3tc_value );
+		$w3tc_config_state->save();
 		Util_Admin::redirect( array(), true );
 	}
 
@@ -143,14 +182,80 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_master() {
-		$key   = Util_Request::get_string( 'key' );
-		$value = Util_Request::get_string( 'value' );
+		$this->_require_admin_cap();
+		$w3tc_key   = Util_Request::get_string( 'key' );
+		$w3tc_value = Util_Request::get_string( 'value' );
 
-		$config_state = Dispatcher::config_state_master();
-		$config_state->set( $key, $value );
-		$config_state->save();
+		if ( ! ConfigKeysSchema::is_known_state_key( $w3tc_key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
+
+		if (
+			'common.hide_note_nginx_restart_required' === $w3tc_key &&
+			Util_Environment::to_boolean( $w3tc_value )
+		) {
+			self::record_nginx_restart_notice_dismiss();
+			self::flag_pending_nginx_restart_notice_dismiss();
+		} else {
+			$w3tc_config_state = Dispatcher::config_state_master();
+			$w3tc_config_state->set( $w3tc_key, $w3tc_value );
+			$w3tc_config_state->save();
+		}
 
 		Util_Admin::redirect( array(), true );
+	}
+
+	/**
+	 * Persist an nginx-restart notice dismiss against the current rules file.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function record_nginx_restart_notice_dismiss() {
+		$state = Dispatcher::config_state_master();
+		$state->set( 'common.hide_note_nginx_restart_required', true );
+		$state->set(
+			'common.nginx_rules_dismiss_fingerprint',
+			Util_Rule::nginx_rules_file_fingerprint()
+		);
+		$state->save();
+	}
+
+	/**
+	 * Remember an nginx-restart notice dismiss for the next admin_notices pass.
+	 *
+	 * The dismiss handler runs on `load-{page}` and exits before
+	 * `admin_notices`, but the redirect target always runs the
+	 * environment writer first. That writer can call
+	 * `Util_Rule::after_rules_modified()`, which clears the hide flag.
+	 * Re-applying the dismiss after the writer completes keeps the
+	 * operator's choice on the redirect response.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function flag_pending_nginx_restart_notice_dismiss() {
+		\set_site_transient( 'w3tc_pending_hide_nginx_restart', 1, MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Persist a pending nginx-restart notice dismiss, if any.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	public static function apply_pending_nginx_restart_notice_dismiss() {
+		if ( ! \get_site_transient( 'w3tc_pending_hide_nginx_restart' ) ) {
+			return;
+		}
+
+		\delete_site_transient( 'w3tc_pending_hide_nginx_restart' );
+
+		self::record_nginx_restart_notice_dismiss();
 	}
 
 	/**
@@ -159,11 +264,17 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_config_state_note() {
-		$key   = Util_Request::get_string( 'key' );
-		$value = Util_Request::get_string( 'value' );
+		$this->_require_admin_cap();
+		$w3tc_key   = Util_Request::get_string( 'key' );
+		$w3tc_value = Util_Request::get_string( 'value' );
+
+		if ( ! ConfigKeysSchema::is_known_state_key( $w3tc_key ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
 
 		$s = Dispatcher::config_state_note();
-		$s->set( $key, $value );
+		$s->set( $w3tc_key, $w3tc_value );
 
 		Util_Admin::redirect( array(), true );
 	}
@@ -174,8 +285,9 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_hide_note_custom() {
-		$note = Util_Request::get_string( 'note' );
-		do_action( "w3tc_hide_button_custom-{$note}" );
+		$this->_require_admin_cap();
+		$w3tc_note = Util_Request::get_string( 'note' );
+		do_action( "w3tc_hide_button_custom-{$w3tc_note}" );
 		Util_Admin::redirect( array(), true );
 	}
 
@@ -185,8 +297,9 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_purgelog_clear() {
-		$module       = Util_Request::get_label( 'module' );
-		$log_filename = Util_Debug::log_filename( $module . '-purge' );
+		$this->_require_admin_cap();
+		$w3tc_module  = Util_Request::get_label( 'module' );
+		$log_filename = Util_Debug::log_filename( $w3tc_module . '-purge' );
 
 		if ( file_exists( $log_filename ) ) {
 			unlink( $log_filename );
@@ -196,7 +309,7 @@ class Generic_AdminActions_Default {
 			array(
 				'page'   => 'w3tc_general',
 				'view'   => 'purge_log',
-				'module' => $module,
+				'module' => $w3tc_module,
 			),
 			true
 		);
@@ -208,21 +321,54 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_remove_add_in() {
-		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
+		$this->_require_admin_cap();
+		$w3tc_module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
-		// in the case of missing permissions to delete
-		// environment will use that to try to override addin via ftp.
-		set_transient( 'w3tc_remove_add_in_' . $module, 'yes', 600 );
+		/**
+		 * In the case of missing permissions to delete
+		 * environment will use that to try to override addin via ftp.
+		 */
+		set_transient( 'w3tc_remove_add_in_' . $w3tc_module, 'yes', 600 );
 
-		switch ( $module ) {
+		switch ( $w3tc_module ) {
 			case 'pgcache':
 				Util_WpFile::delete_file( W3TC_ADDIN_FILE_ADVANCED_CACHE );
 				$src = W3TC_INSTALL_FILE_ADVANCED_CACHE;
 				$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
 				try {
 					Util_WpFile::copy_file( $src, $dst );
-				} catch ( Util_WpFile_FilesystemOperationException $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// missing exception handle?
+				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+					/**
+					 * Previously an empty catch silently
+					 * dropped a copy failure here, then fell through
+					 * to the success redirect. The drop-in was left
+					 * missing while the admin saw "add-in removed"
+					 * (false audit trail). Surface the failure to
+					 * both the audit hook and the admin notice so
+					 * operators learn the drop-in needs manual
+					 * restoration.
+					 */
+					Util_Debug::audit_log(
+						'addin_install_failed',
+						array(
+							'module'  => 'pgcache',
+							'source'  => $src,
+							'dest'    => $dst,
+							'message' => $ex->getMessage(),
+						)
+					);
+					Util_Debug::log( 'admin', 'advanced-cache.php restore failed: ' . $ex->getMessage() );
+					Util_Admin::redirect_with_custom_messages(
+						array(),
+						array(
+							sprintf(
+								// translators: %s = filesystem operation error message.
+								__( 'Could not restore advanced-cache.php: %s. The page-cache drop-in needs manual restoration.', 'w3-total-cache' ),
+								$ex->getMessage()
+							),
+						)
+					);
+					return;
 				}
 				break;
 			case 'dbcache':
@@ -246,6 +392,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_save_options() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 		Util_Admin::redirect_with_custom_messages2( $redirect_data );
 	}
@@ -256,6 +403,7 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_save_and_flush() {
+		$this->_require_admin_cap();
 		$redirect_data = $this->_w3tc_save_options_process();
 
 		$f = Dispatcher::component( 'CacheFlush' );
@@ -277,7 +425,7 @@ class Generic_AdminActions_Default {
 	 * @return array
 	 */
 	private function _w3tc_save_options_process() {
-		$data = array(
+		$w3tc_data = array(
 			'old_config'            => $this->_config,
 			'response_query_string' => array(),
 			'response_actions'      => array(),
@@ -287,13 +435,19 @@ class Generic_AdminActions_Default {
 
 		// if we are on extension settings page - stay on the same page.
 		if ( 'w3tc_extensions' === Util_Request::get_string( 'page' ) ) {
-			$data['response_query_string']['page']      = Util_Request::get_string( 'page' );
-			$data['response_query_string']['extension'] = Util_Request::get_string( 'extension' );
-			$data['response_query_string']['action']    = Util_Request::get_string( 'action' );
+			$w3tc_data['response_query_string']['page']      = Util_Request::get_string( 'page' );
+			$w3tc_data['response_query_string']['extension'] = Util_Request::get_string( 'extension' );
+			$w3tc_data['response_query_string']['action']    = Util_Request::get_string( 'action' );
 		}
 
+		/**
+		 * Floor the filterable cap at manage_options so a downstream
+		 * filter cannot lower the gate below admin.
+		 *
+		 * @since 2.10.0
+		 */
 		$capability = apply_filters( 'w3tc_capability_config_save', 'manage_options' );
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! \current_user_can( 'manage_options' ) || empty( $capability ) || ! \current_user_can( $capability ) ) {
 			wp_die( esc_html__( 'You do not have the rights to perform this action.', 'w3-total-cache' ) );
 		}
 
@@ -301,8 +455,8 @@ class Generic_AdminActions_Default {
 		 * Read config
 		 * We should use new instance of WP_Config object here
 		 */
-		$config = new Config();
-		$this->read_request( $config );
+		$w3tc_config = new Config();
+		$this->read_request( $w3tc_config );
 
 		/**
 		 * General tab
@@ -311,16 +465,16 @@ class Generic_AdminActions_Default {
 			$file_nfs     = Util_Request::get_boolean( 'file_nfs' );
 			$file_locking = Util_Request::get_boolean( 'file_locking' );
 
-			$config->set( 'pgcache.file.nfs', $file_nfs );
-			$config->set( 'minify.file.nfs', $file_nfs );
+			$w3tc_config->set( 'pgcache.file.nfs', $file_nfs );
+			$w3tc_config->set( 'minify.file.nfs', $file_nfs );
 
-			$config->set( 'dbcache.file.locking', $file_locking );
-			$config->set( 'objectcache.file.locking', $file_locking );
-			$config->set( 'pgcache.file.locking', $file_locking );
-			$config->set( 'minify.file.locking', $file_locking );
+			$w3tc_config->set( 'dbcache.file.locking', $file_locking );
+			$w3tc_config->set( 'objectcache.file.locking', $file_locking );
+			$w3tc_config->set( 'pgcache.file.locking', $file_locking );
+			$w3tc_config->set( 'minify.file.locking', $file_locking );
 
 			if ( is_network_admin() ) {
-				if ( ( $this->_config->get_boolean( 'common.force_master' ) !== $config->get_boolean( 'common.force_master' ) ) ) {
+				if ( ( $this->_config->get_boolean( 'common.force_master' ) !== $w3tc_config->get_boolean( 'common.force_master' ) ) ) {
 					// blogmap is wrong so empty it.
 					@unlink( W3TC_CACHE_BLOGMAP_FILENAME );
 					$blogmap_dir = dirname( W3TC_CACHE_BLOGMAP_FILENAME ) . '/' . basename( W3TC_CACHE_BLOGMAP_FILENAME, '.php' ) . '/';
@@ -333,12 +487,12 @@ class Generic_AdminActions_Default {
 			/**
 			 * Check permalinks for page cache
 			 */
-			if ( $config->get_boolean( 'pgcache.enabled' ) &&
-				'file_generic' === $config->get_string( 'pgcache.engine' ) &&
+			if ( $w3tc_config->get_boolean( 'pgcache.enabled' ) &&
+				'file_generic' === $w3tc_config->get_string( 'pgcache.engine' ) &&
 				! get_option( 'permalink_structure' ) ) {
 
-				$config->set( 'pgcache.enabled', false );
-				$data['response_errors'][] = 'fancy_permalinks_disabled_pgcache';
+				$w3tc_config->set( 'pgcache.enabled', false );
+				$w3tc_data['response_errors'][] = 'fancy_permalinks_disabled_pgcache';
 			}
 
 			/**
@@ -348,7 +502,7 @@ class Generic_AdminActions_Default {
 			 */
 			if (
 				$this->_config->get_boolean( 'objectcache.enabled' ) && 'file' === $this->_config->get_string( 'objectcache.engine' ) &&
-				( ! $config->get_boolean( 'objectcache.enabled' ) || 'file' !== $config->get_string( 'objectcache.engine' ) )
+				( ! $w3tc_config->get_boolean( 'objectcache.enabled' ) || 'file' !== $w3tc_config->get_string( 'objectcache.engine' ) )
 			) {
 				Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
 			}
@@ -356,11 +510,11 @@ class Generic_AdminActions_Default {
 			/**
 			 * Check for Image Service extension status changes.
 			 */
-			if ( $config->get_boolean( 'extension.imageservice' ) !== $this->_config->get_boolean( 'extension.imageservice' ) ) {
-				if ( $config->get_boolean( 'extension.imageservice' ) ) {
-					Extensions_Util::activate_extension( 'imageservice', $config );
+			if ( $w3tc_config->get_boolean( 'extension.imageservice' ) !== $this->_config->get_boolean( 'extension.imageservice' ) ) {
+				if ( $w3tc_config->get_boolean( 'extension.imageservice' ) ) {
+					Extensions_Util::activate_extension( 'imageservice', $w3tc_config );
 				} else {
-					Extensions_Util::deactivate_extension( 'imageservice', $config );
+					Extensions_Util::deactivate_extension( 'imageservice', $w3tc_config );
 				}
 			}
 		}
@@ -369,9 +523,9 @@ class Generic_AdminActions_Default {
 		 * Minify tab
 		 */
 		if ( 'w3tc_minify' === $this->_page ) {
-			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $config->get_boolean( 'minify.js.http2push' ) ) ||
-			( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
-				if ( 'file_generic' === $config->get_string( 'pgcache.engine' ) ) {
+			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $w3tc_config->get_boolean( 'minify.js.http2push' ) ) ||
+			( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $w3tc_config->get_boolean( 'minify.css.http2push' ) ) ) {
+				if ( 'file_generic' === $w3tc_config->get_string( 'pgcache.engine' ) ) {
 					$cache_dir = Util_Environment::cache_blog_dir( 'page_enhanced' );
 					$this->_delete_all_htaccess_files( $cache_dir );
 				}
@@ -381,17 +535,17 @@ class Generic_AdminActions_Default {
 				$js_groups  = array();
 				$css_groups = array();
 
-				$js_files  = Util_Request::get_array( 'js_files' );
-				$css_files = Util_Request::get_array( 'css_files' );
+				$w3tc_js_files  = Util_Request::get_array( 'js_files' );
+				$w3tc_css_files = Util_Request::get_array( 'css_files' );
 
-				foreach ( $js_files as $theme => $templates ) {
+				foreach ( $w3tc_js_files as $theme => $templates ) {
 					foreach ( $templates as $template => $locations ) {
 						foreach ( (array) $locations as $location => $types ) {
 							foreach ( (array) $types as $files ) {
-								foreach ( (array) $files as $file ) {
-									if ( ! empty( $file ) ) {
+								foreach ( (array) $files as $w3tc_file ) {
+									if ( ! empty( $w3tc_file ) ) {
 										$js_groups[ $theme ][ $template ][ $location ]['files'][] =
-											Util_Environment::normalize_file_minify( $file );
+											Util_Environment::normalize_file_minify( $w3tc_file );
 									}
 								}
 							}
@@ -399,27 +553,27 @@ class Generic_AdminActions_Default {
 					}
 				}
 
-				foreach ( $css_files as $theme => $templates ) {
+				foreach ( $w3tc_css_files as $theme => $templates ) {
 					foreach ( $templates as $template => $locations ) {
 						foreach ( (array) $locations as $location => $files ) {
-							foreach ( (array) $files as $file ) {
-								if ( ! empty( $file ) ) {
+							foreach ( (array) $files as $w3tc_file ) {
+								if ( ! empty( $w3tc_file ) ) {
 									$css_groups[ $theme ][ $template ][ $location ]['files'][] =
-										Util_Environment::normalize_file_minify( $file );
+										Util_Environment::normalize_file_minify( $w3tc_file );
 								}
 							}
 						}
 					}
 				}
 
-				$config->set( 'minify.js.groups', $js_groups );
-				$config->set( 'minify.css.groups', $css_groups );
+				$w3tc_config->set( 'minify.js.groups', $js_groups );
+				$w3tc_config->set( 'minify.css.groups', $css_groups );
 
-				$js_theme  = Util_Request::get_string( 'js_theme' );
-				$css_theme = Util_Request::get_string( 'css_theme' );
+				$w3tc_js_theme  = Util_Request::get_string( 'js_theme' );
+				$w3tc_css_theme = Util_Request::get_string( 'css_theme' );
 
-				$data['response_query_string']['js_theme']  = $js_theme;
-				$data['response_query_string']['css_theme'] = $css_theme;
+				$w3tc_data['response_query_string']['js_theme']  = $w3tc_js_theme;
+				$w3tc_data['response_query_string']['css_theme'] = $w3tc_css_theme;
 			}
 		}
 
@@ -427,12 +581,12 @@ class Generic_AdminActions_Default {
 		 * Browser Cache tab
 		 */
 		if ( 'w3tc_browsercache' === $this->_page ) {
-			if ( $config->get_boolean( 'browsercache.enabled' ) &&
-				$config->get_boolean( 'browsercache.no404wp' ) &&
+			if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) &&
+				$w3tc_config->get_boolean( 'browsercache.no404wp' ) &&
 				! get_option( 'permalink_structure' ) ) {
 
-				$config->set( 'browsercache.no404wp', false );
-				$data['response_errors'][] = 'fancy_permalinks_disabled_browsercache';
+				$w3tc_config->set( 'browsercache.no404wp', false );
+				$w3tc_data['response_errors'][] = 'fancy_permalinks_disabled_browsercache';
 			}
 		}
 
@@ -454,8 +608,8 @@ class Generic_AdminActions_Default {
 				if ( preg_match( '~^\*\.(.*)$~', $cdn_cname, $matches ) ) {
 					$cdn_domains = array();
 
-					for ( $i = 1; $i <= 10; $i++ ) {
-						$cdn_domains[] = sprintf( 'cdn%d.%s', $i, $matches[1] );
+					for ( $w3tc_i = 1; $w3tc_i <= 10; $w3tc_i++ ) {
+						$cdn_domains[] = sprintf( 'cdn%d.%s', $w3tc_i, $matches[1] );
 					}
 
 					break;
@@ -467,57 +621,41 @@ class Generic_AdminActions_Default {
 			}
 
 			switch ( $this->_config->get_string( 'cdn.engine' ) ) {
-				case 'akamai':
-					$config->set( 'cdn.akamai.domain', $cdn_domains );
-					break;
-
-				case 'att':
-					$config->set( 'cdn.att.domain', $cdn_domains );
-					break;
-
 				case 'azure':
-					$config->set( 'cdn.azure.cname', $cdn_domains );
+					$w3tc_config->set( 'cdn.azure.cname', $cdn_domains );
 					break;
 
 				case 'azuremi':
-					$config->set( 'cdn.azuremi.cname', $cdn_domains );
+					$w3tc_config->set( 'cdn.azuremi.cname', $cdn_domains );
 					break;
 
 				case 'cf':
-					$config->set( 'cdn.cf.cname', $cdn_domains );
+					$w3tc_config->set( 'cdn.cf.cname', $cdn_domains );
 					break;
 
 				case 'cf2':
-					$config->set( 'cdn.cf2.cname', $cdn_domains );
-					break;
-
-				case 'cotendo':
-					$config->set( 'cdn.cotendo.domain', $cdn_domains );
-					break;
-
-				case 'edgecast':
-					$config->set( 'cdn.edgecast.domain', $cdn_domains );
+					$w3tc_config->set( 'cdn.cf2.cname', $cdn_domains );
 					break;
 
 				case 'ftp':
-					$config->set( 'cdn.ftp.domain', $cdn_domains );
+					$w3tc_config->set( 'cdn.ftp.domain', $cdn_domains );
 					break;
 
 				case 'mirror':
-					$config->set( 'cdn.mirror.domain', $cdn_domains );
+					$w3tc_config->set( 'cdn.mirror.domain', $cdn_domains );
 					break;
 
 				case 'rackspace_cdn':
-					$config->set( 'cdn.rackspace_cdn.domains', $cdn_domains );
+					$w3tc_config->set( 'cdn.rackspace_cdn.domains', $cdn_domains );
 					break;
 
 				case 'rscf':
-					$config->set( 'cdn.rscf.cname', $cdn_domains );
+					$w3tc_config->set( 'cdn.rscf.cname', $cdn_domains );
 					break;
 
 				case 's3':
 				case 's3_compatible':
-					$config->set( 'cdn.s3.cname', $cdn_domains );
+					$w3tc_config->set( 'cdn.s3.cname', $cdn_domains );
 					break;
 			}
 		}
@@ -526,38 +664,38 @@ class Generic_AdminActions_Default {
 		$new_ext_settings = $old_ext_settings;
 		$modified         = false;
 
-		$extensions = Extensions_Util::get_extensions( $config );
-		foreach ( $extensions as $extension => $descriptor ) {
-			$request = Util_Request::get_as_array( 'extensions.settings.' . $extension . '.' );
+		$extensions = Extensions_Util::get_extensions( $w3tc_config );
+		foreach ( $extensions as $w3tc_extension => $w3tc_descriptor ) {
+			$request = Util_Request::get_as_array( 'extensions.settings.' . $w3tc_extension . '.' );
 			if ( count( $request ) > 0 ) {
-				if ( ! isset( $new_ext_settings[ $extension ] ) ) {
-					$new_ext_settings[ $extension ] = array();
+				if ( ! isset( $new_ext_settings[ $w3tc_extension ] ) ) {
+					$new_ext_settings[ $w3tc_extension ] = array();
 				}
 
-				foreach ( $request as $key => $value ) {
-					if ( ! isset( $old_ext_settings[ $extension ] ) ||
-						! isset( $old_ext_settings[ $extension ][ $key ] ) ||
-						$old_ext_settings[ $extension ][ $key ] !== $value ) {
+				foreach ( $request as $w3tc_key => $w3tc_value ) {
+					if ( ! isset( $old_ext_settings[ $w3tc_extension ] ) ||
+						! isset( $old_ext_settings[ $w3tc_extension ][ $w3tc_key ] ) ||
+						$old_ext_settings[ $w3tc_extension ][ $w3tc_key ] !== $w3tc_value ) {
 
-						$new_ext_settings[ $extension ][ $key ] = $value;
-						$modified                               = true;
+						$new_ext_settings[ $w3tc_extension ][ $w3tc_key ] = $w3tc_value;
+						$modified = true;
 					}
 				}
 			}
 		}
 
 		if ( $modified ) {
-			$config->set( 'extensions.settings', $new_ext_settings );
+			$w3tc_config->set( 'extensions.settings', $new_ext_settings );
 		}
 
-		$data['new_config'] = $config;
-		$data               = apply_filters( 'w3tc_save_options', $data, $this->_page );
-		$config             = $data['new_config'];
+		$w3tc_data['new_config'] = $w3tc_config;
+		$w3tc_data               = apply_filters( 'w3tc_save_options', $w3tc_data, $this->_page );
+		$w3tc_config             = $w3tc_data['new_config'];
 
-		do_action( 'w3tc_config_ui_save', $config, $this->_config );
-		do_action( "w3tc_config_ui_save-{$this->_page}", $config, $this->_config );
+		do_action( 'w3tc_config_ui_save', $w3tc_config, $this->_config );
+		do_action( "w3tc_config_ui_save-{$this->_page}", $w3tc_config, $this->_config );
 
-		Util_Admin::config_save( $this->_config, $config );
+		Util_Admin::config_save( $this->_config, $w3tc_config );
 
 		if ( 'w3tc_cdn' === $this->_page ) {
 			/**
@@ -571,7 +709,7 @@ class Generic_AdminActions_Default {
 					if ( ! $this->enable_cookie_domain() ) {
 						Util_Admin::redirect(
 							array_merge(
-								$data['response_query_string'],
+								$w3tc_data['response_query_string'],
 								array(
 									'w3tc_error' => 'enable_cookie_domain',
 								)
@@ -581,7 +719,7 @@ class Generic_AdminActions_Default {
 				} elseif ( ! $this->disable_cookie_domain() ) {
 					Util_Admin::redirect(
 						array_merge(
-							$data['response_query_string'],
+							$w3tc_data['response_query_string'],
 							array(
 								'w3tc_error' => 'disable_cookie_domain',
 							)
@@ -592,10 +730,10 @@ class Generic_AdminActions_Default {
 		}
 
 		return array(
-			'query_string' => $data['response_query_string'],
-			'actions'      => $data['response_actions'],
-			'errors'       => $data['response_errors'],
-			'notes'        => $data['response_notes'],
+			'query_string' => $w3tc_data['response_query_string'],
+			'actions'      => $w3tc_data['response_actions'],
+			'errors'       => $w3tc_data['response_errors'],
+			'notes'        => $w3tc_data['response_notes'],
 		);
 	}
 
@@ -617,20 +755,20 @@ class Generic_AdminActions_Default {
 		}
 
 		while ( true ) {
-			$file = readdir( $handle );
-			if ( false === $file ) {
+			$w3tc_file = readdir( $handle );
+			if ( false === $w3tc_file ) {
 				break;
 			}
 
-			if ( '.' === $file || '..' === $file ) {
+			if ( '.' === $w3tc_file || '..' === $w3tc_file ) {
 				continue;
 			}
 
-			if ( is_dir( $file ) ) {
-				$this->_delete_all_htaccess_files( $file );
+			if ( is_dir( $w3tc_file ) ) {
+				$this->_delete_all_htaccess_files( $w3tc_file );
 				continue;
-			} elseif ( '.htaccess' === $file ) {
-				@unlink( $dir . '/' . $file );
+			} elseif ( '.htaccess' === $w3tc_file ) {
+				@unlink( $dir . '/' . $w3tc_file );
 			}
 		}
 
@@ -742,16 +880,38 @@ class Generic_AdminActions_Default {
 	/**
 	 * Reads configuration settings from a request and updates the configuration object.
 	 *
-	 * @param object $config Configuration object to update.
+	 * The schema in `ConfigKeys.php` (queried via {@see ConfigKeysSchema})
+	 * is treated as an allowlist:
+	 *
+	 *  - Request keys that do not map to a known schema entry are dropped
+	 *    silently. Previously every request key was written into config
+	 *    regardless of whether ConfigKeys.php declared it.
+	 *  - Compound keys (`extension__<id>__<sub>`) — written through the
+	 *    `w3tc_config_key_descriptor` filter by extensions — are still
+	 *    accepted; their gate is the extension's own filter.
+	 *  - Values are type-coerced from the schema before write, so a
+	 *    boolean-typed key always becomes `true`/`false`.
+	 *
+	 * @param object $w3tc_config Configuration object to update.
 	 *
 	 * @return void
 	 */
-	public function read_request( $config ) {
+	public function read_request( $w3tc_config ) {
 		$request = Util_Request::get_request();
 
-		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.
-
 		foreach ( $request as $request_key => $request_value ) {
+			/**
+			 * The `{name}__w3tc_clear` companion fields rendered next to
+			 * masked secret inputs by `Util_Ui::secret_input()` are
+			 * processed alongside their parent key in the secret block
+			 * below — skip them here so they don't get treated as
+			 * standalone config keys (the descriptor lookup would miss
+			 * and they'd fall through to a stray `$w3tc_config->set()`).
+			 */
+			if ( '__w3tc_clear' === substr( (string) $request_key, -12 ) ) {
+				continue;
+			}
+
 			if ( is_array( $request_value ) ) {
 				$request_value = array_map( 'stripslashes_deep', $request_value );
 			} else {
@@ -762,18 +922,14 @@ class Generic_AdminActions_Default {
 				$extension_id = Util_Ui::config_key_from_http_name( substr( $request_key, 11 ) );
 
 				if ( '1' === $request_value ) {
-					Extensions_Util::activate_extension( $extension_id, $config, true );
+					Extensions_Util::activate_extension( $extension_id, $w3tc_config, true );
 				} else {
-					Extensions_Util::deactivate_extension( $extension_id, $config, true );
+					Extensions_Util::deactivate_extension( $extension_id, $w3tc_config, true );
 				}
 			}
 
-			$key        = Util_Ui::config_key_from_http_name( $request_key );
-			$descriptor = null;
-
-			if ( ! is_array( $key ) && array_key_exists( $key, $keys ) ) {
-				$descriptor = $keys[ $key ];
-			}
+			$w3tc_key        = Util_Ui::config_key_from_http_name( $request_key );
+			$w3tc_descriptor = ConfigKeysSchema::descriptor( $w3tc_key );
 
 			/**
 			 * This filter is needed for compound keys to set the appropirate data type to save as.
@@ -782,26 +938,170 @@ class Generic_AdminActions_Default {
 			 *
 			 * @since 2.4.2
 			 *
-			 * @param mixed $descriptor Array containing correct data type or null if not matched.
-			 * @param array $key        Key to match on.
+			 * @param mixed $w3tc_descriptor Array containing correct data type or null if not matched.
+			 * @param array $w3tc_key        Key to match on.
 			*/
-			$descriptor = apply_filters( 'w3tc_config_key_descriptor', $descriptor, $key );
+			$w3tc_descriptor = apply_filters( 'w3tc_config_key_descriptor', $w3tc_descriptor, $w3tc_key );
 
-			if ( isset( $descriptor['type'] ) ) {
-				if ( 'array' === $descriptor['type'] ) {
+			/**
+			 * Strict allowlist gate: a key reaches `$w3tc_config->set()` only if
+			 * either (a) it's a compound extension key (the extension owns its
+			 * own gate via the filter above), or (b) the schema knows it or
+			 * the filter supplied a descriptor for it.
+			 */
+			if ( ! is_array( $w3tc_key ) && null === $w3tc_descriptor && ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
+				continue;
+			}
+
+			/**
+			 * RT9-210: Page-boundary discipline for high-impact CDN
+			 * credential namespaces.
+			 *
+			 * The strict-allowlist gate above stops *unknown* keys from
+			 * landing in config, but every per-engine CDN credential key
+			 * (S3, CloudFront, Azure, FTP, RackSpace, Google Drive, etc.)
+			 * IS in the schema — so a known-key allowlist alone lets an
+			 * admin viewing any W3TC submenu (General, Page Cache, Object
+			 * Cache, …) POST `cdn__s3__secret=foo` along with their save
+			 * and silently overwrite the configured CDN credentials. The
+			 * proof for this finding lit up 8/8 CDN engines from the
+			 * General page POST.
+			 *
+			 * The fix is a namespace → page-slug map. When the key falls
+			 * into one of the per-engine CDN credential namespaces, the
+			 * write is only accepted if `$this->_page` matches the
+			 * legitimate page where that engine's form lives. The CDN
+			 * Settings UI lives at `w3tc_cdn`; the full-site-delivery
+			 * variant at `w3tc_cdnfsd`. Top-level keys like `cdn.enabled`
+			 * / `cdn.engine` (toggled from General) are not prefixed by
+			 * an engine slug and stay writable as before — only the
+			 * `cdn.<engine>.*` / `cdnfsd.<engine>.*` subtree is gated.
+			 *
+			 * The check sits AFTER the allowlist (so an attacker can't
+			 * smuggle an unknown key past it) and BEFORE the secret /
+			 * type-coercion paths (so a cross-page write is dropped
+			 * before any sensitive transformation runs).
+			 */
+			if ( is_string( $w3tc_key ) ) {
+				$expected_page = self::_credential_namespace_page( $w3tc_key );
+				if ( null !== $expected_page && $expected_page !== $this->_page ) {
+					continue;
+				}
+			}
+
+			if ( isset( $w3tc_descriptor['type'] ) ) {
+				if ( 'array' === $w3tc_descriptor['type'] ) {
 					if ( is_array( $request_value ) ) {
 						// This is needed for radio inputs.
 						$request_value = implode( "\n", $request_value );
 					}
 					$request_value = Util_Environment::textarea_to_array( $request_value );
-				} elseif ( 'boolean' === $descriptor['type'] ) {
+				} elseif ( 'boolean' === $w3tc_descriptor['type'] ) {
 					$request_value = ( '1' === $request_value );
-				} elseif ( 'integer' === $descriptor['type'] ) {
+				} elseif ( 'integer' === $w3tc_descriptor['type'] ) {
 					$request_value = (int) $request_value;
 				}
 			}
 
-			$config->set( $key, $request_value );
+			$is_secret = (
+				is_array( $w3tc_descriptor )
+				&& isset( $w3tc_descriptor['flags'] )
+				&& is_array( $w3tc_descriptor['flags'] )
+				&& ! empty( $w3tc_descriptor['flags']['secret'] )
+			);
+
+			if ( $is_secret ) {
+				/**
+				 * Explicit-clear path: a companion `{name}__w3tc_clear`
+				 * checkbox submitted with value `1` is the ONLY way to
+				 * wipe a stored secret through the admin UI — see
+				 * `Util_Ui::secret_input()` for the rendering side.
+				 * Checked BEFORE the empty-POST-preserves-secret rule
+				 * below so admins can drop a credential (e.g. revoke a
+				 * Pro license, replace an S3 key after rotation) without
+				 * needing to type a placeholder value first.
+				 *
+				 * The downstream `Config::save()` then fires the usual
+				 * `w3tc_config_ui_save-w3tc_general` hook, so e.g.
+				 * `Licensing_Plugin_Admin::possible_state_change()`
+				 * still observes the `! $new_key_set && $old_key_set`
+				 * branch and deactivates the license against EDD.
+				 */
+				$clear_key = $request_key . '__w3tc_clear';
+				if ( isset( $request[ $clear_key ] ) && '1' === (string) $request[ $clear_key ] ) {
+					$w3tc_config->set( $w3tc_key, '' );
+					continue;
+				}
+
+				/**
+				 * Empty-POST-preserves-secret: masked secret inputs
+				 * always submit `value=""`, so an admin saving Settings
+				 * without rotating the credential MUST not blank the
+				 * stored value. Skip the set() entirely; the existing
+				 * encrypted blob on disk is preserved.
+				 */
+				if ( ! is_string( $request_value ) || '' === $request_value ) {
+					continue;
+				}
+			}
+
+			$w3tc_config->set( $w3tc_key, $request_value );
 		}
+	}
+
+	/**
+	 * Map a CDN-engine credential namespace to the admin page slug
+	 * that legitimately renders the form for those keys. Returns
+	 * `null` for keys outside the gated namespaces — the caller treats
+	 * `null` as "no page-boundary requirement, write normally".
+	 *
+	 * Each entry is an exact-prefix match against the dotted config
+	 * key. `cdn.s3.*` keys (S3 Access Key, Secret, Bucket, CNAME, …)
+	 * map to `w3tc_cdn`; `cdnfsd.cloudfront.*` keys (full-site
+	 * delivery CloudFront access/secret) map to `w3tc_cdnfsd`. New
+	 * engines added to the schema MUST be added here too — the rule
+	 * is positive-list, not derived from the schema, so a future
+	 * engine without an entry would default to the previous unsafe
+	 * "any logged-in admin on any W3TC page can write the
+	 * credentials" behaviour. A short test of `w3tc_cdn_test` /
+	 * `w3tc_cdn_credentials_required` confirms missing engines.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $w3tc_key Dotted config key.
+	 *
+	 * @return string|null Expected admin page slug, or null if no
+	 *                    page-boundary constraint applies.
+	 */
+	private static function _credential_namespace_page( $w3tc_key ) {
+		static $map = null;
+		if ( null === $map ) {
+			$map = array(
+				// Standard CDN engines (Settings → CDN).
+				'cdn.ftp.'               => 'w3tc_cdn',
+				'cdn.google_drive.'      => 'w3tc_cdn',
+				'cdn.s3.'                => 'w3tc_cdn',
+				'cdn.s3_compatible.'     => 'w3tc_cdn',
+				'cdn.cf.'                => 'w3tc_cdn',
+				'cdn.cf2.'               => 'w3tc_cdn',
+				'cdn.rscf.'              => 'w3tc_cdn',
+				'cdn.rackspace_cdn.'     => 'w3tc_cdn',
+				'cdn.azure.'             => 'w3tc_cdn',
+				'cdn.azuremi.'           => 'w3tc_cdn',
+				'cdn.bunnycdn.'          => 'w3tc_cdn',
+				'cdn.transparentcdn.'    => 'w3tc_cdn',
+
+				// Full-site-delivery CDN engines (Settings → CDN FSD).
+				'cdnfsd.cloudfront.'     => 'w3tc_cdnfsd',
+				'cdnfsd.bunnycdn.'       => 'w3tc_cdnfsd',
+				'cdnfsd.transparentcdn.' => 'w3tc_cdnfsd',
+			);
+		}
+		foreach ( $map as $prefix => $page ) {
+			if ( 0 === \strpos( $w3tc_key, $prefix ) ) {
+				return $page;
+			}
+		}
+		return null;
 	}
 }
