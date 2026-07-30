@@ -32,7 +32,7 @@ class CdnEngine {
 					break;
 				
 				case 'azure_gcc_high':
-					$instances[ $instance_key ] = new CdnEngine_Azure_GCC_High( $config );
+					$instances[ $instance_key ] = new CdnEngine_Azure_GCC_High( $w3tc_config );
 					break;
 
 				case 'azuremi':
