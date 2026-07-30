@@ -622,6 +622,7 @@ class Generic_AdminActions_Default {
 
 			switch ( $this->_config->get_string( 'cdn.engine' ) ) {
 				case 'azure':
+				case 'azure_gcc_high':
 					$w3tc_config->set( 'cdn.azure.cname', $cdn_domains );
 					break;
 

@@ -151,6 +151,11 @@ class Cdn_Plugin_Admin {
 			'optgroup' => $optgroup_push,
 		);
 
+		$engine_values['azure_gcc_high'] = array(
+			'label'    => \__( 'Microsoft Azure Storage (GCC High)', 'w3-total-cache' ),
+			'optgroup' => $optgroup_push,
+		);
+
 		$engine_values['azuremi'] = array(
 			'disabled' => empty( getenv( 'APPSETTING_WEBSITE_SITE_NAME' ) ),
 			'label'    => \__( 'Microsoft Azure Storage (Managed Identity)', 'w3-total-cache' ),

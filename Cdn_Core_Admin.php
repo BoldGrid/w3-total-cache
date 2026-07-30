@@ -919,7 +919,7 @@ class Cdn_Core_Admin {
 				break;
 
 			case (
-				'azure' === $w3tc_cdn_engine &&
+				( 'azure' === $w3tc_cdn_engine || 'azure_gcc_high' === $w3tc_cdn_engine ) &&
 				(
 					'' === $this->_config->get_string( 'cdn.azure.user' ) ||
 					'' === $this->_config->get_string( 'cdn.azure.key' ) ||

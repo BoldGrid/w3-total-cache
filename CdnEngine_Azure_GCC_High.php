@@ -355,9 +355,11 @@ class CdnEngine_Azure_GCC_High extends CdnEngine_Base {
 			throw new \Exception( $error );
 		}
 
-		if ( in_array( $this->_config['container'], (array) $containers ) ) {
-			$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
-			throw new \Exception( $error );
+		foreach ( $containers->getContainers() as $_container ) {
+			if ( $_container->getName() === $this->_config['container'] ) {
+				$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
+				throw new \Exception( $error );
+			}
 		}
 
 		try {

@@ -384,6 +384,7 @@ class Cdn_Core {
 
 			switch ( $w3tc_engine ) {
 				case 'azure':
+				case 'azure_gcc_high':
 					$engine_config = array(
 						'user'        => $w3tc_c->get_string( 'cdn.azure.user' ),
 						'key'         => $w3tc_c->get_string( 'cdn.azure.key' ),
@@ -835,6 +836,7 @@ class Cdn_Core {
 	public function is_cdn_authorized() {
 		switch ( $this->_config->get_string( 'cdn.engine' ) ) {
 			case 'azure':
+			case 'azure_gcc_high':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azure.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.container' ) ) &&

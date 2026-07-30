@@ -1283,6 +1283,19 @@ jQuery(function () {
         }
         break;
 
+      case "azure_gcc_high":
+        jQuery.extend(params, {
+          engine: "azure_gcc_high",
+          "config[user]": jQuery("#cdn_azure_user").val(),
+          "config[key]": jQuery("#cdn_azure_key").val(),
+          "config[container]": jQuery("#cdn_azure_container").val(),
+        });
+
+        if (cnames.length) {
+          params["config[cname][]"] = cnames;
+        }
+        break;
+
       case "azuremi":
         jQuery.extend(params, {
           engine: "azuremi",
@@ -1416,6 +1429,19 @@ jQuery(function () {
       case "azure":
         jQuery.extend(params, {
           engine: "azure",
+          "config[user]": jQuery("#cdn_azure_user").val(),
+          "config[key]": jQuery("#cdn_azure_key").val(),
+          "config[container]": jQuery("#cdn_azure_container").val(),
+        });
+
+        if (cnames.length) {
+          params["config[cname][]"] = cnames;
+        }
+        break;
+
+      case "azure_gcc_high":
+        jQuery.extend(params, {
+          engine: "azure_gcc_high",
           "config[user]": jQuery("#cdn_azure_user").val(),
           "config[key]": jQuery("#cdn_azure_key").val(),
           "config[container]": jQuery("#cdn_azure_container").val(),

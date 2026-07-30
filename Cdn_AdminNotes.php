@@ -285,7 +285,7 @@ class Cdn_AdminNotes {
 				$error = __( 'The <strong>"Username", "API key", "Container" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 
-			case ( 'azure' === $w3tc_cdn_engine && ( empty( $w3tc_c->get_string( 'cdn.azure.user' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.key' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.container' ) ) ) ):
+			case ( ( 'azure' === $w3tc_cdn_engine || 'azure_gcc_high' === $w3tc_cdn_engine ) && ( empty( $w3tc_c->get_string( 'cdn.azure.user' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.key' ) ) || empty( $w3tc_c->get_string( 'cdn.azure.container' ) ) ) ):
 				$error = __( 'The <strong>"Account name", "Account key" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
 				break;
 

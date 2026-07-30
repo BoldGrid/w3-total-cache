@@ -1218,6 +1218,7 @@ $w3tc_keys = array(
 		'enum'    => array(
 			'',
 			'azure',
+			'azure_gcc_high',
 			'azuremi',
 			'bunnycdn',
 			'cf',

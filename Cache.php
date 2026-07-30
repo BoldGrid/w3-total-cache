@@ -181,6 +181,10 @@ class Cache {
 				$engine_name = 'Microsoft Azure Storage';
 				break;
 
+			case 'azure_gcc_high':
+				$engine_name = 'Microsoft Azure Storage (GCC High)';
+				break;
+
 			case 'azuremi':
 				$engine_name = 'Microsoft Azure Storage (Managed Identity)';
 				break;

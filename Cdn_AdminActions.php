@@ -634,6 +634,7 @@ class Cdn_AdminActions {
 			case 'rscf':
 				return array( 'key' => 'cdn.rscf.key' );
 			case 'azure':
+			case 'azure_gcc_high':
 				return array( 'key' => 'cdn.azure.key' );
 			default:
 				return array();
@@ -764,6 +765,7 @@ class Cdn_AdminActions {
 			case 'cf':
 			case 'cf2':
 			case 'azure':
+			case 'azure_gcc_high':
 			case 'azuremi':
 				$w3_cdn = CdnEngine::instance( $w3tc_engine, $w3tc_config );
 

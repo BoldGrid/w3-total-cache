@@ -25,6 +25,7 @@ class Cdn_Util {
 			$w3tc_engine,
 			array(
 				'azure',
+				'azure_gcc_high',
 				'azuremi',
 				'cf',
 				'cf2',
@@ -102,6 +103,7 @@ class Cdn_Util {
 			$w3tc_engine,
 			array(
 				'azure',
+				'azure_gcc_high',
 				'azuremi',
 				'cf',
 				'cf2',
