@@ -130,6 +130,34 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Purge-current-page with a post_id uses the object gate (UI and action align).
+	 *
+	 * @since X.X.X
+	 */
+	public function test_flush_post_with_post_id_requires_edit_post() {
+		\add_filter( 'w3tc_capability_flush_post', static function () {
+			return 'read';
+		} );
+
+		$admin_id      = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$post_id       = $this->factory->post->create(
+			array(
+				'post_author' => $admin_id,
+				'post_status' => 'publish',
+			)
+		);
+
+		wp_set_current_user( $subscriber_id );
+		$this->assertTrue( Util_Capability::can_flush_post() );
+		$this->assertFalse( Util_Capability::can_flush_post_id( $post_id ) );
+
+		$_GET['post_id'] = (string) $post_id;
+		$this->assertFalse( Util_Capability::can_execute_purge( 'w3tc_flush_post' ) );
+		unset( $_GET['post_id'] );
+	}
+
+	/**
 	 * Invalid filter returns fall back to manage_options.
 	 *
 	 * @since X.X.X
