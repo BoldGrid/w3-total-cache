@@ -563,10 +563,10 @@ class Generic_Plugin {
 		$is_full_admin = \current_user_can( 'manage_options' );
 
 		/**
-		 * Full Performance menu for manage_options; purge-only subset for
-		 * users granted filterable purge caps (ENG7-4564).
+		 * Full Performance menu for manage_options; otherwise a purge-only
+		 * subset when the user has a filterable purge capability.
 		 *
-		 * @since 2.10.4
+		 * @since X.X.X
 		 */
 		if ( ! $is_full_admin && ! Util_Capability::user_can_purge_anything() ) {
 			return;
@@ -716,10 +716,9 @@ class Generic_Plugin {
 		$menu_items = apply_filters( 'w3tc_admin_bar_menu', $menu_items );
 
 		/**
-		 * Non-admins: keep only purge allowlist ids so module filters cannot
-		 * inject settings or module-flush links.
+		 * Non-admins: keep only purge allowlist ids after w3tc_admin_bar_menu.
 		 *
-		 * @since 2.10.4
+		 * @since X.X.X
 		 */
 		if ( ! $is_full_admin ) {
 			$menu_items = array_filter(
@@ -736,12 +735,16 @@ class Generic_Plugin {
 		foreach ( $w3tc_keys as $w3tc_key ) {
 			$item_id = $menu_items[ $w3tc_key ]['id'];
 
-			if ( 'w3tc_flush_all' === $item_id ) {
+			if ( 'w3tc' === $item_id ) {
+				$default_cap = $is_full_admin
+					? $base_capability
+					: Util_Capability::admin_bar_parent_capability();
+			} elseif ( 'w3tc_flush_all' === $item_id ) {
 				$default_cap = Util_Capability::flush_all_capability();
 			} elseif ( 'w3tc_flush_current_page' === $item_id ) {
 				$default_cap = Util_Capability::flush_post_capability();
 			} else {
-				$default_cap = $is_full_admin ? $base_capability : Util_Capability::flush_post_capability();
+				$default_cap = $base_capability;
 			}
 
 			$capability = Util_Capability::sanitize_capability(

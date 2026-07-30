@@ -2,13 +2,12 @@
 /**
  * File: class-w3tc-purge-capability-test.php
  *
- * ENG7-4564: filterable purge capabilities — secure by default, filterable
- * when developers opt in. Settings / non-purge admin actions stay floored at
- * manage_options.
+ * Filterable purge capability helpers: default manage_options; settings and
+ * other non-purge admin actions stay floored at manage_options.
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      2.10.4
+ * @since      X.X.X
  */
 
 declare( strict_types = 1 );
@@ -18,14 +17,14 @@ use W3TC\Util_Capability;
 /**
  * Class: W3tc_Purge_Capability_Test
  *
- * @since 2.10.4
+ * @since X.X.X
  */
 class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tear down filters and user.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function tear_down() {
 		\remove_all_filters( 'w3tc_capability_flush_all' );
@@ -40,7 +39,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Default (no filters): only manage_options can purge.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_default_admin_can_purge_editor_cannot() {
 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -59,7 +58,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Filter flush_all to edit_posts: editor can purge all, not implied for post-only separation.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_filter_flush_all_grants_editor() {
 		\add_filter( 'w3tc_capability_flush_all', static function () {
@@ -79,7 +78,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Filter flush_post only: editor can purge posts they can edit.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_filter_flush_post_requires_edit_post() {
 		\add_filter( 'w3tc_capability_flush_post', static function () {
@@ -116,7 +115,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Low-cap filter is honored (ill-advised but possible).
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_filter_read_honored_for_flush_all() {
 		\add_filter( 'w3tc_capability_flush_all', static function () {
@@ -133,7 +132,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Invalid filter returns fall back to manage_options.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_invalid_filter_returns_manage_options() {
 		\add_filter( 'w3tc_capability_flush_all', static function () {
@@ -151,7 +150,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Subscriber without filter cannot purge even with a valid mental model of nonce.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_subscriber_without_filter_cannot_purge() {
 		$subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -165,7 +164,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Legacy admin_bar filter grants both purge caps (historical agency pattern).
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_legacy_admin_bar_filter_grants_purge() {
 		\add_filter( 'w3tc_capability_admin_bar', static function () {
@@ -180,9 +179,45 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Flush-all-only must still resolve an admin-bar parent cap the editor can meet.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_admin_bar_parent_cap_with_flush_all_only() {
+		\add_filter( 'w3tc_capability_flush_all', static function () {
+			return 'edit_posts';
+		} );
+
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+
+		$this->assertTrue( Util_Capability::can_flush_all() );
+		$this->assertFalse( Util_Capability::can_flush_post() );
+		$this->assertSame( 'edit_posts', Util_Capability::admin_bar_parent_capability() );
+		$this->assertTrue( \current_user_can( Util_Capability::admin_bar_parent_capability() ) );
+	}
+
+	/**
+	 * Flush-post-only parent cap uses flush-post.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_admin_bar_parent_cap_with_flush_post_only() {
+		\add_filter( 'w3tc_capability_flush_post', static function () {
+			return 'edit_posts';
+		} );
+
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+
+		$this->assertSame( 'edit_posts', Util_Capability::admin_bar_parent_capability() );
+		$this->assertTrue( \current_user_can( Util_Capability::admin_bar_parent_capability() ) );
+	}
+
+	/**
 	 * Non-purge actions stay outside the allowlist.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_non_purge_actions_not_allowlisted() {
 		$this->assertFalse( Util_Capability::is_purge_action( 'w3tc_flush_pgcache' ) );
@@ -196,7 +231,7 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	/**
 	 * Editor with purge filters still lacks manage_options (settings stay sealed).
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 */
 	public function test_purge_filter_does_not_grant_manage_options() {
 		\add_filter( 'w3tc_capability_flush_all', static function () {

@@ -52,7 +52,7 @@ class Generic_Plugin_AdminRowActions {
 	/**
 	 * Append Purge from cache when the user may flush this post.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 *
 	 * @param array  $actions Actions.
 	 * @param object $post    Post.

@@ -129,7 +129,7 @@ class Generic_Plugin_Admin {
 	/**
 	 * Detect a dispatchable admin-action key from the current request.
 	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 *
 	 * @param Root_AdminActions $executor Action executor.
 	 *
@@ -180,10 +180,7 @@ class Generic_Plugin_Admin {
 	/**
 	 * Execute allowlisted purge actions on admin_init (no W3TC menu required).
 	 *
-	 * Filterable purge caps apply here; non-purge actions stay on load() with
-	 * a hard manage_options floor.
-	 *
-	 * @since 2.10.4
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -240,13 +237,11 @@ class Generic_Plugin_Admin {
 			}
 
 			/**
-			 * Purge allowlist uses filterable caps (ENG7-4564). All other
-			 * admin actions keep the hard manage_options floor from 2.10.0.
-			 * Prefer admin_init for purge so non-admins need no W3TC page;
-			 * this branch remains for any load()-only reachability.
+			 * Purge allowlist uses filterable caps; all other admin actions
+			 * keep the manage_options floor.
 			 *
 			 * @since 2.10.0
-			 * @since 2.10.4 Purge allowlist exception.
+			 * @since X.X.X Purge allowlist exception.
 			 */
 			if ( Util_Capability::is_purge_action( $action ) ) {
 				if ( ! Util_Capability::can_execute_purge( $action ) ) {
@@ -1218,9 +1213,8 @@ class Generic_Plugin_Admin {
 	public function favorite_actions( $actions ) {
 		/**
 		 * Filterable purge-all capability (default manage_options).
-		 * Does not expose settings; only the Empty Caches favorite.
 		 *
-		 * @since 2.10.4
+		 * @since X.X.X
 		 */
 		if ( ! Util_Capability::can_flush_all() ) {
 			return $actions;
