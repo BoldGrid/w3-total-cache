@@ -719,24 +719,26 @@ class Generic_Plugin {
 			}
 		}
 
-		$menu_items = apply_filters( 'w3tc_admin_bar_menu', $menu_items );
+		$menu_items = \apply_filters( 'w3tc_admin_bar_menu', $menu_items );
 
 		/**
-		 * Non-admins: keep only purge allowlist ids after w3tc_admin_bar_menu.
+		 * Non-admins: keep allowlisted purge items whose href targets a
+		 * filterable purge action (extensions may reuse an allowlisted id
+		 * with a dashboard-only link).
 		 *
 		 * @since X.X.X
 		 */
 		if ( ! $is_full_admin ) {
-			$menu_items = array_filter(
+			$menu_items = \array_filter(
 				$menu_items,
 				static function ( $item ) {
-					return isset( $item['id'] ) && \in_array( $item['id'], Util_Capability::PURGE_ADMIN_BAR_IDS, true );
+					return \is_array( $item ) && Util_Capability::is_allowed_purge_admin_bar_item( $item );
 				}
 			);
 		}
 
-		$w3tc_keys = array_keys( $menu_items );
-		asort( $w3tc_keys );
+		$w3tc_keys = \array_keys( $menu_items );
+		\asort( $w3tc_keys );
 
 		foreach ( $w3tc_keys as $w3tc_key ) {
 			$item_id = $menu_items[ $w3tc_key ]['id'];
@@ -757,7 +759,7 @@ class Generic_Plugin {
 				\apply_filters( 'w3tc_capability_admin_bar_' . $item_id, $default_cap )
 			);
 
-			if ( current_user_can( $capability ) ) {
+			if ( \current_user_can( $capability ) ) {
 				$wp_admin_bar->add_menu( $menu_items[ $w3tc_key ] );
 			}
 		}

@@ -68,7 +68,7 @@ class Generic_Plugin_AdminRowActions {
 			$actions,
 			array(
 				'w3tc_flush_post' => sprintf(
-					'<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>',
+					'<a href="%s">%s</a>',
 					esc_url(
 						Util_Capability::purge_action_url(
 							'w3tc_flush_post',
@@ -77,7 +77,8 @@ class Generic_Plugin_AdminRowActions {
 								'force'   => 'true',
 							)
 						)
-					)
+					),
+					esc_html__( 'Purge from cache', 'w3-total-cache' )
 				),
 			)
 		);

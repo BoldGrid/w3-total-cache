@@ -257,6 +257,95 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Admin-bar allowlist rejects reused ids that do not target purge actions.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_admin_bar_item_requires_purge_action_href() {
+		$this->assertTrue(
+			Util_Capability::is_allowed_purge_admin_bar_item(
+				array(
+					'id'   => 'w3tc',
+					'href' => false,
+				)
+			)
+		);
+		$this->assertTrue(
+			Util_Capability::is_allowed_purge_admin_bar_item(
+				array(
+					'id'   => 'w3tc_flush_current_page',
+					'href' => 'https://example.com/wp-admin/admin.php?w3tc_flush_post=1&post_id=5',
+				)
+			)
+		);
+		$this->assertFalse(
+			Util_Capability::is_allowed_purge_admin_bar_item(
+				array(
+					'id'   => 'w3tc_flush_current_page',
+					'href' => 'https://example.com/wp-admin/admin.php?page=w3tc_dashboard&w3tc_alwayscached_regenerate=1&post_id=5',
+				)
+			)
+		);
+	}
+
+	/**
+	 * URL flush requires a same-host URL and edit_post (or flush-all).
+	 *
+	 * @since X.X.X
+	 */
+	public function test_flush_current_page_requires_edit_post_for_url() {
+		\add_filter(
+			'w3tc_capability_flush_post',
+			static function () {
+				return 'edit_posts';
+			}
+		);
+
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$author_id = $this->factory->user->create( array( 'role' => 'author' ) );
+		$own_id    = $this->factory->post->create(
+			array(
+				'post_author' => $author_id,
+				'post_status' => 'publish',
+				'post_name'   => 'author-purge-url-post',
+			)
+		);
+		$other_id  = $this->factory->post->create(
+			array(
+				'post_author' => $editor_id,
+				'post_status' => 'publish',
+				'post_name'   => 'editor-purge-url-post',
+			)
+		);
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$own_url   = \get_permalink( $own_id );
+		$other_url = \get_permalink( $other_id );
+
+		wp_set_current_user( $author_id );
+
+		$_GET['url'] = $own_url;
+		$this->assertTrue( Util_Capability::can_execute_purge( 'w3tc_flush_current_page' ) );
+
+		$_GET['url'] = $other_url;
+		$this->assertFalse( Util_Capability::can_execute_purge( 'w3tc_flush_current_page' ) );
+
+		$_GET['url'] = 'https://evil.example/path';
+		$this->assertFalse( Util_Capability::can_execute_purge( 'w3tc_flush_current_page' ) );
+		unset( $_GET['url'] );
+
+		\add_filter(
+			'w3tc_capability_flush_all',
+			static function () {
+				return 'edit_posts';
+			}
+		);
+		$_GET['url'] = $other_url;
+		$this->assertTrue( Util_Capability::can_execute_purge( 'w3tc_flush_current_page' ) );
+		unset( $_GET['url'] );
+	}
+
+	/**
 	 * Editor with purge filters still lacks manage_options (settings stay sealed).
 	 *
 	 * @since X.X.X

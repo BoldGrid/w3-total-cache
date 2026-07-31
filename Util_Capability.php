@@ -231,6 +231,41 @@ class Util_Capability {
 	}
 
 	/**
+	 * Whether a filtered admin-bar item is safe for purge-only non-admins.
+	 *
+	 * Requires an allowlisted id and (except the parent) an href that targets
+	 * a filterable purge action — extensions may reuse an allowlisted id with
+	 * a dashboard-only link.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $item Admin-bar menu item.
+	 *
+	 * @return bool
+	 */
+	public static function is_allowed_purge_admin_bar_item( array $item ) {
+		if ( ! isset( $item['id'] ) || ! \in_array( $item['id'], self::PURGE_ADMIN_BAR_IDS, true ) ) {
+			return false;
+		}
+
+		if ( 'w3tc' === $item['id'] ) {
+			return true;
+		}
+
+		if ( empty( $item['href'] ) || ! \is_string( $item['href'] ) ) {
+			return false;
+		}
+
+		foreach ( self::PURGE_ACTIONS as $action ) {
+			if ( false !== \strpos( $item['href'], $action ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Whether the current user may execute a purge admin-action.
 	 *
 	 * @since X.X.X
@@ -257,7 +292,44 @@ class Util_Capability {
 			return self::can_flush_post();
 		}
 
-		return self::can_flush_post();
+		return self::can_flush_current_page_request();
+	}
+
+	/**
+	 * Authorize w3tc_flush_current_page for a same-host URL target.
+	 *
+	 * Flush-all may clear any same-host URL. Flush-post requires edit_post on
+	 * the post resolved from the URL.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	public static function can_flush_current_page_request() {
+		$url = Util_Request::get_string( 'url' );
+		if ( '' === $url && isset( $_SERVER['HTTP_REFERER'] ) ) {
+			$url = \sanitize_text_field( \wp_unslash( $_SERVER['HTTP_REFERER'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized immediately; referer fallback for URL flush.
+		}
+
+		if ( '' === $url ) {
+			return false;
+		}
+
+		$validated = \wp_validate_redirect( $url, false );
+		if ( ! $validated ) {
+			return false;
+		}
+
+		if ( self::can_flush_all() ) {
+			return true;
+		}
+
+		$post_id = (int) \url_to_postid( $validated );
+		if ( $post_id <= 0 ) {
+			return false;
+		}
+
+		return self::can_flush_post_id( $post_id );
 	}
 
 	/**
