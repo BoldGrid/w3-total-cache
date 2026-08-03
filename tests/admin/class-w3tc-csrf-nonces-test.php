@@ -13,7 +13,8 @@
  *    (cross-action replay closed when the legacy fallback is disabled).
  *  - Capability gate is independent of the nonce: a valid legacy nonce held
  *    by a subscriber-level caller still fails the dispatcher's
- *    `current_user_can( 'manage_options' )` check.
+ *    capability check (manage_options for non-purge actions; filterable
+ *    purge caps for the flush allowlist — see Util_Capability).
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
@@ -210,10 +211,9 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 
 	/**
 	 * A subscriber-level user holding a *valid* legacy nonce still fails the
-	 * `current_user_can( 'manage_options' )` capability gate. This is the
-	 * "nonce never authorises by itself" invariant — the verifier returns true
-	 * because the token is valid, but the caller must independently check
-	 * capability before allowing the privileged action.
+	 * capability gate for flush_all when no purge filter is installed.
+	 * Nonce never authorises by itself — Util_Capability::can_execute_purge
+	 * (or manage_options for non-purge actions) must also pass.
 	 *
 	 * @since 2.10.0
 	 */
@@ -230,6 +230,10 @@ class W3tc_Csrf_Nonces_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			\current_user_can( 'manage_options' ),
 			'Subscriber must NOT have manage_options — capability gate is the second factor.'
+		);
+		$this->assertFalse(
+			\W3TC\Util_Capability::can_execute_purge( 'w3tc_flush_all' ),
+			'Subscriber without a purge capability filter must not execute flush_all.'
 		);
 	}
 

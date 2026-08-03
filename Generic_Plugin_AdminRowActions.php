@@ -34,38 +34,7 @@ class Generic_Plugin_AdminRowActions {
 	 * @return array
 	 */
 	public function post_row_actions( $actions, $post ) {
-		$capability = apply_filters( 'w3tc_capability_row_action_w3tc_flush_post', 'manage_options' );
-
-		/**
-		 * Floor the filterable cap at manage_options to prevent a
-		 * downstream filter from exposing the row action to non-admins
-		 *.
-		 *
-		 * @since 2.10.0
-		 */
-		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
-			return $actions;
-		}
-
-		if ( current_user_can( $capability ) ) {
-			$actions = array_merge(
-				$actions,
-				array(
-					'w3tc_flush_post' => sprintf(
-						'<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>',
-						Util_Nonce::admin_nonce_url(
-							sprintf(
-								'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d&force=true',
-								$post->ID
-							),
-							'w3tc_flush_post'
-						)
-					),
-				)
-			);
-		}
-
-		return $actions;
+		return $this->add_flush_post_row_action( $actions, $post );
 	}
 
 	/**
@@ -77,36 +46,42 @@ class Generic_Plugin_AdminRowActions {
 	 * @return array
 	 */
 	public function page_row_actions( $actions, $post ) {
-		$capability = apply_filters( 'w3tc_capability_row_action_w3tc_flush_post', 'manage_options' );
+		return $this->add_flush_post_row_action( $actions, $post );
+	}
 
-		/**
-		 * Floor the filterable cap at manage_options to prevent a
-		 * downstream filter from exposing the row action to non-admins
-		 *.
-		 *
-		 * @since 2.10.0
-		 */
-		if ( empty( $capability ) || ! \current_user_can( 'manage_options' ) ) {
+	/**
+	 * Append Purge from cache when the user may flush this post.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $actions Actions.
+	 * @param object $post    Post.
+	 *
+	 * @return array
+	 */
+	private function add_flush_post_row_action( $actions, $post ) {
+		if ( ! isset( $post->ID ) || ! Util_Capability::can_flush_post_id( (int) $post->ID ) ) {
 			return $actions;
 		}
 
-		if ( current_user_can( $capability ) ) {
-			$actions = array_merge(
-				$actions,
-				array(
-					'w3tc_flush_post' => sprintf(
-						'<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>',
-						Util_Nonce::admin_nonce_url(
-							sprintf(
-								'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d&force=true',
-								$post->ID
-							),
-							'w3tc_flush_post'
+		$actions = array_merge(
+			$actions,
+			array(
+				'w3tc_flush_post' => sprintf(
+					'<a href="%s">%s</a>',
+					esc_url(
+						Util_Capability::purge_action_url(
+							'w3tc_flush_post',
+							array(
+								'post_id' => (int) $post->ID,
+								'force'   => 'true',
+							)
 						)
 					),
-				)
-			);
-		}
+					esc_html__( 'Purge from cache', 'w3-total-cache' )
+				),
+			)
+		);
 
 		return $actions;
 	}
@@ -117,24 +92,24 @@ class Generic_Plugin_AdminRowActions {
 	 * @return void
 	 */
 	public function post_submitbox_start() {
-		if ( current_user_can( 'manage_options' ) ) {
-			global $post;
-			if ( ! is_null( $post ) ) {
-				$w3tc_url = Util_Ui::url(
-					array(
-						'page'            => 'w3tc_dashboard',
-						'w3tc_flush_post' => 'y',
-						'post_id'         => $post->ID,
-						'force'           => true,
-					)
-				);
+		global $post;
 
-				printf(
-					'<div><a href="%s">%s</a></div>',
-					esc_url( $w3tc_url ),
-					esc_html__( 'Purge from cache', 'w3-total-cache' )
-				);
-			}
+		if ( is_null( $post ) || ! Util_Capability::can_flush_post_id( (int) $post->ID ) ) {
+			return;
 		}
+
+		printf(
+			'<div><a href="%s">%s</a></div>',
+			esc_url(
+				Util_Capability::purge_action_url(
+					'w3tc_flush_post',
+					array(
+						'post_id' => (int) $post->ID,
+						'force'   => 'true',
+					)
+				)
+			),
+			esc_html__( 'Purge from cache', 'w3-total-cache' )
+		);
 	}
 }
