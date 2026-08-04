@@ -118,7 +118,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Substring "src=" inside a single-quoted alt value is left alone.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_ignores_src_substring_in_alt() {
 				$mutator = $this->get_mutator();
@@ -135,7 +135,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Double-quoted alt containing a quoted src= fragment is left alone.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_ignores_quoted_src_fragment_in_alt() {
 				$mutator = $this->get_mutator();
@@ -150,7 +150,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Opposite-quote src= text inside a double-quoted alt is left alone.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_ignores_opposite_quote_src_in_double_alt() {
 				$mutator = $this->get_mutator();
@@ -166,7 +166,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Opposite-quote src= text inside a single-quoted alt is left alone.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_ignores_opposite_quote_src_in_single_alt() {
 				$mutator = $this->get_mutator();
@@ -182,7 +182,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Double-quoted src values may contain an apostrophe.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_allows_apostrophe_in_double_quoted_src() {
 				$mutator = $this->get_mutator();
@@ -197,7 +197,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Placeholder data-URI contains no literal apostrophe or quote characters.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_placeholder_has_no_literal_quotes() {
 				$mutator    = $this->get_mutator();
@@ -212,7 +212,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Single-quoted src attributes still convert to lazy-load form.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_tag_img_content_replace_handles_single_quoted_src() {
 				$mutator = $this->get_mutator();
@@ -228,7 +228,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Picture source and image attributes are converted to lazy-load form.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		public function test_picture_source_and_image_attributes_are_replaced() {
 				$picture = new UserExperience_LazyLoad_Mutator_Picture( $this->get_mutator() );

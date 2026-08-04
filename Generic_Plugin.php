@@ -566,7 +566,7 @@ class Generic_Plugin {
 		 * Full Performance menu for manage_options; otherwise a purge-only
 		 * subset when the user has a filterable purge capability.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		if ( ! $is_full_admin && ! Util_Capability::user_can_purge_anything() ) {
 			return;
@@ -726,7 +726,7 @@ class Generic_Plugin {
 		 * filterable purge action (extensions may reuse an allowlisted id
 		 * with a dashboard-only link).
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		if ( ! $is_full_admin ) {
 			$menu_items = \array_filter(

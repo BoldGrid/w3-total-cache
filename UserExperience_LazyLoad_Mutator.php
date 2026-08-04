@@ -407,7 +407,7 @@ class UserExperience_LazyLoad_Mutator {
 	/**
 	 * Replace top-level quoted attributes, skipping matches inside other attribute values.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string   $content      Tag markup to rewrite.
 	 * @param string   $attr_pattern Attribute name or alternation (e.g. `src` or `srcset|sizes`).
@@ -468,7 +468,7 @@ class UserExperience_LazyLoad_Mutator {
 	/**
 	 * Read the first top-level quoted attribute value, or null if none.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string $content Tag markup.
 	 * @param string $attr    Attribute name.
@@ -500,7 +500,7 @@ class UserExperience_LazyLoad_Mutator {
 	/**
 	 * Whether the byte offset sits outside a quoted HTML attribute value.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string $content Tag markup.
 	 * @param int    $offset  Byte offset into $content.
