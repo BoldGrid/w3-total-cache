@@ -635,12 +635,9 @@ class Generic_Plugin {
 			}
 
 			if ( ! is_admin() ) {
-				$post_id           = (int) Util_Environment::detect_post_id();
-				$can_purge_current = $post_id > 0
-					? ( $is_full_admin || Util_Capability::can_flush_post_id( $post_id ) )
-					: ( $is_full_admin || Util_Capability::can_flush_post() );
+				$post_id = (int) Util_Environment::detect_post_id();
 
-				if ( $can_purge_current ) {
+				if ( $post_id > 0 && ( $is_full_admin || Util_Capability::can_flush_post_id( $post_id ) ) ) {
 					$menu_items['10020.generic'] = array(
 						'id'     => 'w3tc_flush_current_page',
 						'parent' => 'w3tc',
