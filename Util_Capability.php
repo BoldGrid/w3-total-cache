@@ -285,11 +285,11 @@ class Util_Capability {
 
 		if ( 'w3tc_flush_post' === $action ) {
 			$post_id = Util_Request::get_integer( 'post_id' );
-			if ( $post_id > 0 ) {
-				return self::can_flush_post_id( $post_id );
+			if ( $post_id <= 0 ) {
+				$post_id = (int) Util_Environment::detect_post_id();
 			}
 
-			return self::can_flush_post();
+			return self::can_flush_post_id( $post_id );
 		}
 
 		return self::can_flush_current_page_request();

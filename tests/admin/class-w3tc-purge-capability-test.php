@@ -158,6 +158,47 @@ class W3tc_Purge_Capability_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Missing post_id still object-gates when a post is resolved another way.
+	 *
+	 * @since 2.10.4
+	 */
+	public function test_flush_post_without_post_id_still_requires_edit_post() {
+		\add_filter( 'w3tc_capability_flush_post', static function () {
+			return 'edit_posts';
+		} );
+
+		$admin_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$author_id = $this->factory->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->factory->post->create(
+			array(
+				'post_author' => $admin_id,
+				'post_status' => 'publish',
+			)
+		);
+
+		wp_set_current_user( $author_id );
+		$this->assertTrue( Util_Capability::can_flush_post() );
+		$this->assertFalse( Util_Capability::can_flush_post_id( $post_id ) );
+
+		$this->assertFalse( Util_Capability::can_execute_purge( 'w3tc_flush_post' ) );
+
+		$_GET['p'] = (string) $post_id;
+		$this->assertFalse( Util_Capability::can_execute_purge( 'w3tc_flush_post' ) );
+		unset( $_GET['p'] );
+
+		$own_post_id = $this->factory->post->create(
+			array(
+				'post_author' => $author_id,
+				'post_status' => 'publish',
+			)
+		);
+
+		$_GET['p'] = (string) $own_post_id;
+		$this->assertTrue( Util_Capability::can_execute_purge( 'w3tc_flush_post' ) );
+		unset( $_GET['p'] );
+	}
+
+	/**
 	 * Invalid filter returns fall back to manage_options.
 	 *
 	 * @since 2.10.4

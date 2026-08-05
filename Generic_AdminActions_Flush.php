@@ -259,6 +259,10 @@ class Generic_AdminActions_Flush {
 	 */
 	public function w3tc_flush_post() {
 		$post_id = Util_Request::get_integer( 'post_id' );
+		if ( $post_id <= 0 ) {
+			$post_id = (int) Util_Environment::detect_post_id();
+		}
+
 		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
 		$this->_redirect_after_flush( 'pgcache_purge_post', __( 'purge Page cache for post', 'w3-total-cache' ) );
