@@ -6,7 +6,7 @@
  * settings, config save, extensions, and AJAX stay floored elsewhere.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since   2.10.4
  */
 
 namespace W3TC;
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * Class Util_Capability
  *
- * @since X.X.X
+ * @since 2.10.4
  */
 class Util_Capability {
 
 	/**
 	 * Admin-action keys that may use filterable purge caps.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @var string[]
 	 */
@@ -34,7 +34,7 @@ class Util_Capability {
 	/**
 	 * Admin-bar menu item ids allowed for non-manage_options purge users.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @var string[]
 	 */
@@ -49,7 +49,7 @@ class Util_Capability {
 	 *
 	 * Non-string or empty values fall back to manage_options.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param mixed $capability Filtered capability.
 	 *
@@ -69,7 +69,7 @@ class Util_Capability {
 	 * Applies `w3tc_capability_admin_bar`, then `w3tc_capability_flush_all`,
 	 * then `w3tc_capability_favorite_action_flush_all`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return string
 	 */
@@ -84,7 +84,7 @@ class Util_Capability {
 		/**
 		 * Filters the capability required to purge all caches.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 *
 		 * @param string $capability Capability slug.
 		 */
@@ -106,7 +106,7 @@ class Util_Capability {
 	 * Applies `w3tc_capability_admin_bar`, then `w3tc_capability_flush_post`,
 	 * then `w3tc_capability_row_action_w3tc_flush_post`.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return string
 	 */
@@ -121,7 +121,7 @@ class Util_Capability {
 		/**
 		 * Filters the capability required to purge a specific post/page.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 *
 		 * @param string $capability Capability slug.
 		 */
@@ -140,7 +140,7 @@ class Util_Capability {
 	/**
 	 * Whether the current user may purge all caches.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return bool
 	 */
@@ -151,7 +151,7 @@ class Util_Capability {
 	/**
 	 * Whether the current user may purge posts/pages (role-level gate).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return bool
 	 */
@@ -164,7 +164,7 @@ class Util_Capability {
 	 *
 	 * Requires the filtered flush-post capability and edit_post for the id.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param int $post_id Post ID.
 	 *
@@ -187,7 +187,7 @@ class Util_Capability {
 	/**
 	 * Whether the current user has any purge privilege.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return bool
 	 */
@@ -201,7 +201,7 @@ class Util_Capability {
 	 * Uses a purge cap the current user already satisfies so flush-all-only
 	 * grants still show the parent item.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return string
 	 */
@@ -220,7 +220,7 @@ class Util_Capability {
 	/**
 	 * Whether an admin-action key is a filterable purge action.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string $action Dispatcher handler key.
 	 *
@@ -237,7 +237,7 @@ class Util_Capability {
 	 * a filterable purge action — extensions may reuse an allowlisted id with
 	 * a dashboard-only link.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param array $item Admin-bar menu item.
 	 *
@@ -268,7 +268,7 @@ class Util_Capability {
 	/**
 	 * Whether the current user may execute a purge admin-action.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string $action Dispatcher handler key.
 	 *
@@ -285,11 +285,11 @@ class Util_Capability {
 
 		if ( 'w3tc_flush_post' === $action ) {
 			$post_id = Util_Request::get_integer( 'post_id' );
-			if ( $post_id > 0 ) {
-				return self::can_flush_post_id( $post_id );
+			if ( $post_id <= 0 ) {
+				$post_id = (int) Util_Environment::detect_post_id();
 			}
 
-			return self::can_flush_post();
+			return self::can_flush_post_id( $post_id );
 		}
 
 		return self::can_flush_current_page_request();
@@ -301,7 +301,7 @@ class Util_Capability {
 	 * Flush-all may clear any same-host URL. Flush-post requires edit_post on
 	 * the post resolved from the URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return bool
 	 */
@@ -335,7 +335,7 @@ class Util_Capability {
 	/**
 	 * Build a nonce-protected admin URL for a purge action (no W3TC page).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param string              $action Dispatcher handler key.
 	 * @param array<string,mixed> $args   Extra query args (e.g. post_id).

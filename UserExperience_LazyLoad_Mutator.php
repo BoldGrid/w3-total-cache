@@ -157,21 +157,25 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified <img> tag.
 	 */
 	public function tag_img_content_replace( $content, $dim ) {
-		// do replace.
-		$w3tc_count = 0;
-		$content    = preg_replace(
-			'~(\s)src=~is',
-			'$1src="' . $this->placeholder( $dim['w'], $dim['h'] ) . '" data-src=',
+		$placeholder = $this->placeholder( $dim['w'], $dim['h'] );
+		$w3tc_count  = 0;
+		$content     = $this->replace_top_level_quoted_attributes(
 			$content,
-			-1,
+			'src',
+			static function ( $whitespace, $name, $quoted_value ) use ( $placeholder ) {
+				return $whitespace . 'src="' . $placeholder . '" data-src=' . $quoted_value;
+			},
+			1,
 			$w3tc_count
 		);
 
 		if ( $w3tc_count > 0 ) {
-			$content = preg_replace(
-				'~(\s)(srcset|sizes)=~is',
-				'$1data-$2=',
-				$content
+			$content = $this->replace_top_level_quoted_attributes(
+				$content,
+				'srcset|sizes',
+				static function ( $whitespace, $name, $quoted_value ) {
+					return $whitespace . 'data-' . $name . '=' . $quoted_value;
+				}
 			);
 
 			$content        = $this->add_class_lazy( $content );
@@ -206,17 +210,10 @@ class UserExperience_LazyLoad_Mutator {
 		}
 
 		// if not in attributes - try to find via url.
-		if (
-			! preg_match(
-				'~\ssrc=(\'([^\']*)\'|"([^"]*)"|([^\'"][^\\s]*))~is',
-				$content,
-				$m
-			)
-		) {
+		$w3tc_url = $this->get_top_level_quoted_attribute_value( $content, 'src' );
+		if ( null === $w3tc_url ) {
 			return $dim;
 		}
-
-		$w3tc_url = ( ! empty( $m[4] ) ? $m[4] : ( ( ! empty( $m[3] ) ? $m[3] : $m[2] ) ) );
 
 		// full url found.
 		if ( isset( $this->posts_by_url[ $w3tc_url ] ) ) {
@@ -401,7 +398,128 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The SVG placeholder.
 	 */
 	public function placeholder( $w, $h ) {
-		return 'data:image/svg+xml,%3Csvg%20xmlns=\'http://www.w3.org/2000/svg\'%20viewBox=\'0%200%20' .
-			$w . '%20' . $h . '\'%3E%3C/svg%3E';
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' .
+			(int) $w . ' ' . (int) $h . '"></svg>';
+
+		return 'data:image/svg+xml,' . rawurlencode( $svg );
+	}
+
+	/**
+	 * Replace top-level quoted attributes, skipping matches inside other attribute values.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string   $content      Tag markup to rewrite.
+	 * @param string   $attr_pattern Attribute name or alternation (e.g. `src` or `srcset|sizes`).
+	 * @param callable $replacer     Callback `( $whitespace, $name, $quoted_value ) => string`.
+	 * @param int      $limit        Max replacements; -1 for all.
+	 * @param int      $count        Set to the number of replacements performed.
+	 *
+	 * @return string
+	 */
+	public function replace_top_level_quoted_attributes( $content, $attr_pattern, $replacer, $limit = -1, &$count = 0 ) {
+		$count = 0;
+
+		if ( ! preg_match_all(
+			'~(\s)(' . $attr_pattern . ')=(\'([^\']*)\'|"([^"]*)")~is',
+			$content,
+			$matches,
+			PREG_OFFSET_CAPTURE
+		) ) {
+			return $content;
+		}
+
+		$replacements = array();
+		foreach ( $matches[0] as $i => $full ) {
+			if ( $limit >= 0 && \count( $replacements ) >= $limit ) {
+				break;
+			}
+
+			$offset = $full[1];
+			if ( ! $this->is_outside_attribute_value( $content, $offset ) ) {
+				continue;
+			}
+
+			$replacements[] = array(
+				'offset'      => $offset,
+				'length'      => \strlen( $full[0] ),
+				'replacement' => \call_user_func(
+					$replacer,
+					$matches[1][ $i ][0],
+					$matches[2][ $i ][0],
+					$matches[3][ $i ][0]
+				),
+			);
+		}
+
+		for ( $i = \count( $replacements ) - 1; $i >= 0; $i-- ) {
+			$content = \substr_replace(
+				$content,
+				$replacements[ $i ]['replacement'],
+				$replacements[ $i ]['offset'],
+				$replacements[ $i ]['length']
+			);
+			++$count;
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Read the first top-level quoted attribute value, or null if none.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string $content Tag markup.
+	 * @param string $attr    Attribute name.
+	 *
+	 * @return string|null
+	 */
+	public function get_top_level_quoted_attribute_value( $content, $attr ) {
+		if ( ! preg_match_all(
+			'~(\s)' . \preg_quote( $attr, '~' ) . '=(\'([^\']*)\'|"([^"]*)")~is',
+			$content,
+			$matches,
+			PREG_OFFSET_CAPTURE
+		) ) {
+			return null;
+		}
+
+		foreach ( $matches[0] as $i => $full ) {
+			if ( ! $this->is_outside_attribute_value( $content, $full[1] ) ) {
+				continue;
+			}
+
+			$quoted = $matches[2][ $i ][0];
+			return \substr( $quoted, 1, -1 );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether the byte offset sits outside a quoted HTML attribute value.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string $content Tag markup.
+	 * @param int    $offset  Byte offset into $content.
+	 *
+	 * @return bool
+	 */
+	private function is_outside_attribute_value( $content, $offset ) {
+		$in = null;
+		for ( $i = 0; $i < $offset; $i++ ) {
+			$ch = $content[ $i ];
+			if ( null === $in ) {
+				if ( '"' === $ch || "'" === $ch ) {
+					$in = $ch;
+				}
+			} elseif ( $ch === $in ) {
+				$in = null;
+			}
+		}
+
+		return null === $in;
 	}
 }

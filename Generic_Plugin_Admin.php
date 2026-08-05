@@ -129,7 +129,7 @@ class Generic_Plugin_Admin {
 	/**
 	 * Detect a dispatchable admin-action key from the current request.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @param Root_AdminActions $executor Action executor.
 	 *
@@ -180,7 +180,7 @@ class Generic_Plugin_Admin {
 	/**
 	 * Execute allowlisted purge actions on admin_init (no W3TC menu required).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.4
 	 *
 	 * @return void
 	 */
@@ -241,7 +241,7 @@ class Generic_Plugin_Admin {
 			 * keep the manage_options floor.
 			 *
 			 * @since 2.10.0
-			 * @since X.X.X Purge allowlist exception.
+			 * @since 2.10.4 Purge allowlist exception.
 			 */
 			if ( Util_Capability::is_purge_action( $action ) ) {
 				if ( ! Util_Capability::can_execute_purge( $action ) ) {
@@ -1214,7 +1214,7 @@ class Generic_Plugin_Admin {
 		/**
 		 * Filterable purge-all capability (default manage_options).
 		 *
-		 * @since X.X.X
+		 * @since 2.10.4
 		 */
 		if ( ! Util_Capability::can_flush_all() ) {
 			return $actions;
