@@ -1000,7 +1000,12 @@ class Generic_Plugin {
 		} else {
 			$buffer = apply_filters( 'w3tc_process_content', $buffer );
 
-			if ( Util_Content::can_print_comment( $buffer ) ) {
+			/**
+			 * The buffer is also flushed when a request aborts before the WordPress load completes.
+			 * Building the footer comment then would translate strings before the text domain is
+			 * available, so the comment is only added once the load has reached init.
+			 */
+			if ( \did_action( 'init' ) && Util_Content::can_print_comment( $buffer ) ) {
 				/**
 				 * Add footer comment
 				 */
