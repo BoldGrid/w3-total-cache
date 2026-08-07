@@ -44,6 +44,117 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Resolve a cache key to an absolute path under the cache root.
+	 *
+	 * Rejects parent-directory segments, NUL bytes, absolute paths, and drive
+	 * prefixes. Walks existing ancestors with realpath() so symlink escapes
+	 * outside `_cache_dir` (and `W3TC_CACHE_DIR` when defined) are refused —
+	 * including when the final directory already exists.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
+	 *
+	 * @return string|false Absolute path under `_cache_dir`, or false when rejected.
+	 */
+	private function _resolve_path( $w3tc_key, $w3tc_group = '' ) {
+		if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key || false !== \strpos( $w3tc_key, "\0" ) ) {
+			return false;
+		}
+
+		if ( ! \is_string( $w3tc_group ) || false !== \strpos( $w3tc_group, "\0" ) ) {
+			return false;
+		}
+
+		$key_norm   = \str_replace( '\\', '/', $w3tc_key );
+		$group_norm = \str_replace( '\\', '/', $w3tc_group );
+
+		if ( false !== \strpos( $key_norm, '..' ) || false !== \strpos( $group_norm, '..' ) ) {
+			return false;
+		}
+
+		if ( '' !== $key_norm && ( '/' === $key_norm[0] || \preg_match( '#^[a-zA-Z]:/#', $key_norm ) ) ) {
+			return false;
+		}
+
+		if ( '' !== $group_norm && ( '/' === $group_norm[0] || \preg_match( '#^[a-zA-Z]:/#', $group_norm ) ) ) {
+			return false;
+		}
+
+		$sub_path = ( '' === $group_norm ? '' : $group_norm . '/' ) . $key_norm;
+
+		$base = \realpath( $this->_cache_dir );
+		if ( false === $base ) {
+			if ( ! \defined( 'W3TC_CACHE_DIR' ) ) {
+				return false;
+			}
+
+			$w3tc_base = \realpath( W3TC_CACHE_DIR );
+			if ( false === $w3tc_base ) {
+				return false;
+			}
+
+			$w3tc_norm   = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
+			$w3tc_prefix = $w3tc_norm . '/';
+			$cache_norm  = \str_replace( '\\', '/', $this->_cache_dir );
+
+			if ( $cache_norm !== $w3tc_norm && 0 !== \strpos( $cache_norm, $w3tc_prefix ) ) {
+				return false;
+			}
+
+			$candidate = \rtrim( $cache_norm, '/' ) . '/' . \ltrim( $sub_path, '/' );
+			if ( 0 !== \strpos( \str_replace( '\\', '/', $candidate ), $w3tc_prefix ) ) {
+				return false;
+			}
+
+			$base_norm   = $w3tc_norm;
+			$base_prefix = $w3tc_prefix;
+		} else {
+			$base_norm   = \rtrim( \str_replace( '\\', '/', $base ), '/' );
+			$base_prefix = $base_norm . '/';
+
+			if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+				$w3tc_base = \realpath( W3TC_CACHE_DIR );
+				if ( false === $w3tc_base ) {
+					return false;
+				}
+
+				$w3tc_norm   = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
+				$w3tc_prefix = $w3tc_norm . '/';
+				if ( $base_norm !== $w3tc_norm && 0 !== \strpos( $base_norm, $w3tc_prefix ) ) {
+					return false;
+				}
+			}
+
+			$candidate = $base_prefix . \ltrim( $sub_path, '/' );
+		}
+
+		$probe = $candidate;
+		while ( true ) {
+			$fs = \realpath( $probe );
+			if ( false !== $fs ) {
+				$resolved = \str_replace( '\\', '/', $fs );
+				if ( $resolved !== $base_norm && 0 !== \strpos( $resolved, $base_prefix ) ) {
+					return false;
+				}
+				break;
+			}
+
+			$parent = \dirname( $probe );
+			if ( $parent === $probe || '' === $parent ) {
+				if ( 0 !== \strpos( \str_replace( '\\', '/', $candidate ), $base_prefix ) ) {
+					return false;
+				}
+				break;
+			}
+			$probe = $parent;
+		}
+
+		return $candidate;
+	}
+
+	/**
 	 * Sets data
 	 *
 	 * @param string $w3tc_key    Key.
@@ -55,13 +166,15 @@ class Cache_File_Generic extends Cache_File {
 	 */
 	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
 		$w3tc_key = $this->get_item_key( $w3tc_key );
-		$sub_path = $this->_get_path( $w3tc_key, $w3tc_group );
-		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		$dir = dirname( $path );
 
 		if ( ! @is_dir( $dir ) ) {
-			if ( ! Util_File::mkdir_from_safe( $dir, dirname( W3TC_CACHE_DIR ) ) ) {
+			if ( ! Util_File::mkdir_from_safe( $dir, W3TC_CACHE_DIR ) ) {
 				return false;
 			}
 		}
@@ -164,14 +277,25 @@ class Cache_File_Generic extends Cache_File {
 			if ( ! empty( $rules ) ) {
 				$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
 
-				@file_put_contents( $htaccess_path, $rules );
+				$htaccess_dir = \realpath( dirname( $path ) );
+				$base_path    = \realpath( $this->_cache_dir );
+				if ( false !== $htaccess_dir && false !== $base_path ) {
+					$base_norm      = \rtrim( \str_replace( '\\', '/', $base_path ), '/' );
+					$base_prefix    = $base_norm . '/';
+					$htaccess_norm  = \str_replace( '\\', '/', $htaccess_dir );
+					$htaccess_ok    = ( $htaccess_norm === $base_norm || 0 === \strpos( $htaccess_norm, $base_prefix ) );
 
-				$chmod = 0644;
-				if ( defined( 'FS_CHMOD_FILE' ) ) {
-					$chmod = FS_CHMOD_FILE;
+					if ( $htaccess_ok ) {
+						@file_put_contents( $htaccess_path, $rules );
+
+						$chmod = 0644;
+						if ( defined( 'FS_CHMOD_FILE' ) ) {
+							$chmod = FS_CHMOD_FILE;
+						}
+
+						@chmod( $htaccess_path, $chmod );
+					}
 				}
-
-				@chmod( $htaccess_path, $chmod );
 			}
 		}
 
@@ -219,7 +343,10 @@ class Cache_File_Generic extends Cache_File {
 	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
 		$w3tc_key     = $this->get_item_key( $w3tc_key );
-		$path         = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
+		$path         = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return array( null, $has_old_data );
+		}
 
 		$w3tc_data = $this->_read( $path );
 		if ( null !== $w3tc_data ) {
@@ -324,7 +451,10 @@ class Cache_File_Generic extends Cache_File {
 	 */
 	public function delete( $w3tc_key, $w3tc_group = '' ) {
 		$w3tc_key = $this->get_item_key( $w3tc_key );
-		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		if ( ! file_exists( $path ) ) {
 			return true;
@@ -371,7 +501,10 @@ class Cache_File_Generic extends Cache_File {
 	 */
 	public function exists( $w3tc_key, $w3tc_group = '' ) {
 		$w3tc_key = $this->get_item_key( $w3tc_key );
-		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		return file_exists( $path );
 	}
@@ -385,8 +518,12 @@ class Cache_File_Generic extends Cache_File {
 	 * @return bool
 	 */
 	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
-		$w3tc_key       = $this->get_item_key( $w3tc_key );
-		$path           = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $w3tc_key, $w3tc_group );
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
+
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
