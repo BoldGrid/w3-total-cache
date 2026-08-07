@@ -206,7 +206,7 @@ class Minify_Plugin {
 		$css_enable  = $this->_config->get_boolean( 'minify.css.enable' );
 		$html_enable = $this->_config->get_boolean( 'minify.html.enable' );
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->is_query_available() && is_feed() ) {
 			$js_enable  = false;
 			$css_enable = false;
 		}
@@ -642,7 +642,7 @@ var extsrc=null;
 			$w3tc_engine = 'html';
 		}
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->is_query_available() && is_feed() ) {
 			$w3tc_engine .= 'xml';
 		}
 
@@ -984,6 +984,21 @@ var extsrc=null;
 	}
 
 	/**
+	 * Checks whether WordPress conditional query tags can be evaluated.
+	 *
+	 * Conditional tags always return false and emit a notice when the main query has not run,
+	 * which happens when a request aborts before the WordPress load completes but the output
+	 * buffer is still flushed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool True when conditional query tags are safe to call.
+	 */
+	private function is_query_available() {
+		return \function_exists( 'is_feed' ) && isset( $GLOBALS['wp_query'] );
+	}
+
+	/**
 	 * Checks whether minification can be applied to the provided buffer.
 	 *
 	 * @param string $buffer The buffer to check.
@@ -999,7 +1014,7 @@ var extsrc=null;
 		}
 
 		// Check feed minify.
-		if ( $this->_config->get_boolean( 'minify.html.reject.feed' ) && function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->_config->get_boolean( 'minify.html.reject.feed' ) && $this->is_query_available() && is_feed() ) {
 			$this->minify_reject_reason = 'Feed is rejected';
 
 			return false;
