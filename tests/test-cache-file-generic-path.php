@@ -221,6 +221,29 @@ cfg_assert(
 	&& false !== strpos( $generic_src, 'function _resolve_path(' )
 );
 
+// Missing cache root (e.g. after manual cleanup) must still allow Disk Enhanced rebuild.
+cfg_rmtree( $cache_root );
+cfg_assert( '[21] cache root can be absent before set', ! is_dir( $cache_root ) );
+$rebuild = $cache->set(
+	$ok_key,
+	array(
+		'content' => "rebuild-body\n",
+		'headers' => array(),
+	)
+);
+cfg_assert(
+	'[22] set recreates a missing cache root and stores the entry',
+	false !== $rebuild && is_file( $cache_dir . '/' . $ok_key ),
+	'rebuild failed or file missing under ' . $cache_dir
+);
+$rebuilt = $cache->get_with_old( $ok_key );
+cfg_assert(
+	'[23] get_with_old reads content after cache-root recreation',
+	is_array( $rebuilt )
+	&& isset( $rebuilt[0]['content'] )
+	&& "rebuild-body\n" === $rebuilt[0]['content']
+);
+
 /**
  * Cleanup.
  *

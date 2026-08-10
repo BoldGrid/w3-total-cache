@@ -49,7 +49,9 @@ class Cache_File_Generic extends Cache_File {
 	 * Rejects parent-directory segments, NUL bytes, absolute paths, and drive
 	 * prefixes. Walks existing ancestors with realpath() so symlink escapes
 	 * outside `_cache_dir` (and `W3TC_CACHE_DIR` when defined) are refused —
-	 * including when the final directory already exists.
+	 * including when the final directory already exists. When the cache root
+	 * is not on disk yet, confinement uses the normalized `W3TC_CACHE_DIR`
+	 * string so callers can recreate it.
 	 *
 	 * @since 2.10.5
 	 *
@@ -84,27 +86,35 @@ class Cache_File_Generic extends Cache_File {
 
 		$sub_path = ( '' === $group_norm ? '' : $group_norm . '/' ) . $key_norm;
 
+		$w3tc_norm = null;
+		if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+			$w3tc_base = \realpath( W3TC_CACHE_DIR );
+			if ( false !== $w3tc_base ) {
+				$w3tc_norm = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
+			} else {
+				$w3tc_norm = \rtrim( \str_replace( '\\', '/', Util_Environment::realpath( W3TC_CACHE_DIR ) ), '/' );
+				if ( '' === $w3tc_norm ) {
+					return false;
+				}
+			}
+		}
+
 		$base = \realpath( $this->_cache_dir );
 		if ( false === $base ) {
-			if ( ! \defined( 'W3TC_CACHE_DIR' ) ) {
+			if ( null === $w3tc_norm ) {
 				return false;
 			}
 
-			$w3tc_base = \realpath( W3TC_CACHE_DIR );
-			if ( false === $w3tc_base ) {
-				return false;
-			}
-
-			$w3tc_norm   = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
 			$w3tc_prefix = $w3tc_norm . '/';
-			$cache_norm  = \str_replace( '\\', '/', $this->_cache_dir );
+			$cache_norm  = \rtrim( \str_replace( '\\', '/', $this->_cache_dir ), '/' );
 
 			if ( $cache_norm !== $w3tc_norm && 0 !== \strpos( $cache_norm, $w3tc_prefix ) ) {
 				return false;
 			}
 
-			$candidate = \rtrim( $cache_norm, '/' ) . '/' . \ltrim( $sub_path, '/' );
-			if ( 0 !== \strpos( \str_replace( '\\', '/', $candidate ), $w3tc_prefix ) ) {
+			$candidate   = $cache_norm . '/' . \ltrim( $sub_path, '/' );
+			$candidate_n = \str_replace( '\\', '/', $candidate );
+			if ( $candidate_n !== $w3tc_norm && 0 !== \strpos( $candidate_n, $w3tc_prefix ) ) {
 				return false;
 			}
 
@@ -114,13 +124,7 @@ class Cache_File_Generic extends Cache_File {
 			$base_norm   = \rtrim( \str_replace( '\\', '/', $base ), '/' );
 			$base_prefix = $base_norm . '/';
 
-			if ( \defined( 'W3TC_CACHE_DIR' ) ) {
-				$w3tc_base = \realpath( W3TC_CACHE_DIR );
-				if ( false === $w3tc_base ) {
-					return false;
-				}
-
-				$w3tc_norm   = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
+			if ( null !== $w3tc_norm ) {
 				$w3tc_prefix = $w3tc_norm . '/';
 				if ( $base_norm !== $w3tc_norm && 0 !== \strpos( $base_norm, $w3tc_prefix ) ) {
 					return false;
@@ -135,7 +139,17 @@ class Cache_File_Generic extends Cache_File {
 			$fs = \realpath( $probe );
 			if ( false !== $fs ) {
 				$resolved = \str_replace( '\\', '/', $fs );
-				if ( $resolved !== $base_norm && 0 !== \strpos( $resolved, $base_prefix ) ) {
+				if ( $resolved === $base_norm || 0 === \strpos( $resolved, $base_prefix ) ) {
+					break;
+				}
+
+				$probe_norm = \str_replace( '\\', '/', $probe );
+				if ( $probe_norm === $base_norm || 0 === \strpos( $probe_norm, $base_prefix ) ) {
+					return false;
+				}
+
+				$candidate_n = \str_replace( '\\', '/', $candidate );
+				if ( $candidate_n !== $base_norm && 0 !== \strpos( $candidate_n, $base_prefix ) ) {
 					return false;
 				}
 				break;
@@ -143,7 +157,8 @@ class Cache_File_Generic extends Cache_File {
 
 			$parent = \dirname( $probe );
 			if ( $parent === $probe || '' === $parent ) {
-				if ( 0 !== \strpos( \str_replace( '\\', '/', $candidate ), $base_prefix ) ) {
+				$candidate_n = \str_replace( '\\', '/', $candidate );
+				if ( $candidate_n !== $base_norm && 0 !== \strpos( $candidate_n, $base_prefix ) ) {
 					return false;
 				}
 				break;
@@ -174,6 +189,12 @@ class Cache_File_Generic extends Cache_File {
 		$dir = dirname( $path );
 
 		if ( ! @is_dir( $dir ) ) {
+			if ( \defined( 'W3TC_CACHE_DIR' ) && ! @is_dir( W3TC_CACHE_DIR ) ) {
+				if ( ! Util_File::mkdir_from_safe( W3TC_CACHE_DIR, \dirname( W3TC_CACHE_DIR ) ) ) {
+					return false;
+				}
+			}
+
 			if ( ! Util_File::mkdir_from_safe( $dir, W3TC_CACHE_DIR ) ) {
 				return false;
 			}
