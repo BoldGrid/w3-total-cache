@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.10.4
+Stable tag: 2.10.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.5 =
+* Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
+
 = 2.10.4 =
 * Fix: Lazy Load: Match only quoted image attributes when rewriting src/srcset/sizes
 * Fix: Cache purge: Restore filterable capabilities for purge-all and purge-post
@@ -559,6 +562,10 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Added Premium Services tabs
 
 == Upgrade Notice ==
+
+= 2.10.5 =
+This is a security update. All users are strongly encouraged to update.
+
 
 = 2.10.4 =
 This update restores filterable cache-purge capabilities and improves Lazy Load image attribute handling. All users are encouraged to update.

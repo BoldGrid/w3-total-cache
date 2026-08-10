@@ -1,5 +1,8 @@
 === W3 Total Cache Changelog ===
 
+= 2.10.5 =
+* Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
+
 = 2.10.4 =
 * Fix: Lazy Load: Match only quoted image attributes when rewriting src/srcset/sizes
 * Fix: Cache purge: Restore filterable capabilities for purge-all and purge-post
