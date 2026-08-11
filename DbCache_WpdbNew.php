@@ -213,6 +213,9 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * @return mixed The result of the query.
 	 */
 	public function query( $query ) {
+		// Cluster reimplements query and skips core's `query` filter / placeholder unescape.
+		$query = $this->remove_placeholder_escape( $query );
+
 		return $this->active_processor->query( $query );
 	}
 
