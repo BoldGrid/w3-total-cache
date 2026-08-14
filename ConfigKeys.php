@@ -1681,6 +1681,13 @@ $w3tc_keys = array(
 			'robots\.txt',
 			'[a-z0-9_\-]*sitemap[a-z0-9_\.\-]*\.(xml|xsl|html)(\.gz)?',
 		),
+		/**
+		 * Rule-generation input: each entry is implode()'d into Apache
+		 * RewriteCond / Nginx location regexes. Flag so Config::set()
+		 * (and therefore Config::import()) strips CR/LF/NUL/<>/" before
+		 * the value can reach renderers or master.php.
+		 */
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.cssjs.last_modified'                     => array(
 		'type'    => 'boolean',
