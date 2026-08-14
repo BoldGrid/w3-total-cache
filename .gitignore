@@ -1,4 +1,7 @@
 .cursor/working/
+# Triage idea files under ideas_dir; keep only the committed engagement profile.
+tmp/sec-ideas/*
+!tmp/sec-ideas/_profile.md
 .vscode/
 node_modules/
 # yarn.lock is canonical; ignore npm's lockfile from ad-hoc npm install.
