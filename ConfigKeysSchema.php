@@ -531,7 +531,40 @@ class ConfigKeysSchema {
 			return $compound[ $normalized ];
 		}
 
-		return null;
+		/**
+		 * Namespace prefixes (trailing `.`) cover every extension-owned
+		 * leaf without enumerating them. Longest match wins so a future
+		 * more-specific entry can override a parent namespace.
+		 */
+		$best_prefix = '';
+		$best_page   = null;
+		foreach ( $compound as $prefix => $page ) {
+			if ( ! \is_string( $prefix ) || ! \is_string( $page ) || '' === $prefix ) {
+				continue;
+			}
+			if ( 0 !== \strpos( $normalized, $prefix ) ) {
+				continue;
+			}
+			$prefix_len = \strlen( $prefix );
+			if ( $prefix_len <= \strlen( $best_prefix ) ) {
+				continue;
+			}
+			if (
+				$normalized === $prefix
+				|| (
+					$prefix_len < \strlen( $normalized )
+					&& (
+						'.' === $normalized[ $prefix_len ]
+						|| '.' === \substr( $prefix, -1 )
+					)
+				)
+			) {
+				$best_prefix = $prefix;
+				$best_page   = $page;
+			}
+		}
+
+		return $best_page;
 	}
 
 	/**
@@ -589,14 +622,14 @@ class ConfigKeysSchema {
 	}
 
 	/**
-	 * Compound-extension leaves that are not enumerated in the flat
-	 * ConfigKeys schema but still need page-boundary discipline. Kept
-	 * here (not in ConfigKeys.php) so Export/Import round-trips stay
-	 * unchanged while `read_request()` can still refuse cross-page
-	 * credential writes via `cloudflare___key` / `newrelic___api_key`.
+	 * Extension-owned config namespaces that are not enumerated in the
+	 * flat ConfigKeys schema but still need page-boundary discipline.
+	 * Kept here (not in ConfigKeys.php) so Export/Import round-trips stay
+	 * unchanged while `read_request()` refuses cross-page writes.
 	 *
-	 * ENG7-4278 may move more extension-owned keys onto this map (or
-	 * onto filter-supplied descriptors).
+	 * Entries ending in `.` are namespace prefixes (longest match wins).
+	 * Exact leaf entries may still be listed when a single key needs a
+	 * different page than its parent namespace.
 	 *
 	 * @since 2.10.6
 	 *
@@ -604,10 +637,26 @@ class ConfigKeysSchema {
 	 */
 	private static function compound_dedicated_pages() {
 		return array(
-			'cloudflare.email'   => 'w3tc_extensions',
-			'cloudflare.key'     => 'w3tc_extensions',
-			'cloudflare.zone_id' => 'w3tc_extensions',
-			'newrelic.api_key'  => 'w3tc_monitoring',
+			/**
+			 * Cloudflare credentials belong on the extension settings
+			 * page. Widget / General-box leaves stay on `w3tc_general`
+			 * (or unconstrained) — a blanket `cloudflare.` prefix would
+			 * silently drop General saves for widget_interval, etc.
+			 */
+			'cloudflare.email'                 => 'w3tc_extensions',
+			'cloudflare.key'                   => 'w3tc_extensions',
+			'cloudflare.zone_id'               => 'w3tc_extensions',
+			'cloudflare.zone_name'             => 'w3tc_extensions',
+			'cloudflare.widget_interval'       => 'w3tc_general',
+			'cloudflare.widget_cache_mins'     => 'w3tc_general',
+			'cloudflare.pagecache'             => 'w3tc_general',
+			'cloudflare.minify_js_rl_exclude'  => 'w3tc_general',
+			'swarmify.'                        => 'w3tc_extensions',
+			'amp.'                             => 'w3tc_extensions',
+			'genesis.theme.'                   => 'w3tc_extensions',
+			'alwayscached.'                    => 'w3tc_extensions',
+			'newrelic.'                        => 'w3tc_monitoring',
+			'extension.newrelic.'              => 'w3tc_monitoring',
 		);
 	}
 

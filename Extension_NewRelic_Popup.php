@@ -143,6 +143,20 @@ class Extension_NewRelic_Popup {
 		$w3tc_browser_application_id = Util_Request::get_string( 'browser_application_id' );
 		$w3tc_c                      = Dispatcher::config();
 
+		if ( ! Extension_NewRelic_Service::is_valid_api_key_format( $api_key ) ) {
+			$postfix = Util_Admin::custom_message_id(
+				array(
+					'newrelic_api_key_invalid' => __(
+						'New Relic API key format is invalid. Enter a REST API key (40 hex characters) or a user key (NRAK-…).',
+						'w3-total-cache'
+					),
+				),
+				array()
+			);
+			echo 'Location ' . \esc_url_raw( 'admin.php?page=w3tc_general&' . $postfix );
+			return;
+		}
+
 		$w3tc_c->set( array( 'newrelic', 'api_key' ), $api_key );
 
 		if ( 'apm' === $monitoring_type ) {
