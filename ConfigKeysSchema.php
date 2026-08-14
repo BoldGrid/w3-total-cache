@@ -247,9 +247,12 @@ class ConfigKeysSchema {
 	 *  - `minify.*.path.java`    — feeds an exec() argument.
 	 *  - `minify.*.path.jar`     — feeds the same shell argv.
 	 *  - `*.engine`              — switches the runtime to a different engine.
+	 *  - `plugin.type`           — Pro entitlement; license path only
+	 *                              (`Licensing_Plugin_Admin` → `Config::set`).
 	 *
 	 * The legitimate way to change these keys is through their dedicated
-	 * UI page, where the page-specific validator runs.
+	 * UI page (or the license path for `plugin.type`), where the page-
+	 * specific validator runs.
 	 *
 	 * @since 2.10.0
 	 *
