@@ -109,6 +109,35 @@ class Util_Rule {
 	}
 
 	/**
+	 * Sanitises every scalar entry in a directive-bound array.
+	 *
+	 * Empty results after stripping are dropped so downstream
+	 * `implode( '|', … )` alternations cannot pick up an empty
+	 * alternative that matches every request.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $values Raw array of values.
+	 *
+	 * @return array<int, string> Sanitised values in input order.
+	 */
+	public static function sanitize_directive_values( $values ) {
+		if ( ! \is_array( $values ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $values as $v ) {
+			$sanitised = self::sanitize_directive_value( $v );
+			if ( '' !== $sanitised ) {
+				$out[] = $sanitised;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Validates an admin-supplied custom server-rules file path
 	 * (`config.path`).
 	 *
