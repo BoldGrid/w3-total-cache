@@ -107,8 +107,32 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 			ConfigKeysSchema::dedicated_page( array( 'cloudflare', 'key' ) )
 		);
 		$this->assertSame(
+			'w3tc_general',
+			ConfigKeysSchema::dedicated_page( array( 'cloudflare', 'widget_interval' ) )
+		);
+		$this->assertSame(
 			'w3tc_monitoring',
 			ConfigKeysSchema::dedicated_page( array( 'newrelic', 'api_key' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'swarmify', 'api_key' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'amp', 'url_type' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'genesis.theme', 'reject_roles' ) )
+		);
+		$this->assertSame(
+			'w3tc_monitoring',
+			ConfigKeysSchema::dedicated_page( array( 'newrelic', 'apm.application_name' ) )
+		);
+		$this->assertSame(
+			'w3tc_monitoring',
+			ConfigKeysSchema::dedicated_page( 'extension.newrelic.cache_time' )
 		);
 		$this->assertSame(
 			'cloudflare.key',

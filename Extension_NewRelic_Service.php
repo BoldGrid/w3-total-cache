@@ -57,6 +57,39 @@ class Extension_NewRelic_Service {
 	}
 
 	/**
+	 * Returns true when `$api_key` matches a New Relic REST API key or
+	 * user API key shape accepted by the extension UI.
+	 *
+	 * Accepted forms:
+	 *  - Legacy REST API key: exactly 40 hexadecimal characters
+	 *  - User API key: `NRAK-` followed by 20–128 URL-safe characters
+	 *
+	 * Empty strings are refused — clearing is done through the General
+	 * page secret-clear companion, not the apply-configuration AJAX path.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $api_key Candidate API key from the request.
+	 *
+	 * @return bool
+	 */
+	public static function is_valid_api_key_format( $api_key ) {
+		if ( ! \is_string( $api_key ) || '' === $api_key ) {
+			return false;
+		}
+
+		if ( 1 === \preg_match( '/^[a-fA-F0-9]{40}$/', $api_key ) ) {
+			return true;
+		}
+
+		if ( 1 === \preg_match( '/^NRAK-[A-Za-z0-9_-]{20,128}$/', $api_key ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Verifies compatibility with the New Relic PHP agent.
 	 *
 	 * The verifications is based on https://newrelic.com/docs/php/new-relic-for-php
