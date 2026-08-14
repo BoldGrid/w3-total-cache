@@ -970,7 +970,8 @@ class Generic_AdminActions_Default {
 			 *    `__w3tc_clear` on a non-secret gated key must NOT skip
 			 *    the page gate.
 			 *  - no_import without dedicated_page → drop from POST always
-			 *    (`extensions.active*` stays managed via Extensions_Util).
+			 *    (`extensions.active*` stays managed via Extensions_Util;
+			 *    `plugin.type` stays managed via Licensing_Plugin_Admin).
 			 *  - no_import WITH dedicated_page → allowed only on that page
 			 *    (engine selectors on General, minify java paths on Minify).
 			 */

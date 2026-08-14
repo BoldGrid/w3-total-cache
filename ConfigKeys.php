@@ -2667,6 +2667,13 @@ $w3tc_keys = array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		/**
+		 * License-path only: no dedicated_page, so read_request() and
+		 * Config::import refuse writes. Licensing_Plugin_Admin updates
+		 * via Config::set() after EDD status checks.
+		 */
+		'flags'       => array( 'no_import' => true ),
+		'enum'        => array( '', 'pro', 'pro_dev' ),
 	),
 	'jquerymigrate.disabled'                               => array(
 		'type'    => 'boolean',

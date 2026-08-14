@@ -100,6 +100,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 		$this->assertSame( 'w3tc_minify', ConfigKeysSchema::dedicated_page( 'minify.ccjs.path.java' ) );
 		$this->assertNull( ConfigKeysSchema::dedicated_page( 'pgcache.enabled' ) );
 		$this->assertNull( ConfigKeysSchema::dedicated_page( 'extensions.active' ) );
+		$this->assertNull( ConfigKeysSchema::dedicated_page( 'plugin.type' ) );
 
 		$this->assertSame(
 			'w3tc_extensions',
@@ -137,6 +138,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	public function test_is_no_import_flag() {
 		$this->assertTrue( ConfigKeysSchema::is_no_import( 'pgcache.engine' ) );
 		$this->assertTrue( ConfigKeysSchema::is_no_import( 'extensions.active' ) );
+		$this->assertTrue( ConfigKeysSchema::is_no_import( 'plugin.type' ) );
 		$this->assertFalse( ConfigKeysSchema::is_no_import( 'pgcache.enabled' ) );
 	}
 
@@ -235,6 +237,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 			'cdn.engine',
 			'minify.css.engine',
 			'minify.js.engine',
+			'plugin.type',
 		);
 		foreach ( $no_import_keys as $key ) {
 			$this->assertTrue(
