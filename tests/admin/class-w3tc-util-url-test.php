@@ -235,4 +235,47 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 		$this->assertTrue( Util_Url::is_varnish_http_port( 9080 ) );
 		\remove_filter( 'w3tc_varnish_http_ports', $callback );
 	}
+
+	/**
+	 * Outbound-fetch policy accepts this site's host and refuses
+	 * private / non-http destinations.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_is_allowed_outbound_url_policy() {
+		$this->assertTrue(
+			Util_Url::is_allowed_outbound_url( \home_url( '/wp-content/themes/style.css' ) )
+		);
+
+		$denied = array(
+			'http://127.0.0.1/style.css',
+			'http://10.0.0.1/style.css',
+			'http://169.254.169.254/latest/meta-data/',
+			'file:///etc/passwd',
+			'gopher://example.com/1',
+			'',
+		);
+
+		foreach ( $denied as $url ) {
+			$this->assertFalse(
+				Util_Url::is_allowed_outbound_url( $url ),
+				'Expected refusal for ' . $url
+			);
+		}
+	}
+
+	/**
+	 * Protocol-relative URLs pick up the current request scheme.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_normalize_protocol_relative_url() {
+		$scheme = Util_Url::normalize_protocol_relative_url( '//example.com/a.css' );
+		$this->assertMatchesRegularExpression( '#^https?://example\\.com/a\\.css$#', $scheme );
+		$this->assertSame(
+			'https://cdn.example/a.js',
+			Util_Url::normalize_protocol_relative_url( 'https://cdn.example/a.js' )
+		);
+		$this->assertSame( '', Util_Url::normalize_protocol_relative_url( '' ) );
+	}
 }
