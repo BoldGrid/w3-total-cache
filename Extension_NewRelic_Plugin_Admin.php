@@ -274,7 +274,10 @@ class Extension_NewRelic_Plugin_Admin {
 		if ( is_array( $w3tc_key ) && 'newrelic' === $w3tc_key[0] && 'api_key' === $w3tc_key[1] ) {
 			return array(
 				'type'  => 'string',
-				'flags' => array( 'secret' => true ),
+				'flags' => array(
+					'secret'         => true,
+					'dedicated_page' => 'w3tc_monitoring',
+				),
 			);
 		}
 
