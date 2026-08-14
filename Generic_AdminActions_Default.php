@@ -951,48 +951,55 @@ class Generic_AdminActions_Default {
 
 			/**
 			 * Strict allowlist gate: a key reaches `$w3tc_config->set()` only if
-			 * either (a) it's a compound extension key (the extension owns its
-			 * own gate via the filter above), or (b) the schema knows it or
-			 * the filter supplied a descriptor for it.
+			 * either (a) the schema knows it (including registered-extension
+			 * compound keys), or (b) the filter supplied a descriptor for it.
+			 * Compound keys no longer bypass this gate unconditionally.
 			 */
-			if ( ! is_array( $w3tc_key ) && null === $w3tc_descriptor && ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
+			if ( null === $w3tc_descriptor && ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
 				continue;
 			}
 
 			/**
-			 * RT9-210: Page-boundary discipline for high-impact CDN
-			 * credential namespaces.
+			 * Page-boundary discipline (ENG7-4277 / Phase 1A).
 			 *
-			 * The strict-allowlist gate above stops *unknown* keys from
-			 * landing in config, but every per-engine CDN credential key
-			 * (S3, CloudFront, Azure, FTP, RackSpace, Google Drive, etc.)
-			 * IS in the schema — so a known-key allowlist alone lets an
-			 * admin viewing any W3TC submenu (General, Page Cache, Object
-			 * Cache, …) POST `cdn__s3__secret=foo` along with their save
-			 * and silently overwrite the configured CDN credentials. The
-			 * proof for this finding lit up 8/8 CDN engines from the
-			 * General page POST.
+			 * ConfigKeys `flags.dedicated_page` (and the compound-extension
+			 * leaf map inside ConfigKeysSchema) is the source of truth for
+			 * which admin page may write a given key. Replaces the earlier
+			 * hardcoded CDN-credential prefix map and closes the compound
+			 * `is_array()` bypass that let `cloudflare___key` ride in on
+			 * any settings save.
 			 *
-			 * The fix is a namespace → page-slug map. When the key falls
-			 * into one of the per-engine CDN credential namespaces, the
-			 * write is only accepted if `$this->_page` matches the
-			 * legitimate page where that engine's form lives. The CDN
-			 * Settings UI lives at `w3tc_cdn`; the full-site-delivery
-			 * variant at `w3tc_cdnfsd`. Top-level keys like `cdn.enabled`
-			 * / `cdn.engine` (toggled from General) are not prefixed by
-			 * an engine slug and stay writable as before — only the
-			 * `cdn.<engine>.*` / `cdnfsd.<engine>.*` subtree is gated.
-			 *
-			 * The check sits AFTER the allowlist (so an attacker can't
-			 * smuggle an unknown key past it) and BEFORE the secret /
-			 * type-coercion paths (so a cross-page write is dropped
-			 * before any sensitive transformation runs).
+			 * Rules:
+			 *  - dedicated_page set + wrong `$this->_page` → drop (unless
+			 *    this is an explicit *secret* clear companion — the General
+			 *    page still uses that for New Relic revoke). A forged
+			 *    `__w3tc_clear` on a non-secret gated key must NOT skip
+			 *    the page gate.
+			 *  - no_import without dedicated_page → drop from POST always
+			 *    (`extensions.active*` stays managed via Extensions_Util).
+			 *  - no_import WITH dedicated_page → allowed only on that page
+			 *    (engine selectors on General, minify java paths on Minify).
 			 */
-			if ( is_string( $w3tc_key ) ) {
-				$expected_page = self::_credential_namespace_page( $w3tc_key );
-				if ( null !== $expected_page && $expected_page !== $this->_page ) {
-					continue;
-				}
+			$is_secret = (
+				is_array( $w3tc_descriptor )
+				&& isset( $w3tc_descriptor['flags'] )
+				&& is_array( $w3tc_descriptor['flags'] )
+				&& ! empty( $w3tc_descriptor['flags']['secret'] )
+			);
+			$expected_page   = ConfigKeysSchema::dedicated_page( $w3tc_key, $w3tc_descriptor );
+			$clear_key       = $request_key . '__w3tc_clear';
+			$is_secret_clear = (
+				$is_secret
+				&& isset( $request[ $clear_key ] )
+				&& '1' === (string) $request[ $clear_key ]
+			);
+
+			if ( null !== $expected_page && $expected_page !== $this->_page && ! $is_secret_clear ) {
+				continue;
+			}
+
+			if ( null === $expected_page && ConfigKeysSchema::is_no_import( $w3tc_key, $w3tc_descriptor ) ) {
+				continue;
 			}
 
 			if ( isset( $w3tc_descriptor['type'] ) ) {
@@ -1008,13 +1015,6 @@ class Generic_AdminActions_Default {
 					$request_value = (int) $request_value;
 				}
 			}
-
-			$is_secret = (
-				is_array( $w3tc_descriptor )
-				&& isset( $w3tc_descriptor['flags'] )
-				&& is_array( $w3tc_descriptor['flags'] )
-				&& ! empty( $w3tc_descriptor['flags']['secret'] )
-			);
 
 			if ( $is_secret ) {
 				/**
@@ -1033,8 +1033,7 @@ class Generic_AdminActions_Default {
 				 * still observes the `! $new_key_set && $old_key_set`
 				 * branch and deactivates the license against EDD.
 				 */
-				$clear_key = $request_key . '__w3tc_clear';
-				if ( isset( $request[ $clear_key ] ) && '1' === (string) $request[ $clear_key ] ) {
+				if ( $is_secret_clear ) {
 					$w3tc_config->set( $w3tc_key, '' );
 					continue;
 				}
@@ -1053,61 +1052,5 @@ class Generic_AdminActions_Default {
 
 			$w3tc_config->set( $w3tc_key, $request_value );
 		}
-	}
-
-	/**
-	 * Map a CDN-engine credential namespace to the admin page slug
-	 * that legitimately renders the form for those keys. Returns
-	 * `null` for keys outside the gated namespaces — the caller treats
-	 * `null` as "no page-boundary requirement, write normally".
-	 *
-	 * Each entry is an exact-prefix match against the dotted config
-	 * key. `cdn.s3.*` keys (S3 Access Key, Secret, Bucket, CNAME, …)
-	 * map to `w3tc_cdn`; `cdnfsd.cloudfront.*` keys (full-site
-	 * delivery CloudFront access/secret) map to `w3tc_cdnfsd`. New
-	 * engines added to the schema MUST be added here too — the rule
-	 * is positive-list, not derived from the schema, so a future
-	 * engine without an entry would default to the previous unsafe
-	 * "any logged-in admin on any W3TC page can write the
-	 * credentials" behaviour. A short test of `w3tc_cdn_test` /
-	 * `w3tc_cdn_credentials_required` confirms missing engines.
-	 *
-	 * @since 2.10.0
-	 *
-	 * @param string $w3tc_key Dotted config key.
-	 *
-	 * @return string|null Expected admin page slug, or null if no
-	 *                    page-boundary constraint applies.
-	 */
-	private static function _credential_namespace_page( $w3tc_key ) {
-		static $map = null;
-		if ( null === $map ) {
-			$map = array(
-				// Standard CDN engines (Settings → CDN).
-				'cdn.ftp.'               => 'w3tc_cdn',
-				'cdn.google_drive.'      => 'w3tc_cdn',
-				'cdn.s3.'                => 'w3tc_cdn',
-				'cdn.s3_compatible.'     => 'w3tc_cdn',
-				'cdn.cf.'                => 'w3tc_cdn',
-				'cdn.cf2.'               => 'w3tc_cdn',
-				'cdn.rscf.'              => 'w3tc_cdn',
-				'cdn.rackspace_cdn.'     => 'w3tc_cdn',
-				'cdn.azure.'             => 'w3tc_cdn',
-				'cdn.azuremi.'           => 'w3tc_cdn',
-				'cdn.bunnycdn.'          => 'w3tc_cdn',
-				'cdn.transparentcdn.'    => 'w3tc_cdn',
-
-				// Full-site-delivery CDN engines (Settings → CDN FSD).
-				'cdnfsd.cloudfront.'     => 'w3tc_cdnfsd',
-				'cdnfsd.bunnycdn.'       => 'w3tc_cdnfsd',
-				'cdnfsd.transparentcdn.' => 'w3tc_cdnfsd',
-			);
-		}
-		foreach ( $map as $prefix => $page ) {
-			if ( 0 === \strpos( $w3tc_key, $prefix ) ) {
-				return $page;
-			}
-		}
-		return null;
 	}
 }
