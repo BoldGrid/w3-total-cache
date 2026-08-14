@@ -97,25 +97,131 @@ class Util_Http {
 	 * @return bool Returns true on success, or false on failure.
 	 */
 	public static function download( $w3tc_url, $w3tc_file, $args = array() ) {
-		// Ensure the URL has a protocol.
-		if ( strpos( $w3tc_url, '//' ) === 0 ) {
-			$w3tc_url = ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $w3tc_url;
-		}
-
-		if ( ! Util_Url::is_self_host_url( $w3tc_url ) && ! Util_Url::is_public_host( $w3tc_url ) ) {
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url ) {
 			return false;
 		}
 
-		// Send a GET request to the URL to fetch the content.
-		$response = self::get( $w3tc_url, $args );
+		/**
+		 * Follow Location responses manually so each hop is evaluated
+		 * with {@see Util_Url::is_allowed_outbound_url()} before the next
+		 * request. Automatic redirect following would skip that check.
+		 */
+		$max_redirects = 5;
+		for ( $hop = 0; $hop <= $max_redirects; $hop++ ) {
+			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+				return false;
+			}
 
-		// Check if the response contains an error.
-		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
-			return false;
+			$request_args = \array_merge(
+				$args,
+				array(
+					'redirection' => 0,
+				)
+			);
+
+			$response = self::get( $w3tc_url, $request_args );
+			if ( \is_wp_error( $response ) ) {
+				return false;
+			}
+
+			$code = isset( $response['response']['code'] ) ? (int) $response['response']['code'] : 0;
+			if ( $code >= 300 && $code < 400 ) {
+				$location = self::response_location_header( $response );
+				if ( '' === $location ) {
+					return false;
+				}
+
+				$w3tc_url = self::resolve_redirect_url( $w3tc_url, $location );
+				if ( '' === $w3tc_url ) {
+					return false;
+				}
+
+				continue;
+			}
+
+			if ( 200 !== $code ) {
+				return false;
+			}
+
+			return (bool) @file_put_contents( $w3tc_file, $response['body'] );
 		}
 
-		// Attempt to write the response body to the specified file.
-		return (bool) @file_put_contents( $w3tc_file, $response['body'] );
+		return false;
+	}
+
+	/**
+	 * Reads the Location header from a wp_remote_* response.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $response HTTP API response.
+	 *
+	 * @return string
+	 */
+	private static function response_location_header( $response ) {
+		if ( empty( $response['headers'] ) ) {
+			return '';
+		}
+
+		$headers = $response['headers'];
+		if ( \is_array( $headers ) && isset( $headers['location'] ) ) {
+			$location = $headers['location'];
+		} elseif ( \is_object( $headers ) && isset( $headers['location'] ) ) {
+			$location = $headers['location'];
+		} else {
+			return '';
+		}
+
+		if ( \is_array( $location ) ) {
+			$location = \reset( $location );
+		}
+
+		return \is_string( $location ) ? \trim( $location ) : '';
+	}
+
+	/**
+	 * Resolves a redirect Location against the current request URL.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $current  Absolute URL of the current hop.
+	 * @param string $location Location header value.
+	 *
+	 * @return string Absolute URL, or empty string when resolution fails.
+	 */
+	private static function resolve_redirect_url( $current, $location ) {
+		if ( ! \is_string( $location ) || '' === $location ) {
+			return '';
+		}
+
+		$location = Util_Url::normalize_protocol_relative_url( $location );
+		if ( '' === $location ) {
+			return '';
+		}
+
+		if ( Util_Environment::is_url( $location ) ) {
+			return $location;
+		}
+
+		$parts = \wp_parse_url( $current );
+		if ( ! \is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return '';
+		}
+
+		$authority = $parts['scheme'] . '://' . $parts['host'];
+		if ( ! empty( $parts['port'] ) ) {
+			$authority .= ':' . $parts['port'];
+		}
+
+		if ( isset( $location[0] ) && '/' === $location[0] ) {
+			return $authority . $location;
+		}
+
+		$base_path = isset( $parts['path'] ) ? $parts['path'] : '/';
+		$base_dir  = \trailingslashit( \dirname( $base_path ) );
+
+		return $authority . $base_dir . $location;
 	}
 
 	/**
