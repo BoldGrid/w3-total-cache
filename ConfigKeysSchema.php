@@ -429,4 +429,103 @@ class ConfigKeysSchema {
 
 		return \in_array( $note_id, $allowed, true );
 	}
+
+	/**
+	 * Returns true when a bulk-import key shape is admissible.
+	 *
+	 * Export → Import blobs are JSON objects whose keys must be
+	 * non-empty strings. Integer keys (JSON array payloads), empty
+	 * strings, and PHP array/compound keys are structural failures —
+	 * {@see Config::import_from_array()} aborts the whole import when
+	 * any such key is present so nothing is partially applied.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $w3tc_key Candidate import key.
+	 *
+	 * @return bool
+	 */
+	public static function is_import_key_shape( $w3tc_key ) {
+		return \is_string( $w3tc_key ) && '' !== $w3tc_key;
+	}
+
+	/**
+	 * Returns true when the descriptor (or key) carries
+	 * `flags.directive_string` — i.e. the value feeds server-config
+	 * rule generation and must be list-of-scalars (or a scalar string)
+	 * before persistence.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string     $w3tc_key        Config key.
+	 * @param array|null $w3tc_descriptor Optional pre-loaded descriptor.
+	 *
+	 * @return bool
+	 */
+	public static function is_directive_string_key( $w3tc_key, $w3tc_descriptor = null ) {
+		if ( null === $w3tc_descriptor ) {
+			$w3tc_descriptor = self::descriptor( $w3tc_key );
+		}
+
+		return \is_array( $w3tc_descriptor )
+			&& isset( $w3tc_descriptor['flags'] )
+			&& \is_array( $w3tc_descriptor['flags'] )
+			&& ! empty( $w3tc_descriptor['flags']['directive_string'] );
+	}
+
+	/**
+	 * Validates (and for directive-string arrays, normalises) a value
+	 * that will be written by bulk import.
+	 *
+	 * Contract:
+	 *  - Non-directive keys: type-coerce only; never a hard failure.
+	 *  - Directive-string **string** keys: coerce; Config::set strips
+	 *    forbidden bytes afterwards.
+	 *  - Directive-string **array** keys: must be a list (or coerce to
+	 *    one). Nested arrays/objects inside the list are a structural
+	 *    failure — those shapes cannot be safely reduced to a
+	 *    RewriteCond / location alternation without guessing, so the
+	 *    import aborts rather than applying a partial bad value.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string     $w3tc_key        Config key.
+	 * @param mixed      $w3tc_value      Raw imported value.
+	 * @param array|null $w3tc_descriptor Schema descriptor (or null).
+	 *
+	 * @return array{ok:bool,value:mixed,error:?string}
+	 */
+	public static function validate_import_value( $w3tc_key, $w3tc_value, $w3tc_descriptor = null ) {
+		if ( null === $w3tc_descriptor ) {
+			$w3tc_descriptor = self::descriptor( $w3tc_key );
+		}
+
+		$coerced = self::coerce( $w3tc_value, $w3tc_descriptor );
+
+		if ( ! self::is_directive_string_key( $w3tc_key, $w3tc_descriptor ) ) {
+			return array(
+				'ok'    => true,
+				'value' => $coerced,
+				'error' => null,
+			);
+		}
+
+		if ( \is_array( $coerced ) ) {
+			foreach ( $coerced as $entry ) {
+				if ( \is_array( $entry ) || \is_object( $entry ) ) {
+					return array(
+						'ok'    => false,
+						'value' => null,
+						'error' => 'nested_rule_generation_value',
+					);
+				}
+			}
+		}
+
+		return array(
+			'ok'    => true,
+			'value' => $coerced,
+			'error' => null,
+		);
+	}
 }

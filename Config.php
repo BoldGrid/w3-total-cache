@@ -62,6 +62,18 @@ class Config {
 	private $_compiled;
 
 	/**
+	 * Last import failure reason (empty when the most recent import
+	 * succeeded or has not run). Exposed via {@see get_last_import_error()}
+	 * so callers/tests can distinguish structural aborts from soft key
+	 * skips without changing the historical bool return of `import()`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @var string
+	 */
+	private $_last_import_error = '';
+
+	/**
 	 * Retrieves a configuration array from cache storage if enabled and present, otherwise retrieves from
 	 * database/file via _util_array_from_storage private method
 	 *
@@ -902,6 +914,10 @@ class Config {
 	 * non-scalar value cannot land in a slot the schema declares
 	 * as a scalar.
 	 *
+	 * Structural failures (non-string keys, nested objects inside
+	 * directive-string array values used for rule generation) abort the
+	 * entire import with no writes — see {@see import_from_array()}.
+	 *
 	 * Rejection counts are written to the `w3tc` debug channel via
 	 * `Util_Debug::log` so operators can diagnose "my exported config
 	 * didn't restore everything" without having to look at the JSON.
@@ -914,7 +930,10 @@ class Config {
 	 * @return bool True if the import was successful, false otherwise.
 	 */
 	public function import( string $filename ): bool {
+		$this->_last_import_error = '';
+
 		if ( 'direct' !== \get_filesystem_method() ) {
+			$this->_last_import_error = 'filesystem';
 			return false;
 		}
 
@@ -937,52 +956,139 @@ class Config {
 					$w3tc_data = $w3tc_c->get_data();
 				}
 
-				$rejected_unknown = 0;
-				$rejected_locked  = 0;
-				$applied          = 0;
-
-				foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
-					// `version` is metadata, not a settable key.
-					if ( 'version' === $w3tc_key ) {
-						continue;
-					}
-
-					if ( ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
-						++$rejected_unknown;
-						continue;
-					}
-
-					if ( ! ConfigKeysSchema::can_import( $w3tc_key ) ) {
-						++$rejected_locked;
-						continue;
-					}
-
-					$w3tc_descriptor = ConfigKeysSchema::descriptor( $w3tc_key );
-					$w3tc_value      = ConfigKeysSchema::coerce( $w3tc_value, $w3tc_descriptor );
-
-					$this->set( $w3tc_key, $w3tc_value );
-					++$applied;
-				}
-
-				if ( ( $rejected_unknown > 0 || $rejected_locked > 0 ) && \class_exists( '\W3TC\Util_Debug' ) ) {
-					Util_Debug::log(
-						'w3tc',
-						\sprintf(
-							'Config::import: applied %d, rejected %d unknown key%s and %d no-import key%s.',
-							$applied,
-							$rejected_unknown,
-							1 === $rejected_unknown ? '' : 's',
-							$rejected_locked,
-							1 === $rejected_locked ? '' : 's'
-						)
-					);
-				}
-
-				return true;
+				return $this->import_from_array( $w3tc_data );
 			}
+
+			$this->_last_import_error = 'invalid_json';
+		} else {
+			$this->_last_import_error = 'unreadable';
 		}
 
 		return false;
+	}
+
+	/**
+	 * Imports an already-decoded configuration array.
+	 *
+	 * Two-phase contract:
+	 *  1. Validate every key/value. Soft-skip unknown and `no_import`
+	 *     keys. Hard-abort (return false, write nothing) on malformed
+	 *     key shapes or nested rule-generation structures.
+	 *  2. Only after the full pass succeeds, apply accepted values via
+	 *     {@see set()} so directive-string sanitisation runs before
+	 *     persistence.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array $w3tc_data Decoded export blob (flat key => value).
+	 *
+	 * @return bool True when the import applied (possibly with soft
+	 *              skips); false when a structural failure aborted with
+	 *              no writes.
+	 */
+	public function import_from_array( array $w3tc_data ): bool {
+		$this->_last_import_error = '';
+
+		$rejected_unknown = 0;
+		$rejected_locked  = 0;
+		$pending          = array();
+
+		foreach ( $w3tc_data as $w3tc_key => $w3tc_value ) {
+			// `version` is metadata, not a settable key.
+			if ( 'version' === $w3tc_key ) {
+				continue;
+			}
+
+			if ( ! ConfigKeysSchema::is_import_key_shape( $w3tc_key ) ) {
+				$this->_last_import_error = 'invalid_key_shape';
+				$this->log_import_abort( $this->_last_import_error );
+				return false;
+			}
+
+			if ( ! ConfigKeysSchema::is_known( $w3tc_key ) ) {
+				++$rejected_unknown;
+				continue;
+			}
+
+			if ( ! ConfigKeysSchema::can_import( $w3tc_key ) ) {
+				++$rejected_locked;
+				continue;
+			}
+
+			$w3tc_descriptor = ConfigKeysSchema::descriptor( $w3tc_key );
+			$validated       = ConfigKeysSchema::validate_import_value(
+				$w3tc_key,
+				$w3tc_value,
+				$w3tc_descriptor
+			);
+
+			if ( empty( $validated['ok'] ) ) {
+				$this->_last_import_error = isset( $validated['error'] )
+					? (string) $validated['error']
+					: 'invalid_value';
+				$this->log_import_abort( $this->_last_import_error, $w3tc_key );
+				return false;
+			}
+
+			$pending[ $w3tc_key ] = $validated['value'];
+		}
+
+		foreach ( $pending as $w3tc_key => $w3tc_value ) {
+			$this->set( $w3tc_key, $w3tc_value );
+		}
+
+		$applied = \count( $pending );
+
+		if ( ( $rejected_unknown > 0 || $rejected_locked > 0 ) && \class_exists( '\W3TC\Util_Debug' ) ) {
+			Util_Debug::log(
+				'w3tc',
+				\sprintf(
+					'Config::import: applied %d, rejected %d unknown key%s and %d no-import key%s.',
+					$applied,
+					$rejected_unknown,
+					1 === $rejected_unknown ? '' : 's',
+					$rejected_locked,
+					1 === $rejected_locked ? '' : 's'
+				)
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns the reason the most recent import aborted, or '' on
+	 * success / before any import.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string
+	 */
+	public function get_last_import_error() {
+		return $this->_last_import_error;
+	}
+
+	/**
+	 * Logs a structural import abort to the debug channel when available.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string      $reason Abort reason code.
+	 * @param string|null $key    Optional offending key.
+	 *
+	 * @return void
+	 */
+	private function log_import_abort( $reason, $key = null ) {
+		if ( ! \class_exists( '\W3TC\Util_Debug' ) ) {
+			return;
+		}
+
+		$msg = 'Config::import: aborted (' . $reason . ') with no writes.';
+		if ( null !== $key && '' !== $key ) {
+			$msg .= ' Offending key: ' . $key;
+		}
+
+		Util_Debug::log( 'w3tc', $msg );
 	}
 
 	/**
