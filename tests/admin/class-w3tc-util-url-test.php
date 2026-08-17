@@ -237,9 +237,76 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Outbound-fetch policy accepts this site's host and refuses
-	 * private / non-http destinations.
-	 *
+ * Constant-override allowlist: https + exact host or leading-dot suffix.
+ *
+ * @since X.X.X
+ */
+public function test_is_https_host_allowlisted_accepts_exact_and_suffix() {
+	$exact    = array( 'w3-edge.com' );
+	$suffixes = array( '.w3-edge.com' );
+
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://w3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://api2.w3-edge.com/notices', $exact, $suffixes )
+	);
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://staging.w3-edge.com/api', $exact, $suffixes )
+	);
+}
+
+/**
+ * Rejected schemes, foreign hosts, and suffix lookalikes fail closed.
+ *
+ * @since X.X.X
+ */
+public function test_is_https_host_allowlisted_rejects_unsafe_values() {
+	$exact    = array( 'w3-edge.com' );
+	$suffixes = array( '.w3-edge.com' );
+
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'http://api2.w3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://evil.example/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://xw3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://w3-edge.com.evil.example/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://127.0.0.1/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( '', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( null, $exact, $suffixes )
+	);
+}
+
+/**
+ * Suffix entries without a leading dot are ignored.
+ *
+ * @since X.X.X
+ */
+public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes() {
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted(
+			'https://api2.w3-edge.com/',
+			array(),
+			array( 'w3-edge.com' )
+		)
+	);
+}
+
+/**
+ * Outbound-fetch policy accepts this site's host and refuses
+ * private / non-http destinations.
+ *
 	 * @since X.X.X
 	 */
 	public function test_is_allowed_outbound_url_policy() {
@@ -272,10 +339,10 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	public function test_normalize_protocol_relative_url() {
 		$scheme = Util_Url::normalize_protocol_relative_url( '//example.com/a.css' );
 		$this->assertMatchesRegularExpression( '#^https?://example\\.com/a\\.css$#', $scheme );
-		$this->assertSame(
-			'https://cdn.example/a.js',
-			Util_Url::normalize_protocol_relative_url( 'https://cdn.example/a.js' )
-		);
-		$this->assertSame( '', Util_Url::normalize_protocol_relative_url( '' ) );
-	}
+	$this->assertSame(
+		'https://cdn.example/a.js',
+		Util_Url::normalize_protocol_relative_url( 'https://cdn.example/a.js' )
+	);
+	$this->assertSame( '', Util_Url::normalize_protocol_relative_url( '' ) );
+}
 }
