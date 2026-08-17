@@ -192,6 +192,50 @@ class Util_Url {
 	}
 
 	/**
+	 * Returns true when a URL may be fetched by plugin HTTP helpers:
+	 * this site's own host, or a host that resolves only to public
+	 * addresses (see {@see self::is_public_host()}).
+	 *
+	 * Protocol-relative URLs (`//example.com/...`) are normalized with
+	 * the current request scheme before evaluation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return bool
+	 */
+	public static function is_allowed_outbound_url( $w3tc_url ) {
+		$w3tc_url = self::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url ) {
+			return false;
+		}
+
+		return self::is_self_host_url( $w3tc_url ) || self::is_public_host( $w3tc_url );
+	}
+
+	/**
+	 * Expands a protocol-relative URL using the current request scheme.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return string Normalized URL, or empty string when input is invalid.
+	 */
+	public static function normalize_protocol_relative_url( $w3tc_url ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return '';
+		}
+
+		if ( 0 === \strpos( $w3tc_url, '//' ) ) {
+			return ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $w3tc_url;
+		}
+
+		return $w3tc_url;
+	}
+
+	/**
 	 * Returns true for an http or https URL; refuses every other
 	 * scheme. `gopher`, `file`, `php`, `data`, etc. each open
 	 * out-of-band fetch paths in their own right and have no place
