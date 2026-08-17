@@ -38,29 +38,10 @@ class Licensing_Core {
 	 */
 	private static function _license_api_base_url() {
 		$w3tc_url = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
-		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
+		if ( ! Util_Url::is_https_host_allowlisted( $w3tc_url, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
 			return false;
 		}
-		$scheme = \wp_parse_url( $w3tc_url, PHP_URL_SCHEME );
-		$host   = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
-		if ( 'https' !== $scheme || ! \is_string( $host ) || '' === $host ) {
-			return false;
-		}
-		$host_lc = \strtolower( $host );
-		if ( 'w3-edge.com' === $host_lc ) {
-			return $w3tc_url;
-		}
-		/**
-		 * Subdomain match: leading dot in the suffix prevents an
-		 * attacker-owned `xw3-edge.com` from passing the check.
-		 */
-		$suffix = '.w3-edge.com';
-		$slen   = \strlen( $suffix );
-		$hlen   = \strlen( $host_lc );
-		if ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix ) {
-			return $w3tc_url;
-		}
-		return false;
+		return $w3tc_url;
 	}
 
 	/**

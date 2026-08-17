@@ -1944,13 +1944,27 @@ class Util_Environment {
 	/**
 	 * Gets the BoldGrid API URL
 	 *
-	 * This URL can be overridden by defining W3TC_API2_URL
+	 * This URL can be overridden by defining W3TC_API2_URL. Overrides
+	 * must be https on `w3-edge.com` / `*.w3-edge.com`; anything else
+	 * falls back to the production default.
 	 *
 	 * @since 2.8.3
 	 *
 	 * @return string The API URL to use for requests.
 	 */
 	public static function get_api_base_url() {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( W3TC_API2_URL, array( 'https' ), '' ) : 'https://api2.w3-edge.com';
+		$default = 'https://api2.w3-edge.com';
+
+		if ( ! \defined( 'W3TC_API2_URL' ) || ! W3TC_API2_URL ) {
+			return $default;
+		}
+
+		$candidate = W3TC_API2_URL;
+		if ( ! Util_Url::is_https_host_allowlisted( $candidate, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
+			return $default;
+		}
+
+		$sanitized = \esc_url( $candidate, array( 'https' ), '' );
+		return ( \is_string( $sanitized ) && '' !== $sanitized ) ? $sanitized : $default;
 	}
 }

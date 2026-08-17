@@ -330,12 +330,25 @@ class PageSpeed_Api {
 	/**
 	 * Get Google PageSpeed API URL.
 	 *
+	 * Overrides via W3TC_PAGESPEED_API_URL must be https on
+	 * `googleapis.com` / `*.googleapis.com`; rejected values fall back
+	 * to the built-in default.
+	 *
 	 * @since 2.3.0
 	 *
 	 * @return string
 	 */
 	public function get_pagespeed_url() {
-		return defined( 'W3TC_PAGESPEED_API_URL' ) && W3TC_PAGESPEED_API_URL ? W3TC_PAGESPEED_API_URL : $this->pagespeed_api_base_url;
+		if ( ! \defined( 'W3TC_PAGESPEED_API_URL' ) || ! W3TC_PAGESPEED_API_URL ) {
+			return $this->pagespeed_api_base_url;
+		}
+
+		$candidate = W3TC_PAGESPEED_API_URL;
+		if ( ! Util_Url::is_https_host_allowlisted( $candidate, array( 'googleapis.com' ), array( '.googleapis.com' ) ) ) {
+			return $this->pagespeed_api_base_url;
+		}
+
+		return $candidate;
 	}
 
 	/**

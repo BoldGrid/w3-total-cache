@@ -238,7 +238,18 @@ class Generic_Plugin_AdminNotices {
 			return $cached_notices;
 		}
 
-		$api_response = \wp_remote_get( esc_url( W3TC_NOTICE_FEED ) );
+		$feed_url = \defined( 'W3TC_NOTICE_FEED' ) ? W3TC_NOTICE_FEED : '';
+		if ( ! Util_Url::is_https_host_allowlisted( $feed_url, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
+			return null;
+		}
+
+		$api_response = \wp_remote_get(
+			\esc_url( $feed_url ),
+			array(
+				'timeout'     => 15,
+				'redirection' => 0,
+			)
+		);
 
 		if ( \is_wp_error( $api_response ) || \wp_remote_retrieve_response_code( $api_response ) !== 200 ) {
 			return null;

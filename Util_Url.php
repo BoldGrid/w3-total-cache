@@ -598,4 +598,56 @@ class Util_Url {
 		}
 		return false;
 	}
+
+	/**
+	 * Constant-override allowlist: https scheme plus exact host or
+	 * leading-dot suffix match.
+	 *
+	 * Used for vendored API URLs declared behind `if ( ! defined() )`
+	 * guards. Does not resolve DNS — destination policy is host-shape
+	 * only, matching the license-API helper. Exact hosts cover apex
+	 * names (`w3-edge.com`); suffixes MUST include the leading dot
+	 * (`.w3-edge.com`) so `xw3-edge.com` cannot pass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url          Candidate URL.
+	 * @param array  $exact_hosts       Exact hostnames (lowercase-compared).
+	 * @param array  $allowed_suffixes  Leading-dot suffixes.
+	 *
+	 * @return bool
+	 */
+	public static function is_https_host_allowlisted( $w3tc_url, array $exact_hosts, array $allowed_suffixes ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return false;
+		}
+
+		$scheme = \wp_parse_url( $w3tc_url, PHP_URL_SCHEME );
+		$host   = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( 'https' !== $scheme || ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$host_lc = \strtolower( $host );
+
+		foreach ( $exact_hosts as $exact ) {
+			if ( \is_string( $exact ) && '' !== $exact && \strtolower( $exact ) === $host_lc ) {
+				return true;
+			}
+		}
+
+		foreach ( $allowed_suffixes as $suffix ) {
+			if ( ! \is_string( $suffix ) || '' === $suffix || '.' !== $suffix[0] ) {
+				continue;
+			}
+			$suffix_lc = \strtolower( $suffix );
+			$slen      = \strlen( $suffix_lc );
+			$hlen      = \strlen( $host_lc );
+			if ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix_lc ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

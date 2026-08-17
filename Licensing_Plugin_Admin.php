@@ -812,27 +812,8 @@ class Licensing_Plugin_Admin {
 			'license_key' => $w3tc_license_key,
 		);
 
-		/**
-		 * Mirrors the allowlist in {@see Licensing_Core::_license_api_base_url()}.
-		 * Inlined rather than exposed because this is the only off-class
-		 * caller and the helper is intentionally private.
-		 */
-		$base    = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
-		$scheme  = \wp_parse_url( $base, PHP_URL_SCHEME );
-		$host    = \wp_parse_url( $base, PHP_URL_HOST );
-		$host_lc = \is_string( $host ) ? \strtolower( $host ) : '';
-		$suffix  = '.w3-edge.com';
-		$slen    = \strlen( $suffix );
-		$hlen    = \strlen( $host_lc );
-		$allowed = (
-			'https' === $scheme
-			&& '' !== $host_lc
-			&& (
-				'w3-edge.com' === $host_lc
-				|| ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix )
-			)
-		);
-		if ( ! $allowed ) {
+		$base = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		if ( ! Util_Url::is_https_host_allowlisted( $base, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
 			return '';
 		}
 
