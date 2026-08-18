@@ -1,0 +1,73 @@
+name: Security checks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Semgrep W3TC rules
+        run: |
+          semgrep --config rules/w3tc-semgrep.yml --error \
+            --exclude=vendor --exclude=node_modules --exclude=tests --exclude=ci \
+            --exclude=phpcs-rules
+          # Bad fixtures must fail (findings are expected; silence report noise).
+          if semgrep --config rules/w3tc-semgrep.yml --error \
+              ci/testdata/semgrep/bad >/dev/null 2>&1; then
+            echo "expected findings in bad fixtures" >&2
+            exit 1
+          fi
+          echo "OK: bad semgrep fixtures flagged"
+          semgrep --config rules/w3tc-semgrep.yml --error ci/testdata/semgrep/good
+
+  conftest:
+    runs-on: ubuntu-latest
+    container:
+      image: openpolicyagent/conftest:latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Conftest master.php policies
+        run: |
+          conftest test --policy policies/w3tc ci/testdata/conftest/good-config.json
+          conftest test --policy policies/w3tc ci/testdata/conftest/good-pro-with-license.json
+          for f in bad-pro-no-license.json bad-cdn-php-mask.json bad-exceptions-newline.json; do
+            if conftest test --policy policies/w3tc "ci/testdata/conftest/$f" >/dev/null 2>&1; then
+              echo "expected deny for $f" >&2
+              exit 1
+            fi
+            echo "OK: denied $f"
+          done
+
+  phpcs-w3tc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+      - name: Install PHP deps
+        run: composer install --no-interaction --prefer-dist
+      - name: PHPCS W3TC security sniffs
+        run: |
+          # Bad fixtures must fail (findings are expected; silence report noise).
+          if vendor/bin/phpcs --standard=phpcs-rules/W3TC/ruleset.xml \
+              --runtime-set installed_paths "$PWD/phpcs-rules" \
+              ci/testdata/phpcs/bad >/dev/null 2>&1; then
+            echo "expected findings in bad fixtures" >&2
+            exit 1
+          fi
+          echo "OK: bad phpcs fixtures flagged"
+          vendor/bin/phpcs --standard=phpcs-rules/W3TC/ruleset.xml \
+            --runtime-set installed_paths "$PWD/phpcs-rules" \
+            ci/testdata/phpcs/good
+          echo "== phpcs W3TC security sniffs on production sources =="
+          vendor/bin/phpcs --standard=phpcs-rules/W3TC/ruleset.xml \
+            --runtime-set installed_paths "$PWD/phpcs-rules" \
+            Cache_File_Generic.php SetupGuide_Plugin_Admin.php Generic_AdminActions_Default.php

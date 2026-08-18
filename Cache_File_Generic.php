@@ -335,20 +335,32 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
-	 * Escape header value
+	 * Escape header value for Apache single-quoted Header directives.
+	 *
+	 * Strips CR/LF/NUL while preserving double quotes and Link angle
+	 * brackets so HTTP/2 preload values (`<uri>; rel=preload; as=…`) stay
+	 * RFC-valid inside the single-quoted Apache `Header add` context.
+	 * Angle-bracket stripping belongs on directive tokens
+	 * ({@see Util_Rule::sanitize_directive_value()}), not quoted header values.
 	 *
 	 * @param string $v Value.
 	 *
-	 * @return array
+	 * @return string
 	 */
 	private function escape_header_value( $v ) {
-		return str_replace(
+		if ( ! \is_string( $v ) ) {
+			return '';
+		}
+
+		$v = \preg_replace( '/[\r\n\x00]/', '', \trim( $v ) );
+
+		return \str_replace(
 			"'",
 			"\\'",
-			str_replace(
-				"\\",
-				"\\\\\\", // htaccess need escape of \ to \\\.
-				preg_replace( '~[\r\n]~m', '_', trim( $v ) )
+			\str_replace(
+				'\\',
+				'\\\\\\', // htaccess need escape of \ to \\\.
+				$v
 			)
 		);
 	}

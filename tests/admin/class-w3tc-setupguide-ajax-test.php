@@ -296,6 +296,8 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 			'w3tc_get_objcache_settings',
 			'w3tc_test_objcache',
 			'w3tc_config_objcache',
+			'w3tc_get_browsercache_settings',
+			'w3tc_config_browsercache',
 			'w3tc_get_imageservice_settings',
 			'w3tc_config_imageservice',
 			'w3tc_get_lazyload_settings',
@@ -332,13 +334,11 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `get_nonce_action()` falls back to `w3tc_wizard` for an unknown action so
-	 * cached wizard pages (rendered before this release) continue to function
-	 * for admins. Closing the legacy fallback is a follow-up release.
+	 * Unknown actions resolve to an empty nonce key so they cannot authenticate.
 	 *
 	 * @since 2.10.0
 	 */
-	public function test_get_nonce_action_falls_back_to_legacy_for_unknown() {
+	public function test_get_nonce_action_rejects_unknown() {
 		$ref    = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
 		$method = $ref->getMethod( 'get_nonce_action' );
 		$method->setAccessible( true );
@@ -349,9 +349,33 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 			'Known action should resolve to its per-action nonce key.'
 		);
 		$this->assertSame(
-			'w3tc_wizard',
+			'',
 			$method->invoke( null, 'this_is_not_a_wizard_action' ),
-			'Unknown action should fall back to the legacy w3tc_wizard key (back-compat window).'
+			'Unknown action must not fall back to a shared legacy nonce key.'
 		);
+	}
+
+	/**
+	 * A valid shared `w3tc_wizard` nonce no longer authenticates SetupGuide AJAX.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_skip_rejects_legacy_wizard_nonce() {
+		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin );
+
+		$_REQUEST['_wpnonce'] = \wp_create_nonce( 'w3tc_wizard' );
+
+		$plugin = new SetupGuide_Plugin_Admin();
+
+		\ob_start();
+		try {
+			$plugin->skip();
+			\ob_end_clean();
+			$this->fail( 'Expected WPDieException when only a legacy w3tc_wizard nonce is presented.' );
+		} catch ( \WPDieException $e ) {
+			$out = \ob_get_clean();
+			$this->assertStringContainsString( 'Security violation', $out );
+		}
 	}
 }
