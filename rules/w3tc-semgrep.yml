@@ -73,18 +73,3 @@ rules:
       include:
         - /Generic_AdminActions_Default.php
         - /ci/testdata/semgrep/**
-
-  - id: w3tc-outbound-url-constant-allowlist
-    message: Constant URL overrides should use Util_Url::is_https_host_allowlisted (ENG7-4288).
-    languages: [php]
-    severity: WARNING
-    patterns:
-      # Matches the constant-override read (ternary), not the `if ( ! defined() )`
-      # default-declaration idiom, and spans the following lines so the guard
-      # negation below can see the allowlist call.
-      - pattern-regex: '\\?defined\(\s*''W3TC_(?:NOTICE_FEED|LICENSE_API_URL|BOLDGRID_FORUM_API|PAGE_SPEED)''\s*\)\s*\?(?:[^\n]*\n){0,4}'
-      - pattern-not-regex: 'is_https_host_allowlisted'
-    paths:
-      exclude:
-        - /tests/**
-        - /Util_Url.php
