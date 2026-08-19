@@ -43,11 +43,25 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	private $saved_get;
 
 	/**
+	 * Backup of $_POST around tests.
+	 *
+	 * @var array
+	 */
+	private $saved_post;
+
+	/**
 	 * Backup of REMOTE_ADDR around tests.
 	 *
 	 * @var string|null
 	 */
 	private $saved_remote_addr;
+
+	/**
+	 * Backup of dismissed notices around tests.
+	 *
+	 * @var mixed
+	 */
+	private $saved_dismissed_notices;
 
 	/**
 	 * Custom AJAX die handler that throws WPDieException instead of exiting.
@@ -69,9 +83,11 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->saved_request     = $_REQUEST;
-		$this->saved_get         = $_GET;
-		$this->saved_remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+		$this->saved_request           = $_REQUEST;
+		$this->saved_get               = $_GET;
+		$this->saved_post              = $_POST;
+		$this->saved_remote_addr       = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+		$this->saved_dismissed_notices = \get_option( 'w3tc_dismissed_notices', null );
 		\add_filter( 'wp_doing_ajax', '__return_true' );
 		\add_filter( 'wp_die_ajax_handler', array( __CLASS__, 'ajax_die_handler' ) );
 	}
@@ -86,10 +102,16 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 		\remove_filter( 'wp_doing_ajax', '__return_true' );
 		$_REQUEST = $this->saved_request;
 		$_GET     = $this->saved_get;
+		$_POST    = $this->saved_post;
 		if ( null === $this->saved_remote_addr ) {
 			unset( $_SERVER['REMOTE_ADDR'] );
 		} else {
 			$_SERVER['REMOTE_ADDR'] = $this->saved_remote_addr;
+		}
+		if ( null === $this->saved_dismissed_notices ) {
+			\delete_option( 'w3tc_dismissed_notices' );
+		} else {
+			\update_option( 'w3tc_dismissed_notices', $this->saved_dismissed_notices, false );
 		}
 		wp_set_current_user( 0 );
 		parent::tear_down();
@@ -193,6 +215,25 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'content', $result );
+		$this->assertStringContainsString( 'Too many minify requests', $result['content'] );
+
+		\delete_transient( $transient );
+	}
+
+	/**
+	 * Minify requests without a client address share a fallback budget.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_minify_finish_with_error_rate_limits_missing_remote_addr() {
+		unset( $_SERVER['REMOTE_ADDR'] );
+		$transient = 'w3tc_rl_minify_bad_request_' . \substr( \md5( 'unknown' ), 0, 12 );
+		\set_transient( $transient, 30, 60 );
+
+		$handler = new Minify_MinifiedFileRequestHandler();
+		$result  = $handler->finish_with_error( 'Bad file param format', true, false );
+
+		$this->assertIsArray( $result );
 		$this->assertStringContainsString( 'Too many minify requests', $result['content'] );
 
 		\delete_transient( $transient );
@@ -310,6 +351,31 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Notice retrieval accepts the nonce shape used by admin JavaScript.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_get_notices_accepts_admin_with_valid_nonce() {
+		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin );
+
+		$_REQUEST['_wpnonce'] = Util_Nonce::create_ajax( 'get_notices' );
+
+		$plugin = new Generic_Plugin_AdminNotices();
+
+		\ob_start();
+		try {
+			$plugin->w3tc_ajax_get_notices();
+			\ob_end_clean();
+			$this->fail( 'Expected WPDieException after the JSON response.' );
+		} catch ( \WPDieException $e ) {
+			$response = \json_decode( \ob_get_clean(), true );
+			$this->assertTrue( $response['success'] );
+			$this->assertArrayHasKey( 'noticeData', $response['data'] );
+		}
+	}
+
+	/**
 	 * Notice AJAX rejects a subscriber even with a valid per-action nonce.
 	 *
 	 * @since X.X.X
@@ -331,6 +397,32 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 		} catch ( \WPDieException $e ) {
 			$out = \ob_get_clean();
 			$this->assertStringContainsString( 'Insufficient permissions', $out );
+		}
+	}
+
+	/**
+	 * Notice dismissal accepts the nonce shape used by admin JavaScript.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_dismiss_notice_accepts_admin_with_valid_nonce() {
+		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin );
+
+		$_REQUEST['_wpnonce']  = Util_Nonce::create_ajax( 'dismiss_notice' );
+		$_POST['notice_id']    = '987654';
+
+		$plugin = new Generic_Plugin_AdminNotices();
+
+		\ob_start();
+		try {
+			$plugin->w3tc_ajax_dismiss_notice();
+			\ob_end_clean();
+			$this->fail( 'Expected WPDieException after the JSON response.' );
+		} catch ( \WPDieException $e ) {
+			$response = \json_decode( \ob_get_clean(), true );
+			$this->assertTrue( $response['success'] );
+			$this->assertContains( 987654, \get_option( 'w3tc_dismissed_notices', array() ) );
 		}
 	}
 

@@ -784,27 +784,12 @@ class Minify_MinifiedFileRequestHandler {
 	public function finish_with_error( $error, $quiet = false, $report_about_error = true ) {
 		$this->_error_occurred = true;
 
-		Minify_Core::debug_error( $error );
-
-		Util_Debug::audit_log(
-			'minify.request_error',
-			array(
-				'message'  => \is_string( $error ) ? $error : '',
-				'reported' => (bool) $report_about_error,
-			)
-		);
-
-		/**
-		 * Throttle unauthenticated probe / bad-format traffic (callers that
-		 * pass `$report_about_error = false`) so enumeration cannot hammer
-		 * the minify surface undetected.
-		 */
 		if ( ! $report_about_error ) {
-			$ip = '';
+			$ip = 'unknown';
 			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 				$ip = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 			}
-			if ( '' !== $ip && ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
+			if ( ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
 				$w3tc_limited = __( 'Too many minify requests.', 'w3-total-cache' );
 				if ( $quiet ) {
 					return array(
@@ -816,6 +801,16 @@ class Minify_MinifiedFileRequestHandler {
 				die();
 			}
 		}
+
+		Minify_Core::debug_error( $error );
+
+		Util_Debug::audit_log(
+			'minify.request_error',
+			array(
+				'message'  => \is_string( $error ) ? $error : '',
+				'reported' => (bool) $report_about_error,
+			)
+		);
 
 		if ( $report_about_error ) {
 			$this->_handle_error( $error );
