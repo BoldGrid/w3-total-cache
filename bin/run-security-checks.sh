@@ -48,6 +48,7 @@ run_phpcs() {
   echo "== phpcs W3TC security sniffs on production sources =="
   vendor/bin/phpcs --standard=phpcs-rules/W3TC/ruleset.xml \
     --runtime-set installed_paths phpcs-rules \
+    --extensions=php \
     --ignore='vendor/*,lib/*,node_modules/*,tests/*,ci/*,phpcs-rules/*,qa/*,.cursor/*,wp-content/*' \
     . || fail=1
 }
