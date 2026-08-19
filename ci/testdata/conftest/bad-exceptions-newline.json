@@ -1,0 +1,3 @@
+{
+  "browsercache.no404wp.exceptions": ["ok.js", "evil\nHeader add"]
+}

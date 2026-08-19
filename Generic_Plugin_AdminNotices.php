@@ -131,9 +131,16 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			\wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
+		Util_Nonce::verify_ajax( 'w3tc_ajax_get_notices' );
+
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			\wp_send_json_error(
+				array( 'message' => \esc_html__( 'Insufficient permissions.', 'w3-total-cache' ) ),
+				403
+			);
 		}
+
+		\wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
 	}
 
 	/**
@@ -144,8 +151,13 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_dismiss_notice() {
+		Util_Nonce::verify_ajax( 'w3tc_ajax_dismiss_notice' );
+
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			\wp_send_json_error(
+				array( 'message' => \esc_html__( 'Insufficient permissions.', 'w3-total-cache' ) ),
+				403
+			);
 		}
 
 		$notice_id         = Util_Request::get_integer( 'notice_id' );

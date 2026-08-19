@@ -97,11 +97,11 @@ class Generic_Plugin_WidgetForum {
 	 * AJAX handler for the latest widget feed.
 	 */
 	public function action_widget_latest_ajax() {
-		if ( ! \current_user_can( 'manage_options' ) ) {
+		if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_widget_latest_ajax' ) ) ) {
 			\wp_die( -1, '', array( 'response' => 403 ) );
 		}
 
-		if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_widget_latest_ajax' ) ) ) {
+		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die( -1, '', array( 'response' => 403 ) );
 		}
 
