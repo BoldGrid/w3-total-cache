@@ -60,6 +60,11 @@ Run the standalone cache-unserialize helper test (no WordPress bootstrap needed)
 php tests/test-cache-unserialize.php
 ```
 
+Run the standalone page-cache rules-required filter test (no WordPress bootstrap needed):
+```bash
+php tests/test-pgcache-rules-required-filter.php
+```
+
 #### Writing new standalone tests
 
 Standalone test files in `tests/` use a realpath-guard at the top so they exit early when PHPUnit auto-discovers them, e.g.:
