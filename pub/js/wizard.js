@@ -110,10 +110,7 @@ jQuery(function () {
         method: "POST",
         url: ajaxurl,
         data: {
-          _wpnonce:
-            "function" === typeof w3tcGetWizardNonce
-              ? w3tcGetWizardNonce("w3tc_wizard_skip")
-              : $container.find('[name="_wpnonce"]').val(),
+          _wpnonce: w3tcGetWizardNonce("w3tc_wizard_skip"),
           action: "w3tc_wizard_skip",
         },
       })

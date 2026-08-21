@@ -784,7 +784,33 @@ class Minify_MinifiedFileRequestHandler {
 	public function finish_with_error( $error, $quiet = false, $report_about_error = true ) {
 		$this->_error_occurred = true;
 
+		if ( ! $report_about_error ) {
+			$ip = 'unknown';
+			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+				$ip = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			}
+			if ( ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
+				$w3tc_limited = __( 'Too many minify requests.', 'w3-total-cache' );
+				if ( $quiet ) {
+					return array(
+						'content' => \esc_html( $w3tc_limited ),
+					);
+				}
+				status_header( 429 );
+				echo \esc_html( $w3tc_limited );
+				die();
+			}
+		}
+
 		Minify_Core::debug_error( $error );
+
+		Util_Debug::audit_log(
+			'minify.request_error',
+			array(
+				'message'  => \is_string( $error ) ? $error : '',
+				'reported' => (bool) $report_about_error,
+			)
+		);
 
 		if ( $report_about_error ) {
 			$this->_handle_error( $error );

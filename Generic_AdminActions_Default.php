@@ -140,7 +140,13 @@ class Generic_AdminActions_Default {
 	 */
 	public function w3tc_default_hide_note() {
 		$this->_require_admin_cap();
-		$w3tc_note    = Util_Request::get_string( 'note' );
+		$w3tc_note = Util_Request::get_string( 'note' );
+
+		if ( ! ConfigKeysSchema::is_known_note_id( $w3tc_note ) ) {
+			Util_Admin::redirect( array(), true );
+			return;
+		}
+
 		$w3tc_setting = sprintf( 'notes.%s', $w3tc_note );
 
 		$this->_config->set( $w3tc_setting, false );

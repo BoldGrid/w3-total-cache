@@ -1,0 +1,75 @@
+rules:
+  - id: w3tc-legacy-wizard-nonce
+    message: Shared w3tc_wizard nonce must not be accepted; use per-action SetupGuide nonces.
+    languages: [php]
+    severity: ERROR
+    patterns:
+      # Regex rather than an AST pattern: the PHP engine will not match the
+      # backslash-prefixed global calls this project's standard requires.
+      - pattern-regex: '\\?wp_verify_nonce\([^;]*?''w3tc_wizard''\s*\)'
+    paths:
+      exclude:
+        - /tests/**
+
+  - id: w3tc-escape-header-must-sanitize
+    message: Cache_File_Generic::escape_header_value must strip CR/LF/NUL (Link <> must remain).
+    languages: [php]
+    severity: ERROR
+    patterns:
+      - pattern: |
+          private function escape_header_value(...) {
+            ...
+          }
+      # Negations are regex-scoped to the matched body: the PHP engine will not
+      # match the backslash-prefixed \preg_replace() the real callers use.
+      # Prefix match accepts both `[\r\n\x00]` and a longer class that still
+      # strips those control bytes; angle brackets are not required here.
+      - pattern-not-regex: '\[\\r\\n\\x00'
+      - pattern-not-regex: 'Util_Rule::sanitize_directive_value'
+    paths:
+      include:
+        - /Cache_File_Generic.php
+        - /ci/testdata/semgrep/**
+
+  - id: w3tc-escape-header-keeps-link-brackets
+    message: Cache_File_Generic::escape_header_value must not strip Link angle brackets.
+    languages: [php]
+    severity: ERROR
+    patterns:
+      - pattern: |
+          private function escape_header_value(...) {
+            ...
+          }
+      # Any `<>` inside the method body is treated as a strip-class regression
+      # (Link preload Header values need those brackets to stay RFC-valid).
+      - pattern-regex: '<>'
+    paths:
+      include:
+        - /Cache_File_Generic.php
+        - /ci/testdata/semgrep/**
+
+  - id: w3tc-notes-write-requires-allowlist
+    message: notes.* writes from request input must pass ConfigKeysSchema::is_known_note_id.
+    languages: [php]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $NOTE = Util_Request::get_string('note');
+              ...
+              $this->_config->set(sprintf('notes.%s', $NOTE), ...);
+          # The key is often built into a local first, which the pattern above
+          # cannot see through.
+          - pattern: |
+              $NOTE = Util_Request::get_string('note');
+              ...
+              $SETTING = sprintf('notes.%s', $NOTE);
+              ...
+              $this->_config->set($SETTING, ...);
+      # Regex-scoped to the matched span so the guard is found whether it sits
+      # in an `if` condition or a bare statement.
+      - pattern-not-regex: 'ConfigKeysSchema::is_known_note_id'
+    paths:
+      include:
+        - /Generic_AdminActions_Default.php
+        - /ci/testdata/semgrep/**

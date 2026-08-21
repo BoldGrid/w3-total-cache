@@ -61,7 +61,7 @@ class Extensions_Plugin_Admin {
 			$action_val = Util_Request::get_string( 'action' );
 			if ( ! empty( Util_Request::get_string( 'extension' ) ) && ! empty( $action_val ) ) {
 				if ( in_array( $action_val, array( 'activate', 'deactivate' ), true ) ) {
-					add_action( 'init', array( $this, 'change_extension_status' ) );
+					add_action( 'admin_init', array( $this, 'change_extension_status' ) );
 				}
 			} elseif ( ! empty( Util_Request::get_array( 'checked' ) ) ) {
 				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
@@ -205,7 +205,14 @@ class Extensions_Plugin_Admin {
 	 * @return void
 	 */
 	public function change_extensions_status() {
-		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+		$extensions = Util_Request::get_array( 'checked' );
+		$action     = Util_Request::get( 'action' );
+
+		if ( '-1' === $action ) {
+			$action = Util_Request::get( 'action2' );   // Dropdown at bottom.
+		}
+
+		if ( ! \in_array( $action, array( 'activate-selected', 'deactivate-selected' ), true ) ) {
 			return;
 		}
 
@@ -214,6 +221,9 @@ class Extensions_Plugin_Admin {
 		 * nonce verification at all. Verify a
 		 * per-action nonce keyed `w3tc_extensions_bulk` rendered by the
 		 * bulk-action form in `inc/options/extensions/list.php`.
+		 *
+		 * Nonce is checked before capability so unauthenticated or
+		 * cross-site requests fail without revealing authorization state.
 		 *
 		 * @since 2.10.0
 		 */
@@ -225,13 +235,15 @@ class Extensions_Plugin_Admin {
 			);
 		}
 
-		$w3tc_message = '';
-		$extensions   = Util_Request::get_array( 'checked' );
-		$action       = Util_Request::get( 'action' );
-
-		if ( '-1' === $action ) {
-			$action = Util_Request::get( 'action2' );   // Dropdown at bottom.
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			\wp_die(
+				\esc_html__( 'You do not have sufficient permissions to manage extensions.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
 		}
+
+		$w3tc_message = '';
 
 		if ( 'activate-selected' === $action ) {
 			foreach ( $extensions as $w3tc_extension ) {
@@ -241,18 +253,15 @@ class Extensions_Plugin_Admin {
 			}
 			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $w3tc_message ) ) );
 			exit;
-		} elseif ( 'deactivate-selected' === $action ) {
-			foreach ( $extensions as $w3tc_extension ) {
-				if ( Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config ) ) {
-					$w3tc_message .= '&deactivated=' . $w3tc_extension;
-				}
-			}
-			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $w3tc_message ) ) );
-			exit;
-		} else {
-			wp_safe_redirect( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) );
-			exit;
 		}
+
+		foreach ( $extensions as $w3tc_extension ) {
+			if ( Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config ) ) {
+				$w3tc_message .= '&deactivated=' . $w3tc_extension;
+			}
+		}
+		wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions%s', $w3tc_message ) ) );
+		exit;
 	}
 
 	/**
@@ -261,10 +270,6 @@ class Extensions_Plugin_Admin {
 	 * @return void
 	 */
 	public function change_extension_status() {
-		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
-		}
-
 		$action         = Util_Request::get_string( 'action' );
 		$w3tc_extension = Util_Request::get_string( 'extension' );
 
@@ -273,27 +278,40 @@ class Extensions_Plugin_Admin {
 		 * Single-link minters in `inc/options/extensions/list.php` render
 		 * the matching per-action token via `Util_Nonce::admin_nonce_url()`.
 		 *
+		 * Nonce is checked before capability so unauthenticated or
+		 * cross-site requests fail without revealing authorization state.
+		 *
 		 * @since 2.10.0
 		 */
-		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) && '' !== $w3tc_extension ) {
-			$primary_action = 'w3tc_extension_' . $action . '_' . $w3tc_extension;
-			if ( ! Util_Nonce::verify_admin( $primary_action ) ) {
-				\wp_die(
-					\esc_html__( 'Nonce verification failed for extension action.', 'w3-total-cache' ),
-					'',
-					array( 'response' => 403 )
-				);
-			}
+		if ( ! in_array( $action, array( 'activate', 'deactivate' ), true ) || '' === $w3tc_extension ) {
+			return;
+		}
 
-			if ( 'activate' === $action ) {
-				Extensions_Util::activate_extension( $w3tc_extension, $this->_config );
-				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&activated=%s', $w3tc_extension ) ) );
-				exit;
-			} elseif ( 'deactivate' === $action ) {
-				Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config );
-				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&deactivated=%s', $w3tc_extension ) ) );
-				exit;
-			}
+		$primary_action = 'w3tc_extension_' . $action . '_' . $w3tc_extension;
+		if ( ! Util_Nonce::verify_admin( $primary_action ) ) {
+			\wp_die(
+				\esc_html__( 'Nonce verification failed for extension action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			\wp_die(
+				\esc_html__( 'You do not have sufficient permissions to manage extensions.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
+		if ( 'activate' === $action ) {
+			Extensions_Util::activate_extension( $w3tc_extension, $this->_config );
+			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&activated=%s', $w3tc_extension ) ) );
+			exit;
+		} elseif ( 'deactivate' === $action ) {
+			Extensions_Util::deactivate_extension( $w3tc_extension, $this->_config );
+			wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&deactivated=%s', $w3tc_extension ) ) );
+			exit;
 		}
 	}
 

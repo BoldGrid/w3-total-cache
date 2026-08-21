@@ -386,4 +386,47 @@ class ConfigKeysSchema {
 		return false !== \strpos( $w3tc_key, 'hide_note' )
 			|| false !== \strpos( $w3tc_key, 'show_note' );
 	}
+
+	/**
+	 * Whether `$note_id` may be written under the `notes.` config prefix
+	 * by {@see Generic_AdminActions_Default::w3tc_default_hide_note()}.
+	 *
+	 * Built-in IDs are listed below; extensions may append via the
+	 * `w3tc_known_note_ids` filter. Unknown IDs are refused so request
+	 * parameters cannot invent arbitrary `notes.*` keys.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $note_id Bare note identifier (no `notes.` prefix).
+	 *
+	 * @return bool
+	 */
+	public static function is_known_note_id( $note_id ) {
+		if ( ! \is_string( $note_id ) || '' === $note_id ) {
+			return false;
+		}
+
+		if ( 1 !== \preg_match( '/^[a-z][a-z0-9_]*$/', $note_id ) ) {
+			return false;
+		}
+
+		$allowed = array(
+			'cloudflare_plugin',
+			'need_empty_fragmentcache',
+		);
+
+		/**
+		 * Filter the allowlist of dismissable `notes.*` identifiers.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param string[] $allowed Known note IDs.
+		 */
+		$allowed = \apply_filters( 'w3tc_known_note_ids', $allowed );
+		if ( ! \is_array( $allowed ) ) {
+			return false;
+		}
+
+		return \in_array( $note_id, $allowed, true );
+	}
 }

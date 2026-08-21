@@ -6,6 +6,7 @@
         "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --list-different",
         "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --write",
         "php-lint": "find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \\; > /dev/null",
+        "security-checks": "bash bin/run-security-checks.sh",
         "upgrade:deps": "composer update --with-all-dependencies && yarn upgrade",
         "update:since": "bash bin/update-since-versions.sh"
     },
