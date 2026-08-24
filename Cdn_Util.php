@@ -41,6 +41,44 @@ class Cdn_Util {
 	}
 
 	/**
+	 * Engine id used by Test CDN.
+	 *
+	 * Saved `cdn.engine` is authoritative. A posted engine that disagrees
+	 * with the saved value means the operator has not saved the form.
+	 * Request `config` is never read here.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed  $posted_engine Engine from the Test button, if any.
+	 * @param Config $config        Saved plugin config.
+	 *
+	 * @return string|\WP_Error Stored engine id, or error.
+	 */
+	public static function stored_test_engine( $posted_engine, Config $config ) {
+		if ( ! is_string( $posted_engine ) ) {
+			$posted_engine = '';
+		}
+
+		$stored = $config->get_string( 'cdn.engine' );
+
+		if ( '' !== $posted_engine && $posted_engine !== $stored ) {
+			return new \WP_Error(
+				'w3tc_cdn_test_unsaved',
+				__( 'Save settings before testing.', 'w3-total-cache' )
+			);
+		}
+
+		if ( ! self::is_engine( $stored ) && 'bunnycdn' !== $stored ) {
+			return new \WP_Error(
+				'w3tc_cdn_test_engine',
+				__( 'Incorrect engine ', 'w3-total-cache' ) . $stored
+			);
+		}
+
+		return $stored;
+	}
+
+	/**
 	 * Returns true if CDN engine is mirror.
 	 *
 	 * @param string $w3tc_engine CDN engine.
