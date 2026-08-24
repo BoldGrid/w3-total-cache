@@ -22,9 +22,16 @@ class Cdnfsd_TransparentCDN_Page {
 	 */
 	public static function admin_test_api_parameters_transparentcdn() {
 		wp_register_script(
+			'w3tc-cdn-admin-ui',
+			plugins_url( 'pub/js/cdn-admin-ui.js', W3TC_FILE ),
+			array(),
+			W3TC_VERSION,
+			false
+		);
+		wp_register_script(
 			'w3tc_cdn_transparentcdn_fsd',
 			plugins_url( 'Cdnfsd_TransparentCDN_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
+			array( 'jquery', 'w3tc-cdn-admin-ui' ),
 			'1.0',
 			false
 		);
@@ -33,21 +40,19 @@ class Cdnfsd_TransparentCDN_Page {
 			'w3tc_cdn_transparentcdn_fsd',
 			'transparent_configuration_strings',
 			array(
-				'test_string'  => __( 'Test the API parameters offered for you site', 'w3-total-cache' ),
-				'test_success' => __( 'Ok. Correct parameters', 'w3-total-cache' ),
-				'test_failure' => sprintf(
-					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-					__( 'Error. Check your parameters and try again or %1$scontact support%2$s.', 'w3-total-cache' ),
-					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
-					'</a>'
-				),
+				'test_string'         => __( 'Test the API parameters offered for you site', 'w3-total-cache' ),
+				'test_success'        => __( 'Ok. Correct parameters', 'w3-total-cache' ),
+				'test_failure_prefix' => __( 'Error. Check your parameters and try again or ', 'w3-total-cache' ),
+				'test_failure_link'   => __( 'contact support', 'w3-total-cache' ),
+				'test_failure_suffix' => __( '.', 'w3-total-cache' ),
+				'support_url'         => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ),
 			)
 		);
 
 		wp_enqueue_script(
 			'w3tc_cdn_transparentcdn_fsd',
 			plugins_url( 'Cdnfsd_TransparentCDN_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
+			array( 'jquery', 'w3tc-cdn-admin-ui' ),
 			'1.0',
 			true
 		);

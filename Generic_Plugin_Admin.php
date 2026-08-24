@@ -584,6 +584,7 @@ class Generic_Plugin_Admin {
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
 
 		wp_register_script( 'w3tc-metadata', plugins_url( 'pub/js/metadata.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-cdn-admin-ui', plugins_url( 'pub/js/cdn-admin-ui.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		// Registered in load_scripts() so dependents can list w3tc-nonce; maps are localized in admin_print_scripts().
 		wp_register_script( 'w3tc-nonce', plugins_url( 'pub/js/w3tc-nonce.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
 		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
