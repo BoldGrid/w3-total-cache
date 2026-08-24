@@ -175,7 +175,7 @@ class UsageStatistics_StorageWriter {
 	 */
 	public function begin_flush_hotspot_data() {
 		$hotspot_endtime = $this->get_hotspot_end();
-		if ( is_null( $hotspot_endtime ) ) {
+		if ( null === $hotspot_endtime ) {
 			// if cache not recognized - means nothing is cached at all so stats not collected.
 			return 'not_needed';
 		}
