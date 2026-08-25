@@ -27,9 +27,9 @@ public_repo: BoldGrid/w3-total-cache
 private_repo: BoldGrid/w3-total-cache-secops
 default_branch: master
 
-jira_project: ENG7
-jira_key: ENG7-4246
-branch_prefix: ENG7-4246
+jira_project: ENG3
+jira_key: ENG3-584
+branch_prefix: ENG3-584
 
 # Sequential until explicitly raised for a given engagement.
 max_parallel_fix_agents: 1
