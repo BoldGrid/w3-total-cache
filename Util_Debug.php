@@ -133,7 +133,13 @@ class Util_Debug {
 			$context['user_id'] = \get_current_user_id();
 		}
 
-		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+		/**
+		 * IP capture uses WP formatting helpers that are not loaded
+		 * until after `advanced-cache.php`. Skip rather than fatal
+		 * when this runs on the page-cache read path.
+		 */
+		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] )
+			&& \function_exists( 'sanitize_text_field' ) && \function_exists( 'wp_unslash' ) ) {
 			$context['ip'] = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 
