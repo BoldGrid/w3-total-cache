@@ -824,7 +824,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<input id="cdn_import_files" type="text" name="cdn__import__files"
 						<?php Util_Ui::sealing_disabled( 'cdn.' ); ?>
 						value="<?php echo esc_attr( $this->_config->get_string( 'cdn.import.files' ) ); ?>" size="100" />
-					<p class="description"><?php esc_html_e( 'Automatically import files hosted with 3rd parties of these types (if used in your posts / pages) to your media library.', 'w3-total-cache' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Automatically import files hosted with 3rd parties of these types (if used in your posts / pages) to your media library. Only common static types (images, CSS, JS, fonts, and media) are imported. Script, markup, and SVG types are ignored even if listed. Empty, *, and *.* use that static allowlist rather than every file.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>

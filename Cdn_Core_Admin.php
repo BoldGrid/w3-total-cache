@@ -375,7 +375,7 @@ class Cdn_Core_Admin {
 			if ( $posts ) {
 				$w3tc_count        = count( $posts );
 				$total             = $this->get_import_posts_count();
-				$regexp            = '~(' . $this->get_regexp_by_mask( $this->_config->get_string( 'cdn.import.files' ) ) . ')$~';
+				$import_mask       = $this->_config->get_string( 'cdn.import.files' );
 				$w3tc_config_state = Dispatcher::config_state();
 				$import_external   = $w3tc_config_state->get_boolean( 'cdn.import.external' );
 
@@ -412,17 +412,7 @@ class Cdn_Core_Admin {
 								/**
 								 * Check file extension
 								 */
-								$check_src = $src;
-
-								if ( Util_Environment::is_url( $check_src ) ) {
-									$qpos = strpos( $check_src, '?' );
-
-									if ( false !== $qpos ) {
-										$check_src = substr( $check_src, 0, $qpos );
-									}
-								}
-
-								if ( preg_match( $regexp, $check_src ) ) {
+								if ( Cdn_Util::url_matches_import_policy( $src, $import_mask ) ) {
 									/**
 									 * Check for already uploaded attachment
 									 */
@@ -440,8 +430,9 @@ class Cdn_Core_Admin {
 											$upload_url    = $upload_info['baseurl'];
 										}
 
-										$src_filename  = pathinfo( $src, PATHINFO_FILENAME );
-										$src_extension = pathinfo( $src, PATHINFO_EXTENSION );
+										$normalized_src = Cdn_Util::import_url_path( $src );
+										$src_filename   = pathinfo( $normalized_src, PATHINFO_FILENAME );
+										$src_extension  = Cdn_Util::import_url_extension( $src );
 
 										/**
 										 * Get available filename

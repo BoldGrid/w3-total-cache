@@ -300,4 +300,269 @@ class Cdn_Util {
 		$override_targets = array( 's3', 'cf', 'cf2' );
 		return in_array( $w3tc_cdn_engine, $override_targets, true );
 	}
+
+	/**
+	 * Extensions Media Library import may pull from third-party URLs.
+	 *
+	 * Fail closed: executable, HTML, SVG, and Flash types are never
+	 * imported even if the operator mask lists them.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[]
+	 */
+	public static function import_allowed_extensions() {
+		return array(
+			'jpg',
+			'jpeg',
+			'gif',
+			'png',
+			'webp',
+			'avif',
+			'bmp',
+			'ico',
+			'css',
+			'js',
+			'mp3',
+			'wma',
+			'ogg',
+			'wav',
+			'mp4',
+			'webm',
+			'woff',
+			'woff2',
+			'ttf',
+			'eot',
+			'otf',
+		);
+	}
+
+	/**
+	 * Extensions that must never appear in an imported filename.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[]
+	 */
+	public static function import_forbidden_extensions() {
+		return array(
+			'php',
+			'phtml',
+			'pht',
+			'php3',
+			'php4',
+			'php5',
+			'php7',
+			'php8',
+			'phar',
+			'cgi',
+			'pl',
+			'py',
+			'exe',
+			'sh',
+			'html',
+			'htm',
+			'shtml',
+			'svg',
+			'swf',
+			'htaccess',
+		);
+	}
+
+	/**
+	 * Allowed extensions implied by an operator import mask.
+	 *
+	 * Empty / false / `*` / `*.*` mean the built-in allowlist, not
+	 * "every file". Tokens outside the allowlist are dropped so a
+	 * browser-altered mask cannot broaden the set.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string|bool $mask Operator mask (`*.jpg;*.png`).
+	 *
+	 * @return string[]
+	 */
+	public static function import_extensions_from_mask( $mask ) {
+		$allowlist = self::import_allowed_extensions();
+
+		if ( ! is_string( $mask ) ) {
+			return $allowlist;
+		}
+
+		$mask = trim( $mask );
+		if ( '' === $mask ) {
+			return $allowlist;
+		}
+
+		$parts = preg_split( '/[;,\s]+/', strtolower( $mask ) );
+		if ( ! is_array( $parts ) ) {
+			return array();
+		}
+
+		$exts = array();
+		foreach ( $parts as $part ) {
+			$part = trim( $part );
+			if ( '' === $part ) {
+				continue;
+			}
+
+			if ( '*' === $part || '*.*' === $part ) {
+				return $allowlist;
+			}
+
+			$part = ltrim( $part, '*.' );
+			$part = trim( $part, '.' );
+			if ( '' === $part || ! preg_match( '/^[a-z0-9]{1,8}$/', $part ) ) {
+				continue;
+			}
+
+			$exts[] = $part;
+		}
+
+		$exts = array_values( array_intersect( array_unique( $exts ), $allowlist ) );
+
+		return $exts;
+	}
+
+	/**
+	 * Path portion of a URL or file path used for import matching.
+	 *
+	 * Query strings and fragments are stripped.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $url URL or path.
+	 *
+	 * @return string
+	 */
+	public static function import_url_path( $url ) {
+		$path = (string) $url;
+		$hash = strpos( $path, '#' );
+		if ( false !== $hash ) {
+			$path = substr( $path, 0, $hash );
+		}
+
+		$query = strpos( $path, '?' );
+		if ( false !== $query ) {
+			$path = substr( $path, 0, $query );
+		}
+
+		if ( \function_exists( 'wp_parse_url' ) && Util_Environment::is_url( $path ) ) {
+			$parsed = \wp_parse_url( $path, PHP_URL_PATH );
+			if ( is_string( $parsed ) && '' !== $parsed ) {
+				$path = $parsed;
+			}
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Last path extension of a URL or file path, lowercased.
+	 *
+	 * Query strings are stripped. Missing extensions return empty.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $url URL or path.
+	 *
+	 * @return string
+	 */
+	public static function import_url_extension( $url ) {
+		return strtolower( (string) pathinfo( self::import_url_path( $url ), PATHINFO_EXTENSION ) );
+	}
+
+	/**
+	 * Whether a URL may be imported into the Media Library.
+	 *
+	 * Last extension must be in the mask∩allowlist. Any forbidden
+	 * compound extension (`file.php.jpg`) is rejected.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string      $url  Source URL or path.
+	 * @param string|bool $mask Operator mask.
+	 *
+	 * @return bool
+	 */
+	public static function url_matches_import_policy( $url, $mask ) {
+		if ( self::import_url_has_forbidden_fragment( $url ) ) {
+			return false;
+		}
+
+		$basename = strtolower( (string) pathinfo( self::import_url_path( $url ), PATHINFO_BASENAME ) );
+
+		$labels = explode( '.', $basename );
+		if ( count( $labels ) > 2 ) {
+			$forbidden = self::import_forbidden_extensions();
+			array_pop( $labels );
+			foreach ( $labels as $label ) {
+				if ( in_array( $label, $forbidden, true ) ) {
+					return false;
+				}
+			}
+		}
+
+		$ext = self::import_url_extension( $url );
+		if ( '' === $ext ) {
+			return false;
+		}
+
+		if ( in_array( $ext, self::import_forbidden_extensions(), true ) ) {
+			return false;
+		}
+
+		return in_array( $ext, self::import_extensions_from_mask( $mask ), true );
+	}
+
+	/**
+	 * Whether a URL fragment tries to smuggle a forbidden extension.
+	 *
+	 * `import_url_path()` strips `#…` for matching and destination
+	 * names. Fragments like `#.php` or `#shell.php` must still fail
+	 * closed so policy and `pathinfo( $src )` cannot disagree.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $url URL or path.
+	 *
+	 * @return bool
+	 */
+	public static function import_url_has_forbidden_fragment( $url ) {
+		$hash = strpos( (string) $url, '#' );
+		if ( false === $hash ) {
+			return false;
+		}
+
+		$fragment = substr( (string) $url, $hash + 1 );
+		$query    = strpos( $fragment, '?' );
+		if ( false !== $query ) {
+			$fragment = substr( $fragment, 0, $query );
+		}
+
+		$fragment = strtolower( rawurldecode( $fragment ) );
+		if ( '' === $fragment ) {
+			return false;
+		}
+
+		$forbidden = self::import_forbidden_extensions();
+		$basename  = (string) pathinfo( $fragment, PATHINFO_BASENAME );
+		$ext       = (string) pathinfo( $basename, PATHINFO_EXTENSION );
+
+		if ( '' === $ext && preg_match( '/^[a-z0-9]{1,8}$/', $basename ) ) {
+			$ext = $basename;
+		}
+
+		if ( '' !== $ext && in_array( $ext, $forbidden, true ) ) {
+			return true;
+		}
+
+		foreach ( explode( '.', $basename ) as $label ) {
+			if ( in_array( $label, $forbidden, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
