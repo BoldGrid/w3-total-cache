@@ -1,4 +1,4 @@
-# Security remediation profile — w3-total-cache (RT19 / ENG7-4246)
+# Security remediation profile — w3-total-cache (RT19 / ENG3-584)
 
 Commit-safe engagement profile. Absolute clone paths stay local (hub `current-target.md` + fill-ins below). Remotes and repo slugs match `.sec-project.yaml`.
 
@@ -20,8 +20,8 @@ Do not commit post-triage rewrites of this file that inject absolute `plugin_roo
 | ideas_dir | tmp/sec-ideas |
 | progress_file | `.cursor/working/sec-progress.json` |
 | scratch_dir | `.cursor/working` |
-| branch_prefix | ENG7-4246 |
-| jira_key | ENG7-4246 |
+| branch_prefix | ENG3-584 |
+| jira_key | ENG3-584 |
 | base_branch | master |
 | default_branch | master |
 | public_remote | origin |
