@@ -1320,9 +1320,9 @@ jQuery(function () {
     var status2 = jQuery("#cdn_create_container_status");
     status2.removeClass("w3tc-error");
     status2.removeClass("w3tc-success");
-    status2.html("");
+    status2.text("");
 
-    status.html("Testing...");
+    status.text("Testing...");
 
     jQuery
       .post(
@@ -1330,13 +1330,13 @@ jQuery(function () {
         params,
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
         },
         "json",
       )
       .fail(function () {
         status.addClass("w3tc-error");
-        status.html("Test failed");
+        status.text("Test failed");
       });
   });
 
@@ -1448,9 +1448,9 @@ jQuery(function () {
     var status2 = jQuery("#cdn_test_status");
     status2.removeClass("w3tc-error");
     status2.removeClass("w3tc-success");
-    status2.html("");
+    status2.text("");
 
-    status.html("Creating...");
+    status.text("Creating...");
 
     jQuery
       .post(
@@ -1458,7 +1458,7 @@ jQuery(function () {
         params,
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
 
           if (container_id && container_id.length && data.container_id) {
             container_id.val(data.container_id);
@@ -1468,7 +1468,7 @@ jQuery(function () {
       )
       .fail(function () {
         status.addClass("w3tc-error");
-        status.html("failed");
+        status.text("failed");
       });
   });
 
