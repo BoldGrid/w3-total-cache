@@ -710,15 +710,7 @@ class PgCache_Environment {
 		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
 			$new_cookies = array();
 			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				/**
-				 * New HMAC-SHA256 cookie name AND the legacy MD5 name
-				 * during the one-release back-compat window. Browsers
-				 * that still carry the pre-upgrade cookie continue to
-				 * bypass cache; the legacy entry is dropped in the next
-				 * release.
-				 */
-				$new_cookies[] = 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role );
-				$new_cookies[] = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role );
+				$new_cookies = array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
 			}
 
 			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
@@ -1092,12 +1084,7 @@ class PgCache_Environment {
 		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
 			$new_cookies = array();
 			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				/**
-				 * HMAC cookie name + legacy MD5 form; see the parallel
-				 * reject-cookie block above for the back-compat rationale.
-				 */
-				$new_cookies[] = 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role );
-				$new_cookies[] = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role );
+				$new_cookies = array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
 			}
 			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
 		}
