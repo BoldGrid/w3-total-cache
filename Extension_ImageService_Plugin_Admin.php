@@ -1013,6 +1013,7 @@ class Extension_ImageService_Plugin_Admin {
 				// Determine classes.
 				$link_classes = 'w3tc-convert';
 				$can_edit     = current_user_can( 'edit_post', $post_id );
+				$can_submit   = $can_edit && $this->user_can_submit_images( $post_id );
 
 				switch ( $status ) {
 					case 'processing':
@@ -1025,7 +1026,7 @@ class Extension_ImageService_Plugin_Admin {
 						$aria_attr      = 'true';
 						break;
 					default:
-						if ( $can_edit ) {
+						if ( $can_submit ) {
 							$disabled_class = '';
 							$aria_attr      = 'false';
 						} else {
@@ -1151,8 +1152,8 @@ class Extension_ImageService_Plugin_Admin {
 
 					// Show additional convert links only when the format is enabled.
 					if ( $has_webp && ! $has_avif && $w3tc_avif_enabled ) {
-						$avif_span_class    = $can_edit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
-						$avif_aria_disabled = $can_edit ? 'false' : 'true';
+						$avif_span_class    = $can_submit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
+						$avif_aria_disabled = $can_submit ? 'false' : 'true';
 						?>
 						<span class="<?php echo esc_attr( $avif_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
 							data-status="<?php echo esc_attr( $status ); ?>" data-format="avif" aria-disabled="<?php echo esc_attr( $avif_aria_disabled ); ?>"><?php esc_html_e( 'Convert to AVIF', 'w3-total-cache' ); ?></a></span>
@@ -1160,8 +1161,8 @@ class Extension_ImageService_Plugin_Admin {
 					}
 
 					if ( $has_avif && ! $has_webp && $w3tc_webp_enabled ) {
-						$webp_span_class    = $can_edit ? 'w3tc-convert-webp' : 'w3tc-convert-webp w3tc-disabled';
-						$webp_aria_disabled = $can_edit ? 'false' : 'true';
+						$webp_span_class    = $can_submit ? 'w3tc-convert-webp' : 'w3tc-convert-webp w3tc-disabled';
+						$webp_aria_disabled = $can_submit ? 'false' : 'true';
 						?>
 						<span class="<?php echo esc_attr( $webp_span_class ); ?>"> | <a class="w3tc-convert-format" data-post-id="<?php echo esc_attr( $post_id ); ?>"
 							data-status="<?php echo esc_attr( $status ); ?>" data-format="webp" aria-disabled="<?php echo esc_attr( $webp_aria_disabled ); ?>"><?php esc_html_e( 'Convert to WebP', 'w3-total-cache' ); ?></a></span>
@@ -1212,6 +1213,10 @@ class Extension_ImageService_Plugin_Admin {
 	public function handle_bulk_actions( $location, $doaction, array $post_ids ) {
 		// Remove custom query args.
 		$location = remove_query_arg( array( 'w3tc_imageservice_submitted', 'w3tc_imageservice_reverted' ), $location );
+
+		if ( 'w3tc_imageservice_convert' === $doaction && ! $this->user_can_submit_images() ) {
+			return $location;
+		}
 
 		// Filter to only attachment IDs the current user is allowed to edit.
 		$post_ids = array_filter(
@@ -1750,6 +1755,39 @@ class Extension_ImageService_Plugin_Admin {
 	}
 
 	/**
+	 * Capability required to submit an image for conversion.
+	 *
+	 * Defaults to manage_options, matching the other ImageService AJAX
+	 * administration handlers. Sites that relied on Author/Editor access
+	 * from the Media Library can restore that via the filter.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param int $post_id Attachment ID when known; 0 otherwise.
+	 * @return string
+	 */
+	private function submit_capability( $post_id = 0 ) {
+		$capability = \apply_filters( 'w3tc_imageservice_submit_capability', 'manage_options', (int) $post_id );
+		if ( ! \is_string( $capability ) || '' === $capability ) {
+			return 'manage_options';
+		}
+
+		return $capability;
+	}
+
+	/**
+	 * Whether the current user may submit images for conversion.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param int $post_id Attachment ID when known; 0 otherwise.
+	 * @return bool
+	 */
+	private function user_can_submit_images( $post_id = 0 ) {
+		return \current_user_can( $this->submit_capability( $post_id ) );
+	}
+
+	/**
 	 * Handle auto-optimization on image upload.
 	 *
 	 * @since 2.2.0
@@ -1799,17 +1837,19 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
+		// Check for post id.
+		$post_id_val = Util_Request::get_integer( 'post_id' );
+		$post_id     = ! empty( $post_id_val ) ? $post_id_val : 0;
+
 		/**
-		 * Baseline gate: only users that can upload media can call the
-		 * Image Service conversion endpoint. The shared
-		 * w3tc_imageservice_submit nonce is localized to anyone with
-		 * upload_files (see admin_enqueue_scripts), so without this
-		 * floor any Contributor/Subscriber whose session already holds
-		 * a w3tc nonce could trigger BoldGrid API calls.
+		 * Submit is an administrative conversion action. The shared
+		 * w3tc_imageservice_submit nonce is still localized to anyone
+		 * with upload_files, so this gate must run before filesystem
+		 * work or outbound API submission.
 		 *
-		 * @since 2.10.0
+		 * @since 2.10.6
 		 */
-		if ( ! \current_user_can( 'upload_files' ) ) {
+		if ( ! $this->user_can_submit_images( $post_id ) ) {
 			wp_send_json_error(
 				array(
 					'error' => __( 'Insufficient permissions.', 'w3-total-cache' ),
@@ -1817,10 +1857,6 @@ class Extension_ImageService_Plugin_Admin {
 				403
 			);
 		}
-
-		// Check for post id.
-		$post_id_val = Util_Request::get_integer( 'post_id' );
-		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( ! $post_id ) {
 			wp_send_json_error(
