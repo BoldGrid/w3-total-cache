@@ -1313,8 +1313,15 @@ class PgCache_ContentGrabber {
 			return;
 		}
 
-		// we call it as little times as possible its expensive, but have to restore lost .htaccess file.
 		$e = Dispatcher::component( 'PgCache_Environment' );
+
+		// When the "w3tc_pgcache_rules_required" filter suppresses the rules this file is never
+		// written, so without the exit the restore below would repeat on every cache miss.
+		if ( null === $e->get_required_rules( $this->_config ) ) {
+			return;
+		}
+
+		// we call it as little times as possible its expensive, but have to restore lost .htaccess file.
 		try {
 			$e->fix_on_wpadmin_request( $this->_config, true );
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
