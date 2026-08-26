@@ -9,7 +9,7 @@ jobs:
   semgrep:
     runs-on: ubuntu-latest
     container:
-      image: returntocorp/semgrep:latest
+      image: semgrep/semgrep:1.173.0
     steps:
       - uses: actions/checkout@v5
       - name: Semgrep W3TC rules
@@ -29,7 +29,7 @@ jobs:
   conftest:
     runs-on: ubuntu-latest
     container:
-      image: openpolicyagent/conftest:latest
+      image: openpolicyagent/conftest:v0.69.0
     steps:
       - uses: actions/checkout@v5
       - name: Conftest master.php policies
@@ -70,4 +70,6 @@ jobs:
           echo "== phpcs W3TC security sniffs on production sources =="
           vendor/bin/phpcs --standard=phpcs-rules/W3TC/ruleset.xml \
             --runtime-set installed_paths "$PWD/phpcs-rules" \
-            Cache_File_Generic.php SetupGuide_Plugin_Admin.php Generic_AdminActions_Default.php
+            --extensions=php \
+            --ignore=vendor/*,lib/*,node_modules/*,tests/*,ci/*,phpcs-rules/*,qa/*,.cursor/*,wp-content/* \
+            .

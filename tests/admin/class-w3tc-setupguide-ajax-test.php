@@ -16,8 +16,7 @@
  *      so non-admins never get the wizard template instantiated.
  *   2. `load()` (the wizard page itself) explicitly `wp_die`s for non-admins.
  *   3. Every AJAX handler goes through the private `verify_ajax_request()`
- *      helper, which checks `manage_options` BEFORE the nonce — so a
- *      subscriber with a leaked / leakable nonce cannot reach a config write.
+ *      helper, which checks the per-action nonce before `manage_options`.
  *
  * Also: the per-action nonce map exists and covers all 15 wizard surfaces, so
  * a nonce minted for one wizard step cannot be replayed against a different
@@ -213,8 +212,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The AJAX `skip` handler refuses subscriber callers regardless of nonce,
-	 * because `verify_ajax_request()` checks capability before the nonce.
+	 * The AJAX `skip` handler refuses subscriber callers with a valid nonce.
 	 *
 	 * @since 2.10.0
 	 */
@@ -237,8 +235,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * The AJAX `set_tos_choice` handler refuses subscriber callers — the TOS
 	 * choice writes to `config_state_master` and toggles `common.track_usage`
-	 * in the global config, so subscriber reach would be a config-write
-	 * privilege escalation.
+	 * in the global config.
 	 *
 	 * @since 2.10.0
 	 */
@@ -256,9 +253,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The capability gate refuses a subscriber even when no nonce is provided.
-	 * (Capability check is BEFORE the nonce check; the nonce isn't even
-	 * inspected before the capability gate fails.)
+	 * A request without a nonce fails before the capability check.
 	 *
 	 * @since 2.10.0
 	 */
@@ -269,15 +264,23 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 
 		$plugin = new SetupGuide_Plugin_Admin();
 
-		$this->expectException( \WPDieException::class );
-		$plugin->skip();
+		\ob_start();
+		try {
+			$plugin->skip();
+			\ob_end_clean();
+			$this->fail( 'Expected WPDieException from nonce failure.' );
+		} catch ( \WPDieException $e ) {
+			$out = \ob_get_clean();
+			$this->assertStringContainsString( 'Security violation', $out );
+			$this->assertStringNotContainsString( 'Insufficient permissions', $out );
+		}
 	}
 
 	/**
 	 * The per-action nonce map covers every wizard surface — no shared
 	 * `w3tc_wizard` key remains as the canonical action for any handler.
-	 * Each value must be distinct so a leak of one nonce cannot replay
-	 * against a different surface.
+	 * Each value must be distinct so one nonce cannot replay against a
+	 * different surface.
 	 *
 	 * @since 2.10.0
 	 */
@@ -313,7 +316,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 		}
 
 		/**
-		 * Every value must be distinct so a leaked nonce minted for one wizard
+		 * Every value must be distinct so a nonce minted for one wizard
 		 * surface cannot validate a different surface.
 		 */
 		$values = array_values( $map );

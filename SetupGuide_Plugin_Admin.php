@@ -128,8 +128,8 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Verify the request's nonce for a SetupGuide AJAX handler.
 	 *
-	 * Performs the inner capability check and then checks the per-action
-	 * nonce. Sends a JSON error and dies on failure.
+	 * Checks the per-action nonce and then the required capability.
+	 * Sends a JSON error and dies on failure.
 	 *
 	 * @since 2.10.0
 	 *
@@ -138,15 +138,15 @@ class SetupGuide_Plugin_Admin {
 	 * @return void
 	 */
 	private function verify_ajax_request( $action ) {
-		if ( ! \current_user_can( 'manage_options' ) ) {
-			\wp_send_json_error( __( 'Insufficient permissions', 'w3-total-cache' ), 403 );
-		}
-
 		$primary  = self::get_nonce_action( $action );
 		$provided = Util_Nonce::read_nonce( '_wpnonce' );
 
 		if ( '' === $primary || ! \wp_verify_nonce( $provided, $primary ) ) {
 			\wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_send_json_error( __( 'Insufficient permissions', 'w3-total-cache' ), 403 );
 		}
 	}
 

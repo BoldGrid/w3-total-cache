@@ -74,7 +74,8 @@ class PgCache_Environment {
 				if ( $pgcache_enabled && 'file_generic' === $w3tc_engine ) {
 					$this->verify_file_generic_compatibility();
 
-					if ( $w3tc_config->get_boolean( 'pgcache.debug' ) ) {
+					// The rewrite test only makes sense while W3TC owns the rules.
+					if ( $w3tc_config->get_boolean( 'pgcache.debug' ) && $this->is_rules_required( $w3tc_config ) ) {
 						$this->verify_file_generic_rewrite_working();
 					}
 				}
@@ -242,7 +243,26 @@ class PgCache_Environment {
 	private function is_rules_required( $w3tc_c ) {
 		$e = $w3tc_c->get_string( 'pgcache.engine' );
 
-		return $w3tc_c->get_boolean( 'pgcache.enabled' ) && ( 'file_generic' === $e || 'nginx_memcached' === $e );
+		$required = $w3tc_c->get_boolean( 'pgcache.enabled' ) && ( 'file_generic' === $e || 'nginx_memcached' === $e );
+
+		/**
+		 * Filter: Allow external code to suppress the page-cache rewrite rules.
+		 *
+		 * Returning false stops W3TC from writing its page-cache rewrite rules and removes the
+		 * core rules it wrote earlier, on both the Apache and the nginx path. Cache generation
+		 * is untouched, so pages keep being cached and delivery can be handled elsewhere - by a
+		 * server module, for example.
+		 *
+		 * The filter can only suppress: it is not consulted for configurations that do not use
+		 * rewrite rules in the first place, so it cannot emit rules for them.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param bool   $required Whether page-cache rewrite rules are required. Always true here,
+		 *                         since the filter runs only when W3TC would write the rules.
+		 * @param Config $w3tc_c   W3TC Config containing relevant settings.
+		 */
+		return $required && (bool) \apply_filters( 'w3tc_pgcache_rules_required', $required, $w3tc_c );
 	}
 
 	/**
