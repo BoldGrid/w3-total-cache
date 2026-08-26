@@ -306,7 +306,7 @@ class Generic_Forums_Api {
 			}
 
 			$link = esc_url_raw( (string) $link, array( 'http', 'https' ) );
-			if ( '' === $link ) {
+			if ( '' === $link || ! preg_match( '#^https?://#i', $link ) ) {
 				continue;
 			}
 
@@ -316,8 +316,8 @@ class Generic_Forums_Api {
 			}
 
 			$title = html_entity_decode( wp_strip_all_tags( (string) $title ), ENT_QUOTES, 'UTF-8' );
-			if ( strlen( $title ) > self::TITLE_MAX ) {
-				$title = substr( $title, 0, self::TITLE_MAX );
+			if ( mb_strlen( $title, 'UTF-8' ) > self::TITLE_MAX ) {
+				$title = mb_substr( $title, 0, self::TITLE_MAX, 'UTF-8' );
 			}
 
 			$out[] = array(

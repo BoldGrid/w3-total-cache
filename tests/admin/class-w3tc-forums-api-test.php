@@ -231,6 +231,55 @@ class W3tc_Forums_Api_Test extends WP_UnitTestCase {
 								'title' => 'Also no',
 								'link'  => 'data:text/html,hi',
 							),
+							array(
+								'title' => 'Protocol relative',
+								'link'  => '//evil.example/x',
+							),
+							array(
+								'title' => 'Root relative',
+								'link'  => '/support/injected',
+							),
+						)
+					)
+				)
+			)
+		);
+
+		$json = wp_json_encode( $payload );
+		$this->assertCount( 1, $payload['topics'] );
+		$this->assertSame( 'Keep', $payload['topics'][0]['title'] );
+		$this->assertSame( 'https://www.boldgrid.com/support/ok/', $payload['topics'][0]['link'] );
+		$this->assertStringNotContainsString( 'javascript:', $json );
+		$this->assertStringNotContainsString( 'evil.example', $json );
+		$this->assertStringNotContainsString( '/support/injected', $json );
+
+		$api_src = file_get_contents( W3TC_DIR . '/Generic_Forums_Api.php' );
+		$js_src  = file_get_contents( W3TC_DIR . '/pub/js/forums-api.js' );
+		$this->assertIsString( $api_src );
+		$this->assertIsString( $js_src );
+		$this->assertStringContainsString( '#^https?://#i', $api_src );
+		$this->assertStringContainsString( '/^https?:\\/\\//i', $js_src );
+	}
+
+	/**
+	 * Title caps use UTF-8 character length so multibyte titles are not split.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return void
+	 */
+	public function test_sanitize_truncates_multibyte_titles() {
+		$char  = '字';
+		$title = str_repeat( $char, Generic_Forums_Api::TITLE_MAX + 8 );
+		$payload = Generic_Forums_Api::client_payload(
+			Generic_Forums_Api::normalize(
+				$this->http_envelope(
+					wp_json_encode(
+						array(
+							array(
+								'title' => $title,
+								'link'  => 'https://www.boldgrid.com/support/ok/',
+							),
 						)
 					)
 				)
@@ -238,8 +287,26 @@ class W3tc_Forums_Api_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertCount( 1, $payload['topics'] );
-		$this->assertSame( 'Keep', $payload['topics'][0]['title'] );
-		$this->assertStringNotContainsString( 'javascript:', wp_json_encode( $payload ) );
+		$this->assertSame(
+			Generic_Forums_Api::TITLE_MAX,
+			mb_strlen( $payload['topics'][0]['title'], 'UTF-8' )
+		);
+		$this->assertSame(
+			str_repeat( $char, Generic_Forums_Api::TITLE_MAX ),
+			$payload['topics'][0]['title']
+		);
+		$encoded = wp_json_encode( $payload );
+		$this->assertIsString( $encoded );
+		$this->assertNotFalse( $encoded );
+
+		$api_src = file_get_contents( W3TC_DIR . '/Generic_Forums_Api.php' );
+		$this->assertIsString( $api_src );
+		$this->assertStringContainsString( "mb_strlen( \$title, 'UTF-8' )", $api_src );
+		$this->assertStringContainsString( "mb_substr( \$title, 0, self::TITLE_MAX, 'UTF-8' )", $api_src );
+		$this->assertDoesNotMatchRegularExpression(
+			'/if\s*\(\s*strlen\s*\(\s*\$title\s*\)/',
+			$api_src
+		);
 	}
 
 	/**

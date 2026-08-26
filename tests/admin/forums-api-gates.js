@@ -90,6 +90,39 @@ assert(
   "javascript: links must not leak"
 );
 
+const relativeDropped = A.topicsFromResponse({
+  topics: [
+    {
+      title: "Keep",
+      link: "https://www.boldgrid.com/support/ok/",
+    },
+    { title: "Protocol relative", link: "//evil.example/x" },
+    { title: "Root relative", link: "/support/injected" },
+  ],
+});
+assert(relativeDropped.ok === true, "relative-link payload must succeed");
+assert(relativeDropped.topics.length === 1, "non-absolute http(s) links dropped");
+assert(
+  relativeDropped.topics[0].link === "https://www.boldgrid.com/support/ok/",
+  "absolute https kept"
+);
+assert(
+  JSON.stringify(relativeDropped).indexOf("evil.example") === -1,
+  "protocol-relative host must not leak"
+);
+assert(
+  JSON.stringify(relativeDropped).indexOf("/support/injected") === -1,
+  "root-relative path must not leak"
+);
+assert(
+  A.sanitizeTopic({ title: "Nope", link: "//evil.example/x" }) === null,
+  "sanitizeTopic drops protocol-relative"
+);
+assert(
+  A.sanitizeTopic({ title: "Nope", link: "/support/injected" }) === null,
+  "sanitizeTopic drops root-relative"
+);
+
 const emptyBody = A.topicsFromResponse({ body: "  " });
 assert(emptyBody.ok === true && emptyBody.topics.length === 0, "empty body");
 
