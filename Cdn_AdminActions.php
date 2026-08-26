@@ -439,121 +439,108 @@ class Cdn_AdminActions {
 	}
 
 	/**
-	 * Tests the connection and configuration for a specified CDN engine.
+	 * Tests the connection and configuration for the saved CDN engine.
 	 *
-	 * This method validates the CDN configuration by performing a test against the specified engine.
-	 * A JSON-encoded response is generated with the result and any error message.
+	 * Browser-supplied `config` is ignored. The Test button may send the
+	 * engine id shown in the UI; a mismatch with saved settings is treated
+	 * as unsaved form state.
 	 *
 	 * @return void
 	 */
 	public function w3tc_cdn_test() {
-		$w3tc_engine = Util_Request::get_string( 'engine' );
-		$w3tc_config = Util_Request::get_array( 'config' );
+		$posted_engine = Util_Request::get_string( 'engine' );
+		$resolved      = $this->cdn_test_resolved_config( $posted_engine );
 
-		// TODO: Workaround to support test case cdn/a04.
-		if ( 'ftp' === $w3tc_engine && ! isset( $w3tc_config['host'] ) ) {
-			$w3tc_config = Util_Request::get_string( 'config' );
-			$w3tc_config = json_decode( $w3tc_config, true );
-		}
-
-		$w3tc_config = array_merge( $w3tc_config, array( 'debug' => false ) );
-		$w3tc_config = self::_cdn_test_merge_stored_secrets( $w3tc_engine, $w3tc_config );
-
-		if ( isset( $w3tc_config['domain'] ) && ! is_array( $w3tc_config['domain'] ) ) {
-			$w3tc_config['domain'] = explode( ',', $w3tc_config['domain'] );
-		}
-
-		if ( Cdn_Util::is_engine( $w3tc_engine ) ) {
-			$w3tc_result = true;
-			$error       = null;
-		} else {
-			$w3tc_result = false;
-			$error       = __( 'Incorrect engine ', 'w3-total-cache' ) . $w3tc_engine;
-		}
-		if ( ! isset( $w3tc_config['docroot'] ) ) {
-			$w3tc_config['docroot'] = Util_Environment::document_root();
-		}
+		$w3tc_result = $resolved['result'];
+		$error       = $resolved['error'];
 
 		if ( $w3tc_result ) {
-			if (
-				'google_drive' === $w3tc_engine ||
-				'transparentcdn' === $w3tc_engine ||
-				'rackspace_cdn' === $w3tc_engine ||
-				'rscf' === $w3tc_engine ||
-				'bunnycdn' === $w3tc_engine ||
-				's3_compatible' === $w3tc_engine
-			) {
-				// those use already stored w3tc config.
-				$w3_cdn = Dispatcher::component( 'Cdn_Core' )->get_cdn();
-			} else {
-				/**
-				 * Those use dynamic config from the page — the test
-				 * handler runs whatever host the admin has just
-				 * entered, before save. Refuse outbound to a non-
-				 * routable target so an admin (or anyone driving the
-				 * nonce via a separate primitive) cannot point this at
-				 * AWS instance metadata / 127.0.0.1:6379 / etc.
-				 */
-				$bad_host = self::_unsafe_test_host( $w3tc_engine, $w3tc_config );
-				if ( null !== $bad_host ) {
-					$w3tc_result = false;
-					$error       = sprintf(
-						// Translators: 1 — rejected host literal.
-						__(
-							'Refused CDN test target: %1$s resolves to a loopback, link-local, or reserved IP address.',
-							'w3-total-cache'
-						),
-						$bad_host
-					);
+			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+
+			$w3_cdn = CdnEngine::instance( $resolved['engine'], $resolved['config'] );
+
+			try {
+				if ( $w3_cdn->test( $error ) ) {
+					$w3tc_result = true;
+					$error       = __( 'Test passed', 'w3-total-cache' );
 				} else {
-					$w3_cdn = CdnEngine::instance( $w3tc_engine, $w3tc_config );
-				}
-			}
-
-			/**
-			 * `$w3tc_result` was flipped to false above if the destination
-			 * host check refused the test, in which case $w3_cdn is
-			 * unset. Re-check before invoking the test so we don't
-			 * fatal on the next line.
-			 */
-			if ( $w3tc_result ) {
-				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-
-				try {
-					if ( $w3_cdn->test( $error ) ) {
-						$w3tc_result = true;
-						$error       = __( 'Test passed', 'w3-total-cache' );
-					} else {
-						$w3tc_result = false;
-						$error       = sprintf(
-							// Translators: 1 error message.
-							__(
-								'Error: %1$s',
-								'w3-total-cache'
-							),
-							$error
-						);
-					}
-				} catch ( \Exception $ex ) {
 					$w3tc_result = false;
 					$error       = sprintf(
 						// Translators: 1 error message.
 						__(
-							'Error: %s',
+							'Error: %1$s',
 							'w3-total-cache'
 						),
-						$ex->getMessage()
+						$error
 					);
 				}
+			} catch ( \Exception $ex ) {
+				$w3tc_result = false;
+				$error       = sprintf(
+					// Translators: 1 error message.
+					__(
+						'Error: %s',
+						'w3-total-cache'
+					),
+					$ex->getMessage()
+				);
 			}
 		}
 
-		$response = array(
-			'result' => $w3tc_result,
-			'error'  => $error,
+		echo wp_json_encode(
+			array(
+				'result' => $w3tc_result,
+				'error'  => $error,
+			)
 		);
+	}
 
-		echo wp_json_encode( $response );
+	/**
+	 * Resolve Test CDN engine + stored config. Ignores request `config`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $posted_engine Engine from the Test button, if any.
+	 *
+	 * @return array{result: bool, error: string|null, engine: string, config: array}
+	 */
+	public function cdn_test_resolved_config( $posted_engine ) {
+		$engine = Cdn_Util::stored_test_engine( $posted_engine, $this->_config );
+		if ( is_wp_error( $engine ) ) {
+			return array(
+				'result' => false,
+				'error'  => $engine->get_error_message(),
+				'engine' => '',
+				'config' => array(),
+			);
+		}
+
+		$w3tc_config          = Dispatcher::component( 'Cdn_Core' )->engine_config();
+		$w3tc_config['debug'] = false;
+
+		$bad_host = self::_unsafe_test_host( $engine, $w3tc_config );
+		if ( null !== $bad_host ) {
+			return array(
+				'result' => false,
+				'error'  => sprintf(
+					// Translators: 1 — rejected host literal.
+					__(
+						'Refused CDN test target: %1$s resolves to a loopback, link-local, or reserved IP address.',
+						'w3-total-cache'
+					),
+					$bad_host
+				),
+				'engine' => $engine,
+				'config' => $w3tc_config,
+			);
+		}
+
+		return array(
+			'result' => true,
+			'error'  => null,
+			'engine' => $engine,
+			'config' => $w3tc_config,
+		);
 	}
 
 	/**
@@ -645,11 +632,9 @@ class Cdn_AdminActions {
 	 * to a loopback / link-local / reserved-future address and return the
 	 * first offender, or NULL when every host looks routable.
 	 *
-	 * The CDN test handler accepts a `config` array from the admin form
-	 * *before* it has been saved, so the values here are whatever the
-	 * client posted. Allowing loopback or link-local targets turns the
-	 * test handler into a port scanner against the WP host (Redis on
-	 * 127.0.0.1:6379, AWS metadata on 169.254.169.254, etc.).
+	 * The CDN test handler uses saved settings, not request `config`.
+	 * Loopback / link-local stored targets are still refused so Test
+	 * cannot be pointed at AWS instance metadata or 127.0.0.1 services.
 	 *
 	 * Policy: RFC1918 hosts are allowed — operators legitimately run
 	 * internal FTP / mirror endpoints on `10.x` / `192.168.x`. Only the
