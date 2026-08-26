@@ -133,6 +133,67 @@ class W3tc_Support_Page_Data_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A rejected widget hash must not keep extra field prefills for
+	 * the default form. Sibling of the all-unsafe override case.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return void
+	 */
+	public function test_client_data_rejects_fields_when_widget_hash_is_unsafe() {
+		update_site_option(
+			'w3tc_generic_widgetservices',
+			wp_json_encode(
+				array(
+					'items' => array(
+						3 => array(
+							'form_hash'       => '../evil',
+							'parameter_name'  => 'field12',
+							'parameter_value' => 'sku-9',
+						),
+					),
+				)
+			)
+		);
+		$_GET['service_item'] = '3';
+
+		$data = Support_Page::client_data();
+		$this->assertSame( Support_Page::FORM_HASH_DEFAULT, $data['form_hash'] );
+		$this->assertSame( '', $data['field_name'] );
+		$this->assertSame( '', $data['field_value'] );
+	}
+
+	/**
+	 * Missing widget hash is the same class as a rejected hash: extra
+	 * fields belong to that item and must not prefill the default form.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return void
+	 */
+	public function test_client_data_rejects_fields_when_widget_hash_is_missing() {
+		update_site_option(
+			'w3tc_generic_widgetservices',
+			wp_json_encode(
+				array(
+					'items' => array(
+						4 => array(
+							'parameter_name'  => 'field12',
+							'parameter_value' => 'sku-9',
+						),
+					),
+				)
+			)
+		);
+		$_GET['service_item'] = '4';
+
+		$data = Support_Page::client_data();
+		$this->assertSame( Support_Page::FORM_HASH_DEFAULT, $data['form_hash'] );
+		$this->assertSame( '', $data['field_name'] );
+		$this->assertSame( '', $data['field_value'] );
+	}
+
+	/**
 	 * PHP sources no longer localize contact PII or auto-embed Wufoo.
 	 *
 	 * @since 2.10.6
@@ -160,6 +221,11 @@ class W3tc_Support_Page_Data_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'w3tc-support-fallback', $view );
 		$this->assertStringContainsString( 'w3tc-support-form-mount', $view );
 		$this->assertStringNotContainsString( 'wufoo-m5pom8z0qy59rm', $view );
+		$this->assertMatchesRegularExpression(
+			"/if \\( '' !== \\\$hash \\) \\{.*?sanitize_field_name/s",
+			$page,
+			'Extra widget fields must be applied only after the item hash sanitizes.'
+		);
 	}
 
 	/**

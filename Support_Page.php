@@ -77,13 +77,15 @@ class Support_Page {
 			try {
 				$v = json_decode( $v, true );
 				if ( isset( $v['items'] ) && isset( $v['items'][ $pos ] ) && is_array( $v['items'][ $pos ] ) ) {
-					$item         = $v['items'][ $pos ];
-					$hash         = self::sanitize_form_hash( isset( $item['form_hash'] ) ? $item['form_hash'] : '' );
-					$form_hash    = '' !== $hash ? $hash : $form_hash;
-					$field_name   = self::sanitize_field_name( isset( $item['parameter_name'] ) ? $item['parameter_name'] : '' );
-					$field_value  = self::sanitize_field_value( isset( $item['parameter_value'] ) ? $item['parameter_value'] : '' );
-					if ( '' === $field_name ) {
-						$field_value = '';
+					$item = $v['items'][ $pos ];
+					$hash = self::sanitize_form_hash( isset( $item['form_hash'] ) ? $item['form_hash'] : '' );
+					if ( '' !== $hash ) {
+						$form_hash   = $hash;
+						$field_name  = self::sanitize_field_name( isset( $item['parameter_name'] ) ? $item['parameter_name'] : '' );
+						$field_value = self::sanitize_field_value( isset( $item['parameter_value'] ) ? $item['parameter_value'] : '' );
+						if ( '' === $field_name ) {
+							$field_value = '';
+						}
 					}
 				}
 			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
