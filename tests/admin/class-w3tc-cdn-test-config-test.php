@@ -346,5 +346,7 @@ class W3tc_Cdn_Test_Config_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'config[secret]', $block );
 		$this->assertStringNotContainsString( 'config[key]', $block );
 		$this->assertStringNotContainsString( 'w3tc_cdn_get_cnames', $block );
+		$this->assertStringContainsString( 'status.text(data.error)', $block );
+		$this->assertStringNotContainsString( 'status.html(data.error)', $block );
 	}
 }
