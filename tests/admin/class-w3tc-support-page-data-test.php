@@ -197,6 +197,12 @@ class W3tc_Support_Page_Data_Test extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString( 'W3tcSupport.bind()', $js );
 		$this->assertStringContainsString( 'showFallback', $js );
+		$this->assertStringContainsString( 'hideFallback', $js );
+		$this->assertGreaterThanOrEqual(
+			2,
+			preg_match_all( '/this\.hideFallback\s*\(\s*\)|W3tcSupport\.hideFallback\s*\(\s*\)/', $js ),
+			'hideFallback must run when a load starts and after a successful embed.'
+		);
 	}
 
 	/**

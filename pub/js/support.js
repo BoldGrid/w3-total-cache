@@ -72,14 +72,36 @@
     },
 
     /**
+     * Fallback node used when the third-party form cannot load.
+     *
+     * @return {HTMLElement|null}
+     */
+    fallbackNode: function () {
+      return document.getElementById("w3tc-support-fallback");
+    },
+
+    /**
      * Show the fallback copy when the third-party form cannot load.
      *
      * @return {void}
      */
     showFallback: function () {
-      var fallback = document.getElementById("w3tc-support-fallback");
+      var fallback = this.fallbackNode();
       if (fallback) {
         fallback.hidden = false;
+      }
+    },
+
+    /**
+     * Hide the fallback copy when a load or retry starts, and after a
+     * successful embed, so a prior failure is not left on screen.
+     *
+     * @return {void}
+     */
+    hideFallback: function () {
+      var fallback = this.fallbackNode();
+      if (fallback) {
+        fallback.hidden = true;
       }
     },
 
@@ -121,6 +143,7 @@
         return false;
       }
 
+      this.hideFallback();
       this.loaded = true;
       this.syncMountId(data.form_hash);
 
@@ -151,6 +174,7 @@
           var form = new window.WufooForm();
           form.initialize(options);
           form.display();
+          W3tcSupport.hideFallback();
         } catch (e) {
           W3tcSupport.failLoad();
         }

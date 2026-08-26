@@ -20,11 +20,15 @@ const src = fs.readFileSync(
 
 const created = [];
 const mount = { id: 'w3tc-support-form-mount' };
+const fallback = { id: 'w3tc-support-fallback', hidden: true };
 const document = {
   readyState: 'complete',
   getElementById: function (id) {
     if (id === 'w3tc-support-form-mount' || id === mount.id) {
       return mount;
+    }
+    if (id === 'w3tc-support-fallback') {
+      return fallback;
     }
     return null;
   },
@@ -102,8 +106,22 @@ assert(created.length === 1, 'still one script tag after repeat load');
 
 created[0].onerror();
 assert(S.loaded === false, 'failed load must clear the in-flight lock');
+assert(fallback.hidden === false, 'failed load must reveal the fallback copy');
 assert(S.loadForm(good, true) === true, 'retry after failure must start');
 assert(created.length === 2, 'retry injects another script tag');
+assert(
+  fallback.hidden === true,
+  'retry must hide the fallback before the next embed starts'
+);
+
+window.WufooForm = function () {};
+window.WufooForm.prototype.initialize = function () {};
+window.WufooForm.prototype.display = function () {};
+created[1].onload();
+assert(
+  fallback.hidden === true,
+  'successful embed must leave the fallback hidden'
+);
 
 assert(
   S.defaultValues(good).indexOf('field6=') === -1,
