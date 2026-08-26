@@ -414,11 +414,15 @@ class CdnEngine_Base {
 		$link = $w3tc_file['original_url'];
 
 		$headers = array(
-			'Content-Type'                => $mime_type,
-			'Last-Modified'               => Util_Content::http_date( time() ),
-			'Access-Control-Allow-Origin' => '*',
-			'Link'                        => '<' . $link . '>; rel="canonical"',
+			'Content-Type'  => $mime_type,
+			'Last-Modified' => Util_Content::http_date( time() ),
 		);
+
+		if ( Cdn_Util::path_needs_cors_header( $local_path ) ) {
+			$headers['Access-Control-Allow-Origin'] = '*';
+		}
+
+		$headers['Link'] = '<' . $link . '>; rel="canonical"';
 
 		$section = Util_Mime::mime_type_to_section( $mime_type );
 

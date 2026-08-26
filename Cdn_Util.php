@@ -340,6 +340,89 @@ class Cdn_Util {
 	}
 
 	/**
+	 * Filename suffixes that receive CDN CORS headers.
+	 *
+	 * Shared by Apache, Nginx, LiteSpeed, and object-upload header builders.
+	 * `font.css` is a webfont stylesheet filename suffix, not a MIME type.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[] Lowercase suffixes without a leading dot.
+	 */
+	public static function cors_font_suffixes() {
+		return array( 'ttf', 'ttc', 'otf', 'eot', 'woff', 'woff2', 'font.css' );
+	}
+
+	/**
+	 * MIME-map keys whose extensions are owned by CDN CORS rules.
+	 *
+	 * BrowserCache omits these so CDN font locations own the CORS block.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[]
+	 */
+	public static function cors_font_browsercache_extension_keys() {
+		return array( 'ttf|ttc', 'otf', 'eot', 'woff', 'woff2' );
+	}
+
+	/**
+	 * Alternation group for font CORS path matching.
+	 *
+	 * Dots in suffixes (`font.css`) are escaped. When `$include_uppercase` is
+	 * true, each suffix is also included in uppercase for case-sensitive
+	 * matchers such as Apache FilesMatch.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param bool $include_uppercase Include uppercase suffix variants.
+	 *
+	 * @return string
+	 */
+	public static function cors_font_regex_group( $include_uppercase = false ) {
+		$parts = array();
+
+		foreach ( self::cors_font_suffixes() as $suffix ) {
+			$parts[] = preg_quote( $suffix, '/' );
+
+			if ( $include_uppercase ) {
+				$upper = strtoupper( $suffix );
+				if ( $upper !== $suffix ) {
+					$parts[] = preg_quote( $upper, '/' );
+				}
+			}
+		}
+
+		return implode( '|', $parts );
+	}
+
+	/**
+	 * Whether a file path should receive a CDN CORS header.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $path Local path or URL path.
+	 *
+	 * @return bool
+	 */
+	public static function path_needs_cors_header( $path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$path = str_replace( '\\', '/', $path );
+		$path = preg_replace( '~\?.*$~', '', $path );
+
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$group = self::cors_font_regex_group();
+
+		return (bool) preg_match( '~\.(' . $group . ')$~i', $path );
+	}
+
+	/**
 	 * Extensions Media Library import may pull from third-party URLs.
 	 *
 	 * Fail closed: executable, HTML, SVG, and Flash types are never
