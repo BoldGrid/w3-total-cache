@@ -205,6 +205,12 @@ class Support_Page {
 			$value = substr( $value, 0, 200 );
 		}
 
+		// Fail closed on query delimiters so a widget value cannot
+		// split Wufoo defaultValues even if a caller forgets to encode.
+		if ( '' === $value || preg_match( '/[&?=]/', $value ) ) {
+			return '';
+		}
+
 		return $value;
 	}
 

@@ -48,6 +48,22 @@
     },
 
     /**
+     * Encode a Wufoo defaultValues pair. `encodeURIComponent` is
+     * required so `&` and `=` in a value cannot append extra keys.
+     *
+     * @param {string} name Field name.
+     * @param {string} value Field value.
+     * @return {string}
+     */
+    queryPair: function (name, value) {
+      return (
+        encodeURIComponent(name || "") +
+        "=" +
+        encodeURIComponent(value || "")
+      );
+    },
+
+    /**
      * Wufoo defaultValues without contact fields.
      *
      * @param {Object} data Localized payload.
@@ -55,17 +71,13 @@
      */
     defaultValues: function (data) {
       var values =
-        "field221=" +
-        encodeURI(data.postprocess || "") +
-        "&field8=" +
-        encodeURI(data.home_url || "");
+        this.queryPair("field221", data.postprocess || "") +
+        "&" +
+        this.queryPair("field8", data.home_url || "");
 
       if (data.field_name && data.field_name.length > 0) {
         values +=
-          "&" +
-          encodeURI(data.field_name) +
-          "=" +
-          encodeURI(data.field_value || "");
+          "&" + this.queryPair(data.field_name, data.field_value || "");
       }
 
       return values;

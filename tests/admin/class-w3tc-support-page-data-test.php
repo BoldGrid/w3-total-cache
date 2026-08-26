@@ -194,6 +194,42 @@ class W3tc_Support_Page_Data_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Widget extra values that contain query delimiters are dropped.
+	 *
+	 * Sibling of the JS encodeURIComponent contract: `&` / `=` / `?`
+	 * must not reach defaultValues as raw characters.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return void
+	 */
+	public function test_client_data_rejects_query_delimiters_in_widget_value() {
+		update_site_option(
+			'w3tc_generic_widgetservices',
+			wp_json_encode(
+				array(
+					'items' => array(
+						5 => array(
+							'form_hash'       => 'abc123XYZ',
+							'parameter_name'  => 'field12',
+							'parameter_value' => 'sku-9&field221=evil',
+						),
+					),
+				)
+			)
+		);
+		$_GET['service_item'] = '5';
+
+		$data = Support_Page::client_data();
+		$this->assertSame( 'abc123XYZ', $data['form_hash'] );
+		$this->assertSame( 'field12', $data['field_name'] );
+		$this->assertSame( '', $data['field_value'] );
+		$this->assertSame( '', Support_Page::sanitize_field_value( 'x=y' ) );
+		$this->assertSame( '', Support_Page::sanitize_field_value( 'x?y' ) );
+		$this->assertSame( 'sku-9', Support_Page::sanitize_field_value( 'sku-9' ) );
+	}
+
+	/**
 	 * PHP sources no longer localize contact PII or auto-embed Wufoo.
 	 *
 	 * @since 2.10.6
@@ -264,6 +300,13 @@ class W3tc_Support_Page_Data_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'W3tcSupport.bind()', $js );
 		$this->assertStringContainsString( 'showFallback', $js );
 		$this->assertStringContainsString( 'hideFallback', $js );
+		$this->assertStringContainsString( 'queryPair', $js );
+		$this->assertStringContainsString( 'encodeURIComponent', $js );
+		$this->assertStringNotContainsString(
+			'encodeURI(',
+			$js,
+			'defaultValues must not use encodeURI, which leaves & and = unescaped.'
+		);
 		$this->assertGreaterThanOrEqual(
 			2,
 			preg_match_all( '/this\.hideFallback\s*\(\s*\)|W3tcSupport\.hideFallback\s*\(\s*\)/', $js ),

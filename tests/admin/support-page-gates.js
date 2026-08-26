@@ -136,4 +136,31 @@ assert(
   'defaultValues must include site field8'
 );
 
+const injected = S.defaultValues(
+  Object.assign({}, good, {
+    field_name: 'field12',
+    field_value: 'sku-9&field221=evil',
+  })
+);
+assert(
+  injected.indexOf('&field221=evil') === -1,
+  'widget value must not append extra defaultValues keys'
+);
+assert(
+  injected.indexOf(encodeURIComponent('sku-9&field221=evil')) !== -1,
+  'widget value must be encodeURIComponent-encoded'
+);
+assert(
+  S.defaultValues(
+    Object.assign({}, good, { postprocess: 'cb&field221=evil' })
+  ).indexOf('&field221=evil') === -1,
+  'postprocess must not append extra defaultValues keys'
+);
+assert(
+  S.defaultValues(
+    Object.assign({}, good, { home_url: 'example.test&field8=evil' })
+  ).indexOf('&field8=evil') === -1,
+  'home_url must not append extra defaultValues keys'
+);
+
 process.exit(0);
