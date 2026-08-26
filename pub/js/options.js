@@ -705,32 +705,30 @@ jQuery(function () {
         tabId: tabId,
       },
       success: function (data) {
-        // Check for timeout
-        if (data.errors && data.errors.http_request_failed) {
+        const parsed =
+          window.W3tcForumsApi && window.W3tcForumsApi.topicsFromResponse
+            ? window.W3tcForumsApi.topicsFromResponse(data)
+            : { ok: false, topics: [] };
+
+        if (!parsed.ok) {
           $forumTopicsContainer.html(
-            "HTTP Error:",
-            data.errors.http_request_failed,
+            "<p>Error loading topics. Please try again later.</p>",
           );
+          return;
         }
-        // Check for empty results
-        else if (Array.isArray(data) && data.length === 0) {
+
+        if (parsed.topics.length === 0) {
           $forumTopicsContainer.html("<p>No forum topics found.</p>");
         } else {
-          // Create a list of topics
           const $ul = jQuery("<ul></ul>");
-          const forumData = JSON.parse(data.body);
-          jQuery.each(forumData, function (index, topic) {
+          jQuery.each(parsed.topics, function (index, topic) {
             const $li = jQuery("<li></li>");
             const $link = jQuery("<a></a>")
               .addClass("w3tc-control-after")
               .attr("href", topic.link)
-              .attr("target", "_blank"); // Open in new tab
+              .attr("target", "_blank");
 
-            // Decode HTML entities in topic.title
-            const decodedTitle = jQuery("<textarea />")
-              .html(topic.title)
-              .text();
-            $link.text(decodedTitle);
+            $link.text(topic.title);
 
             const $icon = jQuery("<span></span>").addClass(
               "dashicons dashicons-external",
@@ -741,7 +739,6 @@ jQuery(function () {
           });
           $forumTopicsContainer.html($ul);
         }
-        // Mark topics as loaded to prevent duplicate requests
         $forumTopicsContainer.attr("data-loaded", "1");
       },
       error: function () {

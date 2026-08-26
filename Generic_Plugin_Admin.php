@@ -404,8 +404,8 @@ class Generic_Plugin_Admin {
 	/**
 	 * Forums API Callback
 	 *
-	 * This function reached out to the W3TC forums API to get the posts with the corresponding cache tag
-	 * on boldgrid.com/support.
+	 * Fetches help topics from the W3TC forums API and returns a
+	 * parsed topic list. The remote HTTP envelope is not echoed.
 	 *
 	 * @return void
 	 */
@@ -435,13 +435,11 @@ class Generic_Plugin_Admin {
 		 * effective request target. Restrict to a conservative alphabet
 		 * that matches the documented `tabId` shape.
 		 */
-		if ( '' === $tag || ! preg_match( '/^[A-Za-z0-9._-]+$/', $tag ) ) {
+		if ( ! Generic_Forums_Api::is_valid_tag( $tag ) ) {
 			wp_send_json_error( 'invalid tabId', 400 );
 		}
 
-		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
-
-		wp_send_json( $posts );
+		Generic_Forums_Api::send( Generic_Forums_Api::request( $tag ) );
 	}
 
 	/**
@@ -587,7 +585,8 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-cdn-admin-ui', plugins_url( 'pub/js/cdn-admin-ui.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		// Registered in load_scripts() so dependents can list w3tc-nonce; maps are localized in admin_print_scripts().
 		wp_register_script( 'w3tc-nonce', plugins_url( 'pub/js/w3tc-nonce.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
-		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-forums-api', plugins_url( 'pub/js/forums-api.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce', 'w3tc-forums-api' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
