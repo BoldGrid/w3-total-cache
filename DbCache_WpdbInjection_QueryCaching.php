@@ -959,6 +959,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @return void
 	 */
 	private function log_query( $fields ) {
+		foreach ( $fields as $i => $field ) {
+			if ( \is_string( $field ) ) {
+				$fields[ $i ] = Util_Debug::redact( $field );
+			}
+		}
+
 		if ( ! $this->log_filehandle ) {
 			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
 			$this->log_filehandle = fopen( $filename, 'a' );

@@ -263,6 +263,7 @@ class Varnish_Flush {
 		if ( $this->_debug ) {
 			$w3tc_data = sprintf( "[%s] [%s] %s\n", gmdate( 'r' ), $w3tc_url, $msg );
 			$w3tc_data = strtr( $w3tc_data, '<>', '' );
+			$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 			$filename = Util_Debug::log_filename( 'varnish' );
 
