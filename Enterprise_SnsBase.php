@@ -99,6 +99,7 @@ class Enterprise_SnsBase {
 			$w3tc_data .= $debug . "\n";
 		}
 		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'sns' );
 
