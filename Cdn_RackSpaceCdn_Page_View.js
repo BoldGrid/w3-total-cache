@@ -39,7 +39,7 @@ jQuery(function ($) {
           var state = "unknown";
           if (data && data["status"]) status = data["status"];
 
-          jQuery(".w3tc_rackspace_created_status").html(status);
+          jQuery(".w3tc_rackspace_created_status").text(status);
 
           if (status == "deployed") w3tc_rackspace_service_created_done(data);
           else setTimeout(w3tc_rackspace_check_service_state, 5000);
@@ -47,14 +47,14 @@ jQuery(function ($) {
         "json",
       )
       .fail(function () {
-        jQuery(".w3tc_rackspace_created_state").html("Failed to obtain state");
+        jQuery(".w3tc_rackspace_created_state").text("Failed to obtain state");
         setTimeout(w3tc_rackspace_check_service_state, 5000);
       });
   }
 
   function w3tc_rackspace_service_created_done(data) {
-    jQuery(".w3tc_rackspace_cname").html(data["cname"]);
-    jQuery(".w3tc_rackspace_access_url").html(data["access_url"]);
+    jQuery(".w3tc_rackspace_cname").text(data["cname"]);
+    jQuery(".w3tc_rackspace_access_url").text(data["access_url"]);
     jQuery(".w3tc_rackspace_created_in_progress").css("display", "none");
     jQuery(".w3tc_rackspace_created_done").css("display", "");
 

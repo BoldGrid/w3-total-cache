@@ -86,7 +86,9 @@ class BrowserCache_Environment_Apache {
 			}
 		}
 
-		$exceptions = $this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' );
+		$exceptions = BrowserCache_RuleDirectives::normalize_exceptions(
+			$this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' )
+		);
 
 		$wp_uri = network_home_url( '', 'relative' );
 		$wp_uri = rtrim( $wp_uri, '/' );

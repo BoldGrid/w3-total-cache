@@ -363,24 +363,19 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Retrieves the CDN configuration based on the specified CDN engine.
+	 * Build the engine config array from saved settings.
 	 *
-	 * This method checks the current configuration settings and returns an array
-	 * containing the appropriate configuration for the specified CDN engine.
-	 * The configuration details are dependent on the engine selected, such as
-	 * Cloudflare or S3, and include settings such as API keys, domain,
-	 * SSL configurations, and compression options. The method caches the configuration
-	 * after the first retrieval for subsequent calls.
+	 * Used by {@see get_cdn()} and by Test CDN so the browser cannot
+	 * supply a substitute host, bucket, or credential set.
 	 *
-	 * @return array|null The CDN configuration array or null if not configured.
+	 * @since 2.10.6
+	 *
+	 * @return array
 	 */
-	public function get_cdn() {
-		static $cdn = null;
-
-		if ( is_null( $cdn ) ) {
-			$w3tc_c      = $this->_config;
-			$w3tc_engine = $w3tc_c->get_string( 'cdn.engine' );
-			$compression = ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.html.compression' ) );
+	public function engine_config() {
+		$w3tc_c      = $this->_config;
+		$w3tc_engine = $w3tc_c->get_string( 'cdn.engine' );
+		$compression = ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.html.compression' ) );
 
 			switch ( $w3tc_engine ) {
 				case 'azure':
@@ -397,7 +392,7 @@ class Cdn_Core {
 				case 'azuremi':
 					$engine_config = array(
 						'user'        => $w3tc_c->get_string( 'cdn.azuremi.user' ),
-						'clientid'    => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
+						'client_id'   => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
 						'container'   => $w3tc_c->get_string( 'cdn.azuremi.container' ),
 						'cname'       => $w3tc_c->get_array( 'cdn.azuremi.cname' ),
 						'ssl'         => $w3tc_c->get_string( 'cdn.azuremi.ssl' ),
@@ -433,16 +428,19 @@ class Cdn_Core {
 
 				case 'ftp':
 					$engine_config = array(
-						'host'        => $w3tc_c->get_string( 'cdn.ftp.host' ),
-						'type'        => $w3tc_c->get_string( 'cdn.ftp.type' ),
-						'user'        => $w3tc_c->get_string( 'cdn.ftp.user' ),
-						'pass'        => $w3tc_c->get_string( 'cdn.ftp.pass' ),
-						'path'        => $w3tc_c->get_string( 'cdn.ftp.path' ),
-						'pasv'        => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
-						'domain'      => $w3tc_c->get_array( 'cdn.ftp.domain' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
-						'compression' => false,
-						'docroot'     => Util_Environment::document_root(),
+						'host'         => $w3tc_c->get_string( 'cdn.ftp.host' ),
+						'type'         => $w3tc_c->get_string( 'cdn.ftp.type' ),
+						'user'         => $w3tc_c->get_string( 'cdn.ftp.user' ),
+						'pass'         => $w3tc_c->get_string( 'cdn.ftp.pass' ),
+						'default_keys' => $w3tc_c->get_boolean( 'cdn.ftp.default_keys' ),
+						'pubkey'       => $w3tc_c->get_string( 'cdn.ftp.pubkey' ),
+						'privkey'      => $w3tc_c->get_string( 'cdn.ftp.privkey' ),
+						'path'         => $w3tc_c->get_string( 'cdn.ftp.path' ),
+						'pasv'         => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
+						'domain'       => $w3tc_c->get_array( 'cdn.ftp.domain' ),
+						'ssl'          => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
+						'compression'  => false,
+						'docroot'      => Util_Environment::document_root(),
 					);
 					break;
 
@@ -533,6 +531,7 @@ class Cdn_Core {
 						'stream_api_key'  => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
 						'pull_zone_id'    => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
 						'domain'          => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'cdn_hostname'    => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
 					);
 					break;
 
@@ -541,15 +540,32 @@ class Cdn_Core {
 					break;
 			}
 
-			$engine_config = array_merge(
-				$engine_config,
-				array(
-					'debug'   => $w3tc_c->get_boolean( 'cdn.debug' ),
-					'headers' => apply_filters( 'w3tc_cdn_config_headers', array() ),
-				)
-			);
+		$engine_config = array_merge(
+			$engine_config,
+			array(
+				'debug'   => $w3tc_c->get_boolean( 'cdn.debug' ),
+				'headers' => apply_filters( 'w3tc_cdn_config_headers', array() ),
+			)
+		);
 
-			$cdn = CdnEngine::instance( $w3tc_engine, $engine_config );
+		return $engine_config;
+	}
+
+	/**
+	 * Returns the CDN engine for the saved configuration.
+	 *
+	 * Cached after the first retrieval for subsequent calls in the request.
+	 *
+	 * @return CdnEngine_Base
+	 */
+	public function get_cdn() {
+		static $cdn = null;
+
+		if ( is_null( $cdn ) ) {
+			$cdn = CdnEngine::instance(
+				$this->_config->get_string( 'cdn.engine' ),
+				$this->engine_config()
+			);
 		}
 
 		return $cdn;

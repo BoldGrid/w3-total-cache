@@ -705,32 +705,30 @@ jQuery(function () {
         tabId: tabId,
       },
       success: function (data) {
-        // Check for timeout
-        if (data.errors && data.errors.http_request_failed) {
+        const parsed =
+          window.W3tcForumsApi && window.W3tcForumsApi.topicsFromResponse
+            ? window.W3tcForumsApi.topicsFromResponse(data)
+            : { ok: false, topics: [] };
+
+        if (!parsed.ok) {
           $forumTopicsContainer.html(
-            "HTTP Error:",
-            data.errors.http_request_failed,
+            "<p>Error loading topics. Please try again later.</p>",
           );
+          return;
         }
-        // Check for empty results
-        else if (Array.isArray(data) && data.length === 0) {
+
+        if (parsed.topics.length === 0) {
           $forumTopicsContainer.html("<p>No forum topics found.</p>");
         } else {
-          // Create a list of topics
           const $ul = jQuery("<ul></ul>");
-          const forumData = JSON.parse(data.body);
-          jQuery.each(forumData, function (index, topic) {
+          jQuery.each(parsed.topics, function (index, topic) {
             const $li = jQuery("<li></li>");
             const $link = jQuery("<a></a>")
               .addClass("w3tc-control-after")
               .attr("href", topic.link)
-              .attr("target", "_blank"); // Open in new tab
+              .attr("target", "_blank");
 
-            // Decode HTML entities in topic.title
-            const decodedTitle = jQuery("<textarea />")
-              .html(topic.title)
-              .text();
-            $link.text(decodedTitle);
+            $link.text(topic.title);
 
             const $icon = jQuery("<span></span>").addClass(
               "dashicons dashicons-external",
@@ -741,7 +739,6 @@ jQuery(function () {
           });
           $forumTopicsContainer.html($ul);
         }
-        // Mark topics as loaded to prevent duplicate requests
         $forumTopicsContainer.attr("data-loaded", "1");
       },
       error: function () {
@@ -1185,132 +1182,11 @@ jQuery(function () {
   jQuery("#cdn_test").on("click", function () {
     var me = jQuery(this);
     var metadata = me.metadata();
-    var cnames = w3tc_cdn_get_cnames();
     var params = {
       w3tc_cdn_test: 1,
       _wpnonce: metadata.nonce,
+      engine: metadata.type,
     };
-
-    switch (metadata.type) {
-      case "ftp":
-        jQuery.extend(params, {
-          engine: "ftp",
-          "config[host]": jQuery("#cdn_ftp_host").val(),
-          "config[type]": jQuery("#cdn_ftp_type").val(),
-          "config[user]": jQuery("#cdn_ftp_user").val(),
-          "config[path]": jQuery("#cdn_ftp_path").val(),
-          "config[pass]": jQuery("#cdn_ftp_pass").val(),
-          "config[pasv]": jQuery("#cdn__ftp__pasv:checked").length,
-          "config[default_keys]": jQuery("#cdn__ftp__default_keys:checked")
-            .length,
-          "config[pubkey]": jQuery("#cdn_ftp_pubkey").val(),
-          "config[privkey]": jQuery("#cdn_ftp_privkey").val(),
-        });
-
-        if (cnames.length) {
-          params["config[domain][]"] = cnames;
-        }
-        break;
-
-      case "s3":
-        jQuery.extend(params, {
-          engine: "s3",
-          "config[key]": jQuery("#cdn_s3_key").val(),
-          "config[secret]": jQuery("#cdn_s3_secret").val(),
-          "config[bucket]": jQuery("#cdn_s3_bucket").val(),
-          "config[bucket_location]": jQuery("#cdn_s3_bucket_location").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "cf":
-        jQuery.extend(params, {
-          engine: "cf",
-          "config[key]": jQuery("#cdn_cf_key").val(),
-          "config[secret]": jQuery("#cdn_cf_secret").val(),
-          "config[bucket]": jQuery("#cdn_cf_bucket").val(),
-          "config[bucket_location]": jQuery("#cdn_cf_bucket_location").val(),
-          "config[id]": jQuery("#cdn_cf_id").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "cf2":
-        jQuery.extend(params, {
-          engine: "cf2",
-          "config[key]": jQuery("#cdn_cf2_key").val(),
-          "config[secret]": jQuery("#cdn_cf2_secret").val(),
-          "config[origin]": jQuery("#cdn_cf2_origin").val(),
-          "config[id]": jQuery("#cdn_cf2_id").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "rscf":
-        jQuery.extend(params, {
-          engine: "rscf",
-          "config[user]": jQuery("#cdn_rscf_user").val(),
-          "config[key]": jQuery("#cdn_rscf_key").val(),
-          "config[location]": jQuery("#cdn_rscf_location").val(),
-          "config[container]": jQuery("#cdn_rscf_container").val(),
-          "config[id]": jQuery("#cdn_rscf_id").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "azure":
-        jQuery.extend(params, {
-          engine: "azure",
-          "config[user]": jQuery("#cdn_azure_user").val(),
-          "config[key]": jQuery("#cdn_azure_key").val(),
-          "config[container]": jQuery("#cdn_azure_container").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "azuremi":
-        jQuery.extend(params, {
-          engine: "azuremi",
-          "config[user]": jQuery("#cdn_azuremi_user").val(),
-          "config[client_id]": jQuery("#cdn_azuremi_clientid").val(),
-          "config[container]": jQuery("#cdn_azuremi_container").val(),
-        });
-
-        if (cnames.length) {
-          params["config[cname][]"] = cnames;
-        }
-        break;
-
-      case "mirror":
-        jQuery.extend(params, {
-          engine: "mirror",
-        });
-
-        if (cnames.length) {
-          params["config[domain][]"] = cnames;
-        }
-        break;
-
-      default:
-        jQuery.extend(params, {
-          engine: metadata.type,
-        });
-    }
 
     var status = jQuery("#cdn_test_status");
     status.removeClass("w3tc-error");
@@ -1320,9 +1196,9 @@ jQuery(function () {
     var status2 = jQuery("#cdn_create_container_status");
     status2.removeClass("w3tc-error");
     status2.removeClass("w3tc-success");
-    status2.html("");
+    status2.text("");
 
-    status.html("Testing...");
+    status.text("Testing...");
 
     jQuery
       .post(
@@ -1330,13 +1206,13 @@ jQuery(function () {
         params,
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
         },
         "json",
       )
       .fail(function () {
         status.addClass("w3tc-error");
-        status.html("Test failed");
+        status.text("Test failed");
       });
   });
 
@@ -1448,9 +1324,9 @@ jQuery(function () {
     var status2 = jQuery("#cdn_test_status");
     status2.removeClass("w3tc-error");
     status2.removeClass("w3tc-success");
-    status2.html("");
+    status2.text("");
 
-    status.html("Creating...");
+    status.text("Creating...");
 
     jQuery
       .post(
@@ -1458,7 +1334,7 @@ jQuery(function () {
         params,
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
 
           if (container_id && container_id.length && data.container_id) {
             container_id.val(data.container_id);
@@ -1468,7 +1344,7 @@ jQuery(function () {
       )
       .fail(function () {
         status.addClass("w3tc-error");
-        status.html("failed");
+        status.text("failed");
       });
   });
 

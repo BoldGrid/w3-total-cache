@@ -10,37 +10,23 @@ namespace W3TC;
 defined( 'ABSPATH' ) || exit;
 require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
-<div id="wufoo-m5pom8z0qy59rm"></div>
-<form>
-
-<script type="text/javascript">var m5pom8z0qy59rm;(function(d, t) {
-var s = d.createElement(t);
-var options = {
-	'userName':'w3edge',
-	'formHash': w3tc_support_data.form_hash,
-	'autoResize':true,
-	'height':'1145',
-	'async':true,
-	'host':'wufoo.com',
-	'header':'show',
-	'defaultValues':
-		'field221=' + encodeURI(w3tc_support_data.postprocess) +
-		'&field6=' + encodeURI(w3tc_support_data.first_name) +
-		'&field7=' + encodeURI(w3tc_support_data.last_name) +
-		'&field8=' + encodeURI(w3tc_support_data.home_url) +
-		'&field9=' + encodeURI(w3tc_support_data.email),
-	'ssl':true
-};
-
-if (w3tc_support_data.field_name.length > 0)
-	options.defaultValues += '&' +
-		encodeURI(w3tc_support_data.field_name) + '=' +
-		encodeURI(w3tc_support_data.field_value);
-
-
-s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
-s.onload = s.onreadystatechange = function() {
-var rs = this.readyState; if (rs) if (rs != 'complete') if (rs != 'loaded') return;
-try { m5pom8z0qy59rm = new WufooForm();m5pom8z0qy59rm.initialize(options);m5pom8z0qy59rm.display(); } catch (e) {}};
-var scr = d.getElementsByTagName(t)[0], par = scr.parentNode; par.insertBefore(s, scr);
-})(document, 'script');</script>
+<div id="w3tc-support-form-shell">
+	<p>
+		<?php esc_html_e( 'Premium support requests are submitted through a third-party form. The form loads only after you agree and choose to open it.', 'w3-total-cache' ); ?>
+	</p>
+	<p>
+		<label for="w3tc-support-consent">
+			<input type="checkbox" id="w3tc-support-consent" />
+			<?php esc_html_e( 'I understand that a third-party form will load to send this request.', 'w3-total-cache' ); ?>
+		</label>
+	</p>
+	<p>
+		<button type="button" id="w3tc-support-load" class="button button-primary" disabled>
+			<?php esc_html_e( 'Open support form', 'w3-total-cache' ); ?>
+		</button>
+	</p>
+	<p id="w3tc-support-fallback" hidden>
+		<?php esc_html_e( 'The support form could not be loaded. Please try again later.', 'w3-total-cache' ); ?>
+	</p>
+	<div id="w3tc-support-form-mount"></div>
+</div>

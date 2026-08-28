@@ -39,15 +39,15 @@ var W3tc_Popup_Cdn_Export_File = {
 
   set_progress: function (percent) {
     jQuery("#cdn_export_file_progress .bar").width(percent + "%");
-    jQuery("#cdn_export_file_progress .percent").html(percent + "%");
+    jQuery("#cdn_export_file_progress .percent").text(percent + "%");
   },
 
   set_status: function (status) {
-    jQuery("#cdn_export_file_status").html(status);
+    jQuery("#cdn_export_file_status").text(status);
   },
 
   set_processed: function (processed) {
-    jQuery("#cdn_export_file_processed").html(processed);
+    jQuery("#cdn_export_file_processed").text(processed);
   },
 
   set_button_text: function (text) {
@@ -56,29 +56,23 @@ var W3tc_Popup_Cdn_Export_File = {
 
   set_last_response: function () {
     var date = new Date();
-    jQuery("#cdn_export_file_last_response").html(
+    jQuery("#cdn_export_file_last_response").text(
       date.toLocaleTimeString() + " " + date.toLocaleDateString(),
     );
   },
 
   set_elapsed: function (text) {
-    jQuery("#cdn_export_file_elapsed").html(text);
+    jQuery("#cdn_export_file_elapsed").text(text);
   },
 
   add_log: function (path, result, error) {
     jQuery("#cdn_export_file_log").prepend(
-      '<div class="log-' +
-        (result == 1 ? "success" : "error") +
-        '">' +
-        path +
-        " <strong>" +
-        error +
-        "</strong></div>",
+      w3tc_cdn_log_entry(path, result, error),
     );
   },
 
   clear_log: function () {
-    jQuery("#cdn_export_file_log").html("");
+    jQuery("#cdn_export_file_log").empty();
   },
 
   process: function () {
@@ -219,19 +213,19 @@ var W3tc_Popup_Cdn_Export_Library = {
 
   set_progress: function (percent) {
     jQuery("#cdn_export_library_progress .bar").width(percent + "%");
-    jQuery("#cdn_export_library_progress .percent").html(percent + "%");
+    jQuery("#cdn_export_library_progress .percent").text(percent + "%");
   },
 
   set_status: function (status) {
-    jQuery("#cdn_export_library_status").html(status);
+    jQuery("#cdn_export_library_status").text(status);
   },
 
   set_processed: function (processed) {
-    jQuery("#cdn_export_library_processed").html(processed);
+    jQuery("#cdn_export_library_processed").text(processed);
   },
 
   set_total: function (total) {
-    jQuery("#cdn_export_library_total").html(total);
+    jQuery("#cdn_export_library_total").text(total);
   },
 
   set_button_text: function (text) {
@@ -240,29 +234,23 @@ var W3tc_Popup_Cdn_Export_Library = {
 
   set_last_response: function () {
     var date = new Date();
-    jQuery("#cdn_export_library_last_response").html(
+    jQuery("#cdn_export_library_last_response").text(
       date.toLocaleTimeString() + " " + date.toLocaleDateString(),
     );
   },
 
   set_elapsed: function (text) {
-    jQuery("#cdn_export_library_elapsed").html(text);
+    jQuery("#cdn_export_library_elapsed").text(text);
   },
 
   add_log: function (path, result, error) {
     jQuery("#cdn_export_library_log").prepend(
-      '<div class="log-' +
-        (result == 1 ? "success" : "error") +
-        '">' +
-        path +
-        " <strong>" +
-        error +
-        "</strong></div>",
+      w3tc_cdn_log_entry(path, result, error),
     );
   },
 
   clear_log: function () {
-    jQuery("#cdn_export_library_log").html("");
+    jQuery("#cdn_export_library_log").empty();
   },
 
   process: function () {
@@ -391,19 +379,19 @@ var W3tc_Popup_Cdn_Import_Library = {
 
   set_progress: function (percent) {
     jQuery("#cdn_import_library_progress .bar").width(percent + "%");
-    jQuery("#cdn_import_library_progress .percent").html(percent + "%");
+    jQuery("#cdn_import_library_progress .percent").text(percent + "%");
   },
 
   set_status: function (status) {
-    jQuery("#cdn_import_library_status").html(status);
+    jQuery("#cdn_import_library_status").text(status);
   },
 
   set_processed: function (processed) {
-    jQuery("#cdn_import_library_processed").html(processed);
+    jQuery("#cdn_import_library_processed").text(processed);
   },
 
   set_total: function (total) {
-    jQuery("#cdn_import_library_total").html(total);
+    jQuery("#cdn_import_library_total").text(total);
   },
 
   set_button_text: function (text) {
@@ -412,13 +400,13 @@ var W3tc_Popup_Cdn_Import_Library = {
 
   set_last_response: function () {
     var date = new Date();
-    jQuery("#cdn_import_library_last_response").html(
+    jQuery("#cdn_import_library_last_response").text(
       date.toLocaleTimeString() + " " + date.toLocaleDateString(),
     );
   },
 
   set_elapsed: function (text) {
-    jQuery("#cdn_import_library_elapsed").html(text);
+    jQuery("#cdn_import_library_elapsed").text(text);
   },
 
   is_redirect_permanent: function () {
@@ -431,18 +419,12 @@ var W3tc_Popup_Cdn_Import_Library = {
 
   add_log: function (path, result, error) {
     jQuery("#cdn_import_library_log").prepend(
-      '<div class="log-' +
-        (result == 1 ? "success" : "error") +
-        '">' +
-        path +
-        " <strong>" +
-        error +
-        "</strong></div>",
+      w3tc_cdn_log_entry(path, result, error),
     );
   },
 
   clear_log: function () {
-    jQuery("#cdn_import_library_log").html("");
+    jQuery("#cdn_import_library_log").empty();
   },
 
   add_rule: function (src, dst) {
@@ -612,19 +594,19 @@ var W3tc_Popup_Cdn_Rename_Domain = {
 
   set_progress: function (percent) {
     jQuery("#cdn_rename_domain_progress .bar").width(percent + "%");
-    jQuery("#cdn_rename_domain_progress .percent").html(percent + "%");
+    jQuery("#cdn_rename_domain_progress .percent").text(percent + "%");
   },
 
   set_status: function (status) {
-    jQuery("cdn_rename_domain_status").html(status);
+    jQuery("#cdn_rename_domain_status").text(status);
   },
 
   set_processed: function (processed) {
-    jQuery("#cdn_rename_domain_processed").html(processed);
+    jQuery("#cdn_rename_domain_processed").text(processed);
   },
 
   set_total: function (total) {
-    jQuery("#cdn_rename_domain_total").html(total);
+    jQuery("#cdn_rename_domain_total").text(total);
   },
 
   set_button_text: function (text) {
@@ -633,29 +615,23 @@ var W3tc_Popup_Cdn_Rename_Domain = {
 
   set_last_response: function () {
     var date = new Date();
-    jQuery("#cdn_rename_domain_last_response").html(
+    jQuery("#cdn_rename_domain_last_response").text(
       date.toLocaleTimeString() + " " + date.toLocaleDateString(),
     );
   },
 
   set_elapsed: function (text) {
-    jQuery("#cdn_rename_domain_elapsed").html(text);
+    jQuery("#cdn_rename_domain_elapsed").text(text);
   },
 
   add_log: function (path, result, error) {
     jQuery("#cdn_rename_domain_log").prepend(
-      '<div class="log-' +
-        (result == 1 ? "success" : "error") +
-        '">' +
-        path +
-        " <strong>" +
-        error +
-        "</strong></div>",
+      w3tc_cdn_log_entry(path, result, error),
     );
   },
 
   clear_log: function () {
-    jQuery("#cdn_rename_domain_log").html("");
+    jQuery("#cdn_rename_domain_log").empty();
   },
 
   get_domain_names: function () {
