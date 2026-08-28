@@ -57,8 +57,9 @@ class Cdnfsd_Core {
 				case 'bunnycdn':
 					$engine_object = new Cdnfsd_BunnyCdn_Engine(
 						array(
-							'account_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
-							'pull_zone_id'    => $w3tc_c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+							'account_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
+							'pull_zone_id'            => $w3tc_c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+							'verify_tls_certificates' => $w3tc_c->get_boolean( 'cdnfsd.bunnycdn.verify_tls_certificates', true ),
 						)
 					);
 					break;

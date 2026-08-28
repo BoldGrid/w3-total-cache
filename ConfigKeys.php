@@ -1575,6 +1575,11 @@ $w3tc_keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
+	'cdn.bunnycdn.verify_tls_certificates'                 => array(
+		'type'    => 'boolean',
+		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
+	),
 	'cdn.reject.admins'                                    => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -1642,6 +1647,11 @@ $w3tc_keys = array(
 	'cdnfsd.transparentcdn.company_id'                     => array(
 		'type'    => 'string',
 		'default' => '',
+	),
+	'cdnfsd.bunnycdn.verify_tls_certificates'              => array(
+		'type'    => 'boolean',
+		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'varnish.configuration_overloaded'                     => array(
 		'type'    => 'boolean',
