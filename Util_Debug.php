@@ -136,8 +136,11 @@ class Util_Debug {
 			$context['user_id'] = \get_current_user_id();
 		}
 
-		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$context['ip'] = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		if ( ! \array_key_exists( 'ip', $context ) ) {
+			$ip = Util_Environment::get_client_ip();
+			if ( '' !== $ip ) {
+				$context['ip'] = $ip;
+			}
 		}
 
 		$context = self::redact_nested( $context );
@@ -295,7 +298,7 @@ class Util_Debug {
 		 * before WordPress fully loads) we fall back to `uniqid()`,
 		 * also alphanum.
 		 */
-		$ip      = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : ''; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.
+		$ip      = Util_Environment::get_client_ip();
 		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
 		$uri     = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
 		$method  = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.

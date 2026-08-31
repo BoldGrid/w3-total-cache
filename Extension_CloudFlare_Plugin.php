@@ -266,37 +266,47 @@ class Extension_CloudFlare_Plugin {
 	 * @return void
 	 */
 	private function fix_remote_addr() {
-		$remote_addr           = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$http_cf_connecting_ip = isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) : '';
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$cf_ip       = Util_Environment::parse_ip_token(
+			isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : '' // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- parse_ip_token validates.
+		);
 
-		if ( empty( $http_cf_connecting_ip ) ) {
+		if ( '' === $cf_ip ) {
 			return;
 		}
 
 		if ( strpos( $remote_addr, ':' ) === false ) {
-			$ip4_ranges = $this->_config->get_array(
-				array(
-					'cloudflare',
-					'ips.ip4',
+			$ip4_ranges = array_merge(
+				(array) Dispatcher::config_state_master()->get_array( 'extension.cloudflare.ips.ip4' ),
+				(array) $this->_config->get_array(
+					array(
+						'cloudflare',
+						'ips.ip4',
+					)
 				)
 			);
 			foreach ( $ip4_ranges as $range ) {
 				if ( $this->ipv4_in_range( $remote_addr, $range ) ) {
-					$_SERVER['REMOTE_ADDR'] = $http_cf_connecting_ip;
+					Util_Environment::stash_connecting_ip( $remote_addr );
+					$_SERVER['REMOTE_ADDR'] = $cf_ip;
 					break;
 				}
 			}
 		} elseif ( ! empty( $remote_addr ) ) {
-			$ip6_ranges = $this->_config->get_array(
-				array(
-					'cloudflare',
-					'ips.ip6',
+			$ip6_ranges = array_merge(
+				(array) Dispatcher::config_state_master()->get_array( 'extension.cloudflare.ips.ip6' ),
+				(array) $this->_config->get_array(
+					array(
+						'cloudflare',
+						'ips.ip6',
+					)
 				)
 			);
 			$ip6        = $this->get_ipv6_full( $remote_addr );
 			foreach ( $ip6_ranges as $range ) {
 				if ( $this->ipv6_in_range( $ip6, $range ) ) {
-					$_SERVER['REMOTE_ADDR'] = $http_cf_connecting_ip;
+					Util_Environment::stash_connecting_ip( $remote_addr );
+					$_SERVER['REMOTE_ADDR'] = $cf_ip;
 					break;
 				}
 			}
@@ -344,6 +354,15 @@ class Extension_CloudFlare_Plugin {
 
 				return ( ip2long( $ip ) & $netmask_dec ) === ( ip2long( $range ) & $netmask_dec );
 			} else {
+				$netmask = trim( (string) $netmask );
+				if ( '' === $netmask || ! ctype_digit( $netmask ) ) {
+					return false;
+				}
+				$netmask = (int) $netmask;
+				if ( $netmask < 1 || $netmask > 32 ) {
+					return false;
+				}
+
 				// $netmask is a CIDR size block fix the range argument.
 				$x          = explode( '.', $range );
 				$w3tc_count = count( $x );  // Assign count to a variable.

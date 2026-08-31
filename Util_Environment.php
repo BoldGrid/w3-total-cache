@@ -296,26 +296,33 @@ class Util_Environment {
 	/**
 	 * Returns true if current connection is secure.
 	 *
+	 * X-Forwarded-Proto (and Forwarded proto=) are honored only when
+	 * the TCP peer is a configured trusted proxy. Untrusted clients
+	 * cannot flip the scheme by sending those headers.
+	 *
 	 * @static
 	 *
+	 * @since 2.10.6
+	 *
+	 * @param array|null $server Optional server array; defaults to $_SERVER.
 	 * @return bool
 	 */
-	public static function is_https() {
-		$https                  = isset( $_SERVER['HTTPS'] ) ?
-			htmlspecialchars( stripslashes( $_SERVER['HTTPS'] ) ) : ''; // phpcs:ignore
-		$server_port            = isset( $_SERVER['SERVER_PORT'] ) ?
-			htmlspecialchars( stripslashes( $_SERVER['SERVER_PORT'] ) ) : ''; // phpcs:ignore
-		$http_x_forwarded_proto = isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ?
-			htmlspecialchars( stripslashes( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) : ''; // phpcs:ignore
+	public static function is_https( $server = null ) {
+		$server = self::server_vars( $server );
 
-		switch ( true ) {
-			case ( self::to_boolean( $https ) ):
-			case ( 433 === (int) $server_port ):
-			case ( 'https' === $http_x_forwarded_proto ):
-				return true;
+		$https       = isset( $server['HTTPS'] ) ? (string) $server['HTTPS'] : '';
+		$server_port = isset( $server['SERVER_PORT'] ) ? (string) $server['SERVER_PORT'] : '';
+
+		if ( self::to_boolean( $https ) || 443 === (int) $server_port ) {
+			return true;
 		}
 
-		return false;
+		if ( ! self::is_trusted_proxy( self::get_connecting_ip( $server ) ) ) {
+			return false;
+		}
+
+		$proto = self::forwarded_proto( $server );
+		return 'https' === $proto;
 	}
 
 	/**
@@ -1939,6 +1946,397 @@ class Util_Environment {
 		$w3tc_result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
 
 		return $w3tc_result;
+	}
+
+	/**
+	 * Validated client IP for the current request.
+	 *
+	 * Forwarded headers are ignored unless the TCP peer is inside
+	 * `common.trusted_proxies` (plus Cloudflare ranges when that
+	 * extension is active). Precedence when the peer is trusted:
+	 * CF-Connecting-IP, X-Real-IP, X-Forwarded-For (right-to-left,
+	 * skip trusted hops), Forwarded for= (same walk), then the peer.
+	 *
+	 * Malformed hops are skipped. Direct / untrusted requests return
+	 * the validated REMOTE_ADDR (or empty when it is not an IP).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array|null $server Optional server array; defaults to $_SERVER.
+	 * @return string Valid IP or empty string.
+	 */
+	public static function get_client_ip( $server = null ) {
+		$server = self::server_vars( $server );
+		$peer   = self::get_connecting_ip( $server );
+
+		if ( '' === $peer || ! self::is_trusted_proxy( $peer ) ) {
+			return $peer;
+		}
+
+		if ( self::ip_in_cidrs( $peer, self::cloudflare_proxy_cidrs() ) ) {
+			$cf = self::parse_ip_token( isset( $server['HTTP_CF_CONNECTING_IP'] ) ? $server['HTTP_CF_CONNECTING_IP'] : '' );
+			if ( '' !== $cf ) {
+				return $cf;
+			}
+		}
+
+		$real = self::parse_ip_token( isset( $server['HTTP_X_REAL_IP'] ) ? $server['HTTP_X_REAL_IP'] : '' );
+		if ( '' !== $real ) {
+			return $real;
+		}
+
+		$from_xff = self::client_ip_from_chain(
+			isset( $server['HTTP_X_FORWARDED_FOR'] ) ? (string) $server['HTTP_X_FORWARDED_FOR'] : ''
+		);
+		if ( '' !== $from_xff ) {
+			return $from_xff;
+		}
+
+		$from_fwd = self::client_ip_from_forwarded(
+			isset( $server['HTTP_FORWARDED'] ) ? (string) $server['HTTP_FORWARDED'] : ''
+		);
+		if ( '' !== $from_fwd ) {
+			return $from_fwd;
+		}
+
+		$remote = self::parse_ip_token( isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : '' );
+		if ( '' !== $remote ) {
+			return $remote;
+		}
+
+		return $peer;
+	}
+
+	/**
+	 * TCP peer IP (pre-rewrite REMOTE_ADDR when stashed).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array|null $server Optional server array.
+	 * @return string Valid IP or empty string.
+	 */
+	public static function get_connecting_ip( $server = null ) {
+		$server = self::server_vars( $server );
+		if ( ! empty( $server['W3TC_CONNECTING_ADDR'] ) ) {
+			$stashed = self::parse_ip_token( $server['W3TC_CONNECTING_ADDR'] );
+			if ( '' !== $stashed ) {
+				return $stashed;
+			}
+		}
+
+		return self::parse_ip_token( isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : '' );
+	}
+
+	/**
+	 * Whether $ip is inside a trusted-proxy CIDR (config + filter).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $ip Candidate IP.
+	 * @return bool
+	 */
+	public static function is_trusted_proxy( $ip ) {
+		$ip = self::parse_ip_token( $ip );
+		if ( '' === $ip ) {
+			return false;
+		}
+
+		return self::ip_in_cidrs( $ip, self::trusted_proxy_cidrs() );
+	}
+
+	/**
+	 * Normalize a header token to a canonical IP, or empty if invalid.
+	 *
+	 * Accepts IPv4, IPv6, dotted-quad:port, and bracketed IPv6.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $token Raw header hop.
+	 * @return string
+	 */
+	public static function parse_ip_token( $token ) {
+		if ( ! \is_scalar( $token ) ) {
+			return '';
+		}
+
+		$token = \trim( (string) $token );
+		if ( \function_exists( 'wp_unslash' ) ) {
+			$token = (string) \wp_unslash( $token );
+		} else {
+			$token = \stripslashes( $token );
+		}
+		$token = \trim( $token, " \t\"'" );
+
+		if ( '' === $token ) {
+			return '';
+		}
+
+		if ( '[' === $token[0] ) {
+			$end = \strpos( $token, ']' );
+			if ( false === $end ) {
+				return '';
+			}
+			$token = \substr( $token, 1, $end - 1 );
+		} elseif ( \substr_count( $token, ':' ) === 1 && false !== \strpos( $token, '.' ) ) {
+			$token = \substr( $token, 0, (int) \strrpos( $token, ':' ) );
+		}
+
+		if ( false === \filter_var( $token, FILTER_VALIDATE_IP ) ) {
+			return '';
+		}
+
+		return $token;
+	}
+
+	/**
+	 * True when $ip is inside any CIDR or exact address in $cidrs.
+	 * Malformed prefixes (empty, non-digit, or bits < 1) are ignored.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $ip    Candidate IP.
+	 * @param array  $cidrs CIDR or exact IPs.
+	 * @return bool
+	 */
+	public static function ip_in_cidrs( $ip, $cidrs ) {
+		$packed = \inet_pton( $ip );
+		if ( false === $packed ) {
+			return false;
+		}
+
+		foreach ( (array) $cidrs as $cidr ) {
+			if ( ! \is_scalar( $cidr ) ) {
+				continue;
+			}
+			$cidr = \trim( (string) $cidr );
+			if ( '' === $cidr ) {
+				continue;
+			}
+
+			$slash = \strpos( $cidr, '/' );
+			if ( false === $slash ) {
+				$net_packed = \inet_pton( $cidr );
+				if ( false !== $net_packed && $net_packed === $packed ) {
+					return true;
+				}
+				continue;
+			}
+
+			$net    = \substr( $cidr, 0, $slash );
+			$prefix = \trim( \substr( $cidr, $slash + 1 ) );
+			if ( '' === $prefix || ! \ctype_digit( $prefix ) ) {
+				continue;
+			}
+			$bits = (int) $prefix;
+			$netp = \inet_pton( $net );
+			if ( false === $netp || \strlen( $netp ) !== \strlen( $packed ) ) {
+				continue;
+			}
+
+			$max = \strlen( $packed ) * 8;
+			if ( $bits < 1 || $bits > $max ) {
+				continue;
+			}
+
+			$full_bytes = (int) \floor( $bits / 8 );
+			$rem        = $bits % 8;
+			if ( 0 !== \substr_compare( $packed, $netp, 0, $full_bytes ) ) {
+				continue;
+			}
+			if ( 0 === $rem ) {
+				return true;
+			}
+
+			$mask = 0xff << ( 8 - $rem ) & 0xff;
+			if ( ( \ord( $packed[ $full_bytes ] ) & $mask ) === ( \ord( $netp[ $full_bytes ] ) & $mask ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Stash the TCP peer before rewriting REMOTE_ADDR.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $peer Connecting IP already validated.
+	 * @return void
+	 */
+	public static function stash_connecting_ip( $peer ) {
+		$peer = self::parse_ip_token( $peer );
+		if ( '' === $peer ) {
+			return;
+		}
+		if ( empty( $_SERVER['W3TC_CONNECTING_ADDR'] ) ) {
+			$_SERVER['W3TC_CONNECTING_ADDR'] = $peer;
+		}
+	}
+
+	/**
+	 * @since 2.10.6
+	 *
+	 * @param array|null $server Server array.
+	 * @return array
+	 */
+	private static function server_vars( $server ) {
+		if ( \is_array( $server ) ) {
+			return $server;
+		}
+
+		return isset( $_SERVER ) && \is_array( $_SERVER ) ? $_SERVER : array();
+	}
+
+	/**
+	 * Configured trusted-proxy CIDRs, including Cloudflare ranges when
+	 * that extension is active. Filter: `w3tc_trusted_proxies`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array
+	 */
+	private static function trusted_proxy_cidrs() {
+		$cidrs = array();
+
+		if ( \class_exists( __NAMESPACE__ . '\\Dispatcher' ) ) {
+			try {
+				$config = Dispatcher::config();
+				$cidrs  = $config->get_array( 'common.trusted_proxies' );
+				if ( ! \is_array( $cidrs ) ) {
+					$cidrs = array();
+				}
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				$cidrs = array();
+			}
+		}
+
+		$cidrs = \array_merge( $cidrs, self::cloudflare_proxy_cidrs() );
+
+		if ( \function_exists( 'apply_filters' ) ) {
+			$cidrs = \apply_filters( 'w3tc_trusted_proxies', $cidrs );
+		}
+
+		return \is_array( $cidrs ) ? $cidrs : array();
+	}
+
+	/**
+	 * Cloudflare edge CIDRs from ConfigState (where the admin refresh
+	 * writes them), with config nested keys as fallback. Filter:
+	 * `w3tc_cloudflare_proxy_cidrs`.
+	 *
+	 * CF-Connecting-IP is ignored unless the TCP peer is in this list
+	 * (not merely common.trusted_proxies).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array
+	 */
+	private static function cloudflare_proxy_cidrs() {
+		$cidrs = array();
+
+		if ( \class_exists( __NAMESPACE__ . '\\Dispatcher' ) ) {
+			try {
+				$config = Dispatcher::config();
+				if ( \method_exists( $config, 'is_extension_active' )
+					&& $config->is_extension_active( 'cloudflare' ) ) {
+					$state = Dispatcher::config_state_master();
+					$cidrs = \array_merge(
+						(array) $state->get_array( 'extension.cloudflare.ips.ip4' ),
+						(array) $state->get_array( 'extension.cloudflare.ips.ip6' ),
+						(array) $config->get_array( array( 'cloudflare', 'ips.ip4' ) ),
+						(array) $config->get_array( array( 'cloudflare', 'ips.ip6' ) )
+					);
+				}
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				$cidrs = array();
+			}
+		}
+
+		if ( \function_exists( 'apply_filters' ) ) {
+			$cidrs = \apply_filters( 'w3tc_cloudflare_proxy_cidrs', $cidrs );
+		}
+
+		return \is_array( $cidrs ) ? $cidrs : array();
+	}
+
+	/**
+	 * First untrusted valid hop walking X-Forwarded-For right-to-left.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $header Raw header.
+	 * @return string
+	 */
+	private static function client_ip_from_chain( $header ) {
+		$hops = \array_reverse( \explode( ',', $header ) );
+		foreach ( $hops as $hop ) {
+			$ip = self::parse_ip_token( $hop );
+			if ( '' === $ip ) {
+				continue;
+			}
+			if ( ! self::is_trusted_proxy( $ip ) ) {
+				return $ip;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * First untrusted valid for= hop in RFC 7239 Forwarded.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $header Raw header.
+	 * @return string
+	 */
+	private static function client_ip_from_forwarded( $header ) {
+		if ( ! \preg_match_all( '/for=("[^"]{1,80}"|[^;,\s]{1,80})/i', $header, $matches ) ) {
+			return '';
+		}
+
+		$hops = \array_reverse( $matches[1] );
+		foreach ( $hops as $hop ) {
+			$ip = self::parse_ip_token( $hop );
+			if ( '' === $ip ) {
+				continue;
+			}
+			if ( ! self::is_trusted_proxy( $ip ) ) {
+				return $ip;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Scheme advertised by a trusted proxy. Last valid hop wins
+	 * (closest proxy), matching X-Forwarded-For right-to-left.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array $server Server array.
+	 * @return string `http`, `https`, or empty.
+	 */
+	private static function forwarded_proto( $server ) {
+		if ( ! empty( $server['HTTP_X_FORWARDED_PROTO'] ) ) {
+			$hops = \array_reverse( \explode( ',', (string) $server['HTTP_X_FORWARDED_PROTO'] ) );
+			foreach ( $hops as $hop ) {
+				$token = \strtolower( \trim( $hop ) );
+				$token = \preg_replace( '/[^a-z0-9]/', '', $token );
+				if ( 'https' === $token || 'http' === $token ) {
+					return $token;
+				}
+			}
+		}
+
+		if ( ! empty( $server['HTTP_FORWARDED'] )
+			&& \preg_match_all( '/(?:^|[,;\\s])proto=(https|http)\b/i', (string) $server['HTTP_FORWARDED'], $m ) ) {
+			return \strtolower( $m[1][ \count( $m[1] ) - 1 ] );
+		}
+
+		return '';
 	}
 
 	/**
