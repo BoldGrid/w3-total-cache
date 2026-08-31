@@ -2571,6 +2571,13 @@ $w3tc_keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
+	// Exact IPs or CIDRs of reverse proxies allowed to set X-Forwarded-* / Forwarded.
+	// Empty default is fail-closed (no admin UI). Filter: w3tc_trusted_proxies.
+	// Cloudflare edges also via w3tc_cloudflare_proxy_cidrs when that extension is active.
+	'common.trusted_proxies'                               => array(
+		'type'    => 'array',
+		'default' => array(),
+	),
 	'common.tweeted'                                       => array(
 		'type'    => 'boolean',
 		'default' => false,

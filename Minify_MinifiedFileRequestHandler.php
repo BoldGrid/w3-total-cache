@@ -785,9 +785,9 @@ class Minify_MinifiedFileRequestHandler {
 		$this->_error_occurred = true;
 
 		if ( ! $report_about_error ) {
-			$ip = 'unknown';
-			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-				$ip = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			$ip = Util_Environment::get_client_ip();
+			if ( '' === $ip ) {
+				$ip = 'unknown';
 			}
 			if ( ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
 				$w3tc_limited = __( 'Too many minify requests.', 'w3-total-cache' );
