@@ -207,6 +207,43 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
+	 * TLS verification for URL purge, from enabled Bunny surfaces.
+	 *
+	 * Pull-zone IDs on a disabled or non-Bunny surface are ignored.
+	 * When both CDN and FSD Bunny engines are enabled, both flags
+	 * must be on.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param Config $w3tc_config Saved plugin configuration.
+	 *
+	 * @return bool
+	 */
+	public static function url_purge_verify_tls_certificates( $w3tc_config ) {
+		$cdn_active = $w3tc_config->get_boolean( 'cdn.enabled' )
+			&& 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' )
+			&& $w3tc_config->get_integer( 'cdn.bunnycdn.pull_zone_id' ) > 0;
+		$fsd_active = $w3tc_config->get_boolean( 'cdnfsd.enabled' )
+			&& 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' )
+			&& $w3tc_config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) > 0;
+
+		$cdn_verify = (bool) $w3tc_config->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true );
+		$fsd_verify = (bool) $w3tc_config->get_boolean( 'cdnfsd.bunnycdn.verify_tls_certificates', true );
+
+		if ( $cdn_active && $fsd_active ) {
+			return $cdn_verify && $fsd_verify;
+		}
+		if ( $fsd_active ) {
+			return $fsd_verify;
+		}
+		if ( $cdn_active ) {
+			return $cdn_verify;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Filters the timeout time.
 	 *
 	 * @since 2.6.0

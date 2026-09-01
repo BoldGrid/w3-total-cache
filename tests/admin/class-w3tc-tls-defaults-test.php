@@ -61,6 +61,7 @@ class W3tc_Tls_Defaults_Test extends WP_UnitTestCase {
 		\remove_all_filters( 'https_ssl_verify' );
 		$this->http_args   = null;
 		$this->http_by_url = array();
+		$this->reset_bunny_tls_config();
 		parent::tear_down();
 	}
 
@@ -288,6 +289,87 @@ class W3tc_Tls_Defaults_Test extends WP_UnitTestCase {
 		$this->assertTrue( $this->http_by_url[ $cdn_url ]['sslverify'] );
 		$this->assertFalse( $this->http_by_url[ $fsd_url ]['sslverify'] );
 
+		$config->set( 'cdn.enabled', false );
+		$config->set( 'cdn.engine', '' );
+		$config->set( 'cdn.bunnycdn.pull_zone_id', 0 );
+		$config->set( 'cdn.bunnycdn.verify_tls_certificates', true );
+		$config->set( 'cdnfsd.enabled', false );
+		$config->set( 'cdnfsd.engine', '' );
+		$config->set( 'cdnfsd.bunnycdn.pull_zone_id', 0 );
+		$config->set( 'cdnfsd.bunnycdn.verify_tls_certificates', true );
+	}
+
+	/**
+	 * URL purge uses the FSD TLS flag when a leftover CDN zone id is stored.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_url_purge_honors_fsd_opt_out_with_stale_cdn_zone_id() {
+		$config = Dispatcher::config();
+		$config->set( 'cdn.enabled', false );
+		$config->set( 'cdn.engine', '' );
+		$config->set( 'cdn.bunnycdn.pull_zone_id', 11 );
+		$config->set( 'cdn.bunnycdn.verify_tls_certificates', true );
+		$config->set( 'cdnfsd.enabled', true );
+		$config->set( 'cdnfsd.engine', 'bunnycdn' );
+		$config->set( 'cdnfsd.bunnycdn.pull_zone_id', 22 );
+		$config->set( 'cdnfsd.bunnycdn.verify_tls_certificates', false );
+
+		$this->assertFalse( Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $config ) );
+
+		$this->mock_http_ok();
+		$api = new Cdn_BunnyCdn_Api(
+			array(
+				'account_api_key'         => 'test-key',
+				'verify_tls_certificates' => Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $config ),
+			)
+		);
+		$api->purge(
+			array(
+				'url'   => 'https://example.com/asset.js',
+				'async' => true,
+			)
+		);
+
+		$this->assertNotNull( $this->http_args );
+		$this->assertFalse( $this->http_args['sslverify'] );
+
+		$config->set( 'cdn.enabled', true );
+		$config->set( 'cdn.engine', 'ftp' );
+		$this->assertFalse( Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $config ) );
+	}
+
+	/**
+	 * URL purge requires both flags when CDN and FSD Bunny engines are enabled.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_url_purge_requires_both_flags_when_both_surfaces_enabled() {
+		$config = Dispatcher::config();
+		$config->set( 'cdn.enabled', true );
+		$config->set( 'cdn.engine', 'bunnycdn' );
+		$config->set( 'cdn.bunnycdn.pull_zone_id', 11 );
+		$config->set( 'cdn.bunnycdn.verify_tls_certificates', true );
+		$config->set( 'cdnfsd.enabled', true );
+		$config->set( 'cdnfsd.engine', 'bunnycdn' );
+		$config->set( 'cdnfsd.bunnycdn.pull_zone_id', 22 );
+		$config->set( 'cdnfsd.bunnycdn.verify_tls_certificates', false );
+
+		$this->assertFalse( Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $config ) );
+
+		$config->set( 'cdnfsd.bunnycdn.verify_tls_certificates', true );
+		$this->assertTrue( Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $config ) );
+	}
+
+	/**
+	 * Restore Bunny TLS-related config keys after each test.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return void
+	 */
+	private function reset_bunny_tls_config() {
+		$config = Dispatcher::config();
 		$config->set( 'cdn.enabled', false );
 		$config->set( 'cdn.engine', '' );
 		$config->set( 'cdn.bunnycdn.pull_zone_id', 0 );

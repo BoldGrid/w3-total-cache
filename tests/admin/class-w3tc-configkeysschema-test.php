@@ -39,6 +39,29 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * ConfigKeys.php must register each key once. PHP keeps the last
+	 * duplicate silently, so this asserts the source file, not the
+	 * loaded array.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_config_keys_source_has_no_duplicate_keys() {
+		$src = \file_get_contents( W3TC_DIR . '/ConfigKeys.php' );
+		$this->assertNotFalse( $src );
+
+		\preg_match_all( "/^\t'([^']+)'\\s+=> array\\(/m", $src, $matches );
+		$counts = \array_count_values( $matches[1] );
+		$dups   = \array_filter(
+			$counts,
+			static function ( $n ) {
+				return $n > 1;
+			}
+		);
+
+		$this->assertSame( array(), $dups, 'ConfigKeys.php must register each key once' );
+	}
+
+	/**
 	 * is_known() distinguishes documented keys from unknown ones, and
 	 * accepts compound keys unconditionally (extensions own their gate).
 	 *

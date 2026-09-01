@@ -12,6 +12,7 @@
 
 declare( strict_types = 1 );
 
+use W3TC\Dispatcher;
 use W3TC\Util_Environment;
 
 /**
@@ -29,6 +30,7 @@ class W3tc_Proxy_Headers_Test extends WP_UnitTestCase {
 	public function tearDown(): void {
 		remove_all_filters( 'w3tc_trusted_proxies' );
 		remove_all_filters( 'w3tc_cloudflare_proxy_cidrs' );
+		Dispatcher::config()->set( 'common.trusted_proxies', array() );
 		parent::tearDown();
 	}
 
@@ -463,5 +465,59 @@ class W3tc_Proxy_Headers_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse( Util_Environment::is_https( $server ) );
+	}
+
+	/**
+	 * common.trusted_proxies config array is the operator-facing path.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_config_array_trusted_proxies() {
+		$config = Dispatcher::config();
+		$config->set( 'common.trusted_proxies', array( '10.0.0.1/32' ) );
+
+		$server = array(
+			'REMOTE_ADDR'            => '10.0.0.1',
+			'HTTP_X_FORWARDED_FOR'   => '198.51.100.7',
+			'HTTP_X_FORWARDED_PROTO' => 'https',
+			'HTTPS'                  => '',
+			'SERVER_PORT'            => '80',
+		);
+
+		$this->assertSame( '198.51.100.7', Util_Environment::get_client_ip( $server ) );
+		$this->assertTrue( Util_Environment::is_https( $server ) );
+	}
+
+	/**
+	 * Empty config array stays closed when no filter is registered.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_empty_config_array_ignores_forwarded_headers() {
+		Dispatcher::config()->set( 'common.trusted_proxies', array() );
+
+		$server = array(
+			'REMOTE_ADDR'            => '10.0.0.1',
+			'HTTP_X_FORWARDED_FOR'   => '198.51.100.7',
+			'HTTP_X_FORWARDED_PROTO' => 'https',
+			'HTTPS'                  => '',
+			'SERVER_PORT'            => '80',
+		);
+
+		$this->assertSame( '10.0.0.1', Util_Environment::get_client_ip( $server ) );
+		$this->assertFalse( Util_Environment::is_https( $server ) );
+	}
+
+	/**
+	 * General Settings Reverse Proxy box exposes the CIDR textarea.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_general_settings_exposes_trusted_proxies_field() {
+		$general = \file_get_contents( W3TC_DIR . '/inc/options/general.php' );
+
+		$this->assertNotFalse( $general );
+		$this->assertStringContainsString( 'common.trusted_proxies', $general );
+		$this->assertStringContainsString( 'w3tc_trusted_proxies', $general );
 	}
 }
