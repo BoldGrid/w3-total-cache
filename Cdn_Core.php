@@ -526,12 +526,13 @@ class Cdn_Core {
 
 				case 'bunnycdn':
 					$engine_config = array(
-						'account_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
-						'storage_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
-						'stream_api_key'  => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
-						'pull_zone_id'    => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
-						'domain'          => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
-						'cdn_hostname'    => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'account_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
+						'storage_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
+						'stream_api_key'          => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
+						'pull_zone_id'            => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
+						'domain'                  => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'cdn_hostname'            => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'verify_tls_certificates' => $w3tc_c->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true ),
 					);
 					break;
 

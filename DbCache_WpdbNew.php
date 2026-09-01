@@ -132,6 +132,7 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 			round( $request_time_total, 4 )
 		) . implode( "\n", $strings ) . "\n";
 		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'dbcache' );
 		@file_put_contents( $filename, $w3tc_data, FILE_APPEND );

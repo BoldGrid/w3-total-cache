@@ -65,6 +65,18 @@ class Cdn_BunnyCdn_Api {
 	private $pull_zone_id;
 
 	/**
+	 * Whether TLS certificates are verified for Bunny CDN API requests.
+	 *
+	 * Defaults to true. Disabled only when the caller passes an explicit
+	 * compatibility opt-out; missing config never silently downgrades.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @var bool
+	 */
+	private $verify_tls_certificates = true;
+
+	/**
 	 * Default edge rules.
 	 *
 	 * @since 2.6.0
@@ -149,10 +161,86 @@ class Cdn_BunnyCdn_Api {
 	 * @param array $w3tc_config Configuration array containing API keys and pull zone ID.
 	 */
 	public function __construct( array $w3tc_config ) {
-		$this->w3tc_account_api_key = ! empty( $w3tc_config['account_api_key'] ) ? $w3tc_config['account_api_key'] : '';
-		$this->storage_api_key      = ! empty( $w3tc_config['storage_api_key'] ) ? $w3tc_config['storage_api_key'] : '';
-		$this->stream_api_key       = ! empty( $w3tc_config['stream_api_key'] ) ? $w3tc_config['stream_api_key'] : '';
-		$this->pull_zone_id         = ! empty( $w3tc_config['pull_zone_id'] ) ? $w3tc_config['pull_zone_id'] : '';
+		$this->w3tc_account_api_key    = ! empty( $w3tc_config['account_api_key'] ) ? $w3tc_config['account_api_key'] : '';
+		$this->storage_api_key         = ! empty( $w3tc_config['storage_api_key'] ) ? $w3tc_config['storage_api_key'] : '';
+		$this->stream_api_key          = ! empty( $w3tc_config['stream_api_key'] ) ? $w3tc_config['stream_api_key'] : '';
+		$this->pull_zone_id            = ! empty( $w3tc_config['pull_zone_id'] ) ? $w3tc_config['pull_zone_id'] : '';
+		$this->verify_tls_certificates = self::verify_tls_certificates_enabled( $w3tc_config );
+	}
+
+	/**
+	 * Whether TLS peer and certificate verification is enabled.
+	 *
+	 * Missing keys verify. Only an explicit false/0 opt-out disables.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array $w3tc_config Client construction array.
+	 *
+	 * @return bool
+	 */
+	public static function verify_tls_certificates_enabled( array $w3tc_config ) {
+		if ( ! array_key_exists( 'verify_tls_certificates', $w3tc_config ) ) {
+			return true;
+		}
+
+		return (bool) $w3tc_config['verify_tls_certificates'];
+	}
+
+	/**
+	 * Build a client config from a saved account key plus the matching
+	 * Bunny CDN TLS setting.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $account_api_key Account API key.
+	 * @param Config $w3tc_config     Saved plugin configuration.
+	 * @param string $verify_key      Config key for the Bunny CDN surface.
+	 *
+	 * @return array
+	 */
+	public static function client_config_from_saved( $account_api_key, $w3tc_config, $verify_key = 'cdn.bunnycdn.verify_tls_certificates' ) {
+		return array(
+			'account_api_key'         => $account_api_key,
+			'verify_tls_certificates' => (bool) $w3tc_config->get_boolean( $verify_key, true ),
+		);
+	}
+
+	/**
+	 * TLS verification for URL purge, from enabled Bunny surfaces.
+	 *
+	 * Pull-zone IDs on a disabled or non-Bunny surface are ignored.
+	 * When both CDN and FSD Bunny engines are enabled, both flags
+	 * must be on.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param Config $w3tc_config Saved plugin configuration.
+	 *
+	 * @return bool
+	 */
+	public static function url_purge_verify_tls_certificates( $w3tc_config ) {
+		$cdn_active = $w3tc_config->get_boolean( 'cdn.enabled' )
+			&& 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' )
+			&& $w3tc_config->get_integer( 'cdn.bunnycdn.pull_zone_id' ) > 0;
+		$fsd_active = $w3tc_config->get_boolean( 'cdnfsd.enabled' )
+			&& 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' )
+			&& $w3tc_config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) > 0;
+
+		$cdn_verify = (bool) $w3tc_config->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true );
+		$fsd_verify = (bool) $w3tc_config->get_boolean( 'cdnfsd.bunnycdn.verify_tls_certificates', true );
+
+		if ( $cdn_active && $fsd_active ) {
+			return $cdn_verify && $fsd_verify;
+		}
+		if ( $fsd_active ) {
+			return $fsd_verify;
+		}
+		if ( $cdn_active ) {
+			return $cdn_verify;
+		}
+
+		return true;
 	}
 
 	/**
@@ -169,16 +257,18 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Disables SSL verification for HTTPS requests.
+	 * Filters whether TLS certificates are verified for HTTPS requests.
+	 *
+	 * Honors the Bunny CDN compatibility opt-out. Defaults to verifying.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param bool $verify Whether to enable SSL verification (defaults to false).
+	 * @param bool $verify Whether to enable SSL verification.
 	 *
-	 * @return bool False to disable SSL verification.
+	 * @return bool
 	 */
-	public function https_ssl_verify( $verify = false ) {
-		return false;
+	public function https_ssl_verify( $verify = true ) {
+		return $this->verify_tls_certificates;
 	}
 
 	/**
@@ -472,7 +562,15 @@ class Cdn_BunnyCdn_Api {
 	 */
 	private function decode_response( $w3tc_result ) {
 		if ( \is_wp_error( $w3tc_result ) ) {
-			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						/* translators: %s: transport error from the HTTP API */
+						\__( 'Failed to reach API endpoint: %s', 'w3-total-cache' ),
+						$w3tc_result->get_error_message()
+					)
+				)
+			);
 		}
 
 		$response_body = @\json_decode( $w3tc_result['body'], true );
@@ -513,10 +611,11 @@ class Cdn_BunnyCdn_Api {
 		$w3tc_result = \wp_remote_get(
 			$w3tc_url . ( empty( $w3tc_data ) ? '' : '?' . \http_build_query( $w3tc_data ) ),
 			array(
-				'headers' => array(
+				'headers'   => array(
 					'AccessKey' => $api_key,
 					'Accept'    => 'application/json',
 				),
+				'sslverify' => $this->verify_tls_certificates,
 			)
 		);
 
@@ -560,7 +659,10 @@ class Cdn_BunnyCdn_Api {
 					),
 					'body'    => empty( $w3tc_data ) ? null : \wp_json_encode( $w3tc_data ),
 				),
-				$args
+				$args,
+				array(
+					'sslverify' => $this->verify_tls_certificates,
+				)
 			)
 		);
 

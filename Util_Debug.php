@@ -95,7 +95,9 @@ class Util_Debug {
 	 *  1. Sanitize `$context` so any string value that may carry
 	 *     user-supplied content (request URI, exception message,
 	 *     request body fragment) is run through {@see self::redact()}
-	 *     before any subscriber sees it. This keeps `_wpnonce`,
+	 *     before any subscriber sees it. Nested arrays are walked
+	 *     (depth-capped) so secret-keyed scalars and string blobs
+	 *     in child values are filtered too. This keeps `_wpnonce`,
 	 *     passwords, API keys, and wp-config secrets out of the
 	 *     audit stream regardless of who subscribes.
 	 *
@@ -113,6 +115,7 @@ class Util_Debug {
 	 *    `config_imported`).
 	 *  - `$context` is an associative array. `user_id` and `ip` are
 	 *    populated automatically if the caller doesn't include them.
+	 *    Nested string values and secret-keyed scalars are redacted.
 	 *
 	 * Designed to be cheap and safe to call from any handler path.
 	 *
@@ -133,15 +136,14 @@ class Util_Debug {
 			$context['user_id'] = \get_current_user_id();
 		}
 
-		if ( ! \array_key_exists( 'ip', $context ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$context['ip'] = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-		}
-
-		foreach ( $context as $k => $v ) {
-			if ( \is_string( $v ) ) {
-				$context[ $k ] = self::redact( $v );
+		if ( ! \array_key_exists( 'ip', $context ) ) {
+			$ip = Util_Environment::get_client_ip();
+			if ( '' !== $ip ) {
+				$context['ip'] = $ip;
 			}
 		}
+
+		$context = self::redact_nested( $context );
 
 		if ( \function_exists( 'do_action' ) ) {
 			\do_action( 'w3tc_audit_log', $event, $context );
@@ -177,7 +179,9 @@ class Util_Debug {
 	 * @return int|false       Bytes written, or false on failure.
 	 */
 	public static function log( $w3tc_module, $w3tc_message ) {
-		$w3tc_message = self::sanitize_log_message( $w3tc_message );
+		// Redact while structure (JSON, print_r, newlines) is intact,
+		// then flatten control characters for a single physical line.
+		$w3tc_message = self::sanitize_log_message( self::redact( (string) $w3tc_message ) );
 
 		$filename = self::log_filename( $w3tc_module );
 
@@ -294,7 +298,7 @@ class Util_Debug {
 		 * before WordPress fully loads) we fall back to `uniqid()`,
 		 * also alphanum.
 		 */
-		$ip      = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : ''; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.
+		$ip      = Util_Environment::get_client_ip();
 		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
 		$uri     = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Debug log context only.
 		$method  = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Debug log context only.
@@ -346,6 +350,7 @@ class Util_Debug {
 		if ( ! \is_string( $w3tc_value ) || '' === $w3tc_value ) {
 			return '';
 		}
+		$w3tc_value = self::redact( $w3tc_value );
 		$w3tc_value = \strtr(
 			$w3tc_value,
 			array(
@@ -429,10 +434,12 @@ class Util_Debug {
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
 	 */
 	public static function debug( $w3tc_label, $w3tc_data ) {
+		$content = self::redact( \print_r( $w3tc_data, true ) );
+
 		error_log(
 			"\n\n" . '===============Debug ' . $w3tc_label . ' Start===============' . "\n" .
 			'Microtime: ' . microtime( true ) . "\n" .
-			'Content  : ' . print_r( $w3tc_data, true ) . "\n" .
+			'Content  : ' . $content . "\n" .
 			'===============Debug ' . $w3tc_label . ' End===============' . "\n"
 		);
 	}
@@ -453,6 +460,12 @@ class Util_Debug {
 	/**
 	 * General-purpose log-content redactor.
 	 *
+	 * Filters secret-bearing values in the formats diagnostic output
+	 * actually uses (query strings, JSON, PHP print_r / array dumps,
+	 * HTTP auth headers, connection URIs, WordPress auth cookies,
+	 * wp-config define() blocks) while leaving neighboring structure
+	 * intact. All matching quantifiers are bounded.
+	 *
 	 * @since 2.10.0
 	 *
 	 * @param mixed $blob Anything stringifiable.
@@ -467,6 +480,10 @@ class Util_Debug {
 			}
 		}
 
+		$secret = self::redact_secret_name_pattern();
+		// Dotted `.key` (cdn.s3.key) is secret; bare JSON `"key"` is not.
+		$key    = '(?:(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}[._-])?' . $secret . '|(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.)key)';
+
 		$blob = (string) \preg_replace(
 			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])((?:\\\\.|(?!\\4).)*)(\\4)\\s*\\)\\s*;/i",
 			"define( '\$2', 'REDACTED' );",
@@ -474,18 +491,173 @@ class Util_Debug {
 		);
 
 		$blob = (string) \preg_replace(
-			'/(Authorization:\s*(?:Bearer|Basic)\s+)[^\s\r\n,;]+/i',
+			'/(Authorization:\s*(?:Bearer|Basic|Token|Digest)\s+)[^\s\r\n,;]+/i',
 			'$1REDACTED',
 			$blob
 		);
 
 		$blob = (string) \preg_replace(
-			'/(^|[?&;\s])((?:password|passwd|pass|secret|token|api[_-]?key|key)=)[^&\s]*/i',
+			'/((?:AccessKey|(?:X-)?Api-?Key|(?:X-)?Auth-Token|(?:X-)?Access-Token)\s*:\s*)[^\s\r\n,;]+/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/((?:wordpress_logged_in|wordpress_sec)_[A-Za-z0-9]*=)[^;\s]*/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		// wordpress_{COOKIEHASH}= — not wordpress_test_cookie.
+		$blob = (string) \preg_replace(
+			'/(wordpress_[a-f0-9]{32}=)[^;\s]*/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/((?:https?|ftps?|redis|rediss|mysql|mongodb|amqp|smtps?):\/\/[^:\/\s?#]{0,128}:)[^@\/\s]{1,256}@/i',
+			'$1REDACTED@',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(^|[?&;\s])((?:' . $key . '|key)\s*=\s*)[^&\s]*/i',
 			'$1$2REDACTED',
 			$blob
 		);
 
+		$blob = (string) \preg_replace(
+			'/(^|[?&;\s]|%3[Ff]|%26)((?:' . $key . '|key)%3[Dd])[^&%\s]{0,2048}/i',
+			'$1$2REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(["\'])(' . $key . ')\1(\s*:\s*)(["\'])(?:\\\\.|(?!\4)[^\\\\])*\4/i',
+			'$1$2$1$3$4REDACTED$4',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(["\'])(' . $key . ')\1(\s*:\s*)(["\'])[^"\'\r\n]*/i',
+			'$1$2$1$3$4REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(%22(?:' . $key . ')%22%3[Aa]%22)((?:[^%]|%(?!22))*)(%22)/i',
+			'$1REDACTED$3',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(%22(?:' . $key . ')%22%3[Aa]%22)(?:[^%]|%(?!22))*/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		// print_r: after a secret `[key] =>`, consume until the next
+		// `[key] =>` at the same or shallower indent (or EOF). Nested
+		// Array/Object blocks and multiline PEM bodies go with the key.
+		$blob = (string) \preg_replace(
+			'/((?:^|\n)([ \t]{0,32})\[(' . $key . ')\]\s*=>\s*)(?:[^\n]|\n(?!\2\[[^\]]{1,120}\]\s*=>)(?!(?!\2)[ \t]{0,32}\[[^\]]{1,120}\]\s*=>))*/i',
+			'$1REDACTED',
+			$blob
+		);
+
+		$blob = (string) \preg_replace(
+			'/(["\'])(' . $key . ')\1(\s*=>\s*)(["\'])(?:\\\\.|(?!\4)[^\\\\])*\4/i',
+			'$1$2$1$3$4REDACTED$4',
+			$blob
+		);
+
+		// var_export: nested `array (` / next-line values only — not
+		// same-line quoted scalars (those keep quotes via the pass above).
+		$blob = (string) \preg_replace(
+			'/((?:^|\n)([ \t]{0,32})(["\'])(' . $key . ')\3[ \t]*=>[ \t]*)(?:array\b|\n)(?:[^\n]|\n(?!\2["\'][A-Za-z0-9_.-]{1,80}["\'][ \t]*=>)(?!(?!\2)[ \t]{0,32}["\'][A-Za-z0-9_.-]{1,80}["\'][ \t]*=>))*/i',
+			'$1REDACTED',
+			$blob
+		);
+
 		return self::redact_wpnonce( $blob );
+	}
+
+	/**
+	 * Secret-bearing assignment names (query / JSON / print_r keys).
+	 *
+	 * Bare `key` is query-string only — JSON `"key"` is a common cache
+	 * identifier and must stay visible.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string Bounded alternation, no delimiters.
+	 */
+	private static function redact_secret_name_pattern() {
+		return '(?:password|passwd|pass|secret|token|api[_-]?key|access[_-]?key|private[_-]?key|license[_-]?key|auth(?:orization|_token)?|credential|pwd|privkey)';
+	}
+
+	/**
+	 * Recursively redact string values. Secret-bearing keys blank
+	 * the entire value (scalars and arrays) so nested `value`
+	 * children cannot keep a raw secret.
+	 *
+	 * Depth is capped so a pathological nested dump cannot recurse
+	 * without bound. Non-string / non-array values are left as-is.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $value Context value.
+	 * @param int   $depth Recursion depth.
+	 * @return mixed
+	 */
+	private static function redact_nested( $value, $depth = 0 ) {
+		if ( $depth > 8 ) {
+			return \is_string( $value ) ? self::redact( $value ) : $value;
+		}
+
+		if ( \is_string( $value ) ) {
+			return self::redact( $value );
+		}
+
+		if ( ! \is_array( $value ) ) {
+			return $value;
+		}
+
+		foreach ( $value as $k => $v ) {
+			if ( \is_string( $k ) && self::redact_key_is_secret( $k ) ) {
+				$value[ $k ] = 'REDACTED';
+				continue;
+			}
+			$value[ $k ] = self::redact_nested( $v, $depth + 1 );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Whether an array / JSON key name is secret-bearing.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $name Key.
+	 * @return bool
+	 */
+	private static function redact_key_is_secret( $name ) {
+		$pattern = '/^(?:(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}[._-])?' . self::redact_secret_name_pattern() . '|(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.)key)$/i';
+		if ( (bool) \preg_match( $pattern, $name ) ) {
+			return true;
+		}
+
+		static $schema_secrets = null;
+		if ( null === $schema_secrets ) {
+			$schema_secrets = array();
+			if ( \class_exists( __NAMESPACE__ . '\\Config' ) ) {
+				$schema_secrets = Config::secret_keys();
+			}
+		}
+
+		return isset( $schema_secrets[ $name ] );
 	}
 
 	/**

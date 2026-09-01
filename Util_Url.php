@@ -192,6 +192,50 @@ class Util_Url {
 	}
 
 	/**
+	 * Returns true when a URL may be fetched by plugin HTTP helpers:
+	 * this site's own host, or a host that resolves only to public
+	 * addresses (see {@see self::is_public_host()}).
+	 *
+	 * Protocol-relative URLs (`//example.com/...`) are normalized with
+	 * the current request scheme before evaluation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return bool
+	 */
+	public static function is_allowed_outbound_url( $w3tc_url ) {
+		$w3tc_url = self::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url ) {
+			return false;
+		}
+
+		return self::is_self_host_url( $w3tc_url ) || self::is_public_host( $w3tc_url );
+	}
+
+	/**
+	 * Expands a protocol-relative URL using the current request scheme.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return string Normalized URL, or empty string when input is invalid.
+	 */
+	public static function normalize_protocol_relative_url( $w3tc_url ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return '';
+		}
+
+		if ( 0 === \strpos( $w3tc_url, '//' ) ) {
+			return ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $w3tc_url;
+		}
+
+		return $w3tc_url;
+	}
+
+	/**
 	 * Returns true for an http or https URL; refuses every other
 	 * scheme. `gopher`, `file`, `php`, `data`, etc. each open
 	 * out-of-band fetch paths in their own right and have no place
@@ -552,6 +596,58 @@ class Util_Url {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * Constant-override allowlist: https scheme plus exact host or
+	 * leading-dot suffix match.
+	 *
+	 * Used for vendored API URLs declared behind `if ( ! defined() )`
+	 * guards. Does not resolve DNS — destination policy is host-shape
+	 * only, matching the license-API helper. Exact hosts cover apex
+	 * names (`w3-edge.com`); suffixes MUST include the leading dot
+	 * (`.w3-edge.com`) so `xw3-edge.com` cannot pass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url          Candidate URL.
+	 * @param array  $exact_hosts       Exact hostnames (lowercase-compared).
+	 * @param array  $allowed_suffixes  Leading-dot suffixes.
+	 *
+	 * @return bool
+	 */
+	public static function is_https_host_allowlisted( $w3tc_url, array $exact_hosts, array $allowed_suffixes ) {
+		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return false;
+		}
+
+		$scheme = \wp_parse_url( $w3tc_url, PHP_URL_SCHEME );
+		$host   = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( 'https' !== $scheme || ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$host_lc = \strtolower( $host );
+
+		foreach ( $exact_hosts as $exact ) {
+			if ( \is_string( $exact ) && '' !== $exact && \strtolower( $exact ) === $host_lc ) {
+				return true;
+			}
+		}
+
+		foreach ( $allowed_suffixes as $suffix ) {
+			if ( ! \is_string( $suffix ) || '' === $suffix || '.' !== $suffix[0] ) {
+				continue;
+			}
+			$suffix_lc = \strtolower( $suffix );
+			$slen      = \strlen( $suffix_lc );
+			$hlen      = \strlen( $host_lc );
+			if ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix_lc ) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 }
