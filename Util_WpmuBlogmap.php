@@ -309,13 +309,8 @@ class Util_WpmuBlogmap {
 	 * @return string Transient key, or '' when no IP available.
 	 */
 	private static function _ip_throttle_key() {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] )
-			? (string) \wp_unslash( $_SERVER['REMOTE_ADDR'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP used only as a transient key segment after wp_unslash.
-			: '';
+		$ip = Util_Environment::get_client_ip();
 		if ( '' === $ip ) {
-			return '';
-		}
-		if ( false === \filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 			return '';
 		}
 		$salt = \function_exists( 'wp_salt' ) ? \wp_salt( 'nonce' ) : '';

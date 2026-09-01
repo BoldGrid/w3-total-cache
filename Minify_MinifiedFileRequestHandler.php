@@ -785,9 +785,9 @@ class Minify_MinifiedFileRequestHandler {
 		$this->_error_occurred = true;
 
 		if ( ! $report_about_error ) {
-			$ip = 'unknown';
-			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-				$ip = \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			$ip = Util_Environment::get_client_ip();
+			if ( '' === $ip ) {
+				$ip = 'unknown';
 			}
 			if ( ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
 				$w3tc_limited = __( 'Too many minify requests.', 'w3-total-cache' );
@@ -857,6 +857,11 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return mixed The minified source or false if caching fails.
 	 */
 	public function _precache_file( $w3tc_url, $type ) {
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url || ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+			return false;
+		}
+
 		$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
 		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 
@@ -1160,18 +1165,24 @@ class Minify_MinifiedFileRequestHandler {
 					return false;
 				}
 			} else {
-				$headers = @get_headers( $source->minifyOptions['prependRelativePath'] );
-				if ( strpos( $headers[0], '200' ) !== false ) {
-					$segments  = explode( '.', $source->minifyOptions['prependRelativePath'] );
-					$w3tc_ext  = strtolower( array_pop( $segments ) );
-					$pc_source = $this->_precache_file( $source->minifyOptions['prependRelativePath'], $w3tc_ext );
-					$w3tc_data = @file_get_contents( $pc_source->filepath );
+				$remote_url = isset( $source->minifyOptions['prependRelativePath'] )
+					? $source->minifyOptions['prependRelativePath']
+					: '';
+				$remote_url = Util_Url::normalize_protocol_relative_url( $remote_url );
+				if ( '' === $remote_url || ! Util_Url::is_allowed_outbound_url( $remote_url ) ) {
+					return false;
+				}
 
-					if ( false !== $w3tc_data ) {
-						$values[] = md5( $w3tc_data );
-					} else {
-						return false;
-					}
+				$segments  = explode( '.', $remote_url );
+				$w3tc_ext  = strtolower( array_pop( $segments ) );
+				$pc_source = $this->_precache_file( $remote_url, $w3tc_ext );
+				if ( ! $pc_source || empty( $pc_source->filepath ) ) {
+					return false;
+				}
+
+				$w3tc_data = @file_get_contents( $pc_source->filepath );
+				if ( false !== $w3tc_data ) {
+					$values[] = md5( $w3tc_data );
 				} else {
 					return false;
 				}

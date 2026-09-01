@@ -3098,8 +3098,10 @@ class PgCache_ContentGrabber {
 		 * so the redacted form was never written and the log file kept
 		 * the raw `_wpnonce=` value. Keep the variable name on `$w3tc_data`
 		 * so the file_put_contents below writes the redacted form.
+		 * Full `redact()` covers nonces plus remaining assignment forms
+		 * (query secrets, JSON, cookies) that appear on REQUEST_URI.
 		 */
-		$w3tc_data = Util_Debug::redact_wpnonce( $w3tc_data );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
 

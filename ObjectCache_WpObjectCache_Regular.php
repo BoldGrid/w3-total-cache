@@ -1492,7 +1492,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 */
 	private function log_call( array $w3tc_data ): void {
 		$filepath = Util_Debug::log_filename( 'objectcache-calls' );
-		$content  = implode( "\t", $w3tc_data ) . PHP_EOL;
+		$content  = Util_Debug::redact( implode( "\t", $w3tc_data ) ) . PHP_EOL;
 
 		file_put_contents( $filepath, $content, FILE_APPEND );
 	}

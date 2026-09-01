@@ -35,7 +35,7 @@ if ( version_compare( phpversion( 'redis' ), '5.3.2', '>=' ) ) {
 		<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
 		<td>
 			<?php $this->checkbox( $w3tc_module . '.redis.verify_tls_certificates' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
-			<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS. Uncheck only as an explicit compatibility opt-out; verification is not disabled automatically.', 'w3-total-cache' ); ?></p>
 		</td>
 	</tr>
 	<?php

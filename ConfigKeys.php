@@ -1697,6 +1697,11 @@ $w3tc_keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
+	'cdn.bunnycdn.verify_tls_certificates'                 => array(
+		'type'    => 'boolean',
+		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
+	),
 	'cdn.reject.admins'                                    => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -1769,6 +1774,11 @@ $w3tc_keys = array(
 	'cdnfsd.transparentcdn.company_id'                     => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+	),
+	'cdnfsd.bunnycdn.verify_tls_certificates'              => array(
+		'type'    => 'boolean',
+		'default' => true,
 		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'varnish.configuration_overloaded'                     => array(
@@ -2560,6 +2570,13 @@ $w3tc_keys = array(
 	'common.track_usage'                                   => array(
 		'type'    => 'boolean',
 		'default' => false,
+	),
+	// Exact IPs or CIDRs of reverse proxies allowed to set X-Forwarded-* / Forwarded.
+	// Empty default ignores those headers. General Settings → Reverse Proxy.
+	// Filter: w3tc_trusted_proxies. Cloudflare edges also via w3tc_cloudflare_proxy_cidrs.
+	'common.trusted_proxies'                               => array(
+		'type'    => 'array',
+		'default' => array(),
 	),
 	'common.tweeted'                                       => array(
 		'type'    => 'boolean',

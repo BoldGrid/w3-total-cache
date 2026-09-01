@@ -659,6 +659,15 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					</p>
 				</td>
 			</tr>
+			<?php
+			Util_Ui::config_item(
+				array(
+					'key'         => 'common.trusted_proxies',
+					'control'     => 'textarea',
+					'description' => esc_html__( 'IP addresses or CIDR ranges of reverse proxies and load balancers in front of this site (one per line). Forwarded scheme and client-IP headers are used only for these addresses. Leave empty when PHP receives client connections directly. Developers may also supply this list via the w3tc_trusted_proxies filter.', 'w3-total-cache' ),
+				)
+			);
+			?>
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>

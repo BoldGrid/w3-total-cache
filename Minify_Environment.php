@@ -201,10 +201,10 @@ class Minify_Environment {
 			$path_java = $w3tc_config->get_string( 'minify.yuijs.path.java' );
 			$path_jar  = $w3tc_config->get_string( 'minify.yuijs.path.jar' );
 
-			if ( ! file_exists( $path_java ) ) {
-				$minifiers_errors[] = sprintf( 'YUI Compressor (JS): JAVA executable path was not found. The default minifier JSMin will be used instead.' );
-			} elseif ( ! file_exists( $path_jar ) ) {
-				$minifiers_errors[] = sprintf( 'YUI Compressor (JS): JAR file path was not found. The default minifier JSMin will be used instead.' );
+			if ( false === Util_Java::validate( $path_java ) ) {
+				$minifiers_errors[] = sprintf( 'YUI Compressor (JS): JAVA executable path was not found or is not allowed. The default minifier JSMin will be used instead.' );
+			} elseif ( false === Util_Java::validate_jar( $path_jar ) ) {
+				$minifiers_errors[] = sprintf( 'YUI Compressor (JS): JAR file path was not found or is not allowed. The default minifier JSMin will be used instead.' );
 			}
 		}
 
@@ -212,10 +212,10 @@ class Minify_Environment {
 			$path_java = $w3tc_config->get_string( 'minify.yuicss.path.java' );
 			$path_jar  = $w3tc_config->get_string( 'minify.yuicss.path.jar' );
 
-			if ( ! file_exists( $path_java ) ) {
-				$minifiers_errors[] = sprintf( 'YUI Compressor (CSS): JAVA executable path was not found. The default CSS minifier will be used instead.' );
-			} elseif ( ! file_exists( $path_jar ) ) {
-				$minifiers_errors[] = sprintf( 'YUI Compressor (CSS): JAR file path was not found. The default CSS minifier will be used instead.' );
+			if ( false === Util_Java::validate( $path_java ) ) {
+				$minifiers_errors[] = sprintf( 'YUI Compressor (CSS): JAVA executable path was not found or is not allowed. The default CSS minifier will be used instead.' );
+			} elseif ( false === Util_Java::validate_jar( $path_jar ) ) {
+				$minifiers_errors[] = sprintf( 'YUI Compressor (CSS): JAR file path was not found or is not allowed. The default CSS minifier will be used instead.' );
 			}
 		}
 
@@ -223,10 +223,10 @@ class Minify_Environment {
 			$path_java = $w3tc_config->get_string( 'minify.ccjs.path.java' );
 			$path_jar  = $w3tc_config->get_string( 'minify.ccjs.path.jar' );
 
-			if ( ! file_exists( $path_java ) ) {
-				$minifiers_errors[] = sprintf( 'Closure Compiler: JAVA executable path was not found. The default minifier JSMin will be used instead.' );
-			} elseif ( ! file_exists( $path_jar ) ) {
-				$minifiers_errors[] = sprintf( 'Closure Compiler: JAR file path was not found. The default minifier JSMin will be used instead.' );
+			if ( false === Util_Java::validate( $path_java ) ) {
+				$minifiers_errors[] = sprintf( 'Closure Compiler: JAVA executable path was not found or is not allowed. The default minifier JSMin will be used instead.' );
+			} elseif ( false === Util_Java::validate_jar( $path_jar ) ) {
+				$minifiers_errors[] = sprintf( 'Closure Compiler: JAR file path was not found or is not allowed. The default minifier JSMin will be used instead.' );
 			}
 		}
 

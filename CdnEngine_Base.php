@@ -639,6 +639,7 @@ class CdnEngine_Base {
 	public function _log( $local_path, $remote_path, $error ) {
 		$w3tc_data = sprintf( "[%s] [%s => %s] %s\n", gmdate( 'r' ), $local_path, $remote_path, $error );
 		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'cdn' );
 

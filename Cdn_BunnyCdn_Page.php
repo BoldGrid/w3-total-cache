@@ -156,7 +156,12 @@ class Cdn_BunnyCdn_Page {
 		$w3tc_config          = Dispatcher::config();
 		$w3tc_account_api_key = $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' );
 
-		$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
+		$api = new Cdn_BunnyCdn_Api(
+			array(
+				'account_api_key'         => $w3tc_account_api_key,
+				'verify_tls_certificates' => Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $w3tc_config ),
+			)
+		);
 
 		// Try to delete pull zone.
 		try {
