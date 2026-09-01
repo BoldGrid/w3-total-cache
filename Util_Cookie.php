@@ -41,13 +41,38 @@ namespace W3TC;
  *    defined; see `role_cookie_name()` for the full rationale. Rotating
  *    `AUTH_KEY`/`AUTH_SALT` invalidates these cookies cleanly.
  *
- *    Migration: `role_cookie_name_legacy()` returns the old MD5 form
- *    so readers can accept both names for one release window. Drop
- *    the legacy reader in the next release.
+ *    Migration: HMAC names are written and accepted. Legacy MD5
+ *    names are no longer accepted on the cache-auth read path
+ *    unless `W3TC_COOKIE_LEGACY_NAMES_ACCEPTED` is defined true in
+ *    wp-config.php. Rewrite-rule emitters always list both names so
+ *    a later constant toggle reaches PHP on disk-enhanced installs
+ *    without regenerating rules. The PHP writer still refuses to
+ *    store a response when a leftover MD5 name is present, so the
+ *    rewrite superset cannot land a rejected-role page in the
+ *    shared store. Logout still clears leftover legacy cookies.
  *
  * @since 2.10.0
  */
 class Util_Cookie {
+
+	/**
+	 * Whether a legacy role cookie has already been audit-logged
+	 * this request.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @var bool
+	 */
+	private static $legacy_honor_logged = false;
+
+	/**
+	 * Role slug waiting to be audit-logged after plugins load.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @var string|null
+	 */
+	private static $legacy_honor_pending_role = null;
 
 	/**
 	 * Sets a w3tc_* cookie with the standard security flags.
@@ -181,13 +206,11 @@ class Util_Cookie {
 	/**
 	 * Returns the legacy MD5 cookie-name suffix for a given WP role.
 	 *
-	 * Used ONLY by the read path during the one-release back-compat
-	 * window so an upgrade doesn't immediately log every cached user
-	 * back in. Writers must always use `role_cookie_name()` so that
-	 * new cookies carry the HMAC name; readers walk both forms.
-	 *
-	 * Drop this method (and the dual-read in PgCache_ContentGrabber)
-	 * in the release AFTER the one that lands this PR.
+	 * Writers always use `role_cookie_name()`. Cache-auth readers
+	 * honor this only when `legacy_role_names_accepted()` is true.
+	 * Rewrite-rule emitters always list it so toggling the
+	 * wp-config constant does not require regenerating rules.
+	 * Logout still uses it to clear leftover pre-upgrade cookies.
 	 *
 	 * @since 2.10.0
 	 *
@@ -199,5 +222,252 @@ class Util_Cookie {
 		$nonce_key = defined( 'NONCE_KEY' ) ? (string) NONCE_KEY : '';
 
 		return \md5( $nonce_key . (string) $role );
+	}
+
+	/**
+	 * Whether cache-auth readers may honor the pre-HMAC MD5
+	 * role-cookie name.
+	 *
+	 * Default is false (fail closed). The only production switch is
+	 * `W3TC_COOKIE_LEGACY_NAMES_ACCEPTED` defined true in
+	 * wp-config.php. A plugin filter cannot reach the
+	 * `advanced-cache.php` path and is therefore not consulted.
+	 * Rewrite reject lists always include both names; this method
+	 * is the live PHP read decision. The PHP writer uses
+	 * `request_has_legacy_role_cookie()` and refuses leftover MD5
+	 * names even when this returns false.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return bool
+	 */
+	public static function legacy_role_names_accepted() {
+		return defined( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED' ) && true === W3TC_COOKIE_LEGACY_NAMES_ACCEPTED;
+	}
+
+	/**
+	 * Cookie names written into page-cache rewrite reject lists
+	 * for a given role.
+	 *
+	 * Always includes the HMAC name and the leftover MD5 name.
+	 * Disk-enhanced Apache/Nginx serve static files before PHP
+	 * runs, so the leftover name must stay in the generated rules
+	 * or a later `W3TC_COOKIE_LEGACY_NAMES_ACCEPTED` toggle cannot
+	 * take effect until rules are rewritten. The PHP reader still
+	 * consults `legacy_role_names_accepted()` on every request.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $role WordPress role slug.
+	 *
+	 * @return string[]
+	 */
+	public static function role_cookie_reject_names( $role ) {
+		return array(
+			'w3tc_logged_' . self::role_cookie_name( $role ),
+			'w3tc_logged_' . self::role_cookie_name_legacy( $role ),
+		);
+	}
+
+	/**
+	 * Whether a request cookie name matches a rejected role.
+	 *
+	 * HMAC names always match. Legacy MD5 names match only when
+	 * `legacy_role_names_accepted()` is true; a match is audit-logged
+	 * once per request so a site that turns the grace window on is
+	 * visible in `w3tc_audit_log`.
+	 *
+	 * Malformed or unrecognized `w3tc_logged_*` names never match.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $cookie_name Raw cookie name from the request.
+	 * @param string $role        WordPress role slug.
+	 *
+	 * @return bool
+	 */
+	public static function cookie_matches_rejected_role( $cookie_name, $role ) {
+		if ( ! is_string( $cookie_name ) || 0 !== \strpos( $cookie_name, 'w3tc_logged_' ) ) {
+			return false;
+		}
+
+		$role = (string) $role;
+
+		if ( false !== \strstr( $cookie_name, self::role_cookie_name( $role ) ) ) {
+			return true;
+		}
+
+		if ( ! self::cookie_matches_legacy_role_name( $cookie_name, $role ) ) {
+			return false;
+		}
+
+		if ( ! self::legacy_role_names_accepted() ) {
+			return false;
+		}
+
+		self::log_legacy_role_cookie_honored( $role );
+		return true;
+	}
+
+	/**
+	 * Whether a request cookie name is the leftover MD5 name for a role.
+	 *
+	 * Independent of `legacy_role_names_accepted()`. Used to refuse
+	 * page-cache writes so a rewrite-listed leftover cookie cannot
+	 * store a rejected-role response.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $cookie_name Raw cookie name from the request.
+	 * @param string $role        WordPress role slug.
+	 *
+	 * @return bool
+	 */
+	public static function cookie_matches_legacy_role_name( $cookie_name, $role ) {
+		if ( ! is_string( $cookie_name ) || 0 !== \strpos( $cookie_name, 'w3tc_logged_' ) ) {
+			return false;
+		}
+
+		return false !== \strstr( $cookie_name, self::role_cookie_name_legacy( (string) $role ) );
+	}
+
+	/**
+	 * Whether the current request carries a rejected-role cache-bypass cookie.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string[] $roles Role slugs configured for cache rejection.
+	 *
+	 * @return bool True when page cache must be skipped.
+	 */
+	public static function request_has_rejected_role_cookie( $roles ) {
+		if ( ! is_array( $roles ) || empty( $roles ) ) {
+			return false;
+		}
+
+		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) ) {
+			return false;
+		}
+
+		foreach ( \array_keys( $_COOKIE ) as $cookie_name ) {
+			foreach ( $roles as $role ) {
+				if ( self::cookie_matches_rejected_role( (string) $cookie_name, (string) $role ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether the current request carries a leftover MD5 role cookie.
+	 *
+	 * True regardless of `W3TC_COOKIE_LEGACY_NAMES_ACCEPTED`. Page
+	 * cache must not *write* in that case; *read* still follows
+	 * `request_has_rejected_role_cookie()`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string[] $roles Role slugs configured for cache rejection.
+	 *
+	 * @return bool
+	 */
+	public static function request_has_legacy_role_cookie( $roles ) {
+		if ( ! is_array( $roles ) || empty( $roles ) ) {
+			return false;
+		}
+
+		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) ) {
+			return false;
+		}
+
+		foreach ( \array_keys( $_COOKIE ) as $cookie_name ) {
+			foreach ( $roles as $role ) {
+				if ( self::cookie_matches_legacy_role_name( (string) $cookie_name, (string) $role ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Audit-log that a legacy MD5 role cookie was honored.
+	 *
+	 * Once per request. Does not record cookie names. When this
+	 * runs from `advanced-cache.php`, `w3tc_audit_log` subscribers
+	 * have not registered yet, so the event is deferred until
+	 * `plugins_loaded`. Honoring the cookie skips page cache, so
+	 * WordPress continues and the hook fires.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $role WordPress role slug.
+	 *
+	 * @return void
+	 */
+	private static function log_legacy_role_cookie_honored( $role ) {
+		if ( self::$legacy_honor_logged ) {
+			return;
+		}
+
+		self::$legacy_honor_logged       = true;
+		self::$legacy_honor_pending_role = (string) $role;
+
+		if ( \function_exists( 'did_action' ) && \function_exists( 'add_action' ) && ! \did_action( 'plugins_loaded' ) ) {
+			\add_action(
+				'plugins_loaded',
+				array( __CLASS__, 'flush_legacy_honor_log' ),
+				\PHP_INT_MAX
+			);
+			return;
+		}
+
+		self::flush_legacy_honor_log();
+	}
+
+	/**
+	 * Dispatch a deferred legacy-honor audit event.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @internal Invoked from `plugins_loaded`. Unit tests may call directly.
+	 *
+	 * @return void
+	 */
+	public static function flush_legacy_honor_log() {
+		if ( null === self::$legacy_honor_pending_role ) {
+			return;
+		}
+
+		$role                            = self::$legacy_honor_pending_role;
+		self::$legacy_honor_pending_role = null;
+
+		Util_Debug::audit_log(
+			'cookie.legacy_role_name',
+			array(
+				'role' => $role,
+			)
+		);
+	}
+
+	/**
+	 * Resets the once-per-request legacy honor log.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @internal Unit tests only.
+	 *
+	 * @return void
+	 */
+	public static function reset_legacy_honor_log() {
+		self::$legacy_honor_logged       = false;
+		self::$legacy_honor_pending_role = null;
+
+		if ( \function_exists( 'remove_action' ) ) {
+			\remove_action( 'plugins_loaded', array( __CLASS__, 'flush_legacy_honor_log' ), \PHP_INT_MAX );
+		}
 	}
 }

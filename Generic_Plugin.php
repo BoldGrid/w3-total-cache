@@ -1186,9 +1186,10 @@ class Generic_Plugin {
 			foreach ( $rejected_roles as $role ) {
 				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role ) );
 				/**
-				 * One-release back-compat: also clear the legacy MD5-named
-				 * cookie so an upgrade doesn't leave a stale bypass-cookie
-				 * behind. Drop this `clear()` call in the next release.
+				 * Always clear leftover MD5-named cookies on logout even
+				 * though cache-auth readers no longer honor them by
+				 * default. Stale names would otherwise linger in the
+				 * browser until expiry.
 				 */
 				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role ) );
 			}

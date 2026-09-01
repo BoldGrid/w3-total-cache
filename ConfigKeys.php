@@ -62,7 +62,10 @@ $w3tc_keys = array(
 	'dbcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file',
-		'flags'   => array( 'no_import' => true ), // Switches code path into a different engine; set only via dedicated page.
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		), // Switches code path into a different engine; set only via dedicated page.
 	),
 	'dbcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -287,7 +290,10 @@ $w3tc_keys = array(
 	'objectcache.engine'                                   => array(
 		'type'    => 'string',
 		'default' => 'file',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'objectcache.file.locking'                             => array(
 		'type'    => 'boolean',
@@ -401,7 +407,10 @@ $w3tc_keys = array(
 	'pgcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file_generic',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'pgcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -936,7 +945,10 @@ $w3tc_keys = array(
 	'minify.css.engine'                                    => array(
 		'type'    => 'string',
 		'default' => 'css',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.css.method'                                    => array(
 		'type'    => 'string',
@@ -977,7 +989,10 @@ $w3tc_keys = array(
 	'minify.js.engine'                                     => array(
 		'type'    => 'string',
 		'default' => 'js',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.js.method'                                     => array(
 		'type'    => 'string',
@@ -1022,12 +1037,18 @@ $w3tc_keys = array(
 	'minify.yuijs.path.java'                               => array(
 		'type'    => 'string',
 		'default' => 'java',
-		'flags'   => array( 'no_import' => true ), // OS command-injection target; set only via dedicated page.
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		), // OS command-injection target; set only via dedicated page.
 	),
 	'minify.yuijs.path.jar'                                => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuijs.options.line-break'                      => array(
 		'type'    => 'integer',
@@ -1048,12 +1069,18 @@ $w3tc_keys = array(
 	'minify.yuicss.path.java'                              => array(
 		'type'    => 'string',
 		'default' => 'java',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuicss.path.jar'                               => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuicss.options.line-break'                     => array(
 		'type'    => 'integer',
@@ -1062,12 +1089,18 @@ $w3tc_keys = array(
 	'minify.ccjs.path.java'                                => array(
 		'type'    => 'string',
 		'default' => 'java',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.ccjs.path.jar'                                 => array(
 		'type'    => 'string',
 		'default' => 'compiler.jar',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.ccjs.options.compilation_level'                => array(
 		'type'    => 'string',
@@ -1204,7 +1237,10 @@ $w3tc_keys = array(
 	'cdn.engine'                                           => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'no_import' => true ),
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 		/**
 		 * The cdn.engine key is interpolated into the X-W3TC-CDN
 		 * Response header by Cdn_Plugin::send_headers. Without an
@@ -1278,6 +1314,7 @@ $w3tc_keys = array(
 	'cdn.import.files'                                     => array(
 		'type'    => 'string',
 		'default' => false,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.queue.interval'                                   => array(
 		'type'    => 'integer',
@@ -1314,258 +1351,343 @@ $w3tc_keys = array(
 	'cdn.ftp.host'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.type'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.user'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pass'                                         => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ), // FTP password — encrypted at rest.
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // FTP password — encrypted at rest.
 	),
 	'cdn.ftp.path'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pasv'                                         => array(
 		'type'    => 'boolean',
 		'default' => false,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.domain'                                       => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.ssl'                                          => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.default_keys'                                 => array(
 		'type'    => 'boolean',
 		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pubkey'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.privkey'                                      => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ), // SFTP private key — encrypted at rest.
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // SFTP private key — encrypted at rest.
 	),
 	'cdn.google_drive.client_id'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.refresh_token'                       => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.google_drive.folder.id'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.folder.title'                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.folder.url'                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ), // S3 access key ID — encrypted at rest.
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // S3 access key ID — encrypted at rest.
 	),
 	'cdn.s3.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ), // S3 secret key.
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // S3 secret key.
 	),
 	'cdn.s3.bucket'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.bucket.location'                               => array(
 		'type'    => 'string',
 		'default' => 'us-east-1',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.cname'                                         => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.ssl'                                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.public_objects'                                => array(
 		'type'    => 'string',
 		'default' => 'enabled',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3_compatible.api_host'                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf.bucket'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.bucket.location'                               => array(
 		'type'    => 'string',
 		'default' => 'us-east-1',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.id'                                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.cname'                                         => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.ssl'                                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.public_objects'                                => array(
 		'type'    => 'string',
 		'default' => 'enabled',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.key'                                          => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf2.secret'                                       => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf2.id'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.cname'                                        => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.ssl'                                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.user'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.key'                                         => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.rscf.location'                                    => array(
 		'type'    => 'string',
 		'default' => 'us',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.container'                                   => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.cname'                                       => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.ssl'                                         => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.user_name'                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.api_key'                            => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.rackspace_cdn.region'                             => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.access_url'                 => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.id'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.name'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.protocol'                   => array(
 		'type'    => 'string',
 		'default' => 'http',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.domains'                            => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.user'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.key'                                        => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'secret' => true ),
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.azure.container'                                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.cname'                                      => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.ssl'                                        => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.user'                                     => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.clientid'                                 => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.container'                                => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.cname'                                    => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.ssl'                                      => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.mirror.domain'                                    => array(
 		'type'    => 'array',
@@ -1627,26 +1749,32 @@ $w3tc_keys = array(
 	'cdnfsd.cloudfront.access_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.cloudfront.secret_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.cloudfront.distribution_id'                    => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.transparentcdn.client_id'                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.transparentcdn.client_secret'                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.transparentcdn.company_id'                     => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
 	),
 	'cdnfsd.bunnycdn.verify_tls_certificates'              => array(
 		'type'    => 'boolean',
@@ -1690,6 +1818,16 @@ $w3tc_keys = array(
 		'default' => array(
 			'robots\.txt',
 			'[a-z0-9_\-]*sitemap[a-z0-9_\.\-]*\.(xml|xsl|html)(\.gz)?',
+		),
+		/**
+		 * Rule-generation input: each entry is implode()'d into Apache
+		 * RewriteCond / Nginx location regexes. Flag so Config::set()
+		 * (and therefore Config::import()) strips CR/LF/NUL/<>/" before
+		 * the value can reach renderers or master.php.
+		 */
+		'flags'   => array(
+			'dedicated_page'   => 'w3tc_browsercache',
+			'directive_string' => true,
 		),
 	),
 	'browsercache.cssjs.last_modified'                     => array(
@@ -2546,6 +2684,13 @@ $w3tc_keys = array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		/**
+		 * License-path only: no dedicated_page, so read_request() and
+		 * Config::import refuse writes. Licensing_Plugin_Admin updates
+		 * via Config::set() after EDD status checks.
+		 */
+		'flags'       => array( 'no_import' => true ),
+		'enum'        => array( '', 'pro', 'pro_dev' ),
 	),
 	'jquerymigrate.disabled'                               => array(
 		'type'    => 'boolean',

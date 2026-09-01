@@ -261,7 +261,7 @@ class Extension_NewRelic_Plugin_Admin {
 	}
 
 	/**
-	 * Marks the New Relic API key as a secret for masked-input / clear handling.
+	 * Marks New Relic compound keys with secret / page ownership metadata.
 	 *
 	 * @since 2.9.2
 	 *
@@ -271,13 +271,36 @@ class Extension_NewRelic_Plugin_Admin {
 	 * @return mixed
 	 */
 	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
-		if ( is_array( $w3tc_key ) && 'newrelic' === $w3tc_key[0] && 'api_key' === $w3tc_key[1] ) {
-			return array(
-				'type'  => 'string',
-				'flags' => array( 'secret' => true ),
-			);
+		if ( ! \is_array( $w3tc_key ) || empty( $w3tc_key[0] ) || 'newrelic' !== $w3tc_key[0] ) {
+			return $w3tc_descriptor;
 		}
 
-		return $w3tc_descriptor;
+		$leaf = isset( $w3tc_key[1] ) && \is_scalar( $w3tc_key[1] ) ? (string) $w3tc_key[1] : '';
+		if ( '' === $leaf ) {
+			return $w3tc_descriptor;
+		}
+
+		$flags = array(
+			'dedicated_page' => 'w3tc_monitoring',
+		);
+		if ( 'api_key' === $leaf ) {
+			$flags['secret'] = true;
+		}
+
+		$type = 'string';
+		if ( \is_array( $w3tc_descriptor ) && isset( $w3tc_descriptor['type'] ) ) {
+			$type = $w3tc_descriptor['type'];
+		} elseif ( 'accept.roles' === $leaf ) {
+			$type = 'array';
+		} elseif ( \in_array( $leaf, array( 'accept.logged_roles', 'use_php_function', 'enable_xmit', 'include_rum' ), true ) ) {
+			$type = 'boolean';
+		} elseif ( 'cache_time' === $leaf || 'account_id' === $leaf ) {
+			$type = 'integer';
+		}
+
+		return array(
+			'type'  => $type,
+			'flags' => $flags,
+		);
 	}
 }

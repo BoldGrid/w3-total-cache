@@ -71,7 +71,8 @@ class W3tc_Util_Cookie_Test extends WP_UnitTestCase {
 
 	/**
 	 * The legacy MD5 form is also 32 lowercase hex chars and
-	 * deterministic — used by the back-compat reader.
+	 * deterministic — kept for logout cleanup and the wp-config
+	 * constant grace reader.
 	 *
 	 * @since 2.10.0
 	 */

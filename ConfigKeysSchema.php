@@ -21,20 +21,25 @@ namespace W3TC;
  * validate the key against this schema before reaching `Config::set()`.
  *
  * This class exposes:
- *  - `get_keys()`      — the full schema array (loaded once and cached).
- *  - `is_known()`      — whether a key is in the schema.
- *  - `descriptor()`    — the per-key descriptor (or null).
- *  - `can_import()`    — whether a key may be written by bulk-import flows
- *                        (Config::import). High-impact keys (java executable
- *                        paths, the active-extensions array, cache-engine
- *                        switches) are marked `no_import => true` and are
- *                        rejected here even though they are otherwise
- *                        legitimate keys.
- *  - `coerce()`        — type-coerce a raw value to its declared type
- *                        (boolean/integer/string/array). Anything outside
- *                        the declared type is reduced to the type's safe
- *                        default; this stops objects and PHP-source
- *                        strings from landing in toggles and counts.
+ *  - `get_keys()`         — the full schema array (loaded once and cached).
+ *  - `is_known()`         — whether a key is in the schema.
+ *  - `descriptor()`       — the per-key descriptor (or null).
+ *  - `can_import()`       — whether a key may be written by bulk-import flows
+ *                           (Config::import). High-impact keys (java executable
+ *                           paths, the active-extensions array, cache-engine
+ *                           switches) are marked `no_import => true` and are
+ *                           rejected here even though they are otherwise
+ *                           legitimate keys.
+ *  - `coerce()`           — type-coerce a raw value to its declared type
+ *                           (boolean/integer/string/array). Anything outside
+ *                           the declared type is reduced to the type's safe
+ *                           default; this stops objects and PHP-source
+ *                           strings from landing in toggles and counts.
+ *  - `dedicated_page()`   — admin page slug that may write the key via
+ *                           `read_request()` (from `flags.dedicated_page` /
+ *                           compound leaf map), or null when unconstrained.
+ *  - `normalize_key_string()` — dotted form of string or compound keys.
+ *  - `is_no_import()`     — whether the key carries `flags.no_import`.
  *
  * `Config::set()` is intentionally NOT gated by this schema. Internal
  * callers (Mobile_Base, Extensions_Util, etc.) write keys computed at
@@ -116,8 +121,20 @@ class ConfigKeysSchema {
 	 * @return bool
 	 */
 	public static function is_known( $w3tc_key ) {
+		/**
+		 * Compound keys (`[parent, child]` from `___` HTTP names) are only
+		 * admitted when the parent slot is a registered extension id. The
+		 * previous unconditional `return true` let arbitrary compound
+		 * namespaces bypass the schema allowlist in `read_request()`.
+		 * Extensions that need a descriptor without a registration row can
+		 * still supply one via `w3tc_config_key_descriptor`.
+		 */
 		if ( \is_array( $w3tc_key ) ) {
-			return true;
+			if ( \count( $w3tc_key ) < 2 || ! \is_string( $w3tc_key[0] ) || '' === $w3tc_key[0] ) {
+				return false;
+			}
+
+			return self::is_registered_extension_id( $w3tc_key[0] );
 		}
 
 		if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key ) {
@@ -230,9 +247,12 @@ class ConfigKeysSchema {
 	 *  - `minify.*.path.java`    — feeds an exec() argument.
 	 *  - `minify.*.path.jar`     — feeds the same shell argv.
 	 *  - `*.engine`              — switches the runtime to a different engine.
+	 *  - `plugin.type`           — Pro entitlement; license path only
+	 *                              (`Licensing_Plugin_Admin` → `Config::set`).
 	 *
 	 * The legitimate way to change these keys is through their dedicated
-	 * UI page, where the page-specific validator runs.
+	 * UI page (or the license path for `plugin.type`), where the page-
+	 * specific validator runs.
 	 *
 	 * @since 2.10.0
 	 *
@@ -428,5 +448,360 @@ class ConfigKeysSchema {
 		}
 
 		return \in_array( $note_id, $allowed, true );
+	}
+
+	/**
+	 * Cached map of dotted-key prefix → dedicated admin page slug,
+	 * built once from every ConfigKeys entry that declares
+	 * `flags.dedicated_page`.
+	 *
+	 * @var array<string,string>|null
+	 */
+	private static $dedicated_page_index = null;
+
+	/**
+	 * Normalize a config key to a dotted string for page-boundary lookup.
+	 *
+	 * Compound keys `array( 'cloudflare', 'key' )` become `cloudflare.key`
+	 * so leaf ownership metadata and the schema index share one shape.
+	 * Nested child segments that already contain dots (e.g. `accept.roles`)
+	 * are preserved as-is after the parent.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string|array $w3tc_key Single-string or compound key.
+	 *
+	 * @return string Empty string when the key cannot be normalized.
+	 */
+	public static function normalize_key_string( $w3tc_key ) {
+		if ( \is_string( $w3tc_key ) ) {
+			return $w3tc_key;
+		}
+
+		if ( ! \is_array( $w3tc_key ) || empty( $w3tc_key ) ) {
+			return '';
+		}
+
+		$parts = array();
+		foreach ( $w3tc_key as $part ) {
+			if ( ! \is_scalar( $part ) ) {
+				return '';
+			}
+			$parts[] = (string) $part;
+		}
+
+		return \implode( '.', $parts );
+	}
+
+	/**
+	 * Returns the admin page slug that may write `$w3tc_key`, or null when
+	 * no page-boundary constraint applies.
+	 *
+	 * Resolution order:
+	 *  1. `$descriptor['flags']['dedicated_page']` (filter-supplied or
+	 *     caller-provided).
+	 *  2. Exact / longest-prefix match against ConfigKeys entries that
+	 *     declare `dedicated_page`.
+	 *  3. Compound-extension leaf map for secrets that live outside the
+	 *     flat schema (Cloudflare / New Relic API credentials).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string|array $w3tc_key        Single-string or compound key.
+	 * @param array|null   $w3tc_descriptor Optional descriptor already
+	 *                                      resolved by the caller (may
+	 *                                      include filter overrides).
+	 *
+	 * @return string|null
+	 */
+	public static function dedicated_page( $w3tc_key, $w3tc_descriptor = null ) {
+		if ( \is_array( $w3tc_descriptor )
+			&& isset( $w3tc_descriptor['flags'] )
+			&& \is_array( $w3tc_descriptor['flags'] )
+			&& isset( $w3tc_descriptor['flags']['dedicated_page'] )
+			&& \is_string( $w3tc_descriptor['flags']['dedicated_page'] )
+			&& '' !== $w3tc_descriptor['flags']['dedicated_page']
+		) {
+			return $w3tc_descriptor['flags']['dedicated_page'];
+		}
+
+		$normalized = self::normalize_key_string( $w3tc_key );
+		if ( '' === $normalized ) {
+			return null;
+		}
+
+		$index = self::dedicated_page_index();
+		if ( isset( $index[ $normalized ] ) ) {
+			return $index[ $normalized ];
+		}
+
+		/**
+		 * Longest-prefix match so a future engine can mark only the
+		 * namespace root (or any parent key) and still cover leaves.
+		 * Exact entries above win when present.
+		 */
+		$best_prefix = '';
+		$best_page   = null;
+		foreach ( $index as $prefix => $page ) {
+			if ( 0 !== \strpos( $normalized, $prefix ) ) {
+				continue;
+			}
+			/**
+			 * Require a namespace boundary: either an exact match (already
+			 * handled) or `prefix.` as a true parent of the candidate.
+			 */
+			$prefix_len = \strlen( $prefix );
+			if ( $prefix_len > \strlen( $best_prefix )
+				&& (
+					$normalized === $prefix
+					|| (
+						$prefix_len < \strlen( $normalized )
+						&& '.' === $normalized[ $prefix_len ]
+					)
+					|| (
+						'.' === \substr( $prefix, -1 )
+						&& 0 === \strpos( $normalized, $prefix )
+					)
+				)
+			) {
+				$best_prefix = $prefix;
+				$best_page   = $page;
+			}
+		}
+		if ( null !== $best_page ) {
+			return $best_page;
+		}
+
+		$compound = self::compound_dedicated_pages();
+		if ( isset( $compound[ $normalized ] ) ) {
+			return $compound[ $normalized ];
+		}
+
+		/**
+		 * Namespace prefixes (trailing `.`) cover every extension-owned
+		 * leaf without enumerating them. Longest match wins so a future
+		 * more-specific entry can override a parent namespace.
+		 */
+		$best_prefix = '';
+		$best_page   = null;
+		foreach ( $compound as $prefix => $page ) {
+			if ( ! \is_string( $prefix ) || ! \is_string( $page ) || '' === $prefix ) {
+				continue;
+			}
+			if ( 0 !== \strpos( $normalized, $prefix ) ) {
+				continue;
+			}
+			$prefix_len = \strlen( $prefix );
+			if ( $prefix_len <= \strlen( $best_prefix ) ) {
+				continue;
+			}
+			if (
+				$normalized === $prefix
+				|| (
+					$prefix_len < \strlen( $normalized )
+					&& (
+						'.' === $normalized[ $prefix_len ]
+						|| '.' === \substr( $prefix, -1 )
+					)
+				)
+			) {
+				$best_prefix = $prefix;
+				$best_page   = $page;
+			}
+		}
+
+		return $best_page;
+	}
+
+	/**
+	 * Returns true when the key carries `flags.no_import` in the static
+	 * schema (used by `read_request()` to refuse POST writes for
+	 * no_import keys that lack a dedicated_page escape hatch).
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string|array $w3tc_key        Config key.
+	 * @param array|null   $w3tc_descriptor Optional already-resolved descriptor.
+	 *
+	 * @return bool
+	 */
+	public static function is_no_import( $w3tc_key, $w3tc_descriptor = null ) {
+		if ( ! \is_array( $w3tc_descriptor ) ) {
+			$w3tc_descriptor = self::descriptor( $w3tc_key );
+		}
+		if ( ! \is_array( $w3tc_descriptor )
+			|| ! isset( $w3tc_descriptor['flags'] )
+			|| ! \is_array( $w3tc_descriptor['flags'] )
+		) {
+			return false;
+		}
+
+		return ! empty( $w3tc_descriptor['flags']['no_import'] );
+	}
+
+	/**
+	 * Build / return the dedicated_page index from ConfigKeys.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array<string,string>
+	 */
+	private static function dedicated_page_index() {
+		if ( null !== self::$dedicated_page_index ) {
+			return self::$dedicated_page_index;
+		}
+
+		self::$dedicated_page_index = array();
+		foreach ( self::get_keys() as $key => $descriptor ) {
+			if ( ! \is_string( $key ) || ! \is_array( $descriptor ) ) {
+				continue;
+			}
+			if ( empty( $descriptor['flags']['dedicated_page'] )
+				|| ! \is_string( $descriptor['flags']['dedicated_page'] )
+			) {
+				continue;
+			}
+			self::$dedicated_page_index[ $key ] = $descriptor['flags']['dedicated_page'];
+		}
+
+		return self::$dedicated_page_index;
+	}
+
+	/**
+	 * Extension-owned config namespaces that are not enumerated in the
+	 * flat ConfigKeys schema but still need page-boundary discipline.
+	 * Kept here (not in ConfigKeys.php) so Export/Import round-trips stay
+	 * unchanged while `read_request()` refuses cross-page writes.
+	 *
+	 * Entries ending in `.` are namespace prefixes (longest match wins).
+	 * Exact leaf entries may still be listed when a single key needs a
+	 * different page than its parent namespace.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array<string,string>
+	 */
+	private static function compound_dedicated_pages() {
+		return array(
+			/**
+			 * Cloudflare credentials belong on the extension settings
+			 * page. Widget / General-box leaves stay on `w3tc_general`
+			 * (or unconstrained) — a blanket `cloudflare.` prefix would
+			 * silently drop General saves for widget_interval, etc.
+			 */
+			'cloudflare.email'                 => 'w3tc_extensions',
+			'cloudflare.key'                   => 'w3tc_extensions',
+			'cloudflare.zone_id'               => 'w3tc_extensions',
+			'cloudflare.zone_name'             => 'w3tc_extensions',
+			'cloudflare.widget_interval'       => 'w3tc_general',
+			'cloudflare.widget_cache_mins'     => 'w3tc_general',
+			'cloudflare.pagecache'             => 'w3tc_general',
+			'cloudflare.minify_js_rl_exclude'  => 'w3tc_general',
+			'swarmify.'                        => 'w3tc_extensions',
+			'amp.'                             => 'w3tc_extensions',
+			'genesis.theme.'                   => 'w3tc_extensions',
+			'alwayscached.'                    => 'w3tc_extensions',
+			'newrelic.'                        => 'w3tc_monitoring',
+			'extension.newrelic.'              => 'w3tc_monitoring',
+		);
+	}
+
+	/**
+	 * Returns true when a bulk-import key shape is admissible.
+	 *
+	 * Export → Import blobs are JSON objects whose keys must be
+	 * non-empty strings. Integer keys (JSON array payloads), empty
+	 * strings, and PHP array/compound keys are structural failures —
+	 * {@see Config::import_from_array()} aborts the whole import when
+	 * any such key is present so nothing is partially applied.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $w3tc_key Candidate import key.
+	 *
+	 * @return bool
+	 */
+	public static function is_import_key_shape( $w3tc_key ) {
+		return \is_string( $w3tc_key ) && '' !== $w3tc_key;
+	}
+
+	/**
+	 * Returns true when the descriptor (or key) carries
+	 * `flags.directive_string` — i.e. the value feeds server-config
+	 * rule generation and must be list-of-scalars (or a scalar string)
+	 * before persistence.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string     $w3tc_key        Config key.
+	 * @param array|null $w3tc_descriptor Optional pre-loaded descriptor.
+	 *
+	 * @return bool
+	 */
+	public static function is_directive_string_key( $w3tc_key, $w3tc_descriptor = null ) {
+		if ( null === $w3tc_descriptor ) {
+			$w3tc_descriptor = self::descriptor( $w3tc_key );
+		}
+
+		return \is_array( $w3tc_descriptor )
+			&& isset( $w3tc_descriptor['flags'] )
+			&& \is_array( $w3tc_descriptor['flags'] )
+			&& ! empty( $w3tc_descriptor['flags']['directive_string'] );
+	}
+
+	/**
+	 * Validates (and for directive-string arrays, normalises) a value
+	 * that will be written by bulk import.
+	 *
+	 * Contract:
+	 *  - Non-directive keys: type-coerce only; never a hard failure.
+	 *  - Directive-string **string** keys: coerce; Config::set strips
+	 *    forbidden bytes afterwards.
+	 *  - Directive-string **array** keys: must be a list (or coerce to
+	 *    one). Nested arrays/objects inside the list are a structural
+	 *    failure — those shapes cannot be safely reduced to a
+	 *    RewriteCond / location alternation without guessing, so the
+	 *    import aborts rather than applying a partial bad value.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string     $w3tc_key        Config key.
+	 * @param mixed      $w3tc_value      Raw imported value.
+	 * @param array|null $w3tc_descriptor Schema descriptor (or null).
+	 *
+	 * @return array{ok:bool,value:mixed,error:?string}
+	 */
+	public static function validate_import_value( $w3tc_key, $w3tc_value, $w3tc_descriptor = null ) {
+		if ( null === $w3tc_descriptor ) {
+			$w3tc_descriptor = self::descriptor( $w3tc_key );
+		}
+
+		$coerced = self::coerce( $w3tc_value, $w3tc_descriptor );
+
+		if ( ! self::is_directive_string_key( $w3tc_key, $w3tc_descriptor ) ) {
+			return array(
+				'ok'    => true,
+				'value' => $coerced,
+				'error' => null,
+			);
+		}
+
+		if ( \is_array( $coerced ) ) {
+			foreach ( $coerced as $entry ) {
+				if ( \is_array( $entry ) || \is_object( $entry ) ) {
+					return array(
+						'ok'    => false,
+						'value' => null,
+						'error' => 'nested_rule_generation_value',
+					);
+				}
+			}
+		}
+
+		return array(
+			'ok'    => true,
+			'value' => $coerced,
+			'error' => null,
+		);
 	}
 }
