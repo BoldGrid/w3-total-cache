@@ -243,4 +243,164 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 				$this->assertStringContainsString( 'data-src="image.jpg"', $result );
 				$this->assertMatchesRegularExpression( '/\ssrc="data:image\\/svg\\+xml,/', $result );
 		}
+
+		/**
+		 * Substring style= inside another attribute is left alone.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_with_background_ignores_style_substring_in_title() {
+				$mutator = $this->get_mutator();
+				$mutator->run( '' );
+
+				$element = "<div class=\"keep\" title='hero background:url(x.jpg) style=\"color:red\"'></div>";
+				$result  = $mutator->tag_with_background( array( $element ) );
+
+				$this->assertSame( $element, $result );
+				$this->assertStringNotContainsString( 'data-bg=', $result );
+		}
+
+		/**
+		 * background:url text in a non-style attribute does not offload a real style.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_with_background_requires_top_level_style_url() {
+				$mutator = $this->get_mutator();
+				$mutator->run( '' );
+
+				$element = '<div class="keep" title="background:url(other.jpg)" style="color:red;"></div>';
+				$result  = $mutator->tag_with_background( array( $element ) );
+
+				$this->assertSame( $element, $result );
+				$this->assertStringNotContainsString( 'data-bg=', $result );
+		}
+
+		/**
+		 * Nested style= text in title does not replace the real style URL.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_with_background_ignores_nested_style_when_real_style_exists() {
+				$mutator = $this->get_mutator();
+				$mutator->run( '' );
+
+				$element = '<div class="cover" title=\'background:url(other.jpg) style="background:url(nested.jpg)"\' style="background-image:url(\'bg.jpg\');color:red;"></div>';
+				$result  = $mutator->tag_with_background( array( $element ) );
+
+				$this->assertStringContainsString( 'class="cover lazy"', $result );
+				$this->assertStringContainsString( 'data-bg="bg.jpg"', $result );
+				$this->assertStringContainsString( "title='background:url(other.jpg) style=\"background:url(nested.jpg)\"'", $result );
+				$this->assertStringNotContainsString( 'data-bg="other.jpg"', $result );
+				$this->assertStringNotContainsString( 'data-bg="nested.jpg"', $result );
+				$this->assertStringContainsString( 'style="color:red;"', $result );
+		}
+
+		/**
+		 * data-bg is always double-quoted even when style uses single quotes.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_with_background_emits_double_quoted_data_bg() {
+				$mutator = $this->get_mutator();
+				$mutator->run( '' );
+
+				$element = "<div style='background-image:url(\"bg.jpg\");color:red;'></div>";
+				$result  = $mutator->tag_with_background( array( $element ) );
+
+				$this->assertStringContainsString( 'data-bg="bg.jpg"', $result );
+				$this->assertStringContainsString( "style='color:red;'", $result );
+		}
+
+		/**
+		 * Quote characters in the offloaded URL are encoded in data-bg.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_style_offload_background_encodes_quotes_in_data_bg() {
+				$mutator = $this->get_mutator();
+				$matches = array(
+						' style="background-image:url(\'image&quot;s.jpg\');color:red;"',
+						' ',
+						'style="',
+						'background-image:url(\'image&quot;s.jpg\');color:red;',
+						'"',
+				);
+
+				$result = $mutator->style_offload_background( $matches );
+
+				$this->assertStringContainsString( 'data-bg="', $result );
+				$this->assertStringNotContainsString( 'data-bg="image"s.jpg"', $result );
+				$this->assertMatchesRegularExpression( '/data-bg="[^"]+"/', $result );
+		}
+
+		/**
+		 * Non-http(s) URL schemes are left in the original style attribute.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_style_offload_background_skips_non_http_schemes() {
+				$mutator = $this->get_mutator();
+				$matches = array(
+						' style="background-image:url(\'ftp://example.com/x.jpg\');color:red;"',
+						' ',
+						'style="',
+						'background-image:url(\'ftp://example.com/x.jpg\');color:red;',
+						'"',
+				);
+
+				$result = $mutator->style_offload_background( $matches );
+
+				$this->assertSame( $matches[0], $result );
+				$this->assertStringNotContainsString( 'data-bg=', $result );
+		}
+
+		/**
+		 * Nested class= text in title is left alone after background offload.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_with_background_ignores_class_substring_in_title() {
+				$mutator = $this->get_mutator();
+				$mutator->run( '' );
+
+				$element = '<div class="cover" title=\'note class="keepme"\' style="background-image:url(\'bg.jpg\');color:red;"></div>';
+				$result  = $mutator->tag_with_background( array( $element ) );
+
+				$this->assertStringContainsString( 'class="cover lazy"', $result );
+				$this->assertStringContainsString( "title='note class=\"keepme\"'", $result );
+				$this->assertStringNotContainsString( 'keepme lazy', $result );
+				$this->assertStringContainsString( 'data-bg="bg.jpg"', $result );
+		}
+
+		/**
+		 * Nested class= text in title is left alone on img tags.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_img_content_replace_ignores_class_substring_in_title() {
+				$mutator = $this->get_mutator();
+				$img     = '<img class="photo" title=\'note class="keepme"\' src="image.jpg" width="10" height="10">';
+
+				$result = $mutator->tag_img_content_replace( $img, array( 'w' => 10, 'h' => 10 ) );
+
+				$this->assertStringContainsString( 'class="photo lazy"', $result );
+				$this->assertStringContainsString( "title='note class=\"keepme\"'", $result );
+				$this->assertStringNotContainsString( 'keepme lazy', $result );
+		}
+
+		/**
+		 * Nested loading= text in title is left alone when native lazy is removed.
+		 *
+		 * @since 2.10.6
+		 */
+		public function test_tag_img_content_replace_ignores_loading_substring_in_title() {
+				$mutator = $this->get_mutator();
+				$img     = '<img src="image.jpg" title=\'note loading="lazy"\' loading="lazy" width="10" height="10">';
+
+				$result = $mutator->tag_img_content_replace( $img, array( 'w' => 10, 'h' => 10 ) );
+
+				$this->assertStringContainsString( "title='note loading=\"lazy\"'", $result );
+				$this->assertStringNotContainsString( "' loading=\"lazy\"", $result );
+		}
 }

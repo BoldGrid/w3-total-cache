@@ -239,7 +239,7 @@ class W3tc_Util_Url_Test extends WP_UnitTestCase {
 	/**
  * Constant-override allowlist: https + exact host or leading-dot suffix.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 public function test_is_https_host_allowlisted_accepts_exact_and_suffix() {
 	$exact    = array( 'w3-edge.com' );
@@ -259,7 +259,7 @@ public function test_is_https_host_allowlisted_accepts_exact_and_suffix() {
 /**
  * Rejected schemes, foreign hosts, and suffix lookalikes fail closed.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 public function test_is_https_host_allowlisted_rejects_unsafe_values() {
 	$exact    = array( 'w3-edge.com' );
@@ -291,7 +291,7 @@ public function test_is_https_host_allowlisted_rejects_unsafe_values() {
 /**
  * Suffix entries without a leading dot are ignored.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes() {
 	$this->assertFalse(
@@ -307,7 +307,7 @@ public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes(
  * Outbound-fetch policy accepts this site's host and refuses
  * private / non-http destinations.
  *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_is_allowed_outbound_url_policy() {
 		$this->assertTrue(
@@ -334,7 +334,7 @@ public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes(
 	/**
 	 * Protocol-relative URLs pick up the current request scheme.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_normalize_protocol_relative_url() {
 		$scheme = Util_Url::normalize_protocol_relative_url( '//example.com/a.css' );

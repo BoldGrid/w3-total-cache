@@ -67,7 +67,7 @@ class Extension_NewRelic_Service {
 	 * Empty strings are refused — clearing is done through the General
 	 * page secret-clear companion, not the apply-configuration AJAX path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $api_key Candidate API key from the request.
 	 *

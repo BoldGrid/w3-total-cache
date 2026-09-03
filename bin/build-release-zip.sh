@@ -171,7 +171,7 @@ composer install --no-dev --no-interaction --prefer-dist -o
 
 echo 'Applying release cleanup (bin/release.sh)...'
 remove_vcs_metadata
-rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml package.* phpcs.xml yarn.lock
+rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml phpcs.xml
 rm -rf .claude .cursor qa
 
 while IFS= read -r -d '' link; do
@@ -182,26 +182,12 @@ done < <(find vendor/ -type l -print0 2>/dev/null || true)
 remove_vcs_metadata
 
 echo 'Updating @since placeholders...'
-chmod +x ./bin/update-since-versions.sh
-./bin/update-since-versions.sh
+bash bin/update-since-versions.sh
 
 echo 'Regenerating languages/w3-total-cache.pot...'
-if command -v wp >/dev/null 2>&1; then
-	WP_CLI_BIN="$(command -v wp)"
-else
-	WP_CLI_BIN="${WORK_ROOT}/wp-cli.phar"
-	if command -v curl >/dev/null 2>&1; then
-		curl -fsSL -o "$WP_CLI_BIN" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-	elif command -v wget >/dev/null 2>&1; then
-		wget -q -O "$WP_CLI_BIN" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-	else
-		echo 'error: wp-cli not found and neither curl nor wget is available' >&2
-		exit 1
-	fi
-	chmod +x "$WP_CLI_BIN"
-fi
+bash bin/make-pot.sh
 
-php -d xdebug.max_nesting_level=512 "$WP_CLI_BIN" i18n make-pot . languages/w3-total-cache.pot
+rm -f package.* yarn.lock
 
 echo 'Applying wordpress-tag-sync cleanup...'
 rm -rf tests apigen coverage node_modules bin tools bower_components

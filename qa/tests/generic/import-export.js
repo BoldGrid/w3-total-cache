@@ -14,6 +14,8 @@ const env = requireRoot("lib/environment");
 const sys = requireRoot("lib/sys");
 const w3tc = requireRoot("lib/w3tc");
 
+/**environments: environments('blog') */
+
 describe("import/export config", function () {
   this.timeout(sys.suiteTimeout);
   before(sys.beforeDefault);
@@ -98,5 +100,28 @@ describe("import/export config", function () {
       e.getAttribute("checked"),
     );
     expect(checked2).equals("checked");
+  });
+
+  it("import skips engine keys owned by the General page", async () => {
+    let engineBefore = await w3tc.getConfigOption("pgcache.engine");
+    expect(engineBefore).not.empty;
+
+    let otherEngine = engineBefore === "file" ? "file_generic" : "file";
+    await w3tc.setOptionInternal(adminPage, "pgcache.engine", otherEngine);
+    expect(await w3tc.getConfigOption("pgcache.engine")).equals(otherEngine);
+
+    const exportPath = path.join(env.wpPath, "export-data.json");
+    await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_general");
+    let fileInput = await adminPage.$("input[name=config_file]");
+    await fileInput.uploadFile(exportPath);
+    await Promise.all([
+      adminPage.click('input[name="w3tc_config_import"]'),
+      adminPage.waitForNavigation({ timeout: 300000 }),
+    ]);
+
+    await w3tc.expectW3tcErrors(adminPage, false);
+    expect(await w3tc.getConfigOption("pgcache.enabled", "boolean")).true;
+    expect(await w3tc.getConfigOption("pgcache.engine")).equals(otherEngine);
+    log.success("import restored pgcache.enabled and left pgcache.engine alone");
   });
 });

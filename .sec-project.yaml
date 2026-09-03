@@ -1,0 +1,114 @@
+# Thin W3TC remediation project config for sec-* / smoke tooling.
+# Commit-safe: relative paths, repo slugs, profile IDs, and env *names* only.
+# Do not put host paths, site URLs, usernames, passwords, cookies, or finding bodies here.
+#
+# Local absolute paths (plugin_root / wp_root) live in the hub gitignored
+# `current-target.md`. Engagement fields that change per machine also live in
+# `tmp/sec-ideas/_profile.md` (placeholders for clone-local absolutes).
+
+project: w3-total-cache
+
+# Classified findings stay under scratch (gitignored). Agents read here; never stage.
+findings_root: .cursor/working/rt19-all-findings/findings/confirmed
+hardening_root: .cursor/working/rt19-all-findings/findings/code-review
+unreplicated_root: .cursor/working/rt19-all-findings/findings/unable-to-replicate
+
+ideas_dir: tmp/sec-ideas
+progress_file: .cursor/working/sec-progress.json
+verify_dir: .cursor/working/sec-verify
+session_log: .cursor/working/session-log.md
+scratch_dir: .cursor/working
+
+# Remotes — resolve by URL against public_repo / private_repo; never trust names alone.
+# On this checkout pattern: origin → public (fetch/merge only); secops → private (push/PR).
+public_remote: origin
+private_remote: secops
+public_repo: BoldGrid/w3-total-cache
+private_repo: BoldGrid/w3-total-cache-secops
+default_branch: master
+
+jira_project: ENG3
+jira_key: ENG3-584
+branch_prefix: ENG3-584
+
+# Sequential until explicitly raised for a given engagement.
+max_parallel_fix_agents: 1
+# Keep /sec-orchestrate worker clones under scratch — not next to the live plugin tree.
+# Create before first worker clone: mkdir -p .cursor/working/sec-workers
+worktree_parent: .cursor/working/sec-workers
+
+# Fixed-install smoke profile IDs (env names only). Resolve values from
+# ~/.config/wp-qa/ or the named env vars at runtime — never commit values.
+# wp-qa site id bridge (typical):
+#   smoke profile     → wp-qa site id
+#   dev_single        → main
+#   dev_multisite     → multisite
+#   external_single   → legacy (or any KIND=remote id)
+# Hub path manifest (paths/roles only): internal-rt-tools
+#   .cursor/projects/w3-total-cache/smoke-paths.yaml
+smoke:
+  evidence_dir: .cursor/working/wp-smoke
+  retention_hours_raw: 72
+  retention_hours_summary: 720
+  redact_required: true
+
+  profiles:
+    dev_single:
+      type: single
+      wp_qa_site_id: main
+      base_url_env: W3TC_SMOKE_DEV_SINGLE_URL
+      wp_path_env: W3TC_SMOKE_DEV_SINGLE_WP_PATH
+      user_env: W3TC_SMOKE_DEV_SINGLE_USER
+      pass_env: W3TC_SMOKE_DEV_SINGLE_PASS
+      capabilities: [browser, wp_cli, account_lifecycle]
+      suites: [admin_pages, setup_guide, config_roundtrip, ajax, rest_frontend, page_cache]
+
+    dev_multisite:
+      type: multisite
+      wp_qa_site_id: multisite
+      base_url_env: W3TC_SMOKE_DEV_MULTISITE_URL
+      wp_path_env: W3TC_SMOKE_DEV_MULTISITE_WP_PATH
+      user_env: W3TC_SMOKE_DEV_MULTISITE_USER
+      pass_env: W3TC_SMOKE_DEV_MULTISITE_PASS
+      capabilities: [browser, wp_cli, account_lifecycle, network_admin]
+      suites: [network_admin, primary_site_admin, secondary_site_admin, rest_frontend]
+
+    external_single:
+      type: single
+      wp_qa_site_id: legacy
+      base_url_env: W3TC_SMOKE_EXTERNAL_URL
+      user_env: W3TC_SMOKE_EXTERNAL_USER
+      pass_env: W3TC_SMOKE_EXTERNAL_PASS
+      capabilities: [browser]
+      suites: [admin_pages, rest_frontend]
+      allow_account_mutation: false
+      allow_destructive: false
+
+  suite_manifest:
+    admin_pages:
+      description: Authenticated admin page loads for configured W3TC menus
+      requires: [browser]
+    setup_guide:
+      description: Setup / onboarding AJAX or wizard smoke
+      requires: [browser]
+    config_roundtrip:
+      description: Export/mutate/import/restore with guaranteed restore on exit
+      requires: [wp_cli]
+    ajax:
+      description: Selected admin-ajax handlers from a project manifest
+      requires: [wp_cli]
+    rest_frontend:
+      description: Anonymous + authenticated frontend/REST probes
+      requires: [browser]
+    page_cache:
+      description: Cold/warm cache header and artifact checks
+      requires: [browser]
+    network_admin:
+      description: Multisite network admin routes
+      requires: [browser, network_admin]
+    primary_site_admin:
+      description: Primary site admin routes on multisite
+      requires: [browser]
+    secondary_site_admin:
+      description: Secondary site admin routes on multisite
+      requires: [browser]

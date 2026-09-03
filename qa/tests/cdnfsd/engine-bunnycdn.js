@@ -39,6 +39,19 @@ describe("CDNFSD engine: bunnycdn form-save", function () {
       "cdnfsd.bunnycdn.name": "w3tc-qa-fsd",
       "cdnfsd.bunnycdn.origin_url": env.homeUrl,
       "cdnfsd.bunnycdn.cdn_hostname": "w3tcqa-fsd.b-cdn.net",
+      "cdnfsd.bunnycdn.verify_tls_certificates": true,
     });
+  });
+
+  it("cdnfsd.bunnycdn.verify_tls_certificates round-trips from the CDNFSD page", async () => {
+    await w3tc.setOptions(adminPage, "w3tc_cdn", {
+      cdnfsd__bunnycdn__verify_tls_certificates: false,
+    });
+    expect(
+      await w3tc.getConfigOption(
+        "cdnfsd.bunnycdn.verify_tls_certificates",
+        "boolean",
+      ),
+    ).equals(false);
   });
 });

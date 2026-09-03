@@ -256,7 +256,7 @@ class PgCache_Environment {
 		 * The filter can only suppress: it is not consulted for configurations that do not use
 		 * rewrite rules in the first place, so it cannot emit rules for them.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 *
 		 * @param bool   $required Whether page-cache rewrite rules are required. Always true here,
 		 *                         since the filter runs only when W3TC would write the rules.

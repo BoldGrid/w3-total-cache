@@ -153,7 +153,7 @@ class Util_Http {
 	/**
 	 * Reads the Location header from a wp_remote_* response.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param array $response HTTP API response.
 	 *
@@ -183,7 +183,7 @@ class Util_Http {
 	/**
 	 * Resolves a redirect Location against the current request URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $current  Absolute URL of the current hop.
 	 * @param string $location Location header value.

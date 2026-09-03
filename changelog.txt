@@ -1,5 +1,29 @@
 === W3 Total Cache Changelog ===
 
+= 2.10.6 =
+* Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
+* Enhancement: Page Cache: Add w3tc_pgcache_rules_required filter to skip writing rewrite rules
+* Fix: Settings: Restrict POST updates to keys owned by the active admin page
+* Fix: Licensing: Limit plugin type updates to the license path
+* Fix: Image Converter: Require administrator capability for convert and submit
+* Fix: Config import: Validate structure before applying
+* Fix: Role cookies: Stop honoring legacy names unless explicitly enabled
+* Fix: Minify: Validate precache URLs before outbound fetch
+* Fix: URL constants: Apply host allowlists to overrides
+* Fix: Minify: Validate Java minifier JAR paths before invocation
+* Update: Bunny CDN and Redis: Enable verified TLS by default
+* Fix: Diagnostics: Extend log redaction across remaining formats
+* Fix: Reverse proxy: Apply forwarded client IP and scheme headers only from trusted proxies
+* Fix: CDN: Limit Media Library import to static assets
+* Fix: CDN: Render admin server responses as text
+* Fix: CDN: Use saved settings for Test
+* Fix: CDN: Scope CORS headers to font resources
+* Fix: Browser Cache: Normalize rewrite rule rendering
+* Fix: Support: Reduce client data sent from the Support page
+* Fix: Forums: Normalize API client responses
+* Fix: Lazy Load: Match background styles as top-level attributes only
+* Fix: Admin: Align request validation across notice, extension, setup, CDN, and minify flows
+
 = 2.10.5 =
 * Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
 

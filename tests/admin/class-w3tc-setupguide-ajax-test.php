@@ -361,7 +361,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * A valid shared `w3tc_wizard` nonce no longer authenticates SetupGuide AJAX.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_skip_rejects_legacy_wizard_nonce() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );

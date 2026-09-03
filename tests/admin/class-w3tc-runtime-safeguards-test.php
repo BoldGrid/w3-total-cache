@@ -6,7 +6,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.6
  */
 
 declare( strict_types = 1 );
@@ -24,7 +24,7 @@ use W3TC\Util_RateLimit;
 /**
  * Class: W3tc_Runtime_Safeguards_Test
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 
@@ -66,7 +66,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Custom AJAX die handler that throws WPDieException instead of exiting.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return callable
 	 */
@@ -79,7 +79,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Set up.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -95,7 +95,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Tear down.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function tear_down() {
 		\remove_filter( 'wp_die_ajax_handler', array( __CLASS__, 'ajax_die_handler' ) );
@@ -120,7 +120,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Known note IDs are admitted; arbitrary IDs are refused.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_is_known_note_id_allowlist() {
 		$this->assertTrue( ConfigKeysSchema::is_known_note_id( 'cloudflare_plugin' ) );
@@ -134,7 +134,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Extensions can append note IDs via filter.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_is_known_note_id_filter_extension() {
 		$cb = static function ( $allowed ) {
@@ -150,7 +150,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Rate limiter admits until the budget is exhausted.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_rate_limit_budget() {
 		$bucket = 'unit_test_' . wp_generate_password( 8, false );
@@ -165,7 +165,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	 * Cache_File_Generic::escape_header_value strips CR/LF/NUL, keeps quotes
 	 * and Link angle brackets required for HTTP/2 preload Header lines.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_escape_header_value_strips_controls_keeps_link_brackets() {
 		$ref    = new \ReflectionClass( Cache_File_Generic::class );
@@ -202,7 +202,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	 * Unauthenticated minify probe path returns a 429-shaped quiet payload
 	 * once the per-IP bad-request budget is exhausted.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_minify_finish_with_error_rate_limits_probe_path() {
 		$ip                         = '203.0.113.50';
@@ -223,7 +223,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Minify requests without a client address share a fallback budget.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_minify_finish_with_error_rate_limits_missing_remote_addr() {
 		unset( $_SERVER['REMOTE_ADDR'] );
@@ -243,7 +243,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	 * Minify probe path still returns the normal quiet error body while the
 	 * budget has remaining capacity.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_minify_finish_with_error_allows_within_budget() {
 		$ip                     = '203.0.113.51';
@@ -265,7 +265,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * BunnyCDN purge AJAX returns 429 JSON when the per-user budget is spent.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_bunnycdn_purge_url_rate_limited() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -295,7 +295,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Invalid BunnyCDN purge URLs are refused without consuming the budget.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_bunnycdn_purge_url_invalid_does_not_consume_budget() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -328,7 +328,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Notice AJAX rejects a missing / wrong nonce before the capability check.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_notices_rejects_wrong_nonce() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -353,7 +353,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Notice retrieval accepts the nonce shape used by admin JavaScript.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_notices_accepts_admin_with_valid_nonce() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -378,7 +378,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Notice AJAX rejects a subscriber even with a valid per-action nonce.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_dismiss_notice_rejects_subscriber_with_valid_nonce() {
 		$subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -403,7 +403,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Notice dismissal accepts the nonce shape used by admin JavaScript.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_dismiss_notice_accepts_admin_with_valid_nonce() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -429,7 +429,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Interrupt Util_Environment::redirect() so handler tests can continue.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 * @throws \RuntimeException Always.
@@ -441,7 +441,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Unknown note IDs are refused by w3tc_default_hide_note without writing.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_hide_note_rejects_unknown_note_id() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -472,7 +472,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 	/**
 	 * Known note IDs are dismissed to false by w3tc_default_hide_note.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_hide_note_accepts_known_note_id() {
 		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
