@@ -181,6 +181,9 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	public function test_successful_refresh_clears_prior_failure_notice() {
 		update_option( 'w3tcps_refresh_fail', 'Google PageSpeed access token refresh failed.' );
 		update_option( 'w3tcps_refresh_fail_message', 'Connection timed out.' );
+		update_option( 'w3tcps_refresh_retry_after', time() + 900 );
+		update_option( 'w3tcps_revoke_fail', 'Google PageSpeed access token revocation failed.' );
+		update_option( 'w3tcps_revoke_fail_message', 'Connection timed out.' );
 
 		$this->mock_http_response(
 			200,
@@ -196,6 +199,9 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( get_option( 'w3tcps_refresh_fail' ) );
 		$this->assertFalse( get_option( 'w3tcps_refresh_fail_message' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+		$this->assertFalse( get_option( 'w3tcps_revoke_fail' ) );
+		$this->assertFalse( get_option( 'w3tcps_revoke_fail_message' ) );
 	}
 
 	/**
@@ -380,6 +386,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 1, $this->http_request_count );
 		$this->assertGreaterThan( time(), (int) get_option( 'w3tcps_refresh_retry_after' ) );
+		$this->assertTrue( $api->client->isAccessTokenExpired() );
 	}
 
 	/**
@@ -404,6 +411,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 	}
 
 	/**
@@ -428,6 +436,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 	}
 
 	/**
@@ -470,6 +479,12 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 			'unknown',
 			PageSpeed_Api::get_authorize_failure_message( 'not-json' )
 		);
+		$this->assertStringContainsString(
+			'unknown',
+			PageSpeed_Api::get_authorize_failure_message(
+				'{"error":{"id":"<img src=x onerror=alert(1)>evil"}}'
+			)
+		);
 	}
 
 	/**
@@ -496,16 +511,51 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_revoke_server_error_keeps_credentials() {
-		$this->mock_http_response( 500, array() );
+		$this->mock_http_response(
+			502,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 502,
+					'id'   => 'revoke-token-google-failed',
+				),
+			)
+		);
 
 		$api = $this->create_api( true );
 
 		$this->assertFalse( $api->reset() );
 		$this->assert_credentials_preserved();
 		$this->assertStringContainsString(
-			'HTTP 500',
+			'kept for retry',
 			get_option( 'w3tcps_revoke_fail_message' )
 		);
+	}
+
+	/**
+	 * A missing remote record is terminal and clears local credentials.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_not_found_clears_credentials_and_cooldown() {
+		update_option( 'w3tcps_refresh_retry_after', time() + 900 );
+		$this->mock_http_response(
+			428,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 428,
+					'id'   => 'revoke-token-not-found',
+				),
+			)
+		);
+
+		$api = $this->create_api( true );
+
+		$this->assertTrue( $api->reset() );
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 	}
 
 	/**
@@ -514,13 +564,23 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_successful_revoke_clears_credentials() {
-		$this->mock_http_response( 200, array() );
+		update_option( 'w3tcps_refresh_fail', 'Old refresh failure.' );
+		update_option( 'w3tcps_refresh_fail_message', 'Old refresh failure detail.' );
+		update_option( 'w3tcps_refresh_retry_after', time() + 900 );
+		update_option( 'w3tcps_revoke_fail', 'Old revoke failure.' );
+		update_option( 'w3tcps_revoke_fail_message', 'Old revoke failure detail.' );
+		$this->mock_http_response( 200, array( 'status' => 'success' ) );
 
 		$api = $this->create_api( true );
 
 		$this->assertTrue( $api->reset() );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_fail' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_fail_message' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+		$this->assertFalse( get_option( 'w3tcps_revoke_fail' ) );
+		$this->assertFalse( get_option( 'w3tcps_revoke_fail_message' ) );
 	}
 
 	/**

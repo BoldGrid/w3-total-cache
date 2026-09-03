@@ -332,12 +332,17 @@ class PageSpeed_Api {
 		$response_body['created'] = time();
 
 		$w3tc_access_token = wp_json_encode( $response_body );
+		if ( false === $w3tc_access_token ) {
+			$this->set_refresh_failure(
+				__( 'Google PageSpeed access token refresh failed because the response could not be encoded.', 'w3-total-cache' )
+			);
+			return;
+		}
+
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 		$this->w3tc_config->save();
 		$this->client->setAccessToken( $w3tc_access_token );
-		delete_option( 'w3tcps_refresh_fail' );
-		delete_option( 'w3tcps_refresh_fail_message' );
-		delete_option( 'w3tcps_refresh_retry_after' );
+		self::clear_failure_notices();
 	}
 
 	/**
@@ -410,6 +415,7 @@ class PageSpeed_Api {
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
 		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
 		$this->w3tc_config->save();
+		delete_option( 'w3tcps_refresh_retry_after' );
 	}
 
 	/**
@@ -491,8 +497,15 @@ class PageSpeed_Api {
 	 * @return string
 	 */
 	public static function get_authorize_failure_message( $error_json ) {
+		if ( ! is_string( $error_json ) ) {
+			$error_json = '';
+		}
+
 		$error    = json_decode( $error_json );
 		$error_id = isset( $error->error->id ) ? (string) $error->error->id : '';
+		if ( 1 !== preg_match( '/\A[a-z0-9-]+\z/', $error_id ) ) {
+			$error_id = '';
+		}
 
 		switch ( $error_id ) {
 			case 'authorize-in-missing-site-id':
@@ -534,6 +547,21 @@ class PageSpeed_Api {
 			__( 'Unexpected Google PageSpeed authorization error: %s', 'w3-total-cache' ),
 			'' !== $error_id ? $error_id : __( 'unknown', 'w3-total-cache' )
 		);
+	}
+
+	/**
+	 * Clears PageSpeed failure notices and automatic refresh cooldown.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function clear_failure_notices() {
+		delete_option( 'w3tcps_refresh_fail' );
+		delete_option( 'w3tcps_refresh_fail_message' );
+		delete_option( 'w3tcps_refresh_retry_after' );
+		delete_option( 'w3tcps_revoke_fail' );
+		delete_option( 'w3tcps_revoke_fail_message' );
 	}
 
 	/**
@@ -588,15 +616,31 @@ class PageSpeed_Api {
 			$response_code >= 300 ||
 			isset( $response_body['error'] )
 		) {
+			if (
+				in_array(
+					$w3tc_error_id,
+					array(
+						'revoke-token-access-token-missing',
+						'revoke-token-site-id-missing',
+						'revoke-token-api-key-missing',
+						'revoke-token-not-found',
+					),
+					true
+				)
+			) {
+				$this->clear_pagespeed_credentials();
+				self::clear_failure_notices();
+				return true;
+			}
+
 			$this->set_revoke_failure(
 				$this->get_revoke_failure_message( $w3tc_error_id, $response_code )
 			);
 			return false;
 		}
 
-		$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
-		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
-		$this->w3tc_config->save();
+		$this->clear_pagespeed_credentials();
+		self::clear_failure_notices();
 		return true;
 	}
 
@@ -640,6 +684,12 @@ class PageSpeed_Api {
 
 			case 'revoke-token-not-found':
 				return __( 'No matching Google access record found for W3TC API key!', 'w3-total-cache' );
+
+			case 'revoke-token-google-failed':
+				return __( 'Google rejected the access token revocation. Local authorization was kept for retry.', 'w3-total-cache' );
+
+			case 'revoke-token-persist-failed':
+				return __( 'Google revoked the access token, but the W3 API could not save the result. Local authorization was kept for retry.', 'w3-total-cache' );
 		}
 
 		return sprintf(
