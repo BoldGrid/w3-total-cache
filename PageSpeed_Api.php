@@ -410,6 +410,7 @@ class PageSpeed_Api {
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
 		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
 		$this->w3tc_config->save();
+		delete_option( 'w3tcps_refresh_retry_after' );
 	}
 
 	/**
@@ -594,9 +595,7 @@ class PageSpeed_Api {
 			return false;
 		}
 
-		$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
-		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
-		$this->w3tc_config->save();
+		$this->clear_pagespeed_credentials();
 		return true;
 	}
 

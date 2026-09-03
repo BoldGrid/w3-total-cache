@@ -404,6 +404,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 	}
 
 	/**
@@ -428,6 +429,57 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+	}
+
+	/**
+	 * Replacing credentials after a wipe must not inherit a prior refresh delay.
+	 *
+	 * @return void
+	 */
+	public function test_automatic_refresh_runs_after_credential_wipe() {
+		$this->mock_http_response(
+			428,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 428,
+					'id'   => 'refresh-token-not-found',
+				),
+			)
+		);
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+
+		remove_filter( 'pre_http_request', $this->http_filter, 10 );
+		$this->http_filter        = null;
+		$this->http_request_count = 0;
+
+		$this->config->set(
+			'widget.pagespeed.access_token',
+			wp_json_encode(
+				array(
+					'access_token' => 'replacement-token',
+					'expires_in'   => 3600,
+					'created'      => 1,
+				)
+			)
+		);
+		$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', 'replacement-key' );
+		$this->mock_http_response(
+			200,
+			array(
+				'access_token' => 'renewed-token',
+				'expires_in'   => 3600,
+			)
+		);
+
+		$api = $this->create_api( true );
+		$api->maybe_refresh_token();
+
+		$this->assertSame( 1, $this->http_request_count );
 	}
 
 	/**
@@ -514,6 +566,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_successful_revoke_clears_credentials() {
+		update_option( 'w3tcps_refresh_retry_after', time() + HOUR_IN_SECONDS );
 		$this->mock_http_response( 200, array() );
 
 		$api = $this->create_api( true );
@@ -521,6 +574,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		$this->assertTrue( $api->reset() );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 	}
 
 	/**

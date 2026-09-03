@@ -1282,6 +1282,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
 			$this->_config->save();
+			delete_option( 'w3tcps_refresh_retry_after' );
 
 			wp_safe_redirect( $w3tc_return_url );
 			exit;
