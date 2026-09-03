@@ -1265,27 +1265,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$w3tc_deauthorize     = Util_Request::get( 'w3tc_deauthorize' );
 
 		if ( ! empty( $w3tc_authorize_error ) ) {
-			$w3tc_authorize_error = json_decode( $w3tc_authorize_error );
-
-			if ( 'authorize-in-missing-site-id' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-missing-auth-url' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-missing-return-url' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
-			} elseif ( 'authorize-in-failed' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'Failed to process authorize request!', 'w3-total-cache' );
-			}
-
-			if ( 'authorize-out-code-missing' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-not-found' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-token-missing' === $w3tc_authorize_error->error->id ) {
-				$w3tc_message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
-			}
+			$w3tc_message = PageSpeed_Api::get_authorize_failure_message( $w3tc_authorize_error );
 
 			update_option(
 				'w3tcps_authorize_fail',
@@ -1302,15 +1282,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
 			$this->_config->save();
+			PageSpeed_Api::clear_failure_notices();
 
 			wp_safe_redirect( $w3tc_return_url );
 			exit;
 		} elseif ( $w3tc_deauthorize ) {
-			$w3tc_w3_pagespeed->reset();
-			update_option(
-				'w3tcps_authorize_success',
-				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
-			);
+			if ( $w3tc_w3_pagespeed->reset() ) {
+				update_option(
+					'w3tcps_authorize_success',
+					__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+				);
+			}
 			wp_safe_redirect( $w3tc_return_url );
 			exit;
 		}
