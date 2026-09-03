@@ -535,6 +535,9 @@ class PageSpeed_Api {
 			case 'authorize-out-token-missing':
 				return __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
 
+			case 'authorize-out-google-failed':
+				return __( 'Google rejected the authorization request. Please try authorizing Google PageSpeed again.', 'w3-total-cache' );
+
 			case 'authorize-out-refresh-token-missing':
 				return __( 'Google did not return a refresh token. Please authorize Google PageSpeed again.', 'w3-total-cache' );
 

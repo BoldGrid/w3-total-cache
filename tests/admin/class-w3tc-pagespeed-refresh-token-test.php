@@ -488,6 +488,26 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A Google rejection during authorization is described in plain terms.
+	 *
+	 * @return void
+	 */
+	public function test_authorize_google_failure_has_message() {
+		$error = wp_json_encode(
+			array(
+				'error' => array(
+					'id' => 'authorize-out-google-failed',
+				),
+			)
+		);
+
+		$message = PageSpeed_Api::get_authorize_failure_message( $error );
+
+		$this->assertStringContainsString( 'Google rejected the authorization request', $message );
+		$this->assertStringNotContainsString( 'authorize-out-google-failed', $message );
+	}
+
+	/**
 	 * A transport failure during revoke keeps local credentials.
 	 *
 	 * @return void
