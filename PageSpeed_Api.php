@@ -616,18 +616,7 @@ class PageSpeed_Api {
 			$response_code >= 300 ||
 			isset( $response_body['error'] )
 		) {
-			if (
-				in_array(
-					$w3tc_error_id,
-					array(
-						'revoke-token-access-token-missing',
-						'revoke-token-site-id-missing',
-						'revoke-token-api-key-missing',
-						'revoke-token-not-found',
-					),
-					true
-				)
-			) {
+			if ( 'revoke-token-not-found' === $w3tc_error_id ) {
 				$this->clear_pagespeed_credentials();
 				self::clear_failure_notices();
 				return true;
