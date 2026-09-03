@@ -6,9 +6,17 @@
         "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --list-different",
         "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --ignore **/*.min.js --write",
         "php-lint": "find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \\; > /dev/null",
+        "phpcs": "./vendor/bin/phpcs",
+        "phpcs-fix": "./vendor/bin/phpcbf",
+        "test": "./vendor/bin/phpunit",
+        "changelog": "bash bin/update-changelog.sh",
+        "install:wp-tests": "bash bin/install-wp-tests.sh",
         "security-checks": "bash bin/run-security-checks.sh",
         "upgrade:deps": "composer update --with-all-dependencies && yarn upgrade",
-        "update:since": "bash bin/update-since-versions.sh"
+        "update:since": "bash bin/update-since-versions.sh",
+        "make:pot": "bash bin/make-pot.sh",
+        "release": "bash bin/release.sh",
+        "build:release": "bash bin/build-release-zip.sh"
     },
     "devDependencies": {
         "@boldgrid/wordpress-tag-sync": "^1.3.0",

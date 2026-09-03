@@ -3,7 +3,7 @@
  * Require control-byte stripping inside escape_header_value.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since   2.10.6
  */
 
 namespace W3TC\Sniffs\Security;
@@ -15,7 +15,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * Ensures Cache_File_Generic::escape_header_value strips CR/LF/NUL and
  * does not strip Link angle brackets.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class RequireSanitizeDirectiveValueSniff implements Sniff {
 	/**

@@ -1,26 +1,22 @@
 /**
  * File: qa/tests/support/page-render.js
  *
- * Support page render + sec-info-leak regression.
+ * Support page render + client-data regression.
  *
  * `?page=w3tc_support` historically had two failure modes:
- *  1. The Wufoo iframe embed assumed the third-party script loaded
+ *  1. The third-party form embed assumed the script loaded
  *     and would white-screen on failure.
- *  2. The "system info" / "wp-config" / "phpinfo" handlers leaked
- *     wp-config.php contents and the full phpinfo() output to the
- *     admin via the support-ticket flow — exfil paths even an
- *     authenticated admin should not have a one-click button for.
+ *  2. Diagnostic handlers leaked wp-config.php contents and
+ *     phpinfo() output through the support-ticket flow.
  *
- * After the sec-info-leak fix, the page renders the Wufoo embed
- * but does NOT inline wp-config.php content or full phpinfo()
- * markers into the response. The Support page is also the only
- * place where a "view diagnostic" link could legitimately reach
- * those primitives; that link was removed.
+ * The Support page now mounts an empty shell. The third-party
+ * form script is injected only after consent and a click.
+ * Contact fields are not localized into the page.
  *
  * Posture: load the page and assert it renders without fatal
- * error AND the response body contains none of the diagnostic-
- * marker strings that would indicate wp-config / phpinfo content
- * leaked through.
+ * error, the consent gate is present, the third-party script
+ * is not injected until Open is clicked, and the response body
+ * contains none of the diagnostic-marker strings.
  *
  * @package W3TC
  * @subpackage QA
@@ -37,6 +33,9 @@ const env = requireRoot("lib/environment");
 const sys = requireRoot("lib/sys");
 
 /**environments: environments('blog') */
+
+const SUPPORT_URL = () =>
+  env.networkAdminUrl + "admin.php?page=w3tc_support";
 
 /**
  * Markers whose presence in the admin response body would prove
@@ -60,57 +59,112 @@ const LEAK_MARKERS = [
   '_SERVER["HTTP_HOST"]',
 ];
 
+async function gotoSupportPage() {
+  await adminPage.goto(SUPPORT_URL(), {
+    waitUntil: "domcontentloaded",
+  });
+
+  if ((await adminPage.$("#w3tc-wizard-skip")) != null) {
+    await Promise.all([
+      adminPage.evaluate(() =>
+        document.querySelector("#w3tc-wizard-skip").click(),
+      ),
+      adminPage.waitForNavigation({ timeout: 300000 }),
+    ]);
+    await adminPage.goto(SUPPORT_URL(), {
+      waitUntil: "domcontentloaded",
+    });
+  }
+}
+
 describe("Support page render + sec-info-leak regression", function () {
   this.timeout(sys.suiteTimeout);
   before(sys.beforeDefault);
   after(sys.after);
 
-  it("?page=w3tc_support renders without fatal error", async () => {
-    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
-      waitUntil: "domcontentloaded",
-    });
-
-    // Skip wizard if shown.
-    if ((await adminPage.$("#w3tc-wizard-skip")) != null) {
-      await Promise.all([
-        adminPage.evaluate(() =>
-          document.querySelector("#w3tc-wizard-skip").click(),
-        ),
-        adminPage.waitForNavigation({ timeout: 300000 }),
-      ]);
-      await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
-        waitUntil: "domcontentloaded",
-      });
-    }
+  it("?page=w3tc_support renders the consent-gated shell", async () => {
+    await gotoSupportPage();
 
     let pageHtml = await adminPage.content();
     expect(pageHtml).not.contains("Fatal error");
     expect(pageHtml).not.contains("Parse error");
     expect(pageHtml).not.contains("Uncaught");
 
-    /**
-     * Something support-page-shaped must be in the response.
-     * The Wufoo embed loads cross-origin so its iframe shell
-     * is what we can assert from this side of the network.
-     */
-    let hasSupportMarker =
-      pageHtml.indexOf("wufoo") !== -1 ||
-      pageHtml.indexOf("support") !== -1 ||
-      pageHtml.indexOf("Support") !== -1;
-    expect(hasSupportMarker).equals(true);
-    log.success("Support page rendered without fatal error");
+    await adminPage.waitForSelector("#w3tc-support-form-shell", {
+      timeout: 30000,
+    });
+    await adminPage.waitForSelector("#w3tc-support-consent", {
+      timeout: 10000,
+    });
+    await adminPage.waitForSelector("#w3tc-support-load", {
+      timeout: 10000,
+    });
+
+    let loadDisabled = await adminPage.$eval(
+      "#w3tc-support-load",
+      (e) => e.disabled,
+    );
+    expect(loadDisabled).equals(true);
+
+    let wufooScriptCount = await adminPage.evaluate(() =>
+      Array.from(document.querySelectorAll("script")).filter((s) =>
+        (s.src || "").includes("wufoo.com/scripts/embed/form.js"),
+      ).length,
+    );
+    expect(wufooScriptCount).equals(0);
+
+    log.success("Support page rendered consent-gated shell without form embed");
+  });
+
+  it("Open support form stays disabled until consent, then injects the allowlisted script", async () => {
+    await gotoSupportPage();
+
+    await adminPage.waitForSelector("#w3tc-support-load", { timeout: 10000 });
+
+    await adminPage.evaluate(() => {
+      document.querySelector("#w3tc-support-load").click();
+    });
+    let stillDisabled = await adminPage.$eval(
+      "#w3tc-support-load",
+      (e) => e.disabled,
+    );
+    expect(stillDisabled).equals(true);
+    let wufooBeforeConsent = await adminPage.evaluate(() =>
+      Array.from(document.querySelectorAll("script")).filter((s) =>
+        (s.src || "").includes("wufoo.com/scripts/embed/form.js"),
+      ).length,
+    );
+    expect(wufooBeforeConsent).equals(0);
+
+    await adminPage.evaluate(() => {
+      let consent = document.querySelector("#w3tc-support-consent");
+      consent.checked = true;
+      consent.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    let enabledAfterConsent = await adminPage.$eval(
+      "#w3tc-support-load",
+      (e) => !e.disabled,
+    );
+    expect(enabledAfterConsent).equals(true);
+
+    await adminPage.click("#w3tc-support-load");
+    await adminPage.waitForFunction(
+      () =>
+        Array.from(document.querySelectorAll("script")).some((s) =>
+          (s.src || "").includes("wufoo.com/scripts/embed/form.js"),
+        ),
+      { timeout: 15000 },
+    );
+
+    log.success("Support form script injects only after consent + click");
   });
 
   /**
    * Regression: load the page and assert NONE of the wp-config /
-   * phpinfo marker strings appear. The sec-info-leak fix removed
-   * the one-click diagnostic exfil and the marker strings are
-   * the proof that the leak vector is closed.
+   * phpinfo marker strings appear.
    */
   it("Support page response carries no wp-config / phpinfo markers", async () => {
-    await adminPage.goto(env.adminUrl + "admin.php?page=w3tc_support", {
-      waitUntil: "domcontentloaded",
-    });
+    await gotoSupportPage();
 
     let pageHtml = await adminPage.content();
     let leaks = LEAK_MARKERS.filter((m) => pageHtml.indexOf(m) !== -1);

@@ -118,6 +118,13 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	public function test_dedicated_page_from_schema_and_compound_map() {
 		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdn.s3.secret' ) );
 		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdn.import.files' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.client_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.client_secret' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.company_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.access_key' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.secret_key' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.distribution_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.bunnycdn.verify_tls_certificates' ) );
 		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'pgcache.engine' ) );
 		$this->assertSame( 'w3tc_browsercache', ConfigKeysSchema::dedicated_page( 'browsercache.no404wp.exceptions' ) );
 		$this->assertSame( 'w3tc_minify', ConfigKeysSchema::dedicated_page( 'minify.ccjs.path.java' ) );
@@ -175,6 +182,35 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 				)
 			)
 		);
+	}
+
+	/**
+	 * FSD engine fields post from the CDN settings page, not a
+	 * `w3tc_cdnfsd` slug.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_cdnfsd_engine_keys_use_cdn_dedicated_page() {
+		$legacy = array();
+
+		foreach ( ConfigKeysSchema::get_keys() as $key => $descriptor ) {
+			if ( empty( $descriptor['flags']['dedicated_page'] ) ) {
+				continue;
+			}
+
+			$this->assertNotSame(
+				'w3tc_cdnfsd',
+				$descriptor['flags']['dedicated_page'],
+				$key . ' must not use the unregistered w3tc_cdnfsd page slug'
+			);
+
+			if ( 0 === \strpos( (string) $key, 'cdnfsd.' ) ) {
+				$legacy[] = $key;
+				$this->assertSame( 'w3tc_cdn', $descriptor['flags']['dedicated_page'], $key );
+			}
+		}
+
+		$this->assertNotEmpty( $legacy );
 	}
 
 	/**

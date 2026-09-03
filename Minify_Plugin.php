@@ -990,7 +990,7 @@ var extsrc=null;
 	 * which happens when a request aborts before the WordPress load completes but the output
 	 * buffer is still flushed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return bool True when conditional query tags are safe to call.
 	 */

@@ -3,7 +3,7 @@
  * Forbidden shared SetupGuide nonce action.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since   2.10.6
  */
 
 namespace W3TC\Sniffs\Security;
@@ -14,7 +14,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
 /**
  * Flags wp_verify_nonce( ..., 'w3tc_wizard' ) / wp_create_nonce( 'w3tc_wizard' ).
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class NoLegacyWizardNonceSniff implements Sniff {
 	/**

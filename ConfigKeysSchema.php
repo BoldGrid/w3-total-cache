@@ -415,7 +415,7 @@ class ConfigKeysSchema {
 	 * `w3tc_known_note_ids` filter. Unknown IDs are refused so request
 	 * parameters cannot invent arbitrary `notes.*` keys.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $note_id Bare note identifier (no `notes.` prefix).
 	 *
@@ -438,7 +438,7 @@ class ConfigKeysSchema {
 		/**
 		 * Filter the allowlist of dismissable `notes.*` identifiers.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 *
 		 * @param string[] $allowed Known note IDs.
 		 */

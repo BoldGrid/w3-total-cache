@@ -1749,37 +1749,37 @@ $w3tc_keys = array(
 	'cdnfsd.cloudfront.access_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.cloudfront.secret_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.cloudfront.distribution_id'                    => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.client_id'                      => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.client_secret'                  => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.company_id'                     => array(
 		'type'    => 'string',
 		'default' => '',
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.bunnycdn.verify_tls_certificates'              => array(
 		'type'    => 'boolean',
 		'default' => true,
-		'flags'   => array( 'dedicated_page' => 'w3tc_cdnfsd' ),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'varnish.configuration_overloaded'                     => array(
 		'type'    => 'boolean',

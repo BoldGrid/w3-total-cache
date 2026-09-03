@@ -247,7 +247,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Substring style= inside another attribute is left alone.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_with_background_ignores_style_substring_in_title() {
 				$mutator = $this->get_mutator();
@@ -263,7 +263,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * background:url text in a non-style attribute does not offload a real style.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_with_background_requires_top_level_style_url() {
 				$mutator = $this->get_mutator();
@@ -279,7 +279,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Nested style= text in title does not replace the real style URL.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_with_background_ignores_nested_style_when_real_style_exists() {
 				$mutator = $this->get_mutator();
@@ -299,7 +299,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * data-bg is always double-quoted even when style uses single quotes.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_with_background_emits_double_quoted_data_bg() {
 				$mutator = $this->get_mutator();
@@ -315,7 +315,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Quote characters in the offloaded URL are encoded in data-bg.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_style_offload_background_encodes_quotes_in_data_bg() {
 				$mutator = $this->get_mutator();
@@ -337,7 +337,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Non-http(s) URL schemes are left in the original style attribute.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_style_offload_background_skips_non_http_schemes() {
 				$mutator = $this->get_mutator();
@@ -358,7 +358,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Nested class= text in title is left alone after background offload.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_with_background_ignores_class_substring_in_title() {
 				$mutator = $this->get_mutator();
@@ -376,7 +376,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Nested class= text in title is left alone on img tags.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_img_content_replace_ignores_class_substring_in_title() {
 				$mutator = $this->get_mutator();
@@ -392,7 +392,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		/**
 		 * Nested loading= text in title is left alone when native lazy is removed.
 		 *
-		 * @since X.X.X
+		 * @since 2.10.6
 		 */
 		public function test_tag_img_content_replace_ignores_loading_substring_in_title() {
 				$mutator = $this->get_mutator();

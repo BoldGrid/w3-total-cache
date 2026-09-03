@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.6
  */
 
 declare( strict_types = 1 );
@@ -24,12 +24,12 @@ use W3TC\Generic_AdminActions_Default;
  *  - license-path Config::set() may still promote / clear allowed values
  *  - out-of-enum Config::set() retains the prior value
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 */
@@ -45,7 +45,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 */
@@ -56,7 +56,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $value Seed plugin.type value.
 	 *
@@ -75,7 +75,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $page Admin page slug.
 	 *
@@ -89,7 +89,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	/**
 	 * Metadata: no_import, no dedicated_page escape hatch.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_schema_marks_plugin_type_license_path_only() {
 		$this->assertTrue( ConfigKeysSchema::is_known( 'plugin.type' ) );
@@ -101,7 +101,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	/**
 	 * Settings POST cannot self-elevate to Pro.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_read_request_rejects_plugin_type_elevation() {
 		$_POST = array(
@@ -117,7 +117,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	/**
 	 * Settings POST cannot clear an existing Pro entitlement either.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_read_request_rejects_plugin_type_clear() {
 		$_POST = array(
@@ -133,7 +133,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	/**
 	 * Bulk import soft-skips plugin.type; neighbours still apply.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_import_rejects_plugin_type_mutation() {
 		$config = $this->seeded_plugin_type( '' );
@@ -155,7 +155,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	 * License path (Config::set after EDD) may promote to pro / pro_dev
 	 * and may clear back to empty.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_license_path_set_allows_supported_values() {
 		$config = $this->seeded_plugin_type( '' );
@@ -173,7 +173,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 	/**
 	 * Out-of-enum values are refused at Config::set (retain prior).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_set_rejects_out_of_enum_plugin_type() {
 		$config = $this->seeded_plugin_type( 'pro' );

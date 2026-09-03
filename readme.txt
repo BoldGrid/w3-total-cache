@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.10.5
+Stable tag: 2.10.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,31 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.6 =
+* Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
+* Enhancement: Page Cache: Add w3tc_pgcache_rules_required filter to skip writing rewrite rules
+* Fix: Settings: Restrict POST updates to keys owned by the active admin page
+* Fix: Licensing: Limit plugin type updates to the license path
+* Fix: Image Converter: Require administrator capability for convert and submit
+* Fix: Config import: Validate structure before applying
+* Fix: Role cookies: Stop honoring legacy names unless explicitly enabled
+* Fix: Minify: Validate precache URLs before outbound fetch
+* Fix: URL constants: Apply host allowlists to overrides
+* Fix: Minify: Validate Java minifier JAR paths before invocation
+* Update: Bunny CDN and Redis: Enable verified TLS by default
+* Fix: Diagnostics: Extend log redaction across remaining formats
+* Fix: Reverse proxy: Apply forwarded client IP and scheme headers only from trusted proxies
+* Fix: CDN: Limit Media Library import to static assets
+* Fix: CDN: Render admin server responses as text
+* Fix: CDN: Use saved settings for Test
+* Fix: CDN: Scope CORS headers to font resources
+* Fix: Browser Cache: Normalize rewrite rule rendering
+* Fix: Support: Reduce client data sent from the Support page
+* Fix: Forums: Normalize API client responses
+* Fix: Lazy Load: Match background styles as top-level attributes only
+* Fix: Admin: Align request validation across notice, extension, setup, CDN, and minify flows
+
+
 = 2.10.5 =
 * Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
 
@@ -432,136 +457,12 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Setup Guide Wizard and test improvements
 * Update: WebP Converter renamed to Image Converter
 
-= 2.8.15 =
-* Fix: Elementor: Carousel lazy load
-* Fix: Elementor: Cache clearing issues
-* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
-* Fix: Better validation for file directory cleanup
-* Fix: Bunny CDN: Settings page purge URL section
-* Fix: Minify: Auto JS: Handle async and defer attributes with values
-* Fix: Google PageSpeed: Lighthouse changes
-* Fix: Cloudflare: Undefined array warning
-* Fix: Rackspace API: Response code handling
-* Fix: License deactivation messages
-* Update: ChartJS updated to v4.4.1
-* Enhancement: Added support links
-
-= 2.8.14 =
-* Fix: Better logic for mfunc/mclude processing
-* Enhancement: More consistent purge notices
-
-= 2.8.13 =
-* Fix: Sanitize mfunc/mclude content in REST calls
-* Fix: Resolved plugin check errors
-* Fix: Discard simplexml errors
-* Fix: Missing text domains
-* Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: Image Converter: WP_Query optimizations
-
-= 2.8.12 =
-* Fix: Lazy load background-image style handling
-* Fix: Elementor: Also flush Object Cache after Page Cache is flushed
-* Fix: Canonicalize Cache read path to avoid variants
-
-= 2.8.11 =
-* Fix: Avoid redundant object cache misses in WP 6.4 - 6.7
-* Fix: Admin bar: Do not show "Purge All Caches Except Cloudflare" if disabled after it was configured
-* Fix: Error handling for URL downloads
-* Fix: Menu items for non-administrators
-* Update: Lazy load library: 12.2.0 => 19.1.2
-* Enhancement: Use SimpleXMLElement to parse sitemaps and RSS feeds
-* Enhancement: Flush Elementor cache when all caches are flushed
-
-= 2.8.10 =
-* Fix: Exception handling on activation
-* Fix: wp_resource_hint handling for arrays
-* Enhancement: Added X-W3TC-CDN header
-
-= 2.8.9 =
-* Fix: AWS S3 test
-* Fix: Gravity Forms submissions
-* Fix: Windows: Configuration import
-* Fix: Redis: Fix PHP 8 warning for incrBy value not being an integer
-* Fix: DbCache Cluster: Check for mysqli_result before using the object
-* Fix: PHP 8 warnings
-* Fix: Typos on settings pages
-
-= 2.8.8 =
-* Fix: Usage Statistics JavaScript error
-* Fix: Regex matching for Cookie Cache Groups
-* Fix: Image Service: Error when get_current_screen() is run before admin_init
-* Fix: _load_textdomain_just_in_time timing issue for WP-CLI and the Setup Guide
-* Fix: "DOMDocument::loadHTML(): ID  already defined in Entity" errors
-* Fix: Cloudflare: Saving settings with a value of 0
-* Update: Removed StackPath, Limelight, and Highwinds CDNs due to end of service
-
-= 2.8.7 =
-* Fix: Exit survey email field submission
-* Fix: Setup Guide analytics
-* Update: Allow deleting plugin data when skipping the exit survey on deactivation
-* Update: aws/aws-php-sns-message-validator (1.9.0 => 1.9.1)
-
-= 2.8.6 =
-* Fix: Error deactivating when selected to delete plugin data
-* Fix: WP-CLI: Enable Object Cache depending on settings
-* Fix: Delete all plugin WordPress Options if selected on deactivation
-* Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
-* Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
-* Enhancement: Added an email field to the exit survey for requesting help
-* Enhancement: Added a pop-up modal to accept the risk when enabling Object Cache using Disk
-
-= 2.8.5 =
-* Fix: CDN: Amazon S3 long hostname for default region
-* Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
-* Fix: WP-CLI: Remove HTML in output
-* Enhancement: Simplified license messaging
-
-= 2.8.4 =
-* Fix: Deactivation modal JS error
-
-= 2.8.3 =
-* Fix: HTTP API calls for checking required files
-* Fix: script-src-elem and style-src-attr security headers
-* Fix: Handle multiple line srcset attributes for CDN URL replacement
-* Fix: Fragment Cache: Fixed logic for navigation links
-* Fix: Check for modified advanced-cache.php dropin/addin file
-* Fix: Log directory name is made unique
-* Enhancement: Added an exit survey with option to delete plugin data on deactivation
-* Enhancement: Fragment Cache: Added notices for configuration
-* Enhancement: Use admin-ajax for settings help tab content links
-* Update: Handle XML MIME types in cache by default
-* Update: Added "immutable" options for cache-control headers
-* Update: Added WP-CLI command descriptions
-* Update: CDN widget notices for BunnyCDN
-* Update: Image Converter widget notice
-
-= 2.8.2 =
-* Fix: Added additional user capability checks
-* Fix: Ensure Object Cache garbage collection (disk) WP Cron event is scheduled
-* Fix: Added additional checks when loading the Object Cache dropin
-* Fix: Disable Database, Object, and Fragment Cache when using WP-CLI
-* Fix: Object Cache debug logging
-* Fix: FAQ help tabs
-* Update: Coding standards
-
-= 2.8.1=
-* Fix: Ensure WP Cron events get scheduled when using the Setup Guide wizard and on upgrade
-* Fix: Undefined variable when the Object Cache purge debug log is enabled
-* Update: Added warnings in the Setup Guide and the General Settings page when using Disk for Database and Object Caches
-* Update: Skip Database and Object caches when using WP-CLI
-
-= 2.8.0 =
-* Feature: Always Cached extension
-* Feature: Purge caches on WP-Cron schedules
-* Fix: Cloudflare: Some settings were not saved correctly
-* Fix: Check and update file mode/permissions for cache files
-* Fix: Issue prompting for credentials for some non-direct filesystem types
-* Enhancement: Added an admin notice if WP-Cron is not functioning correctly
-* Enhancement: Added Browser Cache filters
-* Update: Upgraded JSMin library to 2.4.3
-* Update: Added Premium Services tabs
-
 == Upgrade Notice ==
+
+= 2.10.6 =
+This is a security update. All users are strongly encouraged to update.
+This update improves settings handling, CDN and minify behavior, TLS defaults, and diagnostic logging.
+
 
 = 2.10.5 =
 This is a security update. All users are strongly encouraged to update.

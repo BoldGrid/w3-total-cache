@@ -199,7 +199,7 @@ class Util_Url {
 	 * Protocol-relative URLs (`//example.com/...`) are normalized with
 	 * the current request scheme before evaluation.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $w3tc_url Candidate URL.
 	 *
@@ -217,7 +217,7 @@ class Util_Url {
 	/**
 	 * Expands a protocol-relative URL using the current request scheme.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $w3tc_url Candidate URL.
 	 *
@@ -609,7 +609,7 @@ class Util_Url {
 	 * names (`w3-edge.com`); suffixes MUST include the leading dot
 	 * (`.w3-edge.com`) so `xw3-edge.com` cannot pass.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $w3tc_url          Candidate URL.
 	 * @param array  $exact_hosts       Exact hostnames (lowercase-compared).

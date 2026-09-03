@@ -88,7 +88,7 @@ class W3tc_Tls_Defaults_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdn.bunnycdn.verify_tls_certificates' ) );
-		$this->assertSame( 'w3tc_cdnfsd', ConfigKeysSchema::dedicated_page( 'cdnfsd.bunnycdn.verify_tls_certificates' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.bunnycdn.verify_tls_certificates' ) );
 	}
 
 	/**

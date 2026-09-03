@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.6
  */
 
 declare( strict_types = 1 );
@@ -23,12 +23,12 @@ use W3TC\Generic_AdminActions_Default;
  *  - Unrelated keys in the same POST remain unchanged
  *  - New Relic apply-configuration AJAX refuses non-conforming API keys
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 */
@@ -44,7 +44,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 */
@@ -55,7 +55,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $page Admin page slug.
 	 *
@@ -69,7 +69,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Register the first-party extensions used by ownership tests.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return void
 	 */
@@ -103,7 +103,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * New Relic monitoring settings save on w3tc_monitoring.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -132,7 +132,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * New Relic keys are refused from an unrelated settings page.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -161,7 +161,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Extension page settings save for Cloudflare / Swarmify / AMP.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -190,7 +190,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Cloudflare General-box settings remain writable from w3tc_general.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -219,7 +219,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Mixed POST: owned extension keys update, foreign keys do not.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -251,7 +251,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * API key format gate accepts REST / NRAK shapes and rejects freeform.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_newrelic_api_key_format_gate() {
 		$this->assertTrue(
@@ -277,7 +277,7 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Apply-configuration AJAX refuses a freeform API key and leaves config untouched.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

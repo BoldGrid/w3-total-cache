@@ -28,57 +28,11 @@ Add key to ssh agent:
 . ./000-evnvironment
 ```
 
-## Vagrant Requirements (functionaly to be restored)
-```
-sudo apt-get install vagrant
-```
+## Vagrant (local single cell)
 
-Add to `/etc/hosts`:
-```
-192.168.100.100 wp.sandbox
-192.168.100.100 b2.wp.sandbox
-192.168.100.100 system.sandbox
-```
+Walkthrough from a new host through `vagrant up` and `w3test`: [../VAGRANT.md](../VAGRANT.md).
 
-## How to start vagrant box
-- generate virtualboxes
-```
-./100-generate-envs
-```
-- check out w3tc plugin and tests
-```
-./w3tc-clone
-```
-
-- go to virtualbox directory of your choice in ./boxes folder
-- start virtual box
-```
-vagrant up
-```
-
-- access virtualbox's terminal
-```
-vagrant ssh
-sudo su
-```
-
-- access wordpress website
-
-[http://wp.sandbox/](http://wp.sandbox/)
-
-phpMyAdmin:
-
-[http://system.sandbox/phpmyadmin/](http://sandbox-system/phpmyadmin/)
-credentials: root / <empty password>
-
-- run some test
-in virtualbox's terminal
-```
-cd ~/w3tcqa
-w3test tests/pagecache/a03-check-disk-enhanced.js
-```
-
-If folder specified - all tests in that folder will be executed until first failure
+Guest IP in generated `Vagrantfile`s is `192.168.56.100`. Do not use the old `192.168.100.100` hosts entries.
 
 ## Optional box environment flags
 

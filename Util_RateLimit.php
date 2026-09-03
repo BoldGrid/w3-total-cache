@@ -7,7 +7,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 
 namespace W3TC;
@@ -15,7 +15,7 @@ namespace W3TC;
 /**
  * Class Util_RateLimit
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class Util_RateLimit {
 	/**
@@ -24,7 +24,7 @@ class Util_RateLimit {
 	 * Increments the counter when the request is allowed. Returns false
 	 * when the budget is exhausted for the current window.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $bucket          Budget name (letters, digits, underscore).
 	 * @param int    $max             Maximum allowed hits in the window.
@@ -57,7 +57,7 @@ class Util_RateLimit {
 	/**
 	 * Build a transient key for a rate-limit bucket.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @param string $bucket        Budget name.
 	 * @param string $discriminator Optional discriminator.

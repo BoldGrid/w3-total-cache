@@ -124,6 +124,49 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * FSD credential writes succeed on the CDN settings page.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_allows_cdnfsd_keys_on_cdn_page() {
+		$_POST = array(
+			'cdnfsd__transparentcdn__client_id'     => 'new-client',
+			'cdnfsd__transparentcdn__client_secret' => 'new-secret',
+			'cdnfsd__transparentcdn__company_id'    => 'new-company',
+			'cdnfsd__cloudfront__access_key'        => 'new-cf-key',
+		);
+
+		$config = $this->seeded_config( 'cdnfsd.transparentcdn.client_id', 'old-client' );
+		$config->set( 'cdnfsd.transparentcdn.client_secret', 'old-secret' );
+		$config->set( 'cdnfsd.transparentcdn.company_id', 'old-company' );
+		$config->set( 'cdnfsd.cloudfront.access_key', 'old-cf-key' );
+		$this->admin_for_page( 'w3tc_cdn' )->read_request( $config );
+
+		$this->assertSame( 'new-client', $config->get_string( 'cdnfsd.transparentcdn.client_id' ) );
+		$this->assertSame( 'new-secret', $config->get_string( 'cdnfsd.transparentcdn.client_secret' ) );
+		$this->assertSame( 'new-company', $config->get_string( 'cdnfsd.transparentcdn.company_id' ) );
+		$this->assertSame( 'new-cf-key', $config->get_string( 'cdnfsd.cloudfront.access_key' ) );
+	}
+
+	/**
+	 * FSD credentials posted from General or a leftover cdnfsd slug are dropped.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_rejects_cdnfsd_keys_outside_cdn_page() {
+		$_POST = array(
+			'cdnfsd__transparentcdn__client_id' => 'attacker-client',
+		);
+
+		$config = $this->seeded_config( 'cdnfsd.transparentcdn.client_id', 'keep-me' );
+		$this->admin_for_page( 'w3tc_general' )->read_request( $config );
+		$this->assertSame( 'keep-me', $config->get_string( 'cdnfsd.transparentcdn.client_id' ) );
+
+		$this->admin_for_page( 'w3tc_cdnfsd' )->read_request( $config );
+		$this->assertSame( 'keep-me', $config->get_string( 'cdnfsd.transparentcdn.client_id' ) );
+	}
+
+	/**
 	 * Compound Cloudflare API key cannot be written from General.
 	 *
 	 * @since 2.10.6

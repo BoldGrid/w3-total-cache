@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.6
  */
 
 declare( strict_types = 1 );
@@ -18,14 +18,14 @@ use W3TC\Util_Http;
  * Regression coverage for minify precache / ID-generation URL checks
  * and download redirect revalidation.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 
 	/**
 	 * Cleanup HTTP mocks between tests.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function tearDown(): void {
 		\remove_all_filters( 'pre_http_request' );
@@ -36,7 +36,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	 * Precache refuses destinations outside the outbound allow policy
 	 * without issuing an HTTP request.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_precache_file_refuses_disallowed_urls_without_http() {
 		$http_calls = 0;
@@ -72,7 +72,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Approved same-host URLs may proceed to download.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_precache_file_allows_self_host_download() {
 		$url      = \home_url( '/wp-content/themes/twentytwentyfour/style.css' );
@@ -112,7 +112,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	 * Download follows a public redirect hop and refuses a private
 	 * Location target.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_download_revalidates_redirect_destination() {
 		$tmp   = \sys_get_temp_dir() . '/w3tc-precache-redirect-' . \uniqid( '', true ) . '.css';
@@ -146,7 +146,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Download accepts a same-policy redirect and writes the final body.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_download_follows_allowed_redirect() {
 		$tmp   = \sys_get_temp_dir() . '/w3tc-precache-ok-redirect-' . \uniqid( '', true ) . '.css';
@@ -193,7 +193,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * ID generation refuses remote sources outside the allow policy.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_generate_id_refuses_disallowed_remote_source() {
 		$http_calls = 0;

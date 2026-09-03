@@ -1,4 +1,4 @@
-# Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid.
+# Travis CI configuration for the W3 Total Cache WordPress plugin by BoldGrid.
 # @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
 # @link https://docs.travis-ci.com/user/job-lifecycle
 
@@ -17,8 +17,8 @@ matrix:
       php: 7.4
       dist: focal
       before_install:
-        - nvm install 20
-        - nvm use 20
+        - nvm install 24
+        - npm install -g yarn
       before_deploy:
         # Fix Ruby Gems for GitHub Releases deployment.
         - yes | gem update --system --force
@@ -38,16 +38,17 @@ matrix:
       language: ruby
       dist: jammy
       before_install:
-        - nvm install 20
-        - nvm use 20
+        - nvm install 24
+        - npm install -g yarn
         - sudo add-apt-repository -y ppa:ondrej/php
         - sudo apt-get update -q
-        - sudo apt-get install -y php8.5-cli php8.5-common php8.5-mbstring php8.5-xml php8.5-mysql php8.5-curl php8.5-zip
+        - sudo apt-get install -y php8.5-cli php8.5-common php8.5-mbstring php8.5-xml php8.5-mysql php8.5-curl php8.5-zip php8.5-gd php8.5-intl
         - sudo update-alternatives --set php /usr/bin/php8.5
         - php -v
         # `language: ruby` skips Travis's phpenv composer shim; install composer ourselves.
-        - curl -sS https://getcomposer.org/installer | php
-        - sudo mv composer.phar /usr/local/bin/composer
+        - mkdir -p "$HOME/bin"
+        - curl -sS https://getcomposer.org/installer | php -- --install-dir="$HOME/bin" --filename=composer
+        - export PATH="$HOME/bin:$PATH"
         - composer --version
 
 install:

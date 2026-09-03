@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.6
  */
 
 declare( strict_types = 1 );
@@ -21,7 +21,7 @@ use W3TC\Util_Url;
  * Regression coverage for constant-override URL allowlists at NOTICE_FEED,
  * API2, PageSpeed, TransparentCDN, and license call sites.
  *
- * @since X.X.X
+ * @since 2.10.6
  */
 class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 
@@ -42,7 +42,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * Reset HTTP capture between tests.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function tearDown(): void {
 		\remove_all_filters( 'pre_http_request' );
@@ -54,7 +54,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * Absent W3TC_API2_URL keeps the production default.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_api_base_url_absent_constant_uses_default() {
 		if ( \defined( 'W3TC_API2_URL' ) ) {
@@ -69,7 +69,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	 *
 	 * Defines the constant once for this process — keep after absent test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_api_base_url_rejected_constant_falls_back() {
 		if ( ! \defined( 'W3TC_API2_URL' ) ) {
@@ -86,7 +86,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * Absent PageSpeed override uses the built-in Google URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_pagespeed_url_absent_constant_uses_default() {
 		if ( \defined( 'W3TC_PAGESPEED_API_URL' ) ) {
@@ -103,7 +103,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * Approved googleapis override is preserved.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_get_pagespeed_url_accepts_googleapis_override() {
 		if ( ! \defined( 'W3TC_PAGESPEED_API_URL' ) ) {
@@ -122,7 +122,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	 * Rejected PageSpeed URL shapes fall back (helper contract used by
 	 * get_pagespeed_url).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_pagespeed_allowlist_rejects_foreign_hosts() {
 		$this->assertFalse(
@@ -144,7 +144,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * NOTICE_FEED production default remains allowlisted; foreign hosts are not.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_notice_feed_allowlist_matches_call_site_policy() {
 		$this->assertTrue(
@@ -166,7 +166,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	/**
 	 * License base URL allowlist still accepts the configured production host.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_license_api_base_url_uses_shared_allowlist() {
 		$ref    = new \ReflectionClass( Licensing_Core::class );
@@ -184,7 +184,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	 * TransparentCDN auth posts only when the authorization constant is
 	 * allowlisted; requests disable redirect following.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_transparentcdn_auth_uses_allowlisted_url_without_redirects() {
 		require_once W3TC_DIR . '/Cdnfsd_TransparentCDN_Engine.php';
@@ -234,7 +234,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	 * TransparentCDN purge URL template resolves to an allowlisted host and
 	 * refuses foreign hosts before credentialed POSTs.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 */
 	public function test_transparentcdn_purge_url_policy() {
 		require_once W3TC_DIR . '/Cdnfsd_TransparentCDN_Engine.php';
