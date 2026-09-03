@@ -245,8 +245,7 @@ class PageSpeed_Api {
 	 */
 	public function refresh_token( $w3tc_site_id, $w3tc_pagespeed_key ) {
 		if ( empty( $w3tc_site_id ) || empty( $w3tc_pagespeed_key ) ) {
-			update_option(
-				'w3tcps_refresh_fail',
+			$this->set_refresh_failure(
 				__( 'Google PageSpeed access token refresh missing required parameters!', 'w3-total-cache' )
 			);
 			return;
@@ -261,59 +260,138 @@ class PageSpeed_Api {
 			)
 		);
 
-		$response_body_json = wp_remote_retrieve_body( $response );
-		$response_body      = json_decode( $response_body_json, true );
-
 		if ( is_wp_error( $response ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response->get_error_code(),
-						'message' => $response->get_error_message(),
-					),
-				)
+			$this->set_refresh_failure(
+				__( 'Google PageSpeed access token refresh failed.', 'w3-total-cache' ),
+				$response->get_error_message()
 			);
-		} elseif ( isset( $response_body['error']['code'] ) && 200 !== $response_body['error']['code'] ) {
-			if ( 'refresh-token-missing-site-id' === $response_body['error']['id'] ) {
-				$w3tc_message = __( 'No site ID provided for access key refresh!', 'w3-total-cache' );
-			} elseif ( 'refresh-token-missing-w3tc-pagespeed-key' === $response_body['error']['id'] ) {
-				$w3tc_message = __( 'No W3TC API key provided for access key refresh!', 'w3-total-cache' );
-			} elseif ( 'refresh-token-not-found' === $response_body['error']['id'] ) {
-				$w3tc_message = __( 'No matching Google access record found for W3TC API key!', 'w3-total-cache' );
-			} elseif ( 'refresh-token-missing-refresh-token' === $response_body['error']['id'] ) {
-				$w3tc_message = __( 'Matching Google access record found but the refresh token value is blank!', 'w3-total-cache' );
-			}
-
-			update_option(
-				'w3tcps_refresh_fail',
-				__( 'Google PageSpeed access token refresh failed.', 'w3-total-cache' )
-			);
-			update_option(
-				'w3tcps_refresh_fail_message',
-				$w3tc_message
-			);
-
-			// Reset the token and key.
-			$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
-			$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
-			$this->w3tc_config->save();
-
 			return;
 		}
 
-		$w3tc_access_token = $response_body_json;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $response_body ) ) {
+			$response_body = array();
+		}
 
-		if ( empty( $w3tc_access_token ) || empty( $response_body['access_token'] ) ) {
-			update_option(
-				'w3tcps_refresh_fail',
+		$w3tc_error_id = '';
+		if ( isset( $response_body['error'] ) && is_array( $response_body['error'] ) ) {
+			$w3tc_error_id = isset( $response_body['error']['id'] ) ? (string) $response_body['error']['id'] : '';
+		}
+
+		if (
+			$response_code < 200 ||
+			$response_code >= 300 ||
+			isset( $response_body['error'] )
+		) {
+			$this->set_refresh_failure(
+				__( 'Google PageSpeed access token refresh failed.', 'w3-total-cache' ),
+				$this->get_refresh_failure_message( $w3tc_error_id, $response_body, $response_code )
+			);
+
+			if (
+				in_array(
+					$w3tc_error_id,
+					array(
+						'refresh-token-not-found',
+						'refresh-token-missing-refresh-token',
+					),
+					true
+				)
+			) {
+				$this->clear_pagespeed_credentials();
+			}
+			return;
+		}
+
+		if (
+			empty( $response_body['access_token'] ) ||
+			! is_string( $response_body['access_token'] ) ||
+			empty( $response_body['expires_in'] ) ||
+			! is_numeric( $response_body['expires_in'] )
+		) {
+			$this->set_refresh_failure(
 				__( 'Google PageSpeed access token refresh failed due to response missing access token.', 'w3-total-cache' )
 			);
 			return;
 		}
 
+		if ( empty( $response_body['created'] ) ) {
+			$response_body['created'] = time();
+		}
+
+		$w3tc_access_token = wp_json_encode( $response_body );
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 		$this->w3tc_config->save();
 		$this->client->setAccessToken( $w3tc_access_token );
+	}
+
+	/**
+	 * Records a token refresh failure for the admin notice.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $title   Notice title.
+	 * @param string $message Optional failure detail.
+	 *
+	 * @return void
+	 */
+	private function set_refresh_failure( $title, $message = '' ) {
+		update_option( 'w3tcps_refresh_fail', $title );
+		update_option( 'w3tcps_refresh_fail_message', $message );
+	}
+
+	/**
+	 * Returns operator-facing text for a token refresh failure.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_error_id Nested W3 API error ID, if any.
+	 * @param array  $response_body Decoded response body.
+	 * @param int    $response_code HTTP response code.
+	 *
+	 * @return string
+	 */
+	private function get_refresh_failure_message( $w3tc_error_id, $response_body, $response_code ) {
+		switch ( $w3tc_error_id ) {
+			case 'refresh-token-missing-site-id':
+				return __( 'No site ID provided for access key refresh!', 'w3-total-cache' );
+
+			case 'refresh-token-missing-w3tc-pagespeed-key':
+				return __( 'No W3TC API key provided for access key refresh!', 'w3-total-cache' );
+
+			case 'refresh-token-not-found':
+				return __( 'No matching Google access record found for W3TC API key!', 'w3-total-cache' );
+
+			case 'refresh-token-missing-refresh-token':
+				return __( 'Matching Google access record found but the refresh token value is blank!', 'w3-total-cache' );
+
+			case 'refresh-token-google-failed':
+				return __( 'Google rejected the access token refresh. Re-authorize Google PageSpeed if this continues.', 'w3-total-cache' );
+		}
+
+		if ( isset( $response_body['error'] ) && is_string( $response_body['error'] ) ) {
+			return __( 'Google rejected the access token refresh. Re-authorize Google PageSpeed if this continues.', 'w3-total-cache' );
+		}
+
+		return sprintf(
+			/* translators: %d: HTTP response code. */
+			__( 'Unexpected token refresh response (HTTP %d).', 'w3-total-cache' ),
+			$response_code
+		);
+	}
+
+	/**
+	 * Removes local PageSpeed credentials after an irrecoverable API response.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function clear_pagespeed_credentials() {
+		$this->w3tc_config->set( 'widget.pagespeed.access_token', '' );
+		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
+		$this->w3tc_config->save();
 	}
 
 	/**
