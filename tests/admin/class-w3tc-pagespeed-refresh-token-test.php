@@ -147,6 +147,31 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A later successful refresh must not leave a prior failure notice.
+	 *
+	 * @return void
+	 */
+	public function test_successful_refresh_clears_prior_failure_notice() {
+		update_option( 'w3tcps_refresh_fail', 'Google PageSpeed access token refresh failed.' );
+		update_option( 'w3tcps_refresh_fail_message', 'Connection timed out.' );
+
+		$this->mock_http_response(
+			200,
+			array(
+				'access_token' => 'renewed-token',
+				'expires_in'   => 3600,
+				'token_type'   => 'Bearer',
+			)
+		);
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$this->assertFalse( get_option( 'w3tcps_refresh_fail' ) );
+		$this->assertFalse( get_option( 'w3tcps_refresh_fail_message' ) );
+	}
+
+	/**
 	 * A flat Google error must not be mistaken for an access token.
 	 *
 	 * @return void
