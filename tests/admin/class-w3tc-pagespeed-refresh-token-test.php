@@ -25,6 +25,13 @@ class W3tc_Pagespeed_Config_Stub {
 	private $values;
 
 	/**
+	 * Number of config saves.
+	 *
+	 * @var int
+	 */
+	private $save_count = 0;
+
+	/**
 	 * Initialize known PageSpeed credentials.
 	 */
 	public function __construct() {
@@ -69,6 +76,16 @@ class W3tc_Pagespeed_Config_Stub {
 	 * @return void
 	 */
 	public function save() {
+		++$this->save_count;
+	}
+
+	/**
+	 * Return the number of config saves.
+	 *
+	 * @return int
+	 */
+	public function get_save_count() {
+		return $this->save_count;
 	}
 }
 
@@ -93,6 +110,13 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	private $http_filter;
 
 	/**
+	 * Number of intercepted HTTP requests.
+	 *
+	 * @var int
+	 */
+	private $http_request_count = 0;
+
+	/**
 	 * Preserve config changed by each test.
 	 *
 	 * @return void
@@ -114,6 +138,9 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		}
 		delete_option( 'w3tcps_refresh_fail' );
 		delete_option( 'w3tcps_refresh_fail_message' );
+		delete_option( 'w3tcps_refresh_retry_after' );
+		delete_option( 'w3tcps_revoke_fail' );
+		delete_option( 'w3tcps_revoke_fail_message' );
 
 		parent::tearDown();
 	}
@@ -254,6 +281,108 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An unknown server error remains retryable and reports its status.
+	 *
+	 * @return void
+	 */
+	public function test_unknown_server_error_keeps_credentials() {
+		$this->mock_http_response(
+			500,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 500,
+					'id'   => 'refresh-token-future-error',
+				),
+			)
+		);
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$this->assert_credentials_preserved();
+		$this->assertStringContainsString(
+			'HTTP 500',
+			get_option( 'w3tcps_refresh_fail_message' )
+		);
+	}
+
+	/**
+	 * A successful status without expiry data must not write config.
+	 *
+	 * @return void
+	 */
+	public function test_missing_expires_in_does_not_save_config() {
+		$this->mock_http_response(
+			200,
+			array(
+				'access_token' => 'renewed-token',
+			)
+		);
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$this->assertSame( 0, $this->config->get_save_count() );
+		$this->assert_credentials_preserved();
+	}
+
+	/**
+	 * A non-JSON success response must not write config.
+	 *
+	 * @return void
+	 */
+	public function test_non_json_success_does_not_save_config() {
+		$this->mock_raw_http_response( 200, '<html>Maintenance</html>' );
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$this->assertSame( 0, $this->config->get_save_count() );
+		$this->assert_credentials_preserved();
+	}
+
+	/**
+	 * Automatic refresh makes no request without an API key.
+	 *
+	 * @return void
+	 */
+	public function test_automatic_refresh_without_key_makes_no_request() {
+		$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
+		$this->mock_http_response( 200, array() );
+
+		$api = $this->create_api( true );
+		$api->maybe_refresh_token();
+
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * Automatic refresh backs off after a failure.
+	 *
+	 * @return void
+	 */
+	public function test_failed_automatic_refresh_starts_cooldown() {
+		$this->mock_http_response(
+			502,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 502,
+					'id'   => 'refresh-token-google-failed',
+				),
+			)
+		);
+
+		$api = $this->create_api( true );
+		$api->maybe_refresh_token();
+		$api->maybe_refresh_token();
+
+		$this->assertSame( 1, $this->http_request_count );
+		$this->assertGreaterThan( time(), (int) get_option( 'w3tcps_refresh_retry_after' ) );
+	}
+
+	/**
 	 * A missing API record requires fresh authorization.
 	 *
 	 * @return void
@@ -320,6 +449,81 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Unknown and malformed authorization errors receive useful fallback text.
+	 *
+	 * @return void
+	 */
+	public function test_authorize_failure_message_has_safe_fallback() {
+		$unknown = wp_json_encode(
+			array(
+				'error' => array(
+					'id' => 'authorize-out-future-error',
+				),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'authorize-out-future-error',
+			PageSpeed_Api::get_authorize_failure_message( $unknown )
+		);
+		$this->assertStringContainsString(
+			'unknown',
+			PageSpeed_Api::get_authorize_failure_message( 'not-json' )
+		);
+	}
+
+	/**
+	 * A transport failure during revoke keeps local credentials.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_transport_error_keeps_credentials() {
+		$this->http_filter = static function() {
+			return new WP_Error( 'http_request_failed', 'Connection timed out.' );
+		};
+		add_filter( 'pre_http_request', $this->http_filter, 10, 3 );
+
+		$api = $this->create_api( true );
+
+		$this->assertFalse( $api->reset() );
+		$this->assert_credentials_preserved();
+		$this->assertSame( 'Connection timed out.', get_option( 'w3tcps_revoke_fail_message' ) );
+	}
+
+	/**
+	 * A server error during revoke keeps local credentials.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_server_error_keeps_credentials() {
+		$this->mock_http_response( 500, array() );
+
+		$api = $this->create_api( true );
+
+		$this->assertFalse( $api->reset() );
+		$this->assert_credentials_preserved();
+		$this->assertStringContainsString(
+			'HTTP 500',
+			get_option( 'w3tcps_revoke_fail_message' )
+		);
+	}
+
+	/**
+	 * A successful revoke clears local credentials.
+	 *
+	 * @return void
+	 */
+	public function test_successful_revoke_clears_credentials() {
+		$this->mock_http_response( 200, array() );
+
+		$api = $this->create_api( true );
+
+		$this->assertTrue( $api->reset() );
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+	}
+
+	/**
 	 * Create an API instance backed by the in-memory config.
 	 *
 	 * @param bool $expired Whether to load an expired client token.
@@ -350,10 +554,23 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	private function mock_http_response( $code, $body ) {
-		$this->http_filter = static function() use ( $code, $body ) {
+		$this->mock_raw_http_response( $code, wp_json_encode( $body ) );
+	}
+
+	/**
+	 * Intercept the refresh request with a raw response body.
+	 *
+	 * @param int    $code HTTP response code.
+	 * @param string $body Raw response body.
+	 *
+	 * @return void
+	 */
+	private function mock_raw_http_response( $code, $body ) {
+		$this->http_filter = function() use ( $code, $body ) {
+			++$this->http_request_count;
 			return array(
 				'headers'  => array(),
-				'body'     => wp_json_encode( $body ),
+				'body'     => $body,
 				'response' => array(
 					'code'    => $code,
 					'message' => '',
