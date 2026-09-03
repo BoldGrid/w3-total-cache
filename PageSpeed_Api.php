@@ -316,9 +316,7 @@ class PageSpeed_Api {
 			return;
 		}
 
-		if ( empty( $response_body['created'] ) ) {
-			$response_body['created'] = time();
-		}
+		$response_body['created'] = time();
 
 		$w3tc_access_token = wp_json_encode( $response_body );
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
@@ -369,11 +367,11 @@ class PageSpeed_Api {
 				return __( 'Matching Google access record found but the refresh token value is blank!', 'w3-total-cache' );
 
 			case 'refresh-token-google-failed':
-				return __( 'Google rejected the access token refresh. Re-authorize Google PageSpeed if this continues.', 'w3-total-cache' );
+				return __( 'Google rejected the access token refresh. Local authorization was kept for retry.', 'w3-total-cache' );
 		}
 
 		if ( isset( $response_body['error'] ) && is_string( $response_body['error'] ) ) {
-			return __( 'Google rejected the access token refresh. Re-authorize Google PageSpeed if this continues.', 'w3-total-cache' );
+			return __( 'Google rejected the access token refresh. Local authorization was kept for retry.', 'w3-total-cache' );
 		}
 
 		return sprintf(

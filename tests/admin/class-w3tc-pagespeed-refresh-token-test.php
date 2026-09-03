@@ -172,6 +172,33 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A stale created timestamp in the response must not keep the token expired.
+	 *
+	 * @return void
+	 */
+	public function test_successful_refresh_overwrites_stale_created() {
+		$this->mock_http_response(
+			200,
+			array(
+				'access_token' => 'renewed-token',
+				'expires_in'   => 3600,
+				'token_type'   => 'Bearer',
+				'created'      => 1,
+			)
+		);
+
+		$before = time();
+		$api    = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$stored = json_decode( $this->config->get_string( 'widget.pagespeed.access_token' ), true );
+
+		$this->assertGreaterThanOrEqual( $before, $stored['created'] );
+		$this->assertLessThanOrEqual( time(), $stored['created'] );
+		$this->assertFalse( $api->client->isAccessTokenExpired() );
+	}
+
+	/**
 	 * A flat Google error must not be mistaken for an access token.
 	 *
 	 * @return void
@@ -194,7 +221,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 			get_option( 'w3tcps_refresh_fail' )
 		);
 		$this->assertStringContainsString(
-			'Re-authorize Google PageSpeed',
+			'kept for retry',
 			get_option( 'w3tcps_refresh_fail_message' )
 		);
 	}
@@ -220,6 +247,10 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		$api->refresh_token( 'site-id', 'pagespeed-key' );
 
 		$this->assert_credentials_preserved();
+		$this->assertStringContainsString(
+			'kept for retry',
+			get_option( 'w3tcps_refresh_fail_message' )
+		);
 	}
 
 	/**
@@ -235,6 +266,30 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 				'error'  => array(
 					'code' => 428,
 					'id'   => 'refresh-token-not-found',
+				),
+			)
+		);
+
+		$api = $this->create_api();
+		$api->refresh_token( 'site-id', 'pagespeed-key' );
+
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
+		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
+	}
+
+	/**
+	 * A blank stored refresh token also requires fresh authorization.
+	 *
+	 * @return void
+	 */
+	public function test_missing_refresh_token_clears_credentials() {
+		$this->mock_http_response(
+			428,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 428,
+					'id'   => 'refresh-token-missing-refresh-token',
 				),
 			)
 		);
