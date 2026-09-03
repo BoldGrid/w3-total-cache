@@ -1285,6 +1285,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$w3tc_message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
 			} elseif ( 'authorize-out-token-missing' === $w3tc_authorize_error->error->id ) {
 				$w3tc_message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-refresh-token-missing' === $w3tc_authorize_error->error->id ) {
+				$w3tc_message = __( 'Google did not return a refresh token. Please authorize Google PageSpeed again.', 'w3-total-cache' );
 			}
 
 			update_option(
