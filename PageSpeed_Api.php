@@ -324,6 +324,8 @@ class PageSpeed_Api {
 		$this->w3tc_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
 		$this->w3tc_config->save();
 		$this->client->setAccessToken( $w3tc_access_token );
+		delete_option( 'w3tcps_refresh_fail' );
+		delete_option( 'w3tcps_refresh_fail_message' );
 	}
 
 	/**
