@@ -153,9 +153,17 @@ rsync -a \
 	--exclude='.git/' \
 	--exclude='.github/' \
 	--exclude='node_modules/' \
+	--exclude='.claude/' \
 	--exclude='.cursor/' \
 	--exclude='.cursor/working/' \
 	--exclude='vendor/' \
+	--exclude='qa/' \
+	--exclude='ci/' \
+	--exclude='policies/' \
+	--exclude='rules/' \
+	--exclude='tmp/' \
+	--exclude='phpcs-rules/' \
+	--exclude='tests/' \
 	--exclude="${PLUGIN_SLUG}."*.zip \
 	--exclude='w3-total-cache.zip' \
 	"$PLUGIN_ROOT/" "$STAGING/"
@@ -169,10 +177,9 @@ patch_version_in_staging
 echo 'Installing production Composer dependencies...'
 composer install --no-dev --no-interaction --prefer-dist -o
 
-echo 'Applying release cleanup (bin/release.sh)...'
+echo 'Applying release cleanup (bin/release-strip-dev.sh)...'
 remove_vcs_metadata
-rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml phpcs.xml
-rm -rf .claude .cursor qa
+bash bin/release-strip-dev.sh
 
 while IFS= read -r -d '' link; do
 	target="$(readlink -f "$link" || realpath "$link")"
@@ -190,34 +197,18 @@ bash bin/make-pot.sh
 rm -f package.* yarn.lock
 
 echo 'Applying wordpress-tag-sync cleanup...'
-rm -rf tests apigen coverage node_modules bin tools bower_components
+rm -rf node_modules bin
 remove_vcs_metadata
 rm -f \
 	.travis.yml \
-	release.sh \
-	Gruntfile.js \
-	gulpfile.js \
-	bower.json \
-	karma.conf.js \
-	karma.config.js \
 	yarn.lock \
-	webpack.config.js \
 	package.json \
-	.jscrsrc \
-	.jshintrc \
 	composer.json \
 	composer.lock \
-	phpunit.xml \
-	phpunit.xml.dist \
 	README.md \
-	.coveralls.yml \
 	.editorconfig \
-	.scrutinizer.yml \
-	apigen.neon \
-	CHANGELOG.txt \
 	stylelint.config.js \
-	.stylelintignore \
-	CONTRIBUTING.md
+	.stylelintignore
 
 verify_no_vcs_metadata
 
@@ -230,6 +221,24 @@ rm -f "$OUTPUT"
 if unzip -l "$OUTPUT" | grep -E '/\.git/|/\.git$' | grep -v '/\.github' >/dev/null 2>&1; then
 	echo 'error: ZIP contains .git paths' >&2
 	unzip -l "$OUTPUT" | grep -E '/\.git/|/\.git$' | grep -v '/\.github' >&2 || true
+	exit 1
+fi
+
+forbidden="$(
+	unzip -l "$OUTPUT" | awk '{print $4}' | grep -E "^${PLUGIN_SLUG}/(ci|policies|rules|tmp|phpcs-rules|qa|tests|bin|\.claude|\.cursor|\.github)(/|$)" || true
+)"
+if [[ -n "$forbidden" ]]; then
+	echo 'error: ZIP contains development-only paths' >&2
+	printf '%s\n' "$forbidden" >&2
+	exit 1
+fi
+
+forbidden_files="$(
+	unzip -l "$OUTPUT" | awk '{print $4}' | grep -E "^${PLUGIN_SLUG}/(\.sec-project\.yaml|phpcs\.xml|phpunit\.xml|AGENTS\.md|CLAUDE\.md)$" || true
+)"
+if [[ -n "$forbidden_files" ]]; then
+	echo 'error: ZIP contains development-only files' >&2
+	printf '%s\n' "$forbidden_files" >&2
 	exit 1
 fi
 

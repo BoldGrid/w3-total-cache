@@ -8,8 +8,14 @@ echo 'Finding and deleting .git folders.'
 find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
 # Cleanup development and build contents (keep package.json until after yarn aliases).
-rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml phpcs.xml
-rm -rf .claude .cursor .github qa
+bash bin/release-strip-dev.sh
+
+leftover="$(ls -d ci policies rules tmp phpcs-rules qa tests .claude .cursor .github 2>/dev/null || true)"
+if [[ -n "$leftover" ]]; then
+	echo 'error: development-only paths still present after strip:' >&2
+	printf '%s\n' "$leftover" >&2
+	exit 1
+fi
 
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
