@@ -234,7 +234,7 @@ if [[ -n "$forbidden" ]]; then
 fi
 
 forbidden_files="$(
-	unzip -l "$OUTPUT" | awk '{print $4}' | grep -E "^${PLUGIN_SLUG}/(\.sec-project\.yaml|phpcs\.xml|phpunit\.xml|AGENTS\.md|CLAUDE\.md)$" || true
+	unzip -l "$OUTPUT" | awk '{print $4}' | grep -E "^${PLUGIN_SLUG}/(\.jshintrc|\.sec-project\.yaml|AGENTS\.md|CLAUDE\.md|codecov|coverage\.xml|phpcs\.xml|phpunit\.xml)$" || true
 )"
 if [[ -n "$forbidden_files" ]]; then
 	echo 'error: ZIP contains development-only files' >&2

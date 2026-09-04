@@ -11,25 +11,42 @@ if [[ ! -f w3-total-cache.php ]]; then
 	exit 1
 fi
 
-# Development, CI, and editor trees — not required at runtime.
-rm -rf \
-	.claude \
-	.cursor \
-	.github \
-	qa \
-	ci \
-	policies \
-	rules \
-	tmp \
-	phpcs-rules \
+strip_dirs=(
+	.claude
+	.cursor
+	.github
+	qa
+	ci
+	policies
+	rules
+	tmp
+	phpcs-rules
 	tests
+)
 
-rm -f \
-	.jshintrc \
-	.sec-project.yaml \
-	AGENTS.md \
-	CLAUDE.md \
-	codecov \
-	coverage.xml \
-	phpcs.xml \
+strip_files=(
+	.jshintrc
+	.sec-project.yaml
+	AGENTS.md
+	CLAUDE.md
+	codecov
+	coverage.xml
+	phpcs.xml
 	phpunit.xml
+)
+
+rm -rf "${strip_dirs[@]}"
+rm -f "${strip_files[@]}"
+
+leftover=()
+for path in "${strip_dirs[@]}" "${strip_files[@]}"; do
+	if [[ -e "$path" ]]; then
+		leftover+=( "$path" )
+	fi
+done
+
+if [[ ${#leftover[@]} -gt 0 ]]; then
+	echo 'error: development-only paths still present after strip:' >&2
+	printf '%s\n' "${leftover[@]}" >&2
+	exit 1
+fi
