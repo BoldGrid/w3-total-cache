@@ -390,6 +390,34 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A lapsed cooldown allows a later successful refresh.
+	 *
+	 * @return void
+	 */
+	public function test_lapsed_cooldown_allows_successful_refresh() {
+		update_option( 'w3tcps_refresh_retry_after', time() - 1 );
+
+		$this->mock_http_response(
+			200,
+			array(
+				'access_token' => 'renewed-token',
+				'expires_in'   => 3600,
+				'token_type'   => 'Bearer',
+			)
+		);
+
+		$api = $this->create_api( true );
+		$api->maybe_refresh_token();
+
+		$stored = json_decode( $this->config->get_string( 'widget.pagespeed.access_token' ), true );
+
+		$this->assertSame( 1, $this->http_request_count );
+		$this->assertSame( 'renewed-token', $stored['access_token'] );
+		$this->assertFalse( $api->client->isAccessTokenExpired() );
+		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+	}
+
+	/**
 	 * A missing API record requires fresh authorization.
 	 *
 	 * @return void
@@ -576,6 +604,85 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.access_token' ) );
 		$this->assertSame( '', $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
 		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
+	}
+
+	/**
+	 * A missing access token on the revoke request is not a completed deauthorization.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_missing_access_token_keeps_credentials() {
+		$this->mock_http_response(
+			400,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 400,
+					'id'   => 'revoke-token-access-token-missing',
+				),
+			)
+		);
+
+		$api = $this->create_api( true );
+
+		$this->assertFalse( $api->reset() );
+		$this->assert_credentials_preserved();
+		$this->assertSame(
+			'No access token provided for revoke!',
+			get_option( 'w3tcps_revoke_fail_message' )
+		);
+	}
+
+	/**
+	 * A missing API key on the revoke request is not a completed deauthorization.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_missing_api_key_keeps_credentials() {
+		$this->mock_http_response(
+			400,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 400,
+					'id'   => 'revoke-token-api-key-missing',
+				),
+			)
+		);
+
+		$api = $this->create_api( true );
+
+		$this->assertFalse( $api->reset() );
+		$this->assert_credentials_preserved();
+		$this->assertSame(
+			'No W3TC API key provided for revoke!',
+			get_option( 'w3tcps_revoke_fail_message' )
+		);
+	}
+
+	/**
+	 * Unrecognized revoke error IDs are interpolated only when they are safe.
+	 *
+	 * @return void
+	 */
+	public function test_revoke_failure_message_has_safe_fallback() {
+		$this->mock_http_response(
+			502,
+			array(
+				'status' => 'error',
+				'error'  => array(
+					'code' => 502,
+					'id'   => '<img src=x onerror=alert(1)>evil',
+				),
+			)
+		);
+
+		$api = $this->create_api( true );
+
+		$this->assertFalse( $api->reset() );
+		$this->assert_credentials_preserved();
+		$this->assertStringContainsString( 'unknown', get_option( 'w3tcps_revoke_fail_message' ) );
+		$this->assertStringNotContainsString( '<img', get_option( 'w3tcps_revoke_fail_message' ) );
 	}
 
 	/**

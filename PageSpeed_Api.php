@@ -619,18 +619,7 @@ class PageSpeed_Api {
 			$response_code >= 300 ||
 			isset( $response_body['error'] )
 		) {
-			if (
-				in_array(
-					$w3tc_error_id,
-					array(
-						'revoke-token-access-token-missing',
-						'revoke-token-site-id-missing',
-						'revoke-token-api-key-missing',
-						'revoke-token-not-found',
-					),
-					true
-				)
-			) {
+			if ( 'revoke-token-not-found' === $w3tc_error_id ) {
 				$this->clear_pagespeed_credentials();
 				self::clear_failure_notices();
 				return true;
@@ -675,6 +664,10 @@ class PageSpeed_Api {
 	 * @return string
 	 */
 	private function get_revoke_failure_message( $w3tc_error_id, $response_code ) {
+		if ( 1 !== preg_match( '/\A[a-z0-9-]+\z/', $w3tc_error_id ) ) {
+			$w3tc_error_id = '';
+		}
+
 		switch ( $w3tc_error_id ) {
 			case 'revoke-token-access-token-missing':
 				return __( 'No access token provided for revoke!', 'w3-total-cache' );
