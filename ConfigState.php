@@ -81,6 +81,13 @@ class ConfigState {
 	private $_is_master;
 
 	/**
+	 * Whether stored option data has been loaded.
+	 *
+	 * @var bool
+	 */
+	private $_loaded;
+
+	/**
 	 * Initializes the configuration state.
 	 *
 	 * @param bool $is_master Whether this is the master configuration state.
@@ -90,25 +97,9 @@ class ConfigState {
 	public function __construct( $is_master ) {
 		$this->_is_master = $is_master;
 		$this->_data      = array();
+		$this->_loaded    = false;
 
-		if ( $is_master ) {
-			if ( ! \function_exists( 'get_site_option' ) ) {
-				return;
-			}
-			$data_raw = \get_site_option( 'w3tc_state' );
-		} else {
-			if ( ! \function_exists( 'get_option' ) ) {
-				return;
-			}
-			$data_raw = \get_option( 'w3tc_state' );
-		}
-
-		$this->_data = @json_decode( $data_raw, true );
-		if ( ! is_array( $this->_data ) ) {
-			$this->_data = array();
-			$this->apply_defaults();
-			$this->save();
-		}
+		$this->load();
 	}
 
 	/**
@@ -120,6 +111,8 @@ class ConfigState {
 	 * @return mixed The value associated with the key, or the default value.
 	 */
 	public function get( $w3tc_key, $default_value ) {
+		$this->load();
+
 		if ( ! isset( $this->_data[ $w3tc_key ] ) ) {
 			return $default_value;
 		}
@@ -192,6 +185,8 @@ class ConfigState {
 	 * @return void
 	 */
 	public function set( $w3tc_key, $w3tc_value ) {
+		$this->load();
+
 		$this->_data[ $w3tc_key ] = $w3tc_value;
 	}
 
@@ -201,7 +196,8 @@ class ConfigState {
 	 * @return void
 	 */
 	public function reset() {
-		$this->_data = array();
+		$this->_data   = array();
+		$this->_loaded = true;
 		$this->apply_defaults();
 	}
 
@@ -211,6 +207,12 @@ class ConfigState {
 	 * @return void
 	 */
 	public function save() {
+		$this->load();
+
+		if ( ! $this->_loaded ) {
+			return;
+		}
+
 		if ( $this->_is_master ) {
 			if ( ! \function_exists( 'update_site_option' ) ) {
 				return;
@@ -221,6 +223,39 @@ class ConfigState {
 				return;
 			}
 			\update_option( 'w3tc_state', \wp_json_encode( $this->_data ) );
+		}
+	}
+
+	/**
+	 * Loads stored option data when the Options API is available.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function load() {
+		if ( $this->_loaded ) {
+			return;
+		}
+
+		if ( $this->_is_master ) {
+			if ( ! \function_exists( 'get_site_option' ) ) {
+				return;
+			}
+			$data_raw = \get_site_option( 'w3tc_state' );
+		} else {
+			if ( ! \function_exists( 'get_option' ) ) {
+				return;
+			}
+			$data_raw = \get_option( 'w3tc_state' );
+		}
+
+		$this->_loaded = true;
+		$this->_data   = @json_decode( $data_raw, true );
+		if ( ! is_array( $this->_data ) ) {
+			$this->_data = array();
+			$this->apply_defaults();
+			$this->save();
 		}
 	}
 

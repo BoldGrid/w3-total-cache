@@ -106,6 +106,76 @@ namespace {
 	);
 	$state->save();
 
+	$GLOBALS['w3tc_early_bootstrap_state'] = \json_encode(
+		array(
+			'license.status'                 => 'active',
+			'extension.cloudflare.ips.ip4'   => array( '198.51.100.0/24' ),
+			'tasks.generic.last_run_version' => '2.9.1',
+			'common.install'                 => 12345,
+		)
+	);
+
+	if ( ! \function_exists( 'get_site_option' ) ) {
+		/**
+		 * Stub site option read after early bootstrap.
+		 *
+		 * @param string $option Option name.
+		 * @return mixed
+		 */
+		function get_site_option( $option ) {
+			return $GLOBALS['w3tc_early_bootstrap_state'];
+		}
+	}
+	if ( ! \function_exists( 'update_site_option' ) ) {
+		/**
+		 * Stub site option write after early bootstrap.
+		 *
+		 * @param string $option Option name.
+		 * @param mixed  $value  Option value.
+		 * @return bool
+		 */
+		function update_site_option( $option, $value ) {
+			$GLOBALS['w3tc_early_bootstrap_state'] = $value;
+			return true;
+		}
+	}
+	if ( ! \function_exists( 'wp_json_encode' ) ) {
+		/**
+		 * Stub JSON encoding after early bootstrap.
+		 *
+		 * @param mixed $data Data to encode.
+		 * @return string
+		 */
+		function wp_json_encode( $data ) {
+			return \json_encode( $data );
+		}
+	}
+
+	w3tc_early_bootstrap_assert_same(
+		'Stored Cloudflare ranges are available after Options API loads',
+		array( '198.51.100.0/24' ),
+		$state->get_array( 'extension.cloudflare.ips.ip4' )
+	);
+	w3tc_early_bootstrap_assert_same(
+		'Stored last-run version is available after Options API loads',
+		'2.9.1',
+		$state->get_string( 'tasks.generic.last_run_version' )
+	);
+
+	$state->set( 'tasks.generic.last_run_version', '2.9.1' );
+	$state->save();
+	$persisted = \json_decode( $GLOBALS['w3tc_early_bootstrap_state'], true );
+	w3tc_early_bootstrap_assert_same(
+		'Saving after Options API loads keeps stored license state',
+		'active',
+		$persisted['license.status'] ?? null
+	);
+	w3tc_early_bootstrap_assert_same(
+		'Saving after Options API loads keeps stored install metadata',
+		12345,
+		$persisted['common.install'] ?? null
+	);
+
 	$direct_request = array(
 		'REMOTE_ADDR'            => '203.0.113.10',
 		'HTTP_X_FORWARDED_PROTO' => 'https',
