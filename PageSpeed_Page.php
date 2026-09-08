@@ -102,17 +102,22 @@ class PageSpeed_Page {
 			$w3tc_access_token = ! empty( $w3tc_config->get_string( 'widget.pagespeed.access_token' ) ) ? $w3tc_config->get_string( 'widget.pagespeed.access_token' ) : null;
 			$w3tc_w3_pagespeed = empty( $w3tc_access_token ) ? null : new PageSpeed_Api( $w3tc_access_token );
 
-			if ( empty( $w3tc_w3_pagespeed ) || $w3tc_w3_pagespeed->client->isAccessTokenExpired() ) {
+			// Construction may clear credentials when a refresh is irrecoverable, so re-read the stored token.
+			$w3tc_stored_token = $w3tc_config->get_string( 'widget.pagespeed.access_token' );
+
+			if ( empty( $w3tc_w3_pagespeed ) || empty( $w3tc_stored_token ) ) {
 				echo wp_json_encode(
 					array(
-						'missing_token' => sprintf(
-							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
-							__(
-								'Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s.',
-								'w3-total-cache'
-							),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
-						),
+						'missing_token' => PageSpeed_Api::get_authorize_required_message(),
+					)
+				);
+				return;
+			}
+
+			if ( $w3tc_w3_pagespeed->client->isAccessTokenExpired() ) {
+				echo wp_json_encode(
+					array(
+						'refresh_failed' => PageSpeed_Api::get_refresh_pending_message(),
 					)
 				);
 				return;

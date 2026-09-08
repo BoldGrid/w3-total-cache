@@ -317,24 +317,10 @@ class PageSpeed_Api {
 			return;
 		}
 
-		if (
-			empty( $response_body['access_token'] ) ||
-			! is_string( $response_body['access_token'] ) ||
-			empty( $response_body['expires_in'] ) ||
-			! is_numeric( $response_body['expires_in'] )
-		) {
-			$this->set_refresh_failure(
-				__( 'Google PageSpeed access token refresh failed due to response missing access token.', 'w3-total-cache' )
-			);
-			return;
-		}
-
-		$response_body['created'] = time();
-
-		$w3tc_access_token = wp_json_encode( $response_body );
+		$w3tc_access_token = self::prepare_access_token_json( $response_body );
 		if ( false === $w3tc_access_token ) {
 			$this->set_refresh_failure(
-				__( 'Google PageSpeed access token refresh failed because the response could not be encoded.', 'w3-total-cache' )
+				__( 'Google PageSpeed access token refresh failed due to an unusable token response.', 'w3-total-cache' )
 			);
 			return;
 		}
@@ -416,6 +402,106 @@ class PageSpeed_Api {
 		$this->w3tc_config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
 		$this->w3tc_config->save();
 		delete_option( 'w3tcps_refresh_retry_after' );
+		self::clear_pagespeed_cache();
+	}
+
+	/**
+	 * Validates a Google access token payload and stamps its creation time.
+	 *
+	 * `W3TCG_Google_Auth_OAuth2::isAccessTokenExpired()` treats a missing `created`
+	 * value as expired, so every persist path must set it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array|string $w3tc_access_token Token payload or token JSON.
+	 *
+	 * @return string|false Token JSON to persist, or false when unusable.
+	 */
+	public static function prepare_access_token_json( $w3tc_access_token ) {
+		if ( is_string( $w3tc_access_token ) ) {
+			$w3tc_access_token = json_decode( $w3tc_access_token, true );
+		}
+
+		if ( ! is_array( $w3tc_access_token ) ) {
+			return false;
+		}
+
+		if (
+			empty( $w3tc_access_token['access_token'] ) ||
+			! is_string( $w3tc_access_token['access_token'] ) ||
+			empty( $w3tc_access_token['expires_in'] ) ||
+			! is_numeric( $w3tc_access_token['expires_in'] )
+		) {
+			return false;
+		}
+
+		$w3tc_access_token['created'] = time();
+
+		$w3tc_access_token_json = wp_json_encode( $w3tc_access_token );
+
+		return is_string( $w3tc_access_token_json ) ? $w3tc_access_token_json : false;
+	}
+
+	/**
+	 * Removes stored PageSpeed analysis results.
+	 *
+	 * Cache-first AJAX handlers must not serve scores once authorization is gone.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function clear_pagespeed_cache() {
+		global $wpdb;
+
+		delete_option( 'w3tc_pagespeed_data_' . get_home_url() );
+
+		$option_names = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( 'w3tc_pagespeed_data_' ) . '%'
+			)
+		);
+
+		foreach ( (array) $option_names as $option_name ) {
+			delete_option( $option_name );
+		}
+	}
+
+	/**
+	 * Returns operator-facing text for PageSpeed access that was never authorized.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public static function get_authorize_required_message() {
+		return sprintf(
+			// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+			__(
+				'Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s.',
+				'w3-total-cache'
+			),
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+		);
+	}
+
+	/**
+	 * Returns operator-facing text for stored PageSpeed access that could not be renewed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public static function get_refresh_pending_message() {
+		return sprintf(
+			// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+			__(
+				'Google PageSpeed access is authorized but could not be renewed on the last attempt. W3 Total Cache will retry automatically. If this continues, reauthorize access %1$s.',
+				'w3-total-cache'
+			),
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+		);
 	}
 
 	/**

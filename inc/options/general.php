@@ -1279,10 +1279,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			wp_safe_redirect( $w3tc_return_url );
 			exit;
 		} elseif ( ! empty( $w3tc_access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
-			$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token );
-			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
-			$this->_config->save();
-			PageSpeed_Api::clear_failure_notices();
+			$w3tc_access_token_prepared = PageSpeed_Api::prepare_access_token_json( $w3tc_access_token );
+
+			if ( false === $w3tc_access_token_prepared ) {
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					__( 'Google PageSpeed authorization returned an unusable access token.', 'w3-total-cache' )
+				);
+			} else {
+				$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token_prepared );
+				$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
+				$this->_config->save();
+				PageSpeed_Api::clear_failure_notices();
+			}
 
 			wp_safe_redirect( $w3tc_return_url );
 			exit;

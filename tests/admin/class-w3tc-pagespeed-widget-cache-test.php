@@ -10,6 +10,7 @@
 declare( strict_types = 1 );
 
 use W3TC\Dispatcher;
+use W3TC\PageSpeed_Page;
 use W3TC\PageSpeed_Widget;
 
 /**
@@ -66,6 +67,7 @@ class W3tc_Pagespeed_Widget_Cache_Test extends WP_UnitTestCase {
 		$config->save();
 
 		delete_option( 'w3tc_pagespeed_data_' . get_home_url() );
+		delete_option( 'w3tc_pagespeed_data_' );
 		delete_option( 'w3tcps_refresh_retry_after' );
 
 		parent::tearDown();
@@ -99,15 +101,59 @@ class W3tc_Pagespeed_Widget_Cache_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Without cache, an expired token still requires authorization.
+	 * Without cache, a stored-but-expired token reports a refresh failure, not missing authorization.
 	 *
 	 * @return void
 	 */
-	public function test_widget_ajax_missing_token_when_expired_without_cache() {
+	public function test_widget_ajax_refresh_failed_when_expired_without_cache() {
 		$this->store_expired_token();
 
 		$payload = $this->get_widget_ajax_payload();
 
+		$this->assertArrayNotHasKey( 'missing_token', $payload );
+		$this->assertArrayHasKey( 'refresh_failed', $payload );
+		$this->assertStringContainsString( 'could not be renewed', $payload['refresh_failed'] );
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * Without any stored token, the widget still asks for authorization.
+	 *
+	 * @return void
+	 */
+	public function test_widget_ajax_missing_token_without_stored_token() {
+		$payload = $this->get_widget_ajax_payload();
+
+		$this->assertArrayNotHasKey( 'refresh_failed', $payload );
+		$this->assertArrayHasKey( 'missing_token', $payload );
+		$this->assertStringContainsString( 'authorize access', $payload['missing_token'] );
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * The PageSpeed page uses the same expired-vs-missing split.
+	 *
+	 * @return void
+	 */
+	public function test_page_ajax_refresh_failed_when_expired_without_cache() {
+		$this->store_expired_token();
+
+		$payload = $this->get_page_ajax_payload();
+
+		$this->assertArrayNotHasKey( 'missing_token', $payload );
+		$this->assertArrayHasKey( 'refresh_failed', $payload );
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * The PageSpeed page asks for authorization without a stored token.
+	 *
+	 * @return void
+	 */
+	public function test_page_ajax_missing_token_without_stored_token() {
+		$payload = $this->get_page_ajax_payload();
+
+		$this->assertArrayNotHasKey( 'refresh_failed', $payload );
 		$this->assertArrayHasKey( 'missing_token', $payload );
 		$this->assertSame( 0, $this->http_request_count );
 	}
@@ -158,6 +204,22 @@ class W3tc_Pagespeed_Widget_Cache_Test extends WP_UnitTestCase {
 	private function get_widget_ajax_payload() {
 		ob_start();
 		( new PageSpeed_Widget() )->w3tc_ajax_pagespeed_widgetdata();
+		$output = ob_get_clean();
+
+		$payload = json_decode( $output, true );
+		$this->assertIsArray( $payload );
+
+		return $payload;
+	}
+
+	/**
+	 * Capture the PageSpeed page AJAX JSON payload.
+	 *
+	 * @return array
+	 */
+	private function get_page_ajax_payload() {
+		ob_start();
+		( new PageSpeed_Page() )->w3tc_ajax_pagespeed_data();
 		$output = ob_get_clean();
 
 		$payload = json_decode( $output, true );

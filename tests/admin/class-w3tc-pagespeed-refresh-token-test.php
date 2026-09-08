@@ -141,6 +141,8 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		delete_option( 'w3tcps_refresh_retry_after' );
 		delete_option( 'w3tcps_revoke_fail' );
 		delete_option( 'w3tcps_revoke_fail_message' );
+		delete_option( 'w3tc_pagespeed_data_' . get_home_url() );
+		delete_option( 'w3tc_pagespeed_data_https%3A%2F%2Fexample.com%2Fsample' );
 
 		parent::tearDown();
 	}
@@ -708,6 +710,70 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 		$this->assertFalse( get_option( 'w3tcps_refresh_retry_after' ) );
 		$this->assertFalse( get_option( 'w3tcps_revoke_fail' ) );
 		$this->assertFalse( get_option( 'w3tcps_revoke_fail_message' ) );
+	}
+
+	/**
+	 * A successful revoke drops cached PageSpeed results.
+	 *
+	 * @return void
+	 */
+	public function test_successful_revoke_clears_cached_results() {
+		update_option( 'w3tc_pagespeed_data_' . get_home_url(), wp_json_encode( array( 'time' => time() ) ) );
+		update_option( 'w3tc_pagespeed_data_https%3A%2F%2Fexample.com%2Fsample', wp_json_encode( array( 'time' => time() ) ) );
+		$this->mock_http_response( 200, array( 'status' => 'success' ) );
+
+		$api = $this->create_api( true );
+
+		$this->assertTrue( $api->reset() );
+		$this->assertFalse( get_option( 'w3tc_pagespeed_data_' . get_home_url() ) );
+		$this->assertFalse( get_option( 'w3tc_pagespeed_data_https%3A%2F%2Fexample.com%2Fsample' ) );
+	}
+
+	/**
+	 * A token persisted without `created` is stamped with the current time.
+	 *
+	 * @return void
+	 */
+	public function test_prepare_access_token_json_stamps_created() {
+		$prepared = PageSpeed_Api::prepare_access_token_json(
+			wp_json_encode(
+				array(
+					'access_token' => 'fresh-token',
+					'expires_in'   => 3600,
+				)
+			)
+		);
+
+		$this->assertIsString( $prepared );
+
+		$decoded = json_decode( $prepared, true );
+
+		$this->assertSame( 'fresh-token', $decoded['access_token'] );
+		$this->assertGreaterThanOrEqual( time() - 5, $decoded['created'] );
+
+		$client = new W3TCG_Google_Client();
+		$client->setAccessToken( $prepared );
+
+		$this->assertFalse( $client->isAccessTokenExpired() );
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * An unusable authorization payload is rejected before persisting.
+	 *
+	 * @return void
+	 */
+	public function test_prepare_access_token_json_rejects_unusable_payloads() {
+		$this->assertFalse( PageSpeed_Api::prepare_access_token_json( '<html>Maintenance</html>' ) );
+		$this->assertFalse( PageSpeed_Api::prepare_access_token_json( array( 'access_token' => 'only-token' ) ) );
+		$this->assertFalse(
+			PageSpeed_Api::prepare_access_token_json(
+				array(
+					'access_token' => array( 'nested' ),
+					'expires_in'   => 3600,
+				)
+			)
+		);
 	}
 
 	/**
