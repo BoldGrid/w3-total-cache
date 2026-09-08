@@ -43,9 +43,11 @@ jQuery(document).ready(function ($) {
           );
           $(".w3tcps_error").removeClass("w3tc_none");
           return;
-        } else if (data.missing_token) {
+        } else if (data.missing_token || data.refresh_failed) {
           $(".w3tcps_analyze").addClass("w3tc_none");
-          $(".w3tcps_missing_token").html(data.missing_token);
+          $(".w3tcps_missing_token").html(
+            data.missing_token || data.refresh_failed,
+          );
           $(".w3tcps_missing_token").removeClass("w3tc_none");
           return;
         }
