@@ -89,11 +89,18 @@ class ConfigState {
 	 */
 	public function __construct( $is_master ) {
 		$this->_is_master = $is_master;
+		$this->_data      = array();
 
 		if ( $is_master ) {
-			$data_raw = get_site_option( 'w3tc_state' );
+			if ( ! \function_exists( 'get_site_option' ) ) {
+				return;
+			}
+			$data_raw = \get_site_option( 'w3tc_state' );
 		} else {
-			$data_raw = get_option( 'w3tc_state' );
+			if ( ! \function_exists( 'get_option' ) ) {
+				return;
+			}
+			$data_raw = \get_option( 'w3tc_state' );
 		}
 
 		$this->_data = @json_decode( $data_raw, true );
@@ -205,9 +212,15 @@ class ConfigState {
 	 */
 	public function save() {
 		if ( $this->_is_master ) {
-			update_site_option( 'w3tc_state', wp_json_encode( $this->_data ) );
+			if ( ! \function_exists( 'update_site_option' ) ) {
+				return;
+			}
+			\update_site_option( 'w3tc_state', \wp_json_encode( $this->_data ) );
 		} else {
-			update_option( 'w3tc_state', wp_json_encode( $this->_data ) );
+			if ( ! \function_exists( 'update_option' ) ) {
+				return;
+			}
+			\update_option( 'w3tc_state', \wp_json_encode( $this->_data ) );
 		}
 	}
 
