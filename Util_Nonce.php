@@ -278,6 +278,7 @@ class Util_Nonce {
 			'extension_alwayscached_process_queue_item',
 			'extension_alwayscached_queue',
 			'extension_alwayscached_queue_filter',
+			'community_pro_banner_collapse',
 		);
 	}
 

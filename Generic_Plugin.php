@@ -677,7 +677,7 @@ class Generic_Plugin {
 				'href'   => network_admin_url( 'admin.php?page=w3tc_general' ),
 			);
 
-			if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+			if ( class_exists( '\W3TC\Extension_AlwaysCached_Plugin' ) && Extension_AlwaysCached_Plugin::is_enabled() ) {
 				$menu_items['40015.alwayscached'] = array(
 					'id'     => 'w3tc_alwayscached',
 					'parent' => 'w3tc',
@@ -1149,7 +1149,7 @@ class Generic_Plugin {
 	 * @return bool
 	 */
 	private function should_ob_process_rest() {
-		return 'cache' === $this->_config->get_string( 'pgcache.rest' );
+		return (bool) apply_filters( 'w3tc_pgcache_rest_cache_enabled', false, $this->_config );
 	}
 
 	/**

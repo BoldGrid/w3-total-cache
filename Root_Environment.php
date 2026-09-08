@@ -205,8 +205,11 @@ class Root_Environment {
 			new DbCache_Environment(),
 			new Cdn_Environment(),
 			new Extension_ImageService_Environment(),
-			new Extension_AlwaysCached_Environment(),
 		);
+
+		if ( class_exists( '\W3TC\Extension_AlwaysCached_Environment' ) ) {
+			$w3tc_a[] = new Extension_AlwaysCached_Environment();
+		}
 
 		return $w3tc_a;
 	}
@@ -256,7 +259,7 @@ class Root_Environment {
 		global $wpdb;
 
 		$w3tc_license_key = $w3tc_config->get_string( 'plugin.license_key' );
-		if ( ! empty( $w3tc_license_key ) ) {
+		if ( ! empty( $w3tc_license_key ) && class_exists( '\W3TC\Licensing_Core' ) ) {
 			Licensing_Core::deactivate_license( $w3tc_license_key );
 		}
 

@@ -29,7 +29,10 @@ describe("CDNFSD engine: transparentcdn form-save", function () {
   before(sys.beforeDefault);
   after(sys.after);
 
-  it("cdnfsd.transparentcdn.* keys round-trip", async () => {
+  it("cdnfsd.transparentcdn.* keys round-trip", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await w3tc.assertEngineSaveRoundTrip(
       adminPage,
       "cdnfsd",

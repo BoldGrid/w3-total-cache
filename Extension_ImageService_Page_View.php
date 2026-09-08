@@ -105,8 +105,6 @@ Util_Ui::config_item(
 $w3tc_settings = $w3tc_c->get_array( 'imageservice' );
 // Default to true for webp if not set (backward compatibility).
 $w3tc_webp_enabled = isset( $w3tc_settings['webp'] ) ? (bool) $w3tc_settings['webp'] : true;
-// Default to true for avif if not set.  We need to make sure this is true for the Pro version.
-$w3tc_avif_enabled = isset( $w3tc_settings['avif'] ) ? (bool) $w3tc_settings['avif'] : true;
 
 Util_Ui::config_item(
 	array(
@@ -123,24 +121,7 @@ Util_Ui::config_item(
 	)
 );
 
-Util_Ui::config_item_pro(
-	array(
-		'key'            => array(
-			'imageservice',
-			'avif',
-		),
-		'label'          => ' ',
-		'control'        => 'checkbox',
-		'checkbox_label' => esc_html__( 'AVIF', 'w3-total-cache' ),
-		'value'          => $w3tc_avif_enabled,
-		'disabled'       => ! $w3tc_is_pro,
-		'excerpt'        => esc_html__( 'Convert images to AVIF format for even better compression and performance.', 'w3-total-cache' ),
-		'description'    => array(
-			esc_html__( 'AVIF (AV1 Image File Format) is a modern image format that provides superior compression compared to WebP and traditional formats like JPEG and PNG. With AVIF conversion, you can achieve significantly smaller file sizes while maintaining high image quality, resulting in faster page load times and improved user experience.', 'w3-total-cache' ),
-		),
-		'wrap_separate'  => true,
-	)
-);
+do_action( 'w3tc_settings_imageservice_formats_pro' );
 ?>
 	</table>
 
@@ -151,38 +132,22 @@ Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
 
 if ( ! $w3tc_is_pro ) {
 	?>
-	<div class="w3tc-gopro-manual-wrap">
+	<p class="description">
 		<?php
-		Util_Ui::pro_wrap_maybe_start();
-		echo wp_kses(
+		echo esc_html(
 			sprintf(
-				// translators: 1 opening HTML p tag, 2 free user hourly limit, 3 free user monthly limit, 4 two HTML br tags, 5 pro user hourly limit, 6 closing HTML p tag.
+				// translators: 1 free user hourly limit, 2 free user monthly limit, 3 pro user hourly limit.
 				__(
-					'%1$sFree license users will have a conversion limit of %2$d per hour and %3$d per month.%4$sPro license users will have conversion queue priority as well as a conversion limit of %5$d per hour and unlimited per month.%6$s',
+					'Free license users will have a conversion limit of %1$d per hour and %2$d per month. Pro license users will have conversion queue priority as well as a conversion limit of %3$d per hour and unlimited per month.',
 					'w3-total-cache'
 				),
-				'<p>',
 				$w3tc_usage['limit_hourly_unlicensed'],
 				$w3tc_usage['limit_monthly_unlicensed'],
-				'<br/><br/>',
-				$w3tc_usage['limit_hourly_licensed'],
-				'</p>'
-			),
-			array(
-				'p'  => array(),
-				'br' => array(),
+				$w3tc_usage['limit_hourly_licensed']
 			)
 		);
-		Util_Ui::print_score_block(
-			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
-			'+9',
-			__( 'Points', 'w3-total-cache' ),
-			__( 'In one recent test, converting images to modern formats like WebP or AVIF added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
-			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof'
-		);
-		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
 		?>
-	</div>
+	</p>
 	<?php
 }
 ?>

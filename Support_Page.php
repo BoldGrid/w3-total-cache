@@ -235,7 +235,7 @@ class Support_Page {
 			}
 
 			// terms accepted as a part of form.
-			Licensing_Core::terms_accept();
+			Generic_Tos::accept();
 
 			include W3TC_DIR . '/Support_Page_View_DoneContent.php';
 		} else {

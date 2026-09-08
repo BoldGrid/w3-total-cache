@@ -43,9 +43,19 @@ class DbCache_Page extends Base_Page_Settings {
 		if ( Util_Environment::is_dbcluster( $this->_config ) ) {
 			$content = @file_get_contents( W3TC_FILE_DB_CLUSTER_CONFIG );
 		} else {
-			$content = @file_get_contents( W3TC_DIR . '/ini/dbcluster-config-sample.php' );
+			$sample = W3TC_DIR . '/ini/dbcluster-config-sample.php';
+			if ( ! is_readable( $sample ) && defined( 'W3TC_PRO_DIR' ) ) {
+				$sample = W3TC_PRO_DIR . '/ini/dbcluster-config-sample.php';
+			}
+			$content = is_readable( $sample ) ? @file_get_contents( $sample ) : '';
 		}
 
-		include W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster-config.php';
+		$view = W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster-config.php';
+		if ( ! is_readable( $view ) && defined( 'W3TC_PRO_DIR' ) ) {
+			$view = W3TC_PRO_DIR . '/inc/options/enterprise/dbcluster-config.php';
+		}
+		if ( is_readable( $view ) ) {
+			include $view;
+		}
 	}
 }

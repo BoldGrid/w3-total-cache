@@ -144,12 +144,7 @@ class Extension_ImageService_Api {
 				$mime_types_out[] = 'image/webp';
 			}
 
-			/**
-			 * Check avif setting - handle both boolean and string values, default to true if not set.
-			 * Only allow AVIF for Pro license holders.
-			 */
-			$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
-			if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+			if ( Extension_ImageService_Plugin::is_avif_enabled( $w3tc_config ) ) {
 				$mime_types_out[] = 'image/avif';
 			}
 
@@ -157,6 +152,23 @@ class Extension_ImageService_Api {
 			if ( empty( $mime_types_out ) ) {
 				$mime_types_out[] = 'image/webp';
 			}
+		}
+
+		$explicit_formats = isset( $options['formats'] ) && is_array( $options['formats'] ) && ! empty( $options['formats'] );
+
+		if ( ! Extension_ImageService_Plugin::is_avif_enabled( $w3tc_config ) ) {
+			$mime_types_out = array_values( array_diff( $mime_types_out, array( 'image/avif' ) ) );
+		}
+
+		if ( empty( $mime_types_out ) ) {
+			if ( $explicit_formats ) {
+				return array(
+					'error' => __( 'AVIF conversion requires W3 Total Cache Pro.', 'w3-total-cache' ),
+					'code'  => 403,
+				);
+			}
+
+			$mime_types_out[] = 'image/webp';
 		}
 
 		foreach ( $post_fields as $k => $v ) {

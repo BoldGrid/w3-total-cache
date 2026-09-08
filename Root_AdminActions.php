@@ -125,10 +125,9 @@ class Root_AdminActions {
 				'default'          => 'Generic_AdminActions_Default',
 				'extensions'       => 'Extensions_AdminActions',
 				'flush'            => 'Generic_AdminActions_Flush',
-				'licensing'        => 'Licensing_AdminActions',
+				'licensing'        => 'Licensing_Upgrade_AdminActions',
 				'support'          => 'Support_AdminActions',
 				'test'             => 'Generic_AdminActions_Test',
-				'ustats'           => 'UsageStatistics_AdminActions',
 			);
 			$handlers = apply_filters( 'w3tc_admin_actions', $handlers );
 		}

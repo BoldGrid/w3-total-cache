@@ -72,7 +72,7 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Extension_ImageService_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Pro widgets.
-		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
+		if ( Util_Environment::is_w3tc_pro( $this->_config ) && class_exists( '\W3TC\Generic_WidgetStats' ) ) {
 			add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
 		}
 
@@ -110,6 +110,7 @@ class Generic_Plugin_Admin {
 		add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ), 1000 );
 
 		add_action( 'w3tc_ajax_faq', array( $this, 'w3tc_ajax_faq' ) );
+		add_action( 'w3tc_ajax_community_pro_banner_collapse', array( '\W3TC\Util_Ui', 'ajax_community_pro_banner_collapse' ) );
 
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
@@ -450,6 +451,14 @@ class Generic_Plugin_Admin {
 			return;
 		}
 
+		if ( '1' === Util_Request::get_string( 'w3tc_dismiss_pro_companion' ) ) {
+			if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_dismiss_pro_companion' ) ) {
+				$state = Dispatcher::config_state();
+				$state->set( 'common.hide_pro_companion_notice', true );
+				$state->save();
+			}
+		}
+
 		// Special handling for deactivation link, it's plugins.php file.
 		if ( 'w3tc_deactivate_plugin' === Util_Request::get_string( 'action' ) ) {
 			if ( ! Util_Nonce::verify_admin( Util_Nonce::admin_action( 'w3tc_deactivate_plugin' ) ) ) {
@@ -491,10 +500,12 @@ class Generic_Plugin_Admin {
 		);
 
 		// Usage Statistics.
-		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
-			array( '\W3TC\UsageStatistics_Page', 'admin_print_scripts_w3tc_stats' )
-		);
+		if ( class_exists( '\W3TC\UsageStatistics_Page' ) ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
+				array( '\W3TC\UsageStatistics_Page', 'admin_print_scripts_w3tc_stats' )
+			);
+		}
 
 		$w3tc_c = Dispatcher::config();
 
@@ -545,7 +556,7 @@ class Generic_Plugin_Admin {
 				break;
 		}
 
-		if ( ! empty( $cdnfsd_class ) ) {
+		if ( ! empty( $cdnfsd_class ) && class_exists( $cdnfsd_class ) ) {
 			add_action(
 				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array( $cdnfsd_class, 'admin_print_scripts_performance_page_w3tc_cdn' )
@@ -588,6 +599,14 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-forums-api', plugins_url( 'pub/js/forums-api.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-options', plugins_url( 'pub/js/options.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce', 'w3tc-forums-api' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
+		wp_localize_script(
+			'w3tc-lightbox',
+			'w3tcPurchase',
+			array(
+				'url'         => w3tc_purchase_url(),
+				'downloadUrl' => W3TC_PRO_DOWNLOAD_URL,
+			)
+		);
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
 
@@ -1025,8 +1044,11 @@ class Generic_Plugin_Admin {
 				);
 				// No break.
 			case 'w3tc_userexperience':
-				if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-					wp_register_script( 'w3tc_remove_cssjs', plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+				if ( class_exists( '\W3TC\UserExperience_Remove_CssJs_Extension' ) && UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+					$w3tc_remove_cssjs_src = defined( 'W3TC_PRO_DIR' )
+						? plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_PRO_DIR . '/w3-total-cache-pro.php' )
+						: plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE );
+					wp_register_script( 'w3tc_remove_cssjs', $w3tc_remove_cssjs_src, array( 'jquery' ), W3TC_VERSION, true );
 
 					wp_localize_script(
 						'w3tc_remove_cssjs',
@@ -1303,6 +1325,8 @@ class Generic_Plugin_Admin {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
 			return;
 		}
+
+		$this->maybe_pro_companion_notice();
 
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
@@ -1687,5 +1711,60 @@ class Generic_Plugin_Admin {
 			$state->set( 'tasks.admin.last_run_version', W3TC_VERSION );
 			$state->save();
 		}
+	}
+
+	/**
+	 * W3TC-screen notice for leftover licensed sites missing the companion plugin.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	private function maybe_pro_companion_notice() {
+		if ( ! $this->is_w3tc_page ) {
+			return;
+		}
+
+		if ( Util_Environment::is_w3tc_pro_plugin_active() ) {
+			return;
+		}
+
+		$state = Dispatcher::config_state();
+		if ( $state->get_boolean( 'common.hide_pro_companion_notice' ) ) {
+			return;
+		}
+
+		$license_key = $this->_config->get_string( 'plugin.license_key' );
+		$plugin_type = $this->_config->get_string( 'plugin.type' );
+		$had_license = ( '' !== $license_key ) || in_array( $plugin_type, array( 'pro', 'pro_dev' ), true );
+		if ( ! $had_license ) {
+			return;
+		}
+
+		$dismiss_url = wp_nonce_url(
+			add_query_arg( 'w3tc_dismiss_pro_companion', '1' ),
+			'w3tc_dismiss_pro_companion'
+		);
+		$support_url = Util_Ui::admin_url( 'admin.php?page=w3tc_support' );
+
+		echo '<div class="notice notice-warning"><p>';
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening anchor, 2 closing anchor.
+				__(
+					'Your W3 Total Cache Pro license is still stored, but Pro features now require the separate W3 Total Cache Pro plugin. %1$sContact Support%2$s to get that plugin. This plugin will not install it for you.',
+					'w3-total-cache'
+				),
+				'<a href="' . esc_url( $support_url ) . '">',
+				'</a>'
+			),
+			array(
+				'a' => array(
+					'href' => array(),
+				),
+			)
+		);
+		echo ' <a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Dismiss', 'w3-total-cache' ) . '</a>';
+		echo '</p></div>';
 	}
 }

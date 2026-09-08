@@ -245,37 +245,43 @@ class Generic_Plugin_AdminNotices {
 	 * @return array|null
 	 */
 	private function get_active_notices() {
-		$cached_notices = $this->get_cached_notices();
-		if ( null !== $cached_notices ) {
-			return $cached_notices;
-		}
+		$notices = array();
+		$w3tc_config = Dispatcher::config();
+		$allow_remote = $this->is_w3tc_page
+			&& $w3tc_config
+			&& $w3tc_config->get_boolean( 'common.track_usage' );
 
-		$feed_url = \defined( 'W3TC_NOTICE_FEED' ) ? W3TC_NOTICE_FEED : '';
-		if ( ! Util_Url::is_https_host_allowlisted( $feed_url, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
-			return null;
-		}
+		if ( $allow_remote ) {
+			$cached_notices = $this->get_cached_notices();
+			if ( null !== $cached_notices ) {
+				return $cached_notices;
+			}
 
-		$api_response = \wp_remote_get(
-			\esc_url( $feed_url ),
-			array(
-				'timeout'     => 15,
-				'redirection' => 0,
-			)
-		);
+			$feed_url = \defined( 'W3TC_NOTICE_FEED' ) ? W3TC_NOTICE_FEED : '';
+			if ( ! Util_Url::is_https_host_allowlisted( $feed_url, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
+				return null;
+			}
 
-		if ( \is_wp_error( $api_response ) || \wp_remote_retrieve_response_code( $api_response ) !== 200 ) {
-			return null;
-		}
+			$api_response = \wp_remote_get(
+				\esc_url( $feed_url ),
+				array(
+					'timeout'     => 15,
+					'redirection' => 0,
+				)
+			);
 
-		$body    = \wp_remote_retrieve_body( $api_response );
-		$notices = \json_decode( $body, true );
+			if ( ! \is_wp_error( $api_response ) && \wp_remote_retrieve_response_code( $api_response ) === 200 ) {
+				$body    = \wp_remote_retrieve_body( $api_response );
+				$decoded = \json_decode( $body, true );
 
-		if ( \json_last_error() !== \JSON_ERROR_NONE ) {
-			return null;
+				if ( \json_last_error() === \JSON_ERROR_NONE && \is_array( $decoded ) ) {
+					$notices = $decoded;
+				}
+			}
 		}
 
 		// Add custom notices.
-		$notices = $this->merge_notices( $notices, $this->get_custom_notices() );
+		$notices = $this->merge_notices( \is_array( $notices ) ? $notices : array(), $this->get_custom_notices() );
 
 		// Process notices.
 		$active_notices    = array();
@@ -333,16 +339,18 @@ class Generic_Plugin_AdminNotices {
 			}
 		}
 
-		\update_option(
-			'w3tc_cached_notices',
-			\wp_json_encode(
-				array(
-					'time'    => \time(),
-					'notices' => $active_notices,
-				)
-			),
-			false
-		);
+		if ( $allow_remote ) {
+			\update_option(
+				'w3tc_cached_notices',
+				\wp_json_encode(
+					array(
+						'time'    => \time(),
+						'notices' => $active_notices,
+					)
+				),
+				false
+			);
+		}
 
 		return $active_notices;
 	}

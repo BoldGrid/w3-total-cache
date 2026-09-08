@@ -766,7 +766,7 @@ var extsrc=null;
 		);
 
 		if ( ! empty( $groups[ $theme ][ $template ][ $location ]['files'] ) ) {
-			if ( $this->_config->get_boolean( 'minify.css.embed' ) ) {
+			if ( (bool) apply_filters( 'w3tc_minify_css_embed', false, $this->_config ) ) {
 				$minify          = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
 				$minify_filename = $this->get_minify_manual_filename( $theme, $template, $location, $type );
 

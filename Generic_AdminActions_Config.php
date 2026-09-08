@@ -570,7 +570,6 @@ class Generic_AdminActions_Config {
 
 		$state_master = Dispatcher::config_state_master();
 		if ( $accept_terms ) {
-			$this->_config->set( 'common.track_usage', true );
 			$state_master->set( 'license.community_terms', 'accept' );
 		}
 		$state_master->save();
@@ -727,5 +726,41 @@ class Generic_AdminActions_Config {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Accept community terms (does not enable usage tracking).
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public function w3tc_config_terms_accept() {
+		Generic_Tos::accept();
+
+		Util_Admin::redirect_with_custom_messages2(
+			array(
+				'notes' => array( __( 'Terms have been accepted', 'w3-total-cache' ) ),
+			),
+			true
+		);
+	}
+
+	/**
+	 * Decline community terms.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public function w3tc_config_terms_decline() {
+		Generic_Tos::decline();
+
+		Util_Admin::redirect_with_custom_messages2(
+			array(
+				'notes' => array( __( 'Terms have been declined', 'w3-total-cache' ) ),
+			),
+			true
+		);
 	}
 }

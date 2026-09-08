@@ -72,13 +72,7 @@
     }
 
     if ("avif" === formatKey) {
-      return (
-        (typeof settings.avif === "undefined" ||
-          true === settings.avif ||
-          "1" === settings.avif ||
-          1 === settings.avif) &&
-        w3tcData.isPro
-      );
+      return !!w3tcData.avifEnabled;
     }
 
     return false;

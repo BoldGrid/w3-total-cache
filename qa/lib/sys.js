@@ -460,6 +460,25 @@ function skipIfMissingEnv(testCtx, envKeys) {
 }
 
 /**
+ * Skip Pro-only Mocha specs on community (free-plugin) box runs.
+ *
+ * `800-w3tc.sh` writes W3D_W3TC_PRODUCT=community unless
+ * W3D_W3TC_PRO_COMPANION=1. Call from `it`/`before` with Mocha `this`.
+ *
+ * @param {*} testCtx Mocha test context.
+ * @returns {boolean} true if skipped.
+ */
+function skipIfNotPro(testCtx) {
+  let product = (process.env.W3D_W3TC_PRODUCT || "").toLowerCase();
+  if (product === "community" || product === "free") {
+    log.log("SKIP: Pro spec on community product");
+    testCtx.skip();
+    return true;
+  }
+  return false;
+}
+
+/**
  * Repeat page operations on failure.
  *
  * @param {pPage} pPage Page.
@@ -507,6 +526,7 @@ module.exports = Object.assign(module.exports, {
   qaPageCacheSafariUserAgent,
   repeatOnFailure,
   skipIfMissingEnv,
+  skipIfNotPro,
   clearHttpErrorLog,
 });
 

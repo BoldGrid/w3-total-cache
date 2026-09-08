@@ -88,7 +88,7 @@ $w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = 
 
 <p>
 	<?php
-	$w3tc_alwayscached_enabled = Extension_AlwaysCached_Plugin::is_enabled();
+	$w3tc_alwayscached_enabled = class_exists( '\W3TC\Extension_AlwaysCached_Plugin' ) && Extension_AlwaysCached_Plugin::is_enabled();
 	$w3tc_status_class         = $w3tc_alwayscached_enabled ? 'w3tc-enabled' : 'w3tc-disabled';
 	$w3tc_status_label         = $w3tc_alwayscached_enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' );
 	$w3tc_manage_label         = $w3tc_alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
@@ -605,42 +605,31 @@ $w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = 
 					'key'                  => 'pgcache.rest',
 					'label'                => '<acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
 					'control'              => 'radiogroup',
-					'radiogroup_values'    => array(
-						''        => __( 'Don\'t cache', 'w3-total-cache' ),
-						'cache'   => array(
-							'label'             => __( 'Cache', 'w3-total-cache' ),
-							'disabled'          => ! Util_Environment::is_w3tc_pro( $this->_config ),
-							'pro_feature'       => true,
-							'pro_excerpt'       => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
-							'pro_description'   => array(
-								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
-							),
-							'show_learn_more'   => false,
-							'intro_label'       => __( 'Potential API Response Time Gain', 'w3-total-cache' ),
-							'score'             => '84%',
-							'score_label'       => __( 'API Response Time', 'w3-total-cache' ),
-							'score_description' => __( 'In a recent test, enabling REST API Caching increased API response times by 84&#37;!', 'w3-total-cache' ),
-							'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/?utm_source=w3tc&utm_medium=rest-api-caching&utm_campaign=proof',
-						),
-						'disable' => wp_kses(
-							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-								__(
-									'Disable %1$sREST%2$s %3$sAPI%4$s',
-									'w3-total-cache'
+					'radiogroup_values'    => apply_filters(
+						'w3tc_ui_pgcache_rest_radiogroup_values',
+						array(
+							''        => __( 'Don\'t cache', 'w3-total-cache' ),
+							'disable' => wp_kses(
+								sprintf(
+									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+									// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+									__(
+										'Disable %1$sREST%2$s %3$sAPI%4$s',
+										'w3-total-cache'
+									),
+									'<acronym title="' . esc_attr__( 'REpresentational State Transfer', 'w3-total-cache' ) . '">',
+									'</acronym>',
+									'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+									'</acronym>'
 								),
-								'<acronym title="' . esc_attr__( 'REpresentational State Transfer', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-								'</acronym>'
+								array(
+									'acronym' => array(
+										'title' => array(),
+									),
+								)
 							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
 						),
+						$this->_config
 					),
 					'radiogroup_separator' => '<br />',
 				)

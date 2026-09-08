@@ -6,7 +6,6 @@
  *
  * @package W3TC
  *
- * @uses array $w3tc_config W3TC configuration.
  * @uses array $w3tc_cards {
  *     Feature configuration.
  *
@@ -18,17 +17,12 @@
  *     @type bool   $w3tc_is_premium Is it a premium feature.
  * }
  *
- * @see Util_Environment::is_w3tc_pro()
- * @see Util_Ui::pro_wrap_maybe_end2()
- *
  * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
  */
 
 namespace W3TC;
 
 defined( 'ABSPATH' ) || exit;
-$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_config );
-
 require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 
@@ -51,10 +45,6 @@ foreach ( $cards_data as $w3tc_card_type => $w3tc_cards ) {
 			$w3tc_title_classes .= ' w3tc-card-premium';
 		}
 
-		if ( $w3tc_is_premium && ! $w3tc_is_pro ) {
-			$w3tc_card_classes .= ' w3tc-card-upgrade';
-		}
-
 		?>
 		<div class="<?php echo $w3tc_card_classes; ?>" id="w3tc-feature-<?php echo esc_attr( $w3tc_feature_id ); ?>">
 			<div class="<?php echo $w3tc_title_classes; ?>">
@@ -70,10 +60,7 @@ foreach ( $cards_data as $w3tc_card_type => $w3tc_cards ) {
 			<div class="w3tc-card-footer">
 				<div class="w3tc-card-button">
 					<?php
-					if ( $w3tc_is_premium && ! $w3tc_is_pro ) {
-						echo '<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">'
-							. esc_html__( 'Unlock Feature', 'w3-total-cache' ) . '</button>';
-					} elseif ( ! empty( $w3tc_card['button'] ) ) {
+					if ( ! empty( $w3tc_card['button'] ) ) {
 						echo $w3tc_card['button'];
 					}
 					?>

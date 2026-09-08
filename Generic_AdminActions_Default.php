@@ -120,10 +120,12 @@ class Generic_AdminActions_Default {
 			$this->_config->set( 'plugin.license_key', $w3tc_license );
 			$this->_config->save();
 
-			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
-				$this->_config,
-				$old_config
-			);
+			if ( class_exists( '\W3TC\Licensing_Plugin_Admin' ) ) {
+				Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
+					$this->_config,
+					$old_config
+				);
+			}
 		} catch ( \Exception $ex ) {
 			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();

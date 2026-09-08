@@ -51,21 +51,21 @@ class Util_Extension {
 	 * @var array<string,string>
 	 */
 	private static $known_extensions = array(
-		'alwayscached'                     => 'w3-total-cache/Extension_AlwaysCached_Plugin.php',
+		'alwayscached'                     => 'w3-total-cache-pro/Extension_AlwaysCached_Plugin.php',
 		'amp'                              => 'w3-total-cache/Extension_Amp_Plugin.php',
 		'cloudflare'                       => 'w3-total-cache/Extension_CloudFlare_Plugin.php',
-		'fragmentcache'                    => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
-		'genesis.theme'                    => 'w3-total-cache/Extension_Genesis_Plugin.php',
+		'fragmentcache'                    => 'w3-total-cache-pro/Extension_FragmentCache_Plugin.php',
+		'genesis.theme'                    => 'w3-total-cache-pro/Extension_Genesis_Plugin.php',
 		'imageservice'                     => 'w3-total-cache/Extension_ImageService_Plugin.php',
 		'newrelic'                         => 'w3-total-cache/Extension_NewRelic_Plugin.php',
 		'swarmify'                         => 'w3-total-cache/Extension_Swarmify_Plugin.php',
-		'user-experience-defer-scripts'    => 'w3-total-cache/UserExperience_DeferScripts_Extension.php',
+		'user-experience-defer-scripts'    => 'w3-total-cache-pro/UserExperience_DeferScripts_Extension.php',
 		'user-experience-emoji'            => 'w3-total-cache/UserExperience_Emoji_Extension.php',
 		'user-experience-oembed'           => 'w3-total-cache/UserExperience_OEmbed_Extension.php',
-		'user-experience-preload-requests' => 'w3-total-cache/UserExperience_Preload_Requests_Extension.php',
-		'user-experience-remove-cssjs'     => 'w3-total-cache/UserExperience_Remove_CssJs_Extension.php',
+		'user-experience-preload-requests' => 'w3-total-cache-pro/UserExperience_Preload_Requests_Extension.php',
+		'user-experience-remove-cssjs'     => 'w3-total-cache-pro/UserExperience_Remove_CssJs_Extension.php',
 		'wordpress-seo'                    => 'w3-total-cache/Extension_WordPressSeo_Plugin.php',
-		'wpml'                             => 'w3-total-cache/Extension_Wpml_Plugin.php',
+		'wpml'                             => 'w3-total-cache-pro/Extension_Wpml_Plugin.php',
 	);
 
 	/**
@@ -118,6 +118,16 @@ class Util_Extension {
 		$relative = self::expected_relative_path( $slug );
 
 		if ( false === $relative ) {
+			return false;
+		}
+
+		/**
+		 * Pro extension files stay on disk after deactivate. Skip them once
+		 * the plugin API exists so leftover `extensions.active` entries do
+		 * not keep Pro admin UI loaded. Drop-ins (no is_plugin_active yet)
+		 * still resolve via is_w3tc_pro_plugin_present().
+		 */
+		if ( 0 === strpos( $relative, 'w3-total-cache-pro/' ) && ! Util_Environment::is_w3tc_pro_plugin_active() ) {
 			return false;
 		}
 

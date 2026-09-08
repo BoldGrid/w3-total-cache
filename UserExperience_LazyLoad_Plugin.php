@@ -48,13 +48,13 @@ class UserExperience_LazyLoad_Plugin {
 		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
 		$this->metaslider_hooks();
 
-		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.google_maps_easy' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.google_maps_easy' ) && class_exists( '\W3TC\UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy' ) ) {
 			$w3tc_p = new UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy();
 
 			add_filter( 'w3tc_lazyload_mutator_before', array( $w3tc_p, 'w3tc_lazyload_mutator_before' ) );
 		}
 
-		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) && class_exists( '\W3TC\UserExperience_LazyLoad_GoogleMaps_WPGoogleMaps' ) ) {
 			add_filter(
 				'w3tc_lazyload_mutator_before',
 				array(
@@ -64,7 +64,7 @@ class UserExperience_LazyLoad_Plugin {
 			);
 		}
 
-		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) && class_exists( '\W3TC\UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin' ) ) {
 			$w3tc_p = new UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin();
 
 			add_filter( 'w3tc_lazyload_mutator_before', array( $w3tc_p, 'w3tc_lazyload_mutator_before' ) );

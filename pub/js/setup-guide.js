@@ -350,7 +350,7 @@ function w3tc_wizard_actions($slide, $previousSlide) {
       enabled: null,
       settings: {
         webp: true,
-        avif: true,
+        avif: false,
         compression: "lossy",
         auto: "enabled",
         visibility: "never",
@@ -643,7 +643,7 @@ function w3tc_wizard_actions($slide, $previousSlide) {
           {},
           {
             webp: true,
-            avif: true,
+            avif: false,
             compression: "lossy",
             auto: "enabled",
             visibility: "never",
@@ -1711,7 +1711,7 @@ function w3tc_wizard_actions($slide, $previousSlide) {
       $nextButton.prop("disabled", "disabled");
       var defaultImageserviceSettings = {
           webp: true,
-          avif: true,
+          avif: false,
           compression: "lossy",
           auto: "enabled",
           visibility: "never",

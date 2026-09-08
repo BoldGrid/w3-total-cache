@@ -221,7 +221,6 @@ class SetupGuide_Plugin_Admin {
 				$state_master->set( 'license.community_terms', $choice );
 				$state_master->save();
 
-				$w3tc_config->set( 'common.track_usage', ( 'accept' === $choice ) );
 				$w3tc_config->save();
 			}
 
@@ -360,7 +359,9 @@ class SetupGuide_Plugin_Admin {
 		);
 
 		if ( in_array( $w3tc_engine, $allowed_engines, true ) ) {
-			if ( empty( $w3tc_engine ) || 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine || Util_Installed::$w3tc_engine() ) {
+			if ( 'nginx_memcached' === $w3tc_engine && ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+				$w3tc_message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+			} elseif ( empty( $w3tc_engine ) || 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine || Util_Installed::$w3tc_engine() ) {
 				if ( $pgcache_enabled !== $enable ) {
 					$w3tc_config->set( 'pgcache.enabled', $enable );
 					$is_updating = true;
@@ -1000,8 +1001,12 @@ class SetupGuide_Plugin_Admin {
 		$w3tc_settings['compression'] = isset( $request_settings['compression'] ) ? $request_settings['compression'] : $w3tc_settings['compression'];
 		$w3tc_settings['auto']        = isset( $request_settings['auto'] ) ? $request_settings['auto'] : $w3tc_settings['auto'];
 		$w3tc_settings['visibility']  = isset( $request_settings['visibility'] ) ? $request_settings['visibility'] : $w3tc_settings['visibility'];
-		$w3tc_settings['webp']        = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $w3tc_settings['webp'];
-		$w3tc_settings['avif']        = array_key_exists( 'avif', $request_settings ) ? Util_Environment::to_boolean( $request_settings['avif'] ) : $w3tc_settings['avif'];
+		$w3tc_settings['webp'] = array_key_exists( 'webp', $request_settings ) ? Util_Environment::to_boolean( $request_settings['webp'] ) : $w3tc_settings['webp'];
+		if ( Util_Environment::is_w3tc_pro( $w3tc_config ) && array_key_exists( 'avif', $request_settings ) ) {
+			$w3tc_settings['avif'] = Util_Environment::to_boolean( $request_settings['avif'] );
+		} elseif ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+			$w3tc_settings['avif'] = false;
+		}
 
 		$w3tc_config->set( 'imageservice', $w3tc_settings );
 		$w3tc_config->save();
@@ -1061,7 +1066,7 @@ class SetupGuide_Plugin_Admin {
 			return false;
 		}
 
-		$terms = Licensing_Core::get_tos_choice();
+		$terms = Generic_Tos::get_choice();
 
 		return 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms;
 	}
@@ -1295,6 +1300,10 @@ class SetupGuide_Plugin_Admin {
 				number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
 		);
 
+		ob_start();
+		do_action( 'w3tc_setup_guide_imageservice_formats_pro' );
+		$w3tc_imageservice_formats_pro = ob_get_clean();
+
 		/**
 		 * Mint per-action nonces so the JS can post the correct nonce per
 		 * AJAX action (defense against cross-action nonce replay).
@@ -1339,7 +1348,7 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
 							'w3tc_plugin_type'  => esc_attr( $w3tc_config->get_string( 'plugin.type' ) ),
 							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
-							'tos_choice'        => Licensing_Core::get_tos_choice(),
+							'tos_choice'        => Generic_Tos::get_choice(),
 							'track_usage'       => $w3tc_config->get_boolean( 'common.track_usage' ),
 							'test_complete_msg' => __(
 								'Testing complete.  Click Next to advance to the section and see the results.',
@@ -1730,8 +1739,8 @@ class SetupGuide_Plugin_Admin {
 						<div id="imageservice-options" class="hidden">
 							<p><strong>' . esc_html__( 'Conversion types', 'w3-total-cache' ) . '</strong></p>
 							<p class="w3tc-imageservice-formats">
-								<label><input type="checkbox" id="imageservice-webp" value="1" /> ' . esc_html__( 'WebP format', 'w3-total-cache' ) . '</label><br />
-								<label><input type="checkbox" id="imageservice-avif" value="1" /> ' . esc_html__( 'AVIF format', 'w3-total-cache' ) . '</label>
+								<label><input type="checkbox" id="imageservice-webp" value="1" /> ' . esc_html__( 'WebP format', 'w3-total-cache' ) . '</label>' .
+								$w3tc_imageservice_formats_pro . '
 							</p>
 						</div>
 						<div class="w3tc-io-rate-grid">

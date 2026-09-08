@@ -1027,18 +1027,9 @@ class Util_Ui {
 	 * @param array  $values    {
 	 *     Values.
 	 *
-	 *     @type string $w3tc_label             Label for the radio button.
-	 *     @type bool   $w3tc_disabled          Whether the radio button is disabled.
-	 *     @type string $postfix           Postfix to be appended to the label.
-	 *     @type bool   $pro_feature       Whether the radio button is a pro feature.
-	 *     @type string $pro_excerpt       Excerpt for pro feature description.
-	 *     @type string $pro_description   Full description for the pro feature.
-	 *     @type string $intro_label       Intro label for pro feature.
-	 *     @type string $score             Score associated with the pro feature.
-	 *     @type string $score_label       Label for the score.
-	 *     @type string $score_description Description for the score.
-	 *     @type string $score_link        Link related to the score.
-	 *     @type bool   $show_learn_more   Whether to show the "learn more" option for the pro feature.
+	 *     @type string $w3tc_label    Label for the radio button.
+	 *     @type bool   $w3tc_disabled Whether the radio button is disabled.
+	 *     @type string $postfix       Postfix to be appended to the label.
 	 * }
 	 * @param bool   $w3tc_disabled  Disabled flag for all radio buttons.
 	 * @param string $separator Separator to be used between radio buttons.
@@ -1046,9 +1037,7 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function radiogroup( $w3tc_name, $w3tc_value, $values, $w3tc_disabled = false, $separator = '' ) {
-		$w3tc_c      = Dispatcher::config();
-		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
-		$w3tc_first  = true;
+		$w3tc_first = true;
 		foreach ( $values as $w3tc_key => $label_or_array ) {
 			if ( $w3tc_first ) {
 				$w3tc_first = false;
@@ -1062,41 +1051,19 @@ class Util_Ui {
 			$w3tc_label    = '';
 			$item_disabled = false;
 			$postfix       = '';
-			$pro_feature   = false;
 
 			if ( ! is_array( $label_or_array ) ) {
 				$w3tc_label = $label_or_array;
 			} else {
 				$w3tc_label    = $label_or_array['label'];
-				$item_disabled = $label_or_array['disabled'];
+				$item_disabled = ! empty( $label_or_array['disabled'] );
 				$postfix       = isset( $label_or_array['postfix'] ) ? $label_or_array['postfix'] : '';
-				$pro_feature   = isset( $label_or_array['pro_feature'] ) ? $label_or_array['pro_feature'] : false;
-			}
-
-			if ( $pro_feature ) {
-				self::pro_wrap_maybe_start();
 			}
 
 			echo '<label><input type="radio" id="' . esc_attr( $w3tc_name . '__' . $w3tc_key ) . '" name="' . esc_attr( $w3tc_name ) .
 				'" value="' . esc_attr( $w3tc_key ) . '"' . checked( $w3tc_value, $w3tc_key, false ) . disabled( $w3tc_disabled || $item_disabled, true, false ) . ' />' .
 				wp_kses( $w3tc_label, self::get_allowed_html_for_wp_kses_from_content( $w3tc_label ) ) . '</label>' .
 				wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
-
-			if ( $pro_feature ) {
-				self::pro_wrap_description(
-					$label_or_array['pro_excerpt'],
-					$label_or_array['pro_description'],
-					$w3tc_name . '__' . $w3tc_key
-				);
-
-				if ( ! $w3tc_is_pro && isset( $label_or_array['intro_label'] ) && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) && isset( $label_or_array['score_link'] ) ) {
-					$score_block = self::get_score_block( $label_or_array['intro_label'], $label_or_array['score'], $label_or_array['score_label'], $label_or_array['score_description'], $label_or_array['score_link'] );
-					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
-				}
-
-				$show_learn_more = isset( $label_or_array['show_learn_more'] ) && is_bool( $label_or_array['show_learn_more'] ) ? $label_or_array['show_learn_more'] : true;
-				self::pro_wrap_maybe_end( $w3tc_name . '__' . $w3tc_key, $show_learn_more );
-			}
 		}
 	}
 
@@ -1408,26 +1375,6 @@ class Util_Ui {
 	}
 
 	/**
-	 * Get table classes for tables including pro features.
-	 *
-	 * When on the free version, tables with pro features have additional classes added to help highlight
-	 * the premium feature. If the user is on pro, this class is omitted.
-	 *
-	 * @since 0.14.3
-	 *
-	 * @return string
-	 */
-	public static function table_class() {
-		$table_class[] = 'form-table';
-
-		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-			$table_class[] = 'w3tc-pro-feature';
-		}
-
-		return implode( ' ', $table_class );
-	}
-
-	/**
 	 * Renders <tr> element with controls.
 	 *
 	 * Renders a table row with various controls, such as checkboxes, select boxes, textboxes, etc.
@@ -1524,54 +1471,113 @@ class Util_Ui {
 	}
 
 	/**
+	 * Compact PRO identifier for settings, boxes, and jump links.
+	 *
+	 * Visual only — does not unlock features. Use on licensed Pro UI so
+	 * those items remain distinguishable from community settings.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return string
+	 */
+	public static function pro_badge() {
+		return ' <span class="w3tc-pro-badge">' . esc_html__( 'PRO', 'w3-total-cache' ) . '</span>';
+	}
+
+	/**
+	 * Append a PRO badge to a label when it is not already marked.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param string $text Label HTML or plain text.
+	 *
+	 * @return string
+	 */
+	public static function maybe_pro_label( $text ) {
+		$text = (string) $text;
+		if ( '' === $text || false !== strpos( $text, 'w3tc-pro-badge' ) ) {
+			return $text;
+		}
+
+		return $text . self::pro_badge();
+	}
+
+	/**
+	 * Mark a config-item array as Pro for rendering.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param array $w3tc_a Config item.
+	 *
+	 * @return array
+	 */
+	public static function apply_pro_ui( $w3tc_a ) {
+		if ( empty( $w3tc_a['pro'] ) ) {
+			return $w3tc_a;
+		}
+
+		$label_class = isset( $w3tc_a['label_class'] ) ? (string) $w3tc_a['label_class'] : '';
+		$label_text  = isset( $w3tc_a['label'] ) ? trim( wp_strip_all_tags( (string) $w3tc_a['label'] ) ) : '';
+		$hide_label  = in_array( $label_class, array( 'w3tc_no_trtd', 'w3tc_single_column' ), true );
+
+		if ( $hide_label || '' === $label_text ) {
+			if ( ! empty( $w3tc_a['checkbox_label'] ) ) {
+				$w3tc_a['checkbox_label'] = self::maybe_pro_label( $w3tc_a['checkbox_label'] );
+			} elseif ( ! empty( $w3tc_a['none_label'] ) ) {
+				$w3tc_a['none_label'] = self::maybe_pro_label( $w3tc_a['none_label'] );
+			} elseif ( '' !== $label_text ) {
+				$w3tc_a['label'] = self::maybe_pro_label( $w3tc_a['label'] );
+			}
+
+			return $w3tc_a;
+		}
+
+		$w3tc_a['label'] = self::maybe_pro_label( $w3tc_a['label'] );
+
+		return $w3tc_a;
+	}
+
+	/**
+	 * Allowed HTML for the PRO badge.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return array
+	 */
+	public static function pro_badge_allowed_html() {
+		return array(
+			'span' => array(
+				'class' => array(),
+			),
+		);
+	}
+
+	/**
+	 * Print the PRO badge.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public static function echo_pro_badge() {
+		echo wp_kses( self::pro_badge(), self::pro_badge_allowed_html() );
+	}
+
+	/**
 	 * Prints configuration item UI based on description.
 	 *
-	 * @param array $w3tc_a {
-	 *     Config.
-	 *
-	 *     @type string $w3tc_key                 Configuration key.
-	 *     @type string $w3tc_label               Configuration key's label as introduced to the user.
-	 *     @type mixed  $w3tc_value               The value of the configuration item.
-	 *     @type bool   $w3tc_disabled            If the control is disabled.
-	 *     @type string $control             Type of control (checkbox, radiogroup, selectbox, textbox).
-	 *     @type string $checkbox_label      Text shown after the checkbox.
-	 *     @type array  $radiogroup_values   Array of possible values for radiogroup.
-	 *     @type array  $selectbox_values    Array of possible values for dropdown.
-	 *     @type array  $selectbox_optgroups Option groups for selectbox.
-	 *     @type string $textbox_size        Size of the textbox.
-	 *     @type string $control_after       Content to add after control.
-	 *     @type string $description         Description shown to the user below the control.
-	 *     @type bool   $show_in_free        Whether to show the item in the free edition. Defaults to true.
-	 *     @type string $label_class         CSS class for the label.
-	 *     @type string $control_name        Name attribute for the control.
-	 *     @type string $intro_label         Introductory label for the score block.
-	 *     @type mixed  $score               Score for the item.
-	 *     @type string $score_label         Label for the score.
-	 *     @type string $score_description   Description for the score.
-	 *     @type string $score_link          Link for more information about the score.
-	 *     @type string $style               CSS style for the control.
-	 * }
+	 * @param array $w3tc_a Config item. Optional `pro` => true shows the PRO badge.
 	 *
 	 * @return void
 	 */
 	public static function config_item( $w3tc_a ) {
-		/*
-		 * Some items we do not want shown in the free edition.
-		 *
-		 * By default, they will show in free, unless 'show_in_free' is specifically passed in as false.
-		 */
-		$is_w3tc_free = ! Util_Environment::is_w3tc_pro( Dispatcher::config() );
-		$show_in_free = ! isset( $w3tc_a['show_in_free'] ) || (bool) $w3tc_a['show_in_free'];
-		if ( ! $show_in_free && $is_w3tc_free ) {
-			return;
-		}
-
-		$w3tc_a = self::config_item_preprocess( $w3tc_a );
+		$w3tc_a   = self::config_item_preprocess( $w3tc_a );
+		$tr_class = ! empty( $w3tc_a['pro'] ) ? ' class="w3tc-pro-item"' : '';
 
 		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
-			echo '<tr><th colspan="2">';
+			echo '<tr' . $tr_class . '><th colspan="2">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} else {
-			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
+			echo '<tr' . $tr_class . '><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			if ( ! empty( $w3tc_a['label'] ) ) {
 				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
@@ -1588,7 +1594,7 @@ class Util_Ui {
 				self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['control_after'] )
 			);
 		}
-		if ( isset( $w3tc_a['description'] ) ) {
+		if ( isset( $w3tc_a['description'] ) && is_string( $w3tc_a['description'] ) ) {
 			echo wp_kses(
 				sprintf(
 					'%1$s%2$s%3$s',
@@ -1609,16 +1615,12 @@ class Util_Ui {
 					'p'       => array(
 						'class' => array(),
 					),
+					'br'      => array(),
 					'acronym' => array(
 						'title' => array(),
 					),
 				)
 			);
-		}
-
-		if ( $is_w3tc_free && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
-			$score_block = self::get_score_block( $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
-			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
 		echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
@@ -1628,8 +1630,8 @@ class Util_Ui {
 	/**
 	 * Config item extension enabled.
 	 *
-	 * Outputs the HTML for the config item extension, including a checkbox for enabling the extension,
-	 * and additional information such as description, score block, and pro features.
+	 * Outputs the HTML for the config item extension, including a checkbox for enabling the extension
+	 * and a description.
 	 *
 	 * @param array $w3tc_a {
 	 *     Config.
@@ -1641,36 +1643,26 @@ class Util_Ui {
 	 *     @type string $extension_id      The extension ID.
 	 *     @type bool   $w3tc_disabled          Whether the checkbox should be disabled.
 	 *     @type string $description       The description for the config item.
-	 *     @type string $intro_label       The intro label for the score block (if applicable).
-	 *     @type int    $score             The score for the score block (if applicable).
-	 *     @type string $score_label       The label for the score (if applicable).
-	 *     @type string $score_description The description for the score (if applicable).
-	 *     @type string $score_link        The link for the score (if applicable).
-	 *     @type bool   $pro               Whether the config item is pro.
-	 *     @type bool   $show_learn_more   Whether to show the "learn more" link (if applicable).
 	 *     @type string $style             Custom style for the config item (optional).
 	 * }
 	 *
 	 * @return void
 	 */
 	public static function config_item_extension_enabled( $w3tc_a ) {
-		$w3tc_c      = Dispatcher::config();
-		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
+		$w3tc_c   = Dispatcher::config();
+		$w3tc_a   = self::apply_pro_ui( $w3tc_a );
+		$tr_class = ! empty( $w3tc_a['pro'] ) ? ' class="w3tc-pro-item"' : '';
 
 		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
-			echo '<tr><th colspan="2">';
+			echo '<tr' . $tr_class . '><th colspan="2">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} else {
-			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
+			echo '<tr' . $tr_class . '><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			if ( ! empty( $w3tc_a['label'] ) ) {
 				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
 			}
 
 			echo "</th>\n<td>\n";
-		}
-
-		if ( isset( $w3tc_a['pro'] ) ) {
-			self::pro_wrap_maybe_start();
 		}
 
 		self::checkbox2(
@@ -1686,99 +1678,8 @@ class Util_Ui {
 			echo '<p class="description">' . wp_kses( $w3tc_a['description'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['description'] ) ) . '</p>';
 		}
 
-		if ( ! $w3tc_is_pro && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
-			$score_block = self::get_score_block( $w3tc_a['intro_label'], $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
-			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
-		}
-
-		if ( isset( $w3tc_a['pro'] ) ) {
-			$show_learn_more = isset( $w3tc_a['show_learn_more'] ) && is_bool( $w3tc_a['show_learn_more'] ) ? $w3tc_a['show_learn_more'] : true;
-			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $w3tc_a['extension_id'] ), $show_learn_more );
-		}
-
 		echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
 		echo "</tr>\n";
-	}
-
-	/**
-	 * Config item pro.
-	 *
-	 * @param array $w3tc_a {
-	 *     Configuration settings for the item.
-	 *
-	 *     @type string $label_class       The CSS class for the label.
-	 *     @type string $control_name      The name of the control.
-	 *     @type string $w3tc_label             The label text for the control.
-	 *     @type string $wrap_separate     Whether to wrap the description separately.
-	 *     @type string $no_wrap           Whether to disable wrapping.
-	 *     @type string $control_after     HTML to output after the control.
-	 *     @type string $description       The description of the control.
-	 *     @type string $excerpt           The excerpt text for the description.
-	 *     @type string $intro_label       The intro label for the score block.
-	 *     @type string $score             The score value.
-	 *     @type string $score_label       The label for the score.
-	 *     @type string $score_description The description for the score.
-	 *     @type string $score_link        The link associated with the score.
-	 *     @type bool   $show_learn_more   Whether to show the "Learn More" link.
-	 * }
-	 *
-	 * @return void
-	 */
-	public static function config_item_pro( $w3tc_a ) {
-		$w3tc_c      = Dispatcher::config();
-		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
-		$w3tc_a      = self::config_item_preprocess( $w3tc_a );
-
-		if ( 'w3tc_single_column' === $w3tc_a['label_class'] ) {
-			echo '<tr><th colspan="2">';
-		} elseif ( 'w3tc_no_trtd' !== $w3tc_a['label_class'] ) {
-			echo '<tr><th class="' . esc_attr( $w3tc_a['label_class'] ) . '">';
-
-			if ( ! empty( $w3tc_a['label'] ) ) {
-				self::label( $w3tc_a['control_name'], $w3tc_a['label'] );
-			}
-
-			echo "</th>\n<td>\n";
-		}
-
-		// If wrap_separate is not set we wrap everything.
-		if ( ! isset( $w3tc_a['wrap_separate'] ) && ! isset( $w3tc_a['no_wrap'] ) ) {
-			self::pro_wrap_maybe_start();
-		}
-
-		self::control2( $w3tc_a );
-
-		if ( isset( $w3tc_a['control_after'] ) ) {
-			echo wp_kses( $w3tc_a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $w3tc_a['control_after'] ) );
-		}
-
-		// If wrap_separate is set we wrap only the description.
-		if ( isset( $w3tc_a['wrap_separate'] ) && ! isset( $w3tc_a['no_wrap'] ) ) {
-			// If not pro we add a spacer for better separation of control element and wrapper.
-			if ( ! $w3tc_is_pro ) {
-				echo '<br/><br/>';
-			}
-			self::pro_wrap_maybe_start();
-		}
-
-		if ( isset( $w3tc_a['description'] ) ) {
-			self::pro_wrap_description( $w3tc_a['excerpt'], $w3tc_a['description'], $w3tc_a['control_name'] );
-		}
-
-		if ( ! $w3tc_is_pro && ! isset( $w3tc_a['no_wrap'] ) && isset( $w3tc_a['intro_label'] ) && isset( $w3tc_a['score'] ) && isset( $w3tc_a['score_label'] ) && isset( $w3tc_a['score_description'] ) && isset( $w3tc_a['score_link'] ) ) {
-			$score_block = self::get_score_block( $w3tc_a['intro_label'], $w3tc_a['score'], $w3tc_a['score_label'], $w3tc_a['score_description'], $w3tc_a['score_link'] );
-			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
-		}
-
-		if ( ! isset( $w3tc_a['no_wrap'] ) ) {
-			$show_learn_more = isset( $w3tc_a['show_learn_more'] ) && is_bool( $w3tc_a['show_learn_more'] ) ? $w3tc_a['show_learn_more'] : true;
-			self::pro_wrap_maybe_end( $w3tc_a['control_name'], $show_learn_more );
-		}
-
-		if ( 'w3tc_no_trtd' !== $w3tc_a['label_class'] ) {
-			echo ( isset( $w3tc_a['style'] ) ? '</th>' : '</td>' );
-			echo "</tr>\n";
-		}
 	}
 
 	/**
@@ -1824,6 +1725,8 @@ class Util_Ui {
 			$w3tc_a['label_class'] = 'w3tc_config_checkbox';
 		}
 
+		$w3tc_a = self::apply_pro_ui( $w3tc_a );
+
 		$action_key = $w3tc_a['key'];
 		if ( is_array( $action_key ) ) {
 			$action_key = 'extension.' . $action_key[0] . '.' . $action_key[1];
@@ -1843,7 +1746,6 @@ class Util_Ui {
 	 *     @type bool   $w3tc_disabled      Optional. Whether the config item should be disabled.
 	 *     @type bool   $empty_value   Optional. Whether to include an empty value option. Default is false.
 	 *     @type string $control_after Optional. Additional content to display after the control.
-	 *     @type bool   $pro           Optional. If set, calls the pro version of the config item function.
 	 * }
 	 *
 	 * @return void
@@ -1904,123 +1806,7 @@ class Util_Ui {
 			'control_after'       => isset( $w3tc_a['control_after'] ) ? $w3tc_a['control_after'] : null,
 		);
 
-		if ( isset( $w3tc_a['pro'] ) ) {
-			self::config_item_pro( $item_engine_config );
-		} else {
-			self::config_item( $item_engine_config );
-		}
-	}
-
-	/**
-	 * Pro wrap start
-	 *
-	 * @return void
-	 */
-	public static function pro_wrap_maybe_start() {
-		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-			return;
-		}
-
-		?>
-		<div class="w3tc-gopro">
-			<div class="w3tc-gopro-ribbon"><span>&bigstar; PRO</span></div>
-			<div class="w3tc-gopro-content">
-		<?php
-	}
-
-	/**
-	 * Pro wrap description
-	 *
-	 * @param string $excerpt_clean Clean exerpt.
-	 * @param string $description   Description.
-	 * @param string $data_href     Data link.
-	 *
-	 * @return void
-	 */
-	public static function pro_wrap_description( $excerpt_clean, $description, $data_href ) {
-		echo '<p class="description w3tc-gopro-excerpt">' . wp_kses( $excerpt_clean, self::get_allowed_html_for_wp_kses_from_content( $excerpt_clean ) ) . '</p>';
-
-		if ( ! empty( $description ) ) {
-			$d = array_map(
-				function ( $e ) {
-					return '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
-				},
-				$description
-			);
-
-			$descriptions = implode( "\n", $d );
-
-			echo '<div class="w3tc-gopro-description">' . wp_kses( $descriptions, self::get_allowed_html_for_wp_kses_from_content( $descriptions ) ) . '</div>';
-			echo '<a href="#" class="w3tc-gopro-more" data-href="w3tc-gopro-more-' . esc_url( $data_href ) . '">' . esc_html( __( 'Show More', 'w3-total-cache' ) ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></a>';
-		}
-	}
-
-	/**
-	 * Pro wrap end
-	 *
-	 * @param string $button_data_src Butta href.
-	 * @param bool   $show_learn_more Show more flag.
-	 *
-	 * @return void
-	 */
-	public static function pro_wrap_maybe_end( $button_data_src, $show_learn_more = true ) {
-		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-			return;
-		}
-
-		?>
-			</div>
-			<?php if ( $show_learn_more ) { ?>
-			<div class="w3tc-gopro-action">
-				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
-					Learn more about Pro
-				</button>
-			</div>
-			<?php } ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Pro wrap start - version 2
-	 *
-	 * @return void
-	 */
-	public static function pro_wrap_maybe_start2() {
-		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-			return;
-		}
-
-		?>
-		<div class="updated w3tc_note" id="licensing_terms" style="display: flex; align-items: center">
-			<p style="flex-grow: 1">
-		<?php
-	}
-
-	/**
-	 * Pro wrap end - version 2
-	 *
-	 * @param string $button_data_src     Button link.
-	 * @param bool   $show_unlock_feature Show unlock feature flag.
-	 *
-	 * @return void
-	 */
-	public static function pro_wrap_maybe_end2( $button_data_src, $show_unlock_feature = true ) {
-		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-			return;
-		}
-
-		?>
-			</p>
-			<?php if ( $show_unlock_feature ) { ?>
-			<div style="text-align: right">
-				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
-					Unlock Feature
-				</button>
-			</div>
-			<?php } ?>
-		</div>
-		<?php
+		self::config_item( $item_engine_config );
 	}
 
 	/**
@@ -2190,8 +1976,12 @@ class Util_Ui {
 		$page_mapping = Util_PageUrls::get_page_mapping( $page );
 		$parent       = isset( $page_mapping['parent_name'] ) ?
 			'<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
-		$current      = isset( $page_mapping['page_name'] ) ?
-			'<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>' : '';
+		$current_name = isset( $page_mapping['page_name'] ) ? $page_mapping['page_name'] : '';
+		$current      = '' !== $current_name ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( wp_strip_all_tags( $current_name ) ) . '</span>' : '';
+		if ( ! empty( $page_mapping['pro'] ) ) {
+			$current .= self::pro_badge();
+		}
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
@@ -2200,6 +1990,372 @@ class Util_Ui {
 			<?php echo wp_kses( $current, self::get_allowed_html_for_wp_kses_from_content( $current ) ); ?>
 		</p>
 		<?php
+		self::print_community_pro_banner();
+	}
+
+	/**
+	 * Labels and blurbs for community Pro banner items.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return array<string,array{label:string,blurb:string}>
+	 */
+	private static function community_pro_banner_catalog() {
+		return array(
+			'fragment_cache'          => array(
+				'label' => __( 'Fragment Cache', 'w3-total-cache' ),
+				'blurb' => __( 'Caches dynamic fragments that cannot use full-page cache, so plugins and themes that rely on transients respond faster.', 'w3-total-cache' ),
+			),
+			'full_site_delivery'      => array(
+				'label' => __( 'Full Site Delivery', 'w3-total-cache' ),
+				'blurb' => __( 'Hosts HTML pages and feeds on a supported CDN so visitors get the full site from a high-speed global network.', 'w3-total-cache' ),
+			),
+			'usage_statistics'        => array(
+				'label' => __( 'Usage Statistics', 'w3-total-cache' ),
+				'blurb' => __( 'Shows cache size, timing, and hit/miss ratios so you can tune each cache for maximum performance.', 'w3-total-cache' ),
+			),
+			'always_cached'           => array(
+				'label' => __( 'Always Cached', 'w3-total-cache' ),
+				'blurb' => __( 'Queues page-cache clears on content updates instead of flushing immediately, so published pages stay fast while content is rebuilt.', 'w3-total-cache' ),
+			),
+			'delay_scripts'           => array(
+				'label' => __( 'Delay Scripts', 'w3-total-cache' ),
+				'blurb' => __( 'Delays specified JavaScript until it is needed so pages become interactive sooner.', 'w3-total-cache' ),
+			),
+			'remove_cssjs'            => array(
+				'label' => __( 'Remove unused CSS/JS', 'w3-total-cache' ),
+				'blurb' => __( 'Removes unused CSS and JS per page so browsers download less and render faster.', 'w3-total-cache' ),
+			),
+			'rest_api_cache'          => array(
+				'label' => __( 'REST API page cache', 'w3-total-cache' ),
+				'blurb' => __( 'Caches WordPress REST API responses to cut server work and speed up API-driven pages and apps.', 'w3-total-cache' ),
+			),
+			'avif'                    => array(
+				'label' => __( 'AVIF image conversion', 'w3-total-cache' ),
+				'blurb' => __( 'Converts images to AVIF for smaller files and faster loads than JPEG or WebP.', 'w3-total-cache' ),
+			),
+			'preload_requests'        => array(
+				'label' => __( 'Preload Requests', 'w3-total-cache' ),
+				'blurb' => __( 'Prefetches DNS, preconnects, and preloads key assets so the next request starts sooner.', 'w3-total-cache' ),
+			),
+			'lazyload_gmaps'          => array(
+				'label' => __( 'Lazy Load Google Maps', 'w3-total-cache' ),
+				'blurb' => __( 'Defers offscreen Google Maps until they are needed so map-heavy pages load faster.', 'w3-total-cache' ),
+			),
+			'purge_logs'              => array(
+				'label' => __( 'Purge Logs', 'w3-total-cache' ),
+				'blurb' => __( 'Records when cache was purged and why, so you can stop unnecessary flushes that lower hit ratios.', 'w3-total-cache' ),
+			),
+			'database_cluster'        => array(
+				'label' => __( 'Database cluster', 'w3-total-cache' ),
+				'blurb' => __( 'Spreads database queries across a cluster so traffic growth does not slow page generation.', 'w3-total-cache' ),
+			),
+			'message_bus'             => array(
+				'label' => __( 'Message Bus', 'w3-total-cache' ),
+				'blurb' => __( 'Synchronizes cache purges across a server pool in real time so every node stays consistent.', 'w3-total-cache' ),
+			),
+			'nginx_memcached'         => array(
+				'label' => __( 'Nginx + Memcached engine', 'w3-total-cache' ),
+				'blurb' => __( 'Serves page cache from Memcached through Nginx so HTML is delivered from memory at the web server.', 'w3-total-cache' ),
+			),
+			'objectcache_purge_log'   => array(
+				'label' => __( 'Object Cache purge log', 'w3-total-cache' ),
+				'blurb' => __( 'Logs Object Cache flushes so you can see what cleared cache and restore a higher hit ratio.', 'w3-total-cache' ),
+			),
+			'message_bus_flush'       => array(
+				'label' => __( 'Message Bus object-cache flush', 'w3-total-cache' ),
+				'blurb' => __( 'Flushes object cache on every server in the pool when content changes, so visitors never hit stale objects.', 'w3-total-cache' ),
+			),
+			'fsd_engines'             => array(
+				'label' => __( 'BunnyCDN, Amazon CloudFront, and TransparentCDN FSD engines', 'w3-total-cache' ),
+				'blurb' => __( 'Connect a supported full-site CDN so HTML is served from edge locations close to your visitors.', 'w3-total-cache' ),
+			),
+			'render_blocking_css'     => array(
+				'label' => __( 'Eliminate render-blocking CSS', 'w3-total-cache' ),
+				'blurb' => __( 'Embeds critical CSS in the page so the first paint does not wait on render-blocking stylesheets.', 'w3-total-cache' ),
+			),
+			'genesis'                 => array(
+				'label' => __( 'Genesis Framework', 'w3-total-cache' ),
+				'blurb' => __( 'Tunes caching for StudioPress Genesis, often cutting page generation time by 30–60%.', 'w3-total-cache' ),
+			),
+			'wpml'                    => array(
+				'label' => __( 'WPML', 'w3-total-cache' ),
+				'blurb' => __( 'Improves page-cache interoperability with WPML and TranslatePress so multilingual pages stay cached.', 'w3-total-cache' ),
+			),
+		);
+	}
+
+	/**
+	 * Resolve a catalog item, optionally overriding label or root feature tag.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param string               $id        Catalog id.
+	 * @param array{label?:string,feature?:string} $overrides Optional label or root feature.
+	 *
+	 * @return array{label:string,blurb:string,feature:string}
+	 */
+	private static function community_pro_banner_item( $id, $overrides = array() ) {
+		static $catalog = null;
+
+		if ( null === $catalog ) {
+			$catalog = self::community_pro_banner_catalog();
+		}
+
+		if ( ! isset( $catalog[ $id ] ) ) {
+			return array(
+				'label'   => '',
+				'blurb'   => '',
+				'feature' => '',
+			);
+		}
+
+		$item            = $catalog[ $id ];
+		$item['feature'] = '';
+
+		if ( ! empty( $overrides['label'] ) ) {
+			$item['label'] = $overrides['label'];
+		}
+
+		if ( ! empty( $overrides['feature'] ) ) {
+			$item['feature'] = $overrides['feature'];
+		}
+
+		return $item;
+	}
+
+	/**
+	 * Community-only Pro upsell banner copy for the current screen.
+	 *
+	 * Hub pages list major Pro features, then any Pro settings on that
+	 * screen. Module pages list only Pro settings for that module.
+	 * The Extensions page lists Pro extensions with the same blurbs.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param string $page Current W3TC page slug.
+	 *
+	 * @return array{title:string,features:array<int,array{label:string,blurb:string,feature:string}>,settings:array<int,array{label:string,blurb:string,feature:string}>,settings_heading:string}
+	 */
+	public static function community_pro_banner_copy( $page ) {
+		$major_feature_ids = array(
+			'fragment_cache',
+			'full_site_delivery',
+			'usage_statistics',
+			'always_cached',
+			'delay_scripts',
+			'remove_cssjs',
+			'rest_api_cache',
+			'avif',
+		);
+
+		$hub_pages = array(
+			'w3tc_dashboard',
+			'w3tc_general',
+			'w3tc_feature_showcase',
+			'w3tc_about',
+			'w3tc_install',
+			'w3tc_support',
+			'w3tc_pagespeed',
+		);
+
+		$page_settings = array(
+			'w3tc_general'                     => array(
+				array(
+					'id'      => 'database_cluster',
+					'feature' => __( 'Database Cache', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'message_bus',
+					'feature' => __( 'Database Cache', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'full_site_delivery',
+					'label'   => __( 'Full Site Delivery enable and engine', 'w3-total-cache' ),
+					'feature' => __( 'CDN', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'fragment_cache',
+					'label'   => __( 'Enable and method', 'w3-total-cache' ),
+					'feature' => __( 'Fragment Cache', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'usage_statistics',
+					'label'   => __( 'Usage Statistics', 'w3-total-cache' ),
+					'feature' => __( 'Usage Statistics', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'delay_scripts',
+					'feature' => __( 'User Experience', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'remove_cssjs',
+					'feature' => __( 'User Experience', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'preload_requests',
+					'feature' => __( 'User Experience', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'lazyload_gmaps',
+					'feature' => __( 'User Experience', 'w3-total-cache' ),
+				),
+				array(
+					'id'      => 'purge_logs',
+					'feature' => __( 'Debug', 'w3-total-cache' ),
+				),
+			),
+			'w3tc_pgcache'                     => array(
+				'rest_api_cache',
+				'nginx_memcached',
+				'always_cached',
+			),
+			'w3tc_minify'                      => array(
+				'render_blocking_css',
+			),
+			'w3tc_dbcache'                     => array(
+				'database_cluster',
+			),
+			'w3tc_objectcache'                 => array(
+				'objectcache_purge_log',
+				'message_bus_flush',
+			),
+			'w3tc_cdn'                         => array(
+				'full_site_delivery',
+				'fsd_engines',
+			),
+			'w3tc_userexperience'              => array(
+				'delay_scripts',
+				'remove_cssjs',
+				'preload_requests',
+				'lazyload_gmaps',
+			),
+			'w3tc_extension_page_imageservice' => array(
+				'avif',
+			),
+			'w3tc_extensions'                  => array(
+				'fragment_cache',
+				'always_cached',
+				'genesis',
+				'wpml',
+			),
+		);
+
+		$is_hub  = in_array( $page, $hub_pages, true );
+		$features = array();
+
+		if ( $is_hub ) {
+			foreach ( $major_feature_ids as $id ) {
+				$features[] = self::community_pro_banner_item( $id );
+			}
+		}
+
+		$settings = array();
+
+		if ( isset( $page_settings[ $page ] ) ) {
+			foreach ( $page_settings[ $page ] as $setting ) {
+				if ( is_string( $setting ) ) {
+					$settings[] = self::community_pro_banner_item( $setting );
+					continue;
+				}
+
+				$id        = isset( $setting['id'] ) ? $setting['id'] : '';
+				$overrides = $setting;
+				unset( $overrides['id'] );
+				if ( ! $is_hub ) {
+					unset( $overrides['feature'] );
+				}
+				$settings[] = self::community_pro_banner_item( $id, $overrides );
+			}
+		}
+
+		$settings_heading = 'w3tc_extensions' === $page ?
+			__( 'Pro extensions', 'w3-total-cache' ) :
+			__( 'Pro settings on this page', 'w3-total-cache' );
+
+		return array(
+			'title'             => __(
+				'Upgrade to W3 Total Cache Pro to unlock even more performance-improving options and features.',
+				'w3-total-cache'
+			),
+			'features'          => $features,
+			'settings'          => $settings,
+			'settings_heading'  => $settings_heading,
+		);
+	}
+
+	/**
+	 * Print a community-only Pro upsell banner.
+	 *
+	 * Hidden when Pro is active (companion + license or local testing constant).
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public static function print_community_pro_banner() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		if ( Util_Environment::is_w3tc_pro() ) {
+			return;
+		}
+
+		$page = Util_Admin::get_current_page();
+		if ( 'w3tc_setup_guide' === $page ) {
+			return;
+		}
+
+		$copy = self::community_pro_banner_copy( $page );
+		if ( empty( $copy['features'] ) && empty( $copy['settings'] ) ) {
+			return;
+		}
+
+		$data_src  = 'community_banner_' . $page;
+		$nonce     = Util_Nonce::create_admin( 'w3tc_licensing_upgrade' );
+		$collapsed = self::community_pro_banner_is_collapsed();
+
+		include W3TC_INC_DIR . '/options/common/community_pro_banner.php';
+	}
+
+	/**
+	 * Whether the current user has collapsed the community Pro banner.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return bool
+	 */
+	public static function community_pro_banner_is_collapsed() {
+		$user_id = \get_current_user_id();
+		if ( $user_id < 1 ) {
+			return false;
+		}
+
+		return '1' === \get_user_meta( $user_id, 'w3tc_community_pro_banner_collapsed', true );
+	}
+
+	/**
+	 * Persist community Pro banner collapsed state for the current user.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public static function ajax_community_pro_banner_collapse() {
+		$user_id = \get_current_user_id();
+		if ( $user_id < 1 || ! \user_can( $user_id, 'manage_options' ) ) {
+			\wp_send_json_error( 'no permissions', 403 );
+		}
+
+		$collapsed = '1' === Util_Request::get_string( 'collapsed' );
+		if ( $collapsed ) {
+			\update_user_meta( $user_id, 'w3tc_community_pro_banner_collapsed', '1' );
+		} else {
+			\delete_user_meta( $user_id, 'w3tc_community_pro_banner_collapsed' );
+		}
+
+		\wp_send_json_success( array( 'collapsed' => $collapsed ) );
 	}
 
 	/**
@@ -2213,40 +2369,14 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function print_options_menu( $custom_areas = array() ) {
-		$w3tc_config       = Dispatcher::config();
-		$state             = Dispatcher::config_state();
-		$page              = Util_Admin::get_current_page();
+		$w3tc_config     = Dispatcher::config();
+		$page            = Util_Admin::get_current_page();
 		$show_purge_link   = 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' ) || 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' );
-		$licensing_visible = (
-			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
-			! ini_get( 'w3tc.license_key' ) &&
-			'host_valid' !== $state->get_string( 'license.status' )
-		);
 
 		switch ( $page ) {
 			case 'w3tc_general':
 				if ( ! empty( $_REQUEST['view'] ) ) {
 					break;
-				}
-
-				$message_bus_link = array();
-				if ( Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
-					$message_bus_link = array(
-						array(
-							'id'   => 'amazon_sns',
-							'text' => esc_html__( 'Message Bus', 'w3-total-cache' ),
-						),
-					);
-				}
-
-				$licensing_link = array();
-				if ( $licensing_visible ) {
-					$licensing_link = array(
-						array(
-							'id'   => 'licensing',
-							'text' => esc_html__( 'Licensing', 'w3-total-cache' ),
-						),
-					);
 				}
 
 				$w3tc_links = array_merge(
@@ -2307,9 +2437,7 @@ class Util_Ui {
 							'text' => esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
 						),
 					),
-					$message_bus_link,
 					$custom_areas,
-					$licensing_link,
 					array(
 						array(
 							'id'   => 'miscellaneous',
@@ -2345,8 +2473,11 @@ class Util_Ui {
 					echo wp_kses(
 						implode( ' | ', $links_buff ),
 						array(
-							'a' => array(
+							'a'    => array(
 								'href'  => array(),
+								'class' => array(),
+							),
+							'span' => array(
 								'class' => array(),
 							),
 						)
@@ -2555,21 +2686,33 @@ class Util_Ui {
 					<?php
 					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
 
-					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
+					if ( class_exists( '\W3TC\UserExperience_DeferScripts_Extension' ) && UserExperience_DeferScripts_Extension::is_enabled() ) {
 						$subnav_links[] = '<a href="#defer-scripts">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
 					}
 
-					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+					if ( class_exists( '\W3TC\UserExperience_Remove_CssJs_Extension' ) && UserExperience_Remove_CssJs_Extension::is_enabled() ) {
 						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ) . '</a>';
 						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ) . '</a>';
 					}
 
-					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
+					if ( class_exists( '\W3TC\UserExperience_Preload_Requests_Extension' ) && UserExperience_Preload_Requests_Extension::is_enabled() ) {
 						$subnav_links[] = '<a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
 					}
 
 					// If there's only 1 meta box on the page, no need for nav links.
-					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
+					if ( count( $subnav_links ) > 1 ) {
+						echo wp_kses(
+							implode( ' | ', $subnav_links ),
+							array(
+								'a'    => array(
+									'href' => array(),
+								),
+								'span' => array(
+									'class' => array(),
+								),
+							)
+						);
+					}
 					?>
 				</div>
 				<?php
@@ -2689,7 +2832,15 @@ class Util_Ui {
 						</div>
 						<?php
 						break;
+
+					default:
+						?>
+						<div id="w3tc-options-menu"></div>
+						<?php
+						break;
 				}
+				break;
+
 			default:
 				?>
 				<div id="w3tc-options-menu"></div>
@@ -2697,52 +2848,5 @@ class Util_Ui {
 				break;
 		}
 	}
-
-	/**
-	 * Gets the HTML markup for the Test Score Block.
-	 *
-	 * @param string $intro_label       Intro Label.
-	 * @param string $score             Score Value.
-	 * @param string $score_label       Score Label.
-	 * @param string $score_description Score Description.
-	 * @param string $score_link        Score Link.
-	 *
-	 * @return string
-	 */
-	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
-		$score_block = '
-			<div class="w3tc-test-container-intro">
-				<span class="w3tc-test-score">' . $score . '</span><b>' . esc_html( $intro_label ) . '</b><span class="dashicons dashicons-arrow-down-alt2" ></span>
-			</div>
-			<div class="w3tc-test-container">
-				<div class="w3tc-test-score-container">
-					<div class="w3tc-test-score">' . $score . '</div>
-					<p class="w3tc-test-score-label">' . $score_label . '</p>
-				</div>
-				<div class="w3tc-test-description">
-					<p>' . $score_description . ' <a target="_blank" href="' . esc_url( $score_link ) . '">' . esc_html__( 'Review the testing results', 'w3-total-cache' ) . '</a>' . esc_html__( ' to see how.', 'w3-total-cache' ) . '</p>
-					<br/>
-					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
-				</div>
-			</div>';
-
-		return $score_block;
-	}
-
-	/**
-	 * Prints the Google PageSpeed score block that is built into the config_item_xxx methods.
-	 * This allows for manual printing in places that may need it.
-	 *
-	 * @param string $intro_label       Intro Label.
-	 * @param string $score             Score Value.
-	 * @param string $score_label       Score Label.
-	 * @param string $score_description Score Description.
-	 * @param string $score_link        Score Link.
-	 *
-	 * @return void
-	 */
-	public static function print_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
-		$score_block = self::get_score_block( $intro_label, $score, $score_label, $score_description, $score_link );
-		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
-	}
 }
+

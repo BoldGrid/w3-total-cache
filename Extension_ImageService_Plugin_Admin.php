@@ -484,12 +484,10 @@ class Extension_ImageService_Plugin_Admin {
 			$imageservice_webp_val = Util_Request::get_string( 'imageservice___webp' );
 			$w3tc_settings['webp'] = ! empty( $imageservice_webp_val );
 
-			$imageservice_avif_val = Util_Request::get_string( 'imageservice___avif' );
-			// Only allow AVIF for Pro license holders.
+			$w3tc_settings['avif'] = false;
 			if ( Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
+				$imageservice_avif_val = Util_Request::get_string( 'imageservice___avif' );
 				$w3tc_settings['avif'] = ! empty( $imageservice_avif_val );
-			} else {
-				$w3tc_settings['avif'] = false;
 			}
 
 			$w3tc_c->set( 'imageservice', $w3tc_settings );
@@ -627,10 +625,11 @@ class Extension_ImageService_Plugin_Admin {
 							'</a>'
 						),
 					),
-					'tos_choice'  => Licensing_Core::get_tos_choice(),
+					'tos_choice'  => Generic_Tos::get_choice(),
 					'track_usage' => $this->w3tc_config->get_boolean( 'common.track_usage' ),
 					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 					'isPro'       => Util_Environment::is_w3tc_pro( $this->w3tc_config ),
+					'avifEnabled' => Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ),
 					'settings'    => $this->w3tc_config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
@@ -1146,11 +1145,9 @@ class Extension_ImageService_Plugin_Admin {
 
 					$w3tc_settings     = isset( $w3tc_settings ) ? $w3tc_settings : $this->w3tc_config->get_array( 'imageservice' );
 					$w3tc_webp_enabled = isset( $w3tc_settings['webp'] ) && ! empty( $w3tc_settings['webp'] );
-					$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'];
-					$has_pro           = Util_Environment::is_w3tc_pro( $this->w3tc_config );
-					$w3tc_avif_enabled = $w3tc_avif_enabled && $has_pro;
+					$w3tc_avif_enabled = Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config );
 
-					// Show additional convert links only when the format is enabled.
+					// Show additional convert links only when the format is enabled (AVIF is Pro).
 					if ( $has_webp && ! $has_avif && $w3tc_avif_enabled ) {
 						$avif_span_class    = $can_submit ? 'w3tc-convert-avif' : 'w3tc-convert-avif w3tc-disabled';
 						$avif_aria_disabled = $can_submit ? 'false' : 'true';
@@ -1506,10 +1503,14 @@ class Extension_ImageService_Plugin_Admin {
 				continue;
 			}
 
-			// Check if WEBP already exists - if so, only request AVIF.
+			// Check if WEBP already exists - if so, only request AVIF when Pro allows it.
 			$convert_options = array();
-			if ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
-				// Only request AVIF since WEBP already exists.
+			if ( $this->has_webp_conversion( $post_id ) ) {
+				if ( ! Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ) ) {
+					++$stats['skipped'];
+					continue;
+				}
+
 				$convert_options['formats'] = array( 'image/avif' );
 			}
 
@@ -1576,12 +1577,7 @@ class Extension_ImageService_Plugin_Admin {
 				if ( $w3tc_webp_enabled ) {
 					$requested_formats[] = 'image/webp';
 				}
-				/**
-				 * Check avif setting - handle both boolean and string values, default to true if not set.
-				 * Only allow AVIF for Pro license holders.
-				 */
-				$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
-				if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+				if ( Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ) ) {
 					$requested_formats[] = 'image/avif';
 				}
 				// If no formats are selected, default to WebP for backward compatibility.
@@ -1911,11 +1907,29 @@ class Extension_ImageService_Plugin_Admin {
 		$convert_options = array();
 
 		// If format is specified, only request that format.
-		if ( 'avif' === $format && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+		if ( 'avif' === $format ) {
+			if ( ! Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'AVIF conversion requires W3 Total Cache Pro.', 'w3-total-cache' ),
+					),
+					403
+				);
+			}
+
 			$convert_options['formats'] = array( 'image/avif' );
 		} elseif ( 'webp' === $format ) {
 			$convert_options['formats'] = array( 'image/webp' );
-		} elseif ( $this->has_webp_conversion( $post_id ) && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+		} elseif ( $this->has_webp_conversion( $post_id ) ) {
+			if ( ! Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ) ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'Image is already converted to WebP.', 'w3-total-cache' ),
+					),
+					409
+				);
+			}
+
 			// If WEBP already exists and no format specified, only request AVIF.
 			$convert_options['formats'] = array( 'image/avif' );
 		}
@@ -2001,12 +2015,7 @@ class Extension_ImageService_Plugin_Admin {
 			if ( $w3tc_webp_enabled ) {
 				$requested_formats[] = 'image/webp';
 			}
-			/**
-			 * Check avif setting - handle both boolean and string values, default to true if not set.
-			 * Only allow AVIF for Pro license holders.
-			 */
-			$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
-			if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $this->w3tc_config ) ) {
+			if ( Extension_ImageService_Plugin::is_avif_enabled( $this->w3tc_config ) ) {
 				$requested_formats[] = 'image/avif';
 			}
 			// If no formats are selected, default to WebP for backward compatibility.

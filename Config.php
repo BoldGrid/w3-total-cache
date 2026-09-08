@@ -788,7 +788,7 @@ class Config {
 				return $w3tc_keys;
 			};
 
-			$schema = (array) $loader();
+			$schema = apply_filters( 'w3tc_config_keys', (array) $loader() );
 		}
 
 		return $schema;

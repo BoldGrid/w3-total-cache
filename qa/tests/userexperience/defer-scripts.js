@@ -3,12 +3,11 @@
  *
  * UserExperience Delay Scripts form-save coverage (Pro-gated).
  *
- * Delay Scripts inputs are rendered via `Util_Ui::config_item_pro`
- * which on free builds emits a disabled "go pro" placeholder. The
- * spec detects this at runtime by checking whether the textbox is
- * present and writable; if absent or disabled it short-circuits
- * with `this.skip()` rather than failing on the matrix that
- * happens to run a free build.
+ * Delay Scripts inputs are rendered via `Util_Ui::config_item`
+ * when the Pro companion is licensed. The spec detects this at
+ * runtime by checking whether the textbox is present and writable;
+ * if absent or disabled it short-circuits with `this.skip()` rather
+ * than failing on the matrix that happens to run a free build.
  *
  * Posture: round-trip the three Pro keys
  * (`user-experience-defer-scripts.timeout`,
@@ -39,6 +38,9 @@ describe("UserExperience: Delay Scripts (Pro) form-save", function () {
   after(sys.after);
 
   it("Pro-only Delay Scripts inputs round-trip when Pro is active", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     /**
      * Activate the DeferScripts extension via the master
      * extensions page. On free builds this won't activate
@@ -56,7 +58,7 @@ describe("UserExperience: Delay Scripts (Pro) form-save", function () {
     });
 
     /**
-     * `config_item_pro` emits the input under the dotted-key
+     * `config_item` emits the input under the dotted-key
      * translation: array key ['user-experience-defer-scripts',
      * 'timeout'] becomes id="user-experience-defer-scripts___timeout".
      */
@@ -70,9 +72,7 @@ describe("UserExperience: Delay Scripts (Pro) form-save", function () {
     }
 
     /**
-     * Check whether the input is disabled — config_item_pro
-     * returns a disabled stub on free builds even if the
-     * element renders.
+     * Skip when the input is disabled (extension off).
      */
     let isDisabled = await adminPage.$eval(
       "#user-experience-defer-scripts___timeout",

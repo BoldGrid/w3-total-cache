@@ -30,7 +30,10 @@ describe("CDNFSD engine: cloudfront form-save", function () {
   before(sys.beforeDefault);
   after(sys.after);
 
-  it("cdnfsd.cloudfront.* keys round-trip", async () => {
+  it("cdnfsd.cloudfront.* keys round-trip", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await w3tc.assertEngineSaveRoundTrip(adminPage, "cdnfsd", "cloudfront", {
       "cdnfsd.cloudfront.access_key": "AKIAIOSFODNN7QATEST",
       "cdnfsd.cloudfront.secret_key":

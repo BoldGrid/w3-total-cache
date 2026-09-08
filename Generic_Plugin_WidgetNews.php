@@ -108,6 +108,10 @@ class Generic_Plugin_WidgetNews {
 			\wp_die( -1, '', array( 'response' => 403 ) );
 		}
 
+		if ( ! $this->_config->get_boolean( 'common.track_usage' ) ) {
+			\wp_die( -1, '', array( 'response' => 403 ) );
+		}
+
 		$items       = array();
 		$items_count = $this->_config->get_integer( 'widget.latest_news.items' );
 

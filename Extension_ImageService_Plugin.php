@@ -80,6 +80,29 @@ class Extension_ImageService_Plugin {
 
 		return self::$api;
 	}
+
+	/**
+	 * Whether AVIF conversion is enabled.
+	 *
+	 * Default false. The Pro companion returns true when licensed and the
+	 * imageservice.avif setting is on (unset defaults to on for Pro).
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param object|null $w3tc_config Config.
+	 * @return bool
+	 */
+	public static function is_avif_enabled( $w3tc_config = null ) {
+		if ( ! is_object( $w3tc_config ) ) {
+			if ( ! class_exists( '\W3TC\Dispatcher' ) ) {
+				return false;
+			}
+
+			$w3tc_config = Dispatcher::config();
+		}
+
+		return (bool) apply_filters( 'w3tc_imageservice_avif_enabled', false, $w3tc_config );
+	}
 }
 
 w3tc_add_action(

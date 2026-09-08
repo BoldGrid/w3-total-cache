@@ -142,7 +142,7 @@ The following gaps remain by design — they require infrastructure the CI matri
 
   Each engine spec exercises the form-save / config-loader path with fake credentials. Live API tests can be added as a follow-up pass when the lab provisions credentials; the existing specs surface env-var gates (`CLOUDFLARE_EMAIL`, `CLOUDFLARE_KEY`, `NEWRELIC_API_KEY`, etc.) via `sys.skipIfMissingEnv`.
 
-- **Pro-license-gated runtime paths**: Delay Scripts (covered by spec with a graceful skip), Lazy Load Google Maps, the full UsageStatistics dashboard, Preload Requests / Remove CSS-JS sub-pages on the UserExperience side. The form-save side is covered; the actual feature exercise behind `Util_Environment::is_w3tc_pro()` needs a Pro-license env.
+- **Pro-license-gated runtime paths**: Delay Scripts (covered by spec with a graceful skip), Lazy Load Google Maps, the full UsageStatistics dashboard, Preload Requests / Remove CSS-JS sub-pages on the UserExperience side. Two-product AWS runs (community zip vs free+companion) are documented in [SPLIT-FIDELITY.md](SPLIT-FIDELITY.md). `sys.skipIfNotPro()` skips Pro specs when `W3D_W3TC_PRODUCT=community`.
 
 - **Performance / regression baselines** (cache hit ratios, response time deltas, payload-size assertions) — separate effort, not a unit-test concern.
 

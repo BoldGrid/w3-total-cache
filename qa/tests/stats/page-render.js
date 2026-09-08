@@ -36,7 +36,10 @@ describe("UsageStatistics page render variants", function () {
   before(sys.beforeDefault);
   after(sys.after);
 
-  it("?page=w3tc_stats renders without fatal error", async () => {
+  it("?page=w3tc_stats renders without fatal error", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_stats", {
       waitUntil: "domcontentloaded",
     });
@@ -85,7 +88,10 @@ describe("UsageStatistics page render variants", function () {
    * build, the Free view renders unconditionally; the Pro +
    * disabled variant only shows on Pro builds.
    */
-  it("toggling stats.enabled re-renders without crash", async () => {
+  it("toggling stats.enabled re-renders without crash", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     /**
      * Use setOptionInternal so we don't depend on a stats
      * form input existing on the page (it doesn't on

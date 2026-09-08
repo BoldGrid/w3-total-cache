@@ -36,6 +36,10 @@ class Root_Loader {
 	 * @return void
 	 */
 	public function __construct() {
+		if ( function_exists( 'w3tc_pro_runtime_flag_sync' ) && ! Util_Environment::is_w3tc_pro_plugin_active() ) {
+			w3tc_pro_runtime_flag_sync( false );
+		}
+
 		$w3tc_c = Dispatcher::config();
 
 		$plugins   = array();
@@ -57,10 +61,6 @@ class Root_Loader {
 			$plugins[] = new Cdn_Plugin();
 		}
 
-		if ( $w3tc_c->get_boolean( 'cdnfsd.enabled' ) ) {
-			$plugins[] = new Cdnfsd_Plugin();
-		}
-
 		if ( $w3tc_c->get_boolean( 'lazyload.enabled' ) ) {
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
 		}
@@ -75,10 +75,6 @@ class Root_Loader {
 
 		if ( $w3tc_c->get_boolean( 'varnish.enabled' ) ) {
 			$plugins[] = new Varnish_Plugin();
-		}
-
-		if ( $w3tc_c->get_boolean( 'stats.enabled' ) ) {
-			$plugins[] = new UsageStatistics_Plugin();
 		}
 
 		if ( is_admin() ) {
@@ -97,28 +93,25 @@ class Root_Loader {
 			$plugins[] = new SystemOpCache_Plugin_Admin();
 
 			$plugins[] = new Cdn_Plugin_Admin();
-			$plugins[] = new Cdnfsd_Plugin_Admin();
-
-			$w3tc_cdn_engine = $w3tc_c->get_string( 'cdn.engine' );
 
 			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
 			$plugins[] = new PageSpeed_Widget();
 
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
-			$plugins[] = new Licensing_Plugin_Admin();
 
 			if ( $w3tc_c->get_boolean( 'pgcache.enabled' ) || $w3tc_c->get_boolean( 'varnish.enabled' ) ) {
 				$plugins[] = new Generic_Plugin_AdminRowActions();
 			}
 
 			$plugins[] = new Extensions_Plugin_Admin();
-			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();
 		} elseif ( $w3tc_c->get_boolean( 'jquerymigrate.disabled' ) ) {
 			$plugins[] = new UserExperience_Plugin_Jquery();
 		}
+
+		$plugins = apply_filters( 'w3tc_plugins', $plugins, $w3tc_c );
 
 		$this->_loaded_plugins = $plugins;
 

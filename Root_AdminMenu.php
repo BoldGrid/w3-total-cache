@@ -272,8 +272,14 @@ class Root_AdminMenu {
 				break;
 
 			case 'w3tc_stats':
-				$w3tc_p = new UsageStatistics_Page();
-				$w3tc_p->render();
+				if ( class_exists( '\W3TC\UsageStatistics_Page' ) ) {
+					$w3tc_p = new UsageStatistics_Page();
+					$w3tc_p->render();
+				} else {
+					echo '<div class="notice notice-info"><p>';
+					echo esc_html__( 'Usage Statistics is part of W3 Total Cache Pro. Install the Pro companion plugin to use it.', 'w3-total-cache' );
+					echo '</p></div>';
+				}
 				break;
 
 			case 'w3tc_support':

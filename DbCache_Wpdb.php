@@ -34,7 +34,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 			if ( ! $w3tc_is_installing && $w3tc_config->get_boolean( 'dbcache.enabled' ) ) {
 				$processors[] = new DbCache_WpdbInjection_QueryCaching();
 			}
-			if ( Util_Environment::is_dbcluster( $w3tc_config ) ) {
+			if ( Util_Environment::is_dbcluster( $w3tc_config ) && class_exists( '\W3TC\Enterprise_Dbcache_WpdbInjection_Cluster' ) ) {
 				// dbcluster use mysqli only since other is obsolete now.
 				if ( ! defined( 'WP_USE_EXT_MYSQL' ) ) {
 					define( 'WP_USE_EXT_MYSQL', false ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound

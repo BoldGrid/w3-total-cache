@@ -1465,7 +1465,79 @@ class Util_Environment {
 	}
 
 	/**
+	 * Whether the Pro companion bootstrap has loaded (files included).
+	 *
+	 * Drop-ins may set this before plugins_loaded. Admin/UI checks should
+	 * use is_w3tc_pro_plugin_active() so a deactivated companion does not
+	 * keep rendering Pro pages.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_w3tc_pro_plugin_present() {
+		return defined( 'W3TC_PRO_PLUGIN' ) && W3TC_PRO_PLUGIN;
+	}
+
+	/**
+	 * Whether the Pro companion is WordPress-activated.
+	 *
+	 * File presence is not enough: deactivate must hide Pro settings.
+	 * When the plugin API is unavailable (drop-ins), true only if
+	 * dropin-bootstrap already ran — and that runs only when the
+	 * pro-runtime flag is set (companion was active and licensed).
+	 *
+	 * @since 2.10.5
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_w3tc_pro_plugin_active() {
+		if ( defined( 'WP_TESTS_DIR' ) ) {
+			return self::is_w3tc_pro_plugin_present();
+		}
+
+		$file = defined( 'W3TC_PRO_FILE' ) ? W3TC_PRO_FILE : 'w3-total-cache-pro/w3-total-cache-pro.php';
+
+		/**
+		 * `is_plugin_active()` lives in wp-admin/includes/plugin.php, which
+		 * wp-settings.php loads immediately before active plugins. Root_Loader
+		 * therefore runs with that API available but before `plugins_loaded`.
+		 * Drop-ins (advanced-cache.php, db.php) run earlier, when the function
+		 * does not exist — do not call get_option() from those contexts.
+		 */
+		if ( function_exists( 'is_plugin_active' ) ) {
+			if ( is_plugin_active( $file ) ) {
+				return true;
+			}
+
+			if ( function_exists( 'is_plugin_active_for_network' ) && is_plugin_active_for_network( $file ) ) {
+				return true;
+			}
+
+			if ( defined( 'WPMU_PLUGIN_DIR' ) && function_exists( 'wp_get_mu_plugins' ) ) {
+				foreach ( (array) wp_get_mu_plugins() as $mu_path ) {
+					$normalized = str_replace( '\\', '/', (string) $mu_path );
+					if ( false !== strpos( $normalized, '/w3-total-cache-pro.php' ) ) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		return self::is_w3tc_pro_plugin_present();
+	}
+
+	/**
 	 * Is W3TC Pro.
+	 *
+	 * True only when the companion plugin is active. License validation
+	 * is applied via the `w3tc_is_pro` filter implemented by that plugin.
 	 *
 	 * @static
 	 *
@@ -1474,15 +1546,11 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function is_w3tc_pro( $w3tc_config = null ) {
-		if ( is_object( $w3tc_config ) ) {
-			$plugin_type = $w3tc_config->get_string( 'plugin.type' );
-
-			if ( 'pro' === $plugin_type || 'pro_dev' === $plugin_type ) {
-				return true;
-			}
+		if ( ! self::is_w3tc_pro_plugin_active() ) {
+			return false;
 		}
 
-		return false;
+		return (bool) apply_filters( 'w3tc_is_pro', false, $w3tc_config );
 	}
 
 	/**
@@ -1509,6 +1577,27 @@ class Util_Environment {
 	 */
 	public static function is_pro_constant( $w3tc_config = null ) {
 		return ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE );
+	}
+
+	/**
+	 * Whether to show Pro upsell links on W3TC screens.
+	 *
+	 * Host constants skip upsells without unlocking missing files.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @static
+	 *
+	 * @param Config $w3tc_config Config.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pro_upsell( $w3tc_config = null ) {
+		if ( self::is_pro_constant( $w3tc_config ) ) {
+			return false;
+		}
+
+		return ! self::is_w3tc_pro( $w3tc_config );
 	}
 
 	/**

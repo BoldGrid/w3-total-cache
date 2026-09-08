@@ -99,6 +99,9 @@ describe("AlwaysCached worker HTTP-trigger auth gate", function () {
    * extension may not be available; skip the whole suite.
    */
   before(async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await w3tc.setOptions(adminPage, "w3tc_general", {
       pgcache__enabled: true,
     });

@@ -30,7 +30,23 @@ class W3tc_Dbcluster_Validator_Test extends WP_UnitTestCase {
 	 * @since 2.10.0
 	 */
 	public function test_validate_accepts_shipped_sample() {
-		$sample = file_get_contents( dirname( __DIR__, 2 ) . '/ini/dbcluster-config-sample.php' );
+		$plugin_root = dirname( __DIR__, 2 );
+		$candidates  = array(
+			$plugin_root . '/ini/dbcluster-config-sample.php',
+			$plugin_root . '-pro/ini/dbcluster-config-sample.php',
+		);
+		$sample_path = '';
+		foreach ( $candidates as $candidate ) {
+			if ( is_readable( $candidate ) ) {
+				$sample_path = $candidate;
+				break;
+			}
+		}
+		if ( '' === $sample_path ) {
+			$this->markTestSkipped( 'dbcluster sample lives in the Pro companion; not present in this layout.' );
+		}
+
+		$sample = file_get_contents( $sample_path );
 		$this->assertNotEmpty( $sample );
 		$this->assertNull( Generic_AdminActions_Config::validate_dbcluster_content( $sample ) );
 	}

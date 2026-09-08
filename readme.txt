@@ -7,7 +7,7 @@ Stable tag: 2.10.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Page, Minify, Object, Fragment, Database support.
+Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Page, Minify, Object, Database support.
 
 == Description ==
 
@@ -339,7 +339,25 @@ Please report security bugs found in the source code of the W3 Total Cache plugi
 1. *Optional:* On the "Object Cache" tab, all of the recommended settings are preset. If using a shared hosting account use the "disk" method with caution, the response time of the disk may not be fast enough, so this option is disabled by default. Test this option with and without database cache to ensure that it provides a performance increase.
 1. *Optional:* On the "User Agent Groups" tab, specify any user agents, like mobile phones if a mobile theme is used.
 
-== What users have to say: ==
+== Frequently Asked Questions ==
+
+= Where did Fragment Cache and other Pro features go? =
+
+They now ship in the separate **W3 Total Cache Pro** plugin, distributed outside WordPress.org. Download it from your BoldGrid / W3 Edge account and activate it beside this plugin. This plugin will not auto-install Pro.
+
+= Do I need a license key to use this plugin? =
+
+No. Every feature included in this zip works without a key. Hosts who bundle Pro should ship the Pro plugin files; defining `W3TC_PRO` only skips upsells.
+
+= How does Image Converter work? =
+
+Image Converter sends images to a remote conversion API. Server-side quotas may differ by plan. AVIF and WebP controls stay available locally; the API enforces limits.
+
+== Privacy ==
+
+Usage tracking (home URL, PHP/MySQL versions, and edition) is off by default. Enable it only via the explicit **Allow anonymous usage tracking** checkbox on General Settings. Accepting the terms of service or entering a license key does not turn tracking on. The notice feed and news/forum widgets fetch remote content only after that opt-in, and only on W3 Total Cache admin screens. Image Converter, PageSpeed Insights, and CDN providers send data to those services when you use them; see their terms. Source: [GitHub](https://github.com/BoldGrid/w3-total-cache). Unminified copies of bundled scripts such as `pub/js/google-charts.js` are in that repository.
+
+== Installation ==
 
 * Read [testimonials](https://twitter.com/w3edge/favorites) from W3TC users.
 
@@ -391,6 +409,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 
 = 2.10.5 =
+* Compatibility: Pro features moved to the W3 Total Cache Pro companion plugin (WordPress.org guidelines 5/6/8/9/11)
 * Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
 
 = 2.10.4 =
@@ -465,7 +484,7 @@ This update improves settings handling, CDN and minify behavior, TLS defaults, a
 
 
 = 2.10.5 =
-This is a security update. All users are strongly encouraged to update.
+This is a security update. All users are strongly encouraged to update. Licensed Pro users must install W3 Total Cache Pro from their account or Support; the free plugin will not add it for you.
 
 
 = 2.10.4 =

@@ -296,7 +296,7 @@ class Dispatcher {
 	 */
 	public static function usage_statistics_apply_before_init_and_exit( $metrics_function ) {
 		$w3tc_c = self::config();
-		if ( ! $w3tc_c->get_boolean( 'stats.enabled' ) ) {
+		if ( ! $w3tc_c->get_boolean( 'stats.enabled' ) || ! class_exists( '\W3TC\UsageStatistics_Core' ) ) {
 			exit();
 		}
 

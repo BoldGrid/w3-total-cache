@@ -235,7 +235,8 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	/**
 	 * The AJAX `set_tos_choice` handler refuses subscriber callers — the TOS
 	 * choice writes to `config_state_master` and toggles `common.track_usage`
-	 * in the global config.
+	 * in the global config. Subscriber reach would be a config-write privilege
+	 * escalation.
 	 *
 	 * @since 2.10.0
 	 */

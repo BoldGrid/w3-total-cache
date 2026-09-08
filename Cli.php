@@ -612,7 +612,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * @return void
 	 */
 	public function alwayscached_process() {
-		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
+		if ( ! class_exists( '\W3TC\Extension_AlwaysCached_Plugin' ) || ! Extension_AlwaysCached_Plugin::is_enabled() ) {
 			\WP_CLI::error(
 				\__( 'Always Cached feature is not enabled.', 'w3-total-cache' )
 			);
@@ -640,7 +640,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * @return void
 	 */
 	public function alwayscached_clear() {
-		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
+		if ( ! class_exists( '\W3TC\Extension_AlwaysCached_Plugin' ) || ! Extension_AlwaysCached_Plugin::is_enabled() ) {
 			\WP_CLI::error(
 				\__( 'Always Cached feature is not enabled', 'w3-total-cache' )
 			);

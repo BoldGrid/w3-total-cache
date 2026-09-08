@@ -54,6 +54,9 @@ describe("AlwaysCached extension settings form-save", function () {
   after(sys.after);
 
   it("activate AlwaysCached extension", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     // AlwaysCached requires page cache to be enabled.
     await w3tc.setOptions(adminPage, "w3tc_general", {
       pgcache__enabled: true,

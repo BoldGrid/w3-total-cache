@@ -35,20 +35,12 @@ class Extensions_Plugin_Admin {
 	public function run() {
 		// Attach w3tc-bundled extensions.
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_CloudFlare_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
-		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_FragmentCache_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
-		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
-		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions_hooks' ) );
-		add_filter( 'w3tc_notes_genesis_theme', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_notes_genesis_theme' ) );
-		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_AlwaysCached_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_NewRelic_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Swarmify_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions_hooks' ) );
 		add_action( 'w3tc_notes_wordpress_seo', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_notes_wordpress_seo' ) );
-		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Amp_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
-		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_extensions_hooks' ) );
-		add_action( 'w3tc_notes_wpml', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_notes_wpml' ) );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_ImageService_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init' ), 1 );
 		add_filter( 'pre_update_option_active_plugins', array( $this, 'pre_update_option_active_plugins' ) );

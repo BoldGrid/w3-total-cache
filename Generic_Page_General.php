@@ -43,7 +43,12 @@ class Generic_Page_General extends Base_Page_Settings {
 	 * @return void
 	 */
 	public function view() {
-		if ( isset( $_REQUEST['view'] ) && 'purge_log' === $_REQUEST['view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if (
+			isset( $_REQUEST['view'] ) &&
+			'purge_log' === $_REQUEST['view'] &&
+			Util_Environment::is_w3tc_pro() &&
+			class_exists( '\W3TC\Generic_Page_PurgeLog' )
+		) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$w3tc_p = new Generic_Page_PurgeLog();
 			$w3tc_p->render_content();
 			exit;
@@ -80,14 +85,6 @@ class Generic_Page_General extends Base_Page_Settings {
 
 		$file_nfs     = ( $this->_config->get_boolean( 'pgcache.file.nfs' ) || $this->_config->get_boolean( 'minify.file.nfs' ) );
 		$file_locking = ( $this->_config->get_boolean( 'dbcache.file.locking' ) || $this->_config->get_boolean( 'objectcache.file.locking' ) || $this->_config->get_boolean( 'pgcache.file.locking' ) || $this->_config->get_boolean( 'minify.file.locking' ) );
-
-		$licensing_visible = (
-			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
-			! ini_get( 'w3tc.license_key' ) &&
-			get_transient( 'w3tc_license_status' ) !== 'host_valid'
-		);
-
-		$w3tc_is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 
 		$custom_areas = apply_filters( 'w3tc_settings_general_anchors', array() );
 

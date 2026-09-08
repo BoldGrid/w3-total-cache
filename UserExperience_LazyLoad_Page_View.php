@@ -12,14 +12,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$w3tc_c      = Dispatcher::config();
-$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_c );
-
-$w3tc_active_plugins          = get_option( 'active_plugins' );
-$w3tc_is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $w3tc_active_plugins, true ) );
-$w3tc_is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $w3tc_active_plugins, true ) );
-$w3tc_is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $w3tc_active_plugins, true ) );
-
 ?>
 <?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'lazy-loading' ); ?>
 <table class="form-table">
@@ -115,119 +107,6 @@ $w3tc_is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $w3tc_ac
 
 	?>
 </table>
-<table class="form-table">
-	<tr>
-		<th><?php esc_html_e( 'Google Maps', 'w3-total-cache' ); ?></th>
-		<td>
-			<?php Util_Ui::pro_wrap_maybe_start(); ?>
-			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px"><?php esc_html_e( 'Lazy load google map', 'w3-total-cache' ); ?></p>
-			<div>
-				<?php
-				Util_Ui::control2(
-					Util_Ui::config_item_preprocess(
-						array(
-							'key'            => 'lazyload.googlemaps.wp_google_map_plugin',
-							'control'        => 'checkbox',
-							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_wp_google_map_plugin : true ),
-							'checkbox_label' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML a tag to WordPress Google Map Plugin, 2 closing HTML a tag.
-									__(
-										'%1$sWP Google Map Plugin%2$s plugin',
-										'w3-total-cache'
-									),
-									'<a href="' . esc_url( 'https://wordpress.org/plugins/wp-google-map-plugin/' ) . '" target="_blank">',
-									'</a>'
-								),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-									),
-								)
-							),
-							'label_class'    => 'w3tc_no_trtd',
-						)
-					)
-				);
-				?>
-			</div>
-			<div>
-				<?php
-				Util_Ui::control2(
-					Util_Ui::config_item_preprocess(
-						array(
-							'key'            => 'lazyload.googlemaps.google_maps_easy',
-							'control'        => 'checkbox',
-							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_google_maps_easy : true ),
-							'checkbox_label' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML a tag to Google Maps Easy plugin, 2 closing HTML a tag.
-									__(
-										'%1$sGoogle Maps Easy%2$s plugin',
-										'w3-total-cache'
-									),
-									'<a href="' . esc_url( 'https://wordpress.org/plugins/google-maps-easy/' ) . '" target="_blank">',
-									'</a>'
-								),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-									),
-								)
-							),
-							'label_class'    => 'w3tc_no_trtd',
-						)
-					)
-				);
-				?>
-			</div>
-			<div>
-				<?php
-				Util_Ui::control2(
-					Util_Ui::config_item_preprocess(
-						array(
-							'key'            => 'lazyload.googlemaps.wp_google_maps',
-							'control'        => 'checkbox',
-							'disabled'       => ( $w3tc_is_pro ? ! $w3tc_is_wp_google_maps : true ),
-							'checkbox_label' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML a tag to WordPress Google Maps, 2 closing HTML a tag.
-									__(
-										'%1$sWP Google Maps%2$s plugin',
-										'w3-total-cache'
-									),
-									'<a href="' . esc_url( 'https://wordpress.org/plugins/wp-google-maps/' ) . '" target="_blank">',
-									'</a>'
-								),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-									),
-								)
-							),
-							'label_class'    => 'w3tc_no_trtd',
-						)
-					)
-				);
-				?>
-			</div>
-			<?php
-			if ( ! $w3tc_is_pro ) {
-				Util_Ui::print_score_block(
-					__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
-					'+10',
-					__( 'Points', 'w3-total-cache' ),
-					__( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
-					'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
-				);
-			}
-			Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps', false );
-			?>
-		</td>
-	</tr>
-</table>
+<?php do_action( 'w3tc_settings_userexperience_lazyload_pro' ); ?>
 
 <?php Util_Ui::postbox_footer(); ?>

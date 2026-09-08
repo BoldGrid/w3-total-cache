@@ -190,7 +190,7 @@ class Base_Page_Settings {
 	 *
 	 * @return void
 	 */
-	protected function checkbox_debug( $option_id ) {
+	public function checkbox_debug( $option_id ) {
 		if ( is_array( $option_id ) ) {
 			$section         = $option_id[0];
 			$section_enabled = $this->_config->is_extension_active_frontend( $section );
@@ -219,64 +219,10 @@ class Base_Page_Settings {
 	}
 
 	/**
-	 * Prints checkbox for debug option for pro.
-	 *
-	 * @param string  $option_id Option ID.
-	 * @param unknown $w3tc_label     Label.
-	 * @param unknown $label_pro Pro label.
-	 *
-	 * @return void
-	 */
-	protected function checkbox_debug_pro( $option_id, $w3tc_label, $label_pro ) {
-		if ( is_array( $option_id ) ) {
-			$section         = $option_id[0];
-			$section_enabled = $this->_config->is_extension_active_frontend( $section );
-		} else {
-			$section         = substr( $option_id, 0, strrpos( $option_id, '.' ) );
-			$section_enabled = $this->_config->get_boolean( $section . '.enabled' );
-		}
-
-		$w3tc_is_pro   = Util_Environment::is_w3tc_pro( $this->_config );
-		$w3tc_disabled = $this->_config->is_sealed( $option_id ) || ! $section_enabled || ! $w3tc_is_pro;
-		$w3tc_name     = Util_Ui::config_key_to_http_name( $option_id );
-
-		if ( ! $w3tc_disabled ) {
-			echo '<input type="hidden" name="' . esc_attr( $w3tc_name ) . '" value="0" />';
-		}
-
-		echo '<label>';
-		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $w3tc_name ) . '" name="' . esc_attr( $w3tc_name ) . '" value="1" ';
-
-		checked( $this->_config->get_boolean( $option_id ) && $w3tc_is_pro, true );
-
-		if ( $w3tc_disabled ) {
-			echo 'disabled="disabled" ';
-		}
-
-		echo ' />';
-		echo esc_html( $w3tc_label );
-
-		if ( $w3tc_is_pro ) {
-			echo wp_kses(
-				$label_pro,
-				array(
-					'a' => array(
-						'href'  => array(),
-						'id'    => array(),
-						'class' => array(),
-					),
-				)
-			);
-		}
-
-		echo '</label>';
-	}
-
-	/**
-	 * Prints checkbox for debug option for pro.
+	 * Prints value and disabled attributes for an input.
 	 *
 	 * @param string  $option_id           Option ID.
-	 * @param bool    $w3tc_disabled            Disabled flag.
+	 * @param bool    $w3tc_disabled       Disabled flag.
 	 * @param unknown $value_when_disabled Override value when disabled.
 	 *
 	 * @return void

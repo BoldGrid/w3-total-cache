@@ -272,12 +272,52 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	public function test_can_ob_allows_rest_when_pgcache_rest_cache_enabled() {
 		global $w3tc_w3_late_init;
 
-		$prev_late                 = $w3tc_w3_late_init;
-		$w3tc_w3_late_init         = false;
-		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
-		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
-		$config                    = \W3TC\Dispatcher::config();
-		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$prev_late              = $w3tc_w3_late_init;
+		$w3tc_w3_late_init      = false;
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$config->set( 'pgcache.rest', 'cache' );
+		$filter = function ( $enabled, $w3tc_config ) {
+			return is_object( $w3tc_config ) && 'cache' === $w3tc_config->get_string( 'pgcache.rest' );
+		};
+		add_filter( 'w3tc_pgcache_rest_cache_enabled', $filter, 10, 2 );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		remove_filter( 'w3tc_pgcache_rest_cache_enabled', $filter, 10 );
+		$config->set( 'pgcache.rest', $prev_rest );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertTrue(
+			$can_ob,
+			'can_ob() must return true for REST URIs when the Pro REST-cache filter is on.'
+		);
+	}
+
+	/**
+	 * Leftover pgcache.rest=cache must not cache REST without the Pro filter.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_rejects_rest_when_config_cache_without_pro_filter() {
+		global $w3tc_w3_late_init;
+
+		$prev_late              = $w3tc_w3_late_init;
+		$w3tc_w3_late_init      = false;
+		$prev_uri               = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
+		$config                 = \W3TC\Dispatcher::config();
+		$prev_rest              = $config->get_string( 'pgcache.rest' );
 		$config->set( 'pgcache.rest', 'cache' );
 
 		$plugin = new Generic_Plugin();
@@ -291,9 +331,9 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		}
 		$w3tc_w3_late_init = $prev_late;
 
-		$this->assertTrue(
+		$this->assertFalse(
 			$can_ob,
-			'can_ob() must return true for REST URIs when pgcache.rest is cache.'
+			'Free plugin must not cache REST from pgcache.rest alone.'
 		);
 	}
 
@@ -347,6 +387,10 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$config                 = \W3TC\Dispatcher::config();
 		$prev_rest              = $config->get_string( 'pgcache.rest' );
 		$config->set( 'pgcache.rest', 'cache' );
+		$filter = function ( $enabled, $w3tc_config ) {
+			return is_object( $w3tc_config ) && 'cache' === $w3tc_config->get_string( 'pgcache.rest' );
+		};
+		add_filter( 'w3tc_pgcache_rest_cache_enabled', $filter, 10, 2 );
 
 		$minify_ran    = false;
 		$pagecache_ran = false;
@@ -368,6 +412,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$json   = '{"id":1}';
 		$result = $this->plugin->ob_callback( $json );
 
+		remove_filter( 'w3tc_pgcache_rest_cache_enabled', $filter, 10 );
 		$config->set( 'pgcache.rest', $prev_rest );
 		if ( null === $prev_uri ) {
 			unset( $_SERVER['REQUEST_URI'] );

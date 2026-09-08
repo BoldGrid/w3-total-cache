@@ -13,6 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 
 $w3tc_config = Dispatcher::config();
+$w3tc_is_pro = Util_Environment::is_w3tc_pro( $w3tc_config );
 
 $w3tc_menu_array = array(
 	'settings' => array(
@@ -58,10 +59,6 @@ $w3tc_menu_array = array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ),
 			'text' => __( 'Extensions', 'w3-total-cache' ),
 		),
-		1 => array(
-			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
-			'text' => __( 'Statistics', 'w3-total-cache' ),
-		),
 		2 => array(
 			'url'  => $w3tc_config->is_extension_active( 'imageservice' )
 				? Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
@@ -103,6 +100,14 @@ $w3tc_menu_array = array(
 		),
 	),
 );
+
+if ( $w3tc_is_pro ) {
+	$w3tc_menu_array['tools'][1] = array(
+		'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+		'text' => __( 'Statistics', 'w3-total-cache' ),
+	);
+	ksort( $w3tc_menu_array['tools'] );
+}
 
 if ( $w3tc_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 	$w3tc_menu_array['settings'][8] = array(

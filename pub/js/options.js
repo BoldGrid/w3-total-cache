@@ -2096,6 +2096,28 @@ jQuery(function () {
   );
   jQuery("body").on("keyup", "#cdn_cf_bucket", cdn_cf_bucket_location);
 
+  jQuery("#w3tc-community-pro-banner").each(function () {
+    var $banner = jQuery(this);
+    $banner.on("click", ".w3tc-community-pro-banner__toggle", function () {
+      var collapsed = !$banner.hasClass("is-collapsed");
+      var $button = jQuery(this);
+      var label = collapsed
+        ? $button.data("label-expand")
+        : $button.data("label-collapse");
+
+      $banner.toggleClass("is-collapsed", collapsed);
+      $button.attr("aria-expanded", collapsed ? "false" : "true");
+      $button.find(".w3tc-community-pro-banner__toggle-label").text(label);
+
+      jQuery.post(ajaxurl, {
+        action: "w3tc_ajax",
+        _wpnonce: w3tcGetAjaxNonce("community_pro_banner_collapse"),
+        w3tc_action: "community_pro_banner_collapse",
+        collapsed: collapsed ? "1" : "0",
+      });
+    });
+  });
+
   // Run functions after the page is loaded.
   cdn_cf_bucket_location();
   set_sticky_bar_positions();

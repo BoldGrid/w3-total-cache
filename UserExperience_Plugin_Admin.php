@@ -60,27 +60,12 @@ class UserExperience_Plugin_Admin {
 	 * @return array The modified W3TC extensions array with added User Experience extensions.
 	 */
 	public static function w3tc_extensions( $extensions, $w3tc_config ) {
-		$extensions['user-experience-defer-scripts']    = array(
-			'public'       => false,
-			'extension_id' => 'user-experience-defer-scripts',
-			'path'         => 'w3-total-cache/UserExperience_DeferScripts_Extension.php',
-		);
-		$extensions['user-experience-preload-requests'] = array(
-			'public'       => false,
-			'extension_id' => 'user-experience-preload-requests',
-			'path'         => 'w3-total-cache/UserExperience_Preload_Requests_Extension.php',
-		);
-		$extensions['user-experience-remove-cssjs']     = array(
-			'public'       => false,
-			'extension_id' => 'user-experience-remove-cssjs',
-			'path'         => 'w3-total-cache/UserExperience_Remove_CssJs_Extension.php',
-		);
-		$extensions['user-experience-emoji']            = array(
+		$extensions['user-experience-emoji']  = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-emoji',
 			'path'         => 'w3-total-cache/UserExperience_Emoji_Extension.php',
 		);
-		$extensions['user-experience-oembed']           = array(
+		$extensions['user-experience-oembed'] = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-oembed',
 			'path'         => 'w3-total-cache/UserExperience_OEmbed_Extension.php',

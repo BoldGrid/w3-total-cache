@@ -58,6 +58,12 @@ if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
 if ( ! defined( 'W3TC_PURCHASE_URL' ) ) {
 	define( 'W3TC_PURCHASE_URL', 'https://www.w3-edge.com/checkout/' );
 }
+if ( ! defined( 'W3TC_PURCHASE_AD_URL' ) ) {
+	define( 'W3TC_PURCHASE_AD_URL', 'https://www.w3-edge.com/checkout-ad/' );
+}
+if ( ! defined( 'W3TC_PRO_DOWNLOAD_URL' ) ) {
+	define( 'W3TC_PRO_DOWNLOAD_URL', 'https://www.boldgrid.com/w3-total-cache/' );
+}
 
 // the name of your product. This should match the download name in EDD exactly.
 define( 'W3TC_PURCHASE_PRODUCT_NAME', 'W3 Total Cache Pro: Annual Subscription' );
@@ -66,6 +72,91 @@ define( 'W3TC_WIN', ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' ) );
 
 if ( ! defined( 'W3TC_DIR' ) ) {
 	define( 'W3TC_DIR', realpath( __DIR__ ) );
+}
+
+/**
+ * Locate the Pro companion plugin directory when present.
+ *
+ * Drop-ins load before plugins_loaded, so directory lookup is a fixed
+ * path check rather than is_plugin_active(). Prefer the directory beside
+ * this checkout so PHPUnit (which uses a separate WP_PLUGIN_DIR) still
+ * finds the companion. Including that bootstrap still requires the
+ * companion to be WordPress-activated and licensed (see
+ * w3tc_pro_companion_should_bootstrap()).
+ *
+ * @since 2.10.5
+ *
+ * @return string Empty when the companion is not installed.
+ */
+function w3tc_pro_dir() {
+	static $dir = null;
+	if ( null !== $dir ) {
+		return $dir;
+	}
+
+	$candidates = array(
+		dirname( W3TC_DIR ) . '/w3-total-cache-pro',
+		( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) . '/w3-total-cache-pro',
+	);
+
+	foreach ( array_unique( $candidates ) as $candidate ) {
+		if ( is_dir( $candidate ) && is_readable( $candidate . '/dropin-bootstrap.php' ) ) {
+			$dir = $candidate;
+			return $dir;
+		}
+	}
+
+	$dir = '';
+	return $dir;
+}
+
+if ( ! defined( 'W3TC_PRO_DIR' ) ) {
+	$w3tc_pro_dir = w3tc_pro_dir();
+	if ( '' !== $w3tc_pro_dir ) {
+		define( 'W3TC_PRO_DIR', $w3tc_pro_dir );
+		define( 'W3TC_PRO_FILE', 'w3-total-cache-pro/w3-total-cache-pro.php' );
+	}
+}
+
+/**
+ * Off-site purchase URL (upsell). Never used to unlock local code.
+ *
+ * @since 2.10.5
+ *
+ * @param string $data_src  Optional campaign source.
+ * @param string $renew_key Optional renewal key.
+ * @param string $client_id Optional analytics client id.
+ *
+ * @return string
+ */
+function w3tc_purchase_url( $data_src = '', $renew_key = '', $client_id = '' ) {
+	$args = array();
+	if ( class_exists( '\W3TC\Dispatcher' ) ) {
+		$state = \W3TC\Dispatcher::config_state_master();
+		if ( $state ) {
+			$args['install_date'] = $state->get_integer( 'common.install' );
+		}
+	}
+	if ( '' !== $data_src ) {
+		$args['data_src'] = $data_src;
+	}
+	if ( '' !== $renew_key ) {
+		$args['renew_key'] = $renew_key;
+	}
+	if ( '' !== $client_id ) {
+		$args['client_id'] = $client_id;
+	}
+
+	if ( function_exists( 'add_query_arg' ) ) {
+		return add_query_arg( $args, W3TC_PURCHASE_URL );
+	}
+
+	$url = W3TC_PURCHASE_URL;
+	foreach ( $args as $w3tc_key => $w3tc_value ) {
+		$url .= ( false === strpos( $url, '?' ) ? '?' : '&' ) . rawurlencode( $w3tc_key ) . '=' . rawurlencode( (string) $w3tc_value );
+	}
+
+	return $url;
 }
 
 define( 'W3TC_FILE', 'w3-total-cache/w3-total-cache.php' );
@@ -194,12 +285,32 @@ function w3tc_class_autoload( $class_value ) {
 
 	// Try core w3tc classes first.
 	if ( 'W3TC\\' === substr( $class_value, 0, 5 ) ) {
-		$filename = W3TC_DIR . DIRECTORY_SEPARATOR . substr( $class_value, 5 ) . '.php';
+		$relative = substr( $class_value, 5 ) . '.php';
+		$filename = W3TC_DIR . DIRECTORY_SEPARATOR . $relative;
 
 		if ( file_exists( $filename ) ) {
 			require $filename;
 			return;
-		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		}
+
+		if ( defined( 'W3TC_PRO_DIR' ) ) {
+			$pro_filename = W3TC_PRO_DIR . DIRECTORY_SEPARATOR . $relative;
+			if ( file_exists( $pro_filename ) ) {
+				/**
+				 * Pro PHP stays on disk after deactivate. Only load it when
+				 * the companion may bootstrap (WP-active, or drop-in runtime
+				 * flag). Otherwise class_exists() would still pull Pro code.
+				 */
+				$may_load_pro = function_exists( 'w3tc_pro_companion_should_bootstrap' )
+					&& w3tc_pro_companion_should_bootstrap();
+				if ( $may_load_pro ) {
+					require $pro_filename;
+				}
+				return;
+			}
+		}
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			/**
 			 * Previously echoed the class name, the resolved
 			 * filename, and a full backtrace into the response body
@@ -254,6 +365,114 @@ function w3tc_class_autoload( $class_value ) {
 }
 
 spl_autoload_register( 'w3tc_class_autoload' );
+
+/**
+ * Path of the drop-in runtime flag.
+ *
+ * Drop-ins cannot call is_plugin_active() / get_option() (db.php). This
+ * file is written only while the companion is WordPress-activated and
+ * licensed; its presence is the drop-in gate.
+ *
+ * @since 2.10.5
+ *
+ * @return string Empty when W3TC_CONFIG_DIR is not defined.
+ */
+function w3tc_pro_runtime_flag_path() {
+	if ( ! defined( 'W3TC_CONFIG_DIR' ) ) {
+		return '';
+	}
+
+	return W3TC_CONFIG_DIR . '/pro-runtime';
+}
+
+/**
+ * Whether drop-ins may load Pro (companion last synced as active + licensed).
+ *
+ * @since 2.10.5
+ *
+ * @return bool
+ */
+function w3tc_pro_runtime_flag_is_set() {
+	$path = w3tc_pro_runtime_flag_path();
+
+	return '' !== $path && is_readable( $path );
+}
+
+/**
+ * Create or remove the drop-in runtime flag.
+ *
+ * @since 2.10.5
+ *
+ * @param bool $enabled Whether Pro runtime may run from drop-ins.
+ *
+ * @return void
+ */
+function w3tc_pro_runtime_flag_sync( $enabled ) {
+	$path = w3tc_pro_runtime_flag_path();
+	if ( '' === $path ) {
+		return;
+	}
+
+	$enabled = (bool) $enabled;
+	$exists  = is_readable( $path );
+	if ( $enabled === $exists ) {
+		return;
+	}
+
+	if ( $enabled ) {
+		if ( ! is_dir( W3TC_CONFIG_DIR ) ) {
+			if ( ! function_exists( 'wp_mkdir_p' ) ) {
+				return;
+			}
+			wp_mkdir_p( W3TC_CONFIG_DIR );
+		}
+		@file_put_contents( $path, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		return;
+	}
+
+	@unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+}
+
+/**
+ * Whether the Pro companion bootstrap may load.
+ *
+ * On normal WordPress requests the companion must be activated. Drop-ins
+ * run before the plugin API exists, so they use the runtime flag (active
+ * and licensed when last synced). File presence, W3TC_PRO, and a stale
+ * folder must not run Pro code.
+ *
+ * @since 2.10.5
+ *
+ * @return bool
+ */
+function w3tc_pro_companion_should_bootstrap() {
+	if ( ! defined( 'W3TC_PRO_DIR' ) || ! is_readable( W3TC_PRO_DIR . '/dropin-bootstrap.php' ) ) {
+		return false;
+	}
+
+	if ( defined( 'WP_TESTS_DIR' ) ) {
+		return true;
+	}
+
+	if ( function_exists( 'is_plugin_active' ) ) {
+		$file = defined( 'W3TC_PRO_FILE' ) ? W3TC_PRO_FILE : 'w3-total-cache-pro/w3-total-cache-pro.php';
+		if ( is_plugin_active( $file ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'is_plugin_active_for_network' ) && is_plugin_active_for_network( $file ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	return w3tc_pro_runtime_flag_is_set();
+}
+
+if ( w3tc_pro_companion_should_bootstrap() ) {
+	require_once W3TC_PRO_DIR . '/dropin-bootstrap.php';
+}
 
 /**
  * W3 Total Cache plugins API

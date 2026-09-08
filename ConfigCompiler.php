@@ -428,7 +428,7 @@ class ConfigCompiler {
 				}
 
 				if ( isset( $file_data['extensions.active']['genesis.theme'] ) ) {
-					$active['genesis.theme'] = 'w3-total-cache/Extension_Genesis_Plugin.php';
+					$active['genesis.theme'] = 'w3-total-cache-pro/Extension_Genesis_Plugin.php';
 				}
 
 				if ( isset( $file_data['extensions.active']['wordpress-seo'] ) ) {
@@ -446,7 +446,7 @@ class ConfigCompiler {
 
 			// keep those active by default.
 			$file_data['extensions.active']['newrelic']      = 'w3-total-cache/Extension_NewRelic_Plugin.php';
-			$file_data['extensions.active']['fragmentcache'] = 'w3-total-cache/Extension_FragmentCache_Plugin.php';
+			$file_data['extensions.active']['fragmentcache'] = 'w3-total-cache-pro/Extension_FragmentCache_Plugin.php';
 		}
 
 		// newrelic settings - migrate to extension.

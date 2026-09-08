@@ -685,7 +685,7 @@ class PgCache_ContentGrabber {
 
 			if (
 				$should_reject_qs &&
-				'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
+				(bool) apply_filters( 'w3tc_pgcache_rest_cache_enabled', false, $this->_config ) &&
 				Util_Environment::is_rest_request( $this->_request_uri )
 			) {
 				$should_reject_qs = false;
@@ -781,7 +781,7 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		if ( 'cache' !== $this->_config->get_string( 'pgcache.rest' ) ) {
+		if ( ! (bool) apply_filters( 'w3tc_pgcache_rest_cache_enabled', false, $this->_config ) ) {
 			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 				$this->cache_reject_reason = 'REST request';
 				$this->process_status      = 'miss_api_call';
@@ -1470,12 +1470,9 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		if (
-			'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
-			Util_Environment::is_rest_request( $uri ) &&
-			Util_Environment::is_w3tc_pro( $this->_config )
-		) {
-			return 'rest';
+		$group = apply_filters( 'w3tc_pgcache_cache_group_by_uri', '', $uri );
+		if ( is_string( $group ) && '' !== $group ) {
+			return $group;
 		}
 
 		return '';

@@ -173,13 +173,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<td class="column-description desc">
 					<div class="plugin-description">
 						<p>
-							<?php if ( isset( $w3tc_meta['pro_feature'] ) && $w3tc_meta['pro_feature'] ) : ?>
-								<?php Util_Ui::pro_wrap_maybe_start(); ?>
-								<?php Util_Ui::pro_wrap_description( $w3tc_meta['pro_excerpt'], $w3tc_meta['pro_description'], 'extension-' . $w3tc_extension ); ?>
-								<?php Util_Ui::pro_wrap_maybe_end( "extension_$w3tc_extension" ); ?>
-							<?php else : ?>
-								<?php echo wp_kses( $w3tc_meta['description'], Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_meta['description'] ) ); ?>
-							<?php endif ?>
+							<?php echo wp_kses( $w3tc_meta['description'], Util_Ui::get_allowed_html_for_wp_kses_from_content( $w3tc_meta['description'] ) ); ?>
 
 							<?php if ( ! empty( $w3tc_meta['requirements'] ) ) : ?>
 								<p class="description">

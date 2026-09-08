@@ -148,50 +148,49 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'                 => 'pgcache.engine',
 					'control'             => 'selectbox',
-					'selectbox_values'    => array(
-						'file'            => array(
-							'label'    => esc_html__( 'Disk: Basic', 'w3-total-cache' ),
-							'optgroup' => 0,
+					'selectbox_values'    => apply_filters(
+						'w3tc_ui_pgcache_engine_values',
+						array(
+							'file'         => array(
+								'label'    => esc_html__( 'Disk: Basic', 'w3-total-cache' ),
+								'optgroup' => 0,
+							),
+							'file_generic' => array(
+								'label'    => esc_html__( 'Disk: Enhanced', 'w3-total-cache' ),
+								'optgroup' => 0,
+							),
+							'apc'          => array(
+								'disabled' => ! Util_Installed::apc(),
+								'label'    => esc_html__( 'Opcode: Alternative PHP Cache (APC / APCu)', 'w3-total-cache' ),
+								'optgroup' => 1,
+							),
+							'eaccelerator' => array(
+								'disabled' => ! Util_Installed::eaccelerator(),
+								'label'    => esc_html__( 'Opcode: eAccelerator', 'w3-total-cache' ),
+								'optgroup' => 1,
+							),
+							'xcache'       => array(
+								'disabled' => ! Util_Installed::xcache(),
+								'label'    => esc_html__( 'Opcode: XCache', 'w3-total-cache' ),
+								'optgroup' => 1,
+							),
+							'wincache'     => array(
+								'disabled' => ! Util_Installed::wincache(),
+								'label'    => esc_html__( 'Opcode: WinCache', 'w3-total-cache' ),
+								'optgroup' => 1,
+							),
+							'memcached'    => array(
+								'disabled' => ! Util_Installed::memcached(),
+								'label'    => esc_html__( 'Memcached', 'w3-total-cache' ),
+								'optgroup' => 2,
+							),
+							'redis'        => array(
+								'disabled' => ! Util_Installed::redis(),
+								'label'    => esc_html__( 'Redis', 'w3-total-cache' ),
+								'optgroup' => 2,
+							),
 						),
-						'file_generic'    => array(
-							'label'    => esc_html__( 'Disk: Enhanced', 'w3-total-cache' ),
-							'optgroup' => 0,
-						),
-						'apc'             => array(
-							'disabled' => ! Util_Installed::apc(),
-							'label'    => esc_html__( 'Opcode: Alternative PHP Cache (APC / APCu)', 'w3-total-cache' ),
-							'optgroup' => 1,
-						),
-						'eaccelerator'    => array(
-							'disabled' => ! Util_Installed::eaccelerator(),
-							'label'    => esc_html__( 'Opcode: eAccelerator', 'w3-total-cache' ),
-							'optgroup' => 1,
-						),
-						'xcache'          => array(
-							'disabled' => ! Util_Installed::xcache(),
-							'label'    => esc_html__( 'Opcode: XCache', 'w3-total-cache' ),
-							'optgroup' => 1,
-						),
-						'wincache'        => array(
-							'disabled' => ! Util_Installed::wincache(),
-							'label'    => esc_html__( 'Opcode: WinCache', 'w3-total-cache' ),
-							'optgroup' => 1,
-						),
-						'memcached'       => array(
-							'disabled' => ! Util_Installed::memcached(),
-							'label'    => esc_html__( 'Memcached', 'w3-total-cache' ),
-							'optgroup' => 2,
-						),
-						'nginx_memcached' => array(
-							'disabled' => ! Util_Installed::memcached_memcached() || ! $w3tc_is_pro,
-							'label'    => esc_html__( 'Nginx + Memcached', 'w3-total-cache' ) . ( $w3tc_is_pro ? '' : esc_html__( ' (available after upgrade)', 'w3-total-cache' ) ),
-							'optgroup' => 2,
-						),
-						'redis'           => array(
-							'disabled' => ! Util_Installed::redis(),
-							'label'    => esc_html__( 'Redis', 'w3-total-cache' ),
-							'optgroup' => 2,
-						),
+						$this->_config
 					),
 					'selectbox_optgroups' => array(
 						esc_html__( 'Shared Server (disk enhanced is best):', 'w3-total-cache' ),
@@ -388,11 +387,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php
 
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
+			do_action( 'w3tc_settings_general_dbcluster' );
 			?>
-
-			<?php if ( $w3tc_is_pro ) : ?>
-				<?php require W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php'; ?>
-			<?php endif; ?>
 		</table>
 
 		<?php
@@ -672,226 +668,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php if ( $w3tc_is_pro ) : ?>
-			<?php
-			Util_Ui::postbox_header_tabs(
-				esc_html__( 'Message Bus', 'w3-total-cache' ),
-				esc_html__(
-					'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then synchronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.',
-					'w3-total-cache'
-				),
-				'',
-				'amazon_sns'
-			);
-			?>
-
-			<table class="form-table">
-				<tr>
-					<th colspan="2">
-						<input type="hidden" name="cluster__messagebus__enabled" value="0" />
-						<label><input class="enabled" type="checkbox" name="cluster__messagebus__enabled" value="1"<?php checked( $this->_config->get_boolean( 'cluster.messagebus.enabled' ), true ); ?> /> <?php Util_Ui::e_config_label( 'cluster.messagebus.enabled' ); ?></label><br />
-					</th>
-				</tr>
-				<tr>
-					<th><label for="cluster_messagebus_sns_region"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.region' ); ?></label></th>
-					<td>
-						<input id="cluster_messagebus_sns_region"
-							class="w3tc-ignore-change" type="text"
-							name="cluster__messagebus__sns__region"
-							value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.region' ) ); ?>" size="60" />
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Specify the Amazon %1$sSNS%2$s service endpoint hostname. If empty, then default "sns.us-east-1.amazonaws.com" will be used.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Simple Notification Service', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="cluster_messagebus_sns_api_key"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_key' ); ?></label></th>
-					<td>
-						<?php
-						Util_Ui::secret_input(
-							array(
-								'id'        => 'cluster_messagebus_sns_api_key',
-								'name'      => 'cluster__messagebus__sns__api_key',
-								'has_value' => '' !== $this->_config->get_string( 'cluster.messagebus.sns.api_key' ),
-								'size'      => 60,
-								'type'      => 'text',
-							)
-						);
-						?>
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Specify the %1$sAPI%2$s Key.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="cluster_messagebus_sns_api_secret"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_secret' ); ?></label></th>
-					<td>
-						<?php
-						Util_Ui::secret_input(
-							array(
-								'id'        => 'cluster_messagebus_sns_api_secret',
-								'name'      => 'cluster__messagebus__sns__api_secret',
-								'has_value' => '' !== $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ),
-								'size'      => 60,
-							)
-						);
-						?>
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Specify the %1$sAPI%2$s secret.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="cluster_messagebus_sns_topic_arn"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.topic_arn' ); ?></label></th>
-					<td>
-						<input id="cluster_messagebus_sns_topic_arn"
-							class="w3tc-ignore-change" type="text"
-							name="cluster__messagebus__sns__topic_arn"
-							value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' ) ); ?>" size="60" />
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Specify the %1$sSNS%2$s topic.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Simple Notification Service', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-			</table>
-
-			<?php Util_Ui::postbox_footer(); ?>
-		<?php endif; ?>
-
 		<?php
 		foreach ( $custom_areas as $w3tc_area ) {
 			do_action( 'w3tc_settings_general_boxarea_' . $w3tc_area['id'] );
 		}
 		?>
-
-		<?php if ( $licensing_visible ) : ?>
-			<?php
-			Util_Ui::postbox_header_tabs(
-				esc_html__( 'Licensing', 'w3-total-cache' ),
-				esc_html__(
-					'The plugin license is a key that unlocks advanced features and support for the W3 Total Cache WordPress plugin. By activating the license, users gain access to enhanced caching mechanisms, optimization tools, enabling them to significantly speed up their WordPress websites and improve overall performance.',
-					'w3-total-cache'
-				),
-				'',
-				'licensing'
-			);
-			?>
-
-			<table class="form-table">
-					<tr>
-						<th>
-							<label for="plugin_license_key"><?php Util_Ui::e_config_label( 'plugin.license_key' ); ?></label>
-						</th>
-						<td>
-							<?php
-							Util_Ui::secret_input(
-								array(
-									'id'        => 'plugin_license_key',
-									'name'      => 'plugin__license_key',
-									'has_value' => '' !== $this->_config->get_string( 'plugin.license_key' ),
-									'size'      => 45,
-									'type'      => 'text',
-								)
-							);
-							?>
-							<span class="w3tc_license_verification"></span>
-							<p class="description">
-								<?php
-								echo wp_kses(
-									sprintf(
-										// translators: 1 HTML a tag to W3TC marketing page.
-										__(
-											'Please enter the license key provided after %1$s.',
-											'w3-total-cache'
-										),
-										'<a class="button-buy-plugin" data-src="generic_license" href="#">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
-									),
-									array(
-										'a' => array(
-											'class'    => array(),
-											'data-src' => array(),
-											'href'     => array(),
-										),
-									)
-								);
-								?>
-							</p>
-						</td>
-					</tr>
-
-			</table>
-
-			<?php Util_Ui::postbox_footer(); ?>
-		<?php endif; ?>
-
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Miscellaneous', 'w3-total-cache' ),
@@ -1021,7 +802,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'common.track_usage',
 					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Allow anonymous usage tracking to improve product quality (independent of license or terms acceptance)', 'w3-total-cache' ),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);
@@ -1062,16 +843,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php $this->checkbox_debug( 'minify.debug' ); ?> <?php Util_Ui::e_config_label( 'minify.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'dbcache.debug' ); ?> <?php Util_Ui::e_config_label( 'dbcache.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'objectcache.debug' ); ?> <?php Util_Ui::e_config_label( 'objectcache.debug' ); ?></label><br />
-					<?php if ( $w3tc_is_pro ) : ?>
-						<?php $this->checkbox_debug( array( 'fragmentcache', 'debug' ) ); ?> <?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?></label><br />
-					<?php endif; ?>
+					<?php do_action( 'w3tc_settings_general_debug_modules', $this, 'after_objectcache' ); ?>
 					<?php $this->checkbox_debug( 'cdn.debug' ); ?> <?php Util_Ui::e_config_label( 'cdn.debug' ); ?></label><br />
-					<?php $this->checkbox_debug( 'cdnfsd.debug' ); ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ); ?></label><br />
+					<?php do_action( 'w3tc_settings_general_debug_modules', $this, 'cdnfsd' ); ?>
 					<?php $this->checkbox_debug( 'varnish.debug' ); ?> <?php Util_Ui::e_config_label( 'varnish.debug' ); ?></label>
-					<?php if ( $w3tc_is_pro ) : ?>
-						<br />
-						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ); ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ); ?></label>
-					<?php endif ?>
+					<?php do_action( 'w3tc_settings_general_debug_modules', $this, 'after_varnish' ); ?>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -1095,53 +871,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</td>
 			</tr>
 		</table>
-		<table class="form-table">
-			<tr>
-				<th><?php esc_html_e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
-				<td>
-					<?php \W3TC\Util_Ui::pro_wrap_maybe_start(); ?>
-
-					<?php
-					$this->checkbox_debug_pro(
-						'pgcache.debug_purge',
-						__( 'Page Cache Purge Log', 'w3-total-cache' ),
-						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
-					);
-					?>
-					<br />
-
-					<?php
-					$this->checkbox_debug_pro(
-						'dbcache.debug_purge',
-						__( 'Database Cache Purge Log', 'w3-total-cache' ),
-						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
-					);
-					?>
-					<br />
-
-					<?php
-					$this->checkbox_debug_pro(
-						'objectcache.debug_purge',
-						__( 'Object Cache Purge Log', 'w3-total-cache' ),
-						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
-					);
-					?>
-					<br />
-
-					<?php
-					\W3TC\Util_Ui::pro_wrap_description(
-						esc_html__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
-						array(
-							esc_html__( 'Sometimes, you\'ll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues.', 'w3-total-cache' ),
-						),
-						'general-purge-log'
-					);
-					?>
-					<?php \W3TC\Util_Ui::pro_wrap_maybe_end( 'debug_purge' ); ?>
-				</td>
-			</tr>
-
-		</table>
+		<?php do_action( 'w3tc_settings_general_debug_purge_logs', $this ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -1169,13 +899,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
 					'</a>'
 				) : '';
-			Util_Ui::config_item_pro(
+			Util_Ui::config_item(
 				array(
 					'key'               => 'extension.imageservice',
 					'label'             => esc_html__( 'Image Converter', 'w3-total-cache' ),
 					'control'           => 'checkbox',
 					'checkbox_label'    => __( 'Enable Image Converter Extension', 'w3-total-cache' ),
-					'excerpt'           => wp_kses(
+					'description'       => wp_kses(
 						sprintf(
 							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
@@ -1222,14 +952,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'br' => array(),
 						)
 					),
-					'description'       => array(),
 					'label_class'       => 'w3tc_single_column',
-					'wrap_separate'     => true,
-					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
-					'score'             => '+9',
-					'score_label'       => __( 'Points', 'w3-total-cache' ),
-					'score_description' => __( 'In one recent test, converting images to modern formats like WebP added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
-					'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof',
 				)
 			);
 			?>

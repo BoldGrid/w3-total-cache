@@ -13,9 +13,13 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$w3tc_licensing   = new Licensing_Plugin_Admin();
-$w3tc_license_key = $w3tc_licensing->get_license_key();
-$w3tc_license     = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
+$w3tc_license_key = '';
+$w3tc_license     = null;
+if ( class_exists( '\W3TC\Licensing_Plugin_Admin' ) && class_exists( '\W3TC\Licensing_Core' ) ) {
+	$w3tc_licensing   = new Licensing_Plugin_Admin();
+	$w3tc_license_key = $w3tc_licensing->get_license_key();
+	$w3tc_license     = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
+}
 ?>
 <table>
 	<tr>

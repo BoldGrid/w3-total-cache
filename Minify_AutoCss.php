@@ -93,7 +93,7 @@ class Minify_AutoCss {
 		$this->ignore_css_files = $this->w3tc_config->get_array( 'minify.reject.files.css' );
 		$this->ignore_css_files = array_map( array( '\W3TC\Util_Environment', 'normalize_file' ), $this->ignore_css_files );
 
-		$this->embed_to_html = $this->w3tc_config->get_boolean( 'minify.css.embed' );
+		$this->embed_to_html = (bool) apply_filters( 'w3tc_minify_css_embed', false, $this->w3tc_config );
 	}
 
 	/**

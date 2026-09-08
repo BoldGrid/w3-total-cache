@@ -34,6 +34,9 @@ describe("Genesis + FragmentCache extension smoke", function () {
   after(sys.after);
 
   it("Genesis extension activates without crashing", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     // Genesis extension id is `genesis.theme`.
     await w3tc
       .activateExtension(adminPage, "genesis.theme")
@@ -63,6 +66,9 @@ describe("Genesis + FragmentCache extension smoke", function () {
   });
 
   it("FragmentCache extension activates and General page renders #fragmentcache", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await w3tc
       .activateExtension(adminPage, "fragmentcache")
       .catch((e) => log.log("activate result: " + e.message));

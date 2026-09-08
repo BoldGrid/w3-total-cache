@@ -225,5 +225,11 @@ require_once W3TC_DIR . '/w3-total-cache-api.php';
  */
 $w3tc_sns_message_array = $w3tc_sns_message->toArray();
 
-$w3tc_sns_server = \W3TC\Dispatcher::component( 'Enterprise_SnsServer' );
+$w3tc_sns_server = class_exists( '\W3TC\Enterprise_SnsServer' )
+	? \W3TC\Dispatcher::component( 'Enterprise_SnsServer' )
+	: null;
+if ( ! $w3tc_sns_server ) {
+	status_header( 404 );
+	exit;
+}
 $w3tc_sns_server->process_message( $w3tc_sns_message_array );

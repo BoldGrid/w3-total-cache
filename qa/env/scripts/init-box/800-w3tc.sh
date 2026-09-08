@@ -50,6 +50,36 @@ fi
 cd $W3D_WP_PATH
 $LIMITED wp plugin activate w3-total-cache ${ACTIVATE_OPTIONS}
 
+# Community vs community+Pro box product. Orchestrator sets
+# W3D_W3TC_PRO_COMPANION=1 and uploads the companion tree to
+# /share/w3tc-pro (or /share/w3-total-cache-pro).
+if [ "${W3D_W3TC_PRO_COMPANION:-}" = "1" ]; then
+	PRO_SRC=""
+	for cand in /share/w3tc-pro /share/w3-total-cache-pro; do
+		if [ -f "${cand}/w3-total-cache-pro.php" ]; then
+			PRO_SRC="$cand"
+			break
+		fi
+	done
+	if [ -z "$PRO_SRC" ]; then
+		echo "W3D_W3TC_PRO_COMPANION=1 but companion not found in /share/w3tc-pro" >&2
+		exit 1
+	fi
+	mkdir -p "${W3D_WP_PLUGINS_PATH}w3-total-cache-pro"
+	cp -R "${PRO_SRC}/." "${W3D_WP_PLUGINS_PATH}w3-total-cache-pro/"
+	chown -R www-data:www-data "${W3D_WP_PLUGINS_PATH}w3-total-cache-pro"
+	$LIMITED wp plugin activate w3-total-cache-pro ${ACTIVATE_OPTIONS}
+	# QA-only unlock so Pro UI renders without an EDD key on the box.
+	if ! grep -q "W3TC_PRO" wp-config.php; then
+		sed -i '2idefine( \"W3TC_PRO\", true );' wp-config.php
+	fi
+	echo "W3D_W3TC_PRODUCT=pro" >> /etc/environment
+	export W3D_W3TC_PRODUCT=pro
+else
+	echo "W3D_W3TC_PRODUCT=community" >> /etc/environment
+	export W3D_W3TC_PRODUCT=community
+fi
+
 # Optional QA PHP settings (.user.ini / Apache htaccess). No-op unless W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1.
 /share/scripts/init-box/755-w3tcqa-php-output-buffering.sh
 

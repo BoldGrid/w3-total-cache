@@ -67,6 +67,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 			'W3TC_BUNNYCDN_CDN_URL',
 			'W3TC_LICENSE_API_URL',
 			'W3TC_PURCHASE_URL',
+			'W3TC_PURCHASE_AD_URL',
 			'W3TC_PURCHASE_PRODUCT_NAME',
 			'W3TC_WIN',
 			'W3TC_DIR',

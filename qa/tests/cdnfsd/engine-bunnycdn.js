@@ -32,7 +32,10 @@ describe("CDNFSD engine: bunnycdn form-save", function () {
   before(sys.beforeDefault);
   after(sys.after);
 
-  it("cdnfsd.bunnycdn.* keys round-trip", async () => {
+  it("cdnfsd.bunnycdn.* keys round-trip", async function () {
+    if (sys.skipIfNotPro(this)) {
+      return;
+    }
     await w3tc.assertEngineSaveRoundTrip(adminPage, "cdnfsd", "bunnycdn", {
       "cdnfsd.bunnycdn.account_api_key": "qa-bunny-fsd-key-eeeeeeeeeeeeeee",
       "cdnfsd.bunnycdn.pull_zone_id": 9876,

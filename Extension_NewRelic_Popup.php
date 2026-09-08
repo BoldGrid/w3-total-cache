@@ -126,7 +126,7 @@ class Extension_NewRelic_Popup {
 			$details['monitoring_type'] = '';
 		}
 
-		$details['browser_disabled'] = ! Util_Environment::is_w3tc_pro( $w3tc_c );
+		$details['browser_disabled'] = false;
 
 		include W3TC_DIR . '/Extension_NewRelic_Popup_View_ListApplications.php';
 	}
