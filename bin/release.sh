@@ -8,8 +8,7 @@ echo 'Finding and deleting .git folders.'
 find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
 # Cleanup development and build contents (keep package.json until after yarn aliases).
-rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml phpcs.xml
-rm -rf .claude .cursor .github qa
+bash bin/release-strip-dev.sh
 
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done

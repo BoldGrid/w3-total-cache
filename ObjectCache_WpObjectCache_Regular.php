@@ -205,11 +205,7 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( $in_incall_cache && ! $force ) {
 			$found      = true;
 			$w3tc_value = $this->cache[ $w3tc_key ];
-		} elseif (
-			$this->_caching
-			&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
-			&& $this->_check_can_cache_runtime( $w3tc_group )
-		) {
+		} elseif ( $this->_should_use_persistent_cache( $id, $w3tc_group ) ) {
 			$cache = $this->_get_cache( null, $w3tc_group );
 			$v     = $cache->get( $w3tc_key, $w3tc_group );
 
@@ -345,15 +341,18 @@ class ObjectCache_WpObjectCache_Regular {
 			$runtime_misses[ $id ] = $w3tc_key;
 		}
 
+		$persistent_misses = array_filter(
+			$runtime_misses,
+			function ( $storage_key, $id ) use ( $w3tc_group ) {
+				return $this->_should_use_persistent_cache( $id, $w3tc_group );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+
 		// Attempt a batched persistent fetch for the remaining keys when allowed.
-		if (
-			! empty( $runtime_misses ) &&
-			$this->_caching &&
-			! in_array( $w3tc_group, $this->nonpersistent_groups, true ) &&
-			$this->_check_can_cache_runtime( $w3tc_group )
-		) {
+		if ( ! empty( $persistent_misses ) ) {
 			$cache       = $this->_get_cache( null, $w3tc_group );
-			$storage_map = $runtime_misses;
+			$storage_map = $persistent_misses;
 			$raw_values  = array();
 
 			if ( method_exists( $cache, 'get_multi' ) ) {
@@ -364,7 +363,7 @@ class ObjectCache_WpObjectCache_Regular {
 				}
 			}
 
-			foreach ( $runtime_misses as $id => $storage_key ) {
+			foreach ( $persistent_misses as $id => $storage_key ) {
 				++$cache_total_inc;
 				$v = isset( $raw_values[ $storage_key ] ) ? $raw_values[ $storage_key ] : null;
 
@@ -381,9 +380,11 @@ class ObjectCache_WpObjectCache_Regular {
 					$results[ $id ] = false;
 				}
 			}
-		} else {
-			// Not eligible for persistent fetch; fall back to per-key get() honoring $force.
-			foreach ( $runtime_misses as $id => $unused_key ) {
+		}
+
+		// Fall back for keys that were not eligible for persistent fetch.
+		foreach ( $runtime_misses as $id => $unused_key ) {
+			if ( ! array_key_exists( $id, $results ) ) {
 				$results[ $id ] = $this->get( $id, $w3tc_group, $force );
 			}
 		}
@@ -435,11 +436,7 @@ class ObjectCache_WpObjectCache_Regular {
 		$ext_return               = null;
 		$cache_sets_inc           = 0;
 
-		if (
-			$this->_caching
-				&& ! in_array( $w3tc_group, $this->nonpersistent_groups, true )
-				&& $this->_check_can_cache_runtime( $w3tc_group )
-		) {
+		if ( $this->_should_use_persistent_cache( $id, $w3tc_group ) ) {
 			$cache = $this->_get_cache( null, $w3tc_group );
 
 			if ( 'alloptions' === $id && 'options' === $w3tc_group ) {
@@ -527,17 +524,12 @@ class ObjectCache_WpObjectCache_Regular {
 			return array_fill_keys( array_keys( $items ), false );
 		}
 
-		$results            = array();
-		$payload            = array();
-		$cache_key_to_id    = array();
-		$cache_sets_inc     = 0;
-		$time_start_debug   = ( $this->_debug || $this->stats_enabled ) ? Util_Debug::microtime() : 0;
-		$key_version_all    = $this->key_version_all_get();
-		$persistent_allowed = (
-			$this->_caching &&
-			! in_array( $w3tc_group, $this->nonpersistent_groups, true ) &&
-			$this->_check_can_cache_runtime( $w3tc_group )
-		);
+		$results          = array();
+		$payload          = array();
+		$cache_key_to_id  = array();
+		$cache_sets_inc   = 0;
+		$time_start_debug = ( $this->_debug || $this->stats_enabled ) ? Util_Debug::microtime() : 0;
+		$key_version_all  = $this->key_version_all_get();
 
 		foreach ( $items as $id => $w3tc_value ) {
 			$cache_key = $this->_get_cache_key( $id, $w3tc_group );
@@ -551,7 +543,7 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->cache[ $cache_key ] = $stored;
 			$results[ $id ]            = true;
 
-			if ( $persistent_allowed ) {
+			if ( $this->_should_use_persistent_cache( $id, $w3tc_group ) ) {
 				$stored_content = $stored;
 
 				if ( 'alloptions' === $id && 'options' === $w3tc_group ) {
@@ -569,7 +561,7 @@ class ObjectCache_WpObjectCache_Regular {
 			}
 		}
 
-		if ( $persistent_allowed && ! empty( $payload ) ) {
+		if ( ! empty( $payload ) ) {
 			$cache          = $this->_get_cache( null, $w3tc_group );
 			$results        = $this->set_multiple_to_cache(
 				$cache,
@@ -608,16 +600,27 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return bool True if the cache was deleted, false otherwise.
 	 */
 	public function delete( $id, $w3tc_group = 'default', $force = false ) {
-		if ( ! $force && $this->get( $id, $w3tc_group ) === false ) {
-			return false;
+		if ( empty( $w3tc_group ) ) {
+			$w3tc_group = 'default';
 		}
 
 		$w3tc_key = $this->_get_cache_key( $id, $w3tc_group );
-		$return   = true;
+
+		$can_persist = $this->_caching && ! in_array( $w3tc_group, $this->nonpersistent_groups, true );
+
+		if ( ! $force && ! isset( $this->cache[ $w3tc_key ] ) ) {
+			$should_check_exists = ! $can_persist || $this->_check_can_cache_runtime( $w3tc_group );
+
+			if ( $should_check_exists && $this->get( $id, $w3tc_group ) === false ) {
+				return false;
+			}
+		}
+
+		$return = true;
 
 		unset( $this->cache[ $w3tc_key ] );
 
-		if ( $this->_caching && ! in_array( $w3tc_group, $this->nonpersistent_groups, true ) ) {
+		if ( $can_persist ) {
 			$cache  = $this->_get_cache( null, $w3tc_group );
 			$return = $cache->delete( $w3tc_key, $w3tc_group );
 		}
@@ -1354,6 +1357,31 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether a key should use the persistent backend.
+	 *
+	 * Admin requests typically skip persistent cache so admin queries are not stored.
+	 * `last_changed` still writes through so frontend query salts invalidate.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $id         Cache key.
+	 * @param string $w3tc_group Cache group.
+	 *
+	 * @return bool
+	 */
+	private function _should_use_persistent_cache( $id, $w3tc_group ) {
+		if ( ! $this->_caching || in_array( $w3tc_group, $this->nonpersistent_groups, true ) ) {
+			return false;
+		}
+
+		if ( $this->_check_can_cache_runtime( $w3tc_group ) ) {
+			return true;
+		}
+
+		return 'last_changed' === (string) $id;
 	}
 
 	/**

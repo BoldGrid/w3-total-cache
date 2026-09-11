@@ -2206,7 +2206,7 @@ class Util_Environment {
 				if ( ! \is_array( $cidrs ) ) {
 					$cidrs = array();
 				}
-			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				$cidrs = array();
 			}
 		}
@@ -2248,7 +2248,7 @@ class Util_Environment {
 						(array) $config->get_array( array( 'cloudflare', 'ips.ip6' ) )
 					);
 				}
-			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				$cidrs = array();
 			}
 		}

@@ -59,12 +59,12 @@ jQuery(document).ready(function ($) {
             .find(".w3tcps_error")
             .removeClass("w3tc_none");
           return;
-        } else if (data.missing_token) {
+        } else if (data.missing_token || data.refresh_failed) {
           $(".w3tcps_buttons").addClass("w3tc_none");
           $("#" + page_post_id)
             .prev()
             .find(".w3tcps_missing_token")
-            .html(data.missing_token);
+            .html(data.missing_token || data.refresh_failed);
           $("#" + page_post_id)
             .prev()
             .find(".w3tcps_missing_token")
