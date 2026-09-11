@@ -206,7 +206,7 @@ class BrowserCache_Plugin {
 
 			// without quotes.
 			$buffer = preg_replace_callback(
-				'~(href|src|action|extsrc|asyncsrc)=((' . $domain_url_regexp . ')?(/[^\\s>][^\\s>]*\.([a-z-_]+)([\?#][^\\s>]*)?))([\\s>])~Ui',
+				'~(href|src|action|extsrc|asyncsrc)=((' . $domain_url_regexp . ')?(/[^\\s>][^\\s>]*\.([a-z-_]+)([\?#][^\\s>\'"]*)?))([\\s>])~Ui',
 				array( $this, 'link_replace_callback_noquote' ),
 				$buffer
 			);
