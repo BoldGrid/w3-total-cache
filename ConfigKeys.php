@@ -196,6 +196,18 @@ $w3tc_keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
+	'dbcache.wp_cron'                                      => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'dbcache.wp_cron_time'                                 => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'dbcache.wp_cron_interval'                             => array(
+		'type'    => 'string',
+		'default' => 'daily',
+	),
 	'docroot_fix.enable'                                   => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -383,6 +395,30 @@ $w3tc_keys = array(
 	'objectcache.wpcli_disk'                               => array(
 		'type'    => 'boolean',
 		'default' => false,
+	),
+	'objectcache.wp_cron'                                  => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'objectcache.wp_cron_time'                             => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'objectcache.wp_cron_interval'                         => array(
+		'type'    => 'string',
+		'default' => 'daily',
+	),
+	'allcache.wp_cron'                                     => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'allcache.wp_cron_time'                                => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'allcache.wp_cron_interval'                            => array(
+		'type'    => 'string',
+		'default' => 'daily',
 	),
 	'pgcache.configuration_overloaded'                     => array(
 		'type'    => 'boolean',
@@ -755,6 +791,18 @@ $w3tc_keys = array(
 				),
 			),
 		),
+	),
+	'pgcache.wp_cron'                                      => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'pgcache.wp_cron_time'                                 => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'pgcache.wp_cron_interval'                             => array(
+		'type'    => 'string',
+		'default' => 'daily',
 	),
 	'stats.enabled'                                        => array(
 		'type'    => 'boolean',
@@ -1217,6 +1265,18 @@ $w3tc_keys = array(
 	'minify.cache.files_regexp'                            => array(
 		'type'    => 'boolean',
 		'default' => false,
+	),
+	'minify.wp_cron'                                       => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'minify.wp_cron_time'                                  => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'minify.wp_cron_interval'                              => array(
+		'type'    => 'string',
+		'default' => 'daily',
 	),
 	'cdn.configuration_overloaded'                         => array(
 		'type'    => 'boolean',

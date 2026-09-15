@@ -2,6 +2,11 @@
 # Triage idea files under ideas_dir; keep only the committed engagement profile.
 tmp/sec-ideas/*
 !tmp/sec-ideas/_profile.md
+# Local agent scratch and generated output; committed skills under .claude/ stay tracked.
+.claude/session-log.md
+tmp/feature-docs/
+tmp/findings/
+tmp/sec-verify/
 .vscode/
 node_modules/
 # yarn.lock is canonical; ignore npm's lockfile from ad-hoc npm install.
