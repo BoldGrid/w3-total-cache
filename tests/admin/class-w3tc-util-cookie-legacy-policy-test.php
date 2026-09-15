@@ -2,10 +2,8 @@
 /**
  * File: class-w3tc-util-cookie-legacy-policy-test.php
  *
- * Cache-auth readers reject legacy MD5 role-cookie names by default.
- * HMAC names still reject cache. Rewrite emitters always list both
- * names so a later wp-config constant toggle reaches PHP on
- * disk-enhanced installs. Writes still refuse leftover MD5 names.
+ * Cache-auth readers and rewrite reject lists honor HMAC role-cookie
+ * names only. Pre-HMAC leftover names do not reject cache.
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
@@ -39,8 +37,6 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 		parent::set_up();
 		$this->saved_cookie = $_COOKIE;
 		$_COOKIE            = array();
-		Util_Cookie::reset_legacy_honor_log();
-		\remove_all_filters( 'w3tc_cookie_legacy_names_accepted' );
 	}
 
 	/**
@@ -49,105 +45,28 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 	 * @since 2.10.6
 	 */
 	public function tear_down() {
-		\remove_all_filters( 'w3tc_cookie_legacy_names_accepted' );
-		\remove_all_actions( 'w3tc_audit_log' );
-		Util_Cookie::reset_legacy_honor_log();
 		$_COOKIE = $this->saved_cookie;
 		parent::tear_down();
 	}
 
 	/**
-	 * Rewrite emitters always list both names. The request reader
-	 * honors leftover names only when the wp-config constant is on.
-	 * The write helper sees leftover names even when the constant is off.
+	 * Pre-HMAC leftover name for a role (inline derivation so tests
+	 * do not keep a production helper).
 	 *
-	 * @since 2.10.6
+	 * @since X.X.X
 	 *
 	 * @param string $role WordPress role slug.
 	 *
-	 * @return void
+	 * @return string
 	 */
-	private function assert_rewrite_lists_both_reader_follows_constant( $role ) {
-		$hmac   = 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role );
-		$legacy = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role );
-		$names  = Util_Cookie::role_cookie_reject_names( $role );
+	private function leftover_role_cookie_name( $role ) {
+		$nonce_key = defined( 'NONCE_KEY' ) ? (string) NONCE_KEY : '';
 
-		$this->assertContains( $hmac, $names );
-		$this->assertContains( $legacy, $names );
-
-		$_COOKIE = array( $legacy => '1' );
-		$this->assertSame(
-			Util_Cookie::legacy_role_names_accepted(),
-			Util_Cookie::request_has_rejected_role_cookie( array( $role ) )
-		);
-		$this->assertTrue( Util_Cookie::request_has_legacy_role_cookie( array( $role ) ) );
+		return 'w3tc_logged_' . md5( $nonce_key . (string) $role );
 	}
 
 	/**
-	 * Default policy is fail-closed: legacy names are not accepted.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_legacy_names_rejected_by_default() {
-		$this->assertFalse( Util_Cookie::legacy_role_names_accepted() );
-	}
-
-	/**
-	 * A plugin-time filter is not a production switch.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_plugin_time_filter_does_not_opt_in() {
-		\add_filter( 'w3tc_cookie_legacy_names_accepted', '__return_true' );
-
-		$this->assertFalse( Util_Cookie::legacy_role_names_accepted() );
-		$this->assert_rewrite_lists_both_reader_follows_constant( 'editor' );
-	}
-
-	/**
-	 * Non-boolean filter returns also stay rejected.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_legacy_names_filter_ignored_on_non_bool() {
-		\add_filter(
-			'w3tc_cookie_legacy_names_accepted',
-			static function () {
-				return 'yes';
-			}
-		);
-
-		$this->assertFalse( Util_Cookie::legacy_role_names_accepted() );
-	}
-
-	/**
-	 * Filter registered at plugin time does not change the
-	 * advanced-cache decision. Rewrite lists still include both
-	 * names; the reader stays fail-closed.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_plugin_time_filter_does_not_change_early_bootstrap_policy() {
-		global $wp_actions;
-
-		$saved_plugins_loaded = isset( $wp_actions['plugins_loaded'] ) ? $wp_actions['plugins_loaded'] : null;
-		unset( $wp_actions['plugins_loaded'] );
-
-		try {
-			\add_filter( 'w3tc_cookie_legacy_names_accepted', '__return_true' );
-
-			$this->assertFalse( Util_Cookie::legacy_role_names_accepted() );
-			$this->assert_rewrite_lists_both_reader_follows_constant( 'editor' );
-		} finally {
-			if ( null !== $saved_plugins_loaded ) {
-				$wp_actions['plugins_loaded'] = $saved_plugins_loaded;
-			}
-		}
-	}
-
-	/**
-	 * Current HMAC cookie names still reject cache regardless of the
-	 * retired filter.
+	 * Current HMAC cookie names still reject cache.
 	 *
 	 * @since 2.10.6
 	 */
@@ -161,74 +80,32 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * HMAC cookies are not leftover MD5 names, so they do not trip
-	 * the write-side leftover helper.
+	 * Pre-HMAC leftover names do not reject cache.
 	 *
 	 * @since 2.10.6
 	 */
-	public function test_hmac_cookie_does_not_count_as_legacy_for_writes() {
-		$cookie = 'w3tc_logged_' . Util_Cookie::role_cookie_name( 'administrator' );
-
-		$_COOKIE[ $cookie ] = '1';
-		$this->assertTrue( Util_Cookie::request_has_rejected_role_cookie( array( 'administrator' ) ) );
-		$this->assertFalse( Util_Cookie::request_has_legacy_role_cookie( array( 'administrator' ) ) );
-	}
-
-	/**
-	 * Legacy MD5 cookie names do not reject cache by default.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_legacy_cookie_does_not_reject_cache_by_default() {
-		$cookie = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'administrator' );
+	public function test_leftover_cookie_does_not_reject_cache() {
+		$cookie = $this->leftover_role_cookie_name( 'administrator' );
 
 		$this->assertFalse( Util_Cookie::cookie_matches_rejected_role( $cookie, 'administrator' ) );
 
 		$_COOKIE[ $cookie ] = '1';
 		$this->assertFalse( Util_Cookie::request_has_rejected_role_cookie( array( 'administrator' ) ) );
-		$this->assertTrue( Util_Cookie::request_has_legacy_role_cookie( array( 'administrator' ) ) );
 	}
 
 	/**
-	 * Legacy MD5 cookie names reject cache when the wp-config
-	 * constant is true. Isolated so the constant cannot leak.
-	 *
-	 * @since 2.10.6
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_legacy_cookie_rejects_cache_when_constant_true() {
-		if ( defined( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED' ) ) {
-			$this->markTestSkipped( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED already defined' );
-		}
-
-		define( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED', true );
-
-		$this->assertTrue( Util_Cookie::legacy_role_names_accepted() );
-		$this->assert_rewrite_lists_both_reader_follows_constant( 'administrator' );
-
-		$cookie = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'administrator' );
-		$this->assertTrue( Util_Cookie::cookie_matches_rejected_role( $cookie, 'administrator' ) );
-
-		$_COOKIE[ $cookie ] = '1';
-		$this->assertTrue( Util_Cookie::request_has_rejected_role_cookie( array( 'administrator' ) ) );
-	}
-
-	/**
-	 * Mixed current + leftover legacy: HMAC still rejects cache.
+	 * Mixed current + leftover: HMAC still rejects cache.
 	 *
 	 * @since 2.10.6
 	 */
-	public function test_mixed_hmac_and_legacy_hmac_still_rejects() {
-		$hmac   = 'w3tc_logged_' . Util_Cookie::role_cookie_name( 'administrator' );
-		$legacy = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'administrator' );
+	public function test_mixed_hmac_and_leftover_hmac_still_rejects() {
+		$hmac     = 'w3tc_logged_' . Util_Cookie::role_cookie_name( 'administrator' );
+		$leftover = $this->leftover_role_cookie_name( 'administrator' );
 
-		$_COOKIE[ $hmac ]   = '1';
-		$_COOKIE[ $legacy ] = '1';
+		$_COOKIE[ $hmac ]     = '1';
+		$_COOKIE[ $leftover ] = '1';
 
 		$this->assertTrue( Util_Cookie::request_has_rejected_role_cookie( array( 'administrator' ) ) );
-		$this->assertTrue( Util_Cookie::request_has_legacy_role_cookie( array( 'administrator' ) ) );
 	}
 
 	/**
@@ -254,146 +131,74 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertFalse( Util_Cookie::request_has_rejected_role_cookie( array( 'administrator' ) ) );
-		$this->assertFalse( Util_Cookie::request_has_legacy_role_cookie( array( 'administrator' ) ) );
 	}
 
 	/**
-	 * Rewrite emitters always list both names. The request reader
-	 * still ignores leftover names when the constant is off.
+	 * Rewrite emitters list the HMAC name only.
 	 *
 	 * @since 2.10.6
 	 */
-	public function test_reject_names_include_legacy_for_rewrite_rules() {
-		$names  = Util_Cookie::role_cookie_reject_names( 'editor' );
-		$hmac   = 'w3tc_logged_' . Util_Cookie::role_cookie_name( 'editor' );
-		$legacy = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'editor' );
+	public function test_reject_names_are_hmac_only() {
+		$names    = Util_Cookie::role_cookie_reject_names( 'editor' );
+		$hmac     = 'w3tc_logged_' . Util_Cookie::role_cookie_name( 'editor' );
+		$leftover = $this->leftover_role_cookie_name( 'editor' );
 
-		$this->assertSame( array( $hmac, $legacy ), $names );
-		$this->assertFalse( Util_Cookie::legacy_role_names_accepted() );
-		$this->assert_rewrite_lists_both_reader_follows_constant( 'editor' );
+		$this->assertSame( array( $hmac ), $names );
+		$this->assertNotContains( $leftover, $names );
 	}
 
 	/**
-	 * Honoring a legacy name fires the audit log once.
+	 * Plugin PHP must not keep the retired helper, grace constant,
+	 * leftover write helper, or honor audit log.
 	 *
 	 * @since 2.10.6
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	public function test_legacy_honor_emits_audit_log() {
-		if ( defined( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED' ) ) {
-			$this->markTestSkipped( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED already defined' );
-		}
-
-		define( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED', true );
-
-		$events = array();
-		\add_action(
-			'w3tc_audit_log',
-			static function ( $event, $context ) use ( &$events ) {
-				$events[] = array( $event, $context );
-			},
-			10,
-			2
+	public function test_leftover_class_retired_from_plugin_php() {
+		$plugin_files = array(
+			W3TC_DIR . '/Util_Cookie.php',
+			W3TC_DIR . '/PgCache_ContentGrabber.php',
+			W3TC_DIR . '/PgCache_Environment.php',
+			W3TC_DIR . '/Generic_Plugin.php',
 		);
 
-		$cookie = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'author' );
-		Util_Cookie::cookie_matches_rejected_role( $cookie, 'author' );
-		Util_Cookie::cookie_matches_rejected_role( $cookie, 'author' );
-
-		$this->assertCount( 1, $events );
-		$this->assertSame( 'cookie.legacy_role_name', $events[0][0] );
-		$this->assertSame( 'author', $events[0][1]['role'] );
-	}
-
-	/**
-	 * On the advanced-cache path (`plugins_loaded` has not run), the
-	 * honor event is held until subscribers can register.
-	 *
-	 * @since 2.10.6
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_legacy_honor_audit_defers_until_plugins_loaded() {
-		if ( defined( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED' ) ) {
-			$this->markTestSkipped( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED already defined' );
+		foreach ( $plugin_files as $path ) {
+			$contents = file_get_contents( $path );
+			$this->assertIsString( $contents, $path );
+			$this->assertStringNotContainsString( 'role_cookie_name_legacy', $contents, $path );
+			$this->assertStringNotContainsString( 'legacy_role_names_accepted', $contents, $path );
+			$this->assertStringNotContainsString( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED', $contents, $path );
+			$this->assertStringNotContainsString( 'request_has_legacy_role_cookie', $contents, $path );
+			$this->assertStringNotContainsString( 'cookie_matches_legacy_role_name', $contents, $path );
+			$this->assertStringNotContainsString( 'flush_legacy_honor_log', $contents, $path );
+			$this->assertStringNotContainsString( 'cookie.legacy_role_name', $contents, $path );
+			$this->assertStringNotContainsString( 'w3tc_cookie_legacy_names_accepted', $contents, $path );
 		}
 
-		define( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED', true );
-
-		global $wp_actions;
-
-		$saved_plugins_loaded = isset( $wp_actions['plugins_loaded'] ) ? $wp_actions['plugins_loaded'] : null;
-		unset( $wp_actions['plugins_loaded'] );
-
-		try {
-			$events = array();
-			\add_action(
-				'w3tc_audit_log',
-				static function ( $event, $context ) use ( &$events ) {
-					$events[] = array( $event, $context );
-				},
-				10,
-				2
-			);
-
-			$cookie = 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( 'author' );
-			Util_Cookie::cookie_matches_rejected_role( $cookie, 'author' );
-
-			$this->assertCount( 0, $events );
-			$this->assertSame(
-				\PHP_INT_MAX,
-				\has_action( 'plugins_loaded', array( Util_Cookie::class, 'flush_legacy_honor_log' ) )
-			);
-
-			Util_Cookie::flush_legacy_honor_log();
-
-			$this->assertCount( 1, $events );
-			$this->assertSame( 'cookie.legacy_role_name', $events[0][0] );
-			$this->assertSame( 'author', $events[0][1]['role'] );
-		} finally {
-			if ( null !== $saved_plugins_loaded ) {
-				$wp_actions['plugins_loaded'] = $saved_plugins_loaded;
-			}
-		}
-	}
-
-	/**
-	 * Cache-auth readers and rewrite emitters must not call the legacy
-	 * helper directly; logout still clears leftover names. The policy
-	 * helper must not consult a plugin filter. Rewrite lists both
-	 * names; writes refuse leftover MD5 via a dedicated helper.
-	 *
-	 * @since 2.10.6
-	 */
-	public function test_leftover_class_readers_go_through_policy_helper() {
 		$grabber     = file_get_contents( W3TC_DIR . '/PgCache_ContentGrabber.php' );
 		$environment = file_get_contents( W3TC_DIR . '/PgCache_Environment.php' );
-		$generic     = file_get_contents( W3TC_DIR . '/Generic_Plugin.php' );
-		$cookie      = file_get_contents( W3TC_DIR . '/Util_Cookie.php' );
 
-		$this->assertStringNotContainsString( 'role_cookie_name_legacy', $grabber );
-		$this->assertStringNotContainsString( 'role_cookie_name_legacy', $environment );
 		$this->assertStringContainsString( 'request_has_rejected_role_cookie', $grabber );
-		$this->assertStringContainsString( 'request_has_legacy_role_cookie', $grabber );
+		$this->assertStringContainsString( 'current_user_has_rejected_role', $grabber );
 		$this->assertStringContainsString( 'role_cookie_reject_names', $environment );
-		$this->assertStringContainsString( 'role_cookie_name_legacy', $generic );
-		$this->assertIsString( $cookie );
-		$this->assertStringContainsString( "'plugins_loaded'", $cookie );
-		$this->assertStringContainsString( 'flush_legacy_honor_log', $cookie );
-		$this->assertStringContainsString( 'W3TC_COOKIE_LEGACY_NAMES_ACCEPTED', $cookie );
-		$this->assertDoesNotMatchRegularExpression(
-			'/apply_filters\s*\(\s*[\'"]w3tc_cookie_legacy_names_accepted[\'"]/',
-			$cookie
-		);
-		$this->assertDoesNotMatchRegularExpression(
-			'/function role_cookie_reject_names.*?if\s*\(\s*self::legacy_role_names_accepted/s',
-			$cookie
-		);
-		$this->assertStringNotContainsString( 'w3tc_cookie_legacy_names_accepted', $grabber );
-		$this->assertStringNotContainsString( 'w3tc_cookie_legacy_names_accepted', $environment );
-		$this->assertStringNotContainsString( 'w3tc_cookie_legacy_names_accepted', $generic );
+	}
+
+	/**
+	 * Write-path helper uses the loaded WordPress user, not leftover cookies.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_current_user_rejected_role_uses_wp_user() {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$sub_id   = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( 0 );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
+
+		wp_set_current_user( $admin_id );
+		$this->assertTrue( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'editor' ) ) );
+
+		wp_set_current_user( $sub_id );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
 	}
 }

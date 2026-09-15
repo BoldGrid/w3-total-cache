@@ -70,33 +70,6 @@ class W3tc_Util_Cookie_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The legacy MD5 form is also 32 lowercase hex chars and
-	 * deterministic — kept for logout cleanup and the wp-config
-	 * constant grace reader.
-	 *
-	 * @since 2.10.0
-	 */
-	public function test_role_cookie_name_legacy_shape() {
-		$name = Util_Cookie::role_cookie_name_legacy( 'administrator' );
-
-		$this->assertSame( 32, strlen( $name ) );
-		$this->assertMatchesRegularExpression( '/^[0-9a-f]{32}$/', $name );
-	}
-
-	/**
-	 * The new and legacy names MUST differ — otherwise the
-	 * back-compat reader would be redundant.
-	 *
-	 * @since 2.10.0
-	 */
-	public function test_new_and_legacy_names_differ() {
-		$new    = Util_Cookie::role_cookie_name( 'administrator' );
-		$legacy = Util_Cookie::role_cookie_name_legacy( 'administrator' );
-
-		$this->assertNotSame( $new, $legacy );
-	}
-
-	/**
 	 * Regression: the role cookie name MUST derive only from the
 	 * `AUTH_KEY` / `AUTH_SALT` wp-config constants, never `wp_salt()`.
 	 *
