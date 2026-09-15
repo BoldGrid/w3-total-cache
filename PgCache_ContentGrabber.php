@@ -759,21 +759,6 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		/**
-		 * Rewrite rules always list leftover MD5 names so a later
-		 * grace-constant toggle reaches PHP. That request must not
-		 * write a rejected-role page into the shared store when the
-		 * reader is still fail-closed.
-		 */
-		if ( $this->_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
-			$roles = $this->_config->get_array( 'pgcache.reject.roles' );
-			if ( ! empty( $roles ) && Util_Cookie::request_has_legacy_role_cookie( $roles ) ) {
-				$this->cache_reject_reason = 'Rejected user role leftover cookie';
-				$this->process_status      = 'miss_logged_in';
-				return false;
-			}
-		}
-
 		// Check for DONOTCACHEPAGE constant.
 		if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
 			$this->cache_reject_reason = 'DONOTCACHEPAGE constant is defined';
@@ -1289,11 +1274,6 @@ class PgCache_ContentGrabber {
 			return true;
 		}
 
-		/**
-		 * HMAC names always reject cache. Legacy MD5 names reject
-		 * cache only when `W3TC_COOKIE_LEGACY_NAMES_ACCEPTED` is
-		 * defined true in wp-config.php (default false as of 2.10.6).
-		 */
 		return ! Util_Cookie::request_has_rejected_role_cookie( $roles );
 	}
 
