@@ -241,4 +241,44 @@ class Util_Cookie {
 
 		return false;
 	}
+
+	/**
+	 * Whether the current WordPress user has a rejected page-cache role.
+	 *
+	 * Used on the page-cache write path after WordPress has loaded.
+	 * The early `advanced-cache.php` read path cannot use this.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string[] $roles Role slugs configured for cache rejection.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_has_rejected_role( $roles ) {
+		if ( ! is_array( $roles ) || empty( $roles ) ) {
+			return false;
+		}
+
+		if ( ! \function_exists( 'is_user_logged_in' ) || ! \function_exists( 'wp_get_current_user' ) ) {
+			return false;
+		}
+
+		if ( ! \is_user_logged_in() ) {
+			return false;
+		}
+
+		$current_user = \wp_get_current_user();
+
+		if ( empty( $current_user->roles ) || ! is_array( $current_user->roles ) ) {
+			return false;
+		}
+
+		foreach ( $current_user->roles as $role ) {
+			if ( \in_array( $role, $roles, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

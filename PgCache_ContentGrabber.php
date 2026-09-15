@@ -759,6 +759,15 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
+		if ( $this->_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
+			$roles = $this->_config->get_array( 'pgcache.reject.roles' );
+			if ( Util_Cookie::current_user_has_rejected_role( $roles ) ) {
+				$this->cache_reject_reason = 'Rejected user role is logged in';
+				$this->process_status      = 'miss_logged_in';
+				return false;
+			}
+		}
+
 		// Check for DONOTCACHEPAGE constant.
 		if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
 			$this->cache_reject_reason = 'DONOTCACHEPAGE constant is defined';

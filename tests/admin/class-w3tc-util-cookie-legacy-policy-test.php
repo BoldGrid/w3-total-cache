@@ -178,6 +178,27 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 		$environment = file_get_contents( W3TC_DIR . '/PgCache_Environment.php' );
 
 		$this->assertStringContainsString( 'request_has_rejected_role_cookie', $grabber );
+		$this->assertStringContainsString( 'current_user_has_rejected_role', $grabber );
 		$this->assertStringContainsString( 'role_cookie_reject_names', $environment );
+	}
+
+	/**
+	 * Write-path helper uses the loaded WordPress user, not leftover cookies.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_current_user_rejected_role_uses_wp_user() {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$sub_id   = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( 0 );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
+
+		wp_set_current_user( $admin_id );
+		$this->assertTrue( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'editor' ) ) );
+
+		wp_set_current_user( $sub_id );
+		$this->assertFalse( Util_Cookie::current_user_has_rejected_role( array( 'administrator' ) ) );
 	}
 }
