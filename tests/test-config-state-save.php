@@ -16,10 +16,12 @@ $cssave_cases = array();
 $cssave_pass  = 0;
 $cssave_fail  = 0;
 
-$GLOBALS['cssave_blog_option']  = false;
-$GLOBALS['cssave_site_option']  = false;
-$GLOBALS['cssave_blog_writes']  = 0;
-$GLOBALS['cssave_site_writes']  = 0;
+$GLOBALS['cssave_blog_option'] = false;
+$GLOBALS['cssave_site_option'] = false;
+$GLOBALS['cssave_blog_writes'] = 0;
+$GLOBALS['cssave_site_writes'] = 0;
+$GLOBALS['cssave_blog_fail']   = false;
+$GLOBALS['cssave_site_fail']   = false;
 
 if ( ! \defined( 'W3TC_VERSION' ) ) {
 	\define( 'W3TC_VERSION', '0.0.0-test' );
@@ -70,6 +72,11 @@ if ( ! \function_exists( 'update_option' ) ) {
 		}
 
 		++$GLOBALS['cssave_blog_writes'];
+
+		if ( $GLOBALS['cssave_blog_fail'] ) {
+			return false;
+		}
+
 		$GLOBALS['cssave_blog_option'] = $value;
 
 		return true;
@@ -108,6 +115,11 @@ if ( ! \function_exists( 'update_site_option' ) ) {
 		}
 
 		++$GLOBALS['cssave_site_writes'];
+
+		if ( $GLOBALS['cssave_site_fail'] ) {
+			return false;
+		}
+
 		$GLOBALS['cssave_site_option'] = $value;
 
 		return true;
@@ -149,6 +161,8 @@ function cssave_reset_store(): void {
 	$GLOBALS['cssave_site_option'] = false;
 	$GLOBALS['cssave_blog_writes'] = 0;
 	$GLOBALS['cssave_site_writes'] = 0;
+	$GLOBALS['cssave_blog_fail']   = false;
+	$GLOBALS['cssave_site_fail']   = false;
 }
 
 cssave_reset_store();
@@ -231,6 +245,72 @@ $state->save();
 cssave_assert(
 	'rewriting the same master flag does not write',
 	1 === $GLOBALS['cssave_site_writes'],
+	'writes=' . $GLOBALS['cssave_site_writes']
+);
+
+cssave_reset_store();
+$GLOBALS['cssave_blog_option'] = \wp_json_encode( array( 'common.install' => 1 ) );
+$state                         = new \W3TC\ConfigState( false );
+$GLOBALS['cssave_blog_fail']   = true;
+$state->set( 'license.status', 'active' );
+$state->save();
+cssave_assert(
+	'failed blog write is attempted once',
+	1 === $GLOBALS['cssave_blog_writes'],
+	'writes=' . $GLOBALS['cssave_blog_writes']
+);
+$state->save();
+cssave_assert(
+	'failed blog write is retried on the next save',
+	2 === $GLOBALS['cssave_blog_writes'],
+	'writes=' . $GLOBALS['cssave_blog_writes']
+);
+$GLOBALS['cssave_blog_fail'] = false;
+$state->save();
+cssave_assert(
+	'blog retry persists once the Options API recovers',
+	3 === $GLOBALS['cssave_blog_writes']
+		&& \is_array( \json_decode( $GLOBALS['cssave_blog_option'], true ) )
+		&& 'active' === \json_decode( $GLOBALS['cssave_blog_option'], true )['license.status'],
+	'writes=' . $GLOBALS['cssave_blog_writes'] . ' option=' . \var_export( $GLOBALS['cssave_blog_option'], true )
+);
+$state->save();
+cssave_assert(
+	'successful blog write stops further retries',
+	3 === $GLOBALS['cssave_blog_writes'],
+	'writes=' . $GLOBALS['cssave_blog_writes']
+);
+
+cssave_reset_store();
+$GLOBALS['cssave_site_option'] = \wp_json_encode( array( 'common.install' => 1 ) );
+$state                         = new \W3TC\ConfigState( true );
+$GLOBALS['cssave_site_fail']   = true;
+$state->set( 'license.status', 'active' );
+$state->save();
+cssave_assert(
+	'failed site write is attempted once',
+	1 === $GLOBALS['cssave_site_writes'],
+	'writes=' . $GLOBALS['cssave_site_writes']
+);
+$state->save();
+cssave_assert(
+	'failed site write is retried on the next save',
+	2 === $GLOBALS['cssave_site_writes'],
+	'writes=' . $GLOBALS['cssave_site_writes']
+);
+$GLOBALS['cssave_site_fail'] = false;
+$state->save();
+cssave_assert(
+	'site retry persists once the Options API recovers',
+	3 === $GLOBALS['cssave_site_writes']
+		&& \is_array( \json_decode( $GLOBALS['cssave_site_option'], true ) )
+		&& 'active' === \json_decode( $GLOBALS['cssave_site_option'], true )['license.status'],
+	'writes=' . $GLOBALS['cssave_site_writes'] . ' option=' . \var_export( $GLOBALS['cssave_site_option'], true )
+);
+$state->save();
+cssave_assert(
+	'successful site write stops further retries',
+	3 === $GLOBALS['cssave_site_writes'],
 	'writes=' . $GLOBALS['cssave_site_writes']
 );
 

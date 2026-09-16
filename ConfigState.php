@@ -233,15 +233,17 @@ class ConfigState {
 			if ( ! \function_exists( 'update_site_option' ) ) {
 				return;
 			}
-			\update_site_option( 'w3tc_state', $encoded );
+			$saved = \update_site_option( 'w3tc_state', $encoded );
 		} else {
 			if ( ! \function_exists( 'update_option' ) ) {
 				return;
 			}
-			\update_option( 'w3tc_state', $encoded );
+			$saved = \update_option( 'w3tc_state', $encoded );
 		}
 
-		$this->_saved_encoded = $encoded;
+		if ( $saved ) {
+			$this->_saved_encoded = $encoded;
+		}
 	}
 
 	/**
