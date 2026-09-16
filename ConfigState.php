@@ -88,6 +88,15 @@ class ConfigState {
 	private $_loaded;
 
 	/**
+	 * Encoded option payload from the last successful load or save.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string|null
+	 */
+	private $_saved_encoded;
+
+	/**
 	 * Initializes the configuration state.
 	 *
 	 * @param bool $is_master Whether this is the master configuration state.
@@ -95,9 +104,10 @@ class ConfigState {
 	 * @return void
 	 */
 	public function __construct( $is_master ) {
-		$this->_is_master = $is_master;
-		$this->_data      = array();
-		$this->_loaded    = false;
+		$this->_is_master     = $is_master;
+		$this->_data          = array();
+		$this->_loaded        = false;
+		$this->_saved_encoded = null;
 
 		$this->load();
 	}
@@ -196,8 +206,9 @@ class ConfigState {
 	 * @return void
 	 */
 	public function reset() {
-		$this->_data   = array();
-		$this->_loaded = true;
+		$this->_data          = array();
+		$this->_loaded        = true;
+		$this->_saved_encoded = null;
 		$this->apply_defaults();
 	}
 
@@ -213,16 +224,25 @@ class ConfigState {
 			return;
 		}
 
+		$encoded = \wp_json_encode( $this->_data );
+		if ( false === $encoded || $encoded === $this->_saved_encoded ) {
+			return;
+		}
+
 		if ( $this->_is_master ) {
 			if ( ! \function_exists( 'update_site_option' ) ) {
 				return;
 			}
-			\update_site_option( 'w3tc_state', \wp_json_encode( $this->_data ) );
+			$saved = \update_site_option( 'w3tc_state', $encoded );
 		} else {
 			if ( ! \function_exists( 'update_option' ) ) {
 				return;
 			}
-			\update_option( 'w3tc_state', \wp_json_encode( $this->_data ) );
+			$saved = \update_option( 'w3tc_state', $encoded );
+		}
+
+		if ( $saved ) {
+			$this->_saved_encoded = $encoded;
 		}
 	}
 
@@ -256,7 +276,10 @@ class ConfigState {
 			$this->_data = array();
 			$this->apply_defaults();
 			$this->save();
+			return;
 		}
+
+		$this->_saved_encoded = \wp_json_encode( $this->_data );
 	}
 
 	/**
