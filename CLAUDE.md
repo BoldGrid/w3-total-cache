@@ -65,6 +65,11 @@ Run the standalone page-cache rules-required filter test (no WordPress bootstrap
 php tests/test-pgcache-rules-required-filter.php
 ```
 
+Run the standalone config-state save skip test (no WordPress bootstrap needed):
+```bash
+php tests/test-config-state-save.php
+```
+
 #### Writing new standalone tests
 
 Standalone test files in `tests/` use a realpath-guard at the top so they exit early when PHPUnit auto-discovers them, e.g.:
