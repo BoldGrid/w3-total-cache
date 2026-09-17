@@ -34,6 +34,33 @@ class PgCache_Plugin_Admin {
 	const PRIME_COMPLETED_OPTION = 'w3tc_pgcache_prime_completed';
 
 	/**
+	 * Option identifying the current preload pass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PRIME_GENERATION_OPTION = 'w3tc_pgcache_prime_generation';
+
+	/**
+	 * Option coordinating overlapping preload callbacks.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PRIME_LOCK_OPTION = 'w3tc_pgcache_prime_lock';
+
+	/**
+	 * Maximum preload lock lifetime.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const PRIME_LOCK_TTL = 3600;
+
+	/**
 	 * Config
 	 *
 	 * @var Config
@@ -47,6 +74,95 @@ class PgCache_Plugin_Admin {
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
+	}
+
+	/**
+	 * Returns the current per-site preload generation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public static function prime_generation() {
+		$generation = get_option( self::PRIME_GENERATION_OPTION, '' );
+
+		if ( '' === $generation ) {
+			$generation = wp_generate_uuid4();
+			add_option( self::PRIME_GENERATION_OPTION, $generation, '', false );
+			$generation = get_option( self::PRIME_GENERATION_OPTION, $generation );
+		}
+
+		return (string) $generation;
+	}
+
+	/**
+	 * Resets per-site preload progress and starts a new generation.
+	 *
+	 * The lock is retained so an in-flight callback remains the only writer.
+	 * Its generation becomes stale and it will discard any progress.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string New generation.
+	 */
+	public static function reset_prime() {
+		$generation = wp_generate_uuid4();
+
+		update_option( self::PRIME_GENERATION_OPTION, $generation, false );
+		update_option( self::PRIME_OFFSET_OPTION, 0, false );
+		delete_option( self::PRIME_COMPLETED_OPTION );
+
+		return $generation;
+	}
+
+	/**
+	 * Acquires the per-site preload lock.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array|false Lock data, or false when another run is active.
+	 */
+	public static function acquire_prime_lock() {
+		$lock = get_option( self::PRIME_LOCK_OPTION, false );
+
+		if ( is_array( $lock ) && isset( $lock['expires'] ) && (int) $lock['expires'] <= time() ) {
+			delete_option( self::PRIME_LOCK_OPTION );
+			self::reset_prime();
+			$lock = false;
+		}
+
+		if ( false !== $lock ) {
+			return false;
+		}
+
+		$lock = array(
+			'token'      => wp_generate_uuid4(),
+			'generation' => self::prime_generation(),
+			'expires'    => time() + self::PRIME_LOCK_TTL,
+		);
+
+		if ( ! add_option( self::PRIME_LOCK_OPTION, $lock, '', false ) ) {
+			return false;
+		}
+
+		return $lock;
+	}
+
+	/**
+	 * Releases a preload lock owned by the supplied token.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $token Lock token.
+	 *
+	 * @return void
+	 */
+	public static function release_prime_lock( $token ) {
+		$lock = get_option( self::PRIME_LOCK_OPTION, false );
+
+		if ( is_array( $lock ) && isset( $lock['token'] ) && hash_equals( (string) $lock['token'], (string) $token ) ) {
+			delete_option( self::PRIME_LOCK_OPTION );
+		}
 	}
 
 	/**
@@ -154,10 +270,25 @@ class PgCache_Plugin_Admin {
 	 * @param int|null      $start        The starting point for priming, or null to use the default.
 	 * @param int|null      $w3tc_limit        The limit for how many pages to prime, or null for the default limit.
 	 * @param callable|null $log_callback A callback function for logging progress, or null to disable logging.
+	 * @param bool          $update_progress Whether to update scheduled preload progress.
+	 * @param string|null   $generation Preload generation allowed to update progress.
 	 *
-	 * @return bool Whether the current call completed a sitemap pass.
+	 * @return array Preload result.
 	 */
-	public function prime( $start = null, $w3tc_limit = null, $log_callback = null ) {
+	public function prime(
+		$start = null,
+		$w3tc_limit = null,
+		$log_callback = null,
+		$update_progress = true,
+		$generation = null
+	) {
+		$result = array(
+			'success'   => false,
+			'processed' => 0,
+			'complete'  => false,
+			'stale'     => false,
+		);
+
 		if ( is_null( $start ) ) {
 			$start = get_option( self::PRIME_OFFSET_OPTION );
 		}
@@ -166,7 +297,6 @@ class PgCache_Plugin_Admin {
 			$start = 0;
 		}
 
-		$interval = $this->_config->get_integer( 'pgcache.prime.interval' );
 		if ( is_null( $w3tc_limit ) ) {
 			$w3tc_limit = $this->_config->get_integer( 'pgcache.prime.limit' );
 		}
@@ -183,8 +313,12 @@ class PgCache_Plugin_Admin {
 			);
 		}
 
-		// Parse XML sitemap.
-		$urls = $this->parse_sitemap( $sitemap );
+		$parse_success = false;
+		$urls          = $this->parse_sitemap( $sitemap, null, 0, $parse_success );
+
+		if ( ! $parse_success || empty( $urls ) ) {
+			return $result;
+		}
 
 		// Queue URLs.
 		$queue = array_slice( $urls, $start, $w3tc_limit );
@@ -195,21 +329,53 @@ class PgCache_Plugin_Admin {
 			$next_offset = 0;
 		}
 
-		update_option( self::PRIME_OFFSET_OPTION, $next_offset, false );
+		if ( empty( $queue ) ) {
+			if ( $update_progress && self::prime_generation() === $generation ) {
+				update_option( self::PRIME_OFFSET_OPTION, 0, false );
+			}
+
+			return $result;
+		}
 
 		/**
 		 * Make HTTP requests and prime cache.
 		 * Use 'WordPress' since by default we use W3TC-powered by which blocks caching.
 		 */
 		foreach ( $queue as $w3tc_url ) {
-			Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress' ) );
+			$response = Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress' ) );
+
+			if (
+				is_wp_error( $response ) ||
+				200 > wp_remote_retrieve_response_code( $response ) ||
+				400 <= wp_remote_retrieve_response_code( $response )
+			) {
+				return $result;
+			}
 
 			if ( ! is_null( $log_callback ) ) {
 				$log_callback( 'Priming ' . $w3tc_url );
 			}
 		}
 
-		return 0 === $next_offset;
+		$result['success']   = true;
+		$result['processed'] = count( $queue );
+		$result['complete']  = 0 === $next_offset;
+
+		if ( $update_progress ) {
+			if ( self::prime_generation() !== $generation ) {
+				$result['stale'] = true;
+				return $result;
+			}
+
+			update_option( self::PRIME_OFFSET_OPTION, $next_offset, false );
+
+			if ( self::prime_generation() !== $generation ) {
+				update_option( self::PRIME_OFFSET_OPTION, 0, false );
+				$result['stale'] = true;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -235,10 +401,13 @@ class PgCache_Plugin_Admin {
 	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
 	 *                                   fetches must match. Auto-populated.
 	 * @param int         $depth         Internal: current recursion depth (0-based).
+	 * @param bool|null   $success       Set to whether the complete sitemap traversal succeeded.
 	 *
 	 * @return array The list of URLs parsed from the sitemap.
 	 */
-	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0 ) {
+	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0, &$success = null ) {
+		$success = false;
+
 		if ( ! Util_Environment::is_url( $w3tc_url ) ) {
 			$w3tc_url = home_url( $w3tc_url );
 		}
@@ -277,59 +446,71 @@ class PgCache_Plugin_Admin {
 			return array();
 		}
 
-		$urls     = array( $w3tc_url );
+		$urls     = array();
 		$response = Util_Http::get( $w3tc_url );
 
-		if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-			$url_matches     = null;
-			$sitemap_matches = null;
-
-			/**
-			 * Parse the fetched sitemap XML with XXE protections. The body is
-			 * fetched from an admin-configured (and origin-host-constrained)
-			 * sitemap URL, so a hostile or compromised endpoint must not be
-			 * able to use external entities to read local files or pivot to
-			 * internal services. Util_Environment::safe_simplexml_load_string()
-			 * also handles the libxml error-suppression dance.
-			 */
-			$xml = Util_Environment::safe_simplexml_load_string( $response['body'] );
-
-			// Check if the XML load failed; return the URLs found so far (sitemap URL).
-			if ( false === $xml ) {
-				return $urls;
-			}
-
-			if ( $xml->getName() === 'sitemapindex' ) {
-				foreach ( $xml->sitemap as $sitemap ) {
-					if ( $sitemap->loc ) {
-						$urls = array_merge(
-							$urls,
-							$this->parse_sitemap( (string) $sitemap->loc, $origin_host, $depth + 1 )
-						);
-					}
-				}
-			} elseif ( $xml->getName() === 'urlset' ) {
-				$locs = array();
-
-				foreach ( $xml->url as $w3tc_url ) {
-					if ( $w3tc_url->loc ) {
-						$priority                        = isset( $w3tc_url->priority ) ? (float) $w3tc_url->priority : 0.5;
-						$locs[ (string) $w3tc_url->loc ] = $priority;
-					}
-				}
-
-				arsort( $locs );
-
-				$urls = array_merge( $urls, array_keys( $locs ) );
-			} elseif ( $xml->getName() === 'rss' ) {
-				foreach ( $xml->channel->item as $w3tc_item ) {
-					if ( $w3tc_item->link ) {
-						$urls[] = (string) $w3tc_item->link;
-					}
-				}
-			}
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return $urls;
 		}
 
+		/**
+		 * Parse the fetched sitemap XML with XXE protections. The body is
+		 * fetched from an admin-configured (and origin-host-constrained)
+		 * sitemap URL, so a hostile or compromised endpoint must not be
+		 * able to use external entities to read local files or pivot to
+		 * internal services. Util_Environment::safe_simplexml_load_string()
+		 * also handles the libxml error-suppression dance.
+		 */
+		$xml = Util_Environment::safe_simplexml_load_string( $response['body'] );
+
+		if ( false === $xml ) {
+			return $urls;
+		}
+
+		if ( $xml->getName() === 'sitemapindex' ) {
+			foreach ( $xml->sitemap as $sitemap ) {
+				if ( $sitemap->loc ) {
+					$child_success = false;
+					$child_urls    = $this->parse_sitemap(
+						(string) $sitemap->loc,
+						$origin_host,
+						$depth + 1,
+						$child_success
+					);
+
+					if ( ! $child_success ) {
+						return array();
+					}
+
+					$urls = array_merge( $urls, $child_urls );
+				} else {
+					return array();
+				}
+			}
+		} elseif ( $xml->getName() === 'urlset' ) {
+			$locs = array();
+
+			foreach ( $xml->url as $w3tc_url ) {
+				if ( $w3tc_url->loc ) {
+					$priority                        = isset( $w3tc_url->priority ) ? (float) $w3tc_url->priority : 0.5;
+					$locs[ (string) $w3tc_url->loc ] = $priority;
+				}
+			}
+
+			arsort( $locs );
+
+			$urls = array_keys( $locs );
+		} elseif ( $xml->getName() === 'rss' ) {
+			foreach ( $xml->channel->item as $w3tc_item ) {
+				if ( $w3tc_item->link ) {
+					$urls[] = (string) $w3tc_item->link;
+				}
+			}
+		} else {
+			return $urls;
+		}
+
+		$success = true;
 		return $urls;
 	}
 

@@ -133,18 +133,41 @@ class PgCache_Plugin {
 	 * @return void
 	 */
 	public function prime() {
-		$one_pass = $this->_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+		$one_pass   = $this->_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+		$generation = PgCache_Plugin_Admin::prime_generation();
 
-		if ( $one_pass && get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) ) {
+		if (
+			$one_pass &&
+			get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) === $generation
+		) {
 			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
 			return;
 		}
 
-		$completed = $this->get_admin()->prime();
+		$lock = PgCache_Plugin_Admin::acquire_prime_lock();
+		if ( false === $lock ) {
+			return;
+		}
 
-		if ( $one_pass && $completed ) {
-			update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, true, false );
-			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+		try {
+			$result = $this->get_admin()->prime( null, null, null, true, $lock['generation'] );
+
+			if (
+				$one_pass &&
+				! empty( $result['success'] ) &&
+				! empty( $result['processed'] ) &&
+				! empty( $result['complete'] ) &&
+				empty( $result['stale'] ) &&
+				PgCache_Plugin_Admin::prime_generation() === $lock['generation']
+			) {
+				update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, $lock['generation'], false );
+
+				if ( PgCache_Plugin_Admin::prime_generation() === $lock['generation'] ) {
+					wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+				}
+			}
+		} finally {
+			PgCache_Plugin_Admin::release_prime_lock( $lock['token'] );
 		}
 	}
 

@@ -138,11 +138,21 @@ class PgCache_Environment {
 			);
 		}
 
-		if ( ! $prime_enabled || $restart_prime ) {
-			$this->reset_prime();
+		if ( 'activate' === $event && $prime_enabled ) {
+			$restart_prime = true;
 		}
 
-		if ( $prime_enabled && ! ( $one_pass && get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) ) ) {
+		if ( ! $prime_enabled || $restart_prime ) {
+			PgCache_Plugin_Admin::reset_prime();
+		}
+
+		$prime_completed = (
+			$one_pass &&
+			PgCache_Plugin_Admin::prime_generation() ===
+				get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false )
+		);
+
+		if ( $prime_enabled && ! $prime_completed ) {
 			$new_interval = $w3tc_config->get_integer( 'pgcache.prime.interval' );
 			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
 
@@ -166,18 +176,6 @@ class PgCache_Environment {
 				throw $exs;
 			}
 		}
-	}
-
-	/**
-	 * Resets progress for the next page cache preload pass.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	private function reset_prime() {
-		update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 0, false );
-		delete_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION );
 	}
 
 	/**
@@ -222,6 +220,7 @@ class PgCache_Environment {
 		$this->unschedule_gc();
 		$this->unschedule_prime();
 		$this->unschedule_purge_wpcron();
+		PgCache_Plugin_Admin::reset_prime();
 
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
