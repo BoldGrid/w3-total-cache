@@ -102,6 +102,9 @@ class Util_Http {
 			return false;
 		}
 
+		$public_only = ! empty( $args['w3tc_public_only'] );
+		unset( $args['w3tc_public_only'] );
+
 		/**
 		 * Follow Location responses manually so each hop is evaluated
 		 * with {@see Util_Url::is_allowed_outbound_url()} before the next
@@ -109,7 +112,10 @@ class Util_Http {
 		 */
 		$max_redirects = 5;
 		for ( $hop = 0; $hop <= $max_redirects; $hop++ ) {
-			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+			$allowed = $public_only ?
+				Util_Url::is_public_host( $w3tc_url ) :
+				Util_Url::is_allowed_outbound_url( $w3tc_url );
+			if ( ! $allowed ) {
 				return false;
 			}
 

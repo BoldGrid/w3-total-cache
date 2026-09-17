@@ -858,11 +858,24 @@ class Minify_MinifiedFileRequestHandler {
 	 */
 	public function _precache_file( $w3tc_url, $type ) {
 		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
-		if ( '' === $w3tc_url || ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+		if ( ! in_array( $type, array( 'css', 'js' ), true ) || '' === $w3tc_url ) {
 			return false;
 		}
 
-		$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
+		if ( 'js' === $type ) {
+			if ( 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) || ! Util_Url::is_public_host( $w3tc_url ) ) {
+				return false;
+			}
+
+			$lifetime = max( HOUR_IN_SECONDS, min( WEEK_IN_SECONDS, $this->_config->get_integer( 'minify.lifetime' ) ) );
+		} else {
+			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+				return false;
+			}
+
+			$lifetime = $this->_config->get_integer( 'minify.lifetime' );
+		}
+
 		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 
 		if ( ! file_exists( $cache_path ) || @filemtime( $cache_path ) < ( time() - $lifetime ) ) {
@@ -875,7 +888,8 @@ class Minify_MinifiedFileRequestHandler {
 				$w3tc_url,
 				$cache_path,
 				array(
-					'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
+					'user-agent'       => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
+					'w3tc_public_only' => 'js' === $type,
 				)
 			);
 		}

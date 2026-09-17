@@ -10,6 +10,7 @@
 declare( strict_types = 1 );
 
 use W3TC\Minify_MinifiedFileRequestHandler;
+use W3TC\Minify_AutoJs;
 use W3TC\Util_Http;
 
 /**
@@ -21,6 +22,12 @@ use W3TC\Util_Http;
  * @since 2.10.6
  */
 class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
+	/**
+	 * Cache files created by a test.
+	 *
+	 * @var array
+	 */
+	private $cache_files = array();
 
 	/**
 	 * Cleanup HTTP mocks between tests.
@@ -29,6 +36,9 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		\remove_all_filters( 'pre_http_request' );
+		foreach ( $this->cache_files as $cache_file ) {
+			@\unlink( $cache_file );
+		}
 		parent::tearDown();
 	}
 
@@ -106,6 +116,205 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		$this->assertSame( $tmp_body, \file_get_contents( $result->filepath ) );
 
 		@\unlink( $result->filepath );
+	}
+
+	/**
+	 * HTTPS JavaScript from a public destination may be cached.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_precache_file_allows_https_public_javascript() {
+		$url  = 'https://8.8.8.8/assets/app.js';
+		$body = 'window.w3tcExternal = true;';
+		\add_filter(
+			'pre_http_request',
+			static function ( $preempt, $args, $request_url ) use ( $url, $body ) {
+				unset( $preempt, $args );
+				if ( $request_url !== $url ) {
+					return new \WP_Error( 'unexpected_url', $request_url );
+				}
+
+				return array(
+					'headers'  => array( 'content-type' => 'application/javascript' ),
+					'body'     => $body,
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = $this->handler_with_lifetime( DAY_IN_SECONDS )->_precache_file( $url, 'js' );
+
+		$this->assertNotFalse( $result );
+		$this->cache_files[] = $result->filepath;
+		$this->assertSame( 'js', \pathinfo( $result->filepath, PATHINFO_EXTENSION ) );
+		$this->assertSame( $body, \file_get_contents( $result->filepath ) );
+	}
+
+	/**
+	 * JavaScript caching refuses non-HTTPS, non-public, and non-asset types.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_precache_file_rejects_ineligible_javascript_requests() {
+		$http_calls = 0;
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$handler = $this->handler_with_lifetime( DAY_IN_SECONDS );
+
+		$this->assertFalse( $handler->_precache_file( 'http://8.8.8.8/app.js', 'js' ) );
+		$this->assertFalse( $handler->_precache_file( 'https://127.0.0.1/app.js', 'js' ) );
+		$this->assertFalse( $handler->_precache_file( 'https://8.8.8.8/app.js', 'php' ) );
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * JavaScript redirects remain limited to public destinations.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_precache_file_rejects_non_public_javascript_redirect() {
+		$url        = 'https://8.8.8.8/assets/redirect.js';
+		$http_calls = 0;
+		\add_filter(
+			'pre_http_request',
+			static function ( $preempt, $args, $request_url ) use ( $url, &$http_calls ) {
+				unset( $preempt, $args );
+				++$http_calls;
+				if ( $request_url !== $url ) {
+					return new \WP_Error( 'unexpected_url', $request_url );
+				}
+
+				return array(
+					'headers'  => array( 'location' => 'https://127.0.0.1/internal.js' ),
+					'body'     => '',
+					'response' => array(
+						'code'    => 302,
+						'message' => 'Found',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = $this->handler_with_lifetime( DAY_IN_SECONDS )->_precache_file( $url, 'js' );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 1, $http_calls );
+	}
+
+	/**
+	 * JavaScript refreshes no less often than the maximum bounded interval.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_precache_file_bounds_javascript_refresh_interval() {
+		$url        = 'https://8.8.4.4/assets/refresh.js';
+		$http_calls = 0;
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return array(
+					'headers'  => array( 'content-type' => 'application/javascript' ),
+					'body'     => 'window.refresh=' . $http_calls . ';',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$handler = $this->handler_with_lifetime( PHP_INT_MAX );
+		$first   = $handler->_precache_file( $url, 'js' );
+		$this->assertNotFalse( $first );
+		$this->cache_files[] = $first->filepath;
+
+		\touch( $first->filepath, \time() - WEEK_IN_SECONDS - 10 );
+		$second = $handler->_precache_file( $url, 'js' );
+
+		$this->assertNotFalse( $second );
+		$this->assertSame( 2, $http_calls );
+		$this->assertSame( 'window.refresh=2;', \file_get_contents( $second->filepath ) );
+	}
+
+	/**
+	 * A failed refresh continues to use the last complete cached script.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_precache_file_uses_stale_javascript_when_refresh_fails() {
+		$url        = 'https://1.1.1.1/assets/stale.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		\wp_mkdir_p( \dirname( $cache_file ) );
+		\file_put_contents( $cache_file, 'window.stale=true;' );
+		\touch( $cache_file, \time() - HOUR_IN_SECONDS - 10 );
+
+		\add_filter(
+			'pre_http_request',
+			static function () {
+				return new \WP_Error( 'download_failed', 'Unavailable' );
+			},
+			10,
+			3
+		);
+
+		$result = $this->handler_with_lifetime( 0 )->_precache_file( $url, 'js' );
+
+		$this->assertNotFalse( $result );
+		$this->assertSame( 'window.stale=true;', \file_get_contents( $result->filepath ) );
+	}
+
+	/**
+	 * Auto Minify leaves the original script tag when initial caching fails.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_auto_js_preserves_original_url_when_precache_fails() {
+		$url    = 'https://8.8.8.8/assets/unavailable.js';
+		$buffer = '<html><head><script src="' . $url . '"></script></head><body></body></html>';
+		$config = new class() {
+			public function get_boolean( $key ) {
+				return false;
+			}
+
+			public function get_array( $key ) {
+				return array();
+			}
+
+			public function get_string( $key ) {
+				return 'blocking';
+			}
+		};
+		$helpers = new class() {
+			public function is_file_for_minification( $url, $file ) {
+				return 'url';
+			}
+
+			public function precache_external_script( $url ) {
+				return false;
+			}
+		};
+
+		$minifier = new Minify_AutoJs( $config, $buffer, $helpers );
+
+		$this->assertSame( $buffer, $minifier->execute() );
 	}
 
 	/**
@@ -216,5 +425,56 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		$handler = new Minify_MinifiedFileRequestHandler();
 		$this->assertFalse( $handler->_generate_id( array( $source ), 'css' ) );
 		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * Creates a handler with an isolated lifetime configuration.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int $lifetime Configured cache lifetime.
+	 *
+	 * @return Minify_MinifiedFileRequestHandler
+	 */
+	private function handler_with_lifetime( $lifetime ) {
+		$handler  = new Minify_MinifiedFileRequestHandler();
+		$config   = new class( $lifetime ) {
+			private $lifetime;
+
+			public function __construct( $lifetime ) {
+				$this->lifetime = $lifetime;
+			}
+
+			public function get_integer( $key ) {
+				return $this->lifetime;
+			}
+		};
+		$property = new \ReflectionProperty( Minify_MinifiedFileRequestHandler::class, '_config' );
+		$property->setAccessible( true );
+		$property->setValue( $handler, $config );
+
+		return $handler;
+	}
+
+	/**
+	 * Returns and tracks the cache path for a remote asset.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $url  Asset URL.
+	 * @param string $type Asset type.
+	 *
+	 * @return string
+	 */
+	private function cache_path( $url, $type ) {
+		$cache_file         = sprintf(
+			'%s/minify_%s.%s',
+			\W3TC\Util_Environment::cache_blog_dir( 'minify' ),
+			\md5( $url ),
+			$type
+		);
+		$this->cache_files[] = $cache_file;
+
+		return $cache_file;
 	}
 }
