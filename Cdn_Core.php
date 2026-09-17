@@ -354,17 +354,35 @@ class Cdn_Core {
 	public function normalize_attachment_file( $w3tc_file ) {
 		$upload_info = Util_Http::upload_info();
 
-		if ( ! $upload_info || ! is_string( $w3tc_file ) || '' === $w3tc_file || false !== strpos( $w3tc_file, "\0" ) ) {
+		if ( ! $upload_info ) {
 			return '';
 		}
 
-		$basedir   = Util_Environment::normalize_path( $upload_info['basedir'] );
+		return $this->normalize_attachment_file_under_basedir( $upload_info['basedir'], $w3tc_file );
+	}
+
+	/**
+	 * Normalize an attachment path against a specific uploads basedir.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $basedir   Upload basedir.
+	 * @param string $w3tc_file Candidate attachment path.
+	 *
+	 * @return string Relative path under basedir, or empty string when rejected.
+	 */
+	private function normalize_attachment_file_under_basedir( $basedir, $w3tc_file ) {
+		if ( ! is_string( $basedir ) || '' === $basedir || ! is_string( $w3tc_file ) || '' === $w3tc_file || false !== strpos( $w3tc_file, "\0" ) ) {
+			return '';
+		}
+
+		$basedir   = Util_Environment::normalize_path( $basedir );
 		$w3tc_file = Util_Environment::normalize_path( $w3tc_file );
 
 		if ( preg_match( '~^(?:/|[a-zA-Z]:/)~', $w3tc_file ) ) {
 			$basedir_prefix = $basedir . '/';
 
-			if ( 0 !== strpos( $w3tc_file, $basedir_prefix ) ) {
+			if ( ! $this->absolute_path_has_prefix( $w3tc_file, $basedir_prefix ) ) {
 				return '';
 			}
 
@@ -376,6 +394,28 @@ class Cdn_Core {
 		}
 
 		return $w3tc_file;
+	}
+
+	/**
+	 * Whether an absolute path is contained by a basedir prefix.
+	 *
+	 * Drive-letter case is ignored for Windows-style paths; the remainder
+	 * of the path comparison stays case-sensitive.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path   Normalized absolute path.
+	 * @param string $prefix Normalized basedir prefix ending in `/`.
+	 *
+	 * @return bool
+	 */
+	private function absolute_path_has_prefix( $path, $prefix ) {
+		if ( preg_match( '~^[a-zA-Z]:/~', $path ) && preg_match( '~^[a-zA-Z]:/~', $prefix ) ) {
+			$path   = \strtoupper( $path[0] ) . \substr( $path, 1 );
+			$prefix = \strtoupper( $prefix[0] ) . \substr( $prefix, 1 );
+		}
+
+		return 0 === \strpos( $path, $prefix );
 	}
 
 	/**

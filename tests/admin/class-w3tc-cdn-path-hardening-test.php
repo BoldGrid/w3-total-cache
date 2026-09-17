@@ -103,6 +103,11 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 		$this->assert_attachment_upload_path( $core, 'photo.jpg' );
 		$this->assert_attachment_upload_path( $core, '2026/09/photo.jpg' );
 		$this->assert_attachment_upload_path( $core, 'prophoto/galleries/album/photo.jpg' );
+		$this->assert_attachment_upload_path(
+			$core,
+			'prophoto\\galleries\\album\\photo.jpg',
+			'prophoto/galleries/album/photo.jpg'
+		);
 	}
 
 	/**
@@ -137,10 +142,11 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 			$this->markTestSkipped( 'Upload directory information is unavailable.' );
 		}
 
-		$core = new Cdn_Core();
+		$core  = new Cdn_Core();
 		$paths = array(
 			'../outside.jpg',
 			'prophoto/../../outside.jpg',
+			'prophoto\\..\\..\\outside.jpg',
 			\dirname( $upload_info['basedir'] ) . '/outside.jpg',
 			$upload_info['basedir'] . '-outside/photo.jpg',
 		);
@@ -149,6 +155,71 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 			$this->assertSame( '', $core->normalize_attachment_file( $path ), $path );
 			$this->assertSame( array(), $core->get_files_for_upload( $path ), $path );
 		}
+	}
+
+	/**
+	 * Nested thumbnail metadata keeps the custom parent directory.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_metadata_files_preserve_nested_thumbnail_paths() {
+		$core           = new Cdn_Core();
+		$attached_file  = 'prophoto/galleries/album/photo.jpg';
+		$thumbnail_file = 'photo-150x150.jpg';
+		$expected_path  = 'prophoto/galleries/album/photo-150x150.jpg';
+		$sizes          = array(
+			'thumbnail' => array(
+				'file' => $thumbnail_file,
+			),
+		);
+
+		$size_files = $core->_get_sizes_files( $attached_file, $sizes );
+		$this->assert_attachment_file_descriptor( $core, $size_files, $expected_path );
+
+		$metadata_files = $core->get_metadata_files(
+			array(
+				'file'  => $attached_file,
+				'sizes' => $sizes,
+			)
+		);
+		$this->assert_attachment_file_descriptor( $core, $metadata_files, $expected_path );
+	}
+
+	/**
+	 * Windows drive-letter case does not drop a contained nested path.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_attachment_paths_accept_windows_drive_letter_case() {
+		$core     = new Cdn_Core();
+		$relative = 'prophoto/galleries/album/photo.jpg';
+		$method   = new \ReflectionMethod( Cdn_Core::class, 'normalize_attachment_file_under_basedir' );
+		$method->setAccessible( true );
+
+		$this->assertSame(
+			$relative,
+			$method->invoke(
+				$core,
+				'C:/wordpress/wp-content/uploads',
+				'c:/wordpress/wp-content/uploads/' . $relative
+			)
+		);
+		$this->assertSame(
+			'',
+			$method->invoke(
+				$core,
+				'C:/wordpress/wp-content/uploads',
+				'C:/wordpress/wp-content/uploads-outside/' . $relative
+			)
+		);
+		$this->assertSame(
+			'',
+			$method->invoke(
+				$core,
+				'C:/wordpress/wp-content/uploads',
+				'C:/wordpress/wp-content/Uploads/' . $relative
+			)
+		);
 	}
 
 	/**
@@ -161,23 +232,60 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	 * @param string   $expected_path Expected relative path.
 	 */
 	private function assert_attachment_upload_path( $core, $path, $expected_path = null ) {
-		$upload_info = Util_Http::upload_info();
-		if ( ! $upload_info ) {
-			$this->markTestSkipped( 'Upload directory information is unavailable.' );
-		}
-
 		if ( null === $expected_path ) {
 			$expected_path = $path;
 		}
 
 		$this->assertSame( $expected_path, $core->normalize_attachment_file( $path ) );
+		$this->assert_attachment_file_descriptor(
+			$core,
+			$core->get_files_for_upload( $path ),
+			$expected_path
+		);
+	}
 
-		$files = $core->get_files_for_upload( $path );
+	/**
+	 * Assert upload descriptors keep nested local and remote paths.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Cdn_Core $core          CDN core instance.
+	 * @param array    $files         File descriptors.
+	 * @param string   $expected_path Expected relative path under uploads.
+	 */
+	private function assert_attachment_file_descriptor( $core, $files, $expected_path ) {
+		$upload_info = Util_Http::upload_info();
+		if ( ! $upload_info ) {
+			$this->markTestSkipped( 'Upload directory information is unavailable.' );
+		}
+
 		$this->assertCount( 1, $files );
 		$this->assertSame(
 			$upload_info['basedir'] . '/' . $expected_path,
 			$files[0]['local_path']
 		);
+		$this->assertSame(
+			$this->expected_upload_remote_path( $core, $expected_path ),
+			$files[0]['remote_path']
+		);
+		$this->assertStringEndsWith( $expected_path, $files[0]['remote_path'] );
+	}
+
+	/**
+	 * Expected CDN remote path for an uploads-relative file.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Cdn_Core $core          CDN core instance.
+	 * @param string   $expected_path Expected relative path under uploads.
+	 *
+	 * @return string
+	 */
+	private function expected_upload_remote_path( $core, $expected_path ) {
+		$upload_info = Util_Http::upload_info();
+		$parsed      = \wp_parse_url( \rtrim( $upload_info['baseurl'], '/' ) . '/' . $expected_path );
+
+		return \ltrim( $core->uri_to_cdn_uri( $parsed['path'] ), '/' );
 	}
 
 	/**
