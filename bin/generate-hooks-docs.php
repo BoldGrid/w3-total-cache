@@ -2,17 +2,27 @@
 /**
  * Generates the public W3TC hooks reference from production PHP sources.
  *
+ * @package W3TC
  * @since {WP_VERSION}
  */
 
 declare(strict_types=1);
 
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 $root        = \dirname( __DIR__ );
 $output_file = $root . '/docs/hooks.md';
 $check       = \in_array( '--check', $argv, true );
+$self_test   = \in_array( '--self-test', $argv, true );
 $hooks       = array();
 $excluded    = array( '.git', 'node_modules', 'qa', 'tests', 'tmp', 'vendor' );
-$iterator    = new RecursiveIteratorIterator(
+
+if ( $self_test ) {
+	run_self_test();
+	exit( 0 );
+}
+
+$iterator = new RecursiveIteratorIterator(
 	new RecursiveCallbackFilterIterator(
 		new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
 		static function ( SplFileInfo $file ) use ( $excluded ): bool {
@@ -26,107 +36,45 @@ foreach ( $iterator as $file ) {
 		continue;
 	}
 
-	$path     = $file->getPathname();
-	$relative = \str_replace( '\\', '/', \substr( $path, \strlen( $root ) + 1 ) );
-	$source   = \file_get_contents( $path );
+	$source_path = $file->getPathname();
+	$relative    = \str_replace( '\\', '/', \substr( $source_path, \strlen( $root ) + 1 ) );
+	$source      = \file_get_contents( $source_path );
 
 	if ( false === $source ) {
 		\fwrite( STDERR, "Unable to read {$relative}.\n" );
 		exit( 1 );
 	}
 
-	$tokens = \token_get_all( $source );
-	$line   = 1;
-	$count  = \count( $tokens );
-
-	for ( $index = 0; $index < $count; ++$index ) {
-		$token      = $tokens[ $index ];
-		$token_text = \is_array( $token ) ? $token[1] : $token;
-		$token_line = \is_array( $token ) ? $token[2] : $line;
-		$line      += \substr_count( $token_text, "\n" );
-
-		if ( ! \is_array( $token ) || T_STRING !== $token[0] ) {
-			continue;
-		}
-
-		$function = \strtolower( $token[1] );
-		if ( ! \in_array( $function, array( 'apply_filters', 'apply_filters_ref_array', 'do_action', 'do_action_ref_array', 'w3tc_apply_filters', 'w3tc_do_action' ), true ) ) {
-			continue;
-		}
-
-		$open = $index + 1;
-		while ( $open < $count && \is_array( $tokens[ $open ] ) && \in_array( $tokens[ $open ][0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
-			++$open;
-		}
-
-		if ( $open >= $count || '(' !== $tokens[ $open ] ) {
-			continue;
-		}
-
-		$arguments = array();
-		$current   = '';
-		$depth     = 1;
-
-		for ( $cursor = $open + 1; $cursor < $count; ++$cursor ) {
-			$part      = $tokens[ $cursor ];
-			$part_text = \is_array( $part ) ? $part[1] : $part;
-
-			if ( '(' === $part_text || '[' === $part_text || '{' === $part_text ) {
-				++$depth;
-			} elseif ( ')' === $part_text || ']' === $part_text || '}' === $part_text ) {
-				--$depth;
-				if ( 0 === $depth ) {
-					$arguments[] = \trim( $current );
-					break;
-				}
-			}
-
-			if ( 1 === $depth && ',' === $part_text ) {
-				$arguments[] = \trim( $current );
-				$current     = '';
-				continue;
-			}
-
-			$current .= $part_text;
-		}
-
-		if ( empty( $arguments[0] ) ) {
-			continue;
-		}
-
-		$hook_name = normalize_hook_expression( $arguments[0] );
-		$is_early_hook = 0 === \strpos( $function, 'w3tc_' );
-		if ( null === $hook_name || ( ! $is_early_hook && ! \preg_match( '/^w3(?:tc)?[-_]/i', $hook_name ) ) ) {
-			continue;
-		}
-
-		$type       = false !== \strpos( $function, 'apply_filters' ) ? 'Filter' : 'Action';
-		$register   = $is_early_hook ? 'w3tc_add_action()' : ( 'Filter' === $type ? 'add_filter()' : 'add_action()' );
-		$parameters = \array_slice( $arguments, 1 );
-		$signature  = empty( $parameters ) ? 'None' : \implode( ', ', \array_map( 'normalize_expression', $parameters ) );
-		$key        = $type . "\0" . $register . "\0" . $hook_name;
+	foreach ( extract_hook_calls( $source, $relative ) as $call ) {
+		$key = $call['type'] . "\0" . $call['register'] . "\0" . $call['name'];
 
 		if ( ! isset( $hooks[ $key ] ) ) {
 			$hooks[ $key ] = array(
-				'name'       => $hook_name,
-				'type'       => $type,
-				'register'   => $register,
+				'name'       => $call['name'],
+				'type'       => $call['type'],
+				'register'   => $call['register'],
+				'arities'    => array(),
 				'signatures' => array(),
 				'sources'    => array(),
 			);
 		}
 
-		$hooks[ $key ]['signatures'][ $signature ] = true;
-		$hooks[ $key ]['sources'][ $relative . '#L' . $token_line ] = true;
+		$hooks[ $key ]['arities'][ $call['arity'] ]                          = true;
+		$hooks[ $key ]['signatures'][ $call['signature'] ][ $call['arity'] ] = true;
+		$hooks[ $key ]['sources'][ $call['source'] ]                         = true;
 	}
 }
 
 \uasort(
 	$hooks,
 	static function ( array $left, array $right ): int {
-		return \strnatcasecmp( $left['name'], $right['name'] )
-			?: \strcmp( $left['type'], $right['type'] )
-			?: \strcmp( $left['register'], $right['register'] );
+		$name_comparison = \strnatcasecmp( $left['name'], $right['name'] );
+		if ( 0 !== $name_comparison ) {
+			return $name_comparison;
+		}
+
+		$type_comparison = \strcmp( $left['type'], $right['type'] );
+		return 0 !== $type_comparison ? $type_comparison : \strcmp( $left['register'], $right['register'] );
 	}
 );
 
@@ -139,7 +87,7 @@ if ( $check ) {
 		exit( 1 );
 	}
 
-	echo "docs/hooks.md is up to date (" . \count( $hooks ) . " hooks).\n";
+	echo 'docs/hooks.md is up to date (' . \count( $hooks ) . " hooks).\n";
 	exit( 0 );
 }
 
@@ -153,7 +101,230 @@ if ( false === \file_put_contents( $output_file, $markdown ) ) {
 	exit( 1 );
 }
 
-echo "Generated docs/hooks.md (" . \count( $hooks ) . " hooks).\n";
+echo 'Generated docs/hooks.md (' . \count( $hooks ) . " hooks).\n";
+
+/**
+ * Exercises token compatibility, declarations, placeholders, and arities.
+ *
+ * @since {WP_VERSION}
+ *
+ * @return void
+ * @throws RuntimeException When a fixture assertion fails.
+ */
+function run_self_test(): void {
+	$fixture_path = \dirname( __DIR__ ) . '/tests/fixtures/hooks-documentation.php.fixture';
+	$fixture      = \file_get_contents( $fixture_path );
+	if ( false === $fixture ) {
+		throw new RuntimeException( 'Unable to read hooks documentation fixture.' );
+	}
+
+	$calls = extract_hook_calls( $fixture, 'fixture.php' );
+	if ( 3 !== \count( $calls ) ) {
+		throw new RuntimeException( 'Expected three fixture hook calls; function declarations must be ignored.' );
+	}
+
+	$filter_arities = array();
+	$dynamic_found  = false;
+	foreach ( $calls as $call ) {
+		if ( 'w3tc_fixture_hook' === $call['name'] ) {
+			$filter_arities[] = $call['arity'];
+		}
+		if ( 'w3tc_dynamic_{extension}' === $call['name'] ) {
+			$dynamic_found = true;
+		}
+		if ( false !== \strpos( $call['name'], 'w3tc_hook' ) ) {
+			throw new RuntimeException( 'Dispatcher declaration parameter was emitted as a hook.' );
+		}
+	}
+
+	\sort( $filter_arities, SORT_NUMERIC );
+	if ( array( 1, 3 ) !== $filter_arities ) {
+		throw new RuntimeException( 'Qualified hook calls or their arities were not extracted.' );
+	}
+	if ( ! $dynamic_found ) {
+		throw new RuntimeException( 'Dynamic placeholder was not canonicalized.' );
+	}
+
+	$table = render_table(
+		'Fixture filters',
+		array(
+			array(
+				'name'       => 'w3tc_fixture_hook',
+				'register'   => 'add_filter()',
+				'arities'    => array(
+					1 => true,
+					3 => true,
+				),
+				'signatures' => array(
+					'$value'                   => array( 1 => true ),
+					'$value, $context, $extra' => array( 3 => true ),
+				),
+				'sources'    => array( 'fixture.php#L1' => true ),
+			),
+		)
+	);
+	if ( false === \strpos( $table, '| 1, 3 |' ) ) {
+		throw new RuntimeException( 'Multiple callback arities were not rendered.' );
+	}
+
+	echo "Hook documentation self-test passed.\n";
+}
+
+/**
+ * Extracts supported hook calls from one PHP source file.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param string $source   PHP source.
+ * @param string $relative Source path used in links.
+ * @return array<int,array<string,mixed>>
+ */
+function extract_hook_calls( string $source, string $relative ): array {
+	$calls  = array();
+	$tokens = \token_get_all( $source );
+	$line   = 1;
+	$count  = \count( $tokens );
+
+	for ( $index = 0; $index < $count; ++$index ) {
+		$token      = $tokens[ $index ];
+		$token_text = \is_array( $token ) ? $token[1] : $token;
+		$token_line = \is_array( $token ) ? $token[2] : $line;
+		$line      += \substr_count( $token_text, "\n" );
+
+		if ( ! is_hook_function_token( $token ) || is_function_declaration( $tokens, $index ) ) {
+			continue;
+		}
+
+		$function = \strtolower( \ltrim( $token[1], '\\' ) );
+		if ( false !== \strrpos( $function, '\\' ) ) {
+			$function = \substr( $function, \strrpos( $function, '\\' ) + 1 );
+		}
+		if ( ! \in_array( $function, array( 'apply_filters', 'apply_filters_ref_array', 'do_action', 'do_action_ref_array', 'w3tc_apply_filters', 'w3tc_do_action' ), true ) ) {
+			continue;
+		}
+
+		$open = $index + 1;
+		while ( $open < $count && \is_array( $tokens[ $open ] ) && \in_array( $tokens[ $open ][0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
+			++$open;
+		}
+		if ( $open >= $count || '(' !== $tokens[ $open ] ) {
+			continue;
+		}
+
+		$arguments = parse_call_arguments( $tokens, $open );
+		if ( empty( $arguments[0] ) ) {
+			continue;
+		}
+
+		$hook_name     = normalize_hook_expression( $arguments[0] );
+		$is_early_hook = 0 === \strpos( $function, 'w3tc_' );
+		if ( null === $hook_name || ( ! $is_early_hook && ! \preg_match( '/^w3(?:tc)?[-_]/i', $hook_name ) ) ) {
+			continue;
+		}
+
+		$type       = false !== \strpos( $function, 'apply_filters' ) ? 'Filter' : 'Action';
+		$register   = $is_early_hook ? 'w3tc_add_action()' : ( 'Filter' === $type ? 'add_filter()' : 'add_action()' );
+		$parameters = \array_slice( $arguments, 1 );
+		$calls[]    = array(
+			'name'      => $hook_name,
+			'type'      => $type,
+			'register'  => $register,
+			'arity'     => \count( $parameters ),
+			'signature' => empty( $parameters ) ? 'None' : \implode( ', ', \array_map( 'normalize_expression', $parameters ) ),
+			'source'    => $relative . '#L' . $token_line,
+		);
+	}
+
+	return $calls;
+}
+
+/**
+ * Reads top-level arguments from a tokenized function call.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param array<int,mixed> $tokens PHP tokens.
+ * @param int              $open   Opening parenthesis index.
+ * @return array<int,string>
+ */
+function parse_call_arguments( array $tokens, int $open ): array {
+	$arguments = array();
+	$current   = '';
+	$depth     = 1;
+	$count     = \count( $tokens );
+
+	for ( $cursor = $open + 1; $cursor < $count; ++$cursor ) {
+		$part      = $tokens[ $cursor ];
+		$part_text = \is_array( $part ) ? $part[1] : $part;
+
+		if ( '(' === $part_text || '[' === $part_text || '{' === $part_text ) {
+			++$depth;
+		} elseif ( ')' === $part_text || ']' === $part_text || '}' === $part_text ) {
+			--$depth;
+			if ( 0 === $depth ) {
+				$arguments[] = \trim( $current );
+				break;
+			}
+		}
+
+		if ( 1 === $depth && ',' === $part_text ) {
+			$arguments[] = \trim( $current );
+			$current     = '';
+			continue;
+		}
+
+		$current .= $part_text;
+	}
+
+	return $arguments;
+}
+
+/**
+ * Determines whether a token can name a hook dispatcher function.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param mixed $token PHP token.
+ * @return bool
+ */
+function is_hook_function_token( $token ): bool {
+	if ( ! \is_array( $token ) ) {
+		return false;
+	}
+
+	$name_tokens = array( T_STRING );
+	if ( \defined( 'T_NAME_FULLY_QUALIFIED' ) ) {
+		$name_tokens[] = \constant( 'T_NAME_FULLY_QUALIFIED' );
+		$name_tokens[] = \constant( 'T_NAME_QUALIFIED' );
+	}
+
+	return \in_array( $token[0], $name_tokens, true );
+}
+
+/**
+ * Detects a named function declaration rather than a function call.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param array<int,mixed> $tokens PHP tokens.
+ * @param int              $index  Candidate name index.
+ * @return bool
+ */
+function is_function_declaration( array $tokens, int $index ): bool {
+	for ( $cursor = $index - 1; $cursor >= 0; --$cursor ) {
+		$token = $tokens[ $cursor ];
+		if ( \is_array( $token ) && \in_array( $token[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
+			continue;
+		}
+		if ( '&' === $token || ( \is_array( $token ) && '&' === $token[1] ) ) {
+			continue;
+		}
+
+		return \is_array( $token ) && T_FUNCTION === $token[0];
+	}
+
+	return false;
+}
 
 /**
  * Converts a hook-name expression to a stable display pattern.
@@ -179,20 +350,44 @@ function normalize_hook_expression( string $expression ): ?string {
 			$value = \preg_replace_callback(
 				'/\{\$([^{}]+)\}/',
 				static function ( array $placeholder ): string {
-					return '{' . \preg_replace( '/[\s$]+/', '', $placeholder[1] ) . '}';
+					return '{' . normalize_placeholder( $placeholder[1] ) . '}';
 				},
 				$value
 			);
 			$value = \preg_replace( '/\$([A-Za-z_][A-Za-z0-9_]*)/', '{$1}', (string) $value );
 			$name .= \stripcslashes( (string) $value );
 		} elseif ( \preg_match( '/^\$([A-Za-z_][A-Za-z0-9_]*)(.*)$/s', $part, $matches ) ) {
-			$name .= '{' . $matches[1] . \preg_replace( '/\s+/', '', $matches[2] ) . '}';
+			$name .= '{' . normalize_placeholder( $matches[1] . $matches[2] ) . '}';
 		} else {
 			return null;
 		}
 	}
 
 	return $name;
+}
+
+/**
+ * Canonicalizes a dynamic hook placeholder.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param string $placeholder PHP variable or property expression.
+ * @return string
+ */
+function normalize_placeholder( string $placeholder ): string {
+	$placeholder = \preg_replace( '/[\s$\'\"]+/', '', $placeholder );
+	$placeholder = \preg_replace( '/^this->/', '', (string) $placeholder );
+	$placeholder = \preg_replace( '/^_/', '', (string) $placeholder );
+	$placeholder = \preg_replace( '/^w3tc_/', '', (string) $placeholder );
+	$placeholder = \preg_replace( '/\[([^\]]+)\]/', '_$1', (string) $placeholder );
+	$placeholder = \str_replace( '->', '_', (string) $placeholder );
+	$placeholder = \preg_replace( '/_+/', '_', (string) $placeholder );
+
+	$aliases = array(
+		'action_key'         => 'action',
+		'message_action_val' => 'action',
+	);
+	return $aliases[ $placeholder ] ?? (string) $placeholder;
 }
 
 /**
@@ -229,21 +424,24 @@ function generate_markdown( array $hooks ): string {
 	}
 
 	$markdown  = "# W3 Total Cache hooks\n\n";
-	$markdown .= "W3 Total Cache exposes the actions and filters below for integrations and customizations. ";
+	$markdown .= 'W3 Total Cache exposes the actions and filters below for integrations and customizations. ';
 	$markdown .= "Names containing `{...}` are dynamic patterns; substitute the value described by the placeholder at runtime.\n\n";
-	$markdown .= "This reference is generated from production PHP sources. Do not edit its tables manually. Run ";
+	$markdown .= 'This reference is generated from production PHP sources. Do not edit its tables manually. Run ';
 	$markdown .= "`php bin/generate-hooks-docs.php` to regenerate them, or `php bin/generate-hooks-docs.php --check` to verify they are current.\n\n";
 	$markdown .= "## Usage\n\n";
 	$markdown .= "Register callbacks with the function in the Register with column. Most hooks use WordPress's `add_action()` or `add_filter()`. ";
 	$markdown .= "Hooks dispatched before WordPress is available use W3TC's `w3tc_add_action()` for both actions and filters. ";
-	$markdown .= "Use the Parameters column to set the callback's accepted argument count. ";
+	$markdown .= 'For WordPress hooks, the Accepted arguments column is the integer to pass as the fourth argument to `add_action()` or `add_filter()`; multiple integers mean the hook is dispatched with different arities. ';
+	$markdown .= 'For early hooks registered with `w3tc_add_action()`, the value is informational because that function does not take an accepted-arguments setting. ';
 	$markdown .= "For filters, the first parameter is the value your callback must return.\n\n";
 	$markdown .= "```php\n";
 	$markdown .= "add_filter(\n";
 	$markdown .= "\t'w3tc_can_cache',\n";
-	$markdown .= "\tstatic function ( \$can_cache ) {\n";
+	$markdown .= "\tstatic function ( \$can_cache, \$content_grabber, \$buffer ) {\n";
 	$markdown .= "\t\treturn \$can_cache;\n";
-	$markdown .= "\t}\n";
+	$markdown .= "\t},\n";
+	$markdown .= "\t10,\n";
+	$markdown .= "\t3\n";
 	$markdown .= ");\n";
 	$markdown .= "```\n\n";
 	$markdown .= render_table( 'Actions', $actions );
@@ -257,21 +455,32 @@ function generate_markdown( array $hooks ): string {
  *
  * @since {WP_VERSION}
  *
- * @param string                              $heading Table heading.
- * @param array<int,array<string,mixed>>       $hooks   Hook records.
+ * @param string                         $heading Table heading.
+ * @param array<int,array<string,mixed>> $hooks   Hook records.
  * @return string
  */
 function render_table( string $heading, array $hooks ): string {
 	$markdown  = "## {$heading}\n\n";
-	$markdown .= "| Hook | Register with | Parameters | Defined in |\n";
-	$markdown .= "| --- | --- | --- | --- |\n";
+	$markdown .= "| Hook | Register with | Accepted arguments | Parameters | Defined in |\n";
+	$markdown .= "| --- | --- | ---: | --- | --- |\n";
 
 	foreach ( $hooks as $hook ) {
-		$signatures = \array_keys( $hook['signatures'] );
-		$sources    = \array_keys( $hook['sources'] );
-		\sort( $signatures, SORT_NATURAL | SORT_FLAG_CASE );
+		$arities = \array_keys( $hook['arities'] );
+		$sources = \array_keys( $hook['sources'] );
+		\sort( $arities, SORT_NUMERIC );
 		\sort( $sources, SORT_NATURAL | SORT_FLAG_CASE );
 
+		$signatures = array();
+		foreach ( $hook['signatures'] as $signature => $signature_arities ) {
+			$signature_arities = \array_keys( $signature_arities );
+			\sort( $signature_arities, SORT_NUMERIC );
+			$signatures[] = 1 < \count( $hook['signatures'] ) || 1 < \count( $arities )
+				? \implode( ', ', $signature_arities ) . ': ' . $signature
+				: $signature;
+		}
+		\sort( $signatures, SORT_NATURAL | SORT_FLAG_CASE );
+
+		$arity_text     = \implode( ', ', $arities );
 		$parameter_text = \implode( '<br>', \array_map( 'markdown_code', $signatures ) );
 		$source_text    = \implode(
 			'<br>',
@@ -284,7 +493,7 @@ function render_table( string $heading, array $hooks ): string {
 			)
 		);
 
-		$markdown .= '| ' . markdown_code( $hook['name'] ) . ' | ' . markdown_code( $hook['register'] ) . ' | ' . $parameter_text . ' | ' . $source_text . " |\n";
+		$markdown .= '| ' . markdown_code( $hook['name'] ) . ' | ' . markdown_code( $hook['register'] ) . ' | ' . $arity_text . ' | ' . $parameter_text . ' | ' . $source_text . " |\n";
 	}
 
 	return $markdown . "\n";

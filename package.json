@@ -13,7 +13,7 @@
         "install:wp-tests": "bash bin/install-wp-tests.sh",
         "security-checks": "bash bin/run-security-checks.sh",
         "hooks:generate": "php bin/generate-hooks-docs.php",
-        "hooks:check": "php bin/generate-hooks-docs.php --check",
+        "hooks:check": "php bin/generate-hooks-docs.php --self-test && php bin/generate-hooks-docs.php --check",
         "upgrade:deps": "composer update --with-all-dependencies && yarn upgrade",
         "update:since": "bash bin/update-since-versions.sh",
         "make:pot": "bash bin/make-pot.sh",
