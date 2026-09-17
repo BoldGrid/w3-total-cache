@@ -16,6 +16,24 @@ namespace W3TC;
  */
 class PgCache_Plugin_Admin {
 	/**
+	 * Option storing the next sitemap entry to preload.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PRIME_OFFSET_OPTION = 'w3tc_pgcache_prime_offset';
+
+	/**
+	 * Option recording completion of a one-pass preload.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PRIME_COMPLETED_OPTION = 'w3tc_pgcache_prime_completed';
+
+	/**
 	 * Config
 	 *
 	 * @var Config
@@ -137,11 +155,11 @@ class PgCache_Plugin_Admin {
 	 * @param int|null      $w3tc_limit        The limit for how many pages to prime, or null for the default limit.
 	 * @param callable|null $log_callback A callback function for logging progress, or null to disable logging.
 	 *
-	 * @return void
+	 * @return bool Whether the current call completed a sitemap pass.
 	 */
 	public function prime( $start = null, $w3tc_limit = null, $log_callback = null ) {
 		if ( is_null( $start ) ) {
-			$start = get_option( 'w3tc_pgcache_prime_offset' );
+			$start = get_option( self::PRIME_OFFSET_OPTION );
 		}
 
 		if ( $start < 0 ) {
@@ -177,7 +195,7 @@ class PgCache_Plugin_Admin {
 			$next_offset = 0;
 		}
 
-		update_option( 'w3tc_pgcache_prime_offset', $next_offset, false );
+		update_option( self::PRIME_OFFSET_OPTION, $next_offset, false );
 
 		/**
 		 * Make HTTP requests and prime cache.
@@ -190,6 +208,8 @@ class PgCache_Plugin_Admin {
 				$log_callback( 'Priming ' . $w3tc_url );
 			}
 		}
+
+		return 0 === $next_offset;
 	}
 
 	/**

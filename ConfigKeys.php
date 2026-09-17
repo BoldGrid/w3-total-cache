@@ -744,6 +744,10 @@ $w3tc_keys = array(
 		'type'    => 'integer',
 		'default' => 10,
 	),
+	'pgcache.prime.sitemap_one_pass'                       => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
 	'pgcache.prime.sitemap'                                => array(
 		'type'    => 'string',
 		'default' => '',

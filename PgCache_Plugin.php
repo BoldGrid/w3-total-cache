@@ -133,7 +133,19 @@ class PgCache_Plugin {
 	 * @return void
 	 */
 	public function prime() {
-		$this->get_admin()->prime();
+		$one_pass = $this->_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+
+		if ( $one_pass && get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) ) {
+			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+			return;
+		}
+
+		$completed = $this->get_admin()->prime();
+
+		if ( $one_pass && $completed ) {
+			update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, true, false );
+			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+		}
 	}
 
 	/**

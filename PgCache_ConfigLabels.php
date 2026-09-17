@@ -67,6 +67,7 @@ class PgCache_ConfigLabels {
 				'pgcache.prime.enabled'             => __( 'Automatically prime the page cache', 'w3-total-cache' ),
 				'pgcache.prime.interval'            => __( 'Update interval:', 'w3-total-cache' ),
 				'pgcache.prime.limit'               => __( 'Pages per interval:', 'w3-total-cache' ),
+				'pgcache.prime.sitemap_one_pass'    => __( 'Preload the sitemap once', 'w3-total-cache' ),
 				'pgcache.prime.sitemap'             => wp_kses(
 					sprintf(
 						// translators: 1: opening acronym tag for URL, 2: closing acronym tag.

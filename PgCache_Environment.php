@@ -121,11 +121,32 @@ class PgCache_Environment {
 		}
 
 		// Schedule prime event.
-		if ( $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' ) ) {
+		$prime_enabled = $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' );
+		$one_pass      = $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+		$restart_prime = false;
+
+		if ( null !== $old_config ) {
+			$old_prime_enabled = (
+				$old_config->get_boolean( 'pgcache.enabled' ) &&
+				$old_config->get_boolean( 'pgcache.prime.enabled' )
+			);
+			$restart_prime     = $prime_enabled && (
+				! $old_prime_enabled ||
+				$one_pass !== $old_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ) ||
+				$w3tc_config->get_string( 'pgcache.prime.sitemap' ) !==
+					$old_config->get_string( 'pgcache.prime.sitemap' )
+			);
+		}
+
+		if ( ! $prime_enabled || $restart_prime ) {
+			$this->reset_prime();
+		}
+
+		if ( $prime_enabled && ! ( $one_pass && get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) ) ) {
 			$new_interval = $w3tc_config->get_integer( 'pgcache.prime.interval' );
 			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
 
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
+			if ( $restart_prime || ( null !== $old_config && $new_interval !== $old_interval ) ) {
 				$this->unschedule_prime();
 			}
 
@@ -145,6 +166,18 @@ class PgCache_Environment {
 				throw $exs;
 			}
 		}
+	}
+
+	/**
+	 * Resets progress for the next page cache preload pass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function reset_prime() {
+		update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 0, false );
+		delete_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION );
 	}
 
 	/**
