@@ -325,6 +325,23 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verifies a 404 in the final continuous batch advances and wraps progress.
+	 */
+	public function test_continuous_mode_counts_last_batch_404_as_processed() {
+		$admin  = $this->last_batch_404_admin();
+		$plugin = $this->plugin_for_mode( false, $admin );
+
+		$this->schedule_prime();
+		$plugin->prime();
+		$this->assertSame( 2, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+
+		$plugin->prime();
+		$this->assertSame( 0, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+		$this->assertNotFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
+		$this->assertFalse( get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) );
+	}
+
+	/**
 	 * Verifies successful one-pass mode stops after completion.
 	 */
 	public function test_one_pass_mode_stops_after_completion() {
@@ -341,6 +358,24 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 
 		$plugin->prime();
 		$this->assertSame( 1, $callback->calls );
+	}
+
+	/**
+	 * Verifies a 404 in the final one-pass batch still completes the pass.
+	 */
+	public function test_one_pass_mode_counts_last_batch_404_as_processed() {
+		$admin      = $this->last_batch_404_admin();
+		$plugin     = $this->plugin_for_mode( true, $admin );
+		$generation = PgCache_Plugin_Admin::prime_generation();
+
+		$this->schedule_prime();
+		$plugin->prime();
+		$this->assertSame( 2, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+
+		$plugin->prime();
+		$this->assertSame( 0, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+		$this->assertSame( $generation, get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION ) );
+		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
 	}
 
 	/**
@@ -366,6 +401,36 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 0, $callback->calls );
 		$this->assertNotFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
+	}
+
+	/**
+	 * Verifies expired lock recovery preserves current pass progress.
+	 */
+	public function test_expired_lock_recovery_preserves_progress() {
+		$generation = PgCache_Plugin_Admin::prime_generation();
+		update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 4, false );
+		update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, $generation, false );
+		add_option(
+			PgCache_Plugin_Admin::PRIME_LOCK_OPTION,
+			array(
+				'token'      => 'expired-run',
+				'generation' => $generation,
+				'expires'    => time() - 1,
+			),
+			'',
+			false
+		);
+
+		$lock = PgCache_Plugin_Admin::acquire_prime_lock();
+
+		$this->assertIsArray( $lock );
+		$this->assertNotSame( 'expired-run', $lock['token'] );
+		$this->assertSame( $generation, $lock['generation'] );
+		$this->assertSame( $generation, PgCache_Plugin_Admin::prime_generation() );
+		$this->assertSame( 4, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+		$this->assertSame( $generation, get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION ) );
+
+		PgCache_Plugin_Admin::release_prime_lock( $lock['token'] );
 	}
 
 	/**
@@ -447,11 +512,16 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	 * Verifies environment repair does not recreate a completed event.
 	 */
 	public function test_completed_one_pass_is_not_rescheduled_by_repair_or_interval_change() {
+		$environment = new PgCache_Environment();
+		$config      = $this->environment_config( true, true );
+
+		$environment->fix_on_event( $config, 'admin_request' );
 		$generation = PgCache_Plugin_Admin::prime_generation();
 		update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, $generation, false );
+		wp_clear_scheduled_hook( 'w3_pgcache_prime' );
 
-		$environment = new PgCache_Environment();
-		$environment->fix_on_event( $this->environment_config( true, true ), 'admin_request' );
+		$environment->fix_on_event( $config, 'admin_request' );
+		$this->assertSame( $generation, PgCache_Plugin_Admin::prime_generation() );
 		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
 
 		$environment->fix_on_event(
@@ -461,6 +531,40 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		);
 		$this->assertSame( $generation, get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION ) );
 		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
+	}
+
+	/**
+	 * Verifies repair detects effective settings changes without old config.
+	 */
+	public function test_repair_signature_restarts_changed_effective_settings() {
+		$environment = new PgCache_Environment();
+		$cases       = array(
+			array( $this->environment_config( true, true, 'https://example.org/new.xml' ), true ),
+			array( $this->environment_config( true, false, 'https://example.org/old.xml' ), true ),
+			array( $this->environment_config( false, true, 'https://example.org/old.xml' ), false ),
+		);
+
+		foreach ( $cases as $case ) {
+			$this->delete_prime_options();
+			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+
+			$environment->fix_on_event(
+				$this->environment_config( true, true, 'https://example.org/old.xml' ),
+				'admin_request'
+			);
+
+			$generation = PgCache_Plugin_Admin::prime_generation();
+			update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 7, false );
+			update_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, $generation, false );
+			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+
+			$environment->fix_on_event( $case[0], 'admin_request' );
+
+			$this->assertNotSame( $generation, PgCache_Plugin_Admin::prime_generation() );
+			$this->assertSame( 0, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+			$this->assertFalse( get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false ) );
+			$this->assertSame( $case[1], false !== wp_next_scheduled( 'w3_pgcache_prime' ) );
+		}
 	}
 
 	/**
@@ -546,7 +650,21 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		switch_to_blog( $blog_id );
 		$this->assertSame( $second_generation, PgCache_Plugin_Admin::prime_generation() );
 		$this->assertSame( $second_generation, get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION ) );
+
+		$environment = new PgCache_Environment();
+		$environment->fix_on_event(
+			$this->environment_config( true, true, 'https://example.org/inherited-old.xml' ),
+			'admin_request'
+		);
+		$second_generation = PgCache_Plugin_Admin::prime_generation();
+		$environment->fix_on_event(
+			$this->environment_config( true, true, 'https://example.org/inherited-new.xml' ),
+			'admin_request'
+		);
+		$this->assertNotSame( $second_generation, PgCache_Plugin_Admin::prime_generation() );
 		restore_current_blog();
+
+		$this->assertSame( $first_generation, PgCache_Plugin_Admin::prime_generation() );
 	}
 
 	/**
@@ -649,6 +767,28 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Creates an admin whose final URL returns 404.
+	 *
+	 * @return W3TC_PgCache_Preload_Admin_Stub
+	 */
+	private function last_batch_404_admin() {
+		$admin       = $this->stub_admin();
+		$admin->urls = array(
+			'https://example.org/one',
+			'https://example.org/two',
+			'https://example.org/missing',
+		);
+
+		$this->mock_http(
+			array(
+				'https://example.org/missing' => $this->http_response( 404, '' ),
+			)
+		);
+
+		return $admin;
+	}
+
+	/**
 	 * Stubs HTTP responses by URL, with success as the default.
 	 *
 	 * @param array $responses Responses keyed by URL.
@@ -710,6 +850,7 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		delete_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION );
 		delete_option( PgCache_Plugin_Admin::PRIME_GENERATION_OPTION );
 		delete_option( PgCache_Plugin_Admin::PRIME_LOCK_OPTION );
+		delete_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION );
 	}
 
 	/**

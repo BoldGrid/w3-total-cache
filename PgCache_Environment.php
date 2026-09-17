@@ -124,6 +124,7 @@ class PgCache_Environment {
 		$prime_enabled = $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' );
 		$one_pass      = $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
 		$restart_prime = false;
+		$signature     = $this->prime_settings_signature( $w3tc_config );
 
 		if ( null !== $old_config ) {
 			$old_prime_enabled = (
@@ -136,6 +137,13 @@ class PgCache_Environment {
 				$w3tc_config->get_string( 'pgcache.prime.sitemap' ) !==
 					$old_config->get_string( 'pgcache.prime.sitemap' )
 			);
+		} else {
+			$stored_signature = get_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, false );
+			$restart_prime    = (
+				$prime_enabled &&
+				false !== $stored_signature &&
+				! hash_equals( (string) $stored_signature, $signature )
+			);
 		}
 
 		if ( 'activate' === $event && $prime_enabled ) {
@@ -145,6 +153,8 @@ class PgCache_Environment {
 		if ( ! $prime_enabled || $restart_prime ) {
 			PgCache_Plugin_Admin::reset_prime();
 		}
+
+		update_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, $signature, false );
 
 		$prime_completed = (
 			$one_pass &&
@@ -176,6 +186,31 @@ class PgCache_Environment {
 				throw $exs;
 			}
 		}
+	}
+
+	/**
+	 * Creates the per-site signature for effective preload settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $w3tc_config W3TC configuration.
+	 *
+	 * @return string
+	 */
+	private function prime_settings_signature( $w3tc_config ) {
+		return hash(
+			'sha256',
+			wp_json_encode(
+				array(
+					'enabled'  => (
+						$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
+						$w3tc_config->get_boolean( 'pgcache.prime.enabled' )
+					),
+					'one_pass' => $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ),
+					'sitemap'  => $w3tc_config->get_string( 'pgcache.prime.sitemap' ),
+				)
+			)
+		);
 	}
 
 	/**

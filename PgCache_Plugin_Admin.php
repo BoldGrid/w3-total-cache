@@ -52,6 +52,15 @@ class PgCache_Plugin_Admin {
 	const PRIME_LOCK_OPTION = 'w3tc_pgcache_prime_lock';
 
 	/**
+	 * Option storing the effective preload settings signature.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const PRIME_SETTINGS_OPTION = 'w3tc_pgcache_prime_settings';
+
+	/**
 	 * Maximum preload lock lifetime.
 	 *
 	 * @since X.X.X
@@ -127,7 +136,6 @@ class PgCache_Plugin_Admin {
 
 		if ( is_array( $lock ) && isset( $lock['expires'] ) && (int) $lock['expires'] <= time() ) {
 			delete_option( self::PRIME_LOCK_OPTION );
-			self::reset_prime();
 			$lock = false;
 		}
 
@@ -347,7 +355,7 @@ class PgCache_Plugin_Admin {
 			if (
 				is_wp_error( $response ) ||
 				200 > wp_remote_retrieve_response_code( $response ) ||
-				400 <= wp_remote_retrieve_response_code( $response )
+				500 <= wp_remote_retrieve_response_code( $response )
 			) {
 				return $result;
 			}
