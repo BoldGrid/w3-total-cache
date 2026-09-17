@@ -93,6 +93,94 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Relative attachment paths retain their directory structure.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_attachment_paths_accept_relative_upload_locations() {
+		$core = new Cdn_Core();
+
+		$this->assert_attachment_upload_path( $core, 'photo.jpg' );
+		$this->assert_attachment_upload_path( $core, '2026/09/photo.jpg' );
+		$this->assert_attachment_upload_path( $core, 'prophoto/galleries/album/photo.jpg' );
+	}
+
+	/**
+	 * Absolute attachment paths under the uploads directory become relative.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_attachment_paths_accept_absolute_path_under_uploads() {
+		$upload_info = Util_Http::upload_info();
+		if ( ! $upload_info ) {
+			$this->markTestSkipped( 'Upload directory information is unavailable.' );
+		}
+
+		$core     = new Cdn_Core();
+		$relative = 'prophoto/galleries/album/photo.jpg';
+
+		$this->assert_attachment_upload_path(
+			$core,
+			$upload_info['basedir'] . '/' . $relative,
+			$relative
+		);
+	}
+
+	/**
+	 * Attachment paths that leave the uploads directory are rejected.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_attachment_paths_reject_parent_segments_and_outside_paths() {
+		$upload_info = Util_Http::upload_info();
+		if ( ! $upload_info ) {
+			$this->markTestSkipped( 'Upload directory information is unavailable.' );
+		}
+
+		$core = new Cdn_Core();
+		$paths = array(
+			'../outside.jpg',
+			'prophoto/../../outside.jpg',
+			\dirname( $upload_info['basedir'] ) . '/outside.jpg',
+			$upload_info['basedir'] . '-outside/photo.jpg',
+		);
+
+		foreach ( $paths as $path ) {
+			$this->assertSame( '', $core->normalize_attachment_file( $path ), $path );
+			$this->assertSame( array(), $core->get_files_for_upload( $path ), $path );
+		}
+	}
+
+	/**
+	 * Assert an attachment path resolves to the expected uploads location.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Cdn_Core $core          CDN core instance.
+	 * @param string   $path          Attachment path to normalize.
+	 * @param string   $expected_path Expected relative path.
+	 */
+	private function assert_attachment_upload_path( $core, $path, $expected_path = null ) {
+		$upload_info = Util_Http::upload_info();
+		if ( ! $upload_info ) {
+			$this->markTestSkipped( 'Upload directory information is unavailable.' );
+		}
+
+		if ( null === $expected_path ) {
+			$expected_path = $path;
+		}
+
+		$this->assertSame( $expected_path, $core->normalize_attachment_file( $path ) );
+
+		$files = $core->get_files_for_upload( $path );
+		$this->assertCount( 1, $files );
+		$this->assertSame(
+			$upload_info['basedir'] . '/' . $expected_path,
+			$files[0]['local_path']
+		);
+	}
+
+	/**
 	 * Outbound downloads refuse non-public hosts.
 	 *
 	 * @since 2.10.0

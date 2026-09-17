@@ -105,7 +105,11 @@ class Cdn_Core {
 		$upload_info = Util_Http::upload_info();
 
 		if ( $upload_info ) {
-			$w3tc_file   = $this->normalize_attachment_file( $w3tc_file );
+			$w3tc_file = $this->normalize_attachment_file( $w3tc_file );
+			if ( '' === $w3tc_file ) {
+				return $files;
+			}
+
 			$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
 			$parsed      = wp_parse_url( rtrim( $upload_info['baseurl'], '/' ) . '/' . $w3tc_file );
 			$local_uri   = $parsed['path'];
@@ -350,13 +354,25 @@ class Cdn_Core {
 	public function normalize_attachment_file( $w3tc_file ) {
 		$upload_info = Util_Http::upload_info();
 
-		if ( $upload_info ) {
-			$w3tc_file = ltrim( str_replace( $upload_info['basedir'], '', $w3tc_file ), '/\\' );
-			$matches   = null;
+		if ( ! $upload_info || ! is_string( $w3tc_file ) || '' === $w3tc_file || false !== strpos( $w3tc_file, "\0" ) ) {
+			return '';
+		}
 
-			if ( preg_match( '~(\d{4}/\d{2}/)?[^/]+$~', $w3tc_file, $matches ) ) {
-				$w3tc_file = $matches[0];
+		$basedir   = Util_Environment::normalize_path( $upload_info['basedir'] );
+		$w3tc_file = Util_Environment::normalize_path( $w3tc_file );
+
+		if ( preg_match( '~^(?:/|[a-zA-Z]:/)~', $w3tc_file ) ) {
+			$basedir_prefix = $basedir . '/';
+
+			if ( 0 !== strpos( $w3tc_file, $basedir_prefix ) ) {
+				return '';
 			}
+
+			$w3tc_file = substr( $w3tc_file, strlen( $basedir_prefix ) );
+		}
+
+		if ( '' === $w3tc_file || preg_match( '~(?:^|/)\.{1,2}(?:/|$)~', $w3tc_file ) ) {
+			return '';
 		}
 
 		return $w3tc_file;

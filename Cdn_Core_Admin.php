@@ -279,10 +279,12 @@ class Cdn_Core_Admin {
 					if ( $post->file ) {
 						$w3tc_file = $common->normalize_attachment_file( $post->file );
 
-						$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
-						$remote_file = ltrim( $upload_info['baseurlpath'] . $w3tc_file, '/' );
+						if ( '' !== $w3tc_file ) {
+							$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
+							$remote_file = ltrim( $upload_info['baseurlpath'] . $w3tc_file, '/' );
 
-						$post_files[] = $common->build_file_descriptor( $local_file, $remote_file );
+							$post_files[] = $common->build_file_descriptor( $local_file, $remote_file );
+						}
 					}
 
 					if ( $post->metadata ) {
