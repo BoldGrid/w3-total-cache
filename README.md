@@ -4,6 +4,10 @@ Welcome to the W3 Total Cache repository on GitHub. Here you can browse the sour
 
 If you are not a developer, please use the [W3 Total Cache plugin page](https://wordpress.org/plugins/w3-total-cache/) on WordPress.org.
 
+## Developer documentation
+
+* [W3 Total Cache actions and filters](docs/hooks.md)
+
 ## Support
 This repository is not suitable for support. Please don't use our issue tracker for support requests. Support can take place through the appropriate channels:
 
