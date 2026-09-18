@@ -70,6 +70,33 @@ class PgCache_Plugin_Admin {
 	const PRIME_LOCK_TTL = 3600;
 
 	/**
+	 * Sitemap traversal completed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const SITEMAP_OUTCOME_SUCCESS = 'success';
+
+	/**
+	 * Sitemap entry was excluded by traversal policy.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const SITEMAP_OUTCOME_SKIPPED = 'skipped';
+
+	/**
+	 * Sitemap traversal encountered a retryable failure.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const SITEMAP_OUTCOME_FAILURE = 'failure';
+
+	/**
 	 * Config
 	 *
 	 * @var Config
@@ -321,10 +348,26 @@ class PgCache_Plugin_Admin {
 			);
 		}
 
-		$parse_success = false;
-		$urls          = $this->parse_sitemap( $sitemap, null, 0, $parse_success );
+		$parse_outcome = self::SITEMAP_OUTCOME_FAILURE;
+		$urls          = $this->parse_sitemap( $sitemap, null, 0, $parse_outcome );
 
-		if ( ! $parse_success || empty( $urls ) ) {
+		if ( self::SITEMAP_OUTCOME_FAILURE === $parse_outcome ) {
+			return $result;
+		}
+
+		if ( empty( $urls ) ) {
+			$result['success']  = true;
+			$result['complete'] = true;
+
+			if ( $update_progress ) {
+				if ( self::prime_generation() !== $generation ) {
+					$result['stale'] = true;
+					return $result;
+				}
+
+				update_option( self::PRIME_OFFSET_OPTION, 0, false );
+			}
+
 			return $result;
 		}
 
@@ -409,12 +452,12 @@ class PgCache_Plugin_Admin {
 	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
 	 *                                   fetches must match. Auto-populated.
 	 * @param int         $depth         Internal: current recursion depth (0-based).
-	 * @param bool|null   $success       Set to whether the complete sitemap traversal succeeded.
+	 * @param string|null $outcome       Set to a SITEMAP_OUTCOME_* value.
 	 *
 	 * @return array The list of URLs parsed from the sitemap.
 	 */
-	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0, &$success = null ) {
-		$success = false;
+	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0, &$outcome = null ) {
+		$outcome = self::SITEMAP_OUTCOME_FAILURE;
 
 		if ( ! Util_Environment::is_url( $w3tc_url ) ) {
 			$w3tc_url = home_url( $w3tc_url );
@@ -431,6 +474,7 @@ class PgCache_Plugin_Admin {
 		 * (the URL would still be fetched, just not recursed into).
 		 */
 		if ( $depth > 3 ) {
+			$outcome = self::SITEMAP_OUTCOME_SKIPPED;
 			return array();
 		}
 
@@ -439,6 +483,7 @@ class PgCache_Plugin_Admin {
 		 * fetch list for the same reason as above.
 		 */
 		if ( ! Util_Url::is_public_host( $w3tc_url ) ) {
+			$outcome = self::SITEMAP_OUTCOME_SKIPPED;
 			return array();
 		}
 
@@ -451,6 +496,7 @@ class PgCache_Plugin_Admin {
 			 * Cross-origin nested sitemap entry — refuse silently and
 			 * drop it from the fetch list.
 			 */
+			$outcome = self::SITEMAP_OUTCOME_SKIPPED;
 			return array();
 		}
 
@@ -478,21 +524,19 @@ class PgCache_Plugin_Admin {
 		if ( $xml->getName() === 'sitemapindex' ) {
 			foreach ( $xml->sitemap as $sitemap ) {
 				if ( $sitemap->loc ) {
-					$child_success = false;
+					$child_outcome = self::SITEMAP_OUTCOME_FAILURE;
 					$child_urls    = $this->parse_sitemap(
 						(string) $sitemap->loc,
 						$origin_host,
 						$depth + 1,
-						$child_success
+						$child_outcome
 					);
 
-					if ( ! $child_success ) {
+					if ( self::SITEMAP_OUTCOME_FAILURE === $child_outcome ) {
 						return array();
 					}
 
 					$urls = array_merge( $urls, $child_urls );
-				} else {
-					return array();
 				}
 			}
 		} elseif ( $xml->getName() === 'urlset' ) {
@@ -518,7 +562,7 @@ class PgCache_Plugin_Admin {
 			return $urls;
 		}
 
-		$success = true;
+		$outcome = self::SITEMAP_OUTCOME_SUCCESS;
 		return $urls;
 	}
 

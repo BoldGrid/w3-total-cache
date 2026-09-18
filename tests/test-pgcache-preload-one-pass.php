@@ -77,11 +77,11 @@ class W3TC_PgCache_Preload_Admin_Stub extends PgCache_Plugin_Admin {
 	public $urls = array();
 
 	/**
-	 * Parse result.
+	 * Parse outcome.
 	 *
-	 * @var bool
+	 * @var string
 	 */
-	public $parse_success = true;
+	public $parse_outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS;
 
 	/**
 	 * Returns configured test URLs.
@@ -89,12 +89,12 @@ class W3TC_PgCache_Preload_Admin_Stub extends PgCache_Plugin_Admin {
 	 * @param string      $w3tc_url Sitemap URL.
 	 * @param string|null $origin_host Root sitemap host.
 	 * @param int         $depth Current recursion depth.
-	 * @param bool|null   $success Parse result.
+	 * @param string|null $outcome Parse outcome.
 	 *
 	 * @return array
 	 */
-	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0, &$success = null ) {
-		$success = $this->parse_success;
+	public function parse_sitemap( $w3tc_url, $origin_host = null, $depth = 0, &$outcome = null ) {
+		$outcome = $this->parse_outcome;
 		return $this->urls;
 	}
 }
@@ -170,14 +170,22 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	private $dispatcher_instances;
 
 	/**
+	 * Requested HTTP URLs.
+	 *
+	 * @var array
+	 */
+	private $http_requests = array();
+
+	/**
 	 * Prepares cron and option state.
 	 */
 	public function set_up() {
 		parent::set_up();
 
 		$instances = new ReflectionProperty( Dispatcher::class, 'instances' );
-		$instances->setAccessible( true );
+		$this->make_property_accessible( $instances );
 		$this->dispatcher_instances = $instances->getValue();
+		$this->http_requests        = array();
 
 		wp_clear_scheduled_hook( 'w3_pgcache_prime' );
 		$this->delete_prime_options();
@@ -199,7 +207,7 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$instances = new ReflectionProperty( Dispatcher::class, 'instances' );
-		$instances->setAccessible( true );
+		$this->make_property_accessible( $instances );
 		$instances->setValue( null, $this->dispatcher_instances );
 
 		wp_clear_scheduled_hook( 'w3_pgcache_prime' );
@@ -235,25 +243,27 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verifies failed and empty parse results never advance progress.
+	 * Verifies failed parses remain retryable and empty traversals complete.
 	 */
-	public function test_failed_or_empty_parse_never_completes() {
+	public function test_failed_parse_retries_and_empty_traversal_completes() {
 		$admin       = $this->stub_admin();
 		$generation  = PgCache_Plugin_Admin::prime_generation();
 		$admin->urls = array( 'https://example.org/one' );
 
-		$admin->parse_success = false;
+		$admin->parse_outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
 		$failed               = $admin->prime( null, null, null, true, $generation );
 		$this->assertFalse( $failed['success'] );
 		$this->assertFalse( $failed['complete'] );
 		$this->assertFalse( get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, false ) );
 
-		$admin->parse_success = true;
+		$admin->parse_outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS;
 		$admin->urls          = array();
-		$empty                = $admin->prime( null, null, null, true, $generation );
-		$this->assertFalse( $empty['success'] );
-		$this->assertFalse( $empty['complete'] );
-		$this->assertFalse( get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, false ) );
+		update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 5, false );
+		$empty = $admin->prime( null, null, null, true, $generation );
+		$this->assertTrue( $empty['success'] );
+		$this->assertTrue( $empty['complete'] );
+		$this->assertSame( 0, $empty['processed'] );
+		$this->assertSame( 0, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
 	}
 
 	/**
@@ -276,16 +286,130 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		);
 
 		foreach ( array( 'http.xml', 'xml.xml', 'root.xml' ) as $sitemap ) {
-			$success = true;
-			$urls    = $admin->parse_sitemap( 'https://example.org/' . $sitemap, null, 0, $success );
-			$this->assertFalse( $success, $sitemap );
+			$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS;
+			$urls    = $admin->parse_sitemap( 'https://example.org/' . $sitemap, null, 0, $outcome );
+			$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE, $outcome, $sitemap );
 			$this->assertSame( array(), $urls, $sitemap );
 		}
 
-		$success = false;
-		$urls    = $admin->parse_sitemap( 'https://example.org/empty.xml', null, 0, $success );
-		$this->assertTrue( $success );
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
+		$urls    = $admin->parse_sitemap( 'https://example.org/empty.xml', null, 0, $outcome );
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );
 		$this->assertSame( array(), $urls );
+	}
+
+	/**
+	 * Verifies a depth-limited child does not block a valid sibling.
+	 */
+	public function test_nested_depth_skip_allows_valid_sibling() {
+		$responses = array(
+			'https://example.org/root.xml'   => $this->sitemap_index_response(
+				array(
+					'https://example.org/level-1.xml',
+					'https://example.org/valid.xml',
+				)
+			),
+			'https://example.org/level-1.xml' => $this->sitemap_index_response(
+				array( 'https://example.org/level-2.xml' )
+			),
+			'https://example.org/level-2.xml' => $this->sitemap_index_response(
+				array( 'https://example.org/level-3.xml' )
+			),
+			'https://example.org/level-3.xml' => $this->sitemap_index_response(
+				array( 'https://example.org/level-4.xml' )
+			),
+			'https://example.org/valid.xml'   => $this->urlset_response( 'https://example.org/page' ),
+		);
+
+		$this->assert_sitemap_has_valid_sibling( $responses );
+		$this->assertNotContains( 'https://example.org/level-4.xml', $this->http_requests );
+	}
+
+	/**
+	 * Verifies a non-public child does not block a valid sibling.
+	 */
+	public function test_nested_non_public_host_skip_allows_valid_sibling() {
+		$responses = array(
+			'https://example.org/root.xml'  => $this->sitemap_index_response(
+				array(
+					'http://127.0.0.1/private.xml',
+					'https://example.org/valid.xml',
+				)
+			),
+			'https://example.org/valid.xml' => $this->urlset_response( 'https://example.org/page' ),
+		);
+
+		$this->assert_sitemap_has_valid_sibling( $responses );
+		$this->assertNotContains( 'http://127.0.0.1/private.xml', $this->http_requests );
+	}
+
+	/**
+	 * Verifies a cross-origin child does not block a valid sibling.
+	 */
+	public function test_nested_cross_origin_skip_allows_valid_sibling() {
+		$responses = array(
+			'https://example.org/root.xml'  => $this->sitemap_index_response(
+				array(
+					'https://example.com/other.xml',
+					'https://example.org/valid.xml',
+				)
+			),
+			'https://example.org/valid.xml' => $this->urlset_response( 'https://example.org/page' ),
+		);
+
+		$this->assert_sitemap_has_valid_sibling( $responses );
+		$this->assertNotContains( 'https://example.com/other.xml', $this->http_requests );
+	}
+
+	/**
+	 * Verifies a missing child location does not block a valid sibling.
+	 */
+	public function test_nested_missing_loc_skip_allows_valid_sibling() {
+		$responses = array(
+			'https://example.org/root.xml'  => $this->http_response(
+				200,
+				'<sitemapindex><sitemap></sitemap><sitemap><loc>https://example.org/valid.xml</loc></sitemap></sitemapindex>'
+			),
+			'https://example.org/valid.xml' => $this->urlset_response( 'https://example.org/page' ),
+		);
+
+		$this->assert_sitemap_has_valid_sibling( $responses );
+	}
+
+	/**
+	 * Verifies policy-only input completes one-pass scheduling.
+	 */
+	public function test_all_policy_skipped_input_completes_one_pass() {
+		$admin      = $this->real_admin();
+		$generation = PgCache_Plugin_Admin::prime_generation();
+
+		$this->mock_http(
+			array(
+				'https://example.org/sitemap.xml' => $this->sitemap_index_response(
+					array(
+						'http://127.0.0.1/private.xml',
+						'https://example.com/other.xml',
+					),
+					true
+				),
+			)
+		);
+		update_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION, 4, false );
+
+		$result = $admin->prime( null, null, null, true, $generation );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 0, $result['processed'] );
+		$this->assertSame( 0, get_option( PgCache_Plugin_Admin::PRIME_OFFSET_OPTION ) );
+		$this->assertSame( array( 'https://example.org/sitemap.xml' ), $this->http_requests );
+
+		$plugin = $this->plugin_for_mode( true, $admin );
+		$this->schedule_prime();
+		$plugin->prime();
+
+		$this->assertSame( $generation, get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION ) );
+		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_prime' ) );
 	}
 
 	/**
@@ -688,7 +812,7 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		);
 
 		$instances = new ReflectionProperty( Dispatcher::class, 'instances' );
-		$instances->setAccessible( true );
+		$this->make_property_accessible( $instances );
 		$value                         = $instances->getValue();
 		$value['PgCache_Plugin_Admin'] = $callback;
 		$instances->setValue( null, $value );
@@ -789,6 +913,58 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Asserts that a nested skip preserves a valid sibling.
+	 *
+	 * @param array $responses Responses keyed by URL.
+	 *
+	 * @return void
+	 */
+	private function assert_sitemap_has_valid_sibling( $responses ) {
+		$admin   = $this->real_admin();
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
+
+		$this->mock_http( $responses );
+		$urls = $admin->parse_sitemap( 'https://example.org/root.xml', null, 0, $outcome );
+
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );
+		$this->assertSame( array( 'https://example.org/page' ), $urls );
+		$this->assertContains( 'https://example.org/valid.xml', $this->http_requests );
+	}
+
+	/**
+	 * Creates a sitemap index response.
+	 *
+	 * @param array $urls Child sitemap URLs.
+	 * @param bool  $missing_loc Whether to include a missing location.
+	 *
+	 * @return array
+	 */
+	private function sitemap_index_response( $urls, $missing_loc = false ) {
+		$body = '<sitemapindex>';
+
+		if ( $missing_loc ) {
+			$body .= '<sitemap></sitemap>';
+		}
+
+		foreach ( $urls as $url ) {
+			$body .= '<sitemap><loc>' . $url . '</loc></sitemap>';
+		}
+
+		return $this->http_response( 200, $body . '</sitemapindex>' );
+	}
+
+	/**
+	 * Creates a URL set response.
+	 *
+	 * @param string $url Page URL.
+	 *
+	 * @return array
+	 */
+	private function urlset_response( $url ) {
+		return $this->http_response( 200, '<urlset><url><loc>' . $url . '</loc></url></urlset>' );
+	}
+
+	/**
 	 * Stubs HTTP responses by URL, with success as the default.
 	 *
 	 * @param array $responses Responses keyed by URL.
@@ -799,6 +975,8 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $responses ) {
+				$this->http_requests[] = $url;
+
 				if ( isset( $responses[ $url ] ) ) {
 					return $responses[ $url ];
 				}
@@ -864,7 +1042,20 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	 */
 	private function set_private_config( $target_object, $declaring_class, $config ) {
 		$property = new ReflectionProperty( $declaring_class, '_config' );
-		$property->setAccessible( true );
+		$this->make_property_accessible( $property );
 		$property->setValue( $target_object, $config );
+	}
+
+	/**
+	 * Enables private property access where the runtime requires it.
+	 *
+	 * @param ReflectionProperty $property Reflected property.
+	 *
+	 * @return void
+	 */
+	private function make_property_accessible( $property ) {
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 	}
 }

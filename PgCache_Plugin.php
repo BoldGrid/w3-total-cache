@@ -155,7 +155,6 @@ class PgCache_Plugin {
 			if (
 				$one_pass &&
 				! empty( $result['success'] ) &&
-				! empty( $result['processed'] ) &&
 				! empty( $result['complete'] ) &&
 				empty( $result['stale'] ) &&
 				PgCache_Plugin_Admin::prime_generation() === $lock['generation']
