@@ -279,6 +279,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		$this->cache_files[] = $first->filepath;
 
 		\touch( $first->filepath, \time() - WEEK_IN_SECONDS - 10 );
+		\clearstatcache( true, $first->filepath );
 		$second = $handler->_precache_file( $url, 'js' );
 
 		$this->assertNotFalse( $second );
@@ -571,6 +572,106 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		$this->assertFileExists( $tmp );
 		$this->assertSame( $body, \file_get_contents( $tmp ) );
 		@\unlink( $tmp );
+	}
+
+	/**
+	 * HTTPS redirect locations retain the request scheme on an HTTP site.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider https_redirect_location_provider
+	 *
+	 * @param string $location Location header value.
+	 * @param string $final    Expected final URL.
+	 */
+	public function test_precache_file_resolves_https_redirect_locations_without_downgrade( $location, $final ) {
+		$start        = 'https://8.8.8.8/assets/start.js';
+		$body         = 'window.redirected=true;';
+		$request_urls = array();
+		$server       = $_SERVER;
+		$http_site    = static function () {
+			return 'http://example.org';
+		};
+
+		\add_filter( 'pre_option_home', $http_site );
+		\add_filter( 'pre_option_siteurl', $http_site );
+		$_SERVER['HTTPS']       = 'off';
+		$_SERVER['SERVER_PORT'] = '80';
+		unset( $_SERVER['HTTP_FORWARDED'], $_SERVER['HTTP_X_FORWARDED_PROTO'] );
+
+		try {
+			$this->assertFalse( \W3TC\Util_Environment::is_https() );
+			\add_filter(
+				'pre_http_request',
+				static function ( $preempt, $args, $request_url ) use ( $start, $final, $location, $body, &$request_urls ) {
+					unset( $preempt, $args );
+					$request_urls[] = $request_url;
+					if ( $request_url === $start ) {
+						return array(
+							'headers'  => array( 'location' => $location ),
+							'body'     => '',
+							'response' => array(
+								'code'    => 302,
+								'message' => 'Found',
+							),
+						);
+					}
+					if ( $request_url === $final ) {
+						return array(
+							'headers'  => array( 'content-type' => 'application/javascript' ),
+							'body'     => $body,
+							'response' => array(
+								'code'    => 200,
+								'message' => 'OK',
+							),
+						);
+					}
+
+					return new \WP_Error( 'unexpected_url', $request_url );
+				},
+				10,
+				3
+			);
+
+			$result = $this->handler_with_lifetime( DAY_IN_SECONDS )->_precache_file( $start, 'js' );
+
+			$this->assertNotFalse( $result );
+			$this->cache_files[] = $result->filepath;
+			$this->assertSame( $body, \file_get_contents( $result->filepath ) );
+			$this->assertSame( array( $start, $final ), $request_urls );
+		} finally {
+			$_SERVER = $server;
+			\remove_filter( 'pre_option_home', $http_site );
+			\remove_filter( 'pre_option_siteurl', $http_site );
+		}
+	}
+
+	/**
+	 * HTTPS redirect location cases.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public static function https_redirect_location_provider() {
+		return array(
+			'protocol relative' => array(
+				'//8.8.8.8/assets/protocol-relative.js',
+				'https://8.8.8.8/assets/protocol-relative.js',
+			),
+			'root relative'     => array(
+				'/assets/root-relative.js',
+				'https://8.8.8.8/assets/root-relative.js',
+			),
+			'path relative'     => array(
+				'path-relative.js',
+				'https://8.8.8.8/assets/path-relative.js',
+			),
+			'absolute HTTPS'    => array(
+				'https://8.8.8.8/assets/absolute.js',
+				'https://8.8.8.8/assets/absolute.js',
+			),
+		);
 	}
 
 	/**

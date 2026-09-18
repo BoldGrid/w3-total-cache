@@ -248,18 +248,17 @@ class Util_Http {
 			return '';
 		}
 
-		$location = Util_Url::normalize_protocol_relative_url( $location );
-		if ( '' === $location ) {
+		$parts = \wp_parse_url( $current );
+		if ( ! \is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
 			return '';
+		}
+
+		if ( 0 === \strpos( $location, '//' ) ) {
+			return $parts['scheme'] . ':' . $location;
 		}
 
 		if ( Util_Environment::is_url( $location ) ) {
 			return $location;
-		}
-
-		$parts = \wp_parse_url( $current );
-		if ( ! \is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
-			return '';
 		}
 
 		$authority = $parts['scheme'] . '://' . $parts['host'];
