@@ -562,6 +562,9 @@ class PgCache_Environment {
 	 */
 	private function wp_config_add_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {
@@ -606,6 +609,9 @@ class PgCache_Environment {
 	 */
 	private function wp_config_remove_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {
