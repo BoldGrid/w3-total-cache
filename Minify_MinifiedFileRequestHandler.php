@@ -75,6 +75,14 @@ class Minify_MinifiedFileRequestHandler {
 	const PROBE_TOKEN_HEADER = 'X-W3TC-Minify-Probe';
 
 	/**
+	 * Limits for external JavaScript retrieval.
+	 *
+	 * @since X.X.X
+	 */
+	const EXTERNAL_JS_TIMEOUT  = 5;
+	const EXTERNAL_JS_MAX_SIZE = 1048576;
+
+	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
 	 *
 	 * Initializes the configuration object.
@@ -858,11 +866,24 @@ class Minify_MinifiedFileRequestHandler {
 	 */
 	public function _precache_file( $w3tc_url, $type ) {
 		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
-		if ( '' === $w3tc_url || ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+		if ( ! in_array( $type, array( 'css', 'js' ), true ) || '' === $w3tc_url ) {
 			return false;
 		}
 
-		$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
+		if ( 'js' === $type ) {
+			if ( 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) || ! Util_Url::is_public_host( $w3tc_url ) ) {
+				return false;
+			}
+
+			$lifetime = max( HOUR_IN_SECONDS, min( WEEK_IN_SECONDS, $this->_config->get_integer( 'minify.lifetime' ) ) );
+		} else {
+			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+				return false;
+			}
+
+			$lifetime = $this->_config->get_integer( 'minify.lifetime' );
+		}
+
 		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 
 		if ( ! file_exists( $cache_path ) || @filemtime( $cache_path ) < ( time() - $lifetime ) ) {
@@ -870,17 +891,59 @@ class Minify_MinifiedFileRequestHandler {
 				Util_File::mkdir_from_safe( dirname( $cache_path ), W3TC_CACHE_DIR );
 			}
 
-			// google-fonts (most used for external inclusion) doesnt return full content (unicode-range) for simple useragents.
-			Util_Http::download(
-				$w3tc_url,
-				$cache_path,
-				array(
-					'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
-				)
+			$download_path = $cache_path;
+			$download_args = array(
+				'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
 			);
+			if ( 'js' === $type ) {
+				$download_path                           .= '.' . \uniqid( 'tmp-', true );
+				$download_args['timeout']                 = self::EXTERNAL_JS_TIMEOUT;
+				$download_args['w3tc_public_only']        = true;
+				$download_args['w3tc_https_only']         = true;
+				$download_args['w3tc_same_host']          = true;
+				$download_args['w3tc_max_response_size']  = self::EXTERNAL_JS_MAX_SIZE;
+				$download_args['w3tc_response_validator'] = array( __CLASS__, 'validate_external_javascript_response' );
+			}
+
+			// google-fonts (most used for external inclusion) doesnt return full content (unicode-range) for simple useragents.
+			$downloaded = Util_Http::download(
+				$w3tc_url,
+				$download_path,
+				$download_args
+			);
+
+			if ( 'js' === $type ) {
+				if ( $downloaded ) {
+					@rename( $download_path, $cache_path );
+				}
+				if ( file_exists( $download_path ) ) {
+					@unlink( $download_path );
+				}
+			}
 		}
 
 		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $w3tc_url, $type ) : false;
+	}
+
+	/**
+	 * Accepts only non-empty JavaScript responses.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $response HTTP response.
+	 *
+	 * @return bool
+	 */
+	public static function validate_external_javascript_response( $response ) {
+		$body = isset( $response['body'] ) && \is_string( $response['body'] ) ? $response['body'] : '';
+		if ( '' === $body ) {
+			return false;
+		}
+
+		$content_type = \strtolower( \trim( \wp_remote_retrieve_header( $response, 'content-type' ) ) );
+
+		return 0 !== \strpos( $content_type, 'text/html' ) &&
+			0 !== \strpos( $content_type, 'application/xhtml+xml' );
 	}
 
 	/**
@@ -1173,8 +1236,11 @@ class Minify_MinifiedFileRequestHandler {
 					return false;
 				}
 
-				$segments  = explode( '.', $remote_url );
-				$w3tc_ext  = strtolower( array_pop( $segments ) );
+				$w3tc_ext = self::remote_source_type( $remote_url, $type );
+				if ( '' === $w3tc_ext ) {
+					return false;
+				}
+
 				$pc_source = $this->_precache_file( $remote_url, $w3tc_ext );
 				if ( ! $pc_source || empty( $pc_source->filepath ) ) {
 					return false;
@@ -1304,6 +1370,31 @@ class Minify_MinifiedFileRequestHandler {
 		$id = substr( md5( implode( '', $this->_flatten_array( $values ) ) ), 0, 6 );
 
 		return $id;
+	}
+
+	/**
+	 * Resolves the asset type of a remote minify source.
+	 *
+	 * The URL path is authoritative when it carries a css/js extension;
+	 * versioned or extensionless URLs (e.g. "app.js?ver=1") fall back to
+	 * the type of the group being hashed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $remote_url Remote asset URL.
+	 * @param string $group_type Type of the group being hashed (css/js).
+	 *
+	 * @return string Asset type, or an empty string when neither is usable.
+	 */
+	private static function remote_source_type( $remote_url, $group_type ) {
+		$path      = \wp_parse_url( $remote_url, PHP_URL_PATH );
+		$extension = \is_string( $path ) ? \strtolower( \pathinfo( $path, PATHINFO_EXTENSION ) ) : '';
+
+		if ( \in_array( $extension, array( 'css', 'js' ), true ) ) {
+			return $extension;
+		}
+
+		return \in_array( $group_type, array( 'css', 'js' ), true ) ? $group_type : '';
 	}
 
 	/**

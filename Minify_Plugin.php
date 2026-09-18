@@ -1206,6 +1206,21 @@ class _W3_MinifyHelpers {
 	}
 
 	/**
+	 * Confirms that an external script has a usable cached source.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return bool
+	 */
+	public function precache_external_script( $w3tc_url ) {
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+
+		return false !== $minify->_precache_file( $w3tc_url, 'js' );
+	}
+
+	/**
 	 * Retrieves the minified content for a given set of files and type.
 	 *
 	 * @param array  $files Array of file paths to be minified.
