@@ -119,19 +119,17 @@ function run_self_test(): void {
 	}
 
 	$calls = extract_hook_calls( $fixture, 'fixture.php' );
-	if ( 3 !== \count( $calls ) ) {
-		throw new RuntimeException( 'Expected three fixture hook calls; function declarations must be ignored.' );
+	if ( 6 !== \count( $calls ) ) {
+		throw new RuntimeException( 'Expected six fixture hook calls; function declarations must be ignored.' );
 	}
 
 	$filter_arities = array();
-	$dynamic_found  = false;
+	$names          = array();
 	foreach ( $calls as $call ) {
 		if ( 'w3tc_fixture_hook' === $call['name'] ) {
 			$filter_arities[] = $call['arity'];
 		}
-		if ( 'w3tc_dynamic_{extension}' === $call['name'] ) {
-			$dynamic_found = true;
-		}
+		$names[ $call['name'] ] = true;
 		if ( false !== \strpos( $call['name'], 'w3tc_hook' ) ) {
 			throw new RuntimeException( 'Dispatcher declaration parameter was emitted as a hook.' );
 		}
@@ -141,8 +139,30 @@ function run_self_test(): void {
 	if ( array( 1, 3 ) !== $filter_arities ) {
 		throw new RuntimeException( 'Qualified hook calls or their arities were not extracted.' );
 	}
-	if ( ! $dynamic_found ) {
+	if ( ! isset( $names['w3tc_dynamic_{extension}'] ) ) {
 		throw new RuntimeException( 'Dynamic placeholder was not canonicalized.' );
+	}
+	if ( ! isset( $names['w3tc_fixture_dotted.rgroups'], $names['w3tc_fixture_dotted.cookiegroups.groups'] ) ) {
+		throw new RuntimeException( 'Dotted hook literals were dropped; dots inside quoted literals are not concatenation.' );
+	}
+	if ( ! isset( $names['w3tc_fixture_dotted.prefix.{suffix}'] ) ) {
+		throw new RuntimeException( 'Concatenated expression with a dotted literal segment was not normalized.' );
+	}
+
+	$expressions = array(
+		"'w3tc_ui_config_item_' . \$action_key" => 'w3tc_ui_config_item_{action}',
+		"'w3tc_settings_page-' . \$this->_page" => 'w3tc_settings_page-{page}',
+		"'w3tc_a.b' . \$w3tc_key . '.c'"        => 'w3tc_a.b{key}.c',
+		"'w3tc_x_' . \$w3tc_area['id']"         => 'w3tc_x_{area_id}',
+		"'w3tc_dotted.name'"                    => 'w3tc_dotted.name',
+		'"w3tc_dotted.name"'                    => 'w3tc_dotted.name',
+		'"w3tc_dotted.{$w3tc_extension}.tail"'  => 'w3tc_dotted.{extension}.tail',
+	);
+	foreach ( $expressions as $expression => $expected ) {
+		$actual = normalize_hook_expression( $expression );
+		if ( $expected !== $actual ) {
+			throw new RuntimeException( 'A concatenated or dotted hook expression did not normalize as expected.' );
+		}
 	}
 
 	$table = render_table(
@@ -335,10 +355,9 @@ function is_function_declaration( array $tokens, int $index ): bool {
  * @return string|null
  */
 function normalize_hook_expression( string $expression ): ?string {
-	$expression = \trim( $expression );
-	$parts      = \preg_split( '/\s*\.\s*/', $expression );
+	$parts = split_concatenation( $expression );
 
-	if ( false === $parts ) {
+	if ( null === $parts ) {
 		return null;
 	}
 
@@ -364,6 +383,57 @@ function normalize_hook_expression( string $expression ): ?string {
 	}
 
 	return $name;
+}
+
+/**
+ * Splits an expression on its concatenation operators.
+ *
+ * Dots inside quoted literals belong to the hook name, so the expression is tokenized and only
+ * `.` operators found outside strings and nested constructs are treated as concatenation.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param string $expression PHP expression.
+ * @return array<int,string>|null Operands, or null when the expression cannot be tokenized.
+ */
+function split_concatenation( string $expression ): ?array {
+	$expression = \trim( $expression );
+	if ( '' === $expression ) {
+		return null;
+	}
+
+	$tokens = \token_get_all( '<?php ' . $expression );
+	\array_shift( $tokens );
+
+	$operands = array();
+	$current  = '';
+	$depth    = 0;
+
+	foreach ( $tokens as $token ) {
+		$text = \is_array( $token ) ? $token[1] : $token;
+
+		if ( \is_array( $token ) && \in_array( $token[0], array( T_COMMENT, T_DOC_COMMENT ), true ) ) {
+			continue;
+		}
+
+		if ( '.' === $token ) {
+			if ( 0 === $depth ) {
+				$operands[] = \trim( $current );
+				$current    = '';
+				continue;
+			}
+		} elseif ( \in_array( $text, array( '(', '[', '{', '${' ), true ) ) {
+			++$depth;
+		} elseif ( \in_array( $text, array( ')', ']', '}' ), true ) ) {
+			--$depth;
+		}
+
+		$current .= $text;
+	}
+
+	$operands[] = \trim( $current );
+
+	return $operands;
 }
 
 /**

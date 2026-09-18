@@ -11,3 +11,6 @@ function w3tc_apply_filters( $w3tc_hook, $w3tc_value ) {
 \apply_filters( 'w3tc_fixture_hook', $value );
 Vendor\apply_filters( 'w3tc_fixture_hook', $value, $context, $extra );
 \do_action( "w3tc_dynamic_{$w3tc_extension}", $value );
+\apply_filters( 'w3tc_fixture_dotted.rgroups', $value );
+\apply_filters( "w3tc_fixture_dotted.cookiegroups.groups", $value );
+\apply_filters( 'w3tc_fixture_dotted.prefix.' . $w3tc_suffix, $value );

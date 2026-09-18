@@ -254,6 +254,8 @@ add_filter(
 | `w3tc_settings_general_anchors` | `add_filter()` | 1 | `array()` | [Generic_Page_General.php:92](../Generic_Page_General.php#L92)<br>[Util_Ui.php:553](../Util_Ui.php#L553) |
 | `w3tc_swarmify_active` | `add_filter()` | 1 | `null` | [Extension_Swarmify_Plugin.php:134](../Extension_Swarmify_Plugin.php#L134) |
 | `w3tc_trusted_proxies` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2217](../Util_Environment.php#L2217) |
+| `w3tc_ui_config_item_mobile.rgroups` | `add_filter()` | 1 | `$useragent_groups` | [CacheGroups_Plugin_Admin.php:55](../CacheGroups_Plugin_Admin.php#L55) |
+| `w3tc_ui_config_item_pgcache.cookiegroups.groups` | `add_filter()` | 1 | `$cookie_groups` | [CacheGroups_Plugin_Admin.php:69](../CacheGroups_Plugin_Admin.php#L69) |
 | `w3tc_ui_config_item_{action}` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1832](../Util_Ui.php#L1832) |
 | `w3tc_ui_settings_item` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1457](../Util_Ui.php#L1457) |
 | `w3tc_uri_cdn_uri` | `add_filter()` | 1 | `ltrim( $remote_uri, '/' )` | [Cdn_Core.php:740](../Cdn_Core.php#L740) |
