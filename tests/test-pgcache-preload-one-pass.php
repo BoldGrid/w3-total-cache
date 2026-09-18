@@ -292,6 +292,12 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 			$this->assertSame( array(), $urls, $sitemap );
 		}
 
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS;
+		$urls    = $admin->parse_sitemap( 'http://127.0.0.1/root.xml', null, 0, $outcome );
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE, $outcome );
+		$this->assertSame( array(), $urls );
+		$this->assertNotContains( 'http://127.0.0.1/root.xml', $this->http_requests );
+
 		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
 		$urls    = $admin->parse_sitemap( 'https://example.org/empty.xml', null, 0, $outcome );
 		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );

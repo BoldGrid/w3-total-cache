@@ -483,7 +483,10 @@ class PgCache_Plugin_Admin {
 		 * fetch list for the same reason as above.
 		 */
 		if ( ! Util_Url::is_public_host( $w3tc_url ) ) {
-			$outcome = self::SITEMAP_OUTCOME_SKIPPED;
+			// A refused root may be a transient resolution failure and must retry.
+			if ( $depth > 0 ) {
+				$outcome = self::SITEMAP_OUTCOME_SKIPPED;
+			}
 			return array();
 		}
 
