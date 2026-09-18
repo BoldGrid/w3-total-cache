@@ -1236,8 +1236,11 @@ class Minify_MinifiedFileRequestHandler {
 					return false;
 				}
 
-				$segments  = explode( '.', $remote_url );
-				$w3tc_ext  = strtolower( array_pop( $segments ) );
+				$w3tc_ext = self::remote_source_type( $remote_url, $type );
+				if ( '' === $w3tc_ext ) {
+					return false;
+				}
+
 				$pc_source = $this->_precache_file( $remote_url, $w3tc_ext );
 				if ( ! $pc_source || empty( $pc_source->filepath ) ) {
 					return false;
@@ -1367,6 +1370,31 @@ class Minify_MinifiedFileRequestHandler {
 		$id = substr( md5( implode( '', $this->_flatten_array( $values ) ) ), 0, 6 );
 
 		return $id;
+	}
+
+	/**
+	 * Resolves the asset type of a remote minify source.
+	 *
+	 * The URL path is authoritative when it carries a css/js extension;
+	 * versioned or extensionless URLs (e.g. "app.js?ver=1") fall back to
+	 * the type of the group being hashed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $remote_url Remote asset URL.
+	 * @param string $group_type Type of the group being hashed (css/js).
+	 *
+	 * @return string Asset type, or an empty string when neither is usable.
+	 */
+	private static function remote_source_type( $remote_url, $group_type ) {
+		$path      = \wp_parse_url( $remote_url, PHP_URL_PATH );
+		$extension = \is_string( $path ) ? \strtolower( \pathinfo( $path, PATHINFO_EXTENSION ) ) : '';
+
+		if ( \in_array( $extension, array( 'css', 'js' ), true ) ) {
+			return $extension;
+		}
+
+		return \in_array( $group_type, array( 'css', 'js' ), true ) ? $group_type : '';
 	}
 
 	/**

@@ -253,27 +253,18 @@ class Util_Http {
 			return '';
 		}
 
+		// A protocol-relative Location keeps the scheme of the hop that returned it.
 		if ( 0 === \strpos( $location, '//' ) ) {
-			return $parts['scheme'] . ':' . $location;
+			$location = $parts['scheme'] . ':' . $location;
 		}
 
-		if ( Util_Environment::is_url( $location ) ) {
-			return $location;
+		if ( ! \class_exists( '\WP_Http' ) ) {
+			return '';
 		}
 
-		$authority = $parts['scheme'] . '://' . $parts['host'];
-		if ( ! empty( $parts['port'] ) ) {
-			$authority .= ':' . $parts['port'];
-		}
+		$resolved = \WP_Http::make_absolute_url( $location, $current );
 
-		if ( isset( $location[0] ) && '/' === $location[0] ) {
-			return $authority . $location;
-		}
-
-		$base_path = isset( $parts['path'] ) ? $parts['path'] : '/';
-		$base_dir  = \trailingslashit( \dirname( $base_path ) );
-
-		return $authority . $base_dir . $location;
+		return Util_Url::is_valid_http_scheme( $resolved ) ? $resolved : '';
 	}
 
 	/**

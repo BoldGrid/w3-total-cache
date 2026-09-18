@@ -671,6 +671,84 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 				'https://8.8.8.8/assets/absolute.js',
 				'https://8.8.8.8/assets/absolute.js',
 			),
+			'query only'        => array(
+				'?cachebust=1',
+				'https://8.8.8.8/assets/start.js?cachebust=1',
+			),
+			'parent relative'   => array(
+				'../lib/parent-relative.js',
+				'https://8.8.8.8/lib/parent-relative.js',
+			),
+		);
+	}
+
+	/**
+	 * Versioned remote URLs still generate minify IDs.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider versioned_remote_source_provider
+	 *
+	 * @param string $url  Remote asset URL.
+	 * @param string $type Group type.
+	 * @param string $body Response body.
+	 */
+	public function test_generate_id_accepts_versioned_remote_sources( $url, $type, $body ) {
+		\add_filter(
+			'pre_http_request',
+			static function ( $preempt, $args, $request_url ) use ( $url, $type, $body ) {
+				unset( $preempt, $args );
+				if ( $request_url !== $url ) {
+					return new \WP_Error( 'unexpected_url', $request_url );
+				}
+
+				return array(
+					'headers'  => array(
+						'content-type' => 'js' === $type ? 'application/javascript' : 'text/css',
+					),
+					'body'     => $body,
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$source                = new \stdClass();
+		$source->filepath      = '';
+		$source->minifyOptions = array(
+			'prependRelativePath' => $url,
+		);
+
+		$handler = $this->handler_with_lifetime( DAY_IN_SECONDS );
+		$id      = $handler->_generate_id( array( $source ), $type );
+
+		$this->assertNotFalse( $id );
+		$this->assertNotSame( '', $id );
+	}
+
+	/**
+	 * Versioned remote source cases.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public static function versioned_remote_source_provider() {
+		return array(
+			'js with query'  => array(
+				'https://8.8.8.8/jquery.min.js?ver=1.2.3',
+				'js',
+				'console.log(\"ok\");',
+			),
+			'css with query' => array(
+				'https://8.8.8.8/theme.css?ver=2',
+				'css',
+				'body{color:red;}',
+			),
 		);
 	}
 
@@ -723,9 +801,23 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 			public function get_integer( $key ) {
 				return $this->lifetime;
 			}
+
+			public function get_string( $key ) {
+				return '';
+			}
+
+			public function get_boolean( $key ) {
+				return false;
+			}
+
+			public function get( $key ) {
+				return null;
+			}
 		};
 		$property = new \ReflectionProperty( Minify_MinifiedFileRequestHandler::class, '_config' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( $handler, $config );
 
 		return $handler;
