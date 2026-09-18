@@ -57,6 +57,8 @@ install:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
 
 script:
+  # Generated documentation.
+  - yarn run hooks:check
   # PHPUnit: Run unit tests.
   - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
   # PHPCS
