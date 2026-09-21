@@ -78,7 +78,7 @@ class Root_Environment {
 		// call plugin-related handlers.
 		foreach ( $this->get_handlers() as $h ) {
 			try {
-				$h->fix_on_event( $w3tc_config, $event );
+				$h->fix_on_event( $w3tc_config, $event, $old_config );
 			} catch ( Util_Environment_Exceptions $ex ) {
 				$exs->push( $ex );
 			}

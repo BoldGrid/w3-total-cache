@@ -590,7 +590,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			$w3tc_o->prime(
 				( isset( $vars['start'] ) ? $vars['start'] - 1 : null ),
 				( isset( $vars['limit'] ) ? $vars['limit'] : null ),
-				$log_callback
+				$log_callback,
+				false
 			);
 
 		} catch ( \Exception $e ) {
