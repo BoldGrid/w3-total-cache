@@ -400,6 +400,14 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 				array( 'content-type' => 'text/html; charset=UTF-8' ),
 				'<!doctype html><title>Error</title>',
 			),
+			'missing Content-Type' => array(
+				array(),
+				'window.invalid=true;',
+			),
+			'JSON response' => array(
+				array( 'content-type' => 'application/json' ),
+				'{"invalid":true}',
+			),
 			'oversized response' => array(
 				array( 'content-type' => 'application/javascript' ),
 				\str_repeat( 'x', Minify_MinifiedFileRequestHandler::EXTERNAL_JS_MAX_SIZE + 1 ),
@@ -408,11 +416,65 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Auto Minify leaves the original script tag when initial caching fails.
+	 * Looking up an uncached external script does not make an HTTP request.
 	 *
 	 * @since X.X.X
 	 */
-	public function test_auto_js_preserves_original_url_when_precache_fails() {
+	public function test_get_cached_external_script_does_not_fetch_on_miss() {
+		$url        = 'https://8.8.8.8/assets/not-cached.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		$http_calls = 0;
+		@\unlink( $cache_file );
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$result = $this->handler_with_lifetime( DAY_IN_SECONDS )->get_cached_external_script( $url );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * Looking up a cached external script reuses it without an HTTP request.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_get_cached_external_script_reuses_hit_without_fetching() {
+		$url        = 'https://8.8.4.4/assets/already-cached.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		$http_calls = 0;
+		\wp_mkdir_p( \dirname( $cache_file ) );
+		\file_put_contents( $cache_file, 'window.cached=true;' );
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$result = $this->handler_with_lifetime( DAY_IN_SECONDS )->get_cached_external_script( $url );
+
+		$this->assertNotFalse( $result );
+		$this->assertSame( $cache_file, $result->filepath );
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * Auto Minify leaves the original script tag on a cache miss.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_auto_js_preserves_original_url_on_cache_miss() {
 		$url    = 'https://8.8.8.8/assets/unavailable.js';
 		$buffer = '<html><head><script src="' . $url . '"></script></head><body></body></html>';
 		$config = new class() {
@@ -433,7 +495,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 				return 'url';
 			}
 
-			public function precache_external_script( $url ) {
+			public function is_external_script_cached( $url ) {
 				return false;
 			}
 		};
@@ -444,11 +506,11 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Auto Minify replaces an external script after caching succeeds.
+	 * Auto Minify replaces an external script on a cache hit.
 	 *
 	 * @since X.X.X
 	 */
-	public function test_auto_js_replaces_external_url_when_precache_succeeds() {
+	public function test_auto_js_replaces_external_url_on_cache_hit() {
 		$url    = 'https://8.8.8.8/assets/available.js';
 		$buffer = '<html><head><script src="' . $url . '"></script></head><body></body></html>';
 		$config = new class() {
@@ -473,7 +535,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 				return 'url';
 			}
 
-			public function precache_external_script( $url ) {
+			public function is_external_script_cached( $url ) {
 				return true;
 			}
 

@@ -926,7 +926,31 @@ class Minify_MinifiedFileRequestHandler {
 	}
 
 	/**
-	 * Accepts only non-empty JavaScript responses.
+	 * Retrieves an existing external JavaScript cache entry without refreshing it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return mixed The minified source or false when no usable cache exists.
+	 */
+	public function get_cached_external_script( $w3tc_url ) {
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if (
+			'' === $w3tc_url ||
+			'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ||
+			! Util_Url::is_public_host( $w3tc_url )
+		) {
+			return false;
+		}
+
+		$cache_path = sprintf( '%s/minify_%s.js', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ) );
+
+		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $w3tc_url, 'js' ) : false;
+	}
+
+	/**
+	 * Accepts only non-empty responses with a JavaScript content type.
 	 *
 	 * @since X.X.X
 	 *
@@ -940,10 +964,24 @@ class Minify_MinifiedFileRequestHandler {
 			return false;
 		}
 
-		$content_type = \strtolower( \trim( \wp_remote_retrieve_header( $response, 'content-type' ) ) );
+		$content_type       = \strtolower( \trim( \wp_remote_retrieve_header( $response, 'content-type' ) ) );
+		$content_type_parts = \explode( ';', $content_type );
+		$content_type       = \trim( $content_type_parts[0] );
 
-		return 0 !== \strpos( $content_type, 'text/html' ) &&
-			0 !== \strpos( $content_type, 'application/xhtml+xml' );
+		return \in_array(
+			$content_type,
+			array(
+				'application/javascript',
+				'application/ecmascript',
+				'application/x-ecmascript',
+				'application/x-javascript',
+				'text/ecmascript',
+				'text/javascript',
+				'text/x-ecmascript',
+				'text/x-javascript',
+			),
+			true
+		);
 	}
 
 	/**

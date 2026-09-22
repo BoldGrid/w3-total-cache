@@ -1206,7 +1206,11 @@ class _W3_MinifyHelpers {
 	}
 
 	/**
-	 * Confirms that an external script has a usable cached source.
+	 * Confirms that an external script already has a usable cached source.
+	 *
+	 * This check must not retrieve the script because it runs while page HTML
+	 * is being generated. Cache population and refresh happen in the minify
+	 * request handler.
 	 *
 	 * @since X.X.X
 	 *
@@ -1214,10 +1218,10 @@ class _W3_MinifyHelpers {
 	 *
 	 * @return bool
 	 */
-	public function precache_external_script( $w3tc_url ) {
+	public function is_external_script_cached( $w3tc_url ) {
 		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
 
-		return false !== $minify->_precache_file( $w3tc_url, 'js' );
+		return false !== $minify->get_cached_external_script( $w3tc_url );
 	}
 
 	/**
