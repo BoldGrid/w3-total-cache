@@ -89,6 +89,10 @@ class Minify_Plugin {
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_action( 'w3tc_minifycache_purge_wpcron', array( $this, 'w3tc_minifycache_purge_wpcron' ) );
+		add_action(
+			Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK,
+			array( $this, 'w3tc_minify_precache_external_script' )
+		);
 
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -181,6 +185,30 @@ class Minify_Plugin {
 	public function w3tc_minifycache_purge_wpcron() {
 		$flusher = Dispatcher::component( 'CacheFlush' );
 		$flusher->minifycache_flush();
+	}
+
+	/**
+	 * Retrieves a queued external script outside of page generation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return void
+	 */
+	public function w3tc_minify_precache_external_script( $w3tc_url ) {
+		if ( ! is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return;
+		}
+
+		// The selection may have changed since the event was queued.
+		$helpers = new _W3_MinifyHelpers( $this->_config );
+		if ( 'url' !== $helpers->is_file_for_minification( $w3tc_url, null ) ) {
+			return;
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->_precache_file( $w3tc_url, 'js' );
 	}
 
 	/**
@@ -1220,8 +1248,13 @@ class _W3_MinifyHelpers {
 	 */
 	public function is_external_script_cached( $w3tc_url ) {
 		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$cached = false !== $minify->get_cached_external_script( $w3tc_url );
 
-		return false !== $minify->get_cached_external_script( $w3tc_url );
+		if ( ! $cached ) {
+			$minify->schedule_external_script_precache( $w3tc_url );
+		}
+
+		return $cached;
 	}
 
 	/**

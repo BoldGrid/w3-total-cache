@@ -39,6 +39,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		foreach ( $this->cache_files as $cache_file ) {
 			@\unlink( $cache_file );
 		}
+		\wp_unschedule_hook( Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK );
 		parent::tearDown();
 	}
 
@@ -466,6 +467,163 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 
 		$this->assertNotFalse( $result );
 		$this->assertSame( $cache_file, $result->filepath );
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * An uncached script is queued for retrieval instead of downloaded inline.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_schedule_external_script_precache_queues_missing_script() {
+		$url        = 'https://8.8.8.8/assets/queued.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		$http_calls = 0;
+		@\unlink( $cache_file );
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$queued = $this->handler_with_lifetime( DAY_IN_SECONDS )->schedule_external_script_precache( $url );
+
+		$this->assertTrue( $queued );
+		$this->assertNotFalse(
+			\wp_next_scheduled( Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK, array( $url ) )
+		);
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * A fresh cache entry is not queued for retrieval again.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_schedule_external_script_precache_skips_fresh_cache() {
+		$url        = 'https://8.8.4.4/assets/fresh-queue.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		\wp_mkdir_p( \dirname( $cache_file ) );
+		\file_put_contents( $cache_file, 'window.fresh=true;' );
+
+		$queued = $this->handler_with_lifetime( DAY_IN_SECONDS )->schedule_external_script_precache( $url );
+
+		$this->assertFalse( $queued );
+		$this->assertFalse(
+			\wp_next_scheduled( Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK, array( $url ) )
+		);
+	}
+
+	/**
+	 * Ineligible script URLs are never queued for retrieval.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_schedule_external_script_precache_refuses_ineligible_urls() {
+		$handler = $this->handler_with_lifetime( DAY_IN_SECONDS );
+
+		foreach ( array( 'http://8.8.8.8/app.js', 'https://127.0.0.1/app.js' ) as $url ) {
+			$this->assertFalse( $handler->schedule_external_script_precache( $url ) );
+			$this->assertFalse(
+				\wp_next_scheduled( Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK, array( $url ) )
+			);
+		}
+	}
+
+	/**
+	 * Queued retrieval warms the cache so later page views can rewrite the tag.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_queued_retrieval_warms_cache_for_later_page_views() {
+		$url        = 'https://8.8.8.8/assets/warm.js';
+		$body       = 'window.warm=true;';
+		$cache_file = $this->cache_path( $url, 'js' );
+		@\unlink( $cache_file );
+
+		$handler = $this->handler_with_lifetime( DAY_IN_SECONDS );
+
+		// First page view: nothing is cached, so the original tag stays and work is queued.
+		$this->assertFalse( $handler->get_cached_external_script( $url ) );
+		$this->assertTrue( $handler->schedule_external_script_precache( $url ) );
+
+		\add_filter(
+			'pre_http_request',
+			static function ( $preempt, $args, $request_url ) use ( $url, $body ) {
+				unset( $preempt, $args );
+				if ( $request_url !== $url ) {
+					return new \WP_Error( 'unexpected_url', $request_url );
+				}
+
+				return array(
+					'headers'  => array( 'content-type' => 'application/javascript' ),
+					'body'     => $body,
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		// The queued event retrieves the script away from page generation.
+		$this->assertNotFalse( $handler->_precache_file( $url, 'js' ) );
+
+		$http_calls = 0;
+		\remove_all_filters( 'pre_http_request' );
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$cached = $handler->get_cached_external_script( $url );
+
+		$this->assertNotFalse( $cached );
+		$this->assertSame( $body, \file_get_contents( $cached->filepath ) );
+		$this->assertSame( 0, $http_calls );
+	}
+
+	/**
+	 * The Auto Minify cache check queues retrieval when nothing is cached.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_minify_helpers_queue_retrieval_on_cache_miss() {
+		if ( ! \class_exists( '\W3TC\_W3_MinifyHelpers', false ) ) {
+			require_once W3TC_DIR . '/Minify_Plugin.php';
+		}
+
+		$url        = 'https://8.8.8.8/assets/helpers-miss.js';
+		$cache_file = $this->cache_path( $url, 'js' );
+		$http_calls = 0;
+		@\unlink( $cache_file );
+		\add_filter(
+			'pre_http_request',
+			static function () use ( &$http_calls ) {
+				++$http_calls;
+				return new \WP_Error( 'unexpected', 'HTTP should not run' );
+			},
+			10,
+			3
+		);
+
+		$helpers = new \W3TC\_W3_MinifyHelpers( \W3TC\Dispatcher::config() );
+
+		$this->assertFalse( $helpers->is_external_script_cached( $url ) );
+		$this->assertNotFalse(
+			\wp_next_scheduled( Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK, array( $url ) )
+		);
 		$this->assertSame( 0, $http_calls );
 	}
 

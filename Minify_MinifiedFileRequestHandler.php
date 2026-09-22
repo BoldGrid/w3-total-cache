@@ -83,6 +83,13 @@ class Minify_MinifiedFileRequestHandler {
 	const EXTERNAL_JS_MAX_SIZE = 1048576;
 
 	/**
+	 * Cron hook that retrieves selected external JavaScript.
+	 *
+	 * @since X.X.X
+	 */
+	const EXTERNAL_JS_PRECACHE_HOOK = 'w3tc_minify_precache_external_script';
+
+	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
 	 *
 	 * Initializes the configuration object.
@@ -871,20 +878,20 @@ class Minify_MinifiedFileRequestHandler {
 		}
 
 		if ( 'js' === $type ) {
-			if ( 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) || ! Util_Url::is_public_host( $w3tc_url ) ) {
+			$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+			if ( '' === $cache_path ) {
 				return false;
 			}
 
-			$lifetime = max( HOUR_IN_SECONDS, min( WEEK_IN_SECONDS, $this->_config->get_integer( 'minify.lifetime' ) ) );
+			$lifetime = $this->external_javascript_lifetime();
 		} else {
 			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
 				return false;
 			}
 
-			$lifetime = $this->_config->get_integer( 'minify.lifetime' );
+			$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
+			$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 		}
-
-		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
 
 		if ( ! file_exists( $cache_path ) || @filemtime( $cache_path ) < ( time() - $lifetime ) ) {
 			if ( ! @is_dir( dirname( $cache_path ) ) ) {
@@ -935,18 +942,79 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return mixed The minified source or false when no usable cache exists.
 	 */
 	public function get_cached_external_script( $w3tc_url ) {
-		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		$w3tc_url   = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+
+		if ( '' === $cache_path || ! file_exists( $cache_path ) ) {
+			return false;
+		}
+
+		return $this->_get_minify_source( $cache_path, $w3tc_url, 'js' );
+	}
+
+	/**
+	 * Queues retrieval of an external script that has no usable cache yet.
+	 *
+	 * Page output must never wait on the network, so the first copy is fetched
+	 * by cron. Once a copy exists the tag is rewritten to the minify URL and
+	 * the minify request handler keeps it refreshed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return bool Whether retrieval is queued.
+	 */
+	public function schedule_external_script_precache( $w3tc_url ) {
+		$w3tc_url   = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+
+		if ( '' === $cache_path ) {
+			return false;
+		}
+
+		if ( file_exists( $cache_path ) && @filemtime( $cache_path ) >= ( time() - $this->external_javascript_lifetime() ) ) {
+			return false;
+		}
+
+		$args = array( $w3tc_url );
+		if ( \wp_next_scheduled( self::EXTERNAL_JS_PRECACHE_HOOK, $args ) ) {
+			return true;
+		}
+
+		return true === \wp_schedule_single_event( time(), self::EXTERNAL_JS_PRECACHE_HOOK, $args );
+	}
+
+	/**
+	 * Returns the cache path of an external script eligible for local caching.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $w3tc_url Normalized script URL.
+	 *
+	 * @return string Empty string when the URL may not be cached.
+	 */
+	private function external_javascript_cache_path( $w3tc_url ) {
 		if (
 			'' === $w3tc_url ||
 			'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ||
 			! Util_Url::is_public_host( $w3tc_url )
 		) {
-			return false;
+			return '';
 		}
 
-		$cache_path = sprintf( '%s/minify_%s.js', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ) );
+		return sprintf( '%s/minify_%s.js', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ) );
+	}
 
-		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $w3tc_url, 'js' ) : false;
+	/**
+	 * Returns the bounded refresh interval for external scripts.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return int
+	 */
+	private function external_javascript_lifetime() {
+		return max( HOUR_IN_SECONDS, min( WEEK_IN_SECONDS, $this->_config->get_integer( 'minify.lifetime' ) ) );
 	}
 
 	/**
