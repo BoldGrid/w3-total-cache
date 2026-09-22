@@ -105,7 +105,11 @@ class Cdn_Core {
 		$upload_info = Util_Http::upload_info();
 
 		if ( $upload_info ) {
-			$w3tc_file   = $this->normalize_attachment_file( $w3tc_file );
+			$w3tc_file = $this->normalize_attachment_file( $w3tc_file );
+			if ( '' === $w3tc_file ) {
+				return $files;
+			}
+
 			$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
 			$parsed      = wp_parse_url( rtrim( $upload_info['baseurl'], '/' ) . '/' . $w3tc_file );
 			$local_uri   = $parsed['path'];
@@ -350,16 +354,68 @@ class Cdn_Core {
 	public function normalize_attachment_file( $w3tc_file ) {
 		$upload_info = Util_Http::upload_info();
 
-		if ( $upload_info ) {
-			$w3tc_file = ltrim( str_replace( $upload_info['basedir'], '', $w3tc_file ), '/\\' );
-			$matches   = null;
+		if ( ! $upload_info ) {
+			return '';
+		}
 
-			if ( preg_match( '~(\d{4}/\d{2}/)?[^/]+$~', $w3tc_file, $matches ) ) {
-				$w3tc_file = $matches[0];
+		return $this->normalize_attachment_file_under_basedir( $upload_info['basedir'], $w3tc_file );
+	}
+
+	/**
+	 * Normalize an attachment path against a specific uploads basedir.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $basedir   Upload basedir.
+	 * @param string $w3tc_file Candidate attachment path.
+	 *
+	 * @return string Relative path under basedir, or empty string when rejected.
+	 */
+	private function normalize_attachment_file_under_basedir( $basedir, $w3tc_file ) {
+		if ( ! is_string( $basedir ) || '' === $basedir || ! is_string( $w3tc_file ) || '' === $w3tc_file || false !== strpos( $w3tc_file, "\0" ) ) {
+			return '';
+		}
+
+		$basedir   = Util_Environment::normalize_path( $basedir );
+		$w3tc_file = Util_Environment::normalize_path( $w3tc_file );
+
+		if ( preg_match( '~^(?:/|[a-zA-Z]:/)~', $w3tc_file ) ) {
+			$basedir_prefix = $basedir . '/';
+
+			if ( ! $this->absolute_path_has_prefix( $w3tc_file, $basedir_prefix ) ) {
+				return '';
 			}
+
+			$w3tc_file = substr( $w3tc_file, strlen( $basedir_prefix ) );
+		}
+
+		if ( '' === $w3tc_file || preg_match( '~(?:^|/)\.{1,2}(?:/|$)~', $w3tc_file ) ) {
+			return '';
 		}
 
 		return $w3tc_file;
+	}
+
+	/**
+	 * Whether an absolute path is contained by a basedir prefix.
+	 *
+	 * Drive-letter case is ignored for Windows-style paths; the remainder
+	 * of the path comparison stays case-sensitive.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path   Normalized absolute path.
+	 * @param string $prefix Normalized basedir prefix ending in `/`.
+	 *
+	 * @return bool
+	 */
+	private function absolute_path_has_prefix( $path, $prefix ) {
+		if ( preg_match( '~^[a-zA-Z]:/~', $path ) && preg_match( '~^[a-zA-Z]:/~', $prefix ) ) {
+			$path   = \strtoupper( $path[0] ) . \substr( $path, 1 );
+			$prefix = \strtoupper( $prefix[0] ) . \substr( $prefix, 1 );
+		}
+
+		return 0 === \strpos( $path, $prefix );
 	}
 
 	/**

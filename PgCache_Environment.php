@@ -121,11 +121,52 @@ class PgCache_Environment {
 		}
 
 		// Schedule prime event.
-		if ( $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' ) ) {
+		$prime_enabled = $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' );
+		$one_pass      = $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+		$restart_prime = false;
+		$signature     = $this->prime_settings_signature( $w3tc_config );
+
+		if ( null !== $old_config ) {
+			$old_prime_enabled = (
+				$old_config->get_boolean( 'pgcache.enabled' ) &&
+				$old_config->get_boolean( 'pgcache.prime.enabled' )
+			);
+			$restart_prime     = $prime_enabled && (
+				! $old_prime_enabled ||
+				$one_pass !== $old_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ) ||
+				$w3tc_config->get_string( 'pgcache.prime.sitemap' ) !==
+					$old_config->get_string( 'pgcache.prime.sitemap' )
+			);
+		} else {
+			$stored_signature = get_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, false );
+			$restart_prime    = (
+				$prime_enabled &&
+				false !== $stored_signature &&
+				! hash_equals( (string) $stored_signature, $signature )
+			);
+		}
+
+		if ( 'activate' === $event && $prime_enabled ) {
+			$restart_prime = true;
+		}
+
+		if ( ! $prime_enabled || $restart_prime ) {
+			PgCache_Plugin_Admin::reset_prime();
+		}
+
+		update_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, $signature, false );
+
+		$prime_completed = (
+			$one_pass &&
+			PgCache_Plugin_Admin::prime_generation() ===
+				get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false )
+		);
+
+		if ( $prime_enabled && ! $prime_completed ) {
 			$new_interval = $w3tc_config->get_integer( 'pgcache.prime.interval' );
 			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
 
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
+			if ( $restart_prime || ( null !== $old_config && $new_interval !== $old_interval ) ) {
 				$this->unschedule_prime();
 			}
 
@@ -145,6 +186,31 @@ class PgCache_Environment {
 				throw $exs;
 			}
 		}
+	}
+
+	/**
+	 * Creates the per-site signature for effective preload settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $w3tc_config W3TC configuration.
+	 *
+	 * @return string
+	 */
+	private function prime_settings_signature( $w3tc_config ) {
+		return hash(
+			'sha256',
+			wp_json_encode(
+				array(
+					'enabled'  => (
+						$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
+						$w3tc_config->get_boolean( 'pgcache.prime.enabled' )
+					),
+					'one_pass' => $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ),
+					'sitemap'  => $w3tc_config->get_string( 'pgcache.prime.sitemap' ),
+				)
+			)
+		);
 	}
 
 	/**
@@ -189,6 +255,7 @@ class PgCache_Environment {
 		$this->unschedule_gc();
 		$this->unschedule_prime();
 		$this->unschedule_purge_wpcron();
+		PgCache_Plugin_Admin::reset_prime();
 
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
@@ -495,6 +562,9 @@ class PgCache_Environment {
 	 */
 	private function wp_config_add_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {
@@ -539,6 +609,9 @@ class PgCache_Environment {
 	 */
 	private function wp_config_remove_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {

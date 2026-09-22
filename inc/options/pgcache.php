@@ -402,6 +402,14 @@ $w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = 
 			</tr>
 			<tr>
 				<th colspan="2">
+					<?php $this->checkbox( 'pgcache.prime.sitemap_one_pass' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.sitemap_one_pass' ); ?></label>
+					<p class="description">
+						<?php esc_html_e( 'Stop cache preloading after every URL in the sitemap has been processed. Disable and re-enable cache preloading to start a new pass.', 'w3-total-cache' ); ?>
+					</p>
+				</th>
+			</tr>
+			<tr>
+				<th colspan="2">
 					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label>
 					<p class="description">
 						<?php esc_html_e( 'Only applies to pages, posts, and custom post types whose status transitioned from a non-published status to the "published" status.', 'w3-total-cache' ); ?>
