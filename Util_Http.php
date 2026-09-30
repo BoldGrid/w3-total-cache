@@ -102,14 +102,44 @@ class Util_Http {
 			return false;
 		}
 
+		$public_only = ! empty( $args['w3tc_public_only'] );
+		$https_only  = ! empty( $args['w3tc_https_only'] );
+		$same_host   = ! empty( $args['w3tc_same_host'] );
+		$max_size    = isset( $args['w3tc_max_response_size'] ) ? (int) $args['w3tc_max_response_size'] : 0;
+		$validator   = isset( $args['w3tc_response_validator'] ) && \is_callable( $args['w3tc_response_validator'] ) ?
+			$args['w3tc_response_validator'] :
+			null;
+		unset(
+			$args['w3tc_public_only'],
+			$args['w3tc_https_only'],
+			$args['w3tc_same_host'],
+			$args['w3tc_max_response_size'],
+			$args['w3tc_response_validator']
+		);
+
+		$original_host = self::normalized_url_host( $w3tc_url );
+		if ( $same_host && '' === $original_host ) {
+			return false;
+		}
+
 		/**
 		 * Follow Location responses manually so each hop is evaluated
-		 * with {@see Util_Url::is_allowed_outbound_url()} before the next
-		 * request. Automatic redirect following would skip that check.
+		 * against the requested policy before the next request.
 		 */
 		$max_redirects = 5;
 		for ( $hop = 0; $hop <= $max_redirects; $hop++ ) {
-			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+			if ( $https_only && 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ) {
+				return false;
+			}
+
+			if ( $same_host && self::normalized_url_host( $w3tc_url ) !== $original_host ) {
+				return false;
+			}
+
+			$allowed = $public_only ?
+				Util_Url::is_public_host( $w3tc_url ) :
+				Util_Url::is_allowed_outbound_url( $w3tc_url );
+			if ( ! $allowed ) {
 				return false;
 			}
 
@@ -119,6 +149,9 @@ class Util_Http {
 					'redirection' => 0,
 				)
 			);
+			if ( $max_size > 0 ) {
+				$request_args['limit_response_size'] = $max_size + 1;
+			}
 
 			$response = self::get( $w3tc_url, $request_args );
 			if ( \is_wp_error( $response ) ) {
@@ -144,10 +177,30 @@ class Util_Http {
 				return false;
 			}
 
-			return (bool) @file_put_contents( $w3tc_file, $response['body'] );
+			$body = isset( $response['body'] ) && \is_string( $response['body'] ) ? $response['body'] : '';
+			if ( ( $max_size > 0 && \strlen( $body ) > $max_size ) || ( $validator && ! \call_user_func( $validator, $response ) ) ) {
+				return false;
+			}
+
+			return (bool) @file_put_contents( $w3tc_file, $body );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a normalized host for redirect comparisons.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $url URL to inspect.
+	 *
+	 * @return string
+	 */
+	private static function normalized_url_host( $url ) {
+		$host = \wp_parse_url( $url, PHP_URL_HOST );
+
+		return \is_string( $host ) ? \strtolower( \rtrim( $host, '.' ) ) : '';
 	}
 
 	/**
@@ -195,33 +248,23 @@ class Util_Http {
 			return '';
 		}
 
-		$location = Util_Url::normalize_protocol_relative_url( $location );
-		if ( '' === $location ) {
-			return '';
-		}
-
-		if ( Util_Environment::is_url( $location ) ) {
-			return $location;
-		}
-
 		$parts = \wp_parse_url( $current );
 		if ( ! \is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
 			return '';
 		}
 
-		$authority = $parts['scheme'] . '://' . $parts['host'];
-		if ( ! empty( $parts['port'] ) ) {
-			$authority .= ':' . $parts['port'];
+		// A protocol-relative Location keeps the scheme of the hop that returned it.
+		if ( 0 === \strpos( $location, '//' ) ) {
+			$location = $parts['scheme'] . ':' . $location;
 		}
 
-		if ( isset( $location[0] ) && '/' === $location[0] ) {
-			return $authority . $location;
+		if ( ! \class_exists( '\WP_Http' ) ) {
+			return '';
 		}
 
-		$base_path = isset( $parts['path'] ) ? $parts['path'] : '/';
-		$base_dir  = \trailingslashit( \dirname( $base_path ) );
+		$resolved = \WP_Http::make_absolute_url( $location, $current );
 
-		return $authority . $base_dir . $location;
+		return Util_Url::is_valid_http_scheme( $resolved ) ? $resolved : '';
 	}
 
 	/**

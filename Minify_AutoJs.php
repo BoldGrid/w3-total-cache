@@ -250,6 +250,9 @@ class Minify_AutoJs {
 		$step1_result = $this->minify_helpers->is_file_for_minification( $script_src, $w3tc_file );
 		if ( 'url' === $step1_result ) {
 			$w3tc_file = $script_src;
+			if ( ! $this->minify_helpers->is_external_script_cached( $script_src ) ) {
+				$step1_result = '';
+			}
 		}
 
 		$step1 = ! empty( $step1_result );

@@ -686,6 +686,21 @@ class Licensing_Plugin_Admin {
 						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
 				);
 
+			/*
+			 * Longer prefixes must be tested first. _status_is() is a prefix
+			 * match, so inactive.by_rooturi also matches
+			 * inactive.by_rooturi.activations_limit_reached.
+			 */
+			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
+				return sprintf(
+					// Translators: 1 Product name.
+					__(
+						'Your %1$s license key is not active and cannot be activated due to the license activation limit being reached.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
+
 			case $this->_status_is( $status, 'inactive.by_rooturi' ) || $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ):
 				// Only show this notice if there's actually a license key.
 				if ( empty( $w3tc_license_key ) ) {
@@ -706,16 +721,6 @@ class Licensing_Plugin_Admin {
 					W3TC_POWERED_BY,
 					'<a class="w3tc_licensing_reset_rooturi" href="' . esc_url( $reset_url ) . '">',
 					'</a>'
-				);
-
-			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
-				return sprintf(
-					// Translators: 1 Product name.
-					__(
-						'Your %1$s license key is not active and cannot be activated due to the license activation limit being reached.',
-						'w3-total-cache'
-					),
-					W3TC_POWERED_BY
 				);
 
 			case $this->_status_is( $status, 'inactive' ):
