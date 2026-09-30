@@ -116,7 +116,7 @@ add_filter(
 | `w3tc_browsercache_rules_apache_rewrite` | `add_filter()` | 1 | `$g->rules_rewrite()` | [BrowserCache_Environment.php:755](../BrowserCache_Environment.php#L755) |
 | `w3tc_browsercache_rules_section` | `add_filter()` | 3 | `$section_rules, $this->w3tc_c, $section` | [BrowserCache_Environment_LiteSpeed.php:140](../BrowserCache_Environment_LiteSpeed.php#L140) |
 | `w3tc_browsercache_rules_section_extensions` | `add_filter()` | 3 | `3: $mime_types, $this->w3tc_c, $section`<br>`3: $mime_types, $w3tc_config, $section` | [BrowserCache_Environment.php:778](../BrowserCache_Environment.php#L778)<br>[BrowserCache_Environment_LiteSpeed.php:121](../BrowserCache_Environment_LiteSpeed.php#L121)<br>[BrowserCache_Environment_Nginx.php:431](../BrowserCache_Environment_Nginx.php#L431) |
-| `w3tc_build_cdn_file_array` | `add_filter()` | 1 | `$w3tc_file` | [Cdn_Core.php:817](../Cdn_Core.php#L817) |
+| `w3tc_build_cdn_file_array` | `add_filter()` | 1 | `$w3tc_file` | [Cdn_Core.php:873](../Cdn_Core.php#L873) |
 | `w3tc_cached_mobile_groups` | `add_filter()` | 1 | `$cached_mobile_groups` | [CacheGroups_Plugin_Admin.php:125](../CacheGroups_Plugin_Admin.php#L125) |
 | `w3tc_cache_allowed_classes` | `add_filter()` | 2 | `$defaults, $context` | [Cache_Base.php:467](../Cache_Base.php#L467) |
 | `w3tc_can_cache` | `add_filter()` | 3 | `$original_can_cache, $this, $buffer` | [PgCache_ContentGrabber.php:549](../PgCache_ContentGrabber.php#L549) |
@@ -133,14 +133,14 @@ add_filter(
 | `w3tc_capability_menu_w3tc_dashboard` | `add_filter()` | 1 | `$base_capability` | [Root_AdminMenu.php:171](../Root_AdminMenu.php#L171) |
 | `w3tc_capability_menu_{slug}` | `add_filter()` | 1 | `$base_capability` | [Root_AdminMenu.php:190](../Root_AdminMenu.php#L190) |
 | `w3tc_capability_row_action_w3tc_flush_post` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:135](../Util_Capability.php#L135) |
-| `w3tc_cdn_add_attachment` | `add_filter()` | 1 | `$post_files` | [Cdn_Core_Admin.php:305](../Cdn_Core_Admin.php#L305) |
+| `w3tc_cdn_add_attachment` | `add_filter()` | 1 | `$post_files` | [Cdn_Core_Admin.php:307](../Cdn_Core_Admin.php#L307) |
 | `w3tc_cdn_cf_flush_all_uris` | `add_filter()` | 1 | `array( '/*' )` | [Cdnfsd_CloudFront_Engine.php:97](../Cdnfsd_CloudFront_Engine.php#L97) |
-| `w3tc_cdn_config_headers` | `add_filter()` | 1 | `array()` | [Cdn_Core.php:548](../Cdn_Core.php#L548) |
+| `w3tc_cdn_config_headers` | `add_filter()` | 1 | `array()` | [Cdn_Core.php:604](../Cdn_Core.php#L604) |
 | `w3tc_cdn_delete_attachment` | `add_filter()` | 1 | `$files` | [Cdn_Plugin.php:377](../Cdn_Plugin.php#L377) |
 | `w3tc_cdn_rules_section` | `add_filter()` | 2 | `$section_rules, $this->w3tc_c` | [Cdn_Environment_LiteSpeed.php:68](../Cdn_Environment_LiteSpeed.php#L68) |
 | `w3tc_cdn_update_attachment` | `add_filter()` | 1 | `$files` | [Cdn_Plugin.php:351](../Cdn_Plugin.php#L351) |
 | `w3tc_cdn_update_attachment_metadata` | `add_filter()` | 1 | `$files` | [Cdn_Plugin.php:399](../Cdn_Plugin.php#L399) |
-| `w3tc_cdn_url` | `add_filter()` | 3 | `$new_url, $w3tc_url, $is_engine_mirror` | [Cdn_Core.php:765](../Cdn_Core.php#L765) |
+| `w3tc_cdn_url` | `add_filter()` | 3 | `$new_url, $w3tc_url, $is_engine_mirror` | [Cdn_Core.php:821](../Cdn_Core.php#L821) |
 | `w3tc_cloudflare_proxy_cidrs` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2257](../Util_Environment.php#L2257) |
 | `w3tc_compatibility_test` | `add_filter()` | 1 | `__return_empty_array()` | [inc/lightbox/self_test.php:438](../inc/lightbox/self_test.php#L438) |
 | `w3tc_config_default_values` | `add_filter()` | 1 | `array()` | [Config.php:224](../Config.php#L224)<br>[Config.php:233](../Config.php#L233) |
@@ -182,33 +182,33 @@ add_filter(
 | `w3tc_lazyload_is_embed_script` | `add_filter()` | 1 | `true` | [UserExperience_LazyLoad_Plugin.php:122](../UserExperience_LazyLoad_Plugin.php#L122) |
 | `w3tc_lazyload_mutator_before` | `add_filter()` | 1 | `array( 'buffer' => $buffer, 'modified' => $this->modified, )` | [UserExperience_LazyLoad_Mutator.php:65](../UserExperience_LazyLoad_Mutator.php#L65) |
 | `w3tc_lazyload_on_initialized_javascript` | `add_filter()` | 1 | `''` | [UserExperience_LazyLoad_Plugin.php:207](../UserExperience_LazyLoad_Plugin.php#L207) |
-| `w3tc_minify_before` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:222](../Minify_Plugin.php#L222) |
+| `w3tc_minify_before` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:250](../Minify_Plugin.php#L250) |
 | `w3tc_minify_css_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:619](../lib/Minify/Minify.php#L619) |
 | `w3tc_minify_css_do_excluded_tag_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:267](../Minify_AutoCss.php#L267) |
 | `w3tc_minify_css_do_flush_collected` | `add_filter()` | 3 | `true, $last_style_tag, $this` | [Minify_AutoCss.php:316](../Minify_AutoCss.php#L316) |
 | `w3tc_minify_css_do_local_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:204](../Minify_AutoCss.php#L204) |
 | `w3tc_minify_css_do_tag_minification` | `add_filter()` | 3 | `$do_tag_minification, $style_tag, $w3tc_file` | [Minify_AutoCss.php:245](../Minify_AutoCss.php#L245) |
-| `w3tc_minify_css_enable` | `add_filter()` | 1 | `$css_enable` | [Minify_Plugin.php:215](../Minify_Plugin.php#L215) |
+| `w3tc_minify_css_enable` | `add_filter()` | 1 | `$css_enable` | [Minify_Plugin.php:243](../Minify_Plugin.php#L243) |
 | `w3tc_minify_css_step` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:332](../Minify_AutoCss.php#L332) |
 | `w3tc_minify_css_step_style_to_embed` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:343](../Minify_AutoCss.php#L343) |
 | `w3tc_minify_css_style_tags` | `add_filter()` | 1 | `$style_tags` | [Minify_AutoCss.php:119](../Minify_AutoCss.php#L119) |
-| `w3tc_minify_enable` | `add_filter()` | 1 | `$enable` | [Minify_Plugin.php:197](../Minify_Plugin.php#L197) |
-| `w3tc_minify_file_handler_minify_options` | `add_filter()` | 1 | `$serve_options` | [Minify_MinifiedFileRequestHandler.php:411](../Minify_MinifiedFileRequestHandler.php#L411) |
-| `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:216](../Minify_Plugin.php#L216) |
+| `w3tc_minify_enable` | `add_filter()` | 1 | `$enable` | [Minify_Plugin.php:225](../Minify_Plugin.php#L225) |
+| `w3tc_minify_file_handler_minify_options` | `add_filter()` | 1 | `$serve_options` | [Minify_MinifiedFileRequestHandler.php:426](../Minify_MinifiedFileRequestHandler.php#L426) |
+| `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
 | `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:317](../lib/Minify/Minify/HTML.php#L317)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
-| `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1459](../Minify_Plugin.php#L1459) |
+| `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1511](../Minify_Plugin.php#L1511) |
 | `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:622](../lib/Minify/Minify.php#L622) |
-| `w3tc_minify_js_do_excluded_tag_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:281](../Minify_AutoJs.php#L281) |
-| `w3tc_minify_js_do_flush_collected` | `add_filter()` | 4 | `true, $last_script_tag, $this, $sync_type` | [Minify_AutoJs.php:364](../Minify_AutoJs.php#L364) |
+| `w3tc_minify_js_do_excluded_tag_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:284](../Minify_AutoJs.php#L284) |
+| `w3tc_minify_js_do_flush_collected` | `add_filter()` | 4 | `true, $last_script_tag, $this, $sync_type` | [Minify_AutoJs.php:367](../Minify_AutoJs.php#L367) |
 | `w3tc_minify_js_do_local_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:220](../Minify_AutoJs.php#L220) |
-| `w3tc_minify_js_do_tag_minification` | `add_filter()` | 3 | `$do_tag_minification, $script_tag, $w3tc_file` | [Minify_AutoJs.php:259](../Minify_AutoJs.php#L259) |
-| `w3tc_minify_js_enable` | `add_filter()` | 1 | `$js_enable` | [Minify_Plugin.php:214](../Minify_Plugin.php#L214) |
+| `w3tc_minify_js_do_tag_minification` | `add_filter()` | 3 | `$do_tag_minification, $script_tag, $w3tc_file` | [Minify_AutoJs.php:262](../Minify_AutoJs.php#L262) |
+| `w3tc_minify_js_enable` | `add_filter()` | 1 | `$js_enable` | [Minify_Plugin.php:242](../Minify_Plugin.php#L242) |
 | `w3tc_minify_js_script_tags` | `add_filter()` | 1 | `$script_tags` | [Minify_AutoJs.php:123](../Minify_AutoJs.php#L123) |
-| `w3tc_minify_js_step` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:392](../Minify_AutoJs.php#L392) |
-| `w3tc_minify_js_step_script_to_embed` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:418](../Minify_AutoJs.php#L418) |
-| `w3tc_minify_processed` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
+| `w3tc_minify_js_step` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:395](../Minify_AutoJs.php#L395) |
+| `w3tc_minify_js_step_script_to_embed` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:421](../Minify_AutoJs.php#L421) |
+| `w3tc_minify_processed` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:272](../Minify_Plugin.php#L272) |
 | `w3tc_minify_urls_for_minification_to_minify_filename` | `add_filter()` | 3 | `$minify_filename, $files, $type` | [Minify_Core.php:43](../Minify_Core.php#L43) |
-| `w3tc_minify_url_for_files` | `add_filter()` | 3 | `$w3tc_url, $files, $type` | [Minify_Plugin.php:1203](../Minify_Plugin.php#L1203) |
+| `w3tc_minify_url_for_files` | `add_filter()` | 3 | `$w3tc_url, $files, $type` | [Minify_Plugin.php:1231](../Minify_Plugin.php#L1231) |
 | `w3tc_mobile_groups` | `add_filter()` | 1 | `$mobile_groups` | [CacheGroups_Plugin_Admin.php:149](../CacheGroups_Plugin_Admin.php#L149) |
 | `w3tc_module_is_running-{module}` | `add_filter()` | 1 | `$this->is_enabled( $w3tc_module )` | [ModuleStatus.php:94](../ModuleStatus.php#L94) |
 | `w3tc_network_dashboard_widgets` | `add_filter()` | 1 | `array()` | [Util_Widget.php:47](../Util_Widget.php#L47) |
@@ -218,14 +218,14 @@ add_filter(
 | `w3tc_pagecache_flush_all_groups` | `add_filter()` | 1 | `$groups_to_flush` | [PgCache_Flush.php:367](../PgCache_Flush.php#L367) |
 | `w3tc_pagecache_flush_url` | `add_filter()` | 1 | `$w3tc_data` | [PgCache_Flush.php:450](../PgCache_Flush.php#L450) |
 | `w3tc_pagecache_flush_url_keys` | `add_filter()` | 1 | `$page_keys` | [PgCache_Flush.php:473](../PgCache_Flush.php#L473) |
-| `w3tc_pagecache_rules_apache_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:768](../PgCache_Environment.php#L768) |
-| `w3tc_pagecache_rules_apache_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:794](../PgCache_Environment.php#L794) |
-| `w3tc_pagecache_rules_apache_rewrite_cond` | `add_filter()` | 1 | `$use_cache_rules` | [PgCache_Environment.php:1003](../PgCache_Environment.php#L1003) |
-| `w3tc_pagecache_rules_apache_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1011](../PgCache_Environment.php#L1011) |
-| `w3tc_pagecache_rules_nginx_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1139](../PgCache_Environment.php#L1139) |
-| `w3tc_pagecache_rules_nginx_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1164](../PgCache_Environment.php#L1164) |
-| `w3tc_pagecache_rules_nginx_rewrite_cond` | `add_filter()` | 1 | `''` | [PgCache_Environment.php:1290](../PgCache_Environment.php#L1290) |
-| `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1484](../PgCache_Environment.php#L1484) |
+| `w3tc_pagecache_rules_apache_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:841](../PgCache_Environment.php#L841) |
+| `w3tc_pagecache_rules_apache_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:867](../PgCache_Environment.php#L867) |
+| `w3tc_pagecache_rules_apache_rewrite_cond` | `add_filter()` | 1 | `$use_cache_rules` | [PgCache_Environment.php:1076](../PgCache_Environment.php#L1076) |
+| `w3tc_pagecache_rules_apache_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1084](../PgCache_Environment.php#L1084) |
+| `w3tc_pagecache_rules_nginx_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1212](../PgCache_Environment.php#L1212) |
+| `w3tc_pagecache_rules_nginx_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1237](../PgCache_Environment.php#L1237) |
+| `w3tc_pagecache_rules_nginx_rewrite_cond` | `add_filter()` | 1 | `''` | [PgCache_Environment.php:1363](../PgCache_Environment.php#L1363) |
+| `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1557](../PgCache_Environment.php#L1557) |
 | `w3tc_pagecache_set` | `add_filter()` | 3 | `$_data, $this->_page_key, $this->_page_group` | [PgCache_ContentGrabber.php:3009](../PgCache_ContentGrabber.php#L3009) |
 | `w3tc_pagecache_set_header` | `add_filter()` | 3 | `$h, $h, 'file_generic'` | [Cache_File_Generic.php:260](../Cache_File_Generic.php#L260) |
 | `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:899](../Util_PageUrls.php#L899) |
@@ -234,9 +234,9 @@ add_filter(
 | `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1100](../Util_PageUrls.php#L1100) |
 | `w3tc_pgcache_cookiegroups` | `add_filter()` | 1 | `$cookiegroups` | [CacheGroups_Plugin_Admin.php:269](../CacheGroups_Plugin_Admin.php#L269) |
 | `w3tc_pgcache_flush_post_queued_urls` | `add_filter()` | 1 | `$full_urls` | [PgCache_Flush.php:315](../PgCache_Flush.php#L315) |
-| `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:1437](../PgCache_Environment.php#L1437) |
-| `w3tc_pgcache_rules_apache_last` | `add_filter()` | 5 | `$rules, $use_cache_rules, $document_root, $uri_prefix, $env_W3TC_ENC` | [PgCache_Environment.php:1035](../PgCache_Environment.php#L1035) |
-| `w3tc_pgcache_rules_required` | `add_filter()` | 2 | `$required, $w3tc_c` | [PgCache_Environment.php:265](../PgCache_Environment.php#L265) |
+| `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:1510](../PgCache_Environment.php#L1510) |
+| `w3tc_pgcache_rules_apache_last` | `add_filter()` | 5 | `$rules, $use_cache_rules, $document_root, $uri_prefix, $env_W3TC_ENC` | [PgCache_Environment.php:1108](../PgCache_Environment.php#L1108) |
+| `w3tc_pgcache_rules_required` | `add_filter()` | 2 | `$required, $w3tc_c` | [PgCache_Environment.php:332](../PgCache_Environment.php#L332) |
 | `w3tc_preflush_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:316](../CacheFlush_Locally.php#L316) |
 | `w3tc_preflush_cdn_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:200](../CacheFlush_Locally.php#L200) |
 | `w3tc_preflush_group` | `add_filter()` | 3 | `true, $w3tc_group, $extras` | [CacheFlush_Locally.php:333](../CacheFlush_Locally.php#L333) |
@@ -258,7 +258,7 @@ add_filter(
 | `w3tc_ui_config_item_pgcache.cookiegroups.groups` | `add_filter()` | 1 | `$cookie_groups` | [CacheGroups_Plugin_Admin.php:69](../CacheGroups_Plugin_Admin.php#L69) |
 | `w3tc_ui_config_item_{action}` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1832](../Util_Ui.php#L1832) |
 | `w3tc_ui_settings_item` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1457](../Util_Ui.php#L1457) |
-| `w3tc_uri_cdn_uri` | `add_filter()` | 1 | `ltrim( $remote_uri, '/' )` | [Cdn_Core.php:740](../Cdn_Core.php#L740) |
+| `w3tc_uri_cdn_uri` | `add_filter()` | 1 | `ltrim( $remote_uri, '/' )` | [Cdn_Core.php:796](../Cdn_Core.php#L796) |
 | `w3tc_url_to_docroot_filename` | `add_filter()` | 1 | `$w3tc_data` | [Util_Environment.php:1054](../Util_Environment.php#L1054) |
 | `w3tc_usage_statistics_history_set` | `add_filter()` | 1 | `$history` | [UsageStatistics_StorageWriter.php:332](../UsageStatistics_StorageWriter.php#L332) |
 | `w3tc_usage_statistics_metrics` | `add_filter()` | 1 | `$metrics` | [UsageStatistics_StorageWriter.php:268](../UsageStatistics_StorageWriter.php#L268) |
