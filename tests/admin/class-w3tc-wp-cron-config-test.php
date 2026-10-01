@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.7
  */
 
 declare( strict_types = 1 );
@@ -21,14 +21,14 @@ use W3TC\Generic_AdminActions_Default;
  * those POST fields were dropped, so Enable / Start Time / Interval
  * reset on every save.
  *
- * @since X.X.X
+ * @since 2.10.7
  */
 class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 
 	/**
 	 * HTTP name prefix and admin page for each WP-Cron settings group.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return array<string, array{page: string}>
 	 */
@@ -43,7 +43,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $page Admin page slug.
 	 *
@@ -55,7 +55,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -66,7 +66,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -79,7 +79,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Every dotted WP-Cron UI key is registered in the schema.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_schema_knows_every_wp_cron_ui_key() {
 		foreach ( $this->cron_groups() as $prefix => $unused ) {
@@ -93,7 +93,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Options PHP files must not introduce WP-Cron keys the schema omits.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_options_php_wp_cron_keys_are_in_schema() {
 		$files = glob( W3TC_DIR . '/inc/options/*.php' );
@@ -120,7 +120,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Saving General with Enable + 3:00 AM + Daily persists allcache keys.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_general_save_persists_allcache_wp_cron() {
 		$_POST = array(
@@ -140,7 +140,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Twice Daily on a cache-specific page also persists.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_pgcache_save_persists_wp_cron_twicedaily() {
 		$_POST = array(
@@ -160,7 +160,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Remaining cache-module WP-Cron groups persist on their settings pages.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_module_pages_persist_wp_cron_settings() {
 		$modules = array(
@@ -188,7 +188,7 @@ class W3tc_Wp_Cron_Config_Test extends WP_UnitTestCase {
 	/**
 	 * Unchecking Enable still writes false through the hidden companion field.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_general_save_can_disable_allcache_wp_cron() {
 		$_POST = array(

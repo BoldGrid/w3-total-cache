@@ -364,7 +364,7 @@ class Cdn_Core {
 	/**
 	 * Normalize an attachment path against a specific uploads basedir.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $basedir   Upload basedir.
 	 * @param string $w3tc_file Candidate attachment path.
@@ -402,7 +402,7 @@ class Cdn_Core {
 	 * Drive-letter case is ignored for Windows-style paths; the remainder
 	 * of the path comparison stays case-sensitive.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $path   Normalized absolute path.
 	 * @param string $prefix Normalized basedir prefix ending in `/`.

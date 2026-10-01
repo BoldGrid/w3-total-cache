@@ -190,7 +190,7 @@ class Minify_Plugin {
 	/**
 	 * Retrieves a queued external script outside of page generation.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_url Script URL.
 	 *
@@ -1240,7 +1240,7 @@ class _W3_MinifyHelpers {
 	 * is being generated. Cache population and refresh happen in the minify
 	 * request handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_url Script URL.
 	 *

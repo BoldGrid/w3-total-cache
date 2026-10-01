@@ -18,7 +18,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Option storing the next sitemap entry to preload.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Option recording completion of a one-pass preload.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -36,7 +36,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Option identifying the current preload pass.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -45,7 +45,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Option coordinating overlapping preload callbacks.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -54,7 +54,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Option storing the effective preload settings signature.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -63,7 +63,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Maximum preload lock lifetime.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var int
 	 */
@@ -72,7 +72,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Sitemap traversal completed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -81,7 +81,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Sitemap entry was excluded by traversal policy.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -90,7 +90,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Sitemap traversal encountered a retryable failure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string
 	 */
@@ -115,7 +115,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Returns the current per-site preload generation.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return string
 	 */
@@ -137,7 +137,7 @@ class PgCache_Plugin_Admin {
 	 * The lock is retained so an in-flight callback remains the only writer.
 	 * Its generation becomes stale and it will discard any progress.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return string New generation.
 	 */
@@ -154,7 +154,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Acquires the per-site preload lock.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return array|false Lock data, or false when another run is active.
 	 */
@@ -186,7 +186,7 @@ class PgCache_Plugin_Admin {
 	/**
 	 * Releases a preload lock owned by the supplied token.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $token Lock token.
 	 *

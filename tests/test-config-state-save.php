@@ -5,7 +5,7 @@
  * Run with: php tests/test-config-state-save.php
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.7
  */
 
 if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {

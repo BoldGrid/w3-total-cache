@@ -122,7 +122,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * HTTPS JavaScript from a public destination may be cached.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_allows_https_public_javascript() {
 		$url          = 'https://8.8.8.8/assets/app.js';
@@ -167,7 +167,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * JavaScript caching refuses non-HTTPS, non-public, and non-asset types.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_rejects_ineligible_javascript_requests() {
 		$http_calls = 0;
@@ -192,7 +192,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * JavaScript redirects remain limited to public destinations.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_rejects_non_public_javascript_redirect() {
 		$url        = 'https://8.8.8.8/assets/redirect.js';
@@ -228,7 +228,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * JavaScript redirects may not downgrade from HTTPS.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_rejects_http_javascript_redirect() {
 		$this->assert_javascript_redirect_is_rejected(
@@ -240,7 +240,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * JavaScript redirects may not switch to another public host.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_rejects_cross_host_javascript_redirect() {
 		$this->assert_javascript_redirect_is_rejected(
@@ -252,7 +252,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * JavaScript refreshes no less often than the maximum bounded interval.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_bounds_javascript_refresh_interval() {
 		$url        = 'https://8.8.4.4/assets/refresh.js';
@@ -291,7 +291,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * A failed refresh continues to use the last complete cached script.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_uses_stale_javascript_when_refresh_fails() {
 		$url        = 'https://1.1.1.1/assets/stale.js';
@@ -318,7 +318,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * A zero configured lifetime still observes the one-hour floor.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_precache_file_bounds_javascript_refresh_interval_floor() {
 		$url        = 'https://1.0.0.1/assets/floor.js';
@@ -348,7 +348,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Invalid successful responses do not replace a stale script.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @dataProvider invalid_javascript_response_provider
 	 *
@@ -387,7 +387,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Invalid JavaScript response cases.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return array
 	 */
@@ -419,7 +419,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Looking up an uncached external script does not make an HTTP request.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_get_cached_external_script_does_not_fetch_on_miss() {
 		$url        = 'https://8.8.8.8/assets/not-cached.js';
@@ -445,7 +445,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Looking up a cached external script reuses it without an HTTP request.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_get_cached_external_script_reuses_hit_without_fetching() {
 		$url        = 'https://8.8.4.4/assets/already-cached.js';
@@ -473,7 +473,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * An uncached script is queued for retrieval instead of downloaded inline.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_schedule_external_script_precache_queues_missing_script() {
 		$url        = 'https://8.8.8.8/assets/queued.js';
@@ -502,7 +502,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * A fresh cache entry is not queued for retrieval again.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_schedule_external_script_precache_skips_fresh_cache() {
 		$url        = 'https://8.8.4.4/assets/fresh-queue.js';
@@ -521,7 +521,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Ineligible script URLs are never queued for retrieval.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_schedule_external_script_precache_refuses_ineligible_urls() {
 		$handler = $this->handler_with_lifetime( DAY_IN_SECONDS );
@@ -537,7 +537,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Queued retrieval warms the cache so later page views can rewrite the tag.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_queued_retrieval_warms_cache_for_later_page_views() {
 		$url        = 'https://8.8.8.8/assets/warm.js';
@@ -597,7 +597,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * The Auto Minify cache check queues retrieval when nothing is cached.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_minify_helpers_queue_retrieval_on_cache_miss() {
 		if ( ! \class_exists( '\W3TC\_W3_MinifyHelpers', false ) ) {
@@ -630,7 +630,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Auto Minify leaves the original script tag on a cache miss.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_auto_js_preserves_original_url_on_cache_miss() {
 		$url    = 'https://8.8.8.8/assets/unavailable.js';
@@ -666,7 +666,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Auto Minify replaces an external script on a cache hit.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_auto_js_replaces_external_url_on_cache_hit() {
 		$url    = 'https://8.8.8.8/assets/available.js';
@@ -797,7 +797,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * HTTPS redirect locations retain the request scheme on an HTTP site.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @dataProvider https_redirect_location_provider
 	 *
@@ -869,7 +869,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * HTTPS redirect location cases.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return array
 	 */
@@ -905,7 +905,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Versioned remote URLs still generate minify IDs.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @dataProvider versioned_remote_source_provider
 	 *
@@ -953,7 +953,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Versioned remote source cases.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return array
 	 */
@@ -1003,7 +1003,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Creates a handler with an isolated lifetime configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param int $lifetime Configured cache lifetime.
 	 *
@@ -1046,7 +1046,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Returns and tracks the cache path for a remote asset.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $url  Asset URL.
 	 * @param string $type Asset type.
@@ -1068,7 +1068,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Verifies that a JavaScript redirect stops after its first response.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $start    Initial URL.
 	 * @param string $location Redirect target.

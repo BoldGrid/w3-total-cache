@@ -191,7 +191,7 @@ class PgCache_Environment {
 	/**
 	 * Creates the per-site signature for effective preload settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param Config $w3tc_config W3TC configuration.
 	 *

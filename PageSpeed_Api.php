@@ -334,7 +334,7 @@ class PageSpeed_Api {
 	/**
 	 * Records a token refresh failure for the admin notice.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $title   Notice title.
 	 * @param string $message Optional failure detail.
@@ -350,7 +350,7 @@ class PageSpeed_Api {
 	/**
 	 * Returns operator-facing text for a token refresh failure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_error_id Nested W3 API error ID, if any.
 	 * @param array  $response_body Decoded response body.
@@ -393,7 +393,7 @@ class PageSpeed_Api {
 	/**
 	 * Removes local PageSpeed credentials after an irrecoverable API response.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -411,7 +411,7 @@ class PageSpeed_Api {
 	 * `W3TCG_Google_Auth_OAuth2::isAccessTokenExpired()` treats a missing `created`
 	 * value as expired, so every persist path must set it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param array|string $w3tc_access_token Token payload or token JSON.
 	 *
@@ -447,7 +447,7 @@ class PageSpeed_Api {
 	 *
 	 * Cache-first AJAX handlers must not serve scores once authorization is gone.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -471,7 +471,7 @@ class PageSpeed_Api {
 	/**
 	 * Returns operator-facing text for PageSpeed access that was never authorized.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return string
 	 */
@@ -489,7 +489,7 @@ class PageSpeed_Api {
 	/**
 	 * Returns operator-facing text for stored PageSpeed access that could not be renewed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return string
 	 */
@@ -576,7 +576,7 @@ class PageSpeed_Api {
 	/**
 	 * Returns operator-facing text for an authorization failure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $error_json W3 API authorization error JSON.
 	 *
@@ -641,7 +641,7 @@ class PageSpeed_Api {
 	/**
 	 * Clears PageSpeed failure notices and automatic refresh cooldown.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -725,7 +725,7 @@ class PageSpeed_Api {
 	/**
 	 * Records a token revocation failure for the admin notice.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $message Failure detail.
 	 *
@@ -742,7 +742,7 @@ class PageSpeed_Api {
 	/**
 	 * Returns operator-facing text for a token revocation failure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_error_id Nested W3 API error ID, if any.
 	 * @param int    $response_code HTTP response code.

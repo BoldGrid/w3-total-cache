@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.10.6
+Stable tag: 2.10.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,23 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.10.7 =
+* Feature: Minify: Cache selected external scripts locally for auto minify
+* Feature: Page Cache: Add a one-pass mode for sitemap cache preload
+* Enhancement: Developers: Add a generated reference of supported actions and filters
+* Fix: Browser Cache: Constrain unquoted URL rewriting when removing query strings from static resources
+* Fix: Page Cache: Remove the expired role-cookie compatibility path and skip caching for rejected roles
+* Fix: Page Cache: Avoid Options API calls before WordPress has loaded them during early bootstrap
+* Fix: Object Cache: Persist cache invalidation from wp-admin when admin object caching is disabled
+* Fix: CDN: Preserve custom attachment directories when pushing media
+* Fix: Google PageSpeed: Renew expired access tokens without discarding authorization
+* Fix: Licensing: Show the activation-limit notice for licenses that have reached their limit
+* Fix: Settings: Persist Purge via WP-Cron schedule settings
+* Fix: Settings: Skip unchanged w3tc_state option writes
+* Update: Remove leftover newsletter signup code
+* Update: Build: Omit development-only files from the release ZIP
+
+
 = 2.10.6 =
 * Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
 * Enhancement: Page Cache: Add w3tc_pgcache_rules_required filter to skip writing rewrite rules
@@ -458,6 +475,11 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: WebP Converter renamed to Image Converter
 
 == Upgrade Notice ==
+
+= 2.10.7 =
+This is a security update. All users are strongly encouraged to update.
+This update also adds local caching of selected external scripts, one-pass sitemap preload, and fixes for CDN media paths, Google PageSpeed authorization, and settings persistence.
+
 
 = 2.10.6 =
 This is a security update. All users are strongly encouraged to update.

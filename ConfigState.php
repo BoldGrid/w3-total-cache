@@ -90,7 +90,7 @@ class ConfigState {
 	/**
 	 * Encoded option payload from the last successful load or save.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @var string|null
 	 */
@@ -249,7 +249,7 @@ class ConfigState {
 	/**
 	 * Loads stored option data when the Options API is available.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */

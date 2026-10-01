@@ -3,7 +3,7 @@
  * Tests page cache sitemap preload scheduling modes.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.10.7
  */
 
 use W3TC\Dispatcher;

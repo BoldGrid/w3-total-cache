@@ -38,4 +38,4 @@ else
 fi
 
 # "xdebug.max_nesting_level=512" avoids nesting errors while parsing the plugin.
-php -d xdebug.max_nesting_level=512 "$WP_CLI_BIN" i18n make-pot . languages/w3-total-cache.pot
+php -d xdebug.max_nesting_level=512 "$WP_CLI_BIN" i18n make-pot . languages/w3-total-cache.pot --slug=w3-total-cache

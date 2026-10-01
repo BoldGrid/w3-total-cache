@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.10.6\n"
+"Project-Id-Version: W3 Total Cache 2.10.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-02T17:22:04+00:00\n"
+"POT-Creation-Date: 2026-09-30T18:43:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: w3-total-cache\n"
@@ -35,10 +35,10 @@ msgstr ""
 
 #. Author of the plugin
 #: w3-total-cache.php
+#: inc/options/common/footer.php:117
+#: inc/options/common/footer.php:118
 #: inc/options/common/footer.php:120
 #: inc/options/common/footer.php:121
-#: inc/options/common/footer.php:123
-#: inc/options/common/footer.php:124
 msgid "BoldGrid"
 msgstr ""
 
@@ -155,10 +155,10 @@ msgstr ""
 #: inc/options/minify.php:622
 #: inc/options/minify.php:908
 #: inc/options/minify.php:1211
-#: inc/options/pgcache.php:1118
+#: inc/options/pgcache.php:1126
 #: Minify_ConfigLabels.php:176
 #: Minify_ConfigLabels.php:195
-#: PgCache_ConfigLabels.php:130
+#: PgCache_ConfigLabels.php:131
 msgid "Hypertext Transfer Protocol"
 msgstr ""
 
@@ -267,10 +267,10 @@ msgstr ""
 #: inc/options/browsercache.php:256
 #: inc/options/browsercache.php:594
 #: inc/options/browsercache.php:920
-#: inc/options/pgcache.php:739
-#: inc/options/pgcache.php:842
+#: inc/options/pgcache.php:747
+#: inc/options/pgcache.php:850
 #: Minify_ConfigLabels.php:87
-#: PgCache_ConfigLabels.php:77
+#: PgCache_ConfigLabels.php:78
 msgid "Uniform Resource Locator"
 msgstr ""
 
@@ -1078,13 +1078,13 @@ msgstr ""
 #: inc/options/objectcache.php:183
 #: inc/options/objectcache.php:233
 #: inc/options/pgcache.php:273
-#: inc/options/pgcache.php:662
-#: inc/options/pgcache.php:675
-#: inc/options/pgcache.php:1056
+#: inc/options/pgcache.php:670
+#: inc/options/pgcache.php:683
+#: inc/options/pgcache.php:1064
 #: Minify_ConfigLabels.php:98
 #: Minify_ConfigLabels.php:133
 #: Minify_ConfigLabels.php:185
-#: PgCache_ConfigLabels.php:105
+#: PgCache_ConfigLabels.php:106
 #: SystemOpCache_GeneralPage_View.php:62
 #: UsageStatistics_GeneralPage_View.php:42
 msgid "Enable"
@@ -1490,7 +1490,7 @@ msgstr ""
 #: Cdnfsd_BunnyCdn_Popup_View_Deauthorize.php:59
 #: Cdn_BunnyCdn_Page_View.php:32
 #: Cdn_BunnyCdn_Popup_View_Deauthorize.php:59
-#: inc/options/general.php:1330
+#: inc/options/general.php:1325
 msgid "Deauthorize"
 msgstr ""
 
@@ -1502,7 +1502,7 @@ msgstr ""
 #: Cdn_RackSpaceCdn_Page_View.php:24
 #: Cdn_RackSpaceCloudFiles_Page_View.php:20
 #: Extension_CloudFlare_Page_View.php:68
-#: inc/options/general.php:1341
+#: inc/options/general.php:1336
 msgid "Authorize"
 msgstr ""
 
@@ -2756,7 +2756,7 @@ msgstr ""
 
 #: Cdn_ConfigLabels.php:193
 #: Minify_ConfigLabels.php:239
-#: PgCache_ConfigLabels.php:143
+#: PgCache_ConfigLabels.php:144
 msgid "Rejected user agents:"
 msgstr ""
 
@@ -2764,7 +2764,7 @@ msgstr ""
 msgid "Rejected files:"
 msgstr ""
 
-#: Cdn_Core_Admin.php:815
+#: Cdn_Core_Admin.php:817
 msgid "Purge from CDN"
 msgstr ""
 
@@ -3039,7 +3039,7 @@ msgstr ""
 #: inc/options/general.php:1084
 #: inc/options/minify.php:204
 #: inc/options/minify.php:230
-#: inc/options/pgcache.php:1120
+#: inc/options/pgcache.php:1128
 #: Minify_ConfigLabels.php:38
 #: Util_Ui.php:2388
 #: Util_Ui.php:2504
@@ -3106,8 +3106,8 @@ msgstr ""
 #: inc/options/general.php:437
 #: inc/options/general.php:747
 #: inc/options/general.php:782
-#: inc/options/pgcache.php:563
-#: inc/options/pgcache.php:635
+#: inc/options/pgcache.php:571
+#: inc/options/pgcache.php:643
 msgid "Application Programming Interface"
 msgstr ""
 
@@ -3450,40 +3450,40 @@ msgid "PageCache Garbage cleanup triggered successfully."
 msgstr ""
 
 #. translators: 1: Error message.
-#: Cli.php:600
+#: Cli.php:601
 #, php-format
 msgid "PageCache Priming did failed: %1$s"
 msgstr ""
 
-#: Cli.php:606
+#: Cli.php:607
 msgid "PageCache Priming triggered successfully."
 msgstr ""
 
-#: Cli.php:617
+#: Cli.php:618
 msgid "Always Cached feature is not enabled."
 msgstr ""
 
 #. translators: 1: Error message.
-#: Cli.php:628
+#: Cli.php:629
 #, php-format
 msgid "Always Cached queue processer failed: %1$s"
 msgstr ""
 
-#: Cli.php:634
+#: Cli.php:635
 msgid "Always Cached queue processed successfully."
 msgstr ""
 
-#: Cli.php:645
+#: Cli.php:646
 msgid "Always Cached feature is not enabled"
 msgstr ""
 
 #. translators: 1: Error message.
-#: Cli.php:656
+#: Cli.php:657
 #, php-format
 msgid "Always Cached queue empty failed: %1$s"
 msgstr ""
 
-#: Cli.php:662
+#: Cli.php:663
 msgid "Always Cached queue emptied successfully."
 msgstr ""
 
@@ -3785,7 +3785,7 @@ msgid "Don't cache queries for logged in users"
 msgstr ""
 
 #: DbCache_ConfigLabels.php:29
-#: PgCache_ConfigLabels.php:139
+#: PgCache_ConfigLabels.php:140
 msgid "Maximum lifetime of cache objects:"
 msgstr ""
 
@@ -3793,12 +3793,12 @@ msgstr ""
 #: Extension_FragmentCache_Page_View.php:112
 #: Minify_ConfigLabels.php:205
 #: ObjectCache_ConfigLabels.php:29
-#: PgCache_ConfigLabels.php:140
+#: PgCache_ConfigLabels.php:141
 msgid "Garbage collection interval:"
 msgstr ""
 
 #: DbCache_ConfigLabels.php:31
-#: PgCache_ConfigLabels.php:145
+#: PgCache_ConfigLabels.php:146
 msgid "Never cache the following pages:"
 msgstr ""
 
@@ -3822,7 +3822,7 @@ msgstr ""
 #: DbCache_ConfigLabels.php:36
 #: Extension_AlwaysCached_Page_View_BoxCron.php:35
 #: inc/options/general.php:565
-#: inc/options/pgcache.php:1055
+#: inc/options/pgcache.php:1063
 #: Minify_ConfigLabels.php:242
 #: ObjectCache_ConfigLabels.php:34
 msgid "Enable WP-Cron Event"
@@ -3831,7 +3831,7 @@ msgstr ""
 #: DbCache_ConfigLabels.php:37
 #: Extension_AlwaysCached_Page_View_BoxCron.php:59
 #: inc/options/general.php:584
-#: inc/options/pgcache.php:1075
+#: inc/options/pgcache.php:1083
 #: Minify_ConfigLabels.php:243
 #: ObjectCache_ConfigLabels.php:35
 #: Util_PageSpeed.php:355
@@ -3842,7 +3842,7 @@ msgstr ""
 #: DbCache_ConfigLabels.php:38
 #: Extension_AlwaysCached_Page_View_BoxCron.php:73
 #: inc/options/general.php:595
-#: inc/options/pgcache.php:1086
+#: inc/options/pgcache.php:1094
 #: Minify_ConfigLabels.php:244
 #: ObjectCache_ConfigLabels.php:36
 msgid "Interval"
@@ -4193,7 +4193,7 @@ msgstr ""
 #: inc/options/general.php:587
 #: inc/options/minify.php:1172
 #: inc/options/objectcache.php:257
-#: inc/options/pgcache.php:1078
+#: inc/options/pgcache.php:1086
 msgid "This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time."
 msgstr ""
 
@@ -4202,7 +4202,7 @@ msgstr ""
 #: inc/options/general.php:598
 #: inc/options/minify.php:1183
 #: inc/options/objectcache.php:268
-#: inc/options/pgcache.php:1089
+#: inc/options/pgcache.php:1097
 msgid "Hourly"
 msgstr ""
 
@@ -4211,7 +4211,7 @@ msgstr ""
 #: inc/options/general.php:599
 #: inc/options/minify.php:1184
 #: inc/options/objectcache.php:269
-#: inc/options/pgcache.php:1090
+#: inc/options/pgcache.php:1098
 msgid "Twice Daily"
 msgstr ""
 
@@ -4220,7 +4220,7 @@ msgstr ""
 #: inc/options/general.php:600
 #: inc/options/minify.php:1185
 #: inc/options/objectcache.php:270
-#: inc/options/pgcache.php:1091
+#: inc/options/pgcache.php:1099
 msgid "Daily"
 msgstr ""
 
@@ -4229,7 +4229,7 @@ msgstr ""
 #: inc/options/general.php:601
 #: inc/options/minify.php:1186
 #: inc/options/objectcache.php:271
-#: inc/options/pgcache.php:1092
+#: inc/options/pgcache.php:1100
 msgid "Weekly"
 msgstr ""
 
@@ -4238,7 +4238,7 @@ msgstr ""
 #: inc/options/general.php:603
 #: inc/options/minify.php:1188
 #: inc/options/objectcache.php:273
-#: inc/options/pgcache.php:1094
+#: inc/options/pgcache.php:1102
 msgid "This setting controls the interval that the cron job should occur."
 msgstr ""
 
@@ -5159,7 +5159,7 @@ msgstr ""
 #: inc/options/objectcache.php:29
 #: inc/options/objectcache.php:200
 #: inc/options/pgcache.php:30
-#: inc/options/pgcache.php:1020
+#: inc/options/pgcache.php:1028
 #: ObjectCache_DiskPopup_View.php:33
 #: UserExperience_Preload_Requests_Page_View.php:31
 #: UserExperience_Preload_Requests_Page_View.php:40
@@ -5218,7 +5218,7 @@ msgstr ""
 #: inc/options/dbcache.php:96
 #: inc/options/minify.php:943
 #: inc/options/objectcache.php:79
-#: inc/options/pgcache.php:654
+#: inc/options/pgcache.php:662
 #: Util_Ui.php:2367
 #: Util_Ui.php:2441
 #: Util_Ui.php:2452
@@ -5246,9 +5246,9 @@ msgstr ""
 #: inc/options/objectcache.php:94
 #: inc/options/objectcache.php:105
 #: inc/options/pgcache.php:344
-#: inc/options/pgcache.php:759
-#: inc/options/pgcache.php:785
-#: inc/options/pgcache.php:797
+#: inc/options/pgcache.php:767
+#: inc/options/pgcache.php:793
+#: inc/options/pgcache.php:805
 msgid "seconds"
 msgstr ""
 
@@ -5262,7 +5262,7 @@ msgstr ""
 #: inc/options/dbcache.php:125
 #: inc/options/minify.php:979
 #: inc/options/objectcache.php:107
-#: inc/options/pgcache.php:787
+#: inc/options/pgcache.php:795
 msgid "If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best."
 msgstr ""
 
@@ -6081,10 +6081,10 @@ msgstr ""
 #: PageSpeed_Instructions.php:199
 #: PageSpeed_Instructions.php:263
 #: PgCache_ConfigLabels.php:27
-#: PgCache_Plugin.php:353
-#: PgCache_Plugin.php:361
-#: PgCache_Plugin.php:369
-#: PgCache_Plugin.php:389
+#: PgCache_Plugin.php:387
+#: PgCache_Plugin.php:395
+#: PgCache_Plugin.php:403
+#: PgCache_Plugin.php:423
 #: Root_AdminMenu.php:63
 #: Root_AdminMenu.php:64
 #: SetupGuide_Plugin_Admin.php:1509
@@ -8890,7 +8890,7 @@ msgstr ""
 
 #. translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 #: inc/options/browsercache.php:681
-#: inc/options/pgcache.php:766
+#: inc/options/pgcache.php:774
 #, php-format
 msgid "Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php."
 msgstr ""
@@ -9531,16 +9531,12 @@ msgstr ""
 msgid "Follow Us"
 msgstr ""
 
+#: inc/options/common/footer.php:114
 #: inc/options/common/footer.php:115
-msgid "Newsletter Sign Up"
-msgstr ""
-
-#: inc/options/common/footer.php:117
-#: inc/options/common/footer.php:118
 msgid "W3 Edge"
 msgstr ""
 
-#: inc/options/common/footer.php:128
+#: inc/options/common/footer.php:125
 msgid "Partners"
 msgstr ""
 
@@ -9656,7 +9652,7 @@ msgstr ""
 #: inc/options/general.php:535
 #: inc/options/minify.php:1104
 #: inc/options/objectcache.php:195
-#: inc/options/pgcache.php:1010
+#: inc/options/pgcache.php:1018
 #: Util_Ui.php:2284
 #: Util_Ui.php:2368
 #: Util_Ui.php:2442
@@ -9671,7 +9667,7 @@ msgstr ""
 
 #: inc/options/dbcache.php:218
 #: inc/options/minify.php:1113
-#: inc/options/pgcache.php:1019
+#: inc/options/pgcache.php:1027
 msgid "Scheduling Page Cache purges"
 msgstr ""
 
@@ -9700,11 +9696,11 @@ msgstr ""
 
 #: inc/options/edd/buy.php:47
 #: inc/options/pgcache.php:105
+#: PageSpeed_Api.php:485
+#: PageSpeed_Api.php:503
 #: PageSpeed_Instructions.php:295
 #: PageSpeed_Instructions.php:362
-#: PageSpeed_Page.php:113
 #: PageSpeed_Widget.php:104
-#: PageSpeed_Widget.php:152
 msgid "here"
 msgstr ""
 
@@ -10246,96 +10242,69 @@ msgstr ""
 msgid "PageSpeed Tool"
 msgstr ""
 
-#: inc/options/general.php:1271
-msgid "Unique site ID missing for authorize request!"
-msgstr ""
-
-#: inc/options/general.php:1273
-msgid "Authorize URL missing for authorize request!"
-msgstr ""
-
-#: inc/options/general.php:1275
-msgid "Return URL missing for authorize request!"
-msgstr ""
-
-#: inc/options/general.php:1277
-msgid "Failed to process authorize request!"
-msgstr ""
-
-#: inc/options/general.php:1281
-msgid "No authorize code returned to W3-API from Google!"
-msgstr ""
-
-#: inc/options/general.php:1283
-msgid "No W3Key return to W3-API from Google!"
-msgstr ""
-
-#: inc/options/general.php:1285
-msgid "No W3-API matching record found during Google authorization return processing!"
-msgstr ""
-
+#: inc/options/general.php:1272
 #: inc/options/general.php:1287
-msgid "No Google access token found during Google authorization return processing!"
-msgstr ""
-
-#: inc/options/general.php:1292
 msgid "Google PageSpeed Insights API authorization failed."
 msgstr ""
 
-#: inc/options/general.php:1312
+#: inc/options/general.php:1291
+msgid "Google PageSpeed authorization returned an unusable access token."
+msgstr ""
+
+#: inc/options/general.php:1306
 msgid "Google PageSpeed Insights API authorization successfully reset."
 msgstr ""
 
-#: inc/options/general.php:1325
+#: inc/options/general.php:1320
 msgid "Valid"
 msgstr ""
 
-#: inc/options/general.php:1342
+#: inc/options/general.php:1337
 msgid "Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf."
 msgstr ""
 
-#: inc/options/general.php:1358
+#: inc/options/general.php:1353
 #: Util_Ui.php:2332
 msgid "Import / Export Settings"
 msgstr ""
 
-#: inc/options/general.php:1359
+#: inc/options/general.php:1354
 msgid "This tool allows users to easily transfer their W3 Total Cache plugin settings between different WordPress installations by exporting the current configuration as a file and importing it on another site, ensuring consistent caching and performance optimizations across multiple websites."
 msgstr ""
 
-#: inc/options/general.php:1370
+#: inc/options/general.php:1365
 msgid "Import configuration:"
 msgstr ""
 
-#: inc/options/general.php:1373
+#: inc/options/general.php:1368
 msgid "Upload"
 msgstr ""
 
-#: inc/options/general.php:1374
+#: inc/options/general.php:1369
 msgid "Upload and replace the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1378
+#: inc/options/general.php:1373
 msgid "Export configuration:"
 msgstr ""
 
-#: inc/options/general.php:1380
+#: inc/options/general.php:1375
 msgid "Download"
 msgstr ""
 
-#: inc/options/general.php:1381
+#: inc/options/general.php:1376
 msgid "Download the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1385
+#: inc/options/general.php:1380
 msgid "Reset configuration:"
 msgstr ""
 
-#: inc/options/general.php:1387
+#: inc/options/general.php:1382
 msgid "Restore Default Settings"
 msgstr ""
 
-#: inc/options/general.php:1388
+#: inc/options/general.php:1383
 msgid "Revert all settings to the defaults. Any settings staged in preview mode will not be modified."
 msgstr ""
 
@@ -10783,8 +10752,8 @@ msgid "The %1$sTTL%2$s of page cache files is set via the \"Expires header lifet
 msgstr ""
 
 #: inc/options/minify.php:1237
-#: inc/options/pgcache.php:808
-#: inc/options/pgcache.php:810
+#: inc/options/pgcache.php:816
+#: inc/options/pgcache.php:818
 msgid "Time to Live"
 msgstr ""
 
@@ -11215,215 +11184,219 @@ msgid "A %1$scompliant%2$s sitemap can be used to specify the pages to maintain 
 msgstr ""
 
 #: inc/options/pgcache.php:407
+msgid "Stop cache preloading after every URL in the sitemap has been processed. Disable and re-enable cache preloading to start a new pass."
+msgstr ""
+
+#: inc/options/pgcache.php:415
 msgid "Only applies to pages, posts, and custom post types whose status transitioned from a non-published status to the \"published\" status."
 msgstr ""
 
-#: inc/options/pgcache.php:416
+#: inc/options/pgcache.php:424
 msgid "Applies after updating any page, post, or custom post type with the final status being \"published\"."
 msgstr ""
 
-#: inc/options/pgcache.php:436
+#: inc/options/pgcache.php:444
 msgid "Purge Policy: "
 msgstr ""
 
-#: inc/options/pgcache.php:442
+#: inc/options/pgcache.php:450
 msgid "Specify the pages and feeds to purge when posts are created, edited, or comments posted. The defaults are recommended because additional options may reduce server performance:"
 msgstr ""
 
-#: inc/options/pgcache.php:443
+#: inc/options/pgcache.php:451
 msgid "Specify pages and feeds to purge"
 msgstr ""
 
-#: inc/options/pgcache.php:479
+#: inc/options/pgcache.php:487
 msgid "Choose which feed types should be automatically purged."
 msgstr ""
 
 #. translators: 1 HTML line break tag.
-#: inc/options/pgcache.php:506
+#: inc/options/pgcache.php:514
 #, php-format
 msgid "Specify number of pages that lists posts (archive etc.) that should be purged on post updates etc., i.e. example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e. example.com/page/2 ... "
 msgstr ""
 
-#: inc/options/pgcache.php:530
+#: inc/options/pgcache.php:538
 msgid "Specify additional pages to purge. Including parent page in path. Ex: parent/posts."
 msgstr ""
 
-#: inc/options/pgcache.php:542
+#: inc/options/pgcache.php:550
 msgid "Specify a regular expression that matches your sitemaps."
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:557
+#: inc/options/pgcache.php:565
 #, php-format
 msgid "%1$sREST%2$s %3$sAPI%4$s"
 msgstr ""
 
-#: inc/options/pgcache.php:561
-#: inc/options/pgcache.php:633
+#: inc/options/pgcache.php:569
+#: inc/options/pgcache.php:641
 msgid "REpresentational State Transfer"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:582
+#: inc/options/pgcache.php:590
 #, php-format
 msgid "Use these controls to determine how the WordPress %1$sREST%2$s %3$sAPI%4$s responds to visitors and integrations. Caching API responses can dramatically reduce load when headless frontends, mobile apps, or third-party services request the same data repeatedly, but you can keep responses uncached for highly dynamic endpoints or disable the API altogether when it is not needed to reduce attack surface."
 msgstr ""
 
-#: inc/options/pgcache.php:597
+#: inc/options/pgcache.php:605
 msgid "REST API"
 msgstr ""
 
-#: inc/options/pgcache.php:609
+#: inc/options/pgcache.php:617
 msgid "Don't cache"
 msgstr ""
 
-#: inc/options/pgcache.php:611
+#: inc/options/pgcache.php:619
 msgid "Cache"
 msgstr ""
 
-#: inc/options/pgcache.php:614
+#: inc/options/pgcache.php:622
 msgid "If you're using the WordPress API make sure to use caching to scale performance."
 msgstr ""
 
-#: inc/options/pgcache.php:616
+#: inc/options/pgcache.php:624
 msgid "If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely."
 msgstr ""
 
-#: inc/options/pgcache.php:619
+#: inc/options/pgcache.php:627
 msgid "Potential API Response Time Gain"
 msgstr ""
 
-#: inc/options/pgcache.php:621
+#: inc/options/pgcache.php:629
 msgid "API Response Time"
 msgstr ""
 
-#: inc/options/pgcache.php:622
+#: inc/options/pgcache.php:630
 msgid "In a recent test, enabling REST API Caching increased API response times by 84&#37;!"
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:629
+#: inc/options/pgcache.php:637
 #, php-format
 msgid "Disable %1$sREST%2$s %3$sAPI%4$s"
 msgstr ""
 
-#: inc/options/pgcache.php:658
+#: inc/options/pgcache.php:666
 msgid "Late initialization:"
 msgstr ""
 
-#: inc/options/pgcache.php:664
+#: inc/options/pgcache.php:672
 msgid "Enables support for WordPress functionality in fragment caching for the page caching engine. Use of this feature may increase response times."
 msgstr ""
 
-#: inc/options/pgcache.php:665
+#: inc/options/pgcache.php:673
 msgid "Late initialization"
 msgstr ""
 
-#: inc/options/pgcache.php:671
+#: inc/options/pgcache.php:679
 msgid "Late caching:"
 msgstr ""
 
-#: inc/options/pgcache.php:677
+#: inc/options/pgcache.php:685
 msgid "Overwrites key of page caching via custom filters by postponing entry extraction during the init action."
 msgstr ""
 
-#: inc/options/pgcache.php:678
+#: inc/options/pgcache.php:686
 msgid "Late caching"
 msgstr ""
 
-#: inc/options/pgcache.php:694
+#: inc/options/pgcache.php:702
 msgid "Compatibility mode:"
 msgstr ""
 
-#: inc/options/pgcache.php:699
+#: inc/options/pgcache.php:707
 msgid "Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. Enable this option if you experience issues with the Apache rules."
 msgstr ""
 
-#: inc/options/pgcache.php:707
+#: inc/options/pgcache.php:715
 msgid "Charset:"
 msgstr ""
 
-#: inc/options/pgcache.php:712
+#: inc/options/pgcache.php:720
 msgid "Resolve issues incorrect odd character encoding that may appear in cached pages."
 msgstr ""
 
-#: inc/options/pgcache.php:720
+#: inc/options/pgcache.php:728
 msgid "Reject HEAD requests:"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:735
+#: inc/options/pgcache.php:743
 #, php-format
 msgid "If disabled, HEAD requests can often be cached resulting in \"empty pages\" being returned for subsequent requests for a %1$sURL%2$s."
 msgstr ""
 
-#: inc/options/pgcache.php:760
+#: inc/options/pgcache.php:768
 msgid "Determines the natural expiration time of cache items. The higher the value, the larger the cache."
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:804
+#: inc/options/pgcache.php:812
 #, php-format
 msgid "Significantly reduce the default %1$sTTL%2$s for comment cookies to reduce the number of authenticated user traffic. Enter -1 to revert to default %3$sTTL%4$s."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:838
+#: inc/options/pgcache.php:846
 #, php-format
 msgid "Always cache %1$sURL%2$ss that use these query string name-value pairs. The value part is not required. But if used, separate name-value pairs with an equals sign (i.e., name=value). Each pair should be on their own line."
 msgstr ""
 
-#: inc/options/pgcache.php:865
+#: inc/options/pgcache.php:873
 msgid "Never send cache pages for these user agents."
 msgstr ""
 
-#: inc/options/pgcache.php:879
+#: inc/options/pgcache.php:887
 msgid "Never cache pages that use the specified cookies."
 msgstr ""
 
-#: inc/options/pgcache.php:894
+#: inc/options/pgcache.php:902
 msgid "Always ignore the specified pages / directories. Supports regular expressions."
 msgstr ""
 
-#: inc/options/pgcache.php:908
+#: inc/options/pgcache.php:916
 msgid "Always ignore all pages filed under the specified category slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:922
+#: inc/options/pgcache.php:930
 msgid "Always ignore all pages filed under the specified tag slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:936
+#: inc/options/pgcache.php:944
 msgid "Always ignore all pages filed under the specified author usernames."
 msgstr ""
 
-#: inc/options/pgcache.php:950
+#: inc/options/pgcache.php:958
 msgid "Always ignore all pages filed under the specified custom fields. Separate name-value pairs with an equals sign (i.e., name=value)."
 msgstr ""
 
-#: inc/options/pgcache.php:966
+#: inc/options/pgcache.php:974
 msgid "Cache the specified pages / directories even if listed in the \"never cache the following pages\" field. Supports regular expression."
 msgstr ""
 
-#: inc/options/pgcache.php:986
+#: inc/options/pgcache.php:994
 msgid "Cache the specified pages even if they don't have trailing slash."
 msgstr ""
 
-#: inc/options/pgcache.php:1001
+#: inc/options/pgcache.php:1009
 msgid "Specify additional page headers to cache."
 msgstr ""
 
-#: inc/options/pgcache.php:1014
+#: inc/options/pgcache.php:1022
 msgid "Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: \"wp w3tc flush posts\". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache."
 msgstr ""
 
 #. Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
-#: inc/options/pgcache.php:1034
+#: inc/options/pgcache.php:1042
 #, php-format
 msgid "%1$sPage Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s"
 msgstr ""
 
-#: inc/options/pgcache.php:1102
+#: inc/options/pgcache.php:1110
 #: Util_Ui.php:2369
 #: Util_Ui.php:2443
 #: Util_Ui.php:2547
@@ -11431,7 +11404,7 @@ msgid "Note(s)"
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
-#: inc/options/pgcache.php:1114
+#: inc/options/pgcache.php:1122
 #, php-format
 msgid "Enable %1$sHTTP%2$s compression in the \"%3$sHTML%4$s\" section on %5$sBrowser Cache</a> Settings tab."
 msgstr ""
@@ -11652,6 +11625,8 @@ msgid "Fraud"
 msgstr ""
 
 #: lib/NetDNA/NetDNAPresentation.php:74
+#: PageSpeed_Api.php:637
+#: PageSpeed_Api.php:781
 msgid "unknown"
 msgstr ""
 
@@ -11729,54 +11704,54 @@ msgstr ""
 msgid "Renew Now"
 msgstr ""
 
+#. Translators: 1 Product name.
+#: Licensing_Plugin_Admin.php:697
+#, php-format
+msgid "Your %1$s license key is not active and cannot be activated due to the license activation limit being reached."
+msgstr ""
+
 #. Translators: 1 Product name, 2 opening HTML a tag to reset license URIs, 3 closing HTML a tag.
-#: Licensing_Plugin_Admin.php:702
+#: Licensing_Plugin_Admin.php:717
 #, php-format
 msgid "Your %1$s license key is not active for this site. You can switch your license to this website following %2$sthis link%3$s"
 msgstr ""
 
 #. Translators: 1 Product name.
-#: Licensing_Plugin_Admin.php:714
-#, php-format
-msgid "Your %1$s license key is not active and cannot be activated due to the license activation limit being reached."
-msgstr ""
-
-#. Translators: 1 Product name.
-#: Licensing_Plugin_Admin.php:724
+#: Licensing_Plugin_Admin.php:729
 #, php-format
 msgid "The %1$s license key is not active."
 msgstr ""
 
 #. Translators: 1 Product name, 2 opening HTML a tag to license setting, 3 closing HTML a tag.
-#: Licensing_Plugin_Admin.php:737
+#: Licensing_Plugin_Admin.php:742
 #, php-format
 msgid "Your current %1$s Pro license key is not valid. %2$sPlease confirm it%3$s."
 msgstr ""
 
 #. translators: 1: Product name, 2: HTML anchor open tag, 3: HTML anchor close tag.
-#: Licensing_Plugin_Admin.php:752
+#: Licensing_Plugin_Admin.php:757
 #, php-format
 msgid "The %1$s license key cannot be verified. Please %2$scontact support%3$s for assistance."
 msgstr ""
 
-#: Licensing_Plugin_Admin.php:861
+#: Licensing_Plugin_Admin.php:866
 #: SetupGuide_Plugin_Admin.php:1574
 msgid "Accept"
 msgstr ""
 
-#: Licensing_Plugin_Admin.php:865
+#: Licensing_Plugin_Admin.php:870
 #: SetupGuide_Plugin_Admin.php:1575
 msgid "Decline"
 msgstr ""
 
 #. translators: 1 opening HTML a tag to W3TC Terms page, 2 closing HTML a tag.
-#: Licensing_Plugin_Admin.php:890
+#: Licensing_Plugin_Admin.php:895
 #, php-format
 msgid "Our terms of use and privacy policies have been updated. Please %1$sreview%2$s and accept them."
 msgstr ""
 
 #. translators: 1: Product name, 2: HTML break tag, 3: Anchor/link open tag, 4: Anchor/link close tag.
-#: Licensing_Plugin_Admin.php:900
+#: Licensing_Plugin_Admin.php:905
 #, php-format
 msgid "By allowing us to collect data about how %1$s is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.%2$sFeel free to review our %3$sterms of use and privacy policy%4$s."
 msgstr ""
@@ -12105,23 +12080,23 @@ msgstr ""
 msgid "I Understand the Risks"
 msgstr ""
 
-#: Minify_MinifiedFileRequestHandler.php:793
+#: Minify_MinifiedFileRequestHandler.php:808
 msgid "Too many minify requests."
 msgstr ""
 
 #. translators: 1 interval in seconds.
-#: Minify_Plugin.php:165
+#: Minify_Plugin.php:169
 #, php-format
 msgid "[W3TC] Minify Cache file GC (every %d seconds)"
 msgstr ""
 
-#: Minify_Plugin.php:363
+#: Minify_Plugin.php:391
 #: Minify_Plugin_Admin.php:68
 msgid "Minify Cache"
 msgstr ""
 
 #. Translators: 1 engine name, 2 reject reason.
-#: Minify_Plugin.php:385
+#: Minify_Plugin.php:413
 #, php-format
 msgid "Minified using %1$s%2$s"
 msgstr ""
@@ -12219,70 +12194,171 @@ msgid "Empty the object cache"
 msgstr ""
 
 #. translators: 1: Cache hits, 2: Cache total cache objects, 3: Engine anme, 4: Reason.
-#: ObjectCache_WpObjectCache_Regular.php:1416
+#: ObjectCache_WpObjectCache_Regular.php:1444
 #, php-format
 msgid "Object Caching %1$d/%2$d objects using %3$s%4$s"
 msgstr ""
 
-#: ObjectCache_WpObjectCache_Regular.php:1425
+#: ObjectCache_WpObjectCache_Regular.php:1453
 msgid "Object Cache debug info:"
 msgstr ""
 
-#: ObjectCache_WpObjectCache_Regular.php:1477
+#: ObjectCache_WpObjectCache_Regular.php:1505
 msgid "Object caching is disabled"
 msgstr ""
 
-#: ObjectCache_WpObjectCache_Regular.php:1479
+#: ObjectCache_WpObjectCache_Regular.php:1507
 msgid "DONOTCACHEOBJECT constant is defined"
 msgstr ""
 
-#: PageSpeed_Api.php:148
+#: PageSpeed_Api.php:155
 msgid "Missing Google access token."
 msgstr ""
 
-#: PageSpeed_Api.php:250
+#: PageSpeed_Api.php:262
 msgid "Google PageSpeed access token refresh missing required parameters!"
 msgstr ""
 
 #: PageSpeed_Api.php:278
-msgid "No site ID provided for access key refresh!"
-msgstr ""
-
-#: PageSpeed_Api.php:280
-msgid "No W3TC API key provided for access key refresh!"
-msgstr ""
-
-#: PageSpeed_Api.php:282
-#: PageSpeed_Api.php:433
-msgid "No matching Google access record found for W3TC API key!"
-msgstr ""
-
-#: PageSpeed_Api.php:284
-msgid "Matching Google access record found but the refresh token value is blank!"
-msgstr ""
-
-#: PageSpeed_Api.php:289
+#: PageSpeed_Api.php:301
 msgid "Google PageSpeed access token refresh failed."
 msgstr ""
 
-#: PageSpeed_Api.php:309
-msgid "Google PageSpeed access token refresh failed due to response missing access token."
+#: PageSpeed_Api.php:323
+msgid "Google PageSpeed access token refresh failed due to an unusable token response."
 msgstr ""
 
-#: PageSpeed_Api.php:401
+#: PageSpeed_Api.php:364
+msgid "No site ID provided for access key refresh!"
+msgstr ""
+
+#: PageSpeed_Api.php:367
+msgid "No W3TC API key provided for access key refresh!"
+msgstr ""
+
+#: PageSpeed_Api.php:370
+#: PageSpeed_Api.php:768
+msgid "No matching Google access record found for W3TC API key!"
+msgstr ""
+
+#: PageSpeed_Api.php:373
+msgid "Matching Google access record found but the refresh token value is blank!"
+msgstr ""
+
+#: PageSpeed_Api.php:376
+#: PageSpeed_Api.php:383
+msgid "Google rejected the access token refresh. Local authorization was kept for retry."
+msgstr ""
+
+#: PageSpeed_Api.php:379
+msgid "The renewed Google access token could not be saved by the W3 API. Local authorization was kept for retry."
+msgstr ""
+
+#. translators: %d: HTTP response code.
+#: PageSpeed_Api.php:388
+#, php-format
+msgid "Unexpected token refresh response (HTTP %d)."
+msgstr ""
+
+#. translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+#: PageSpeed_Api.php:481
+#: PageSpeed_Widget.php:100
+#, php-format
+msgid "Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s."
+msgstr ""
+
+#. translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+#: PageSpeed_Api.php:499
+#, php-format
+msgid "Google PageSpeed access is authorized but could not be renewed on the last attempt. W3 Total Cache will retry automatically. If this continues, reauthorize access %1$s."
+msgstr ""
+
+#: PageSpeed_Api.php:598
+msgid "Unique site ID missing for authorize request!"
+msgstr ""
+
+#: PageSpeed_Api.php:601
+msgid "Authorize URL missing for authorize request!"
+msgstr ""
+
+#: PageSpeed_Api.php:604
+msgid "Return URL missing for authorize request!"
+msgstr ""
+
+#: PageSpeed_Api.php:607
+msgid "Failed to process authorize request!"
+msgstr ""
+
+#: PageSpeed_Api.php:610
+msgid "No authorize code returned to W3-API from Google!"
+msgstr ""
+
+#: PageSpeed_Api.php:613
+msgid "Unique site ID missing during Google authorization return processing!"
+msgstr ""
+
+#: PageSpeed_Api.php:616
+msgid "No W3Key returned to W3-API from Google!"
+msgstr ""
+
+#: PageSpeed_Api.php:619
+msgid "No W3-API matching record found during Google authorization return processing!"
+msgstr ""
+
+#: PageSpeed_Api.php:622
+msgid "No Google access token found during Google authorization return processing!"
+msgstr ""
+
+#: PageSpeed_Api.php:625
+msgid "Google rejected the authorization request. Please try authorizing Google PageSpeed again."
+msgstr ""
+
+#: PageSpeed_Api.php:628
+msgid "Google did not return a refresh token. Please authorize Google PageSpeed again."
+msgstr ""
+
+#: PageSpeed_Api.php:631
+msgid "The Google refresh token could not be saved by the W3 API. Please try authorizing again after the service is updated."
+msgstr ""
+
+#. translators: %s: Google authorization error ID.
+#: PageSpeed_Api.php:636
+#, php-format
+msgid "Unexpected Google PageSpeed authorization error: %s"
+msgstr ""
+
+#: PageSpeed_Api.php:671
 msgid "Google PageSpeed access token revocation missing required parameters!"
 msgstr ""
 
-#: PageSpeed_Api.php:429
+#: PageSpeed_Api.php:737
+msgid "Google PageSpeed Access Token revocation failed."
+msgstr ""
+
+#: PageSpeed_Api.php:759
 msgid "No access token provided for revoke!"
 msgstr ""
 
-#: PageSpeed_Api.php:431
+#: PageSpeed_Api.php:762
+msgid "No site ID provided for revoke!"
+msgstr ""
+
+#: PageSpeed_Api.php:765
 msgid "No W3TC API key provided for revoke!"
 msgstr ""
 
-#: PageSpeed_Api.php:438
-msgid "Google PageSpeed Access Token revocation failed."
+#: PageSpeed_Api.php:771
+msgid "Google rejected the access token revocation. Local authorization was kept for retry."
+msgstr ""
+
+#: PageSpeed_Api.php:774
+msgid "Google revoked the access token, but the W3 API could not save the result. Local authorization was kept for retry."
+msgstr ""
+
+#. translators: 1: HTTP response code, 2: API error ID.
+#: PageSpeed_Api.php:779
+#, php-format
+msgid "Unexpected token revocation response (HTTP %1$d, error %2$s)."
 msgstr ""
 
 #: PageSpeed_Data.php:459
@@ -12921,62 +12997,54 @@ msgstr ""
 msgid "An unknown error occured attempting to filter audit results!"
 msgstr ""
 
-#. translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
-#: PageSpeed_Page.php:109
-#: PageSpeed_Widget.php:100
-#: PageSpeed_Widget.php:148
-#, php-format
-msgid "Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s."
-msgstr ""
-
-#: PageSpeed_Page.php:125
-#: PageSpeed_Widget.php:164
+#: PageSpeed_Page.php:130
+#: PageSpeed_Widget.php:169
 msgid "API request failed!"
 msgstr ""
 
-#: PageSpeed_Page.php:126
-#: PageSpeed_Page.php:135
-#: PageSpeed_Page.php:148
-#: PageSpeed_Widget.php:165
-#: PageSpeed_Widget.php:174
-#: PageSpeed_Widget.php:187
+#: PageSpeed_Page.php:131
+#: PageSpeed_Page.php:140
+#: PageSpeed_Page.php:153
+#: PageSpeed_Widget.php:170
+#: PageSpeed_Widget.php:179
+#: PageSpeed_Widget.php:192
 msgid "Analyze URL : "
 msgstr ""
 
-#: PageSpeed_Page.php:134
-#: PageSpeed_Page.php:147
-#: PageSpeed_Widget.php:173
-#: PageSpeed_Widget.php:186
+#: PageSpeed_Page.php:139
+#: PageSpeed_Page.php:152
+#: PageSpeed_Widget.php:178
+#: PageSpeed_Widget.php:191
 msgid "API request error!"
 msgstr ""
 
-#: PageSpeed_Page.php:136
-#: PageSpeed_Widget.php:175
+#: PageSpeed_Page.php:141
+#: PageSpeed_Widget.php:180
 msgid "Response Code : "
 msgstr ""
 
-#: PageSpeed_Page.php:137
-#: PageSpeed_Widget.php:176
+#: PageSpeed_Page.php:142
+#: PageSpeed_Widget.php:181
 msgid "Response Message : "
 msgstr ""
 
-#: PageSpeed_Page.php:149
-#: PageSpeed_Widget.php:188
+#: PageSpeed_Page.php:154
+#: PageSpeed_Widget.php:193
 msgid "Mobile response Code : "
 msgstr ""
 
-#: PageSpeed_Page.php:150
-#: PageSpeed_Widget.php:189
+#: PageSpeed_Page.php:155
+#: PageSpeed_Widget.php:194
 msgid "Mobile response Message : "
 msgstr ""
 
-#: PageSpeed_Page.php:151
-#: PageSpeed_Widget.php:190
+#: PageSpeed_Page.php:156
+#: PageSpeed_Widget.php:195
 msgid "Desktop response Code : "
 msgstr ""
 
-#: PageSpeed_Page.php:152
-#: PageSpeed_Widget.php:191
+#: PageSpeed_Page.php:157
+#: PageSpeed_Widget.php:196
 msgid "Desktop response Message : "
 msgstr ""
 
@@ -13182,162 +13250,166 @@ msgstr ""
 msgid "Pages per interval:"
 msgstr ""
 
+#: PgCache_ConfigLabels.php:70
+msgid "Preload the sitemap once"
+msgstr ""
+
 #. translators: 1: opening acronym tag for URL, 2: closing acronym tag.
-#: PgCache_ConfigLabels.php:73
+#: PgCache_ConfigLabels.php:74
 #, php-format
 msgid "Sitemap %1$sURL%2$s:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:86
+#: PgCache_ConfigLabels.php:87
 msgid "Preload cache upon publishing a post"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:87
+#: PgCache_ConfigLabels.php:88
 msgid "Preload cache upon updating a post"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:88
 #: PgCache_ConfigLabels.php:89
+#: PgCache_ConfigLabels.php:90
 msgid "Front page"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:89
+#: PgCache_ConfigLabels.php:90
 msgid "Posts page"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:90
+#: PgCache_ConfigLabels.php:91
 msgid "Post page"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:91
+#: PgCache_ConfigLabels.php:92
 msgid "Blog feed"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:92
+#: PgCache_ConfigLabels.php:93
 msgid "Post comments pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:93
+#: PgCache_ConfigLabels.php:94
 msgid "Post author pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:94
+#: PgCache_ConfigLabels.php:95
 msgid "Post terms pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:95
+#: PgCache_ConfigLabels.php:96
 msgid "Post comments feed"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:96
+#: PgCache_ConfigLabels.php:97
 msgid "Post author feed"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:97
+#: PgCache_ConfigLabels.php:98
 msgid "Post terms feeds"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:98
+#: PgCache_ConfigLabels.php:99
 msgid "Daily archive pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:99
+#: PgCache_ConfigLabels.php:100
 msgid "Monthly archive pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:100
+#: PgCache_ConfigLabels.php:101
 msgid "Yearly archive pages"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:101
+#: PgCache_ConfigLabels.php:102
 msgid "Specify the feed types to purge:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:102
+#: PgCache_ConfigLabels.php:103
 msgid "Purge limit:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:103
+#: PgCache_ConfigLabels.php:104
 msgid "Additional pages:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:104
+#: PgCache_ConfigLabels.php:105
 msgid "Purge sitemaps:"
 msgstr ""
 
 #. translators: 1: opening acronym tag for UTF, 2: closing acronym tag.
-#: PgCache_ConfigLabels.php:109
+#: PgCache_ConfigLabels.php:110
 #, php-format
 msgid "Disable %1$sUTF%2$s-8 blog charset support"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:113
-#: PgCache_ConfigLabels.php:160
+#: PgCache_ConfigLabels.php:114
+#: PgCache_ConfigLabels.php:161
 msgid "Unicode Transformation Format"
 msgstr ""
 
 #. translators: 1: opening acronym tag for HTTP, 2: closing acronym tag.
-#: PgCache_ConfigLabels.php:126
+#: PgCache_ConfigLabels.php:127
 #, php-format
 msgid " Disable caching of HEAD %1$sHTTP%2$s requests"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:141
+#: PgCache_ConfigLabels.php:142
 msgid "Comment cookie lifetime:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:142
+#: PgCache_ConfigLabels.php:143
 msgid "Accepted query strings:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:144
+#: PgCache_ConfigLabels.php:145
 msgid "Rejected cookies:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:146
+#: PgCache_ConfigLabels.php:147
 msgid "Never cache pages associated with these categories:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:147
+#: PgCache_ConfigLabels.php:148
 msgid "Never cache pages that use these tags:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:148
+#: PgCache_ConfigLabels.php:149
 msgid "Never cache pages by these authors:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:149
+#: PgCache_ConfigLabels.php:150
 msgid "Never cache pages that use these custom fields:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:150
+#: PgCache_ConfigLabels.php:151
 msgid "Cache exception list:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:151
+#: PgCache_ConfigLabels.php:152
 msgid "Non-trailing slash pages:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:152
+#: PgCache_ConfigLabels.php:153
 msgid "Specify page headers:"
 msgstr ""
 
 #. translators: 1: opening acronym tag for UTF, 2: closing acronym tag.
-#: PgCache_ConfigLabels.php:156
+#: PgCache_ConfigLabels.php:157
 #, php-format
 msgid "Handle %1$sXML%2$s mime type"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:169
+#: PgCache_ConfigLabels.php:170
 msgid "Cache alias hostnames:"
 msgstr ""
 
-#: PgCache_ConfigLabels.php:170
+#: PgCache_ConfigLabels.php:171
 msgid "Additional home URLs:"
 msgstr ""
 
 #. translators: 1: Engine name, 2: Reject reason placeholder, 3: Page key extension.
-#: PgCache_ContentGrabber.php:1839
+#: PgCache_ContentGrabber.php:1828
 #, php-format
 msgid "Page Caching using %1$s%2$s%3$s"
 msgstr ""
@@ -13347,23 +13419,23 @@ msgid "REST API disabled."
 msgstr ""
 
 #. translators: 1 interval in seconds.
-#: PgCache_Plugin.php:166
+#: PgCache_Plugin.php:200
 #, php-format
 msgid "[W3TC] Page Cache file GC (every %d seconds)"
 msgstr ""
 
 #. translators: 1 interval in seconds.
-#: PgCache_Plugin.php:178
+#: PgCache_Plugin.php:212
 #, php-format
 msgid "[W3TC] Page Cache prime (every %d seconds)"
 msgstr ""
 
-#: PgCache_Plugin.php:402
+#: PgCache_Plugin.php:436
 msgid "Page Cache: Current Page"
 msgstr ""
 
 #. Translators: 1 memcached servers.
-#: PgCache_Plugin_Admin.php:434
+#: PgCache_Plugin_Admin.php:690
 #, php-format
 msgid "Page Cache: %1$s."
 msgstr ""

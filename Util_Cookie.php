@@ -248,7 +248,7 @@ class Util_Cookie {
 	 * Used on the page-cache write path after WordPress has loaded.
 	 * The early `advanced-cache.php` read path cannot use this.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string[] $roles Role slugs configured for cache rejection.
 	 *
