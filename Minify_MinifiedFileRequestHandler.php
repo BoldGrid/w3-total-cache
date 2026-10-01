@@ -77,7 +77,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Limits for external JavaScript retrieval.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	const EXTERNAL_JS_TIMEOUT  = 5;
 	const EXTERNAL_JS_MAX_SIZE = 1048576;
@@ -85,7 +85,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Cron hook that retrieves selected external JavaScript.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	const EXTERNAL_JS_PRECACHE_HOOK = 'w3tc_minify_precache_external_script';
 
@@ -935,7 +935,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Retrieves an existing external JavaScript cache entry without refreshing it.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_url Script URL.
 	 *
@@ -959,7 +959,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * by cron. Once a copy exists the tag is rewritten to the minify URL and
 	 * the minify request handler keeps it refreshed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_url Script URL.
 	 *
@@ -988,7 +988,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Returns the cache path of an external script eligible for local caching.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $w3tc_url Normalized script URL.
 	 *
@@ -1009,7 +1009,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Returns the bounded refresh interval for external scripts.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return int
 	 */
@@ -1020,7 +1020,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Accepts only non-empty responses with a JavaScript content type.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param array $response HTTP response.
 	 *
@@ -1485,7 +1485,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * versioned or extensionless URLs (e.g. "app.js?ver=1") fall back to
 	 * the type of the group being hashed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $remote_url Remote asset URL.
 	 * @param string $group_type Type of the group being hashed (css/js).

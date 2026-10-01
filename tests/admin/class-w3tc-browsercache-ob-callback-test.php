@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.7
  */
 
 declare( strict_types = 1 );
@@ -15,7 +15,7 @@ use W3TC\Dispatcher;
 /**
  * Browser Cache output-buffer URL rewrite behavior.
  *
- * @since X.X.X
+ * @since 2.10.7
  */
 class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
@@ -35,7 +35,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * Enable CSS/JS query-string removal for each test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -54,7 +54,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * Restore Browser Cache config.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -70,7 +70,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * ob_callback must not rewrite URL-like text inside quoted attribute values.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * ob_callback still strips query strings from real unquoted src attributes.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * ob_callback still strips query strings from quoted src attributes.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	/**
 	 * Set private browsercache_rewrite on BrowserCache_Plugin.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param BrowserCache_Plugin $plugin  Plugin instance.
 	 * @param bool                $rewrite Rewrite flag.

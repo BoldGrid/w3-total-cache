@@ -53,7 +53,7 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 	 * Pre-HMAC leftover name for a role (inline derivation so tests
 	 * do not keep a production helper).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $role WordPress role slug.
 	 *
@@ -185,7 +185,7 @@ class W3tc_Util_Cookie_Legacy_Policy_Test extends WP_UnitTestCase {
 	/**
 	 * Write-path helper uses the loaded WordPress user, not leftover cookies.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_current_user_rejected_role_uses_wp_user() {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );

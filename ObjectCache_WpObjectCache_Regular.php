@@ -1365,7 +1365,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * Admin requests typically skip persistent cache so admin queries are not stored.
 	 * `last_changed` still writes through so frontend query salts invalidate.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $id         Cache key.
 	 * @param string $w3tc_group Cache group.

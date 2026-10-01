@@ -95,7 +95,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Relative attachment paths retain their directory structure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_attachment_paths_accept_relative_upload_locations() {
 		$core = new Cdn_Core();
@@ -113,7 +113,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Absolute attachment paths under the uploads directory become relative.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_attachment_paths_accept_absolute_path_under_uploads() {
 		$upload_info = Util_Http::upload_info();
@@ -134,7 +134,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Attachment paths that leave the uploads directory are rejected.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_attachment_paths_reject_parent_segments_and_outside_paths() {
 		$upload_info = Util_Http::upload_info();
@@ -160,7 +160,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Nested thumbnail metadata keeps the custom parent directory.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_metadata_files_preserve_nested_thumbnail_paths() {
 		$core           = new Cdn_Core();
@@ -188,7 +188,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Windows drive-letter case does not drop a contained nested path.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 */
 	public function test_attachment_paths_accept_windows_drive_letter_case() {
 		$core     = new Cdn_Core();
@@ -225,7 +225,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Assert an attachment path resolves to the expected uploads location.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param Cdn_Core $core          CDN core instance.
 	 * @param string   $path          Attachment path to normalize.
@@ -247,7 +247,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Assert upload descriptors keep nested local and remote paths.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param Cdn_Core $core          CDN core instance.
 	 * @param array    $files         File descriptors.
@@ -274,7 +274,7 @@ class W3tc_Cdn_Path_Hardening_Test extends WP_UnitTestCase {
 	/**
 	 * Expected CDN remote path for an uploads-relative file.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param Cdn_Core $core          CDN core instance.
 	 * @param string   $expected_path Expected relative path under uploads.

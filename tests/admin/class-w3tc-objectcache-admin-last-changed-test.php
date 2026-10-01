@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.7
  */
 
 declare( strict_types = 1 );
@@ -15,7 +15,7 @@ use W3TC\ObjectCache_WpObjectCache_Regular;
 /**
  * Admin object-cache invalidation write-through.
  *
- * @since X.X.X
+ * @since 2.10.7
  */
 class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
@@ -42,7 +42,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * Enable file object cache for each test.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -62,7 +62,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * Restore object cache config.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -78,7 +78,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * last_changed is persisted when admin persistent reads/writes are skipped.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -114,7 +114,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * last_changed reads through without exposing other persistent admin keys.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -140,7 +140,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * Backend keys still delete when admin get() cannot see them.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @return void
 	 */
@@ -163,7 +163,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	/**
 	 * Pretend persistent cache is disabled for this instance (wp-admin skip).
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param ObjectCache_WpObjectCache_Regular $oc Cache instance.
 	 *

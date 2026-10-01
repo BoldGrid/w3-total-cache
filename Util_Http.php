@@ -191,7 +191,7 @@ class Util_Http {
 	/**
 	 * Returns a normalized host for redirect comparisons.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.7
 	 *
 	 * @param string $url URL to inspect.
 	 *

@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.7
  */
 
 declare( strict_types = 1 );
@@ -16,7 +16,7 @@ use W3TC\PageSpeed_Widget;
 /**
  * PageSpeed widget cache vs expiry coverage.
  *
- * @since X.X.X
+ * @since 2.10.7
  */
 class W3tc_Pagespeed_Widget_Cache_Test extends WP_UnitTestCase {
 	/**
