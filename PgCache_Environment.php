@@ -54,7 +54,9 @@ class PgCache_Environment {
 		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
 		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
-		if ( ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) ) {
+		// A defined constant, including false, must not get a second define().
+		// Bedrock owns WP_CACHE outside this stub; false is an intentional off switch.
+		if ( ! defined( 'WP_CACHE' ) ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -552,6 +554,36 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Build wp-config contents for the WP_CACHE constant.
+	 *
+	 * A defined constant is left untouched, whether it is true or false, so a
+	 * second define() is not prepended to a stub that does not own the constant.
+	 * When the constant is undefined, any existing WP_CACHE line is replaced
+	 * with the W3TC snippet once.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_data     Current wp-config.php contents.
+	 * @param bool   $already_defined Whether WP_CACHE is already defined.
+	 * @return string
+	 */
+	private function wp_config_content_for_cache_constant( $config_data, $already_defined ) {
+		if ( $already_defined ) {
+			return $config_data;
+		}
+
+		$new_config_data = $this->wp_config_remove_from_content( $config_data );
+		$updated         = preg_replace(
+			'~<\?(php)?~',
+			"\\0\r\n" . $this->wp_config_addon(),
+			$new_config_data,
+			1
+		);
+
+		return is_string( $updated ) ? $updated : $config_data;
+	}
+
+	/**
 	 * Adds required directives to the wp-config.php file.
 	 *
 	 * @return void
@@ -571,12 +603,9 @@ class PgCache_Environment {
 			return;
 		}
 
-		$new_config_data = $this->wp_config_remove_from_content( $config_data );
-		$new_config_data = preg_replace(
-			'~<\?(php)?~',
-			"\\0\r\n" . $this->wp_config_addon(),
-			$new_config_data,
-			1
+		$new_config_data = $this->wp_config_content_for_cache_constant(
+			$config_data,
+			defined( 'WP_CACHE' )
 		);
 
 		if ( $new_config_data !== $config_data ) {
