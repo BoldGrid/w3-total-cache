@@ -197,6 +197,25 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An environment loader written in wp-config.php itself is still site-owned.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_environment_loader_in_wp_config_does_not_write() {
+		$this->write_fixture(
+			'environments/development.php',
+			"<?php\nConfig::define('WP_CACHE', false);\n"
+		);
+		$stub = "<?php\n\$env_config = __DIR__ . '/environments/' . WP_ENV . '.php';\nrequire_once \$env_config;\n";
+		$path = $this->write_fixture( 'wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub, 'development' );
+
+		$this->assertSame( $stub, $result );
+		$this->assertStringNotContainsString( 'Added by W3 Total Cache', $result );
+	}
+
+	/**
 	 * A commented require is not followed, so that file's define does not count.
 	 *
 	 * @since 2.10.8

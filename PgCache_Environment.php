@@ -601,6 +601,10 @@ class PgCache_Environment {
 			return true;
 		}
 
+		if ( $this->environment_configs_define_wp_cache( $config_path, $code ) ) {
+			return true;
+		}
+
 		if ( $depth > 2 ) {
 			return false;
 		}
@@ -617,10 +621,6 @@ class PgCache_Environment {
 			}
 
 			if ( $this->site_config_defines_wp_cache( $included, $included_data, $depth + 1 ) ) {
-				return true;
-			}
-
-			if ( $this->environment_configs_define_wp_cache( $included, $this->strip_php_comments( $included_data ) ) ) {
 				return true;
 			}
 		}
