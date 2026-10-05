@@ -161,6 +161,20 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A commented define is not a live constant, so the snippet is still added.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_commented_define_does_not_count() {
+		$stub   = "<?php\n// define('WP_CACHE', true); // Added by another cache plugin\n/* define('WP_CACHE', false); */\ndefine('DB_NAME', 'db');\n";
+		$path   = $this->write_fixture( 'wp-config.php', $stub );
+		$result = $this->content_for( $path, $stub );
+
+		$this->assertStringContainsString( "define('WP_CACHE', true); // Added by W3 Total Cache", $result );
+		$this->assertStringContainsString( "define('DB_NAME', 'db')", $result );
+	}
+
+	/**
 	 * A Bedrock stub is not given a second define when application.php owns it.
 	 *
 	 * @since 2.10.8
@@ -177,6 +191,25 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $stub, $result );
 		$this->assertSame( 0, $this->define_count( $result ) );
+	}
+
+	/**
+	 * A parenthesized require of application.php is still a site-owned define.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_parenthesized_require_define_does_not_write() {
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\nConfig::define('WP_CACHE', true);\n"
+		);
+		$stub = "<?php\nrequire_once ( dirname(__DIR__) . '/config/application.php' );\nrequire_once(dirname(__DIR__) . '/config/application.php');\n";
+		$path = $this->write_fixture( 'web/wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub );
+
+		$this->assertSame( $stub, $result );
+		$this->assertStringNotContainsString( 'Added by W3 Total Cache', $result );
 	}
 
 	/**

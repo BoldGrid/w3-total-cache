@@ -637,8 +637,31 @@ class PgCache_Environment {
 	private function content_defines_wp_cache( $config_data ) {
 		return (bool) preg_match(
 			"~define\\s*\\(\\s*['\"]WP_CACHE['\"]~i",
-			$config_data
+			$this->strip_php_comments( $config_data )
 		);
+	}
+
+	/**
+	 * Remove PHP comments so commented defines are not treated as live code.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_data File contents.
+	 * @return string
+	 */
+	private function strip_php_comments( $config_data ) {
+		$tokens = token_get_all( $config_data );
+		$code   = '';
+
+		foreach ( $tokens as $token ) {
+			if ( is_array( $token ) && in_array( $token[0], array( T_COMMENT, T_DOC_COMMENT ), true ) ) {
+				continue;
+			}
+
+			$code .= is_array( $token ) ? $token[1] : $token;
+		}
+
+		return $code;
 	}
 
 	/**
@@ -735,7 +758,7 @@ class PgCache_Environment {
 	 * @return string|null Absolute path, or null when the include is not a site config.
 	 */
 	private function resolve_site_config_include( $config_path, $expression ) {
-		$expression = trim( $expression );
+		$expression = $this->strip_wrapping_parentheses( trim( $expression ) );
 		if (
 			'' === $expression ||
 			false !== strpos( $expression, 'ABSPATH' ) ||
@@ -838,6 +861,88 @@ class PgCache_Environment {
 		}
 
 		return WP_ENV;
+	}
+
+	/**
+	 * Remove parentheses that wrap a whole require expression.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $expression PHP expression after require/include.
+	 * @return string
+	 */
+	private function strip_wrapping_parentheses( $expression ) {
+		$expression = trim( $expression );
+
+		for ( $unwraps = 0; $unwraps < 3; $unwraps++ ) {
+			$inner = $this->unwrap_one_parenthesis( $expression );
+			if ( null === $inner ) {
+				break;
+			}
+			$expression = trim( $inner );
+		}
+
+		return $expression;
+	}
+
+	/**
+	 * Return the inside of one wrapping parenthesis pair, when it wraps everything.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $expression Expression that may start with '('.
+	 * @return string|null Inside text, or null when the first parenthesis does not wrap the expression.
+	 */
+	private function unwrap_one_parenthesis( $expression ) {
+		$length = strlen( $expression );
+		if ( $length < 2 || '(' !== $expression[0] ) {
+			return null;
+		}
+
+		$depth = 0;
+		$quote = '';
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$char = $expression[ $i ];
+
+			if ( '' !== $quote ) {
+				if ( '\\' === $char && ( $i + 1 ) < $length ) {
+					++$i;
+					continue;
+				}
+				if ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( "'" === $char || '"' === $char ) {
+				$quote = $char;
+				continue;
+			}
+
+			if ( '(' === $char ) {
+				++$depth;
+				continue;
+			}
+
+			if ( ')' !== $char ) {
+				continue;
+			}
+
+			--$depth;
+			if ( 0 !== $depth ) {
+				continue;
+			}
+
+			if ( '' !== trim( substr( $expression, $i + 1 ) ) ) {
+				return null;
+			}
+
+			return substr( $expression, 1, $i - 1 );
+		}
+
+		return null;
 	}
 
 	/**
