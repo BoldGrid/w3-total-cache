@@ -175,6 +175,47 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A commented environment loader does not make that environment file site-owned.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_commented_environment_loader_does_not_block_write() {
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\n// \$env_config = __DIR__ . '/environments/' . WP_ENV . '.php';\n"
+		);
+		$this->write_fixture(
+			'config/environments/development.php',
+			"<?php\nConfig::define('WP_CACHE', false);\n"
+		);
+		$stub = "<?php\nrequire_once dirname(__DIR__) . '/config/application.php';\n";
+		$path = $this->write_fixture( 'web/wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub, 'development' );
+
+		$this->assertStringContainsString( "define('WP_CACHE', true); // Added by W3 Total Cache", $result );
+	}
+
+	/**
+	 * A commented require is not followed, so that file's define does not count.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_commented_require_does_not_count() {
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\nConfig::define('WP_CACHE', true);\n"
+		);
+		$stub = "<?php\n// require_once dirname(__DIR__) . '/config/application.php';\ndefine('DB_NAME', 'db');\n";
+		$path = $this->write_fixture( 'web/wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub );
+
+		$this->assertStringContainsString( "define('WP_CACHE', true); // Added by W3 Total Cache", $result );
+		$this->assertStringContainsString( "define('DB_NAME', 'db')", $result );
+	}
+
+	/**
 	 * A Bedrock stub is not given a second define when application.php owns it.
 	 *
 	 * @since 2.10.8

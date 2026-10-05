@@ -595,7 +595,9 @@ class PgCache_Environment {
 	 * @return bool
 	 */
 	private function site_config_defines_wp_cache( $config_path, $config_data, $depth = 0 ) {
-		if ( $this->content_defines_wp_cache( $config_data ) ) {
+		$code = $this->strip_php_comments( $config_data );
+
+		if ( $this->content_defines_wp_cache( $code ) ) {
 			return true;
 		}
 
@@ -603,7 +605,7 @@ class PgCache_Environment {
 			return false;
 		}
 
-		foreach ( $this->config_include_expressions( $config_data ) as $expression ) {
+		foreach ( $this->config_include_expressions( $code ) as $expression ) {
 			$included = $this->resolve_site_config_include( $config_path, $expression );
 			if ( ! is_string( $included ) ) {
 				continue;
@@ -618,7 +620,7 @@ class PgCache_Environment {
 				return true;
 			}
 
-			if ( $this->environment_configs_define_wp_cache( $included, $included_data ) ) {
+			if ( $this->environment_configs_define_wp_cache( $included, $this->strip_php_comments( $included_data ) ) ) {
 				return true;
 			}
 		}
@@ -829,6 +831,8 @@ class PgCache_Environment {
 	 * @return bool
 	 */
 	private function environment_configs_define_wp_cache( $config_path, $config_data ) {
+		$config_data = $this->strip_php_comments( $config_data );
+
 		if ( false === strpos( $config_data, '/environments/' ) && false === strpos( $config_data, '\\environments\\' ) ) {
 			return false;
 		}
