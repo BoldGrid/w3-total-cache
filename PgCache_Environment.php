@@ -54,9 +54,10 @@ class PgCache_Environment {
 		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
 		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
-		// A defined constant, including false, must not get a second define().
-		// Bedrock owns WP_CACHE outside this stub; false is an intentional off switch.
-		if ( ! defined( 'WP_CACHE' ) ) {
+		// WordPress defines WP_CACHE as false in wp_initial_constants() when the
+		// site did not. A true value was set by the site, so leave wp-config alone.
+		// A false value still has to be checked against the site's config files.
+		if ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -556,19 +557,19 @@ class PgCache_Environment {
 	/**
 	 * Build wp-config contents for the WP_CACHE constant.
 	 *
-	 * A defined constant is left untouched, whether it is true or false, so a
-	 * second define() is not prepended to a stub that does not own the constant.
-	 * When the constant is undefined, any existing WP_CACHE line is replaced
-	 * with the W3TC snippet once.
+	 * The PHP constant is not a reliable signal here: WordPress defines it as
+	 * false before admin code runs. Skip the write when wp-config.php, or a
+	 * project file it loads, already defines WP_CACHE (true or false). Otherwise
+	 * insert the W3TC snippet once.
 	 *
 	 * @since 2.10.8
 	 *
-	 * @param string $config_data     Current wp-config.php contents.
-	 * @param bool   $already_defined Whether WP_CACHE is already defined.
+	 * @param string $config_path Path to wp-config.php.
+	 * @param string $config_data Current wp-config.php contents.
 	 * @return string
 	 */
-	private function wp_config_content_for_cache_constant( $config_data, $already_defined ) {
-		if ( $already_defined ) {
+	private function wp_config_content_for_cache_constant( $config_path, $config_data ) {
+		if ( $this->site_config_defines_wp_cache( $config_path, $config_data ) ) {
 			return $config_data;
 		}
 
@@ -581,6 +582,267 @@ class PgCache_Environment {
 		);
 
 		return is_string( $updated ) ? $updated : $config_data;
+	}
+
+	/**
+	 * Whether the site's config, not WordPress core, already defines WP_CACHE.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_path Path to the file being checked.
+	 * @param string $config_data Contents of that file.
+	 * @param int    $depth       Include depth. wp-config is 0.
+	 * @return bool
+	 */
+	private function site_config_defines_wp_cache( $config_path, $config_data, $depth = 0 ) {
+		if ( $this->content_defines_wp_cache( $config_data ) ) {
+			return true;
+		}
+
+		if ( $depth > 2 ) {
+			return false;
+		}
+
+		foreach ( $this->config_include_expressions( $config_data ) as $expression ) {
+			$included = $this->resolve_site_config_include( $config_path, $expression );
+			if ( ! is_string( $included ) ) {
+				continue;
+			}
+
+			$included_data = @file_get_contents( $included );
+			if ( ! is_string( $included_data ) ) {
+				continue;
+			}
+
+			if ( $this->site_config_defines_wp_cache( $included, $included_data, $depth + 1 ) ) {
+				return true;
+			}
+
+			if ( $this->environment_configs_define_wp_cache( $included, $included_data ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a config file defines WP_CACHE, including Roots Config::define().
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_data File contents.
+	 * @return bool
+	 */
+	private function content_defines_wp_cache( $config_data ) {
+		return (bool) preg_match(
+			"~define\\s*\\(\\s*['\"]WP_CACHE['\"]~i",
+			$config_data
+		);
+	}
+
+	/**
+	 * Read PHP expressions that follow require/include in a config file.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_data File contents.
+	 * @return string[]
+	 */
+	private function config_include_expressions( $config_data ) {
+		$expressions = array();
+
+		if ( ! preg_match_all( '~(?:require|include)(?:_once)?\s*~i', $config_data, $matches, PREG_OFFSET_CAPTURE ) ) {
+			return $expressions;
+		}
+
+		foreach ( $matches[0] as $match ) {
+			$expression = $this->read_php_expression( $config_data, $match[1] + strlen( $match[0] ) );
+			if ( '' !== $expression ) {
+				$expressions[] = $expression;
+			}
+		}
+
+		return $expressions;
+	}
+
+	/**
+	 * Read one PHP expression, stopping at the statement semicolon.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_data File contents.
+	 * @param int    $start       Offset of the expression.
+	 * @return string
+	 */
+	private function read_php_expression( $config_data, $start ) {
+		$length     = strlen( $config_data );
+		$depth      = 0;
+		$quote      = '';
+		$expression = '';
+
+		for ( $i = $start; $i < $length; $i++ ) {
+			$char = $config_data[ $i ];
+
+			if ( '' !== $quote ) {
+				$expression .= $char;
+				if ( '\\' === $char && ( $i + 1 ) < $length ) {
+					$expression .= $config_data[ ++$i ];
+				} elseif ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( "'" === $char || '"' === $char ) {
+				$quote       = $char;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( '(' === $char ) {
+				++$depth;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( ')' === $char ) {
+				if ( 0 === $depth ) {
+					break;
+				}
+				--$depth;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( ';' === $char && 0 === $depth ) {
+				break;
+			}
+
+			$expression .= $char;
+		}
+
+		return trim( $expression );
+	}
+
+	/**
+	 * Resolve a static project include. Core and vendor files are ignored.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_path File that contains the include.
+	 * @param string $expression  PHP expression after require/include.
+	 * @return string|null Absolute path, or null when the include is not a site config.
+	 */
+	private function resolve_site_config_include( $config_path, $expression ) {
+		$expression = trim( $expression );
+		if (
+			'' === $expression ||
+			false !== strpos( $expression, 'ABSPATH' ) ||
+			false !== strpos( $expression, '$' )
+		) {
+			return null;
+		}
+
+		if ( preg_match( "~^dirname\\s*\\(\\s*__DIR__\\s*\\)\\s*\\.\\s*(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$base      = dirname( $config_path );
+			$relative  = $matches[2];
+			$candidate = dirname( $base ) . '/' . ltrim( $relative, '/' );
+		} elseif ( preg_match( "~^__DIR__\\s*\\.\\s*(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$relative  = $matches[2];
+			$candidate = dirname( $config_path ) . '/' . ltrim( $relative, '/' );
+		} elseif ( preg_match( "~^(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$candidate = $matches[2];
+			if ( ! $this->path_is_absolute( $candidate ) ) {
+				$candidate = dirname( $config_path ) . '/' . $candidate;
+			}
+		} else {
+			return null;
+		}
+
+		if ( false !== strpos( $candidate, '/vendor/' ) || false !== strpos( $candidate, '\\vendor\\' ) ) {
+			return null;
+		}
+
+		$real = realpath( $candidate );
+		if ( false === $real || ! is_file( $real ) || filesize( $real ) > 1048576 ) {
+			return null;
+		}
+
+		if ( 'wp-settings.php' === basename( $real ) ) {
+			return null;
+		}
+
+		$real_config = realpath( $config_path );
+		$config_dir  = $real_config ? dirname( $real_config ) : dirname( $config_path );
+		$allowed     = array( $config_dir, dirname( $config_dir ) );
+
+		foreach ( $allowed as $root ) {
+			if ( $real === $root || 0 === strpos( $real, $root . DIRECTORY_SEPARATOR ) ) {
+				if ( false !== strpos( $real, DIRECTORY_SEPARATOR . 'wp-includes' . DIRECTORY_SEPARATOR ) ) {
+					return null;
+				}
+				if ( false !== strpos( $real, DIRECTORY_SEPARATOR . 'wp-admin' . DIRECTORY_SEPARATOR ) ) {
+					return null;
+				}
+				return $real;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether an environments directory next to this config defines WP_CACHE.
+	 *
+	 * Bedrock loads config/environments/{WP_ENV}.php through a variable, so the
+	 * require itself cannot be resolved. Those files are still site config.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $config_path File that mentioned the environments directory.
+	 * @param string $config_data Contents of that file.
+	 * @return bool
+	 */
+	private function environment_configs_define_wp_cache( $config_path, $config_data ) {
+		if ( false === strpos( $config_data, '/environments/' ) && false === strpos( $config_data, '\\environments\\' ) ) {
+			return false;
+		}
+
+		$directory = dirname( $config_path ) . '/environments';
+		$files     = glob( $directory . '/*.php' );
+		if ( ! is_array( $files ) ) {
+			return false;
+		}
+
+		foreach ( $files as $file ) {
+			$contents = @file_get_contents( $file );
+			if ( is_string( $contents ) && $this->content_defines_wp_cache( $contents ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a path is absolute.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $path Path to test.
+	 * @return bool
+	 */
+	private function path_is_absolute( $path ) {
+		if ( '' === $path ) {
+			return false;
+		}
+
+		if ( '/' === $path[0] || '\\' === $path[0] ) {
+			return true;
+		}
+
+		return 1 === preg_match( '~^[A-Za-z]:[\\\\/]~', $path );
 	}
 
 	/**
@@ -603,10 +865,7 @@ class PgCache_Environment {
 			return;
 		}
 
-		$new_config_data = $this->wp_config_content_for_cache_constant(
-			$config_data,
-			defined( 'WP_CACHE' )
-		);
+		$new_config_data = $this->wp_config_content_for_cache_constant( $config_path, $config_data );
 
 		if ( $new_config_data !== $config_data ) {
 			try {
@@ -620,13 +879,14 @@ class PgCache_Environment {
 					$this->wp_config_addon()
 				);
 			}
+
+			/**
+			 * That file was in opcache for sure and it may take time to
+			 * start execution of new modified now version.
+			 */
+			$w3tc_o = Dispatcher::component( 'SystemOpCache_Core' );
+			$w3tc_o->flush();
 		}
-		/**
-		 * That file was in opcache for sure and it may take time to
-		 * start execution of new modified now version.
-		 */
-		$w3tc_o = Dispatcher::component( 'SystemOpCache_Core' );
-		$w3tc_o->flush();
 	}
 
 	/**
