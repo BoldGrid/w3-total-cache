@@ -793,10 +793,11 @@ class PgCache_Environment {
 	}
 
 	/**
-	 * Whether an environments directory next to this config defines WP_CACHE.
+	 * Whether the active environment file next to this config defines WP_CACHE.
 	 *
 	 * Bedrock loads config/environments/{WP_ENV}.php through a variable, so the
-	 * require itself cannot be resolved. Those files are still site config.
+	 * require itself cannot be resolved. Only that active file counts. A define
+	 * in another environment must not block the snippet.
 	 *
 	 * @since 2.10.8
 	 *
@@ -809,20 +810,34 @@ class PgCache_Environment {
 			return false;
 		}
 
-		$directory = dirname( $config_path ) . '/environments';
-		$files     = glob( $directory . '/*.php' );
-		if ( ! is_array( $files ) ) {
+		$environment = $this->active_wp_env();
+		if ( ! is_string( $environment ) || 1 !== preg_match( '/^[A-Za-z0-9_-]+$/', $environment ) ) {
 			return false;
 		}
 
-		foreach ( $files as $file ) {
-			$contents = @file_get_contents( $file );
-			if ( is_string( $contents ) && $this->content_defines_wp_cache( $contents ) ) {
-				return true;
-			}
+		$file = dirname( $config_path ) . '/environments/' . $environment . '.php';
+		if ( ! is_file( $file ) ) {
+			return false;
 		}
 
-		return false;
+		$contents = @file_get_contents( $file );
+
+		return is_string( $contents ) && $this->content_defines_wp_cache( $contents );
+	}
+
+	/**
+	 * Active environment name from WP_ENV, when the site defined one.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @return string
+	 */
+	protected function active_wp_env() {
+		if ( ! defined( 'WP_ENV' ) || ! is_string( WP_ENV ) ) {
+			return '';
+		}
+
+		return WP_ENV;
 	}
 
 	/**

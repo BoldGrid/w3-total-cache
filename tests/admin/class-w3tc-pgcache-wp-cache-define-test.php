@@ -54,13 +54,19 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	 *
 	 * @since 2.10.8
 	 *
-	 * @param string $config_path Path to the config file.
-	 * @param string $config_data Current file contents.
+	 * @param string      $config_path Path to the config file.
+	 * @param string      $config_data Current file contents.
+	 * @param string|null $env         Active environment name, when the case sets one.
 	 * @return string
 	 */
-	private function content_for( $config_path, $config_data ) {
-		$environment = new PgCache_Environment();
-		$method      = new ReflectionMethod( PgCache_Environment::class, 'wp_config_content_for_cache_constant' );
+	private function content_for( $config_path, $config_data, $env = null ) {
+		if ( null === $env ) {
+			$environment = new PgCache_Environment();
+		} else {
+			$environment      = new W3tc_Pgcache_Wp_Cache_Env_Double();
+			$environment->env = $env;
+		}
+		$method = new ReflectionMethod( PgCache_Environment::class, 'wp_config_content_for_cache_constant' );
 
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
@@ -174,11 +180,11 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A false constant in Bedrock's environments directory is not overwritten.
+	 * A false constant in the active environment file is not overwritten.
 	 *
 	 * @since 2.10.8
 	 */
-	public function test_environment_file_false_does_not_write() {
+	public function test_active_environment_false_does_not_write() {
 		$this->write_fixture(
 			'config/application.php',
 			"<?php\n\$env_config = __DIR__ . '/environments/' . WP_ENV . '.php';\nrequire_once \$env_config;\n"
@@ -190,10 +196,37 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 		$stub = "<?php\nrequire_once dirname(__DIR__) . '/config/application.php';\n";
 		$path = $this->write_fixture( 'web/wp-config.php', $stub );
 
-		$result = $this->content_for( $path, $stub );
+		$result = $this->content_for( $path, $stub, 'development' );
 
 		$this->assertSame( $stub, $result );
 		$this->assertStringNotContainsString( 'Added by W3 Total Cache', $result );
+	}
+
+	/**
+	 * A WP_CACHE define in an inactive environment file does not block the snippet.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_inactive_environment_define_does_not_block_write() {
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\n\$env_config = __DIR__ . '/environments/' . WP_ENV . '.php';\nrequire_once \$env_config;\n"
+		);
+		$this->write_fixture(
+			'config/environments/development.php',
+			"<?php\nConfig::define('WP_CACHE', false);\n"
+		);
+		$this->write_fixture(
+			'config/environments/production.php',
+			"<?php\nConfig::define('WP_DEBUG', false);\n"
+		);
+		$stub = "<?php\nrequire_once dirname(__DIR__) . '/config/application.php';\n";
+		$path = $this->write_fixture( 'web/wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub, 'production' );
+
+		$this->assertSame( 1, $this->define_count( $result ) );
+		$this->assertStringContainsString( "define('WP_CACHE', true); // Added by W3 Total Cache", $result );
 	}
 
 	/**
@@ -213,6 +246,7 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 		$gate = substr( $source, $start, $end - $start );
 		$this->assertStringContainsString( "if ( ! defined( 'WP_CACHE' ) || ! WP_CACHE )", $gate );
 		$this->assertStringContainsString( 'wp_config_content_for_cache_constant', $source );
+		$this->assertStringNotContainsString( 'glob(', $source );
 	}
 
 	/**
@@ -245,5 +279,31 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 		}
 
 		rmdir( $directory );
+	}
+}
+
+/**
+ * Test double that supplies the active environment name.
+ *
+ * @since 2.10.8
+ */
+class W3tc_Pgcache_Wp_Cache_Env_Double extends PgCache_Environment {
+
+	/**
+	 * Environment name for this case.
+	 *
+	 * @var string
+	 */
+	public $env = '';
+
+	/**
+	 * Return the case's environment name instead of the WP_ENV constant.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @return string
+	 */
+	protected function active_wp_env() {
+		return $this->env;
 	}
 }
