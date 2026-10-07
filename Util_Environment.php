@@ -750,6 +750,7 @@ class Util_Environment {
 
 		if ( $docroot_fix ) {
 			$document_root = untrailingslashit( ABSPATH );
+			$document_root = self::normalize_path( $document_root );
 			return $document_root;
 		}
 
@@ -763,6 +764,7 @@ class Util_Environment {
 			if ( substr( $script_filename, -strlen( $php_self ) ) === $php_self ) {
 				$document_root = substr( $script_filename, 0, -strlen( $php_self ) );
 				$document_root = realpath( $document_root );
+				$document_root = self::normalize_path( $document_root );
 				return $document_root;
 			}
 		}
@@ -780,6 +782,7 @@ class Util_Environment {
 		}
 
 		$document_root = realpath( $document_root );
+		$document_root = self::normalize_path( $document_root );
 		return $document_root;
 	}
 
