@@ -53,6 +53,11 @@ class Extension_MaxCache_Plugin_Admin {
 		// Shown in the field W3TC already has: absent is the hoster's to install, out-of-date theirs to update.
 		$reason = Extension_MaxCache_Core::get_unsupported_reason( $w3tc_config );
 
+		// The file's own state is no longer part of the verdict, and this screen is where it gets reported.
+		if ( '' === $reason ) {
+			$reason = Extension_MaxCache_Core::file_unsupported_reason();
+		}
+
 		$extensions[ Extension_MaxCache_Core::SLUG ] = array(
 			'name'            => 'MAx Cache',
 			'author'          => 'CloudLinux',
@@ -97,7 +102,9 @@ class Extension_MaxCache_Plugin_Admin {
 			return $notes;
 		}
 
-		if ( '' !== Extension_MaxCache_Core::get_unsupported_reason( $w3tc_config ) ) {
+		if ( '' !== Extension_MaxCache_Core::get_unsupported_reason( $w3tc_config )
+			|| '' !== Extension_MaxCache_Core::file_unsupported_reason()
+		) {
 			return $notes;
 		}
 

@@ -215,7 +215,7 @@ class PgCache_Environment {
 	}
 
 	/**
-	 * Adds or removes page-cache rewrite rules for the active configuration.
+	 * Adds or removes page-cache rewrite rules, for this plugin and for an extension that took delivery over.
 	 *
 	 * @since 2.10.0
 	 *
@@ -224,7 +224,7 @@ class PgCache_Environment {
 	 *
 	 * @return void
 	 */
-	private function rules_apply_for_config( $w3tc_config, $exs ) {
+	public function rules_apply_for_config( $w3tc_config, $exs ) {
 		if ( $this->is_rules_required( $w3tc_config ) ) {
 			$this->rules_core_add( $w3tc_config, $exs );
 			$this->rules_cache_add( $w3tc_config, $exs );

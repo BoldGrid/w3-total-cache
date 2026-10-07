@@ -236,7 +236,7 @@ add_filter(
 | `w3tc_pgcache_flush_post_queued_urls` | `add_filter()` | 1 | `$full_urls` | [PgCache_Flush.php:315](../PgCache_Flush.php#L315) |
 | `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:1502](../PgCache_Environment.php#L1502) |
 | `w3tc_pgcache_rules_apache_last` | `add_filter()` | 5 | `$rules, $use_cache_rules, $document_root, $uri_prefix, $env_W3TC_ENC` | [PgCache_Environment.php:1140](../PgCache_Environment.php#L1140) |
-| `w3tc_pgcache_rules_required` | `add_filter()` | 2 | `2: $required, $w3tc_c`<br>`2: true, $w3tc_config` | [Extension_MaxCache_Core.php:875](../Extension_MaxCache_Core.php#L875)<br>[PgCache_Environment.php:333](../PgCache_Environment.php#L333) |
+| `w3tc_pgcache_rules_required` | `add_filter()` | 2 | `2: $required, $w3tc_c`<br>`2: true, $w3tc_config` | [Extension_MaxCache_Core.php:868](../Extension_MaxCache_Core.php#L868)<br>[PgCache_Environment.php:333](../PgCache_Environment.php#L333) |
 | `w3tc_preflush_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:316](../CacheFlush_Locally.php#L316) |
 | `w3tc_preflush_cdn_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:200](../CacheFlush_Locally.php#L200) |
 | `w3tc_preflush_group` | `add_filter()` | 3 | `true, $w3tc_group, $extras` | [CacheFlush_Locally.php:333](../CacheFlush_Locally.php#L333) |

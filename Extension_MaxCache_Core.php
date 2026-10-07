@@ -38,8 +38,6 @@ class Extension_MaxCache_Core {
 	// MAX_STRING_LEN in httpd.h.
 	const MAX_DIRECTIVE_LINE_LENGTH = 8192;
 
-	const DEEP_REASON_TRANSIENT = 'w3tc_maxcache_deep_reason';
-
 	const DELIVERING_OPTION = 'w3tc_maxcache_delivering';
 
 	const SERVED_HANDLER = 'maxcache-cached-file';
@@ -170,8 +168,8 @@ class Extension_MaxCache_Core {
 	}
 
 	/**
-	 * Whether the module is installed on an NGINX host, where a daemon parses `.htaccess` as flat text and
-	 * silently loses `<If>`, `<Files>` and `<Directory>` wrappers.
+	 * Whether the module is installed on an NGINX host, where the directives are read from `.htaccess`
+	 * as flat text rather than by Apache, so the sections around them do not apply.
 	 *
 	 * @since X.X.X
 	 *
@@ -408,56 +406,170 @@ class Extension_MaxCache_Core {
 	}
 
 	/**
-	 * Returns why a MAx Cache block this plugin did not write stops the handover, or an empty string.
+	 * What the rules file itself stands in the way of, read once.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array{reason:string,foreign:bool} Empty reason when nothing does.
+	 */
+	public static function file_state() {
+		$clear    = array(
+			'reason'  => '',
+			'foreign' => false,
+		);
+		$contents = self::rules_file_contents();
+
+		if ( null === $contents ) {
+			return $clear;
+		}
+
+		if ( false === $contents ) {
+			return array(
+				'reason'  => \sprintf(
+					/* translators: %s: path of the rules file. */
+					\__( 'The rules file %s cannot be read. Give the web-server user permission to read it, or delivery stays where it is.', 'w3-total-cache' ),
+					Util_Rule::get_apache_rules_path()
+				),
+				'foreign' => false,
+			);
+		}
+
+		// A write in flight leaves the opening marker without its closing one; add_rules() would anchor on nothing.
+		if ( self::block_is_unfinished( $contents ) ) {
+			return array(
+				'reason'  => \__( 'An unfinished MAx Cache block is left in .htaccess: it has a beginning marker but no end marker, so this plugin can neither read nor remove it. Delete the lines from "# BEGIN W3TC Page Cache MAx Cache" onwards and save the file.', 'w3-total-cache' ),
+				'foreign' => false,
+			);
+		}
+
+		if ( ! self::file_is_searchable( $contents ) ) {
+			return array(
+				'reason'  => self::unsearchable_file_message(),
+				'foreign' => false,
+			);
+		}
+
+		$reason = self::foreign_block_reason( $contents );
+
+		return array(
+			'reason'  => $reason,
+			'foreign' => '' !== $reason,
+		);
+	}
+
+	/**
+	 * Returns why the rules file stands in the way of taking delivery, or an empty string.
 	 *
 	 * @since X.X.X
 	 *
 	 * @return string
 	 */
-	private static function foreign_block_reason() {
+	public static function file_unsupported_reason() {
+		if ( ! self::rules_file_writable() ) {
+			return \__( 'The server configuration file cannot be written by the web server, so the directives would never reach the module.', 'w3-total-cache' );
+		}
+
+		$state = self::file_state();
+
+		return $state['reason'];
+	}
+
+	/**
+	 * Whether the web-server user can write the rules file, for the screens that say why not.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	public static function rules_file_writable() {
+		$path = Util_Rule::get_apache_rules_path();
+
+		// Direct filesystem calls: the question is whether the web-server user can write, not the configured WP_Filesystem transport.
+		if ( \file_exists( $path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			return \is_writable( $path );
+		}
+
+		// Not there yet is fine as long as it can be created.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		return \is_writable( \dirname( $path ) );
+	}
+
+	/**
+	 * Reads the rules file: null when there is none, false when it is there and cannot be read.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string|false|null
+	 */
+	public static function rules_file_contents() {
 		$path = Util_Rule::get_apache_rules_path();
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( ! @\file_exists( $path ) ) {
-			return '';
+		if ( ! $path || ! @\file_exists( $path ) ) {
+			return null;
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-		$contents = @\is_readable( $path ) ? @\file_get_contents( $path ) : false;
+		return @\is_readable( $path ) ? @\file_get_contents( $path ) : false;
+	}
 
-		// Present and unreadable refuses: answering "no objection" is how a second block gets written.
-		if ( false === $contents ) {
-			return \sprintf(
-				/* translators: %s: path of the rules file. */
-				\__( 'The rules file %s cannot be read, so whether another MAx Cache block is already in it is unknown and delivery is not handed over.', 'w3-total-cache' ),
-				$path
-			);
-		}
+	/**
+	 * Whether the file carries our beginning marker without the end one.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $contents Rules file contents.
+	 *
+	 * @return bool
+	 */
+	private static function block_is_unfinished( $contents ) {
+		return false !== \strpos( $contents, W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE )
+			&& false === \strpos( $contents, W3TC_MARKER_END_PGCACHE_MAXCACHE );
+	}
 
-		// A partial write/hand edit can leave the opening marker without its closing one; the anchored strip won't catch it.
-		if ( false !== \strpos( $contents, W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE )
-			&& false === \strpos( $contents, W3TC_MARKER_END_PGCACHE_MAXCACHE )
-		) {
-			return \__( 'An unfinished MAx Cache block is left in .htaccess: it has a beginning marker but no end marker, so this plugin can neither read nor remove it. Delete the lines from "# BEGIN W3TC Page Cache MAx Cache" onwards and save the file.', 'w3-total-cache' );
-		}
+	/**
+	 * Whether the file can be searched at all, or PCRE gave up on its size.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $contents Rules file contents.
+	 *
+	 * @return bool
+	 */
+	private static function file_is_searchable( $contents ) {
+		// PCRE gives up on a long enough file (pcre.backtrack_limit), and a guess either way writes a second block.
+		return null !== self::without_our_block( $contents );
+	}
 
+	/**
+	 * Returns the file with our own block taken out, or null when PCRE gave up.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $contents Rules file contents.
+	 *
+	 * @return string|null
+	 */
+	private static function without_our_block( $contents ) {
 		$ours = \preg_quote( W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE, '~' )
 			. '.*?' . \preg_quote( W3TC_MARKER_END_PGCACHE_MAXCACHE, '~' );
 
-		$foreign = \preg_replace( '~' . $ours . '~s', '', $contents );
+		return \preg_replace( '~' . $ours . '~s', '', $contents );
+	}
 
-		// null means PCRE gave up (pcre.backtrack_limit); casting it to string would wrongly answer "no foreign block".
-		if ( null === $foreign ) {
-			return self::unsearchable_file_message();
-		}
-
+	/**
+	 * Returns why a MAx Cache block this plugin did not write stops the handover, or an empty string.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $contents Rules file contents, already known to be searchable.
+	 *
+	 * @return string
+	 */
+	private static function foreign_block_reason( $contents ) {
 		// Apache and the daemon both accept extra whitespace and a module's source-file name as its identifier.
-		$found = \preg_match( '~<IfModule\s+(?:maxcache_module|mod_maxcache\.c)\s*>~i', $foreign );
-
-		// false means PCRE gave up; reading it as "no foreign block" would let a second one get written.
-		if ( false === $found ) {
-			return self::unsearchable_file_message();
-		}
+		$found = \preg_match( '~<IfModule\s+(?:maxcache_module|mod_maxcache\.c)\s*>~i', (string) self::without_our_block( $contents ) );
 
 		if ( 1 === $found ) {
 			return \__( 'Another MAx Cache block is already present in .htaccess. Two of them would serve different cache files depending on which web server answers, so this one is left alone until the other is removed.', 'w3-total-cache' );
@@ -475,27 +587,6 @@ class Extension_MaxCache_Core {
 	 */
 	private static function unsearchable_file_message() {
 		return \__( 'The .htaccess file could not be searched for an existing MAx Cache block, and delivery is not handed over on an unchecked file.', 'w3-total-cache' );
-	}
-
-	/**
-	 * Whether the file the directives go into can be written.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return bool
-	 */
-	private static function rules_file_writable() {
-		$path = Util_Rule::get_apache_rules_path();
-
-		// Direct filesystem calls: the question is whether the web-server user can write, not the configured WP_Filesystem transport.
-		if ( \file_exists( $path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-			return \is_writable( $path );
-		}
-
-		// Not there yet is fine as long as it can be created.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-		return \is_writable( \dirname( $path ) );
 	}
 
 	/**
@@ -589,50 +680,14 @@ class Extension_MaxCache_Core {
 		self::$memo = array();
 
 		// Per-request latches only - not $mode/$levels/$nginx_installed/$apache_installed, which describe the host.
+		self::$saved_config     = null;
 		self::$delivering_noted = null;
 		self::$cache_root       = null;
 		self::$refreshed_config = null;
 	}
 
 	/**
-	 * Drops everything this integration keeps outside the configuration, for deactivation.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public static function forget_stored() {
-		// The delivering record stays: whether the block is still in the file is the caller's finding, not this method's.
-		\delete_transient( self::DEEP_REASON_TRANSIENT );
-
-		self::$saved_config = null;
-
-		self::forget();
-	}
-
-	/**
-	 * The locale the stored reason was translated in: one row holds the verdict, and a mismatch
-	 * here is what makes gate_verdict() fall back to the untranslated sentence.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return string
-	 */
-	private static function current_locale() {
-		// The locale strings actually translate in: the viewing administrator's in wp-admin, not the site's.
-		if ( \function_exists( 'determine_locale' ) ) {
-			$locale = (string) \determine_locale();
-		} elseif ( \function_exists( 'get_locale' ) ) {
-			$locale = (string) \get_locale();
-		} else {
-			$locale = '';
-		}
-
-		return '' === $locale ? 'default' : \preg_replace( '/[^A-Za-z0-9_]/', '', $locale );
-	}
-
-	/**
-	 * Re-runs the checks that cost I/O, so one pass does not repeat them.
+	 * Works the verdict out once, so one pass does not repeat it.
 	 *
 	 * @since X.X.X
 	 *
@@ -656,16 +711,11 @@ class Extension_MaxCache_Core {
 		self::$reason_computing = true;
 
 		try {
-			// Cheap gate first: when it already refuses, computing the deep verdict too is pure cost nobody reads.
+			// Cheap gate first: when it already refuses, building every directive line is cost nobody reads.
 			$cheap = self::cheap_unsupported_reason( $w3tc_config );
-			$deep  = '' === $cheap ? self::deep_unsupported_reason( $w3tc_config ) : null;
+			$deep  = '' === $cheap ? self::get_directive_length_reason( $w3tc_config ) : null;
 		} finally {
 			self::$reason_computing = false;
-		}
-
-		// Only on a changed answer: a momentary cheap refusal (chmod, deploy) shouldn't drop the stored row.
-		if ( null !== $deep ) {
-			self::store_deep_verdict( $deep );
 		}
 
 		// Last, not first: a rules-required listener reaching back here must not memoize a stale answer.
@@ -675,63 +725,6 @@ class Extension_MaxCache_Core {
 		self::$refreshed_config = $w3tc_config;
 	}
 
-	/**
-	 * Stores the verdict of the checks that cost I/O and hands it back.
-	 *
-	 * One transient carrying locale and verdict, replaced whole: keyed by locale because the
-	 * verdict is a translated sentence, in one row so a config change drops all of it.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param string $deep The verdict.
-	 *
-	 * @return string The same verdict.
-	 */
-	private static function store_deep_verdict( $deep ) {
-		$stored = \get_transient( self::DEEP_REASON_TRANSIENT );
-
-		$same_state = \is_array( $stored )
-			&& isset( $stored['blocked'], $stored['reason'], $stored['locale'] )
-			&& ( '' !== $deep ) === $stored['blocked'];
-
-		// Rewriting an unchanged verdict costs two options-table writes per admin page; locale only matters where printed.
-		if ( $same_state
-			&& ( ! \is_admin() || ( $deep === $stored['reason'] && self::current_locale() === $stored['locale'] ) )
-		) {
-			return (string) $deep;
-		}
-
-		\set_transient(
-			self::DEEP_REASON_TRANSIENT,
-			array(
-				'blocked' => '' !== $deep,
-				'reason'  => $deep,
-				'locale'  => self::current_locale(),
-			),
-			\HOUR_IN_SECONDS
-		);
-
-		return (string) $deep;
-	}
-
-	/**
-	 * Returns why this configuration cannot be handed over, asking the questions that cost I/O.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param Config $w3tc_config W3TC Config containing relevant settings.
-	 *
-	 * @return string
-	 */
-	private static function deep_unsupported_reason( $w3tc_config ) {
-		$reason = self::foreign_block_reason();
-
-		if ( '' !== $reason ) {
-			return $reason;
-		}
-
-		return self::get_directive_length_reason( $w3tc_config );
-	}
 
 	/**
 	 * Returns why a filtered rules layout stops the handover, or an empty string.
@@ -855,7 +848,7 @@ class Extension_MaxCache_Core {
 	}
 
 	/**
-	 * Refuses configurations where W3TC is not the one delivering, or its rules file cannot be written.
+	 * Refuses configurations where W3TC is not the one delivering the page cache.
 	 *
 	 * @since X.X.X
 	 *
@@ -874,11 +867,6 @@ class Extension_MaxCache_Core {
 		// After the engine check, the way is_rules_required() asks it: the filter can only suppress.
 		if ( ! (bool) \apply_filters( 'w3tc_pgcache_rules_required', true, $w3tc_config ) ) {
 			return \__( 'Another component is handling page cache delivery on this site, so there are no W3TC rules to hand over.', 'w3-total-cache' );
-		}
-
-		// Asked of the gate: handing delivery over removes W3TC's rules first, so a failed write leaves nothing serving.
-		if ( ! self::rules_file_writable() ) {
-			return \__( 'The server configuration file cannot be written, so the directives would never reach the module.', 'w3-total-cache' );
 		}
 
 		return '';
@@ -997,7 +985,7 @@ class Extension_MaxCache_Core {
 	}
 
 	/**
-	 * Returns the gate's verdict: the cheap checks, then the stored deep ones.
+	 * Returns the gate's verdict: the cheap checks, then the one that builds every directive line.
 	 *
 	 * @since X.X.X
 	 *
@@ -1019,20 +1007,7 @@ class Extension_MaxCache_Core {
 			return $reason;
 		}
 
-		$stored_deep = \get_transient( self::DEEP_REASON_TRANSIENT );
-
-		// Refusing here deadlocks: the pass that computes this belongs to the extension this answer would switch on.
-		if ( ! \is_array( $stored_deep ) || ! isset( $stored_deep['blocked'] ) ) {
-			return self::store_deep_verdict( self::deep_unsupported_reason( $w3tc_config ) );
-		}
-
-		if ( $stored_deep['blocked'] ) {
-			return isset( $stored_deep['locale'], $stored_deep['reason'] ) && self::current_locale() === $stored_deep['locale']
-				? $stored_deep['reason']
-				: \__( 'The current configuration cannot be handed to MAx Cache.', 'w3-total-cache' );
-		}
-
-		return '';
+		return self::get_directive_length_reason( $w3tc_config );
 	}
 
 	/**
@@ -1101,7 +1076,7 @@ class Extension_MaxCache_Core {
 				return self::unwritable_pattern_message( $name );
 			}
 
-			// Only this list reaches the directive unescaped, and a closing tag in it ends the block early.
+			// The one list that is a regex rather than escaped names: a closing tag in it ends the block early.
 			if ( 'uri' === $name && 1 === \preg_match( '~<\s*/~', $pattern ) ) {
 				return self::unwritable_pattern_message( $name );
 			}
@@ -1194,14 +1169,14 @@ class Extension_MaxCache_Core {
 
 		$lines = array(
 			'MaxCache'              => '    MaxCache On',
-			'MaxCacheExcludeURI'    => '    MaxCacheExcludeURI "' . self::as_directive_argument( self::get_exclude_uri( $w3tc_config ) ) . '"',
-			'MaxCacheExcludeCookie' => '    MaxCacheExcludeCookie "' . self::as_directive_argument( self::get_exclude_cookie( $w3tc_config ) ) . '"',
+			'MaxCacheExcludeURI'    => '    MaxCacheExcludeURI "' . self::get_exclude_uri( $w3tc_config ) . '"',
+			'MaxCacheExcludeCookie' => '    MaxCacheExcludeCookie "' . self::get_exclude_cookie( $w3tc_config ) . '"',
 		);
 
 		$exclude_ua = self::get_exclude_ua( $w3tc_config );
 
 		if ( '' !== $exclude_ua ) {
-			$lines['MaxCacheExcludeUA'] = '    MaxCacheExcludeUA "' . self::as_directive_argument( $exclude_ua ) . '"';
+			$lines['MaxCacheExcludeUA'] = '    MaxCacheExcludeUA "' . $exclude_ua . '"';
 		}
 
 		$ignored_qs = self::get_ignored_qs( $w3tc_config );
@@ -1210,8 +1185,8 @@ class Extension_MaxCache_Core {
 			// W3TC screens these names case-insensitively; matching byte-for-byte would disagree on "?FBCLID=1".
 			$lines['MaxCacheOptions'] = '    MaxCacheOptions +FoldQSIgnoredCase';
 
-			// Unquoted, one line: the NGINX daemon assigns this field (not appends), and doesn't strip quotes here.
-			$lines['MaxCacheQSIgnoredParams'] = '    MaxCacheQSIgnoredParams ' . self::as_directive_argument( $ignored_qs );
+			// One unquoted line: repeating the directive is not portable between the two builds.
+			$lines['MaxCacheQSIgnoredParams'] = '    MaxCacheQSIgnoredParams ' . $ignored_qs;
 		}
 
 		// {SLASH_SUFFIX}/{SSL_SUFFIX}/{ENC_SUFFIX} take their literal from one key=value directive, not a colon-delimited token.
@@ -1228,7 +1203,7 @@ class Extension_MaxCache_Core {
 		$lines['MaxCacheSuffixLiterals'] = '    MaxCacheSuffixLiterals ' . \implode( ' ', $suffix_tokens );
 
 		// No directive mirrors W3TC's POST/query-string conditions: both builds refuse non-GET and a surviving query.
-		$lines['MaxCachePath'] = '    MaxCachePath ' . self::as_directive_argument( self::get_path_template( $w3tc_config ) );
+		$lines['MaxCachePath'] = '    MaxCachePath ' . self::get_path_template( $w3tc_config );
 
 		return self::memo_set( 'directive_lines', $lines, $w3tc_config );
 	}
@@ -1781,24 +1756,7 @@ class Extension_MaxCache_Core {
 	}
 
 	/**
-	 * Returns a pattern in the form the reader of this file has to carry for the module to receive it unchanged.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param string $pattern Pattern as the module must compile it.
-	 *
-	 * @return string
-	 */
-	private static function as_directive_argument( $pattern ) {
-		if ( self::is_nginx() ) {
-			return (string) $pattern;
-		}
-
-		return self::apache_escape( $pattern );
-	}
-
-	/**
-	 * Doubles a backslash the way Apache's own config-file parser undoes it once, inside quotes.
+	 * Doubles a backslash for the directives Apache itself reads, whose parser undoes it once.
 	 *
 	 * @since X.X.X
 	 *

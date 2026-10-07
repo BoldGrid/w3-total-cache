@@ -82,7 +82,7 @@ class Extension_MaxCache_Environment {
 	public static function fix_after_deactivation() {
 		$exs = self::withdraw();
 
-		Extension_MaxCache_Core::forget_stored();
+		Extension_MaxCache_Core::forget();
 
 		if ( \count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
@@ -106,11 +106,10 @@ class Extension_MaxCache_Environment {
 		// The last pass this extension makes: switched off, no later pass can correct a record remove() left standing.
 		$path = Util_Rule::get_apache_rules_path();
 
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		$left = ( $path && @\is_readable( $path ) ) ? @\file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		$left = Extension_MaxCache_Core::rules_file_contents();
 
 		// Only on a file that could be read and no longer carries the block - unreadable keeps the record as remove() left it.
-		if ( false !== $left && false === \strpos( $left, W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE ) ) {
+		if ( \is_string( $left ) && false === \strpos( $left, W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE ) ) {
 			Extension_MaxCache_Core::note_delivering( false );
 		} elseif ( \count( $exs->exceptions() ) > 0 ) {
 			// Nothing of this extension loads after this, so the owner's only trace is W3TC's own audit log.
@@ -155,16 +154,77 @@ class Extension_MaxCache_Environment {
 	 * @return void
 	 */
 	private static function apply( $w3tc_config, $exs ) {
-		// The I/O checks run where the rules are written, so the block is built from a current verdict.
-		Extension_MaxCache_Core::refresh( $w3tc_config );
+		$was_delivering = Extension_MaxCache_Core::is_delivering();
+		$file           = Extension_MaxCache_Core::file_state();
 
-		if ( Extension_MaxCache_Core::is_enabled( $w3tc_config ) ) {
-			self::add( $w3tc_config, $exs );
+		if ( '' !== $file['reason'] ) {
+			self::apply_to_file_in_the_way( $file, $exs );
+		} else {
+			Extension_MaxCache_Core::refresh( $w3tc_config );
+
+			if ( Extension_MaxCache_Core::is_enabled( $w3tc_config ) ) {
+				self::add( $w3tc_config, $exs );
+			} else {
+				self::remove( $exs );
+			}
+		}
+
+		// W3TC's pass answered before this one ran, so a delivery that changed leaves its rules describing the moment before.
+		if ( Extension_MaxCache_Core::is_delivering() !== $was_delivering ) {
+			self::settle_pgcache_rules( $w3tc_config, $exs );
+		}
+	}
+
+	/**
+	 * Does what can be done about a rules file that stands in the way of this pass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $file What Extension_MaxCache_Core::file_state() answered.
+	 * @param object $exs  Exception handler object.
+	 *
+	 * @return void
+	 */
+	private static function apply_to_file_in_the_way( $file, $exs ) {
+		// Somebody else's block: ours can still come out, and serving beside theirs is what must not happen.
+		if ( $file['foreign'] ) {
+			self::remove( $exs );
 
 			return;
 		}
 
-		self::remove( $exs );
+		// Nothing may be written at all. Silence would leave the module serving from a block nobody can correct.
+		if ( ! Extension_MaxCache_Core::is_delivering() ) {
+			return;
+		}
+
+		$exs->push(
+			new Util_WpFile_FilesystemModifyException(
+				$file['reason'],
+				// Null, not '': the collection adopts the first non-null form, and an empty one would hide a real one.
+				null,
+				$file['reason'],
+				(string) Util_Rule::get_apache_rules_path()
+			)
+		);
+	}
+
+	/**
+	 * Has W3TC apply its own page-cache rules for the delivery this pass settled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 * @param object $exs         Exception handler object.
+	 *
+	 * @return void
+	 */
+	private static function settle_pgcache_rules( $w3tc_config, $exs ) {
+		// Converted here, not by the callee: this is the one call that leaves the class, and the live file answers to the saved configuration.
+		Dispatcher::component( 'PgCache_Environment' )->rules_apply_for_config(
+			Extension_MaxCache_Core::saved_config( $w3tc_config ),
+			$exs
+		);
 	}
 
 	/**
