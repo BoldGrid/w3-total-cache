@@ -37,6 +37,8 @@ namespace W3TC;
  *   extension.cloudflare.next_ips_check
  *   extension.cloudflare.ips.ip4
  *   extension.cloudflare.ips.ip6
+ *   extension.maxcache.hide_note_delivering
+ *   extension.maxcache.hide_note_available
  *
  * blog-level keys:
  *   newrelic.hide_note_pageload_slow

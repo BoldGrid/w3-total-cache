@@ -57,6 +57,7 @@ class Util_Extension {
 		'fragmentcache'                    => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
 		'genesis.theme'                    => 'w3-total-cache/Extension_Genesis_Plugin.php',
 		'imageservice'                     => 'w3-total-cache/Extension_ImageService_Plugin.php',
+		'maxcache'                         => 'w3-total-cache/Extension_MaxCache_Plugin.php',
 		'newrelic'                         => 'w3-total-cache/Extension_NewRelic_Plugin.php',
 		'swarmify'                         => 'w3-total-cache/Extension_Swarmify_Plugin.php',
 		'user-experience-defer-scripts'    => 'w3-total-cache/UserExperience_DeferScripts_Extension.php',
