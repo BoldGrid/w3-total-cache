@@ -74,7 +74,8 @@ class PgCache_Environment {
 				if ( $pgcache_enabled && 'file_generic' === $w3tc_engine ) {
 					$this->verify_file_generic_compatibility();
 
-					// The rewrite test only makes sense while W3TC owns the rules.
+					// The rewrite test only makes sense while W3TC owns the rules: is_rules_required()
+					// answers no once something else took delivery.
 					if ( $w3tc_config->get_boolean( 'pgcache.debug' ) && $this->is_rules_required( $w3tc_config ) ) {
 						$this->verify_file_generic_rewrite_working();
 					}
@@ -214,7 +215,7 @@ class PgCache_Environment {
 	}
 
 	/**
-	 * Adds or removes page-cache rewrite rules for the active configuration.
+	 * Adds or removes page-cache rewrite rules, for this plugin and for an extension that took delivery over.
 	 *
 	 * @since 2.10.0
 	 *
@@ -223,7 +224,7 @@ class PgCache_Environment {
 	 *
 	 * @return void
 	 */
-	private function rules_apply_for_config( $w3tc_config, $exs ) {
+	public function rules_apply_for_config( $w3tc_config, $exs ) {
 		if ( $this->is_rules_required( $w3tc_config ) ) {
 			$this->rules_core_add( $w3tc_config, $exs );
 			$this->rules_cache_add( $w3tc_config, $exs );
@@ -709,6 +710,73 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Returns every cookie name whose presence keeps a visitor out of the page cache.
+	 *
+	 * @since X.X.X
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 * @param bool   $logged_out  Whether the just-logged-out cookie belongs in the list. Passed at
+	 * every call site rather than defaulted: it is the one place the two rule generators differ.
+	 * @return string[]
+	 */
+	public static function reject_cookies( $w3tc_config, $logged_out ) {
+		// Auto reject cookies.
+		$reject_cookies = array(
+			'comment_author',
+			'wp-postpass',
+		);
+
+		if ( $logged_out ) {
+			$reject_cookies[] = 'w3tc_logged_out';
+		}
+
+		// Reject cache for logged in users OR Reject cache for roles if any.
+		if ( $w3tc_config->get_boolean( 'pgcache.reject.logged' ) ) {
+			$reject_cookies = \array_merge(
+				$reject_cookies,
+				array(
+					'wordpress_logged_in',
+				)
+			);
+		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
+			$new_cookies = array();
+			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
+				$new_cookies = \array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
+			}
+
+			$reject_cookies = \array_merge( $reject_cookies, $new_cookies );
+		}
+
+		// Custom config.
+		$reject_cookies = \array_merge( $reject_cookies, $w3tc_config->get_array( 'pgcache.reject.cookie' ) );
+		Util_Rule::array_trim( $reject_cookies );
+
+		// Sanitised here so every consumer excludes the same visitors: preg_quote does not escape
+		// newlines, and an entry carrying one would land on the next line as a fresh RewriteRule.
+		return self::sanitize_directive_values( $reject_cookies );
+	}
+
+	/**
+	 * Returns every user-agent token whose presence keeps a visitor out of the page cache.
+	 *
+	 * @since X.X.X
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 * @return string[]
+	 */
+	public static function reject_user_agents( $w3tc_config ) {
+		$reject_user_agents = $w3tc_config->get_array( 'pgcache.reject.ua' );
+
+		if ( $w3tc_config->get_boolean( 'pgcache.compatibility' ) ) {
+			$reject_user_agents = \array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
+		}
+
+		Util_Rule::array_trim( $reject_user_agents );
+
+		// Sanitised for the same reason as the cookie list: a newline in an entry would otherwise
+		// land on the next line as a fresh RewriteRule.
+		return self::sanitize_directive_values( $reject_user_agents );
+	}
+
+	/**
 	 * Generates the core rules based on the server environment.
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
@@ -739,12 +807,16 @@ class PgCache_Environment {
 	 * empty (subdomain at docroot), {@see Util_Environment::site_path()} supplies the
 	 * Apache DOCUMENT_ROOT used for .htaccess rules.
 	 *
+	 * Public because an integration handing delivery to a web-server module has to name the
+	 * same directory W3TC's own rewrite rules do; repeating this arithmetic elsewhere is how
+	 * the two drift apart on a subdirectory install.
+	 *
 	 * @since 2.10.0
 	 *
 	 * @param string $cache_dir Normalized absolute cache directory path.
 	 * @return string
 	 */
-	private function apache_cache_uri_path( $cache_dir ) {
+	public function apache_cache_uri_path( $cache_dir ) {
 		$cache_dir = Util_Environment::normalize_path( $cache_dir );
 		$site_root = realpath( untrailingslashit( ABSPATH ) );
 		$site_uri  = Util_Environment::url_to_uri( network_site_url( '/' ) );
@@ -784,41 +856,10 @@ class PgCache_Environment {
 
 		$current_user = wp_get_current_user();
 
-		// Auto reject cookies.
-		$reject_cookies = array(
-			'comment_author',
-			'wp-postpass',
-		);
-
-		$reject_cookies[] = 'w3tc_logged_out';
-
-		// Reject cache for logged in users OR Reject cache for roles if any.
-		if ( $w3tc_config->get_boolean( 'pgcache.reject.logged' ) ) {
-			$reject_cookies = array_merge(
-				$reject_cookies,
-				array(
-					'wordpress_logged_in',
-				)
-			);
-		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
-			$new_cookies = array();
-			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				$new_cookies = array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
-			}
-
-			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
-		}
-
-		// Custom config.
-		$reject_cookies = array_merge( $reject_cookies, $w3tc_config->get_array( 'pgcache.reject.cookie' ) );
-		Util_Rule::array_trim( $reject_cookies );
-
-		$reject_user_agents = $w3tc_config->get_array( 'pgcache.reject.ua' );
-		if ( $w3tc_config->get_boolean( 'pgcache.compatibility' ) ) {
-			$reject_user_agents = array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
-		}
-
-		Util_Rule::array_trim( $reject_user_agents );
+		// True without a condition here, unlike the NGINX generator below: the Apache rules have
+		// always carried the just-logged-out cookie whatever the engine.
+		$reject_cookies     = self::reject_cookies( $w3tc_config, true );
+		$reject_user_agents = self::reject_user_agents( $w3tc_config );
 
 		// Generate directives.
 		$env_W3TC_UA     = '';
@@ -1038,17 +1079,8 @@ class PgCache_Environment {
 			"    RewriteCond %{QUERY_STRING} =\"\"\n" :
 			"    RewriteCond %{ENV:W3TC_QUERY_STRING} =\"\"\n";
 
-		/**
-		 * Check for rejected cookies.
-		 * Strip directive-terminating bytes from every reject-cookie array
-		 * entry before preg_quote handles the regex metachars. preg_quote
-		 * does NOT escape newlines, so without this an admin-set / JSON-
-		 * imported entry containing `\n` would land on the next line as a
-		 * fresh `RewriteRule`.
-		 */
-		$reject_cookies     = self::sanitize_directive_values( $reject_cookies );
-		$reject_user_agents = self::sanitize_directive_values( $reject_user_agents );
-		$use_cache_rules   .= '    RewriteCond %{HTTP_COOKIE} !(' . implode(
+		// Check for rejected cookies. The list arrives sanitised from reject_cookies().
+		$use_cache_rules .= '    RewriteCond %{HTTP_COOKIE} !(' . implode(
 			'|',
 			array_map(
 				array(
@@ -1156,42 +1188,8 @@ class PgCache_Environment {
 		$w3tc_permalink_structure = get_option( 'permalink_structure' );
 		$pgcache_engine           = $w3tc_config->get_string( 'pgcache.engine' );
 
-		// Auto reject cookies.
-		$reject_cookies = array(
-			'comment_author',
-			'wp-postpass',
-		);
-
-		if ( 'file_generic' === $pgcache_engine ) {
-			$reject_cookies[] = 'w3tc_logged_out';
-		}
-
-		// Reject cache for logged in users OR Reject cache for roles if any.
-		if ( $w3tc_config->get_boolean( 'pgcache.reject.logged' ) ) {
-			$reject_cookies = array_merge(
-				$reject_cookies,
-				array(
-					'wordpress_logged_in',
-				)
-			);
-		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
-			$new_cookies = array();
-			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				$new_cookies = array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
-			}
-			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
-		}
-
-		// Custom config.
-		$reject_cookies = array_merge( $reject_cookies, $w3tc_config->get_array( 'pgcache.reject.cookie' ) );
-		Util_Rule::array_trim( $reject_cookies );
-
-		$reject_user_agents = $w3tc_config->get_array( 'pgcache.reject.ua' );
-		if ( $w3tc_config->get_boolean( 'pgcache.compatibility' ) ) {
-			$reject_user_agents = array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
-		}
-
-		Util_Rule::array_trim( $reject_user_agents );
+		$reject_cookies     = self::reject_cookies( $w3tc_config, 'file_generic' === $pgcache_engine );
+		$reject_user_agents = self::reject_user_agents( $w3tc_config );
 
 		// Generate rules.
 		$env_w3tc_ua     = '';
@@ -1310,14 +1308,8 @@ class PgCache_Environment {
 
 		$env_w3tc_slash = '$w3tc_slash';
 
-		/**
-		 * Check for rejected cookies.
-		 * Sanitise newlines / NUL / `<` / `>` out of every entry — see
-		 * the Apache code path above for the  rationale.
-		 */
-		$reject_cookies     = self::sanitize_directive_values( $reject_cookies );
-		$reject_user_agents = self::sanitize_directive_values( $reject_user_agents );
-		$rules             .= 'if ($http_cookie ~* "(' . implode(
+		// Check for rejected cookies. The list arrives sanitised from reject_cookies().
+		$rules .= 'if ($http_cookie ~* "(' . implode(
 			'|',
 			array_map(
 				array(
@@ -1327,8 +1319,8 @@ class PgCache_Environment {
 				$reject_cookies
 			)
 		) . ")\") {\n";
-		$rules             .= "    set \$w3tc_rewrite 0;\n";
-		$rules             .= "}\n";
+		$rules .= "    set \$w3tc_rewrite 0;\n";
+		$rules .= "}\n";
 
 		// Check for rejected user agents.
 		if ( count( $reject_user_agents ) ) {
