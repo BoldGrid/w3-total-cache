@@ -254,6 +254,66 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * dirname(__FILE__) is the same directory as the config file.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_dirname_file_local_config_does_not_write() {
+		$this->write_fixture(
+			'local-config.php',
+			"<?php\ndefine('WP_CACHE', true);\n"
+		);
+		$stub = "<?php\nrequire_once dirname( __FILE__ ) . '/local-config.php';\n";
+		$path = $this->write_fixture( 'wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub );
+
+		$this->assertSame( $stub, $result );
+	}
+
+	/**
+	 * dirname(dirname(__FILE__)) is the parent of the config file.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_dirname_dirname_file_application_does_not_write() {
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\nConfig::define('WP_CACHE', true);\n"
+		);
+		$stub = "<?php\nrequire_once dirname( dirname( __FILE__ ) ) . '/config/application.php';\n";
+		$path = $this->write_fixture( 'web/wp-config.php', $stub );
+
+		$result = $this->content_for( $path, $stub );
+
+		$this->assertSame( $stub, $result );
+	}
+
+	/**
+	 * The two-argument dirname(__FILE__, N) form is the same pair of directories.
+	 *
+	 * @since 2.10.8
+	 */
+	public function test_dirname_file_levels_do_not_write() {
+		$this->write_fixture(
+			'local-config.php',
+			"<?php\ndefine('WP_CACHE', true);\n"
+		);
+		$this->write_fixture(
+			'config/application.php',
+			"<?php\nConfig::define('WP_CACHE', true);\n"
+		);
+
+		$local = "<?php\nrequire_once dirname(__FILE__, 1) . '/local-config.php';\n";
+		$local_path = $this->write_fixture( 'wp-config.php', $local );
+		$this->assertSame( $local, $this->content_for( $local_path, $local ) );
+
+		$application = "<?php\nrequire_once dirname(__FILE__, 2) . '/config/application.php';\n";
+		$application_path = $this->write_fixture( 'web/wp-config.php', $application );
+		$this->assertSame( $application, $this->content_for( $application_path, $application ) );
+	}
+
+	/**
 	 * A parenthesized require of application.php is still a site-owned define.
 	 *
 	 * @since 2.10.8

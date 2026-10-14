@@ -770,6 +770,8 @@ class PgCache_Environment {
 			return null;
 		}
 
+		$expression = $this->normalize_file_dirname( $expression );
+
 		if ( preg_match( "~^dirname\\s*\\(\\s*__DIR__\\s*\\)\\s*\\.\\s*(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
 			$base      = dirname( $config_path );
 			$relative  = $matches[2];
@@ -866,6 +868,33 @@ class PgCache_Environment {
 		}
 
 		return WP_ENV;
+	}
+
+	/**
+	 * Treat dirname(__FILE__) as __DIR__ so static includes resolve.
+	 *
+	 * Calls to dirname(__FILE__) are rewritten to __DIR__. A nested call becomes
+	 * dirname(__DIR__) after the inner call is replaced. Whitespace inside the
+	 * parentheses is ignored. The two-argument forms dirname(__FILE__, 1) and
+	 * dirname(__FILE__, 2) are the same directories.
+	 *
+	 * A require whose whole expression is one quoted string is left unchanged.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @param string $expression PHP expression after require/include.
+	 * @return string
+	 */
+	private function normalize_file_dirname( $expression ) {
+		if ( preg_match( "~^(['\"])(?:\\\\.|(?!\\1).)*\\1$~s", $expression ) ) {
+			return $expression;
+		}
+
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*,\s*2\s*\)~i', 'dirname(__DIR__)', $expression );
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*,\s*1\s*\)~i', '__DIR__', $expression );
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*\)~i', '__DIR__', $expression );
+
+		return is_string( $expression ) ? $expression : '';
 	}
 
 	/**
