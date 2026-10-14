@@ -864,6 +864,55 @@ class Minify_MinifiedFileRequestHandler {
 	}
 
 	/**
+	 * Ensures a disk-based minify artifact exists before a rewrite URL is emitted.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $minify_filename Minify filename (for example `52704.css`).
+	 *
+	 * @return void
+	 */
+	public function ensure_minify_file_exists( $minify_filename ) {
+		if ( 'file' !== $this->_config->get_string( 'minify.engine' ) || ! $this->_config->get_boolean( 'minify.rewrite' ) ) {
+			return;
+		}
+
+		if ( ! is_string( $minify_filename ) || '' === $minify_filename ) {
+			return;
+		}
+
+		$path = Util_Environment::cache_blog_minify_dir() . DIRECTORY_SEPARATOR . $minify_filename;
+		if ( file_exists( $path ) ) {
+			return;
+		}
+
+		$request_keys   = array( 'f_array', 'ext', 'g' );
+		$request_values = array();
+
+		// phpcs:disable WordPress.Security -- Preserve the original values verbatim for immediate restoration.
+		foreach ( $request_keys as $request_key ) {
+			if ( array_key_exists( $request_key, $_GET ) ) {
+				$request_values[ $request_key ] = $_GET[ $request_key ];
+			}
+
+			unset( $_GET[ $request_key ] );
+		}
+		// phpcs:enable WordPress.Security
+
+		try {
+			$this->process( $minify_filename, true );
+		} finally {
+			foreach ( $request_keys as $request_key ) {
+				if ( array_key_exists( $request_key, $request_values ) ) {
+					$_GET[ $request_key ] = $request_values[ $request_key ];
+				} else {
+					unset( $_GET[ $request_key ] );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Pre-caches a file from a URL for minification.
 	 *
 	 * @param string $w3tc_url  The URL of the file.

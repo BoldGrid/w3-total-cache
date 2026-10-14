@@ -760,6 +760,8 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 
 	/**
 	 * Verifies preload state uses each site's options table in multisite.
+	 *
+	 * @group multisite
 	 */
 	public function test_multisite_preload_state_is_per_blog() {
 		if ( ! is_multisite() ) {

@@ -195,8 +195,8 @@ add_filter(
 | `w3tc_minify_enable` | `add_filter()` | 1 | `$enable` | [Minify_Plugin.php:225](../Minify_Plugin.php#L225) |
 | `w3tc_minify_file_handler_minify_options` | `add_filter()` | 1 | `$serve_options` | [Minify_MinifiedFileRequestHandler.php:426](../Minify_MinifiedFileRequestHandler.php#L426) |
 | `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
-| `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:317](../lib/Minify/Minify/HTML.php#L317)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
-| `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1511](../Minify_Plugin.php#L1511) |
+| `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:337](../lib/Minify/Minify/HTML.php#L337)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
+| `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1522](../Minify_Plugin.php#L1522) |
 | `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:622](../lib/Minify/Minify.php#L622) |
 | `w3tc_minify_js_do_excluded_tag_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:284](../Minify_AutoJs.php#L284) |
 | `w3tc_minify_js_do_flush_collected` | `add_filter()` | 4 | `true, $last_script_tag, $this, $sync_type` | [Minify_AutoJs.php:367](../Minify_AutoJs.php#L367) |
@@ -208,7 +208,7 @@ add_filter(
 | `w3tc_minify_js_step_script_to_embed` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:421](../Minify_AutoJs.php#L421) |
 | `w3tc_minify_processed` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:272](../Minify_Plugin.php#L272) |
 | `w3tc_minify_urls_for_minification_to_minify_filename` | `add_filter()` | 3 | `$minify_filename, $files, $type` | [Minify_Core.php:43](../Minify_Core.php#L43) |
-| `w3tc_minify_url_for_files` | `add_filter()` | 3 | `$w3tc_url, $files, $type` | [Minify_Plugin.php:1231](../Minify_Plugin.php#L1231) |
+| `w3tc_minify_url_for_files` | `add_filter()` | 3 | `$w3tc_url, $files, $type` | [Minify_Plugin.php:1242](../Minify_Plugin.php#L1242) |
 | `w3tc_mobile_groups` | `add_filter()` | 1 | `$mobile_groups` | [CacheGroups_Plugin_Admin.php:149](../CacheGroups_Plugin_Admin.php#L149) |
 | `w3tc_module_is_running-{module}` | `add_filter()` | 1 | `$this->is_enabled( $w3tc_module )` | [ModuleStatus.php:94](../ModuleStatus.php#L94) |
 | `w3tc_network_dashboard_widgets` | `add_filter()` | 1 | `array()` | [Util_Widget.php:47](../Util_Widget.php#L47) |

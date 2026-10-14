@@ -61,6 +61,7 @@ script:
   - yarn run hooks:check
   # PHPUnit: Run unit tests.
   - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
+  - WP_MULTISITE=1 vendor/phpunit/phpunit/phpunit --group multisite --no-coverage
   # PHPCS
   #- phpcs --standard=phpcs.xml .
   # JavaScript lint.
