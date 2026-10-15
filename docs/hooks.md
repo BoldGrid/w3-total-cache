@@ -193,7 +193,7 @@ add_filter(
 | `w3tc_minify_css_step_style_to_embed` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:343](../Minify_AutoCss.php#L343) |
 | `w3tc_minify_css_style_tags` | `add_filter()` | 1 | `$style_tags` | [Minify_AutoCss.php:119](../Minify_AutoCss.php#L119) |
 | `w3tc_minify_enable` | `add_filter()` | 1 | `$enable` | [Minify_Plugin.php:225](../Minify_Plugin.php#L225) |
-| `w3tc_minify_file_handler_minify_options` | `add_filter()` | 1 | `$serve_options` | [Minify_MinifiedFileRequestHandler.php:426](../Minify_MinifiedFileRequestHandler.php#L426) |
+| `w3tc_minify_file_handler_minify_options` | `add_filter()` | 1 | `$serve_options` | [Minify_MinifiedFileRequestHandler.php:448](../Minify_MinifiedFileRequestHandler.php#L448) |
 | `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
 | `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:337](../lib/Minify/Minify/HTML.php#L337)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
 | `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1522](../Minify_Plugin.php#L1522) |
