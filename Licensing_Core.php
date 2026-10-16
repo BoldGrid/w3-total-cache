@@ -207,17 +207,16 @@ class Licensing_Core {
 	/**
 	 * Remove license.jwt. Used when the license key changes or is removed.
 	 *
+	 * A key change clears the token even when another caller holds the refresh
+	 * lock. The lock, when this caller can take it, covers only the write.
+	 *
 	 * @since 2.10.8
 	 *
 	 * @return void
 	 */
 	public static function clear_license_jwt() {
 		$owner = self::acquire_jwt_lock();
-		if ( ! is_string( $owner ) ) {
-			return;
-		}
-
-		$data = self::raw_master_state();
+		$data  = self::raw_master_state();
 		if ( ! empty( $data['license.jwt'] ) ) {
 			$data['license.jwt'] = '';
 			self::write_master_state( $data );
@@ -244,7 +243,6 @@ class Licensing_Core {
 
 		$url   = $v2 ? trailingslashit( $base ) . 'v2/' : $base;
 		$prior = $v2 ? self::current_jwt() : '';
-		$owner = $v2 ? self::acquire_jwt_lock() : false;
 
 		$response = wp_remote_get(
 			add_query_arg( $api_params, $url ),
@@ -254,11 +252,12 @@ class Licensing_Core {
 			)
 		);
 
-		if ( $v2 && is_string( $owner ) ) {
-			self::store_token_from_response( $response, $prior );
-		}
 		if ( $v2 ) {
-			self::release_jwt_lock( $owner );
+			$owner = self::acquire_jwt_lock();
+			if ( is_string( $owner ) ) {
+				self::store_token_from_response( $response, $prior );
+				self::release_jwt_lock( $owner );
+			}
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -281,14 +280,12 @@ class Licensing_Core {
 			return 'failed';
 		}
 
-		$owner = self::acquire_jwt_lock();
-		if ( false === $owner ) {
+		if ( self::jwt_lock_is_live() ) {
 			return 'skipped';
 		}
 
 		$base = self::_license_api_base_url();
 		if ( false === $base ) {
-			self::release_jwt_lock( $owner );
 			return 'failed';
 		}
 
@@ -310,7 +307,11 @@ class Licensing_Core {
 		);
 
 		$code   = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
-		$result = ( $code >= 200 && $code < 300 ) ? self::store_token_from_response( $response, $token ) : 'rejected';
+		$owner  = self::acquire_jwt_lock();
+		$result = 'rejected';
+		if ( is_string( $owner ) && $code >= 200 && $code < 300 ) {
+			$result = self::store_token_from_response( $response, $token );
+		}
 		self::release_jwt_lock( $owner );
 		return ( $code >= 200 && $code < 300 && 'rejected' !== $result ) ? 'ok' : 'failed';
 	}
@@ -471,6 +472,19 @@ class Licensing_Core {
 		}
 		$decoded = base64_decode( strtr( $value, '-_', '+/' ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		return false === $decoded ? null : $decoded;
+	}
+
+	/**
+	 * Whether another caller holds an unexpired refresh lock.
+	 *
+	 * @since 2.10.8
+	 *
+	 * @return bool
+	 */
+	private static function jwt_lock_is_live() {
+		self::forget_site_option_cache( self::JWT_LOCK_OPTION );
+		$existing = get_site_option( self::JWT_LOCK_OPTION, false );
+		return is_array( $existing ) && isset( $existing['expires'] ) && (int) $existing['expires'] >= time();
 	}
 
 	/**

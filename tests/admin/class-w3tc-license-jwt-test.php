@@ -12,6 +12,7 @@ declare( strict_types = 1 );
 require_once __DIR__ . '/class-w3tc-license-jwt-harness.php';
 
 use W3TC\Dispatcher;
+use W3TC\Extension_ImageService_Api;
 use W3TC\Licensing_AdminActions;
 use W3TC\Licensing_Core;
 use W3TC\Licensing_Plugin_Admin;
@@ -303,6 +304,69 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	}
 
 	/**
+	 * A key change clears license.jwt while another caller holds the refresh lock.
+	 *
+	 * Failed activation leaves the token empty, so the next image call checks
+	 * the new key instead of refreshing the previous bearer.
+	 *
+	 * @return void
+	 */
+	public function test_key_change_clears_token_while_refresh_lock_is_held() {
+		$new_key = 'fakeNewLicenseKey000000000000BB';
+		$this->seed_master_state( array( 'license.jwt' => $this->fresh_token() ) );
+		update_site_option(
+			self::LOCK_OPTION,
+			array(
+				'owner'   => 'another-process',
+				'expires' => time() + 60,
+			)
+		);
+		$this->set_config(
+			array(
+				'plugin.license_key' => $new_key,
+				'plugin.type'        => 'pro',
+			)
+		);
+		$this->install_http(
+			function ( $url, $args ) {
+				$kind = $this->kind( $url, $this->body_string( $args ) );
+				if ( 'activate_license' === $kind ) {
+					return $this->response(
+						500,
+						array(
+							'license'        => 'invalid',
+							'license_status' => 'invalid',
+						)
+					);
+				}
+				if ( 'check_license' === $kind ) {
+					return $this->response( 200, $this->license_body( $this->fresh_token() ) );
+				}
+				return $this->response( 200, array( 'license_status' => 'inactive' ) );
+			}
+		);
+
+		$admin = new Licensing_Plugin_Admin();
+		$admin->possible_state_change(
+			new W3tc_License_Jwt_Config_Stub( $new_key ),
+			new W3tc_License_Jwt_Config_Stub( self::FAKE_KEY )
+		);
+
+		$this->assertSame( '', $this->raw_jwt(), 'A key change must clear license.jwt while the refresh lock is held.' );
+		$lock = get_site_option( self::LOCK_OPTION, false );
+		$this->assertIsArray( $lock );
+		$this->assertSame( 'another-process', $lock['owner'] ?? null, 'Clearing the token must not take over another caller\'s lock.' );
+
+		( new Extension_ImageService_Api() )->get_usage( true );
+
+		$checks = $this->requests_of( 'check_license' );
+		$this->assertCount( 1, $checks, 'The next image call must check the new key.' );
+		$this->assertStringContainsString( $new_key, $checks[0]['url'] );
+		$this->assertStringNotContainsString( self::FAKE_KEY, $checks[0]['url'] );
+		$this->assertSame( array(), $this->requests_of( 'refresh' ), 'An empty token must not refresh the previous bearer.' );
+	}
+
+	/**
 	 * Removing the key clears license.jwt.
 	 *
 	 * @return void
@@ -417,7 +481,7 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	}
 
 	/**
-	 * Activation and check hold the refresh lock while writing license.jwt.
+	 * Activation and check hold the refresh lock only around the token write.
 	 *
 	 * @dataProvider provider_v2_actions
 	 *
@@ -425,19 +489,20 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	 *
 	 * @return void
 	 */
-	public function test_licensing_request_holds_refresh_lock( string $action ) {
-		$lock_seen = null;
-		$token     = $this->fresh_token();
+	public function test_licensing_request_locks_only_around_token_write( string $action ) {
+		$lock_during_http = 'unset';
+		$token            = $this->fresh_token();
 		$this->install_http(
-			function ( $url, $args ) use ( &$lock_seen, $token ) {
-				$lock_seen = get_site_option( self::LOCK_OPTION, false );
+			function ( $url, $args ) use ( &$lock_during_http, $token ) {
+				$lock_during_http = get_site_option( self::LOCK_OPTION, false );
 				return $this->response( 200, $this->license_body( $token ) );
 			}
 		);
 
 		Licensing_Core::$action( self::FAKE_KEY, W3TC_VERSION );
 
-		$this->assertNotFalse( $lock_seen, "{$action} must hold " . self::LOCK_OPTION . ' during the licensing request.' );
+		$this->assertFalse( $lock_during_http, "{$action} must not hold " . self::LOCK_OPTION . ' during the HTTP call.' );
+		$this->assertFalse( get_site_option( self::LOCK_OPTION, false ), 'The refresh lock must be released after the write.' );
 		$this->assertSame( $token, $this->raw_jwt() );
 	}
 
