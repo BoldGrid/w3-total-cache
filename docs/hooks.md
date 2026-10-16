@@ -123,7 +123,7 @@ add_filter(
 | `w3tc_can_print_comment` | `add_filter()` | 1 | `self::is_html_xml( $buffer ) && ! defined( 'DOING_AJAX' )` | [Util_Content.php:70](../Util_Content.php#L70) |
 | `w3tc_capability_admin_bar` | `add_filter()` | 1 | `'manage_options'` | [Generic_Plugin.php:576](../Generic_Plugin.php#L576)<br>[Util_Capability.php:82](../Util_Capability.php#L82)<br>[Util_Capability.php:119](../Util_Capability.php#L119) |
 | `w3tc_capability_admin_bar_{item_id}` | `add_filter()` | 1 | `$default_cap` | [Generic_Plugin.php:756](../Generic_Plugin.php#L756) |
-| `w3tc_capability_admin_notices` | `add_filter()` | 1 | `'manage_options'` | [Licensing_Plugin_Admin.php:367](../Licensing_Plugin_Admin.php#L367) |
+| `w3tc_capability_admin_notices` | `add_filter()` | 1 | `'manage_options'` | [Licensing_Plugin_Admin.php:373](../Licensing_Plugin_Admin.php#L373) |
 | `w3tc_capability_config_save` | `add_filter()` | 1 | `'manage_options'` | [Generic_AdminActions_Default.php:455](../Generic_AdminActions_Default.php#L455) |
 | `w3tc_capability_extensions_activate_{extension}` | `add_filter()` | 1 | `'manage_options'` | [Extensions_AdminActions.php:32](../Extensions_AdminActions.php#L32) |
 | `w3tc_capability_favorite_action_flush_all` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:98](../Util_Capability.php#L98) |
