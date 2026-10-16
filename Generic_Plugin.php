@@ -59,6 +59,13 @@ class Generic_Plugin {
 	 * @return void
 	 */
 	public function run() {
+		if (
+			'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
+			! Util_Environment::is_w3tc_pro( $this->_config )
+		) {
+			Dispatcher::component( 'Licensing_Plugin_Admin' )->release_pro_rest_cache_if_unlicensed();
+		}
+
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
 		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
@@ -1149,7 +1156,7 @@ class Generic_Plugin {
 	 * @return bool
 	 */
 	private function should_ob_process_rest() {
-		return 'cache' === $this->_config->get_string( 'pgcache.rest' );
+		return Util_Environment::is_rest_cache_active( $this->_config );
 	}
 
 	/**
