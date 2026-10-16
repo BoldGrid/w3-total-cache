@@ -25,6 +25,7 @@ namespace W3TC;
  *   common.show_note.nginx_restart_required
  *   common.hide_note_php_version_56
  *   license.status
+ *   license.jwt - license JWT for /v2/ service calls; not the license key
  *   license.next_check - time of next check
  *   license.terms - accepted/declined/''
  *   license.community_terms - accepted/declined/'' (master)

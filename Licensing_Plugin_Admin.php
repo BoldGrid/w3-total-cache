@@ -181,6 +181,12 @@ class Licensing_Plugin_Admin {
 			delete_transient( $old_transient_key );
 		}
 
+		if ( $old_key !== $new_key ) {
+			Licensing_Core::clear_license_jwt();
+			delete_transient( 'w3tc_imageservice_usage' );
+			delete_transient( 'w3tc_imageservice_limited' );
+		}
+
 		switch ( true ) {
 			// No new key or old key. Do nothing.
 			case ( ! $new_key_set && ! $old_key_set ):
