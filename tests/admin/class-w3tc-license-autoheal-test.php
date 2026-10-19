@@ -307,7 +307,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	/**
 	 * A retained REST cache mode is cleared on the rate-limited path when Pro is inactive.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */

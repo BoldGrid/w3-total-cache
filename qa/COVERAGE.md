@@ -1,6 +1,6 @@
 # W3TC Puppeteer Coverage — qa-secops-2026-q2
 
-**Scope.** Branch `qa-secops-2026-q2` lands 60+ commits closing 142 vulnerability items, plus a comprehensive QA coverage build-out that takes the puppeteer suite from 85 specs to 124. Every feature, setting, engine, and extension visible on the W3TC admin sidebar now has at least page-render + form-save coverage, and every closed security fix has a UI-level regression spec. This document is the audit trail.
+**Scope.** Branch `qa-secops-2026-q2` lands 60+ commits closing 142 vulnerability items, plus a comprehensive QA coverage build-out that takes the puppeteer suite from 85 specs to 124. Every feature, setting, engine, and extension visible on the W3TC admin sidebar now has at least page-render + form-save coverage, and every closed security fix has a UI-level regression spec, except MAx Cache (see Extensions and §6). This document is the audit trail.
 
 **Conventions.** Tests live in `qa/tests/<feature>/<scenario>.js`, share helpers from `qa/lib/{sys,w3tc,wp,dom,environment}.js`, and execute through the AWS-provisioned matrix in `qa/env/`. All specs in this round were written against the source state on this branch; the first lab run will surface selector / DOM drift on a small number of specs as expected.
 
@@ -31,7 +31,7 @@
 
 ## 2. Feature surface map
 
-Same as the original audit — admin pages, extensions, and admin-action handlers reachable from the UI. Now every entry below has at least one corresponding spec.
+Same as the original audit — admin pages, extensions, and admin-action handlers reachable from the UI. Every entry below has at least one corresponding spec, except MAx Cache.
 
 **Core admin pages (16)**
 
@@ -54,7 +54,7 @@ Same as the original audit — admin pages, extensions, and admin-action handler
 | `w3tc_cachegroups` | user-agent-groups.js, referrer-groups-*.js, cachegroups-xss-regression.js |
 | `w3tc_setup_guide` | setup-guide-happy-path.js, setupguide-subscriber-deny.js |
 
-**Extensions (10)**
+**Extensions (11)**
 
 | Extension | Spec |
 |---|---|
@@ -65,6 +65,7 @@ Same as the original audit — admin pages, extensions, and admin-action handler
 | AMP | extensions/amp-settings.js |
 | ImageService | extensions/imageservice-activate.js (activation-only — no settings page exists) |
 | Genesis / FragmentCache | extensions/genesis-fragmentcache-smoke.js |
+| MAx Cache | no Puppeteer spec. The AWS matrix has no CloudLinux MAx Cache module, so activation and handover are not exercised here. Rules behavior is covered by `tests/test-maxcache-core.php`. |
 | Wpml | passive — no UI to test |
 | WordPressSeo | passive — no UI to test |
 
@@ -145,6 +146,8 @@ The following gaps remain by design — they require infrastructure the CI matri
 - **Pro-license-gated runtime paths**: Delay Scripts (covered by spec with a graceful skip), Lazy Load Google Maps, the full UsageStatistics dashboard, Preload Requests / Remove CSS-JS sub-pages on the UserExperience side. The form-save side is covered; the actual feature exercise behind `Util_Environment::is_w3tc_pro()` needs a Pro-license env.
 
 - **Performance / regression baselines** (cache hit ratios, response time deltas, payload-size assertions) — separate effort, not a unit-test concern.
+
+- **MAx Cache** — listed on the Extensions page (`settings_exists` is false; there is no settings form). The AWS images do not include the CloudLinux MAx Cache module, so this suite does not activate it or check the handover. `tests/test-maxcache-core.php` covers the rules.
 
 - **Cross-browser sweep** — the suite is Chromium-only via puppeteer.
 

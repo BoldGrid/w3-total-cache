@@ -1758,7 +1758,7 @@ class PgCache_ContentGrabber {
 	 * serves as HTML. A read that does not yet know the media type keeps
 	 * `.html` so existing HTML entries still match.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array $page_key_extension     Page key extension.
 	 * @param array $request_url_fragments  URL fragments for the request.
@@ -1940,7 +1940,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * Adds a nosniff header when a cached body is not HTML.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array $headers Headers about to be sent.
 	 *

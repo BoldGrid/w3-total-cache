@@ -8,7 +8,7 @@
  * Run with: php tests/test-wpfile-empty-write.php
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.11.0
  */
 
 if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {

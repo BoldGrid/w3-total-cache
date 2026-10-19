@@ -8,7 +8,7 @@
  * Run with: php tests/test-maxcache-core.php
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.11.0
  */
 
 if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
@@ -544,7 +544,7 @@ class MT_Config_Stub {
 	/**
 	 * Whether this configuration is a preview draft.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var bool
 	 */
@@ -584,7 +584,7 @@ class MT_Config_Stub {
 	/**
 	 * Whether this configuration is a preview draft.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */

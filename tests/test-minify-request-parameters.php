@@ -5,7 +5,7 @@
  * Run with: php tests/test-minify-request-parameters.php
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.11.0
  */
 
 if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
@@ -22,13 +22,13 @@ require_once \dirname( __DIR__ ) . '/Minify_MinifiedFileRequestHandler.php';
 /**
  * Config values used by the request-parameter test.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class W3TC_Mrp_Config {
 	/**
 	 * Returns the file minify engine.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $key Config key.
 	 * @return string
@@ -41,7 +41,7 @@ class W3TC_Mrp_Config {
 	/**
 	 * Enables minify rewriting.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $key Config key.
 	 * @return bool
@@ -55,7 +55,7 @@ class W3TC_Mrp_Config {
 /**
  * Handler that simulates the request mutations made by process().
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class W3TC_Mrp_Handler extends \W3TC\Minify_MinifiedFileRequestHandler {
 	/**
@@ -75,7 +75,7 @@ class W3TC_Mrp_Handler extends \W3TC\Minify_MinifiedFileRequestHandler {
 	/**
 	 * Changes the same request parameters as the production process method.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string|null $w3tc_file Requested minify filename.
 	 * @param bool        $quiet     Whether output is suppressed.
@@ -110,7 +110,7 @@ $mrp_fail = 0;
 /**
  * Records one assertion.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @param string $label       Case description.
  * @param bool   $expectation Assertion result.
@@ -132,7 +132,7 @@ function mrp_assert_true( $label, $expectation ) {
 /**
  * Builds a handler with the required config stub.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @return W3TC_Mrp_Handler
  */

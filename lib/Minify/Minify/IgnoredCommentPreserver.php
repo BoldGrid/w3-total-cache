@@ -52,7 +52,7 @@ class Minify_IgnoredCommentPreserver {
     /**
      * Per-request placeholder id, extended when it already occurs in $source.
      *
-     * @since X.X.X
+     * @since 2.11.0
      *
      * @param string|null $source Input before placeholders are inserted.
      * @return string

@@ -897,7 +897,7 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Ensures a disk-based minify artifact exists before a rewrite URL is emitted.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $minify_filename Minify filename (for example `52704.css`).
 	 *

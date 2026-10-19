@@ -1053,7 +1053,7 @@ class Licensing_Plugin_Admin {
 	 * REST caching belongs in the rest group, and only while Pro is active.
 	 * Clear the retained mode and flush page cache so those files are removed.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */

@@ -35,7 +35,7 @@ if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
  * Known extension paths use the wordpress.org directory slug.
  * Link that slug when the checkout folder has another name.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 function w3tc_phpunit_link_extension_slug() {
 	if ( 'w3-total-cache' === \basename( W3TC_DIR ) ) {

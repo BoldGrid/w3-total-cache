@@ -12,7 +12,7 @@ defined( 'W3TC' ) || die();
 /**
  * What the MAx Cache module can do on this host, and the directives it needs.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class Extension_MaxCache_Core {
 
@@ -45,7 +45,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Deliberately not persisted: a stored "installed" can only go stale in the dangerous direction.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string|null
 	 */
@@ -54,7 +54,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether an NGINX build is installed.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var bool|null
 	 */
@@ -63,7 +63,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether an Apache build is installed.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var bool|null
 	 */
@@ -72,7 +72,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Configuration the deep verdict was worked out for.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var Config|null
 	 */
@@ -81,7 +81,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Value last written to the delivering option.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string|null
 	 */
@@ -90,7 +90,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Cache directory as a URL path.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string|null
 	 */
@@ -99,7 +99,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Capability level answers, memoized for the request.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var array<string,bool>
 	 */
@@ -108,7 +108,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Keyed by the instance, not spl_object_id: ids are recycled once an object is collected.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var array<string,array{value:mixed,config:Config}>
 	 */
@@ -117,7 +117,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Re-entrancy guard for get_unsupported_reason().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var bool
 	 */
@@ -126,7 +126,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * The saved configuration, read once per request while previewing.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var Config|null
 	 */
@@ -135,7 +135,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the server mode the module runs in on this host.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string One of `apache`, `nginx`, `none`.
 	 */
@@ -159,7 +159,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the module is installed on this host.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -171,7 +171,7 @@ class Extension_MaxCache_Core {
 	 * Whether the module is installed on an NGINX host, where the directives are read from `.htaccess`
 	 * as flat text rather than by Apache, so the sections around them do not apply.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -182,7 +182,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether an NGINX build is installed, regardless of which server answers this request.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -195,7 +195,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether an Apache build of the module is installed - see nginx_module_installed().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -208,7 +208,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Settles $nginx_installed/$apache_installed once, guarded against the same EACCES trap as get_mode().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -234,7 +234,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why the installed module's directives cannot reach this request, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -255,7 +255,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the installed module is at or above a given capability level.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $level Version the wanted feature arrived in.
 	 *
@@ -289,7 +289,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the marker path for every build installed on this host, for one capability level.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $level Version the wanted feature arrived in.
 	 *
@@ -313,7 +313,7 @@ class Extension_MaxCache_Core {
 	 * The saved configuration the live rules file answers to, which every public entry point converts
 	 * through.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -348,7 +348,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether MAx Cache is switched on and usable for the current configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -364,7 +364,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the module is actually being handed the delivery, as of the last rules pass.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -379,7 +379,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Records what the rules pass just did.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param bool $delivering Whether the block was written.
 	 *
@@ -408,7 +408,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * What the rules file itself stands in the way of, read once.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return array{reason:string,foreign:bool} Empty reason when nothing does.
 	 */
@@ -460,7 +460,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why the rules file stands in the way of taking delivery, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -477,7 +477,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the web-server user can write the rules file, for the screens that say why not.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -498,7 +498,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Reads the rules file: null when there is none, false when it is there and cannot be read.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string|false|null
 	 */
@@ -517,7 +517,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the file carries our beginning marker without the end one.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $contents Rules file contents.
 	 *
@@ -531,7 +531,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether the file can be searched at all, or PCRE gave up on its size.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $contents Rules file contents.
 	 *
@@ -545,7 +545,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the file with our own block taken out, or null when PCRE gave up.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $contents Rules file contents.
 	 *
@@ -561,7 +561,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why a MAx Cache block this plugin did not write stops the handover, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $contents Rules file contents, already known to be searchable.
 	 *
@@ -581,7 +581,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the refusal for a rules file PCRE gave up on.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -592,7 +592,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why this configuration cannot be handed to the module, or an empty string when it can.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -627,7 +627,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns a memo worked out for this configuration, or null when there is none.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $key         Memo name.
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
@@ -651,7 +651,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Holds a memo against the configuration it describes, and hands it back.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $key         Memo name.
 	 * @param mixed  $value       What was worked out.
@@ -672,7 +672,7 @@ class Extension_MaxCache_Core {
 	 * Drops what a configuration change invalidates: the verdict memos, the per-request latches and the cache
 	 * root.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -689,7 +689,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Works the verdict out once, so one pass does not repeat it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -729,7 +729,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why a filtered rules layout stops the handover, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -761,7 +761,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Works out why this configuration cannot be handed over.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -784,7 +784,7 @@ class Extension_MaxCache_Core {
 	 * The four groups answer in order, and the order is what the owner reads: the host first,
 	 * then what W3TC is set to do, then Browser Cache, then what the directives can carry.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -815,7 +815,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Refuses hosts the module cannot serve from: wrong web server, absent or too old a module, multisite.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -850,7 +850,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Refuses configurations where W3TC is not the one delivering the page cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -875,7 +875,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Refuses Browser Cache settings the module cannot reproduce on what it serves.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -934,7 +934,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Refuses configurations the directive block cannot express: file names, patterns, query strings, paths.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -987,7 +987,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the gate's verdict: the cheap checks, then the one that builds every directive line.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1013,7 +1013,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why the cache file NAME cannot be reproduced, or an empty string when it can.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1043,7 +1043,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Names what this site never caches by a rule that cannot be written into a directive, if any.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1088,7 +1088,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether a pattern refers back to a capturing group.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $pattern Assembled exclusion pattern.
 	 *
@@ -1102,7 +1102,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why the charset cannot be written as a Header line, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1130,7 +1130,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the human-readable reason for an unwritable exclusion list.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $name One of `uri`, `ua`, `cookies`.
 	 *
@@ -1153,7 +1153,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the directive lines this integration writes, keyed by directive name.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1212,7 +1212,7 @@ class Extension_MaxCache_Core {
 	 * Returns why one of the directive lines this integration would write is unsafe, or an empty string when every
 	 * one of them fits.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1256,7 +1256,7 @@ class Extension_MaxCache_Core {
 	 * Returns the page cache directory as a URL path under the document root, through the helper W3TC uses for its
 	 * own rules: stripping a DOCUMENT_ROOT prefix here breaks on subdirectory installs.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string Empty string when the directory is not addressable by URL.
 	 */
@@ -1286,7 +1286,7 @@ class Extension_MaxCache_Core {
 	 * Returns the `MaxCachePath` template for the current configuration, naming the same cache
 	 * files the page-cache rewrite rules do.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1311,7 +1311,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the cache-file suffix that carries the content encoding.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1326,7 +1326,7 @@ class Extension_MaxCache_Core {
 	 * neither coding is written at all - `{ENC_SUFFIX}` then does not appear in the template,
 	 * so no directive is needed either.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1367,7 +1367,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the URI exclusion pattern for the current configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1400,7 +1400,7 @@ class Extension_MaxCache_Core {
 	 * W3TC strips these from the query string and serves the base cache file when nothing is left;
 	 * the module does the same with the names this directive gives it, so both sides pick one file.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1426,7 +1426,7 @@ class Extension_MaxCache_Core {
 	 * Through the same filter it applies: a plugin can add names the stored option does not carry,
 	 * and W3TC subtracts those too.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1451,7 +1451,7 @@ class Extension_MaxCache_Core {
 	 * The rules generator replaces a space with "+" before matching and the module compares the decoded
 	 * key, so an entry carrying either is left out rather than refused: the request reaches PHP.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $name One entry of the accepted list, as stored.
 	 *
@@ -1470,7 +1470,7 @@ class Extension_MaxCache_Core {
 	 * Read by the gate and by the emitter, from one place: an entry the gate accepts and the
 	 * emitter then drops leaves the module serving pages W3TC excludes.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $pattern One entry of the exclusion list.
 	 *
@@ -1484,7 +1484,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns a reject-URI entry as the module would have to read it, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $pattern One `pgcache.reject.uri` entry.
 	 *
@@ -1516,7 +1516,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns why a URI the owner excluded cannot be excluded in a directive, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1543,7 +1543,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the cookie exclusion pattern for the current configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1565,7 +1565,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the user-agent exclusion pattern for the current configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1589,7 +1589,7 @@ class Extension_MaxCache_Core {
 	 * Returns the directive block for `.htaccess`, as the only block of its kind: every directive
 	 * precedes the Apache-only sections, so a reader that stops at the first closing tag has them all.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1623,7 +1623,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Returns the mod_headers section that follows what the module served, or an empty string.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1676,7 +1676,7 @@ class Extension_MaxCache_Core {
 	 * AddDefaultCharset and FileETag take no condition, so in the site root they would touch every
 	 * other static file too; as Header lines they ride the handler condition.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1723,7 +1723,7 @@ class Extension_MaxCache_Core {
 	 * The module sets Content-Encoding itself, so AddEncoding here would only duplicate it. AddType is
 	 * still needed under remove_charset: measured, the response otherwise carries no Content-Type.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
@@ -1758,7 +1758,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Doubles a backslash for the directives Apache itself reads, whose parser undoes it once.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $value Raw value.
 	 *
@@ -1771,7 +1771,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Joins escaped entries into the one case-insensitive alternation the directives take.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string[] $entries Escaped pattern entries.
 	 *
@@ -1796,7 +1796,7 @@ class Extension_MaxCache_Core {
 	/**
 	 * Whether a path exists on disk, without reading it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $path Absolute path to probe.
 	 *

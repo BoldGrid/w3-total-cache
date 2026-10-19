@@ -1491,7 +1491,7 @@ class Util_Environment {
 	 * REST caching is a Pro mode. A retained `cache` value after Pro is no
 	 * longer active must not keep those responses in the page cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @static
 	 *

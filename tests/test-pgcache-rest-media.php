@@ -8,14 +8,14 @@
 /**
  * Disk Enhanced cache keys and cached response headers for REST bodies.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 
 	/**
 	 * Builds a Disk Enhanced grabber.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return \W3TC\PgCache_ContentGrabber
 	 */
@@ -29,7 +29,7 @@ class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 	/**
 	 * Page-key extension used by both read and write lookups.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $content_type Response media type, or empty on a read.
 	 *
@@ -50,7 +50,7 @@ class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 	/**
 	 * JSON responses must not be stored under the HTML extension.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -85,7 +85,7 @@ class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 	/**
 	 * Cached non-HTML responses get a nosniff header.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -110,7 +110,7 @@ class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 	/**
 	 * Cached REST-group responses get a nosniff header.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -138,7 +138,7 @@ class PgCache_Rest_Media_Test extends WP_UnitTestCase {
 	/**
 	 * REST cache entries are not read when Pro is inactive.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */

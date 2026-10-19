@@ -7,7 +7,7 @@
  * Exit code 0 = all pass, non-zero = failures.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.11.0
  */
 
 require_once __DIR__ . '/../lib/Minify/Minify/IgnoredCommentPreserver.php';
@@ -36,13 +36,13 @@ if ( ! class_exists( 'W3TC_Mph_Preserver', false ) ) {
 	/**
 	 * Exposes the placeholder id for assertions.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 */
 	class W3TC_Mph_Preserver extends \W3TCL\Minify\Minify_IgnoredCommentPreserver {
 		/**
 		 * Placeholder id for this instance.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @return string
 		 */
@@ -53,7 +53,7 @@ if ( ! class_exists( 'W3TC_Mph_Preserver', false ) ) {
 		/**
 		 * Placeholder token at $index.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @param int $index Placeholder index.
 		 * @return string
@@ -68,13 +68,13 @@ if ( ! class_exists( 'W3TC_Mph_HTML', false ) ) {
 	/**
 	 * Exposes the HTML placeholder id for assertions.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 */
 	class W3TC_Mph_HTML extends \W3TCL\Minify\Minify_HTML {
 		/**
 		 * Builds an empty minifier so the id can be read before input is set.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 */
 		public function __construct() {
 			parent::__construct( '', array() );
@@ -83,7 +83,7 @@ if ( ! class_exists( 'W3TC_Mph_HTML', false ) ) {
 		/**
 		 * Placeholder id for this instance.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @return string
 		 */
@@ -94,7 +94,7 @@ if ( ! class_exists( 'W3TC_Mph_HTML', false ) ) {
 		/**
 		 * Replaces the HTML that process() will read.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @param string $html HTML input.
 		 */
@@ -105,7 +105,7 @@ if ( ! class_exists( 'W3TC_Mph_HTML', false ) ) {
 		/**
 		 * Runs minification.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @return string
 		 */
@@ -121,7 +121,7 @@ $mph_fail = 0;
 /**
  * Records one assertion.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @param string $label       Case name.
  * @param bool   $expectation Whether the case passed.
@@ -143,7 +143,7 @@ function mph_assert_true( $label, $expectation, $detail = '' ) {
 /**
  * True when $hash is a prefix plus 32 hex characters and is not a clock digest.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @param string $hash   Placeholder id.
  * @param string $prefix Expected prefix.
@@ -163,7 +163,7 @@ function mph_is_request_id( $hash, $prefix ) {
 /**
  * Builds a CSS compressor without invoking its private constructor.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @return array{0:\ReflectionClass,1:object}
  */
@@ -181,7 +181,7 @@ function mph_css_instance() {
 /**
  * Reads or creates the CSS placeholder id.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @param \ReflectionClass $ref Reflection of the compressor.
  * @param object           $obj Compressor instance.
@@ -196,7 +196,7 @@ function mph_css_hash( $ref, $obj ) {
 /**
  * Minifies CSS on an existing compressor instance.
  *
- * @since X.X.X
+ * @since 2.11.0
  *
  * @param \ReflectionClass $ref Reflection of the compressor.
  * @param object           $obj Compressor instance.

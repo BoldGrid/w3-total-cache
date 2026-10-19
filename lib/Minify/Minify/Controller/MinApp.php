@@ -231,7 +231,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
      * inside the minify cache is not a source for those lists. Minify_Source
      * entries are built by the handler and are not checked here.
      *
-     * @since X.X.X
+     * @since 2.11.0
      *
      * @param string $path Resolved path.
      *
@@ -260,7 +260,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
     /**
      * Whether $path is $root or a file inside it.
      *
-     * @since X.X.X
+     * @since 2.11.0
      *
      * @param string $path Path.
      * @param string $root Directory.

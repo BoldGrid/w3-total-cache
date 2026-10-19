@@ -303,7 +303,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 	/**
 	 * A retained REST cache mode must not buffer REST responses after Pro is inactive.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
