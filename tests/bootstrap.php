@@ -31,6 +31,27 @@ if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
 	define( 'W3TC_EXTENSION_DIR', dirname( W3TC_DIR ) );
 }
 
+/**
+ * Known extension paths use the wordpress.org directory slug.
+ * Link that slug when the checkout folder has another name.
+ *
+ * @since 2.11.0
+ */
+function w3tc_phpunit_link_extension_slug() {
+	if ( 'w3-total-cache' === \basename( W3TC_DIR ) ) {
+		return;
+	}
+
+	$slug_dir = W3TC_EXTENSION_DIR . '/w3-total-cache';
+	if ( \file_exists( $slug_dir ) || \is_link( $slug_dir ) || ! \is_writable( W3TC_EXTENSION_DIR ) ) {
+		return;
+	}
+
+	\symlink( W3TC_DIR, $slug_dir );
+}
+
+w3tc_phpunit_link_extension_slug();
+
 // Require necessary files.
 $files = array(
 

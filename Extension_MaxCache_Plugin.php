@@ -12,14 +12,14 @@ defined( 'W3TC' ) || die();
 /**
  * Hands page-cache delivery to the CloudLinux MAx Cache web-server module.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class Extension_MaxCache_Plugin {
 
 	/**
 	 * Runs the extension.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -39,7 +39,7 @@ class Extension_MaxCache_Plugin {
 	/**
 	 * Withholds W3TC's own page-cache rules while the module is the one serving.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param bool   $required    Whether W3TC's rules are required.
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.

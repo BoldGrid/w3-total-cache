@@ -6,7 +6,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      2.10.8
+ * @since      2.11.0
  */
 
 declare( strict_types = 1 );
@@ -18,7 +18,7 @@ use W3TC\Dispatcher;
  *
  * Abstract so PHPUnit does not run it directly.
  *
- * @since 2.10.8
+ * @since 2.11.0
  */
 abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 

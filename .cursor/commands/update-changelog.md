@@ -9,3 +9,5 @@ When adding a new version:
 4. Run `bin/update-changelog.sh check <version>` and fix any mismatch.
 
 Use `bin/update-changelog.sh add <version> [bullets-file]` when inserting a brand-new version block into both files from a bullets file.
+
+Separate version blocks in `readme.txt` Changelog and Upgrade Notice with one blank line. Do not insert a second blank line between versions.

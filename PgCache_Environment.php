@@ -563,7 +563,7 @@ class PgCache_Environment {
 	 * project file it loads, already defines WP_CACHE (true or false). Otherwise
 	 * insert the W3TC snippet once.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_path Path to wp-config.php.
 	 * @param string $config_data Current wp-config.php contents.
@@ -588,7 +588,7 @@ class PgCache_Environment {
 	/**
 	 * Whether the site's config, not WordPress core, already defines WP_CACHE.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_path Path to the file being checked.
 	 * @param string $config_data Contents of that file.
@@ -632,7 +632,7 @@ class PgCache_Environment {
 	/**
 	 * Whether a config file defines WP_CACHE, including Roots Config::define().
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_data File contents.
 	 * @return bool
@@ -647,7 +647,7 @@ class PgCache_Environment {
 	/**
 	 * Remove PHP comments so commented defines are not treated as live code.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_data File contents.
 	 * @return string
@@ -670,7 +670,7 @@ class PgCache_Environment {
 	/**
 	 * Read PHP expressions that follow require/include in a config file.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_data File contents.
 	 * @return string[]
@@ -695,7 +695,7 @@ class PgCache_Environment {
 	/**
 	 * Read one PHP expression, stopping at the statement semicolon.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_data File contents.
 	 * @param int    $start       Offset of the expression.
@@ -754,7 +754,7 @@ class PgCache_Environment {
 	/**
 	 * Resolve a static project include. Core and vendor files are ignored.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_path File that contains the include.
 	 * @param string $expression  PHP expression after require/include.
@@ -827,7 +827,7 @@ class PgCache_Environment {
 	 * require itself cannot be resolved. Only that active file counts. A define
 	 * in another environment must not block the snippet.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $config_path File that mentioned the environments directory.
 	 * @param string $config_data Contents of that file.
@@ -858,7 +858,7 @@ class PgCache_Environment {
 	/**
 	 * Active environment name from WP_ENV, when the site defined one.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -880,7 +880,7 @@ class PgCache_Environment {
 	 *
 	 * A require whose whole expression is one quoted string is left unchanged.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $expression PHP expression after require/include.
 	 * @return string
@@ -900,7 +900,7 @@ class PgCache_Environment {
 	/**
 	 * Remove parentheses that wrap a whole require expression.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $expression PHP expression after require/include.
 	 * @return string
@@ -922,7 +922,7 @@ class PgCache_Environment {
 	/**
 	 * Return the inside of one wrapping parenthesis pair, when it wraps everything.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $expression Expression that may start with '('.
 	 * @return string|null Inside text, or null when the first parenthesis does not wrap the expression.
@@ -982,7 +982,7 @@ class PgCache_Environment {
 	/**
 	 * Whether a path is absolute.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $path Path to test.
 	 * @return bool
@@ -1154,7 +1154,7 @@ class PgCache_Environment {
 	/**
 	 * Returns every cookie name whose presence keeps a visitor out of the page cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param bool   $logged_out  Whether the just-logged-out cookie belongs in the list. Passed at
 	 * every call site rather than defaulted: it is the one place the two rule generators differ.
@@ -1200,7 +1200,7 @@ class PgCache_Environment {
 	/**
 	 * Returns every user-agent token whose presence keeps a visitor out of the page cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @return string[]
 	 */

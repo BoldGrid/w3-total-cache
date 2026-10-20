@@ -12,13 +12,13 @@ defined( 'W3TC' ) || die();
 /**
  * Writes and withdraws the module's directive block.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class Extension_MaxCache_Environment {
 	/**
 	 * Fixes the environment on a wp-admin request.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config      W3TC Config containing relevant settings.
 	 * @param bool   $force_all_checks Whether to run every check.
@@ -46,7 +46,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Fixes the environment when the configuration changes.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param string $event       Event key.
@@ -73,7 +73,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Takes the block out and forgets what was stored, on deactivation of the plugin.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @throws Util_Environment_Exceptions When the block could not be taken out.
 	 *
@@ -96,7 +96,7 @@ class Extension_MaxCache_Environment {
 	 * drops the confirmation for a deactivation that did persist. A block that could not be taken out
 	 * is recorded instead, since no later pass of this extension can report it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -129,7 +129,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Takes the block out, collecting what the removal reported.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return Util_Environment_Exceptions What the removal reported.
 	 */
@@ -146,7 +146,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Writes the block, or takes it out when this configuration cannot be handed over.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param object $exs         Exception handler object.
@@ -178,7 +178,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Does what can be done about a rules file that stands in the way of this pass.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array  $file What Extension_MaxCache_Core::file_state() answered.
 	 * @param object $exs  Exception handler object.
@@ -212,7 +212,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Has W3TC apply its own page-cache rules for the delivery this pass settled.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param object $exs         Exception handler object.
@@ -230,7 +230,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Adds the block.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param object $exs         Exception handler object.
@@ -275,7 +275,7 @@ class Extension_MaxCache_Environment {
 	/**
 	 * Takes the block out.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param object $exs Exception handler object.
 	 *

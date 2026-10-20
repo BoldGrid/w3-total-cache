@@ -154,7 +154,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		$feeds            = $this->_config->get_array( 'pgcache.purge.feed.types' );
 		$limit_post_pages = $this->_config->get_integer( 'pgcache.purge.postpages_limit' );
 
-		if ( 'cache' === $this->_config->get_string( 'pgcache.rest' ) ) {
+		if ( Util_Environment::is_rest_cache_active( $this->_config ) ) {
 			$this->flush_group( 'rest' );
 		}
 
@@ -360,7 +360,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			}
 
 			$groups_to_flush = array( '' );
-			if ( 'cache' === $this->_config->get_string( 'pgcache.rest' ) ) {
+			if ( Util_Environment::is_rest_cache_active( $this->_config ) ) {
 				$groups_to_flush[] = 'rest';
 			}
 

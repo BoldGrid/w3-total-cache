@@ -902,7 +902,15 @@ var extsrc=null;
 	 * @return string The generated URL.
 	 */
 	public function get_minify_manual_url( $theme, $template, $location, $type ) {
-		return Minify_Core::minified_url( $this->get_minify_manual_filename( $theme, $template, $location, $type ) );
+		$minify_filename = $this->get_minify_manual_filename( $theme, $template, $location, $type );
+		if ( ! $minify_filename ) {
+			return Minify_Core::minified_url( $minify_filename );
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
+
+		return Minify_Core::minified_url( $minify_filename );
 	}
 
 	/**
@@ -1224,6 +1232,9 @@ class _W3_MinifyHelpers {
 		if ( is_null( $minify_filename ) ) {
 			return null;
 		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
 
 		$w3tc_url = Minify_Core::minified_url( $minify_filename );
 		$w3tc_url = Util_Environment::url_to_maybe_https( $w3tc_url );

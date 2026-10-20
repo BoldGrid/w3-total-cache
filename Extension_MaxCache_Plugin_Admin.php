@@ -15,13 +15,13 @@ defined( 'W3TC' ) || die();
  * Registered by Extensions_Plugin_Admin rather than from the extension file, which is included
  * only while the extension is active: the offer below has to be readable exactly when it is not.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class Extension_MaxCache_Plugin_Admin {
 	/**
 	 * State key that hides the note once the owner has read it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string
 	 */
@@ -30,7 +30,7 @@ class Extension_MaxCache_Plugin_Admin {
 	/**
 	 * State key that hides the offer once the owner has answered it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string
 	 */
@@ -39,7 +39,7 @@ class Extension_MaxCache_Plugin_Admin {
 	/**
 	 * Declares the extension.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array  $extensions  Extensions to list.
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
@@ -81,7 +81,7 @@ class Extension_MaxCache_Plugin_Admin {
 	 * Nothing else tells the owner the module is there: the Extensions page lists it among two
 	 * dozen others, and the Page Cache screen does not mention it at all.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array $notes Notes to show.
 	 *
@@ -133,7 +133,7 @@ class Extension_MaxCache_Plugin_Admin {
 	/**
 	 * Tells the owner that delivery moved, since nothing on the Page Cache screen says so.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param array $notes Notes to show.
 	 *

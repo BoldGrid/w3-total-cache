@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      2.10.8
+ * @since      2.11.0
  */
 
 declare( strict_types = 1 );
@@ -20,7 +20,7 @@ use W3TC\Licensing_Plugin_Admin;
 /**
  * Minimal config used by possible_state_change().
  *
- * @since 2.10.8
+ * @since 2.11.0
  */
 class W3tc_License_Jwt_Config_Stub {
 	/**
@@ -76,7 +76,7 @@ class W3tc_License_Jwt_Config_Stub {
  *
  * Licensing /v2/ routes, license.jwt storage, and checkout iframe.
  *
- * @since 2.10.8
+ * @since 2.11.0
  */
 class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 

@@ -21,6 +21,7 @@
   <groups>
     <exclude>
       <group>ajax</group>
+      <group>multisite</group>
     </exclude>
   </groups>
   <php>

@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.10.7
+Stable tag: 2.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,15 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.11.0 =
+* Feature: Extensions: Add the CloudLinux Max Cache extension
+* Update: Licensing: Store the license JWT and call the v2 APIs
+* Fix: REST API Cache: Clear a retained REST cache mode when Pro is inactive
+* Fix: Minify: Keep automatic minify file names to the hash and extension
+* Fix: Minify: Use a per-request id for HTML minify placeholders
+* Fix: Page Cache: Skip a second WP_CACHE define when the site already set it
+* Fix: Filesystem: Skip the credentials prompt after a successful empty rules-file write
+
 = 2.10.7 =
 * Feature: Minify: Cache selected external scripts locally for auto minify
 * Feature: Page Cache: Add a one-pass mode for sitemap cache preload
@@ -380,7 +389,6 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Settings: Skip unchanged w3tc_state option writes
 * Update: Remove leftover newsletter signup code
 * Update: Build: Omit development-only files from the release ZIP
-
 
 = 2.10.6 =
 * Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
@@ -405,7 +413,6 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Forums: Normalize API client responses
 * Fix: Lazy Load: Match background styles as top-level attributes only
 * Fix: Admin: Align request validation across notice, extension, setup, CDN, and minify flows
-
 
 = 2.10.5 =
 * Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
@@ -476,23 +483,22 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Upgrade Notice ==
 
+= 2.11.0 =
+This release adds the CloudLinux Max Cache extension and stores the license JWT for the v2 APIs. All users are encouraged to update. It also skips a second WP_CACHE define when the site already set one.
+
 = 2.10.7 =
 This is a security update. All users are strongly encouraged to update.
 This update also adds local caching of selected external scripts, one-pass sitemap preload, and fixes for CDN media paths, Google PageSpeed authorization, and settings persistence.
-
 
 = 2.10.6 =
 This is a security update. All users are strongly encouraged to update.
 This update improves settings handling, CDN and minify behavior, TLS defaults, and diagnostic logging.
 
-
 = 2.10.5 =
 This is a security update. All users are strongly encouraged to update.
 
-
 = 2.10.4 =
 This update restores filterable cache-purge capabilities and improves Lazy Load image attribute handling. All users are encouraged to update.
-
 
 = 2.10.3 =
 This update resolves Block Editor save failures related to output buffering and restores Defer Scripts timeout configuration. All users are encouraged to update.
