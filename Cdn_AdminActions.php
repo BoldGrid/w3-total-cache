@@ -455,7 +455,7 @@ class Cdn_AdminActions {
 		$error       = $resolved['error'];
 
 		if ( $w3tc_result ) {
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+			Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) );
 
 			$w3_cdn = CdnEngine::instance( $resolved['engine'], $resolved['config'] );
 
@@ -752,7 +752,7 @@ class Cdn_AdminActions {
 			case 'azuremi':
 				$w3_cdn = CdnEngine::instance( $w3tc_engine, $w3tc_config );
 
-				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+				Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
 
 				$w3tc_result = false;
 
