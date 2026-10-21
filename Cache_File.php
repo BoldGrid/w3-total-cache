@@ -357,7 +357,7 @@ class Cache_File extends Cache_Base {
 	 * @return bool Always returns true.
 	 */
 	public function flush( $w3tc_group = '' ) {
-		@set_time_limit( $this->_flush_timelimit ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_flush_timelimit );
 
 		if ( 'sitemaps' === $w3tc_group ) {
 			$w3tc_config   = Dispatcher::config();

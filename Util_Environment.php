@@ -24,6 +24,25 @@ class Util_Environment {
 	private static $is_using_master_config = null;
 
 	/**
+	 * Extend the request time limit when the host allows it.
+	 *
+	 * PHP 8 fatals when set_time_limit() is disabled. The error
+	 * suppressor does not catch that, so the call is skipped and the
+	 * request keeps its existing limit.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param int $seconds Time limit in seconds. 0 means unlimited.
+	 *
+	 * @return void
+	 */
+	public static function set_time_limit( $seconds ) {
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( $seconds ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		}
+	}
+
+	/**
 	 * Formats URL.
 	 *
 	 * @static
