@@ -7,7 +7,7 @@
  *
  * @package W3TC\Tests
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 
 namespace W3TC;
@@ -142,13 +142,13 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Config', false ) ) {
 	/**
 	 * Minimal Config: reads the preview cookie in its constructor and forwards what that selects.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 */
 	class Config {
 		/**
 		 * Whether this configuration was built while previewing.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @var bool
 		 */
@@ -157,7 +157,7 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Config', false ) ) {
 		/**
 		 * The stored configuration this one reads from.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @var object|null
 		 */
@@ -166,7 +166,7 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Config', false ) ) {
 		/**
 		 * Constructor.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @param int|null $blog_id Blog id, unused here.
 		 */
@@ -178,7 +178,7 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Config', false ) ) {
 		/**
 		 * Whether this configuration is a preview draft.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @return bool
 		 */
@@ -189,7 +189,7 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Config', false ) ) {
 		/**
 		 * Forwards the readers to the stored configuration.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @param string $name      Method name.
 		 * @param array  $arguments Arguments.
@@ -248,13 +248,13 @@ if ( ! \class_exists( __NAMESPACE__ . '\\Util_Debug', false ) ) {
 	/**
 	 * Minimal Util_Debug: records audit entries where a case can read them back.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 */
 	class Util_Debug {
 		/**
 		 * Records one audit entry.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.0
 		 *
 		 * @param string $event   Event key.
 		 * @param array  $context Event context.
@@ -334,7 +334,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_pin_installed_flags' ) ) {
 	/**
 	 * Pins $nginx_installed/$apache_installed via reflection, shared by every standalone suite.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param bool $nginx  Whether the NGINX build reads as installed.
 	 * @param bool $apache Whether the Apache build reads as installed.
@@ -354,7 +354,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_pin_mode' ) ) {
 	/**
 	 * Pins $mode via reflection, shared by every standalone suite.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $mode One of `apache`, `nginx`, `none`.
 	 *
@@ -371,7 +371,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_reset_host' ) ) {
 	/**
 	 * Nulls $mode/$levels/$nginx_installed/$apache_installed, shared by every standalone suite.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -395,7 +395,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_pin_single_build_mode' ) ) {
 	/**
 	 * Pins $mode and the matching one-build-only install flags, shared by every standalone suite.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $mode One of `apache`, `nginx`, `none`.
 	 *

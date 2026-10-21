@@ -150,7 +150,7 @@ class Licensing_Core {
 	 * Scheduled license checks call check_license() directly and do not come
 	 * through here, so an expired token does not trigger refresh on that path.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string Current license.jwt, or empty.
 	 */
@@ -175,7 +175,7 @@ class Licensing_Core {
 	 *
 	 * Sends a single refresh when a token exists, otherwise one check.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -195,7 +195,7 @@ class Licensing_Core {
 	 *
 	 * Reads the raw site option so a concurrent writer is visible.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -210,7 +210,7 @@ class Licensing_Core {
 	 * A key change clears the token even when another caller holds the refresh
 	 * lock. The lock, when this caller can take it, covers only the write.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -228,7 +228,7 @@ class Licensing_Core {
 	/**
 	 * GET the licensing API. /v2/ calls may store a returned token.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param array $api_params Query parameters.
 	 * @param bool  $v2         Whether this action is a /v2/ call.
@@ -270,7 +270,7 @@ class Licensing_Core {
 	/**
 	 * POST /v2/refresh. Does not call check_license on failure.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string ok, failed, or skipped.
 	 */
@@ -319,7 +319,7 @@ class Licensing_Core {
 	/**
 	 * check_license with the configured license key.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */
@@ -338,7 +338,7 @@ class Licensing_Core {
 	 * Public expires_at wins. Otherwise exp. Malformed tokens are due.
 	 * Refresh starts 120 seconds before expiry.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $token JWT.
 	 *
@@ -369,7 +369,7 @@ class Licensing_Core {
 	 * When $only_if_current is a string, skip the write if the raw option
 	 * no longer holds that token.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param array|WP_Error $response        HTTP response.
 	 * @param string|null    $only_if_current Expected current token.
@@ -412,7 +412,7 @@ class Licensing_Core {
 	 *
 	 * The private claim is not decrypted or inspected.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param mixed $token Candidate token.
 	 *
@@ -425,7 +425,7 @@ class Licensing_Core {
 	/**
 	 * Public JWT payload, or null when the token is not usable.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param mixed $token Candidate token.
 	 *
@@ -459,7 +459,7 @@ class Licensing_Core {
 	/**
 	 * Base64url decode.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $value Segment.
 	 *
@@ -477,7 +477,7 @@ class Licensing_Core {
 	/**
 	 * Whether another caller holds an unexpired refresh lock.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return bool
 	 */
@@ -490,7 +490,7 @@ class Licensing_Core {
 	/**
 	 * Insert the network lock unless a live owner holds it.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string|false Owner id, or false when a live lock exists.
 	 */
@@ -519,7 +519,7 @@ class Licensing_Core {
 	/**
 	 * Delete the lock only when this caller still owns it.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string|false $owner Owner id from acquire_jwt_lock().
 	 *
@@ -540,7 +540,7 @@ class Licensing_Core {
 	/**
 	 * Decoded master w3tc_state site option.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return array
 	 */
@@ -555,7 +555,7 @@ class Licensing_Core {
 	 *
 	 * Single-site network options live in the autoloaded options cache.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $option Option name.
 	 *
@@ -575,7 +575,7 @@ class Licensing_Core {
 	/**
 	 * Write master state and keep the ConfigState singleton aligned.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param array $data State map.
 	 *
@@ -597,7 +597,7 @@ class Licensing_Core {
 	/**
 	 * Drop cached image-service usage after the license identity changes.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return void
 	 */

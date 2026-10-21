@@ -9,7 +9,7 @@ namespace W3TC;
 
 defined( 'ABSPATH' ) || exit;
 // Define repeated regex to simplify changes.
-define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9_-]+)\\.(css|js)([?].*)?' );
+define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9_-]+)\\.(css|js)' );
 define( 'W3TC_MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.([a-zA-Z0-9_-]+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
 
 /**
@@ -307,9 +307,13 @@ class Minify_MinifiedFileRequestHandler {
 		$cache = $this->_get_cache();
 		\W3TCL\Minify\Minify::setCache( $cache );
 
-		// Set cache ID.
-		$cache_id = $this->get_cache_id( $w3tc_file );
-		\W3TCL\Minify\Minify::setCacheId( $w3tc_file );
+		// Set cache ID from the parsed name. Auto mode is hash plus extension.
+		if ( $hash ) {
+			$cache_id = $hash . '.' . $type;
+		} else {
+			$cache_id = $this->get_cache_id( $w3tc_file );
+		}
+		\W3TCL\Minify\Minify::setCacheId( $cache_id );
 
 		// Set logger.
 		\W3TCL\Minify\Minify_Logger::setLogger(
@@ -350,9 +354,24 @@ class Minify_MinifiedFileRequestHandler {
 		);
 
 		// Set sources.
+		$had_request_base   = false;
+		$saved_request_base = null;
 		if ( $hash ) {
 			$_GET['f_array'] = $this->minify_filename_to_filenames_for_minification( $hash, $type );
 			$_GET['ext']     = $type;
+			/**
+			 * The file list comes from the stored map and is document-root
+			 * relative. Drop a request base so those paths are not rerooted.
+			 * Restore it after the serve so a quiet call does not clear the
+			 * outer request.
+			 */
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- preserved verbatim for restoration after serve.
+			if ( array_key_exists( 'b', $_GET ) ) {
+				$had_request_base   = true;
+				$saved_request_base = $_GET['b'];
+			}
+			unset( $_GET['b'] );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		} else {
 			/**
 			 * Manual mode (empty hash): the file list is derived server-side
@@ -419,6 +438,9 @@ class Minify_MinifiedFileRequestHandler {
 		}
 
 		if ( empty( Util_Request::get( 'f_array' ) ) && empty( Util_Request::get_string( 'g' ) ) ) {
+			if ( $had_request_base ) {
+				$_GET['b'] = $saved_request_base;
+			}
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 
@@ -429,7 +451,14 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$return = \W3TCL\Minify\Minify::serve( 'MinApp', $serve_options );
 		} catch ( \Exception $exception ) {
+			if ( $had_request_base ) {
+				$_GET['b'] = $saved_request_base;
+			}
 			return $this->finish_with_error( $exception->getMessage(), $quiet );
+		}
+
+		if ( $had_request_base ) {
+			$_GET['b'] = $saved_request_base;
 		}
 
 		if ( ! is_null( \W3TCL\Minify\Minify::$recoverableError ) ) {
@@ -526,6 +555,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return mixed|null Custom data associated with the URL, or null if none exists.
 	 */
 	public function get_url_custom_data( $w3tc_url ) {
+		$w3tc_url = Util_Environment::remove_query_all( $w3tc_url );
 		if ( preg_match( '~/' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_url, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
@@ -545,6 +575,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return void
 	 */
 	public function set_file_custom_data( $w3tc_file, $w3tc_data ) {
+		$w3tc_file = Util_Environment::remove_query_all( $w3tc_file );
 		if ( preg_match( '~' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_file, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
@@ -861,6 +892,55 @@ class Minify_MinifiedFileRequestHandler {
 	 */
 	public function debug_error( $error ) {
 		Minify_Core::debug_error( $error );
+	}
+
+	/**
+	 * Ensures a disk-based minify artifact exists before a rewrite URL is emitted.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $minify_filename Minify filename (for example `52704.css`).
+	 *
+	 * @return void
+	 */
+	public function ensure_minify_file_exists( $minify_filename ) {
+		if ( 'file' !== $this->_config->get_string( 'minify.engine' ) || ! $this->_config->get_boolean( 'minify.rewrite' ) ) {
+			return;
+		}
+
+		if ( ! is_string( $minify_filename ) || '' === $minify_filename ) {
+			return;
+		}
+
+		$path = Util_Environment::cache_blog_minify_dir() . DIRECTORY_SEPARATOR . $minify_filename;
+		if ( file_exists( $path ) ) {
+			return;
+		}
+
+		$request_keys   = array( 'f_array', 'ext', 'g' );
+		$request_values = array();
+
+		// phpcs:disable WordPress.Security -- Preserve the original values verbatim for immediate restoration.
+		foreach ( $request_keys as $request_key ) {
+			if ( array_key_exists( $request_key, $_GET ) ) {
+				$request_values[ $request_key ] = $_GET[ $request_key ];
+			}
+
+			unset( $_GET[ $request_key ] );
+		}
+		// phpcs:enable WordPress.Security
+
+		try {
+			$this->process( $minify_filename, true );
+		} finally {
+			foreach ( $request_keys as $request_key ) {
+				if ( array_key_exists( $request_key, $request_values ) ) {
+					$_GET[ $request_key ] = $request_values[ $request_key ];
+				} else {
+					unset( $_GET[ $request_key ] );
+				}
+			}
+		}
 	}
 
 	/**

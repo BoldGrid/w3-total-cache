@@ -1486,6 +1486,29 @@ class Util_Environment {
 	}
 
 	/**
+	 * Whether Pro REST response caching is active.
+	 *
+	 * REST caching is a Pro mode. A retained `cache` value after Pro is no
+	 * longer active must not keep those responses in the page cache.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @static
+	 *
+	 * @param Config|null $w3tc_config Config.
+	 *
+	 * @return bool
+	 */
+	public static function is_rest_cache_active( $w3tc_config = null ) {
+		if ( ! is_object( $w3tc_config ) ) {
+			return false;
+		}
+
+		return 'cache' === $w3tc_config->get_string( 'pgcache.rest' )
+			&& self::is_w3tc_pro( $w3tc_config );
+	}
+
+	/**
 	 * Enable Pro Dev mode support.
 	 *
 	 * @static

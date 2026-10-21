@@ -35,6 +35,7 @@ Follow existing entries:
 ```
 
 - One bullet per line, prefix `* `
+- Separate version blocks with **one** blank line. In `readme.txt`, that applies to both `== Changelog ==` and `== Upgrade Notice ==`. Do not leave two blank lines between the last line of a version and the next `= X.Y.Z =` heading. `bin/update-changelog.sh check` fails when those sections contain consecutive blank lines.
 - Newest version first in both files
 - Derive bullets from `git log <prev-tag>..HEAD --no-merges` on the release branch
 - Omit routine `Update deps` unless a dependency change is user-visible

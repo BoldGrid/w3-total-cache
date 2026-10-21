@@ -15,13 +15,13 @@ defined( 'W3TC' ) || die();
  * Its own class: nothing is notified where the NGINX build is not installed, and the socket is the
  * only place in this integration that talks to anything outside the filesystem.
  *
- * @since X.X.X
+ * @since 2.11.0
  */
 class Extension_MaxCache_Configd {
 	/**
 	 * Socket the configuration daemon listens on.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string
 	 */
@@ -30,7 +30,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Seconds to wait on the daemon.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var float
 	 */
@@ -39,7 +39,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Signature of a rules file that is not there.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @var string
 	 */
@@ -49,7 +49,7 @@ class Extension_MaxCache_Configd {
 	 * Returns the request that asks the configuration daemon to re-read this site, or an empty string when there
 	 * is nothing to ask.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return string JSON request, or an empty string where the NGINX build is not installed.
 	 */
@@ -82,7 +82,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Returns a value that changes when the rules file does.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $path Rules file path.
 	 *
@@ -115,7 +115,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Whether a rules pass has anything to announce.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $path             Rules file path.
 	 * @param string $signature_before Signature taken before the write.
@@ -132,7 +132,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Announces a rules file that changed, and stays silent about one that did not.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $path             Rules file path.
 	 * @param string $signature_before Signature taken before the write, from self::rules_file_signature().
@@ -151,7 +151,7 @@ class Extension_MaxCache_Configd {
 	/**
 	 * Tells the configuration daemon that this site's `.htaccess` changed.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @return bool Whether the daemon was reached.
 	 */
@@ -213,7 +213,7 @@ class Extension_MaxCache_Configd {
 	 * The daemon's own protocol: {"status":"ok",...} or {"status":"error","message":...}, never a
 	 * bare "ok" key.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.0
 	 *
 	 * @param string $answer Raw reply read from the socket.
 	 *

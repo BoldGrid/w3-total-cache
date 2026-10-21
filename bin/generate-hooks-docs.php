@@ -15,7 +15,7 @@ $output_file = $root . '/docs/hooks.md';
 $check       = \in_array( '--check', $argv, true );
 $self_test   = \in_array( '--self-test', $argv, true );
 $hooks       = array();
-$excluded    = array( '.git', 'node_modules', 'qa', 'tests', 'tmp', 'vendor' );
+$excluded    = excluded_directories();
 
 if ( $self_test ) {
 	run_self_test();
@@ -26,7 +26,7 @@ $iterator = new RecursiveIteratorIterator(
 	new RecursiveCallbackFilterIterator(
 		new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
 		static function ( SplFileInfo $file ) use ( $excluded ): bool {
-			return ! $file->isDir() || ! \in_array( $file->getFilename(), $excluded, true );
+			return ! $file->isDir() || ! is_excluded_directory( $file->getFilename(), $excluded );
 		}
 	)
 );
@@ -187,7 +187,41 @@ function run_self_test(): void {
 		throw new RuntimeException( 'Multiple callback arities were not rendered.' );
 	}
 
+	$excluded = excluded_directories();
+	if ( ! is_excluded_directory( '.cursor', $excluded ) || ! is_excluded_directory( 'vendor', $excluded ) ) {
+		throw new RuntimeException( 'Tooling directories must not be scanned.' );
+	}
+	if ( is_excluded_directory( 'inc', $excluded ) ) {
+		throw new RuntimeException( 'Production directories must be scanned.' );
+	}
+
 	echo "Hook documentation self-test passed.\n";
+}
+
+/**
+ * Directories that are not production PHP sources.
+ *
+ * @since {WP_VERSION}
+ *
+ * @return array<int,string>
+ */
+function excluded_directories(): array {
+	return array( '.git', 'node_modules', 'qa', 'tests', 'tmp', 'vendor' );
+}
+
+/**
+ * Reports whether a directory should be left out of the hooks scan.
+ *
+ * Names that start with a dot are local tooling trees, not plugin sources.
+ *
+ * @since {WP_VERSION}
+ *
+ * @param string            $name     Directory name.
+ * @param array<int,string> $excluded Explicit directory names.
+ * @return bool
+ */
+function is_excluded_directory( string $name, array $excluded ): bool {
+	return ( '' !== $name && '.' === $name[0] ) || \in_array( $name, $excluded, true );
 }
 
 /**

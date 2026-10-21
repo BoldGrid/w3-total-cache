@@ -638,6 +638,15 @@ class PgCache_ContentGrabber {
 	 * @return bool True if cache can be read, false otherwise.
 	 */
 	private function _can_read_cache() {
+		if (
+			! Util_Environment::is_rest_cache_active( $this->_config ) &&
+			Util_Environment::is_rest_request( $this->_request_uri )
+		) {
+			$this->cache_reject_reason = 'REST request';
+			$this->process_status      = 'miss_api_call';
+			return false;
+		}
+
 		// Don't cache in console mode.
 		if ( PHP_SAPI === 'cli' ) {
 			$this->cache_reject_reason = 'Console mode';
@@ -685,7 +694,7 @@ class PgCache_ContentGrabber {
 
 			if (
 				$should_reject_qs &&
-				'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
+				Util_Environment::is_rest_cache_active( $this->_config ) &&
 				Util_Environment::is_rest_request( $this->_request_uri )
 			) {
 				$should_reject_qs = false;
@@ -775,7 +784,7 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		if ( 'cache' !== $this->_config->get_string( 'pgcache.rest' ) ) {
+		if ( ! Util_Environment::is_rest_cache_active( $this->_config ) ) {
 			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 				$this->cache_reject_reason = 'REST request';
 				$this->process_status      = 'miss_api_call';
@@ -1460,9 +1469,8 @@ class PgCache_ContentGrabber {
 		}
 
 		if (
-			'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
-			Util_Environment::is_rest_request( $uri ) &&
-			Util_Environment::is_w3tc_pro( $this->_config )
+			Util_Environment::is_rest_cache_active( $this->_config ) &&
+			Util_Environment::is_rest_request( $uri )
 		) {
 			return 'rest';
 		}
@@ -1717,18 +1725,7 @@ class PgCache_ContentGrabber {
 		// key postfix.
 		$key_postfix = '';
 		if ( $this->_enhanced_mode && empty( $page_key_extension['group'] ) ) {
-			$key_postfix = '.html';
-			if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
-				$content_type = isset( $page_key_extension['content_type'] ) ? $page_key_extension['content_type'] : '';
-
-				if (
-					@preg_match( '~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i', $content_type ) ||
-					preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
-					false !== strpos( $request_url_fragments['path'], '.xsl' )
-				) {
-					$key_postfix = '.xml';
-				}
-			}
+			$key_postfix = $this->_enhanced_key_postfix( $page_key_extension, $request_url_fragments );
 		}
 
 		// key compression.
@@ -1752,6 +1749,42 @@ class PgCache_ContentGrabber {
 		);
 
 		return implode( '', $w3tc_key['key'] );
+	}
+
+	/**
+	 * File extension for a Disk Enhanced cache entry with no cache group.
+	 *
+	 * JSON uses its own extension. The HTML extension is what the web server
+	 * serves as HTML. A read that does not yet know the media type keeps
+	 * `.html` so existing HTML entries still match.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $page_key_extension     Page key extension.
+	 * @param array $request_url_fragments  URL fragments for the request.
+	 *
+	 * @return string
+	 */
+	private function _enhanced_key_postfix( $page_key_extension, $request_url_fragments ) {
+		$content_type = isset( $page_key_extension['content_type'] ) ? (string) $page_key_extension['content_type'] : '';
+		$media_type   = strtolower( trim( explode( ';', $content_type, 2 )[0] ) );
+
+		if ( 'application/json' === $media_type || \substr( $media_type, -5 ) === '+json' ) {
+			return '.json';
+		}
+
+		$key_postfix = '.html';
+		if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+			if (
+				@preg_match( '~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i', $content_type ) ||
+				preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
+				false !== strpos( $request_url_fragments['path'], '.xsl' )
+			) {
+				$key_postfix = '.xml';
+			}
+		}
+
+		return $key_postfix;
 	}
 
 	/**
@@ -1905,6 +1938,45 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Adds a nosniff header when a cached body is not HTML.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $headers Headers about to be sent.
+	 *
+	 * @return array
+	 */
+	public function _ensure_cached_media_headers( $headers ) {
+		if ( ! is_array( $headers ) ) {
+			return array();
+		}
+
+		$media_type = '';
+		foreach ( $headers as $name => $value ) {
+			if ( ! is_string( $name ) || 0 !== strcasecmp( $name, 'Content-Type' ) || ! is_string( $value ) ) {
+				continue;
+			}
+
+			$media_type = strtolower( trim( explode( ';', $value, 2 )[0] ) );
+		}
+
+		$group = '';
+		if (
+			is_array( $this->_page_key_extension ) &&
+			isset( $this->_page_key_extension['group'] ) &&
+			is_string( $this->_page_key_extension['group'] )
+		) {
+			$group = $this->_page_key_extension['group'];
+		}
+
+		if ( 'rest' === $group || ( '' !== $media_type && 'text/html' !== $media_type ) ) {
+			$headers['X-Content-Type-Options'] = 'nosniff';
+		}
+
+		return $headers;
+	}
+
+	/**
 	 * Sends caching-related headers.
 	 *
 	 * @param bool   $is_404         Whether the current request is a 404 error.
@@ -1993,6 +2065,7 @@ class PgCache_ContentGrabber {
 			$headers,
 			$this->_get_common_headers( $compression )
 		);
+		$headers = $this->_ensure_cached_media_headers( $headers );
 
 		// Send headers to client.
 		$w3tc_result = $this->_headers( $headers );

@@ -502,7 +502,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Pro bearer token, issuing or refreshing it before a /v2/ image call.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -519,7 +519,7 @@ class Extension_ImageService_Api {
 	 *
 	 * 403 is returned as-is.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param string $url  URL.
 	 * @param array  $args Request args.
@@ -542,7 +542,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Attach the current JWT when this site is Pro and a token is stored.
 	 *
-	 * @since 2.10.8
+	 * @since 2.11.0
 	 *
 	 * @param array $args Request args.
 	 *

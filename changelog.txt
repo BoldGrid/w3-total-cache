@@ -1,5 +1,14 @@
 === W3 Total Cache Changelog ===
 
+= 2.11.0 =
+* Feature: Extensions: Add the CloudLinux Max Cache extension
+* Update: Licensing: Store the license JWT and call the v2 APIs
+* Fix: REST API Cache: Clear a retained REST cache mode when Pro is inactive
+* Fix: Minify: Keep automatic minify file names to the hash and extension
+* Fix: Minify: Use a per-request id for HTML minify placeholders
+* Fix: Page Cache: Skip a second WP_CACHE define when the site already set it
+* Fix: Filesystem: Skip the credentials prompt after a successful empty rules-file write
+
 = 2.10.7 =
 * Feature: Minify: Cache selected external scripts locally for auto minify
 * Feature: Page Cache: Add a one-pass mode for sitemap cache preload
