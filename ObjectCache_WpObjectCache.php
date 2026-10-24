@@ -344,6 +344,10 @@ class ObjectCache_WpObjectCache {
 	 * @return object The cache engine for the specified group.
 	 */
 	private function _get_engine( $w3tc_group = '' ) {
+		if ( null === $w3tc_group ) {
+			$w3tc_group = '';
+		}
+
 		if ( isset( $this->_cache_by_group[ $w3tc_group ] ) ) {
 			return $this->_cache_by_group[ $w3tc_group ];
 		}
