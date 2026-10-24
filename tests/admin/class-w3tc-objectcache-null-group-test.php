@@ -24,10 +24,19 @@ class W3tc_Objectcache_Null_Group_Test extends WP_UnitTestCase {
 		$default    = new stdClass();
 		$custom     = new stdClass();
 
-		$reflection->getProperty( '_default_cache' )->setValue( $cache, $default );
-		$reflection->getProperty( '_cache_by_group' )->setValue( $cache, array( 'custom' => $custom ) );
+		$default_property = $reflection->getProperty( '_default_cache' );
+		$groups_property  = $reflection->getProperty( '_cache_by_group' );
+		$get_engine       = $reflection->getMethod( '_get_engine' );
 
-		$get_engine = $reflection->getMethod( '_get_engine' );
+		// PHP 7.4 requires explicit access to non-public Reflection members.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$default_property->setAccessible( true );
+			$groups_property->setAccessible( true );
+			$get_engine->setAccessible( true );
+		}
+
+		$default_property->setValue( $cache, $default );
+		$groups_property->setValue( $cache, array( 'custom' => $custom ) );
 		$diagnostics = array();
 
 		set_error_handler(
