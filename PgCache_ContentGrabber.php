@@ -633,13 +633,52 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Whether REST response caching is active.
+	 *
+	 * Calls the 2.11.0 helper when it is loaded. A stale Util_Environment
+	 * from 2.10.7 does not define that method, and an unguarded call fatals.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param object|null $config Config.
+	 * @return bool
+	 */
+	public static function rest_cache_is_active( $config ) {
+		if ( method_exists( Util_Environment::class, 'is_rest_cache_active' ) ) {
+			return Util_Environment::is_rest_cache_active( $config );
+		}
+
+		return self::rest_cache_active_legacy( $config );
+	}
+
+	/**
+	 * REST flush/cache decision when the 2.11.0 helper is not loaded.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param object|null $config Config.
+	 * @return bool
+	 */
+	public static function rest_cache_active_legacy( $config ) {
+		if ( ! is_object( $config ) || 'cache' !== $config->get_string( 'pgcache.rest' ) ) {
+			return false;
+		}
+
+		if ( method_exists( Util_Environment::class, 'is_w3tc_pro' ) ) {
+			return Util_Environment::is_w3tc_pro( $config );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines if the cache can be read for the current request.
 	 *
 	 * @return bool True if cache can be read, false otherwise.
 	 */
 	private function _can_read_cache() {
 		if (
-			! Util_Environment::is_rest_cache_active( $this->_config ) &&
+			! self::rest_cache_is_active( $this->_config ) &&
 			Util_Environment::is_rest_request( $this->_request_uri )
 		) {
 			$this->cache_reject_reason = 'REST request';
@@ -694,7 +733,7 @@ class PgCache_ContentGrabber {
 
 			if (
 				$should_reject_qs &&
-				Util_Environment::is_rest_cache_active( $this->_config ) &&
+				self::rest_cache_is_active( $this->_config ) &&
 				Util_Environment::is_rest_request( $this->_request_uri )
 			) {
 				$should_reject_qs = false;
@@ -784,7 +823,7 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		if ( ! Util_Environment::is_rest_cache_active( $this->_config ) ) {
+		if ( ! self::rest_cache_is_active( $this->_config ) ) {
 			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 				$this->cache_reject_reason = 'REST request';
 				$this->process_status      = 'miss_api_call';
@@ -1469,7 +1508,7 @@ class PgCache_ContentGrabber {
 		}
 
 		if (
-			Util_Environment::is_rest_cache_active( $this->_config ) &&
+			self::rest_cache_is_active( $this->_config ) &&
 			Util_Environment::is_rest_request( $uri )
 		) {
 			return 'rest';

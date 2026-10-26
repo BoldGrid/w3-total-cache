@@ -101,7 +101,7 @@ class W3tc_PgCache_Rest_Flush_Test extends WP_UnitTestCase {
 	public function test_flush_does_not_fatal_when_rest_helper_is_missing(): void {
 		$this->set_config(
 			array(
-				'plugin.type'   => '',
+				'plugin.type'   => 'pro',
 				'pgcache.rest'  => 'cache',
 				'pgcache.debug' => false,
 			)

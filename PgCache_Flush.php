@@ -112,7 +112,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			return Util_Environment::is_rest_cache_active( $this->_config );
 		}
 
-		return is_object( $this->_config ) && 'cache' === $this->_config->get_string( 'pgcache.rest' );
+		return self::rest_cache_active_legacy( $this->_config );
 	}
 
 	/**
