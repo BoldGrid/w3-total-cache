@@ -95,6 +95,41 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Whether a delayed page-cache flush should include the REST group.
+	 *
+	 * Uses Util_Environment::is_rest_cache_active() when that 2.11.0 method
+	 * is loaded. A partial update or stale opcode cache can leave an older
+	 * Util_Environment in memory; calling the missing method fatals on
+	 * shutdown. The fallback still honors a retained `pgcache.rest=cache`
+	 * value so the REST group is not skipped.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool
+	 */
+	private function pagecache_rest_group_active() {
+		if ( $this->rest_cache_helper_loaded() ) {
+			return Util_Environment::is_rest_cache_active( $this->_config );
+		}
+
+		return is_object( $this->_config ) && 'cache' === $this->_config->get_string( 'pgcache.rest' );
+	}
+
+	/**
+	 * Whether the 2.11.0 REST-cache helper is loaded.
+	 *
+	 * A stale opcode cache can serve Util_Environment from 2.10.7, which
+	 * does not define is_rest_cache_active().
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool
+	 */
+	protected function rest_cache_helper_loaded() {
+		return method_exists( Util_Environment::class, 'is_rest_cache_active' );
+	}
+
+	/**
 	 * Flushes cache for a specific post.
 	 *
 	 * Identifies post URLs and associated resources to be purged and queues them for flushing. Logs purge details if debug mode is enabled.
@@ -154,7 +189,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		$feeds            = $this->_config->get_array( 'pgcache.purge.feed.types' );
 		$limit_post_pages = $this->_config->get_integer( 'pgcache.purge.postpages_limit' );
 
-		if ( Util_Environment::is_rest_cache_active( $this->_config ) ) {
+		if ( $this->pagecache_rest_group_active() ) {
 			$this->flush_group( 'rest' );
 		}
 
@@ -360,7 +395,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			}
 
 			$groups_to_flush = array( '' );
-			if ( Util_Environment::is_rest_cache_active( $this->_config ) ) {
+			if ( $this->pagecache_rest_group_active() ) {
 				$groups_to_flush[] = 'rest';
 			}
 
