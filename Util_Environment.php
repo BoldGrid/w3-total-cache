@@ -26,9 +26,10 @@ class Util_Environment {
 	/**
 	 * Extend the request time limit when the host allows it.
 	 *
-	 * PHP 8 fatals when set_time_limit() is disabled. The error
-	 * suppressor does not catch that, so the call is skipped and the
-	 * request keeps its existing limit.
+	 * PHP 8 raises an Error when set_time_limit() is listed in
+	 * disable_functions. function_exists() stays true in that case, and
+	 * the error suppressor does not catch the Error, so the call is
+	 * skipped and the request keeps its existing limit.
 	 *
 	 * @since 2.11.1
 	 *
@@ -37,9 +38,50 @@ class Util_Environment {
 	 * @return void
 	 */
 	public static function set_time_limit( $seconds ) {
-		if ( function_exists( 'set_time_limit' ) ) {
-			@set_time_limit( $seconds ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		if ( ! self::can_set_time_limit() ) {
+			return;
 		}
+
+		try {
+			@set_time_limit( $seconds ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		} catch ( \Throwable $e ) {
+			unset( $e );
+		}
+	}
+
+	/**
+	 * Whether set_time_limit() may be called on this host.
+	 *
+	 * function_exists() is true for a function listed in
+	 * disable_functions, so the ini list is checked as well. A name is
+	 * matched whole, after trimming, so a longer name does not count.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string|null $disabled disable_functions list. Null reads the current ini value.
+	 *
+	 * @return bool True when the function exists and is not disabled.
+	 */
+	public static function can_set_time_limit( $disabled = null ) {
+		if ( ! function_exists( 'set_time_limit' ) ) {
+			return false;
+		}
+
+		if ( null === $disabled ) {
+			$disabled = ini_get( 'disable_functions' );
+		}
+
+		if ( ! is_string( $disabled ) || '' === $disabled ) {
+			return true;
+		}
+
+		foreach ( explode( ',', strtolower( $disabled ) ) as $name ) {
+			if ( 'set_time_limit' === trim( $name ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

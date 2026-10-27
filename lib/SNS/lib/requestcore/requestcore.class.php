@@ -813,9 +813,7 @@ class RequestCore
 	 */
 	public function send_request($parse = false)
 	{
-		if ( function_exists( 'set_time_limit' ) ) {
-			set_time_limit(0);
-		}
+		\W3TC\Util_Environment::set_time_limit(0);
 
 		$curl_handle = $this->prep_request();
 		$this->response = curl_exec($curl_handle);
@@ -848,9 +846,7 @@ class RequestCore
 	 */
 	public function send_multi_request($handles, $opt = null)
 	{
-		if ( function_exists( 'set_time_limit' ) ) {
-			set_time_limit(0);
-		}
+		\W3TC\Util_Environment::set_time_limit(0);
 
 		// Skip everything if there are no handles to process.
 		if (count($handles) === 0) return array();
