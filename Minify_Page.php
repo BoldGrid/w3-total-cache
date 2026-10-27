@@ -516,7 +516,7 @@ class Minify_Page extends Base_Page_Settings {
 		$js_groups  = array();
 		$css_groups = array();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.minify_recommendations' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.minify_recommendations' ) );
 
 		foreach ( $urls as $template => $w3tc_url ) {
 			// Append theme identifier.

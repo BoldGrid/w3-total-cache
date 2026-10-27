@@ -311,7 +311,7 @@ class Minify_Cache_File {
 	 * @return bool
 	 */
 	public function flush() {
-		@set_time_limit($this->_flushTimeLimit);
+		\W3TC\Util_Environment::set_time_limit($this->_flushTimeLimit);
 
 		return \W3TC\Util_File::emptydir($this->_flush_path, $this->_exclude);
 	}
