@@ -15,6 +15,22 @@ namespace W3TC;
  */
 class Cdn_RackSpace_Api_Tokens {
 	/**
+	 * Host suffixes Rackspace uses on service-catalog public URLs.
+	 *
+	 * Storage and CDN API endpoints use `.clouddrive.com`. Older catalog
+	 * entries and edge hostnames use `.rackspacecloud.com` and
+	 * `.rackcdn.com`. The leading dot keeps a lookalike such as
+	 * `clouddrive.com.evil.example` from matching.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string[]
+	 */
+	public static function service_url_suffixes() {
+		return array( '.rackspacecloud.com', '.rackcdn.com', '.clouddrive.com' );
+	}
+
+	/**
 	 * Authenticates a user with the Rackspace API using the provided credentials.
 	 *
 	 * This method sends a request to the Rackspace API's authentication endpoint
