@@ -157,13 +157,30 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 		$this->_access_state['access_token']             = $w3tc_r['access_token'];
 		$this->_access_state['access_region_descriptor'] = $w3tc_r['regions'][ $this->_config['region'] ];
 
-		$this->_create_api( array( $this, '_on_new_access_requested_second_time' ) );
+		$this->_create_api( $this->_second_access_callback() );
 
 		if ( ! empty( $this->_new_access_state_callback ) ) {
 			call_user_func( $this->_new_access_state_callback, wp_json_encode( $this->_access_state ) );
 		}
 
 		return $this->_api;
+	}
+
+	/**
+	 * Callback for a second access request.
+	 *
+	 * Built inside this class so `call_user_func()` from the API object
+	 * can run it. A private method passed as an array callback is not
+	 * visible to that caller on PHP 8.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return callable
+	 */
+	private function _second_access_callback() {
+		return function () {
+			$this->_on_new_access_requested_second_time();
+		};
 	}
 
 	/**
