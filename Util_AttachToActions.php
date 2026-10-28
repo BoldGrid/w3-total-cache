@@ -78,6 +78,19 @@ class Util_AttachToActions {
 		add_action( 'wp_update_nav_menu', 'w3tc_flush_posts', 0, 0 );
 
 		/**
+		 * Elementor clears generated CSS without telling the page cache.
+		 *
+		 * Flush posts only. `CacheFlush::flush_all()` is the caller that
+		 * asks Elementor to clear files, so flushing everything here would
+		 * recurse.
+		 *
+		 * @since 2.11.1
+		 *
+		 * @link https://github.com/BoldGrid/w3-total-cache/issues/1385
+		 */
+		add_action( 'elementor/core/files/clear_cache', 'w3tc_flush_posts', 0, 0 );
+
+		/**
 		 * Terms.
 		 */
 
