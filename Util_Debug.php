@@ -235,6 +235,8 @@ class Util_Debug {
 	/**
 	 * Log cache purge event
 	 *
+	 * @since 0.13.0
+	 *
 	 * @param unknown $w3tc_module           Module.
 	 * @param string  $w3tc_message          Message.
 	 * @param array   $parameters       Parameters.
@@ -371,6 +373,8 @@ class Util_Debug {
 	/**
 	 * Log purge should print item
 	 *
+	 * @since 0.13.0
+	 *
 	 * @param array  $backtrace Backtrace.
 	 * @param string $n         Key.
 	 *
@@ -395,6 +399,8 @@ class Util_Debug {
 
 	/**
 	 * Encode parameters
+	 *
+	 * @since 0.13.0
 	 *
 	 * @param array $args Arguments.
 	 *
@@ -426,6 +432,8 @@ class Util_Debug {
 
 	/**
 	 * Clean debug output with label headers.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $w3tc_label Label.
 	 * @param array  $w3tc_data  Data.
@@ -482,7 +490,7 @@ class Util_Debug {
 
 		$secret = self::redact_secret_name_pattern();
 		// Dotted `.key` (cdn.s3.key) is secret; bare JSON `"key"` is not.
-		$key    = '(?:(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}[._-])?' . $secret . '|(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.)key)';
+		$key = '(?:(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}[._-])?' . $secret . '|(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.)key)';
 
 		$blob = (string) \preg_replace(
 			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])((?:\\\\.|(?!\\4).)*)(\\4)\\s*\\)\\s*;/i",
