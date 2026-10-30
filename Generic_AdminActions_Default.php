@@ -107,6 +107,8 @@ class Generic_AdminActions_Default {
 	/**
 	 * Saves the provided license key to the configuration.
 	 *
+	 * @since 2.4.0
+	 *
 	 * @return void
 	 *
 	 * @throws \Exception If saving the license key or configuration fails.
@@ -299,6 +301,8 @@ class Generic_AdminActions_Default {
 
 	/**
 	 * Clears the purge log for the specified module.
+	 *
+	 * @since 0.13.0
 	 *
 	 * @return void
 	 */
@@ -981,7 +985,7 @@ class Generic_AdminActions_Default {
 			 *  - no_import WITH dedicated_page → allowed only on that page
 			 *    (engine selectors on General, minify java paths on Minify).
 			 */
-			$is_secret = (
+			$is_secret       = (
 				is_array( $w3tc_descriptor )
 				&& isset( $w3tc_descriptor['flags'] )
 				&& is_array( $w3tc_descriptor['flags'] )
