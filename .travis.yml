@@ -37,6 +37,9 @@ matrix:
       name: "PHP: 8.5"
       language: ruby
       dist: jammy
+      env:
+        # Parallel dist downloads die in PHP's curl with error 27 on this job.
+        - COMPOSER_MAX_PARALLEL_HTTP=1
       before_install:
         - nvm install 24
         - npm install -g yarn
