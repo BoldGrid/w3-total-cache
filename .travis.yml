@@ -52,7 +52,9 @@ matrix:
         - composer --version
 
 install:
-  - composer self-update
+  # PHP 8.5 already installed Composer above. self-update then fails in PHP's
+  # curl with error 27, so only the PHP 7.4 job updates the bundled Composer.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then composer self-update; fi
   - yarn run install:deps
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
 
