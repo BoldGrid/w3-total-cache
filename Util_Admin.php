@@ -38,6 +38,11 @@ class Util_Admin {
 					$page = $page_url;
 				}
 
+				// An empty page query makes admin.php return 403. The Dashboard is a registered screen.
+				if ( '' === (string) $page ) {
+					$page = 'w3tc_dashboard';
+				}
+
 				$params = array_merge( array( 'page' => $page ), $params );
 			}
 		}
