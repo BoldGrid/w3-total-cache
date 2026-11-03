@@ -638,13 +638,13 @@ class PgCache_ContentGrabber {
 	 * Calls the 2.11.0 helper when it is loaded. A stale Util_Environment
 	 * from 2.10.7 does not define that method, and an unguarded call fatals.
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @param object|null $config Config.
 	 * @return bool
 	 */
 	public static function rest_cache_is_active( $config ) {
-		if ( method_exists( Util_Environment::class, 'is_rest_cache_active' ) ) {
+		if ( \method_exists( Util_Environment::class, 'is_rest_cache_active' ) ) {
 			return Util_Environment::is_rest_cache_active( $config );
 		}
 
@@ -654,17 +654,17 @@ class PgCache_ContentGrabber {
 	/**
 	 * REST flush/cache decision when the 2.11.0 helper is not loaded.
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @param object|null $config Config.
 	 * @return bool
 	 */
 	public static function rest_cache_active_legacy( $config ) {
-		if ( ! is_object( $config ) || 'cache' !== $config->get_string( 'pgcache.rest' ) ) {
+		if ( ! \is_object( $config ) || 'cache' !== $config->get_string( 'pgcache.rest' ) ) {
 			return false;
 		}
 
-		if ( method_exists( Util_Environment::class, 'is_w3tc_pro' ) ) {
+		if ( \method_exists( Util_Environment::class, 'is_w3tc_pro' ) ) {
 			return Util_Environment::is_w3tc_pro( $config );
 		}
 

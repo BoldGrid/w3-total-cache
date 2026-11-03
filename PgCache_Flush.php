@@ -103,7 +103,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * shutdown. The fallback still honors a retained `pgcache.rest=cache`
 	 * value so the REST group is not skipped.
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @return bool
 	 */
@@ -121,12 +121,12 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * A stale opcode cache can serve Util_Environment from 2.10.7, which
 	 * does not define is_rest_cache_active().
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @return bool
 	 */
 	protected function rest_cache_helper_loaded() {
-		return method_exists( Util_Environment::class, 'is_rest_cache_active' );
+		return \method_exists( Util_Environment::class, 'is_rest_cache_active' );
 	}
 
 	/**
