@@ -1156,7 +1156,7 @@ class Generic_Plugin {
 	 * @return bool
 	 */
 	private function should_ob_process_rest() {
-		return Util_Environment::is_rest_cache_active( $this->_config );
+		return PgCache_ContentGrabber::rest_cache_is_active( $this->_config );
 	}
 
 	/**
