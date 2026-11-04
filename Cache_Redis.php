@@ -84,6 +84,42 @@ class Cache_Redis extends Cache_Base {
 	private $_read_timeout;
 
 	/**
+	 * Seconds to skip a server after a failed connect or command.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const BYPASS_SECONDS = 30;
+
+	/**
+	 * Process-local bypass expiry, keyed by server and database.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var array<string,int>
+	 */
+	private static $bypass_until = array();
+
+	/**
+	 * Directory for the cross-request bypass files. Tests set this.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string|null
+	 */
+	public static $bypass_directory = null;
+
+	/**
+	 * Optional factory for the Redis client. Tests set this.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var callable|null
+	 */
+	public static $client_factory = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $w3tc_config Config.
@@ -698,7 +734,7 @@ class Cache_Redis extends Cache_Base {
 			$connect_args[]    = $port;
 		}
 
-		$connect_args[] = $this->_timeout;
+		$connect_args[] = self::fail_fast_seconds( $this->_timeout );
 		$connect_args[] = $this->_persistent ? $this->_instance_id . '_' . $this->_dbid : null;
 		$connect_args[] = $this->_retry_interval;
 
@@ -706,7 +742,7 @@ class Cache_Redis extends Cache_Base {
 
 		// The read_timeout parameter was added in phpredis 3.1.3.
 		if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
-			$connect_args[] = $this->_read_timeout;
+			$connect_args[] = self::fail_fast_seconds( $this->_read_timeout );
 		}
 
 		// Support for stream context was added in phpredis 5.3.2.
@@ -737,31 +773,375 @@ class Cache_Redis extends Cache_Base {
 		if ( ! isset( $this->_servers[ $w3tc_index ] ) ) {
 			$this->_accessors[ $w3tc_index ] = null;
 		} else {
-			try {
-				$server       = $this->_servers[ $w3tc_index ];
-				$connect_args = $this->build_connect_args( $server );
+			$server = $this->_servers[ $w3tc_index ];
 
-				$accessor = new \Redis();
-
-				if ( $this->_persistent ) {
-					$accessor->pconnect( ...$connect_args );
-				} else {
-					$accessor->connect( ...$connect_args );
-				}
-
-				if ( ! empty( $this->_password ) ) {
-					$accessor->auth( $this->_password );
-				}
-
-				$accessor->select( $this->_dbid );
-			} catch ( \Exception $e ) {
-				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			if ( self::is_server_bypassed( $server, $this->_dbid ) ) {
 				$accessor = null;
+			} else {
+				try {
+					$connect_args = $this->build_connect_args( $server );
+					$accessor     = $this->new_redis_client();
+
+					if ( $this->_persistent ) {
+						$accessor->pconnect( ...$connect_args );
+					} else {
+						$accessor->connect( ...$connect_args );
+					}
+
+					if ( ! empty( $this->_password ) ) {
+						$accessor->auth( $this->_password );
+					}
+
+					$accessor->select( $this->_dbid );
+					self::clear_server_bypass( $server, $this->_dbid );
+					$accessor = $this->guard_client( $accessor, $server );
+				} catch ( \Exception $e ) {
+					error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					self::mark_server_bypassed( $server, $this->_dbid );
+					$accessor = null;
+				}
 			}
 
 			$this->_accessors[ $w3tc_index ] = $accessor;
 		}
 
 		return $this->_accessors[ $w3tc_index ];
+	}
+
+	/**
+	 * A configured timeout of 0 waits forever. Use one second instead.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $timeout Configured seconds.
+	 * @return float
+	 */
+	public static function fail_fast_seconds( $timeout ) {
+		$timeout = (float) $timeout;
+
+		return $timeout > 0 ? $timeout : 1.0;
+	}
+
+	/**
+	 * Drop Redis engine and server changes that did not answer a probe.
+	 *
+	 * Unchanged Redis servers are left alone so an outage does not block
+	 * saving unrelated settings. A failed probe restores the previous
+	 * engine and server list for that module.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object        $new_config New config.
+	 * @param object|null   $old_config Previous config.
+	 * @param callable|null $probe      Optional probe ( $servers, $module ) : bool.
+	 * @return string[] Module names that were reverted.
+	 */
+	public static function enforce_verified_servers( $new_config, $old_config, $probe = null ) {
+		$modules  = array( 'dbcache', 'objectcache', 'pgcache', 'minify' );
+		$reverted = array();
+
+		foreach ( $modules as $module ) {
+			$engine_key  = $module . '.engine';
+			$servers_key = $module . '.redis.servers';
+
+			if ( 'redis' !== (string) $new_config->get_string( $engine_key ) ) {
+				continue;
+			}
+
+			$new_servers = $new_config->get_array( $servers_key );
+			$old_engine  = $old_config ? (string) $old_config->get_string( $engine_key ) : '';
+			$old_servers = $old_config ? $old_config->get_array( $servers_key ) : array();
+
+			if ( 'redis' === $old_engine && $new_servers === $old_servers ) {
+				continue;
+			}
+
+			if ( null === $probe ) {
+				$ok = self::probe_servers(
+					$new_servers,
+					(string) $new_config->get_string( $module . '.redis.password' ),
+					$new_config->get_integer( $module . '.redis.dbid' )
+				);
+			} else {
+				$ok = (bool) call_user_func( $probe, $new_servers, $module );
+			}
+
+			if ( $ok ) {
+				continue;
+			}
+
+			if ( $old_config ) {
+				$new_config->set( $engine_key, $old_engine );
+				$new_config->set( $servers_key, $old_servers );
+			}
+
+			$reverted[] = $module;
+		}
+
+		return $reverted;
+	}
+
+	/**
+	 * Connect and write a short-lived key. False when any server fails.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $servers  Server strings.
+	 * @param string $password Password.
+	 * @param mixed  $dbid     Database id.
+	 * @return bool
+	 */
+	public static function probe_servers( $servers, $password, $dbid ) {
+		foreach ( (array) $servers as $server ) {
+			$server = trim( (string) $server );
+
+			if ( '' === $server ) {
+				return false;
+			}
+
+			try {
+				$cache = new self(
+					array(
+						'blog_id'                 => 0,
+						'servers'                 => array( $server ),
+						'persistent'              => false,
+						'password'                => (string) $password,
+						'dbid'                    => $dbid,
+						'timeout'                 => 1,
+						'retry_interval'          => 0,
+						'read_timeout'            => 1,
+						'verify_tls_certificates' => true,
+					)
+				);
+				$wrote = $cache->set( 'w3tc_redis_probe', array( 'content' => '1' ), 30 );
+			} catch ( \Exception $e ) {
+				return false;
+			}
+
+			if ( ! $wrote ) {
+				return false;
+			}
+		}
+
+		return ! empty( $servers );
+	}
+
+	/**
+	 * Forget process-local test overrides.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function reset_runtime_state() {
+		self::$bypass_until     = array();
+		self::$bypass_directory = null;
+		self::$client_factory   = null;
+	}
+
+	/**
+	 * Whether this server should be skipped until the probe window ends.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return bool
+	 */
+	public static function is_server_bypassed( $server, $dbid ) {
+		$key   = self::bypass_key( $server, $dbid );
+		$until = isset( self::$bypass_until[ $key ] ) ? (int) self::$bypass_until[ $key ] : 0;
+
+		if ( $until > time() ) {
+			return true;
+		}
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path || ! is_file( $path ) ) {
+			return false;
+		}
+
+		$until = (int) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+		if ( $until > time() ) {
+			self::$bypass_until[ $key ] = $until;
+			return true;
+		}
+
+		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		return false;
+	}
+
+	/**
+	 * Skip this server for BYPASS_SECONDS.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return void
+	 */
+	public static function mark_server_bypassed( $server, $dbid ) {
+		$key = self::bypass_key( $server, $dbid );
+
+		self::$bypass_until[ $key ] = time() + self::BYPASS_SECONDS;
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path ) {
+			return;
+		}
+
+		$dir = dirname( $path );
+
+		if ( ! is_dir( $dir ) ) {
+			mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+
+		if ( is_dir( $dir ) ) {
+			file_put_contents( $path, (string) $until, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		}
+	}
+
+	/**
+	 * Allow this server to be used again.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return void
+	 */
+	public static function clear_server_bypass( $server, $dbid ) {
+		unset( self::$bypass_until[ self::bypass_key( $server, $dbid ) ] );
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' !== $path && is_file( $path ) ) {
+			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
+	}
+
+	/**
+	 * Key for one server and database.
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function bypass_key( $server, $dbid ) {
+		return md5( (string) $server . '|' . (string) $dbid );
+	}
+
+	/**
+	 * Path of the cross-request bypass file.
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function bypass_path( $server, $dbid ) {
+		$dir = self::$bypass_directory;
+
+		if ( ! is_string( $dir ) || '' === $dir ) {
+			$dir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/cache' : '';
+		}
+
+		if ( '' === $dir ) {
+			return '';
+		}
+
+		return $dir . '/w3tc-redis-bypass-' . self::bypass_key( $server, $dbid );
+	}
+
+	/**
+	 * Build a Redis client, or the test factory's client.
+	 *
+	 * @return object
+	 */
+	private function new_redis_client() {
+		if ( is_callable( self::$client_factory ) ) {
+			return call_user_func( self::$client_factory );
+		}
+
+		return new \Redis();
+	}
+
+	/**
+	 * Catch later Redis exceptions so a dropped connection cannot escape.
+	 *
+	 * @param object $redis  Connected client.
+	 * @param string $server Server URI.
+	 * @return object
+	 */
+	private function guard_client( $redis, $server ) {
+		$dbid = $this->_dbid;
+
+		return new class( $redis, $server, $dbid ) {
+			/**
+			 * Connected client.
+			 *
+			 * @var object
+			 */
+			private $redis;
+
+			/**
+			 * Server URI.
+			 *
+			 * @var string
+			 */
+			private $server;
+
+			/**
+			 * Database id.
+			 *
+			 * @var mixed
+			 */
+			private $dbid;
+
+			/**
+			 * Whether a command already failed.
+			 *
+			 * @var bool
+			 */
+			private $dead = false;
+
+			/**
+			 * Store the client this guard wraps.
+			 *
+			 * @param object $redis  Connected client.
+			 * @param string $server Server URI.
+			 * @param mixed  $dbid   Database id.
+			 */
+			public function __construct( $redis, $server, $dbid ) {
+				$this->redis  = $redis;
+				$this->server = $server;
+				$this->dbid   = $dbid;
+			}
+
+			/**
+			 * Run a Redis command and bypass the server if it throws.
+			 *
+			 * @param string $method Method.
+			 * @param array  $args   Arguments.
+			 * @return mixed
+			 */
+			public function __call( $method, $args ) {
+				if ( $this->dead ) {
+					return false;
+				}
+
+				try {
+					return $this->redis->$method( ...$args );
+				} catch ( \Exception $e ) {
+					$this->dead = true;
+					error_log( 'W3TC Cache_Redis::' . $method . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
+					return false;
+				}
+			}
+		};
 	}
 }
