@@ -43,6 +43,46 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A missing timeout is one second, same as an explicit 0.
+	 */
+	public function test_missing_timeout_fails_fast() {
+		$cache  = new Cache_Redis(
+			array(
+				'blog_id'    => 1,
+				'servers'    => array( '127.0.0.1:6379' ),
+				'persistent' => false,
+				'password'   => '',
+				'dbid'       => 0,
+			)
+		);
+		$method = new ReflectionMethod( Cache_Redis::class, 'build_connect_args' );
+		$method->setAccessible( true );
+		$args = $method->invoke( $cache, '127.0.0.1:6379' );
+
+		$this->assertSame( 1.0, $args[2] );
+	}
+
+	/**
+	 * The bypass file keeps the expiry after the process-local map is cleared.
+	 */
+	public function test_bypass_file_is_readable_after_static_reset() {
+		$this->use_temp_bypass();
+		Cache_Redis::mark_server_bypassed( '127.0.0.1:6390', 0 );
+
+		$files = glob( Cache_Redis::$bypass_directory . '/w3tc-redis-bypass-*' );
+		$this->assertIsArray( $files );
+		$this->assertCount( 1, $files );
+		$stored = (int) file_get_contents( $files[0] );
+		$this->assertGreaterThan( time(), $stored );
+
+		$property = new ReflectionProperty( Cache_Redis::class, 'bypass_until' );
+		$property->setAccessible( true );
+		$property->setValue( null, array() );
+
+		$this->assertTrue( Cache_Redis::is_server_bypassed( '127.0.0.1:6390', 0 ) );
+	}
+
+	/**
 	 * A timeout of 0 becomes one second, and the given port is kept.
 	 */
 	public function test_fail_fast_timeout_and_configured_port() {

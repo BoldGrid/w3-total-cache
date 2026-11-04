@@ -132,9 +132,9 @@ class Cache_Redis extends Cache_Base {
 		$this->_verify_tls_certificates = self::verify_tls_certificates_enabled( $w3tc_config );
 		$this->_password                = $w3tc_config['password'];
 		$this->_dbid                    = $w3tc_config['dbid'];
-		$this->_timeout                 = $w3tc_config['timeout'] ?? 3600000;
+		$this->_timeout                 = self::fail_fast_seconds( $w3tc_config['timeout'] ?? 0 );
 		$this->_retry_interval          = $w3tc_config['retry_interval'] ?? 3600000;
-		$this->_read_timeout            = $w3tc_config['read_timeout'] ?? 60.0;
+		$this->_read_timeout            = self::fail_fast_seconds( $w3tc_config['read_timeout'] ?? 0 );
 
 		/**
 		 * When disabled - no extra requests are made to obtain key version,
@@ -984,9 +984,10 @@ class Cache_Redis extends Cache_Base {
 	 * @return void
 	 */
 	public static function mark_server_bypassed( $server, $dbid ) {
-		$key = self::bypass_key( $server, $dbid );
+		$key   = self::bypass_key( $server, $dbid );
+		$until = time() + self::BYPASS_SECONDS;
 
-		self::$bypass_until[ $key ] = time() + self::BYPASS_SECONDS;
+		self::$bypass_until[ $key ] = $until;
 
 		$path = self::bypass_path( $server, $dbid );
 
