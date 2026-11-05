@@ -52,22 +52,23 @@ matrix:
         - composer --version
 
 install:
-  - composer self-update
-  - yarn run install:deps
+  # PHP 8.5's curl returns error 27 for GitHub zipballs, including the first
+  # package and composer self-update. That job installs from git instead.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then composer self-update && yarn run install:deps; else composer config preferred-install source && composer install --no-interaction --prefer-source -o && yarn install --frozen-lockfile; fi
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
 
 script:
   # Generated documentation.
   - yarn run hooks:check
   # PHPUnit: Run unit tests.
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit; fi
   - WP_MULTISITE=1 vendor/phpunit/phpunit/phpunit --group multisite --no-coverage
   # PHPCS
   #- phpcs --standard=phpcs.xml .
   # JavaScript lint.
   #- yarn run js-lint
   # Remove dev dependencies.
-  - composer install --no-dev --no-interaction --prefer-dist -o
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then composer install --no-dev --no-interaction --prefer-dist -o; else composer install --no-dev --no-interaction --prefer-source -o; fi
   # PHP lint.
   - find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
