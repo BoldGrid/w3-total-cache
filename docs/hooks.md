@@ -77,7 +77,7 @@ add_filter(
 | `w3tc_purge_urls_box` | `add_action()` | 0 | `None` | [inc/options/cdn.php:500](../inc/options/cdn.php#L500) |
 | `w3tc_redirect` | `add_action()` | 0 | `None` | [Util_Environment.php:1334](../Util_Environment.php#L1334)<br>[Util_Environment.php:1356](../Util_Environment.php#L1356) |
 | `w3tc_register_fragment_groups` | `add_action()` | 0 | `None` | [Extension_FragmentCache_Plugin.php:191](../Extension_FragmentCache_Plugin.php#L191) |
-| `w3tc_saved_options` | `add_action()` | 1 | `$new_config` | [Util_Admin.php:651](../Util_Admin.php#L651) |
+| `w3tc_saved_options` | `add_action()` | 1 | `$new_config` | [Util_Admin.php:656](../Util_Admin.php#L656) |
 | `w3tc_settings_box_cdnfsd` | `add_action()` | 0 | `None` | [inc/options/cdn.php:495](../inc/options/cdn.php#L495) |
 | `w3tc_settings_cdn_boxarea_configuration` | `add_action()` | 0 | `None` | [inc/options/cdn.php:486](../inc/options/cdn.php#L486) |
 | `w3tc_settings_general_boxarea_cdn` | `add_action()` | 0 | `None` | [inc/options/general.php:611](../inc/options/general.php#L611) |
@@ -129,8 +129,8 @@ add_filter(
 | `w3tc_capability_favorite_action_flush_all` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:98](../Util_Capability.php#L98) |
 | `w3tc_capability_flush_all` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:91](../Util_Capability.php#L91) |
 | `w3tc_capability_flush_post` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:128](../Util_Capability.php#L128) |
-| `w3tc_capability_menu` | `add_filter()` | 1 | `$base_capability` | [Generic_Plugin_Admin.php:824](../Generic_Plugin_Admin.php#L824)<br>[Util_Admin.php:161](../Util_Admin.php#L161) |
-| `w3tc_capability_menu_w3tc_dashboard` | `add_filter()` | 1 | `$base_capability` | [Root_AdminMenu.php:171](../Root_AdminMenu.php#L171)<br>[Util_Admin.php:166](../Util_Admin.php#L166) |
+| `w3tc_capability_menu` | `add_filter()` | 1 | `$base_capability` | [Generic_Plugin_Admin.php:824](../Generic_Plugin_Admin.php#L824)<br>[Util_Admin.php:166](../Util_Admin.php#L166) |
+| `w3tc_capability_menu_w3tc_dashboard` | `add_filter()` | 1 | `$base_capability` | [Root_AdminMenu.php:171](../Root_AdminMenu.php#L171)<br>[Util_Admin.php:171](../Util_Admin.php#L171) |
 | `w3tc_capability_menu_{slug}` | `add_filter()` | 1 | `$base_capability` | [Root_AdminMenu.php:190](../Root_AdminMenu.php#L190) |
 | `w3tc_capability_row_action_w3tc_flush_post` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:135](../Util_Capability.php#L135) |
 | `w3tc_cdn_add_attachment` | `add_filter()` | 1 | `$post_files` | [Cdn_Core_Admin.php:307](../Cdn_Core_Admin.php#L307) |
