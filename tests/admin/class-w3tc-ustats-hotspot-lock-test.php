@@ -32,7 +32,9 @@ class W3tc_Ustats_Hotspot_Lock_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'wp_rand(', $source );
 
 		$method = new ReflectionMethod( UsageStatistics_StorageWriter::class, 'hotspot_lock_fraction' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$fraction = $method->invoke( null );
 

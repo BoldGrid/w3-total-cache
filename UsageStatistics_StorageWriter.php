@@ -214,7 +214,13 @@ class UsageStatistics_StorageWriter {
 	 * @return float
 	 */
 	private static function hotspot_lock_fraction() {
-		return random_int( 1, 9999 ) / 10000.0;
+		try {
+			$w3tc_rand = \random_int( 1, 9999 );
+		} catch ( \Exception $e ) {
+			$w3tc_rand = \mt_rand( 1, 9999 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+		}
+
+		return $w3tc_rand / 10000.0;
 	}
 
 	/**
