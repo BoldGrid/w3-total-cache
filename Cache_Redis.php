@@ -767,7 +767,17 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( isset( $this->_accessors[ $w3tc_index ] ) ) {
-			return $this->_accessors[ $w3tc_index ];
+			$cached = $this->_accessors[ $w3tc_index ];
+
+			if (
+				! \method_exists( $cached, 'is_failed' ) ||
+				! $cached->is_failed() ||
+				self::is_server_bypassed( $this->_servers[ $w3tc_index ], $this->_dbid )
+			) {
+				return $cached;
+			}
+
+			unset( $this->_accessors[ $w3tc_index ] );
 		}
 
 		if ( ! isset( $this->_servers[ $w3tc_index ] ) ) {
@@ -867,7 +877,9 @@ class Cache_Redis extends Cache_Base {
 					$new_servers,
 					$new_settings[ $module . '.redis.password' ],
 					$new_settings[ $module . '.redis.dbid' ],
-					$new_settings[ $module . '.redis.verify_tls_certificates' ]
+					$new_settings[ $module . '.redis.verify_tls_certificates' ],
+					$new_settings[ $module . '.redis.timeout' ],
+					$new_settings[ $module . '.redis.read_timeout' ]
 				);
 			} else {
 				$ok = (bool) \call_user_func( $probe, $new_servers, $module );
@@ -928,9 +940,11 @@ class Cache_Redis extends Cache_Base {
 	 * @param string $password                Password.
 	 * @param mixed  $dbid                    Database id.
 	 * @param bool   $verify_tls_certificates Whether to verify TLS certificates.
+	 * @param mixed  $timeout                 Connect timeout; 0 uses one second.
+	 * @param mixed  $read_timeout            Read timeout; 0 uses one second.
 	 * @return bool
 	 */
-	public static function probe_servers( $servers, $password, $dbid, $verify_tls_certificates = true ) {
+	public static function probe_servers( $servers, $password, $dbid, $verify_tls_certificates = true, $timeout = 0, $read_timeout = 0 ) {
 		if ( ! \is_callable( self::$client_factory ) && ! \class_exists( 'Redis' ) ) {
 			return false;
 		}
@@ -952,9 +966,9 @@ class Cache_Redis extends Cache_Base {
 						'persistent'              => false,
 						'password'                => (string) $password,
 						'dbid'                    => $dbid,
-						'timeout'                 => 1,
+						'timeout'                 => self::fail_fast_seconds( $timeout ),
 						'retry_interval'          => 0,
-						'read_timeout'            => 1,
+						'read_timeout'            => self::fail_fast_seconds( $read_timeout ),
 						'verify_tls_certificates' => (bool) $verify_tls_certificates,
 					)
 				);
@@ -1020,8 +1034,6 @@ class Cache_Redis extends Cache_Base {
 			self::$bypass_until[ $key ] = $until;
 			return true;
 		}
-
-		@\unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return false;
 	}
@@ -1183,6 +1195,15 @@ class Cache_Redis extends Cache_Base {
 				$this->redis  = $redis;
 				$this->server = $server;
 				$this->dbid   = $dbid;
+			}
+
+			/**
+			 * Whether a command on this client already failed.
+			 *
+			 * @return bool
+			 */
+			public function is_failed() {
+				return $this->dead;
 			}
 
 			/**

@@ -424,6 +424,72 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The save probe uses the module's positive timeouts and fails fast on 0.
+	 */
+	public function test_save_probe_uses_configured_timeouts() {
+		$this->use_temp_bypass();
+		$clients                     = array();
+		Cache_Redis::$client_factory = function () use ( &$clients ) {
+			$clients[] = new W3tc_Redis_Client_Stub( false );
+
+			return end( $clients );
+		};
+
+		$this->assertTrue( Cache_Redis::probe_servers( array( '127.0.0.1:6395' ), '', 0, true, 5, 7 ) );
+		$args = end( $clients )->connect_args;
+		$this->assertSame( 5.0, $args[2] );
+
+		if ( version_compare( (string) phpversion( 'redis' ), '3.1.3', '>=' ) ) {
+			$this->assertSame( 7.0, $args[5] );
+		}
+
+		$this->assertTrue( Cache_Redis::probe_servers( array( '127.0.0.1:6395' ), '', 0, true, 0, 0 ) );
+		$this->assertSame( 1.0, end( $clients )->connect_args[2] );
+	}
+
+	/**
+	 * An expired marker file is left in place for the next write to replace.
+	 */
+	public function test_expired_marker_is_not_removed_on_read() {
+		$this->use_temp_bypass();
+		Cache_Redis::mark_server_bypassed( '127.0.0.1:6396', 0 );
+
+		$files = glob( Cache_Redis::$bypass_directory . '/w3tc-redis-bypass-*' );
+		file_put_contents( $files[0], (string) ( time() - 1 ) );
+		$property = new ReflectionProperty( Cache_Redis::class, 'bypass_until' );
+		$property->setAccessible( true );
+		$property->setValue( null, array() );
+
+		$this->assertFalse( Cache_Redis::is_server_bypassed( '127.0.0.1:6396', 0 ) );
+		$this->assertFileExists( $files[0] );
+	}
+
+	/**
+	 * A client that failed reconnects once the bypass window has ended.
+	 */
+	public function test_failed_client_reconnects_after_window() {
+		$this->use_temp_bypass();
+		$fail                        = true;
+		Cache_Redis::$client_factory = function () use ( &$fail ) {
+			++$this->clients;
+
+			return new W3tc_Redis_Client_Stub( false, $fail );
+		};
+
+		$cache = $this->engine( array( '10.0.0.14:6379' ) );
+		$this->assertFalse( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+		$this->assertSame( 1, $this->clients );
+
+		$this->assertFalse( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+		$this->assertSame( 1, $this->clients );
+
+		$fail = false;
+		Cache_Redis::clear_server_bypass( '10.0.0.14:6379', 0 );
+		$this->assertTrue( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+		$this->assertSame( 2, $this->clients );
+	}
+
+	/**
 	 * The save gate passes the module's TLS verification setting to the probe.
 	 */
 	public function test_save_probe_uses_module_tls_setting() {
@@ -572,6 +638,13 @@ class W3tc_Redis_Client_Stub {
 	private $seen;
 
 	/**
+	 * Arguments of the last connect call.
+	 *
+	 * @var array
+	 */
+	public $connect_args = array();
+
+	/**
 	 * @param bool       $fail_connect Fail connect.
 	 * @param bool       $fail_command Fail the first command.
 	 * @param array|null $seen         Receives the last connect argument.
@@ -587,6 +660,8 @@ class W3tc_Redis_Client_Stub {
 	 * @return void
 	 */
 	public function connect( ...$args ) {
+		$this->connect_args = $args;
+
 		if ( is_array( $this->seen ) ) {
 			$this->seen[] = end( $args );
 		}
