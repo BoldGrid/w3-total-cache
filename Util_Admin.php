@@ -38,12 +38,16 @@ class Util_Admin {
 					$page = $page_url;
 				}
 
-				// An empty page query makes admin.php return 403. The Dashboard is a registered screen.
 				if ( '' === (string) $page ) {
-					$page = 'w3tc_dashboard';
+					$page = self::fallback_page();
 				}
 
-				$params = array_merge( array( 'page' => $page ), $params );
+				// An empty page query makes admin.php return 403.
+				if ( '' === (string) $page ) {
+					$w3tc_url = 'index.php';
+				} else {
+					$params = array_merge( array( 'page' => $page ), $params );
+				}
 			}
 		}
 
@@ -115,7 +119,7 @@ class Util_Admin {
 			$w3tc_data['query_string']['page'] = Util_Request::get_string( 'page' );
 
 			if ( '' === $w3tc_data['query_string']['page'] ) {
-				$w3tc_data['query_string']['page'] = 'w3tc_dashboard';
+				$w3tc_data['query_string']['page'] = self::fallback_page();
 			}
 
 			if ( 'w3tc_extensions' === $w3tc_data['query_string']['page'] ) {
@@ -130,7 +134,26 @@ class Util_Admin {
 
 		$w3tc_data['query_string']['w3tc_message'] = $message_id;
 
-		Util_Environment::redirect( 'admin.php', $w3tc_data['query_string'] );
+		if ( '' === $w3tc_data['query_string']['page'] ) {
+			unset( $w3tc_data['query_string']['page'] );
+			Util_Environment::redirect( 'index.php', $w3tc_data['query_string'] );
+		} else {
+			Util_Environment::redirect( 'admin.php', $w3tc_data['query_string'] );
+		}
+	}
+
+	/**
+	 * Page slug for an admin.php redirect that has none.
+	 *
+	 * The W3TC menu is registered only for manage_options users, so purge-only
+	 * users get an empty slug and are sent to the WordPress Dashboard instead.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	private static function fallback_page() {
+		return \current_user_can( 'manage_options' ) ? 'w3tc_dashboard' : '';
 	}
 
 

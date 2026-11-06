@@ -4,8 +4,9 @@
  *
  * ENG3-3682: after Purge All Caches, Util_Admin::redirect() is called with
  * check_referrer true. With no Referer, no redirect query argument, and no
- * page query argument, the Location must be a real admin screen
- * (page=w3tc_dashboard plus the flush note) and must not carry an empty page.
+ * page query argument, the Location must be a real admin screen and must not
+ * carry an empty page: page=w3tc_dashboard for manage_options users, and the
+ * WordPress Dashboard for purge-only users.
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
@@ -155,6 +156,8 @@ namespace {
 
 			self::$capture           = false;
 			self::$captured_location = null;
+
+			\wp_set_current_user( 0 );
 
 			parent::tear_down();
 		}
@@ -308,11 +311,59 @@ namespace {
 		}
 
 		/**
-		 * Drop query inputs that Util_Admin::redirect() consults.
+		 * A user without manage_options has no W3TC Dashboard, so the fallback is the WordPress Dashboard.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_missing_referer_without_manage_options_uses_wp_dashboard() {
+			$this->isolate_redirect_inputs();
+			\wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+			$location = $this->redirect_location(
+				array(
+					'w3tc_note' => 'flush_all',
+				),
+				true
+			);
+
+			$this->assertStringContainsString( 'index.php?', $location );
+			$this->assertStringContainsString( 'w3tc_note=flush_all', $location );
+			$this->assertStringNotContainsString( 'admin.php', $location );
+			$this->assertStringNotContainsString( 'page=', $location );
+		}
+
+		/**
+		 * The custom-message redirect also uses the WordPress Dashboard without manage_options.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_custom_messages2_without_manage_options_uses_wp_dashboard() {
+			$this->isolate_redirect_inputs();
+			\wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+			$location = $this->capture_location(
+				function () {
+					Util_Admin::redirect_with_custom_messages2(
+						array(
+							'notes' => array( 'Done.' ),
+						)
+					);
+				}
+			);
+
+			$this->assertStringContainsString( 'index.php?', $location );
+			$this->assertStringContainsString( 'w3tc_message=', $location );
+			$this->assertStringNotContainsString( 'page=', $location );
+		}
+
+		/**
+		 * Log in an administrator and drop query inputs that Util_Admin::redirect() consults.
 		 *
 		 * @since X.X.X
 		 */
 		private function isolate_redirect_inputs() {
+			\wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
 			unset(
 				$_GET['page'],
 				$_GET['redirect'],
