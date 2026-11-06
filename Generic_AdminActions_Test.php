@@ -145,6 +145,8 @@ class Generic_AdminActions_Test {
 			$success = true;
 
 			foreach ( $servers as $server ) {
+				Cache_Redis::clear_server_bypass( $server, $dbid );
+
 				@$cache = Cache::instance( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 					'redis',
 					array(
@@ -166,6 +168,8 @@ class Generic_AdminActions_Test {
 				$cache->set( $test_string, $test_value, 60 );
 
 				$test_value = $cache->get( $test_string );
+
+				Cache_Redis::clear_server_bypass( $server, $dbid );
 
 				if ( empty( $test_value['content'] ) || $test_value['content'] !== $test_string ) {
 					$success = false;
