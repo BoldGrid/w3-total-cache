@@ -5,8 +5,8 @@
  * ENG3-3682: after Purge All Caches, Util_Admin::redirect() is called with
  * check_referrer true. With no Referer, no redirect query argument, and no
  * page query argument, the Location must be a real admin screen and must not
- * carry an empty page: page=w3tc_dashboard for manage_options users, and the
- * WordPress Dashboard for purge-only users.
+ * carry an empty page: page=w3tc_dashboard for users who can open it, and the
+ * WordPress Dashboard for everyone else.
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
@@ -330,6 +330,53 @@ namespace {
 			$this->assertStringContainsString( 'w3tc_note=flush_all', $location );
 			$this->assertStringNotContainsString( 'admin.php', $location );
 			$this->assertStringNotContainsString( 'page=', $location );
+		}
+
+		/**
+		 * An administrator whose filtered menu capability hides the W3TC Dashboard
+		 * also falls back to the WordPress Dashboard.
+		 *
+		 * @since X.X.X
+		 *
+		 * @dataProvider data_menu_capability_filters
+		 *
+		 * @param string $filter Capability filter name.
+		 */
+		public function test_filtered_menu_capability_uses_wp_dashboard( $filter ) {
+			$this->isolate_redirect_inputs();
+
+			$deny = function () {
+				return 'do_not_allow';
+			};
+			\add_filter( $filter, $deny );
+
+			try {
+				$location = $this->redirect_location(
+					array(
+						'w3tc_note' => 'flush_all',
+					),
+					true
+				);
+			} finally {
+				\remove_filter( $filter, $deny );
+			}
+
+			$this->assertStringContainsString( 'index.php?', $location );
+			$this->assertStringNotContainsString( 'page=', $location );
+		}
+
+		/**
+		 * Menu capability filters that gate the W3TC Dashboard.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return array
+		 */
+		public function data_menu_capability_filters() {
+			return array(
+				'menu'      => array( 'w3tc_capability_menu' ),
+				'dashboard' => array( 'w3tc_capability_menu_w3tc_dashboard' ),
+			);
 		}
 
 		/**

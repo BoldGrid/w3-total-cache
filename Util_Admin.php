@@ -145,15 +145,27 @@ class Util_Admin {
 	/**
 	 * Page slug for an admin.php redirect that has none.
 	 *
-	 * The W3TC menu is registered only for manage_options users, so purge-only
-	 * users get an empty slug and are sent to the WordPress Dashboard instead.
+	 * Mirrors the capability checks that register the W3TC Dashboard. Users who
+	 * cannot open it get an empty slug and are sent to the WordPress Dashboard.
 	 *
 	 * @since X.X.X
 	 *
 	 * @return string
 	 */
 	private static function fallback_page() {
-		return \current_user_can( 'manage_options' ) ? 'w3tc_dashboard' : '';
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return '';
+		}
+
+		$base_capability = \is_network_admin() ? 'manage_network_options' : 'manage_options';
+		$base_capability = \apply_filters( 'w3tc_capability_menu', $base_capability );
+		if ( ! \current_user_can( $base_capability ) ) {
+			return '';
+		}
+
+		$capability = \apply_filters( 'w3tc_capability_menu_w3tc_dashboard', $base_capability );
+
+		return \current_user_can( $capability ) ? 'w3tc_dashboard' : '';
 	}
 
 
