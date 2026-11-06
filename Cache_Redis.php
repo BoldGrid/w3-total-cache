@@ -823,11 +823,12 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
-	 * Drop Redis engine and server changes that did not answer a probe.
+	 * Drop Redis engine and connection changes that did not answer a probe.
 	 *
-	 * Unchanged Redis servers are left alone so an outage does not block
-	 * saving unrelated settings. A failed probe restores the previous
-	 * engine and server list for that module.
+	 * Unchanged Redis connection settings are left alone so an outage does
+	 * not block saving unrelated settings. A failed probe restores the
+	 * previous engine and every Redis connection setting for that module,
+	 * so old servers are never paired with new credentials or options.
 	 *
 	 * @since X.X.X
 	 *
@@ -841,29 +842,31 @@ class Cache_Redis extends Cache_Base {
 		$reverted = array();
 
 		foreach ( $modules as $module ) {
-			$engine_key  = $module . '.engine';
-			$servers_key = $module . '.redis.servers';
+			$engine_key = $module . '.engine';
 
 			if ( 'redis' !== (string) $new_config->get_string( $engine_key ) ) {
 				continue;
 			}
 
-			$new_servers = $new_config->get_array( $servers_key );
-			$old_engine  = $old_config ? (string) $old_config->get_string( $engine_key ) : '';
-			$old_servers = $old_config ? $old_config->get_array( $servers_key ) : array();
+			$new_settings = self::connection_settings( $new_config, $module );
+			$old_engine   = $old_config ? (string) $old_config->get_string( $engine_key ) : '';
+			$old_settings = $old_config ? self::connection_settings( $old_config, $module ) : array();
 
-			if ( 'redis' === $old_engine && $new_servers === $old_servers ) {
+			if ( 'redis' === $old_engine && $new_settings === $old_settings ) {
 				continue;
 			}
+
+			$new_servers = $new_settings[ $module . '.redis.servers' ];
 
 			if ( null === $probe ) {
 				$ok = self::probe_servers(
 					$new_servers,
-					(string) $new_config->get_string( $module . '.redis.password' ),
-					$new_config->get_integer( $module . '.redis.dbid' )
+					$new_settings[ $module . '.redis.password' ],
+					$new_settings[ $module . '.redis.dbid' ],
+					$new_settings[ $module . '.redis.verify_tls_certificates' ]
 				);
 			} else {
-				$ok = (bool) call_user_func( $probe, $new_servers, $module );
+				$ok = (bool) \call_user_func( $probe, $new_servers, $module );
 			}
 
 			if ( $ok ) {
@@ -872,7 +875,10 @@ class Cache_Redis extends Cache_Base {
 
 			if ( $old_config ) {
 				$new_config->set( $engine_key, $old_engine );
-				$new_config->set( $servers_key, $old_servers );
+
+				foreach ( $old_settings as $key => $value ) {
+					$new_config->set( $key, $value );
+				}
 			}
 
 			$reverted[] = $module;
@@ -882,22 +888,56 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
-	 * Connect and write a short-lived key. False when any server fails.
+	 * Redis connection settings for one module, keyed by config key.
 	 *
 	 * @since X.X.X
 	 *
-	 * @param array  $servers  Server strings.
-	 * @param string $password Password.
-	 * @param mixed  $dbid     Database id.
+	 * @param object $config Config.
+	 * @param string $module Module prefix.
+	 * @return array
+	 */
+	private static function connection_settings( $config, $module ) {
+		$prefix = $module . '.redis.';
+
+		return array(
+			$prefix . 'servers'                 => $config->get_array( $prefix . 'servers' ),
+			$prefix . 'password'                => (string) $config->get_string( $prefix . 'password' ),
+			$prefix . 'dbid'                    => $config->get_integer( $prefix . 'dbid' ),
+			$prefix . 'verify_tls_certificates' => $config->get_boolean( $prefix . 'verify_tls_certificates', true ),
+			$prefix . 'persistent'              => $config->get_boolean( $prefix . 'persistent' ),
+			$prefix . 'timeout'                 => $config->get_integer( $prefix . 'timeout' ),
+			$prefix . 'retry_interval'          => $config->get_integer( $prefix . 'retry_interval' ),
+			$prefix . 'read_timeout'            => $config->get_integer( $prefix . 'read_timeout' ),
+		);
+	}
+
+	/**
+	 * Connect and write a short-lived key. False when any server fails.
+	 *
+	 * An earlier bypass is cleared first so a server that recovered inside
+	 * the bypass window is actually tried.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $servers                 Server strings.
+	 * @param string $password                Password.
+	 * @param mixed  $dbid                    Database id.
+	 * @param bool   $verify_tls_certificates Whether to verify TLS certificates.
 	 * @return bool
 	 */
-	public static function probe_servers( $servers, $password, $dbid ) {
+	public static function probe_servers( $servers, $password, $dbid, $verify_tls_certificates = true ) {
+		if ( ! \is_callable( self::$client_factory ) && ! \class_exists( 'Redis' ) ) {
+			return false;
+		}
+
 		foreach ( (array) $servers as $server ) {
-			$server = trim( (string) $server );
+			$server = \trim( (string) $server );
 
 			if ( '' === $server ) {
 				return false;
 			}
+
+			self::clear_server_bypass( $server, $dbid );
 
 			try {
 				$cache = new self(
@@ -910,7 +950,7 @@ class Cache_Redis extends Cache_Base {
 						'timeout'                 => 1,
 						'retry_interval'          => 0,
 						'read_timeout'            => 1,
-						'verify_tls_certificates' => true,
+						'verify_tls_certificates' => (bool) $verify_tls_certificates,
 					)
 				);
 				$wrote = $cache->set( 'w3tc_redis_probe', array( 'content' => '1' ), 30 );
@@ -962,14 +1002,15 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		$until = (int) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		// Concurrent requests may remove the file between these calls.
+		$until = (int) @\file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $until > time() ) {
 			self::$bypass_until[ $key ] = $until;
 			return true;
 		}
 
-		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		@\unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return false;
 	}
@@ -998,11 +1039,11 @@ class Cache_Redis extends Cache_Base {
 		$dir = dirname( $path );
 
 		if ( ! is_dir( $dir ) ) {
-			mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			@\mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
-		if ( is_dir( $dir ) ) {
-			file_put_contents( $path, (string) $until, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( is_dir( $dir ) && \is_writable( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			@\file_put_contents( $path, (string) $until, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 	}
 
@@ -1021,7 +1062,7 @@ class Cache_Redis extends Cache_Base {
 		$path = self::bypass_path( $server, $dbid );
 
 		if ( '' !== $path && is_file( $path ) ) {
-			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			@\unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 	}
 
@@ -1047,7 +1088,11 @@ class Cache_Redis extends Cache_Base {
 		$dir = self::$bypass_directory;
 
 		if ( ! is_string( $dir ) || '' === $dir ) {
-			$dir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/cache' : '';
+			if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+				$dir = W3TC_CACHE_DIR;
+			} else {
+				$dir = \defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/cache' : '';
+			}
 		}
 
 		if ( '' === $dir ) {
@@ -1110,6 +1155,13 @@ class Cache_Redis extends Cache_Base {
 			private $dead = false;
 
 			/**
+			 * Whether a MULTI or PIPELINE block is open.
+			 *
+			 * @var bool
+			 */
+			private $queued = false;
+
+			/**
 			 * Store the client this guard wraps.
 			 *
 			 * @param object $redis  Connected client.
@@ -1125,23 +1177,48 @@ class Cache_Redis extends Cache_Base {
 			/**
 			 * Run a Redis command and bypass the server if it throws.
 			 *
+			 * Calls that return the client (MULTI and PIPELINE chains) return
+			 * this guard so queued commands and exec() stay guarded. After a
+			 * failure, an open chain keeps returning this guard until exec()
+			 * or discard() so callers never chain onto false.
+			 *
 			 * @param string $method Method.
 			 * @param array  $args   Arguments.
 			 * @return mixed
 			 */
 			public function __call( $method, $args ) {
-				if ( $this->dead ) {
-					return false;
+				$name     = \strtolower( $method );
+				$opens    = 'multi' === $name || 'pipeline' === $name;
+				$closes   = 'exec' === $name || 'discard' === $name;
+				$was_open = $this->queued;
+
+				if ( $opens ) {
+					$this->queued = true;
+				} elseif ( $closes ) {
+					$this->queued = false;
 				}
 
-				try {
-					return $this->redis->$method( ...$args );
-				} catch ( \Exception $e ) {
-					$this->dead = true;
-					error_log( 'W3TC Cache_Redis::' . $method . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
-					return false;
+				if ( ! $this->dead ) {
+					try {
+						$result = $this->redis->$method( ...$args );
+
+						if ( $result === $this->redis ) {
+							return $this;
+						}
+
+						if ( $opens ) {
+							$this->queued = false;
+						}
+
+						return $result;
+					} catch ( \Exception $e ) {
+						$this->dead = true;
+						\error_log( 'W3TC Cache_Redis::' . $method . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
+					}
 				}
+
+				return ( $opens || ( $was_open && ! $closes ) ) ? $this : false;
 			}
 		};
 	}
