@@ -57,6 +57,28 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Catalog URLs on the other allowed suffixes are kept.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider provider_catalog_keys
+	 *
+	 * @param string $class API class.
+	 * @param string $key   Descriptor key.
+	 *
+	 * @return void
+	 */
+	public function test_rackspacecloud_and_rackcdn_urls_are_kept( string $class, string $key ) {
+		$this->require_dns( 'global.cdn.api.rackspacecloud.com' );
+		$this->require_dns( 'c1.r1.cf1.rackcdn.com' );
+
+		foreach ( array( 'https://global.cdn.api.rackspacecloud.com/v1.0/123456', 'https://c1.r1.cf1.rackcdn.com/' ) as $url ) {
+			$descriptor = $this->sanitized_descriptor( $class, $key, $url );
+			$this->assertSame( $url, $descriptor[ $key ] ?? null, $url );
+		}
+	}
+
+	/**
 	 * A foreign host is removed.
 	 *
 	 * @dataProvider provider_catalog_keys
