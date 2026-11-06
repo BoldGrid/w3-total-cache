@@ -114,6 +114,10 @@ class Util_Admin {
 		if ( ! isset( $w3tc_data['query_string']['page'] ) ) {
 			$w3tc_data['query_string']['page'] = Util_Request::get_string( 'page' );
 
+			if ( '' === $w3tc_data['query_string']['page'] ) {
+				$w3tc_data['query_string']['page'] = 'w3tc_dashboard';
+			}
+
 			if ( 'w3tc_extensions' === $w3tc_data['query_string']['page'] ) {
 				$w3tc_data['query_string']['extension'] = Util_Request::get_string( 'extension' );
 				$w3tc_data['query_string']['action']    = Util_Request::get_string( 'action' );
