@@ -38,6 +38,11 @@ class Util_Admin {
 					$page = $page_url;
 				}
 
+				if ( isset( $params['page'] ) ) {
+					$page = $params['page'];
+					unset( $params['page'] );
+				}
+
 				if ( '' === (string) $page ) {
 					$page = self::fallback_page();
 				}
@@ -118,14 +123,14 @@ class Util_Admin {
 		if ( ! isset( $w3tc_data['query_string']['page'] ) ) {
 			$w3tc_data['query_string']['page'] = Util_Request::get_string( 'page' );
 
-			if ( '' === $w3tc_data['query_string']['page'] ) {
-				$w3tc_data['query_string']['page'] = self::fallback_page();
-			}
-
 			if ( 'w3tc_extensions' === $w3tc_data['query_string']['page'] ) {
 				$w3tc_data['query_string']['extension'] = Util_Request::get_string( 'extension' );
 				$w3tc_data['query_string']['action']    = Util_Request::get_string( 'action' );
 			}
+		}
+
+		if ( '' === (string) $w3tc_data['query_string']['page'] ) {
+			$w3tc_data['query_string']['page'] = self::fallback_page();
 		}
 
 		$message_id = uniqid();
@@ -134,7 +139,7 @@ class Util_Admin {
 
 		$w3tc_data['query_string']['w3tc_message'] = $message_id;
 
-		if ( '' === $w3tc_data['query_string']['page'] ) {
+		if ( '' === (string) $w3tc_data['query_string']['page'] ) {
 			unset( $w3tc_data['query_string']['page'] );
 			Util_Environment::redirect( 'index.php', $w3tc_data['query_string'] );
 		} else {

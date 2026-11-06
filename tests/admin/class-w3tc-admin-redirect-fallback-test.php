@@ -380,6 +380,72 @@ namespace {
 		}
 
 		/**
+		 * An empty page in the redirect parameters still gets the dashboard fallback.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_empty_page_param_falls_back_to_dashboard() {
+			$this->isolate_redirect_inputs();
+
+			$location = $this->redirect_location(
+				array(
+					'page'      => '',
+					'w3tc_note' => 'flush_all',
+				),
+				true
+			);
+
+			$this->assertStringContainsString( 'page=w3tc_dashboard', $location );
+			$this->assertStringNotContainsString( 'page=&', $location );
+		}
+
+		/**
+		 * A page in the redirect parameters stays on admin.php for any user.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_page_param_is_kept_without_manage_options() {
+			$this->isolate_redirect_inputs();
+			\wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+			$location = $this->redirect_location(
+				array(
+					'page'      => 'w3tc_general',
+					'w3tc_note' => 'flush_all',
+				),
+				true
+			);
+
+			$this->assertStringContainsString( 'admin.php?page=w3tc_general', $location );
+			$this->assertStringNotContainsString( 'index.php', $location );
+		}
+
+		/**
+		 * The custom-message redirect treats an empty page slug like a missing one.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_custom_messages2_empty_page_falls_back_to_dashboard() {
+			$this->isolate_redirect_inputs();
+
+			$location = $this->capture_location(
+				function () {
+					Util_Admin::redirect_with_custom_messages2(
+						array(
+							'query_string' => array(
+								'page' => '',
+							),
+							'notes'        => array( 'Done.' ),
+						)
+					);
+				}
+			);
+
+			$this->assertStringContainsString( 'page=w3tc_dashboard', $location );
+			$this->assertStringNotContainsString( 'page=&', $location );
+		}
+
+		/**
 		 * The custom-message redirect also uses the WordPress Dashboard without manage_options.
 		 *
 		 * @since X.X.X
