@@ -490,6 +490,32 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A failed key-version read is not cached, so a reconnect reads the real version.
+	 */
+	public function test_failed_key_version_read_is_not_cached() {
+		$this->use_temp_bypass();
+		$fail                        = true;
+		Cache_Redis::$client_factory = function () use ( &$fail ) {
+			$client            = new W3tc_Redis_Client_Stub( false, $fail );
+			$client->get_value = '5';
+
+			return $client;
+		};
+
+		$cache = $this->engine( array( '10.0.0.15:6379' ) );
+		$this->assertFalse( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+
+		$property = new ReflectionProperty( Cache_Redis::class, '_key_version' );
+		$property->setAccessible( true );
+		$this->assertArrayNotHasKey( '', $property->getValue( $cache ) );
+
+		$fail = false;
+		Cache_Redis::clear_server_bypass( '10.0.0.15:6379', 0 );
+		$this->assertTrue( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+		$this->assertSame( 5, $property->getValue( $cache )[''] );
+	}
+
+	/**
 	 * The save gate passes the module's TLS verification setting to the probe.
 	 */
 	public function test_save_probe_uses_module_tls_setting() {
@@ -638,6 +664,13 @@ class W3tc_Redis_Client_Stub {
 	private $seen;
 
 	/**
+	 * Value get() returns.
+	 *
+	 * @var string
+	 */
+	public $get_value = '1';
+
+	/**
 	 * Arguments of the last connect call.
 	 *
 	 * @var array
@@ -734,7 +767,7 @@ class W3tc_Redis_Client_Stub {
 			throw new Exception( 'redis dropped' );
 		}
 
-		return '1';
+		return $this->get_value;
 	}
 }
 
