@@ -196,7 +196,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	 * can run it. A private method passed as an array callback is not
 	 * visible to that caller on PHP 8.
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @return callable
 	 */
