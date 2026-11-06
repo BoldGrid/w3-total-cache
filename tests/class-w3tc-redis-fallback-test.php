@@ -390,6 +390,40 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A database that cannot be selected is treated as a failed connect.
+	 */
+	public function test_failed_select_is_a_failed_connect() {
+		$this->use_temp_bypass();
+		Cache_Redis::$client_factory = function () {
+			$client                = new W3tc_Redis_Client_Stub( false );
+			$client->select_result = false;
+
+			return $client;
+		};
+
+		$cache = $this->engine( array( '10.0.0.13:6379' ) );
+		$this->assertFalse( $cache->set( 'k', array( 'content' => 'v' ), 30 ) );
+		$this->assertTrue( Cache_Redis::is_server_bypassed( '10.0.0.13:6379', 0 ) );
+
+		Cache_Redis::clear_server_bypass( '10.0.0.13:6379', 0 );
+		$this->assertFalse( Cache_Redis::probe_servers( array( '10.0.0.13:6379' ), '', 0 ) );
+	}
+
+	/**
+	 * A failed save probe leaves no bypass for the settings still in use.
+	 */
+	public function test_failed_probe_leaves_no_bypass() {
+		$this->use_temp_bypass();
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Client_Stub( true );
+		};
+
+		$this->assertFalse( Cache_Redis::probe_servers( array( '127.0.0.1:6394' ), 'wrong', 0 ) );
+		$this->assertFalse( Cache_Redis::is_server_bypassed( '127.0.0.1:6394', 0 ) );
+		$this->assertSame( array(), glob( Cache_Redis::$bypass_directory . '/w3tc-redis-bypass-*' ) );
+	}
+
+	/**
 	 * The save gate passes the module's TLS verification setting to the probe.
 	 */
 	public function test_save_probe_uses_module_tls_setting() {
@@ -579,11 +613,18 @@ class W3tc_Redis_Client_Stub {
 	}
 
 	/**
+	 * Value select() returns.
+	 *
+	 * @var bool
+	 */
+	public $select_result = true;
+
+	/**
 	 * @param mixed $dbid Database.
 	 * @return bool
 	 */
 	public function select( $dbid ) {
-		return true;
+		return $this->select_result;
 	}
 
 	/**

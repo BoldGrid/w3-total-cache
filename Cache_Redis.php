@@ -788,13 +788,17 @@ class Cache_Redis extends Cache_Base {
 						$accessor->connect( ...$connect_args );
 					}
 
-					if ( ! empty( $this->_password ) ) {
-						$accessor->auth( $this->_password );
-					}
+					$ready = ( empty( $this->_password ) || false !== $accessor->auth( $this->_password ) )
+						&& false !== $accessor->select( $this->_dbid );
 
-					$accessor->select( $this->_dbid );
-					self::clear_server_bypass( $server, $this->_dbid );
-					$accessor = $this->guard_client( $accessor, $server );
+					if ( $ready ) {
+						self::clear_server_bypass( $server, $this->_dbid );
+						$accessor = $this->guard_client( $accessor, $server );
+					} else {
+						\error_log( __METHOD__ . ': AUTH or SELECT failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						self::mark_server_bypassed( $server, $this->_dbid );
+						$accessor = null;
+					}
 				} catch ( \Exception $e ) {
 					error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					self::mark_server_bypassed( $server, $this->_dbid );
@@ -914,8 +918,9 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Connect and write a short-lived key. False when any server fails.
 	 *
-	 * An earlier bypass is cleared first so a server that recovered inside
-	 * the bypass window is actually tried.
+	 * Any bypass for the server is cleared before and after the probe, so a
+	 * recovered server is actually tried and a rejected save does not skip
+	 * the settings still in use.
 	 *
 	 * @since X.X.X
 	 *
@@ -955,8 +960,14 @@ class Cache_Redis extends Cache_Base {
 				);
 				$wrote = $cache->set( 'w3tc_redis_probe', array( 'content' => '1' ), 30 );
 			} catch ( \Exception $e ) {
-				return false;
+				$wrote = false;
 			}
+
+			/**
+			 * The marker is keyed by server and database only, so a rejected
+			 * edit must not leave it behind for the configuration still in use.
+			 */
+			self::clear_server_bypass( $server, $dbid );
 
 			if ( ! $wrote ) {
 				return false;

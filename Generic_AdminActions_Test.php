@@ -169,6 +169,8 @@ class Generic_AdminActions_Test {
 
 				$test_value = $cache->get( $test_string );
 
+				Cache_Redis::clear_server_bypass( $server, $dbid );
+
 				if ( empty( $test_value['content'] ) || $test_value['content'] !== $test_string ) {
 					$success = false;
 				}
