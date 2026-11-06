@@ -22,7 +22,7 @@ class Cdn_RackSpace_Api_Tokens {
 	 * `.rackcdn.com`. The leading dot keeps a lookalike such as
 	 * `clouddrive.com.evil.example` from matching.
 	 *
-	 * @since 2.11.1
+	 * @since X.X.X
 	 *
 	 * @return string[]
 	 */

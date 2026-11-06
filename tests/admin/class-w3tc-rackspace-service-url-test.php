@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      2.11.1
+ * @since      X.X.X
  */
 
 declare( strict_types = 1 );
@@ -20,7 +20,7 @@ use W3TC\Cdn_RackSpace_Api_Tokens;
  * Rackspace Cloud Files catalog endpoints use `.clouddrive.com`.
  * The region allowlist must keep those URLs and still drop others.
  *
- * @since 2.11.1
+ * @since X.X.X
  */
 class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 
@@ -49,6 +49,7 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 	 */
 	public function test_clouddrive_catalog_url_is_kept( string $class, string $key ) {
 		$url = 'https://cdn5.clouddrive.com/v1/MossoCloudFS_example';
+		$this->require_dns( 'cdn5.clouddrive.com' );
 
 		$descriptor = $this->sanitized_descriptor( $class, $key, $url );
 
@@ -69,6 +70,34 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 		$descriptor = $this->sanitized_descriptor( $class, $key, 'https://evil.example/v1/account' );
 
 		$this->assertArrayNotHasKey( $key, $descriptor );
+	}
+
+	/**
+	 * Public hosts outside the suffix list are removed.
+	 *
+	 * A public IP literal needs no DNS. The resolvable hosts are only
+	 * meaningful when DNS works, so they are skipped otherwise.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider provider_catalog_keys
+	 *
+	 * @param string $class API class.
+	 * @param string $key   Descriptor key.
+	 *
+	 * @return void
+	 */
+	public function test_public_host_outside_suffix_list_is_removed( string $class, string $key ) {
+		$descriptor = $this->sanitized_descriptor( $class, $key, 'https://8.8.8.8/v1/account' );
+		$this->assertArrayNotHasKey( $key, $descriptor );
+
+		$this->require_dns( 'www.example.com' );
+		$this->require_dns( 'clouddrive.com' );
+
+		foreach ( array( 'https://www.example.com/v1/account', 'https://clouddrive.com/v1/account' ) as $url ) {
+			$descriptor = $this->sanitized_descriptor( $class, $key, $url );
+			$this->assertArrayNotHasKey( $key, $descriptor, $url );
+		}
 	}
 
 	/**
@@ -127,9 +156,26 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 			)
 		);
 		$prop = new ReflectionProperty( $api, '_access_region_descriptor' );
-		$prop->setAccessible( true );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$descriptor = $prop->getValue( $api );
 		$this->assertIsArray( $descriptor );
 		return $descriptor;
+	}
+
+	/**
+	 * Skips the test when a host does not resolve.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $host Hostname.
+	 *
+	 * @return void
+	 */
+	private function require_dns( string $host ) {
+		if ( ! @\gethostbynamel( $host ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$this->markTestSkipped( "DNS lookup failed for {$host}." );
+		}
 	}
 }
