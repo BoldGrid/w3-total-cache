@@ -77,7 +77,7 @@ add_filter(
 | `w3tc_purge_urls_box` | `add_action()` | 0 | `None` | [inc/options/cdn.php:500](../inc/options/cdn.php#L500) |
 | `w3tc_redirect` | `add_action()` | 0 | `None` | [Util_Environment.php:1334](../Util_Environment.php#L1334)<br>[Util_Environment.php:1356](../Util_Environment.php#L1356) |
 | `w3tc_register_fragment_groups` | `add_action()` | 0 | `None` | [Extension_FragmentCache_Plugin.php:191](../Extension_FragmentCache_Plugin.php#L191) |
-| `w3tc_saved_options` | `add_action()` | 1 | `$new_config` | [Util_Admin.php:612](../Util_Admin.php#L612) |
+| `w3tc_saved_options` | `add_action()` | 1 | `$new_config` | [Util_Admin.php:616](../Util_Admin.php#L616) |
 | `w3tc_settings_box_cdnfsd` | `add_action()` | 0 | `None` | [inc/options/cdn.php:495](../inc/options/cdn.php#L495) |
 | `w3tc_settings_cdn_boxarea_configuration` | `add_action()` | 0 | `None` | [inc/options/cdn.php:486](../inc/options/cdn.php#L486) |
 | `w3tc_settings_general_boxarea_cdn` | `add_action()` | 0 | `None` | [inc/options/general.php:611](../inc/options/general.php#L611) |
