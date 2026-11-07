@@ -157,7 +157,7 @@ jQuery(function ($) {
         url:
           ajaxurl +
           "?action=w3tc_ajax&_wpnonce=" +
-          w3tcGetAjaxNonce("cdn_bunnycdn_intro") +
+          w3tcGetAjaxNonce("cdn_bunnycdn_deauthorization") +
           "&w3tc_action=cdn_bunnycdn_deauthorization",
         callback: w3tc_bunnycdn_resize,
       });
