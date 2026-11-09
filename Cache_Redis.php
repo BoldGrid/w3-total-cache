@@ -319,10 +319,11 @@ class Cache_Redis extends Cache_Base {
 	public function delete( $w3tc_key, $w3tc_group = '' ) {
 		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
+		$op          = $this->_use_expired_data ? 'delete_expired' : 'delete';
 
 		if ( is_null( $accessor ) ) {
 			// Queue the invalidation so recovery applies it before any read.
-			$this->queue_invalidation( $storage_key, $this->_use_expired_data ? 'delete_expired' : 'delete' );
+			$this->queue_invalidation( $storage_key, $op );
 			return false;
 		}
 
@@ -330,14 +331,29 @@ class Cache_Redis extends Cache_Base {
 			$v   = $accessor->get( $storage_key );
 			$ttl = $accessor->ttl( $storage_key );
 
-			if ( is_array( $v ) ) {
+			if ( is_array( $v ) && ! $this->accessor_failed( $accessor ) ) {
 				$v['key_version'] = 0;
-				$accessor->setex( $storage_key, $ttl, $v );
-				return true;
+				$wrote            = $accessor->setex( $storage_key, $ttl, $v );
+
+				if ( false !== $wrote && ! $this->accessor_failed( $accessor ) ) {
+					return true;
+				}
+
+				$this->mark_bypass_unless_failed( $accessor, $storage_key );
+				$this->queue_invalidation( $storage_key, $op );
+				return false;
 			}
 		}
 
-		return $accessor->setex( $storage_key, 1, '' );
+		$wrote = $accessor->setex( $storage_key, 1, '' );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			$this->queue_invalidation( $storage_key, $op );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -356,7 +372,15 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		return $accessor->setex( $storage_key, 1, '' );
+		$wrote = $accessor->setex( $storage_key, 1, '' );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			$this->queue_invalidation( $storage_key, 'hard_delete' );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -408,7 +432,9 @@ class Cache_Redis extends Cache_Base {
 	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
 		$v = $this->_get_key_version( $w3tc_group );
 		if ( $w3tc_extension['key_version'] > $v ) {
-			$this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group );
+			if ( ! $this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group ) ) {
+				$this->queue_invalidation( $this->_get_key_version_key( $w3tc_group ), 'flush', $w3tc_group );
+			}
 		}
 	}
 
@@ -487,9 +513,47 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		$accessor->set( $storage_key, $v );
+		$wrote = $accessor->set( $storage_key, $v );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			return false;
+		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the guarded client already failed a command.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $accessor Redis client.
+	 * @return bool
+	 */
+	private function accessor_failed( $accessor ) {
+		return \method_exists( $accessor, 'is_failed' ) && $accessor->is_failed();
+	}
+
+	/**
+	 * Skip the server when a write failed without the guard noticing.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $accessor    Redis client.
+	 * @param string $storage_key Storage key.
+	 * @return void
+	 */
+	private function mark_bypass_unless_failed( $accessor, $storage_key ) {
+		if ( $this->accessor_failed( $accessor ) ) {
+			return;
+		}
+
+		$server = $this->server_for_key( $storage_key );
+
+		if ( null !== $server ) {
+			self::mark_server_bypassed( $server, $this->_dbid );
+		}
 	}
 
 	/**
@@ -816,9 +880,14 @@ class Cache_Redis extends Cache_Base {
 						&& false !== $accessor->select( $this->_dbid );
 
 					// Queued invalidations apply before this connection serves any read.
+					$pending = self::pending_path( $server, $this->_dbid );
+
 					if ( $ready && $this->replay_queued_invalidations( $accessor, $server ) ) {
 						self::clear_server_bypass( $server, $this->_dbid );
 						$accessor = $this->guard_client( $accessor, $server );
+					} elseif ( $ready && self::replay_claim_exists( $pending ) ) {
+						// Another request is applying the queue. Do not read yet.
+						$accessor = null;
 					} else {
 						\error_log( __METHOD__ . ': AUTH, SELECT, or queued replay failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						self::mark_server_bypassed( $server, $this->_dbid );
@@ -1167,6 +1236,24 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
+	 * Whether another request has renamed the queue and is still applying it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Pending queue path.
+	 * @return bool
+	 */
+	private static function replay_claim_exists( $path ) {
+		if ( '' === $path || ! is_dir( dirname( $path ) ) ) {
+			return false;
+		}
+
+		$matches = glob( $path . '.replay-*' );
+
+		return is_array( $matches ) && array() !== $matches;
+	}
+
+	/**
 	 * Server that owns a storage key, mirroring _get_accessor().
 	 *
 	 * @since X.X.X
@@ -1253,15 +1340,20 @@ class Cache_Redis extends Cache_Base {
 	private function replay_queued_invalidations( $redis, $server ) {
 		$path = self::pending_path( $server, $this->_dbid );
 
-		if ( '' === $path || ! is_file( $path ) ) {
+		if ( '' === $path ) {
 			return true;
+		}
+
+		if ( ! is_file( $path ) ) {
+			// A missing file is success only when nobody else is still applying it.
+			return ! self::replay_claim_exists( $path );
 		}
 
 		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
 
 		if ( ! @\rename( $path, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-			// Another request claimed the queue; it replays it.
-			return ! is_file( $path );
+			// Still pending here, or another request is applying the renamed file.
+			return ! is_file( $path ) && ! self::replay_claim_exists( $path );
 		}
 
 		$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
