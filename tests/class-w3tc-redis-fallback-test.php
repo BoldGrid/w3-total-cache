@@ -27,7 +27,7 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 		$dir = Cache_Redis::$bypass_directory;
 
 		if ( is_string( $dir ) && is_dir( $dir ) ) {
-			$files = glob( $dir . '/w3tc-redis-bypass-*' );
+			$files = glob( $dir . '/w3tc-redis-*' );
 
 			if ( is_array( $files ) ) {
 				foreach ( $files as $file ) {
@@ -445,6 +445,111 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( Cache_Redis::probe_servers( array( '127.0.0.1:6395' ), '', 0, true, 0, 0 ) );
 		$this->assertSame( 1.0, end( $clients )->connect_args[2] );
+	}
+
+	/**
+	 * A delete skipped during a bypass is applied before the first read after recovery.
+	 */
+	public function test_delete_during_bypass_is_replayed_before_read() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6397';
+		$engine = $this->engine( array( $server ) );
+
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Replay_Client_Stub( true );
+		};
+		$this->assertFalse( $engine->delete( 'k', 'g' ) );
+
+		Cache_Redis::clear_server_bypass( $server, 0 );
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$engine->get_with_old( 'k', 'g' );
+
+		$this->assertContains( array( 'setex', $engine->get_item_key( 'k' ), 1, '' ), $recovered->calls );
+		$this->assertSame( array(), glob( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-*' ) );
+	}
+
+	/**
+	 * A flush skipped during a bypass moves the group version on after recovery.
+	 */
+	public function test_flush_during_bypass_moves_group_version_on_recovery() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6398';
+		$engine = $this->engine( array( $server ) );
+
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Replay_Client_Stub( true );
+		};
+		$this->assertTrue( $engine->flush( 'g' ) );
+
+		$version_key = ( new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' ) );
+		$version_key->setAccessible( true );
+		$version_key = $version_key->invoke( $engine, 'g' );
+
+		Cache_Redis::clear_server_bypass( $server, 0 );
+		$recovered                    = new W3tc_Redis_Replay_Client_Stub( false );
+		$recovered->get_values[ $version_key ] = '3';
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$engine->get_with_old( 'k', 'g' );
+
+		$this->assertContains( array( 'set', $version_key, 4 ), $recovered->calls );
+	}
+
+	/**
+	 * A replay that fails keeps the queue and the server bypassed.
+	 */
+	public function test_failed_replay_keeps_queued_invalidations() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6399';
+		$engine = $this->engine( array( $server ) );
+
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Replay_Client_Stub( true );
+		};
+		$engine->delete( 'k', 'g' );
+
+		Cache_Redis::clear_server_bypass( $server, 0 );
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		$recovered->fail_writes      = true;
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$engine->get_with_old( 'k', 'g' );
+
+		$files = glob( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-*' );
+		$this->assertCount( 1, $files );
+		$this->assertStringContainsString( '"op":"delete"', file_get_contents( $files[0] ) );
+		$this->assertTrue( Cache_Redis::is_server_bypassed( $server, 0 ) );
+	}
+
+	/**
+	 * A queue past the size cap collapses to one database flush on recovery.
+	 */
+	public function test_oversized_queue_collapses_to_database_flush() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6400';
+		$engine = $this->engine( array( $server ) );
+		$path   = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+
+		file_put_contents( $path, str_repeat( 'x', Cache_Redis::PENDING_MAX_BYTES + 1 ) );
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Replay_Client_Stub( true );
+		};
+		$engine->delete( 'k', 'g' );
+
+		Cache_Redis::clear_server_bypass( $server, 0 );
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$engine->get_with_old( 'k', 'g' );
+
+		$this->assertContains( array( 'flushdb' ), $recovered->calls );
+		$this->assertFileDoesNotExist( $path );
 	}
 
 	/**
@@ -906,5 +1011,153 @@ class W3tc_Redis_Pipeline_Client_Stub {
 		if ( $this->fail_all ) {
 			throw new Exception( 'redis dropped' );
 		}
+	}
+}
+
+/**
+ * Client double that records writes and can fail them after reconnect.
+ */
+class W3tc_Redis_Replay_Client_Stub {
+	/**
+	 * Recorded calls, each as array( method, args... ).
+	 *
+	 * @var array
+	 */
+	public $calls = array();
+
+	/**
+	 * Values returned by get(), keyed by key.
+	 *
+	 * @var array
+	 */
+	public $get_values = array();
+
+	/**
+	 * Throw from write commands.
+	 *
+	 * @var bool
+	 */
+	public $fail_writes = false;
+
+	/**
+	 * Throw on connect.
+	 *
+	 * @var bool
+	 */
+	private $fail_connect;
+
+	/**
+	 * @param bool $fail_connect Throw on connect.
+	 */
+	public function __construct( $fail_connect ) {
+		$this->fail_connect = $fail_connect;
+	}
+
+	/**
+	 * @param mixed ...$args Connect arguments.
+	 * @return bool
+	 */
+	public function connect( ...$args ) {
+		if ( $this->fail_connect ) {
+			throw new Exception( 'redis down' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param mixed ...$args Connect arguments.
+	 * @return bool
+	 */
+	public function pconnect( ...$args ) {
+		return $this->connect( ...$args );
+	}
+
+	/**
+	 * @param string $password Password.
+	 * @return bool
+	 */
+	public function auth( $password ) {
+		return true;
+	}
+
+	/**
+	 * @param mixed $dbid Database.
+	 * @return bool
+	 */
+	public function select( $dbid ) {
+		return true;
+	}
+
+	/**
+	 * @param string $key Key.
+	 * @return mixed
+	 */
+	public function get( $key ) {
+		$this->calls[] = array( 'get', $key );
+
+		return isset( $this->get_values[ $key ] ) ? $this->get_values[ $key ] : false;
+	}
+
+	/**
+	 * @param string $key Key.
+	 * @return int
+	 */
+	public function ttl( $key ) {
+		$this->calls[] = array( 'ttl', $key );
+
+		return 60;
+	}
+
+	/**
+	 * @param string $key   Key.
+	 * @param int    $ttl   TTL.
+	 * @param mixed  $value Value.
+	 * @return bool
+	 */
+	public function setex( $key, $ttl, $value ) {
+		return $this->record( 'setex', $key, $ttl, $value );
+	}
+
+	/**
+	 * @param string $key   Key.
+	 * @param mixed  $value Value.
+	 * @return bool
+	 */
+	public function set( $key, $value ) {
+		return $this->record( 'set', $key, $value );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function flushdb() {
+		return $this->record( 'flushdb' );
+	}
+
+	/**
+	 * Any other command is recorded and succeeds.
+	 *
+	 * @param string $name Method.
+	 * @param array  $args Arguments.
+	 * @return bool
+	 */
+	public function __call( $name, $args ) {
+		return $this->record( $name, ...$args );
+	}
+
+	/**
+	 * @param string $name Method.
+	 * @param mixed  ...$args Arguments.
+	 * @return bool
+	 */
+	private function record( $name, ...$args ) {
+		if ( $this->fail_writes && in_array( $name, array( 'setex', 'set', 'flushdb' ), true ) ) {
+			throw new Exception( 'redis dropped' );
+		}
+
+		$this->calls[] = array_merge( array( $name ), $args );
+
+		return true;
 	}
 }

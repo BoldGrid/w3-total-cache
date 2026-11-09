@@ -321,6 +321,8 @@ class Cache_Redis extends Cache_Base {
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
+			// Queue the invalidation so recovery applies it before any read.
+			$this->queue_invalidation( $storage_key, $this->_use_expired_data ? 'delete_expired' : 'delete' );
 			return false;
 		}
 
@@ -350,6 +352,7 @@ class Cache_Redis extends Cache_Base {
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
+			$this->queue_invalidation( $storage_key, 'hard_delete' );
 			return false;
 		}
 
@@ -366,8 +369,14 @@ class Cache_Redis extends Cache_Base {
 		$this->_get_key_version( $w3tc_group );   // Initialize $this->_key_version.
 		if ( isset( $this->_key_version[ $w3tc_group ] ) ) {
 			++$this->_key_version[ $w3tc_group ];
-			$this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group );
+
+			if ( $this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group ) ) {
+				return true;
+			}
 		}
+
+		// No live server: queue the group so recovery moves its version on.
+		$this->queue_invalidation( $this->_get_key_version_key( $w3tc_group ), 'flush', $w3tc_group );
 
 		return true;
 	}
@@ -806,11 +815,12 @@ class Cache_Redis extends Cache_Base {
 					$ready = ( empty( $this->_password ) || false !== $accessor->auth( $this->_password ) )
 						&& false !== $accessor->select( $this->_dbid );
 
-					if ( $ready ) {
+					// Queued invalidations apply before this connection serves any read.
+					if ( $ready && $this->replay_queued_invalidations( $accessor, $server ) ) {
 						self::clear_server_bypass( $server, $this->_dbid );
 						$accessor = $this->guard_client( $accessor, $server );
 					} else {
-						\error_log( __METHOD__ . ': AUTH or SELECT failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						\error_log( __METHOD__ . ': AUTH, SELECT, or queued replay failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						self::mark_server_bypassed( $server, $this->_dbid );
 						$accessor = null;
 					}
@@ -1128,6 +1138,212 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		return $dir . '/w3tc-redis-bypass-' . self::bypass_key( $server, $dbid );
+	}
+
+	/**
+	 * Queue file size above which the queue collapses to one database flush.
+	 *
+	 * @since X.X.X
+	 */
+	const PENDING_MAX_BYTES = 1048576;
+
+	/**
+	 * Path of the cross-request queue of invalidations skipped during a bypass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function pending_path( $server, $dbid ) {
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path ) {
+			return '';
+		}
+
+		return dirname( $path ) . '/w3tc-redis-pending-' . self::bypass_key( $server, $dbid );
+	}
+
+	/**
+	 * Server that owns a storage key, mirroring _get_accessor().
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $storage_key Storage key.
+	 * @return string|null
+	 */
+	private function server_for_key( $storage_key ) {
+		$count = count( $this->_servers );
+		$index = $count <= 1 ? 0 : crc32( $storage_key ) % $count;
+
+		return isset( $this->_servers[ $index ] ) ? $this->_servers[ $index ] : null;
+	}
+
+	/**
+	 * Record an invalidation that could not reach Redis, for replay on recovery.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $storage_key Storage key, or version key for 'flush'.
+	 * @param string $op          One of delete, delete_expired, hard_delete, flush.
+	 * @param string $group       Group, for 'flush'.
+	 * @return bool
+	 */
+	private function queue_invalidation( $storage_key, $op, $group = '' ) {
+		$server = $this->server_for_key( $storage_key );
+
+		if ( null === $server ) {
+			return false;
+		}
+
+		$path = self::pending_path( $server, $this->_dbid );
+
+		if ( '' === $path ) {
+			return false;
+		}
+
+		$dir = dirname( $path );
+
+		if ( ! is_dir( $dir ) ) {
+			@\mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		if ( ! is_dir( $dir ) || ! \is_writable( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			return false;
+		}
+
+		if ( is_file( $path ) && (int) @\filesize( $path ) > self::PENDING_MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			// Too many to replay one by one: recovery flushes the database instead.
+			$line = \json_encode( array( 'op' => 'flush_all' ) ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+
+			return false !== @\file_put_contents( $path, $line, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		if ( 'flush' === $op ) {
+			$entry = array(
+				'op'    => 'flush',
+				'group' => (string) $group,
+			);
+		} else {
+			$entry = array(
+				'op'  => $op,
+				'key' => (string) $storage_key,
+			);
+		}
+
+		$line = \json_encode( $entry ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+
+		return false !== @\file_put_contents( $path, $line, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	/**
+	 * Replay queued invalidations on a freshly connected client.
+	 *
+	 * The queue is claimed by rename first, so a concurrent request appends to a
+	 * new file. Entries that fail to apply are written back for the next try.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $redis  Connected client, before any guard.
+	 * @param string $server Server URI.
+	 * @return bool False when the server must stay bypassed.
+	 */
+	private function replay_queued_invalidations( $redis, $server ) {
+		$path = self::pending_path( $server, $this->_dbid );
+
+		if ( '' === $path || ! is_file( $path ) ) {
+			return true;
+		}
+
+		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
+
+		if ( ! @\rename( $path, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			// Another request claimed the queue; it replays it.
+			return ! is_file( $path );
+		}
+
+		$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
+		$lines   = is_array( $lines ) ? $lines : array();
+		$applied = 0;
+
+		try {
+			foreach ( $lines as $line ) {
+				$entry = json_decode( $line, true );
+
+				if ( is_array( $entry ) && ! $this->apply_queued_invalidation( $redis, $entry ) ) {
+					break;
+				}
+
+				++$applied;
+			}
+		} catch ( \Exception $e ) {
+			error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+
+		if ( $applied < count( $lines ) ) {
+			$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
+			@\file_put_contents( $path, $rest, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+
+			return false;
+		}
+
+		@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		// In-process version cache may be behind Redis after replay.
+		$this->_key_version = array();
+
+		return true;
+	}
+
+	/**
+	 * Apply one queued invalidation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $redis Connected client.
+	 * @param array  $entry Decoded queue line.
+	 * @return bool False when the command did not succeed.
+	 */
+	private function apply_queued_invalidation( $redis, array $entry ) {
+		$op = isset( $entry['op'] ) ? $entry['op'] : '';
+
+		if ( 'flush_all' === $op ) {
+			return false !== $redis->flushdb();
+		}
+
+		if ( 'flush' === $op ) {
+			$version_key = $this->_get_key_version_key( isset( $entry['group'] ) ? (string) $entry['group'] : '' );
+			$v           = intval( $redis->get( $version_key ) );
+			$v           = $v > 0 ? $v : 1;
+
+			return false !== $redis->set( $version_key, $v + 1 );
+		}
+
+		if ( ! isset( $entry['key'] ) ) {
+			return true;
+		}
+
+		$key = $entry['key'];
+
+		if ( 'delete_expired' === $op ) {
+			$v   = $redis->get( $key );
+			$ttl = $redis->ttl( $key );
+
+			if ( is_array( $v ) && $ttl > 0 ) {
+				$v['key_version'] = 0;
+
+				return false !== $redis->setex( $key, $ttl, $v );
+			}
+		}
+
+		if ( in_array( $op, array( 'delete', 'delete_expired', 'hard_delete' ), true ) ) {
+			return false !== $redis->setex( $key, 1, '' );
+		}
+
+		return true;
 	}
 
 	/**
