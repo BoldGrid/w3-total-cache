@@ -31,14 +31,20 @@ $w3tc_license_status = $w3tc_state->get_string( 'license.status' );
 		<td><b><?php esc_html_e( 'Status:', 'w3-total-cache' ); ?></b></td>
 		<td>
 			<?php
-			if ( 'active.by_rooturi' === $w3tc_license_status ) {
-				esc_html_e( 'Active', 'w3-total-cache' );
-			} elseif ( 'inactive.expired' === $w3tc_license_status ) {
-				esc_html_e( 'Expired', 'w3-total-cache' );
-			} elseif ( '' === $w3tc_license_status || 'no_key' === $w3tc_license_status || 'invalid.not_present' === $w3tc_license_status ) {
-				esc_html_e( 'Free license, no expiration', 'w3-total-cache' );
-			} else {
-				esc_html_e( 'Unknown', 'w3-total-cache' );
+			switch ( $w3tc_license_status ) {
+				case 'active.by_rooturi':
+					esc_html_e( 'Active', 'w3-total-cache' );
+					break;
+				case 'inactive.expired':
+					esc_html_e( 'Expired', 'w3-total-cache' );
+					break;
+				case '':
+				case 'no_key':
+				case 'invalid.not_present':
+					esc_html_e( 'Free license, no expiration', 'w3-total-cache' );
+					break;
+				default:
+					esc_html_e( 'Unknown', 'w3-total-cache' );
 			}
 			?>
 		</td>

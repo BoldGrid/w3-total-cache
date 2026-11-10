@@ -244,6 +244,107 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	}
 
 	/**
+	 * A rejected empty-key check is not a license object.
+	 *
+	 * /v2/ answers 422 with message and errors and no license_status.
+	 * Callers must not treat that body as a license.
+	 *
+	 * @return void
+	 */
+	public function test_rejected_empty_key_is_not_a_license() {
+		$this->install_http(
+			function () {
+				return $this->response(
+					422,
+					array(
+						'message' => 'The license key field is required when license is not present.',
+						'errors'  => array(
+							'license_key' => array( 'The license key field is required when license is not present.' ),
+						),
+					)
+				);
+			}
+		);
+
+		$this->assertFalse( Licensing_Core::check_license( '', W3TC_VERSION ) );
+	}
+
+	/**
+	 * The Account widget stays quiet when the free license check is rejected.
+	 *
+	 * @return void
+	 */
+	public function test_account_widget_renders_free_state_for_rejected_check() {
+		$this->set_config( array( 'plugin.license_key' => '' ) );
+		$this->install_http(
+			function () {
+				return $this->response(
+					422,
+					array(
+						'message' => 'The license key field is required when license is not present.',
+						'errors'  => array(
+							'license' => array( 'The license field is required when license key is not present.' ),
+						),
+					)
+				);
+			}
+		);
+
+		$html = $this->render_account_widget();
+
+		$this->assertStringContainsString( 'Free', $html );
+		$this->assertStringContainsString( 'Free license, no expiration', $html );
+		$this->assertStringNotContainsString( 'Unknown', $html );
+	}
+
+	/**
+	 * A license object that omits license_status does not warn.
+	 *
+	 * @return void
+	 */
+	public function test_account_widget_ignores_missing_license_status() {
+		$this->set_config( array( 'plugin.license_key' => '' ) );
+		$this->install_http(
+			function () {
+				return $this->response( 200, array( 'message' => 'ok' ) );
+			}
+		);
+
+		$html = $this->render_account_widget();
+
+		$this->assertStringContainsString( 'Free', $html );
+		$this->assertStringContainsString( 'Free license, no expiration', $html );
+		$this->assertStringNotContainsString( 'Unknown', $html );
+	}
+
+	/**
+	 * An active status still renders as Pro.
+	 *
+	 * @return void
+	 */
+	public function test_account_widget_renders_active_license() {
+		$this->set_config( array( 'plugin.license_key' => self::FAKE_KEY ) );
+		$this->install_http( $this->licensing_responder( $this->fresh_token() ) );
+
+		$html = $this->render_account_widget();
+
+		$this->assertStringContainsString( 'Pro', $html );
+		$this->assertStringContainsString( 'Active', $html );
+		$this->assertStringNotContainsString( 'Learn more about Pro', $html );
+	}
+
+	/**
+	 * Render the Account widget.
+	 *
+	 * @return string
+	 */
+	private function render_account_widget(): string {
+		ob_start();
+		include W3TC_DIR . '/Generic_WidgetAccount_View.php';
+		return (string) ob_get_clean();
+	}
+
+	/**
 	 * Data provider.
 	 *
 	 * @return array
@@ -357,12 +458,15 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 		$this->assertIsArray( $lock );
 		$this->assertSame( 'another-process', $lock['owner'] ?? null, 'Clearing the token must not take over another caller\'s lock.' );
 
+		$checks_before_image = count( $this->requests_of( 'check_license' ) );
 		( new Extension_ImageService_Api() )->get_usage( true );
 
 		$checks = $this->requests_of( 'check_license' );
-		$this->assertCount( 1, $checks, 'The next image call must check the new key.' );
-		$this->assertStringContainsString( $new_key, $checks[0]['url'] );
-		$this->assertStringNotContainsString( self::FAKE_KEY, $checks[0]['url'] );
+		$this->assertGreaterThan( $checks_before_image, count( $checks ), 'The next image call must check the new key.' );
+		foreach ( $checks as $check ) {
+			$this->assertStringContainsString( $new_key, $check['url'] );
+			$this->assertStringNotContainsString( self::FAKE_KEY, $check['url'] );
+		}
 		$this->assertSame( array(), $this->requests_of( 'refresh' ), 'An empty token must not refresh the previous bearer.' );
 	}
 

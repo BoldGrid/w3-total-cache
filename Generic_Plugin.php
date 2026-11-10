@@ -91,16 +91,15 @@ class Generic_Plugin {
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		/**
 		 * The W3TC theme preview filters force-swap the active theme
-		 * for any visitor that supplies the public W3TC_POWERED_BY
-		 * User-Agent. Gate the registration on edit_theme_options so
-		 * unauthenticated visitors cannot probe installed themes
-		 *.
+		 * for a request that supplies the public W3TC_POWERED_BY
+		 * User-Agent. The capability check runs inside the callbacks,
+		 * after pluggable.php has loaded. The wizard loopback reaches
+		 * this code before that file exists.
 		 *
 		 * @since 2.10.0
 		 */
 		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) )
-			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false
-			&& \current_user_can( 'edit_theme_options' ) ) {
+			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array( $this, 'template_preview' ) );
 			add_filter( 'stylesheet', array( $this, 'stylesheet_preview' ) );
 		} elseif ( $this->_config->get_boolean( 'mobile.enabled' ) || $this->_config->get_boolean( 'referrer.enabled' ) ) {
@@ -946,6 +945,10 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	public function template_preview( $template ) {
+		if ( ! \current_user_can( 'edit_theme_options' ) ) {
+			return $template;
+		}
+
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
 		$theme = Util_Theme::get( $w3tc_theme_name );
@@ -965,6 +968,10 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	public function stylesheet_preview( $stylesheet ) {
+		if ( ! \current_user_can( 'edit_theme_options' ) ) {
+			return $stylesheet;
+		}
+
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
 		$theme = Util_Theme::get( $w3tc_theme_name );

@@ -190,7 +190,7 @@ class UsageStatistics_StorageWriter {
 		} else {
 			// rand value makes value unique for each process, so as a result next replace works as a lock
 			// passing only single process further.
-			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + ( wp_rand( 1, 9999 ) / 10000.0 );
+			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + self::hotspot_lock_fraction();
 
 			$succeeded         = $this->cache_storage->set_if_maybe_equals(
 				'hotspot_endtime',
@@ -203,6 +203,25 @@ class UsageStatistics_StorageWriter {
 		return $this->flush_state;
 	}
 
+	/**
+	 * Fractional offset that makes a hotspot lock unique per process.
+	 *
+	 * This runs from advanced-cache.php, before WordPress loads pluggable.php.
+	 * random_int() exists there. The pluggable wp_rand function does not.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return float
+	 */
+	private static function hotspot_lock_fraction() {
+		try {
+			$w3tc_rand = \random_int( 1, 9999 );
+		} catch ( \Exception $e ) {
+			$w3tc_rand = \mt_rand( 1, 9999 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+		}
+
+		return $w3tc_rand / 10000.0;
+	}
 
 	/**
 	 * Completes the flushing of the hotspot data.
@@ -242,7 +261,7 @@ class UsageStatistics_StorageWriter {
 			return; // not neeeded really, db state after.
 		}
 		if ( $this->new_hotspot_endtime <= 0 ) {
-			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + ( wp_rand( 1, 9999 ) / 10000.0 );
+			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + self::hotspot_lock_fraction();
 		}
 
 		if ( $hotspot_endtime_int <= 0 ) {
