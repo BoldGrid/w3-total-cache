@@ -13,12 +13,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$w3tc_licensing      = new Licensing_Plugin_Admin();
-$w3tc_license_key    = $w3tc_licensing->get_license_key();
-$w3tc_license        = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
-$w3tc_license_status = ( is_object( $w3tc_license ) && isset( $w3tc_license->license_status ) )
-	? (string) $w3tc_license->license_status
-	: '';
+$w3tc_state          = Dispatcher::config_state();
+$w3tc_license_status = $w3tc_state->get_string( 'license.status' );
 ?>
 <table>
 	<tr>
@@ -43,6 +39,7 @@ $w3tc_license_status = ( is_object( $w3tc_license ) && isset( $w3tc_license->lic
 					esc_html_e( 'Expired', 'w3-total-cache' );
 					break;
 				case '':
+				case 'no_key':
 				case 'invalid.not_present':
 					esc_html_e( 'Free license, no expiration', 'w3-total-cache' );
 					break;
@@ -60,7 +57,7 @@ $w3tc_license_status = ( is_object( $w3tc_license ) && isset( $w3tc_license->lic
 	-->
 </table>
 <?php
-if ( '' === $w3tc_license_status || 'invalid.not_present' === $w3tc_license_status ) {
+if ( '' === $w3tc_license_status || 'no_key' === $w3tc_license_status || 'invalid.not_present' === $w3tc_license_status ) {
 	?>
 	<p>
 		<?php
