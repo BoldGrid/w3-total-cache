@@ -149,10 +149,10 @@ add_filter(
 | `w3tc_config_labels` | `add_filter()` | 1 | `array()` | [Util_Ui.php:210](../Util_Ui.php#L210) |
 | `w3tc_dashboard_actions` | `add_filter()` | 1 | `array()` | [Util_Ui.php:482](../Util_Ui.php#L482) |
 | `w3tc_dashboard_widgets` | `add_filter()` | 1 | `array()` | [Util_Widget.php:50](../Util_Widget.php#L50) |
-| `w3tc_dbcache_cache_set` | `add_filter()` | 1 | `$filter_data` | [DbCache_WpdbInjection_QueryCaching.php:246](../DbCache_WpdbInjection_QueryCaching.php#L246) |
+| `w3tc_dbcache_cache_set` | `add_filter()` | 1 | `$filter_data` | [DbCache_WpdbInjection_QueryCaching.php:249](../DbCache_WpdbInjection_QueryCaching.php#L249) |
 | `w3tc_dbcache_can_cache_sql` | `add_filter()` | 2 | `( $caching ? '' : $reject_reason ), $query` | [DbCache_WpdbInjection_QueryCaching.php:182](../DbCache_WpdbInjection_QueryCaching.php#L182) |
-| `w3tc_dbcache_get_flush_groups` | `add_filter()` | 3 | `$groups_to_flush, $w3tc_group, $extras` | [DbCache_WpdbInjection_QueryCaching.php:817](../DbCache_WpdbInjection_QueryCaching.php#L817) |
-| `w3tc_dbcache_get_sql_group` | `add_filter()` | 3 | `$w3tc_group, $sql, $tables` | [DbCache_WpdbInjection_QueryCaching.php:752](../DbCache_WpdbInjection_QueryCaching.php#L752) |
+| `w3tc_dbcache_get_flush_groups` | `add_filter()` | 3 | `$groups_to_flush, $w3tc_group, $extras` | [DbCache_WpdbInjection_QueryCaching.php:820](../DbCache_WpdbInjection_QueryCaching.php#L820) |
+| `w3tc_dbcache_get_sql_group` | `add_filter()` | 3 | `$w3tc_group, $sql, $tables` | [DbCache_WpdbInjection_QueryCaching.php:755](../DbCache_WpdbInjection_QueryCaching.php#L755) |
 | `w3tc_dbcluster_after_query` | `add_filter()` | 1 | `$query` | [Enterprise_Dbcache_WpdbInjection_Cluster.php:729](../Enterprise_Dbcache_WpdbInjection_Cluster.php#L729)<br>[lib/Db/mssql.php:1140](../lib/Db/mssql.php#L1140) |
 | `w3tc_dbcluster_query` | `add_filter()` | 1 | `$query` | [Enterprise_Dbcache_WpdbInjection_Cluster.php:690](../Enterprise_Dbcache_WpdbInjection_Cluster.php#L690)<br>[lib/Db/mssql.php:1062](../lib/Db/mssql.php#L1062) |
 | `w3tc_deferscripts_can_process` | `add_filter()` | 1 | `$can_process` | [UserExperience_DeferScripts_Extension.php:93](../UserExperience_DeferScripts_Extension.php#L93) |
