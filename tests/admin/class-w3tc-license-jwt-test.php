@@ -290,7 +290,7 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 			}
 		);
 
-		$html = $this->render_account_widget();
+		$html = $this->render_account_widget( 'no_key' );
 
 		$this->assertSame( array(), $this->requests );
 		$this->assertStringContainsString( 'Free', $html );
@@ -311,7 +311,7 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 			}
 		);
 
-		$html = $this->render_account_widget();
+		$html = $this->render_account_widget( '' );
 
 		$this->assertSame( array(), $this->requests );
 		$this->assertStringContainsString( 'Free', $html );
@@ -327,14 +327,8 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	public function test_account_widget_renders_active_license() {
 		$this->set_config( array( 'plugin.license_key' => self::FAKE_KEY ) );
 		$this->install_http( $this->licensing_responder( $this->fresh_token() ) );
-		$previous_status = Dispatcher::config_state()->get_string( 'license.status' );
-		$this->set_blog_state( array( 'license.status' => 'active.by_rooturi' ) );
 
-		try {
-			$html = $this->render_account_widget();
-		} finally {
-			$this->set_blog_state( array( 'license.status' => $previous_status ) );
-		}
+		$html = $this->render_account_widget( 'active.by_rooturi' );
 
 		$this->assertSame( array(), $this->requests );
 		$this->assertStringContainsString( 'Pro', $html );
@@ -343,14 +337,23 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 	}
 
 	/**
-	 * Render the Account widget.
+	 * Render the Account widget with a stored license status.
+	 *
+	 * @param string $status Stored license.status.
 	 *
 	 * @return string
 	 */
-	private function render_account_widget(): string {
-		ob_start();
-		include W3TC_DIR . '/Generic_WidgetAccount_View.php';
-		return (string) ob_get_clean();
+	private function render_account_widget( string $status ): string {
+		$previous_status = Dispatcher::config_state()->get_string( 'license.status' );
+		$this->set_blog_state( array( 'license.status' => $status ) );
+
+		try {
+			ob_start();
+			include W3TC_DIR . '/Generic_WidgetAccount_View.php';
+			return (string) ob_get_clean();
+		} finally {
+			$this->set_blog_state( array( 'license.status' => $previous_status ) );
+		}
 	}
 
 	/**
