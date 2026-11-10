@@ -260,9 +260,9 @@ add_filter(
 | `w3tc_ui_settings_item` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1457](../Util_Ui.php#L1457) |
 | `w3tc_uri_cdn_uri` | `add_filter()` | 1 | `ltrim( $remote_uri, '/' )` | [Cdn_Core.php:796](../Cdn_Core.php#L796) |
 | `w3tc_url_to_docroot_filename` | `add_filter()` | 1 | `$w3tc_data` | [Util_Environment.php:1056](../Util_Environment.php#L1056) |
-| `w3tc_usage_statistics_history_set` | `add_filter()` | 1 | `$history` | [UsageStatistics_StorageWriter.php:332](../UsageStatistics_StorageWriter.php#L332) |
-| `w3tc_usage_statistics_metrics` | `add_filter()` | 1 | `$metrics` | [UsageStatistics_StorageWriter.php:268](../UsageStatistics_StorageWriter.php#L268) |
-| `w3tc_usage_statistics_metric_values` | `add_filter()` | 1 | `$metric_values` | [UsageStatistics_StorageWriter.php:280](../UsageStatistics_StorageWriter.php#L280) |
+| `w3tc_usage_statistics_history_set` | `add_filter()` | 1 | `$history` | [UsageStatistics_StorageWriter.php:351](../UsageStatistics_StorageWriter.php#L351) |
+| `w3tc_usage_statistics_metrics` | `add_filter()` | 1 | `$metrics` | [UsageStatistics_StorageWriter.php:287](../UsageStatistics_StorageWriter.php#L287) |
+| `w3tc_usage_statistics_metric_values` | `add_filter()` | 1 | `$metric_values` | [UsageStatistics_StorageWriter.php:299](../UsageStatistics_StorageWriter.php#L299) |
 | `w3tc_usage_statistics_sources` | `add_filter()` | 1 | `1: $sources`<br>`1: $summary` | [UsageStatistics_Sources.php:102](../UsageStatistics_Sources.php#L102)<br>[UsageStatistics_StorageReader.php:54](../UsageStatistics_StorageReader.php#L54) |
 | `w3tc_usage_statistics_summary_from_history` | `add_filter()` | 2 | `$summary, $history` | [UsageStatistics_StorageReader.php:73](../UsageStatistics_StorageReader.php#L73) |
 | `w3tc_ustats_access_log_format_regexp` | `add_filter()` | 1 | `$line_regexp` | [UsageStatistics_Source_AccessLog.php:169](../UsageStatistics_Source_AccessLog.php#L169) |
