@@ -1371,7 +1371,7 @@ class Minify_MinifiedFileRequestHandler {
 			'Content-Type: text/html; charset=utf-8',
 		);
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) );
 
 		$w3tc_result = @wp_mail( $to_email, 'W3 Total Cache Error Notification', $body, implode( "\n", $headers ) );
 
