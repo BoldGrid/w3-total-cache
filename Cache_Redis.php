@@ -1309,8 +1309,10 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( 'flush' === $op ) {
+			// The version key carries instance, blog, and module; the queue is shared by all of them.
 			$entry = array(
 				'op'    => 'flush',
+				'key'   => (string) $storage_key,
 				'group' => (string) $group,
 			);
 		} else {
@@ -1407,7 +1409,9 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( 'flush' === $op ) {
-			$version_key = $this->_get_key_version_key( isset( $entry['group'] ) ? (string) $entry['group'] : '' );
+			$version_key = isset( $entry['key'] )
+				? (string) $entry['key']
+				: $this->_get_key_version_key( isset( $entry['group'] ) ? (string) $entry['group'] : '' );
 			$v           = intval( $redis->get( $version_key ) );
 			$v           = $v > 0 ? $v : 1;
 
@@ -1525,7 +1529,9 @@ class Cache_Redis extends Cache_Base {
 			 * Calls that return the client (MULTI and PIPELINE chains) return
 			 * this guard so queued commands and exec() stay guarded. After a
 			 * failure, an open chain keeps returning this guard until exec()
-			 * or discard() so callers never chain onto false.
+			 * or discard() so callers never chain onto false. UNWATCH and
+			 * DISCARD are still sent after a failure, and exec() on an open
+			 * chain sends DISCARD instead, without changing what is returned.
 			 *
 			 * @param string $method Method.
 			 * @param array  $args   Arguments.
@@ -1560,6 +1566,15 @@ class Cache_Redis extends Cache_Base {
 						$this->dead = true;
 						\error_log( 'W3TC Cache_Redis::' . $method . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
+					}
+				} elseif ( 'unwatch' === $name || 'discard' === $name || ( 'exec' === $name && $was_open ) ) {
+					// A pooled connection must not stay in WATCH or MULTI for the next request.
+					$cleanup = 'unwatch' === $name ? 'unwatch' : 'discard';
+
+					try {
+						$this->redis->$cleanup();
+					} catch ( \Exception $e ) {
+						\error_log( 'W3TC Cache_Redis::' . $cleanup . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					}
 				}
 

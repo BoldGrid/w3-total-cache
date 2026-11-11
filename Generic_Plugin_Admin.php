@@ -1314,7 +1314,7 @@ class Generic_Plugin_Admin {
 
 		$error_messages = array(
 			'redis_servers_unverified'               => __(
-				'Redis settings were not applied because the server did not respond. The previous engine and server list were kept.',
+				'Redis settings were not applied because the server did not respond. The previous Redis settings were kept.',
 				'w3-total-cache'
 			),
 			'fancy_permalinks_disabled_pgcache'      => sprintf(

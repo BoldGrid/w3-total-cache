@@ -341,6 +341,7 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 			$result
 		);
 		$this->assertTrue( Cache_Redis::is_server_bypassed( '10.0.0.12:6379', 0 ) );
+		$this->assertSame( 1, $client->discards );
 		$this->assertFalse( $cache->set_if_maybe_equals( 'k', array( 'content' => 'v' ), array( 'content' => 'w' ) ) );
 	}
 
@@ -424,7 +425,7 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The save probe uses the module's positive timeouts and fails fast on 0.
+	 * The save probe and the Test button use the module's positive timeouts; 0 fails fast.
 	 */
 	public function test_save_probe_uses_configured_timeouts() {
 		$this->use_temp_bypass();
@@ -445,6 +446,15 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( Cache_Redis::probe_servers( array( '127.0.0.1:6395' ), '', 0, true, 0, 0 ) );
 		$this->assertSame( 1.0, end( $clients )->connect_args[2] );
+
+		$test_button = new \W3TC\Generic_AdminActions_Test();
+		$test_button->redis_servers_pass_test( array( '127.0.0.1:6405' ), '', 0, true, 5, 7 );
+		$args = end( $clients )->connect_args;
+		$this->assertSame( 5.0, $args[2] );
+
+		if ( version_compare( (string) phpversion( 'redis' ), '3.1.3', '>=' ) ) {
+			$this->assertSame( 7.0, $args[5] );
+		}
 	}
 
 	/**
@@ -651,6 +661,121 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $seen );
 		$context = end( $seen );
 		$this->assertFalse( $context['stream']['verify_peer'] );
+	}
+
+	/**
+	 * A queued flush moves the queuing engine's version key, not the reconnecting engine's.
+	 */
+	public function test_flush_replay_uses_the_queued_version_key() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6401';
+		$page   = $this->engine_for( $server, 1, 'pgcache' );
+		$object = $this->engine_for( $server, 2, 'objectcache' );
+
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Replay_Client_Stub( true );
+		};
+		$this->assertTrue( $page->flush( 'g' ) );
+
+		$version_key = new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' );
+		$version_key->setAccessible( true );
+		$page_key   = $version_key->invoke( $page, 'g' );
+		$object_key = $version_key->invoke( $object, 'g' );
+
+		Cache_Redis::clear_server_bypass( $server, 0 );
+		$recovered                          = new W3tc_Redis_Replay_Client_Stub( false );
+		$recovered->get_values[ $page_key ] = '3';
+		Cache_Redis::$client_factory        = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$object->get_with_old( 'k', 'g' );
+
+		$this->assertContains( array( 'set', $page_key, 4 ), $recovered->calls );
+		$this->assertNotContains( array( 'set', $object_key, 2 ), $recovered->calls );
+	}
+
+	/**
+	 * UNWATCH is still sent when get() throws after watch().
+	 */
+	public function test_failed_get_after_watch_still_unwatches() {
+		$this->use_temp_bypass();
+		$client                      = new W3tc_Redis_Watch_Client_Stub();
+		Cache_Redis::$client_factory = function () use ( $client ) {
+			return $client;
+		};
+
+		$cache = $this->engine( array( '10.0.0.14:6379' ) );
+		$this->assertFalse( $cache->set_if_maybe_equals( 'k', array( 'content' => 'v' ), array( 'content' => 'w' ) ) );
+		$this->assertSame( array( 'watch', 'get', 'unwatch' ), $client->calls );
+	}
+
+	/**
+	 * A failed usage statistics connect does not skip the live cache.
+	 */
+	public function test_failed_stats_connect_leaves_no_bypass() {
+		$this->use_temp_bypass();
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Client_Stub( true );
+		};
+
+		$sources = new \W3TC\UsageStatistics_Sources_Redis(
+			array(
+				array(
+					'servers'  => array( '127.0.0.1:6402' ),
+					'password' => '',
+					'dbid'     => 0,
+					'name'     => 'Object Cache',
+				),
+			)
+		);
+		$sources->get_snapshot();
+		$this->assertFalse( Cache_Redis::is_server_bypassed( '127.0.0.1:6402', 0 ) );
+
+		$sources->get_summary();
+		$this->assertFalse( Cache_Redis::is_server_bypassed( '127.0.0.1:6402', 0 ) );
+	}
+
+	/**
+	 * Usage statistics leaves a bypass the live cache already recorded.
+	 */
+	public function test_stats_keep_an_existing_bypass() {
+		$this->use_temp_bypass();
+		Cache_Redis::mark_server_bypassed( '127.0.0.1:6403', 0 );
+
+		$sources = new \W3TC\UsageStatistics_Sources_Redis(
+			array(
+				array(
+					'servers'  => array( '127.0.0.1:6403' ),
+					'password' => '',
+					'dbid'     => 0,
+					'name'     => 'Object Cache',
+				),
+			)
+		);
+		$sources->get_snapshot();
+		$this->assertTrue( Cache_Redis::is_server_bypassed( '127.0.0.1:6403', 0 ) );
+	}
+
+	/**
+	 * @param string $server  Server.
+	 * @param int    $blog_id Blog id.
+	 * @param string $module  Module.
+	 * @return Cache_Redis
+	 */
+	private function engine_for( $server, $blog_id, $module ) {
+		return new Cache_Redis(
+			array(
+				'blog_id'        => $blog_id,
+				'module'         => $module,
+				'servers'        => array( $server ),
+				'persistent'     => false,
+				'password'       => '',
+				'dbid'           => 0,
+				'timeout'        => 0,
+				'retry_interval' => 0,
+				'read_timeout'   => 0,
+			)
+		);
 	}
 
 	/**
@@ -989,6 +1114,23 @@ class W3tc_Redis_Pipeline_Client_Stub {
 	}
 
 	/**
+	 * How many times discard() was sent.
+	 *
+	 * @var int
+	 */
+	public $discards = 0;
+
+	/**
+	 * @return bool
+	 */
+	public function discard() {
+		++$this->discards;
+		$this->queued = null;
+
+		return true;
+	}
+
+	/**
 	 * @param mixed $value Value when not queued.
 	 * @return $this|mixed
 	 */
@@ -1157,6 +1299,59 @@ class W3tc_Redis_Replay_Client_Stub {
 		}
 
 		$this->calls[] = array_merge( array( $name ), $args );
+
+		return true;
+	}
+}
+
+/**
+ * Client double whose get() throws after watch().
+ */
+class W3tc_Redis_Watch_Client_Stub {
+	/**
+	 * Commands sent after connect.
+	 *
+	 * @var string[]
+	 */
+	public $calls = array();
+
+	/**
+	 * @return bool
+	 */
+	public function connect() {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function select() {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function watch() {
+		$this->calls[] = 'watch';
+
+		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get() {
+		$this->calls[] = 'get';
+
+		throw new Exception( 'redis read timeout' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function unwatch() {
+		$this->calls[] = 'unwatch';
 
 		return true;
 	}

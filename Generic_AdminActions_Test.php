@@ -139,6 +139,34 @@ class Generic_AdminActions_Test {
 			$password = $this->stored_cache_password( 'redis' );
 		}
 
+		$success = $this->redis_servers_pass_test(
+			$servers,
+			$password,
+			$dbid,
+			$verify_tls_certificates,
+			$this->redis_timeout_setting( 'timeout' ),
+			$this->redis_timeout_setting( 'read_timeout' )
+		);
+
+		$this->respond_test_result( $success );
+	}
+
+	/**
+	 * Write and read back a test value on each Redis server.
+	 *
+	 * Uses the same timeouts as the save probe, so Test and Save agree.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $servers                 Server strings.
+	 * @param string $password                Password.
+	 * @param int    $dbid                    Database id.
+	 * @param bool   $verify_tls_certificates Whether to verify TLS certificates.
+	 * @param int    $timeout                 Connect timeout; 0 uses one second.
+	 * @param int    $read_timeout            Read timeout; 0 uses one second.
+	 * @return bool
+	 */
+	public function redis_servers_pass_test( $servers, $password, $dbid, $verify_tls_certificates, $timeout = 0, $read_timeout = 0 ) {
 		if ( empty( $servers ) ) {
 			$success = false;
 		} else {
@@ -155,6 +183,8 @@ class Generic_AdminActions_Test {
 						'persistent'              => false,
 						'password'                => $password,
 						'dbid'                    => $dbid,
+						'timeout'                 => $timeout,
+						'read_timeout'            => $read_timeout,
 					)
 				);
 
@@ -177,7 +207,32 @@ class Generic_AdminActions_Test {
 			}
 		}
 
-		$this->respond_test_result( $success );
+		return $success;
+	}
+
+	/**
+	 * Redis timeout posted by the settings form, else the module's saved value.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $name Either 'timeout' or 'read_timeout'.
+	 * @return int
+	 */
+	private function redis_timeout_setting( $name ) {
+		$posted = Util_Request::get_string( $name, '' );
+
+		if ( '' !== $posted ) {
+			return (int) $posted;
+		}
+
+		$module  = Util_Request::get_string( 'module', '' );
+		$allowed = array( 'pgcache', 'dbcache', 'objectcache', 'minify' );
+
+		if ( ! in_array( $module, $allowed, true ) ) {
+			return 0;
+		}
+
+		return $this->_config->get_integer( $module . '.redis.' . $name );
 	}
 
 	/**
