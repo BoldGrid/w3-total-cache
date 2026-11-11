@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Remove development-only files from the current directory (plugin root).
-# Intended for Travis release.sh and local bin/build-release-zip.sh staging.
+# Intended for GitHub Actions release.yml and local bin/build-release-zip.sh staging.
 # Does not remove bin/, composer.*, or package.json (needed until after
 # @since replacement and POT generation).
 
