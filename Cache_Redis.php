@@ -1568,17 +1568,32 @@ class Cache_Redis extends Cache_Base {
 						Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
 					}
 				} elseif ( 'unwatch' === $name || 'discard' === $name || ( 'exec' === $name && $was_open ) ) {
-					// A pooled connection must not stay in WATCH or MULTI for the next request.
-					$cleanup = 'unwatch' === $name ? 'unwatch' : 'discard';
-
-					try {
-						$this->redis->$cleanup();
-					} catch ( \Exception $e ) {
-						\error_log( 'W3TC Cache_Redis::' . $cleanup . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					}
+					$this->clean_up( 'unwatch' === $name ? 'unwatch' : 'discard' );
 				}
 
 				return ( $opens || ( $was_open && ! $closes ) ) ? $this : false;
+			}
+
+			/**
+			 * Send UNWATCH or DISCARD so a pooled connection does not keep
+			 * WATCH or MULTI state for the next request.
+			 *
+			 * WATCH and MULTI end with the connection, and a command on a
+			 * closed client reconnects, so a closed client is left alone.
+			 *
+			 * @param string $command Either 'unwatch' or 'discard'.
+			 * @return void
+			 */
+			private function clean_up( $command ) {
+				try {
+					if ( \method_exists( $this->redis, 'isConnected' ) && ! $this->redis->isConnected() ) {
+						return;
+					}
+
+					$this->redis->$command();
+				} catch ( \Exception $e ) {
+					\error_log( 'W3TC Cache_Redis::' . $command . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
 			}
 		};
 	}

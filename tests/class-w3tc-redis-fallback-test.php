@@ -710,6 +710,22 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A closed client is not reconnected just to send UNWATCH.
+	 */
+	public function test_failed_get_on_closed_client_skips_unwatch() {
+		$this->use_temp_bypass();
+		$client                      = new W3tc_Redis_Watch_Client_Stub();
+		$client->connected           = false;
+		Cache_Redis::$client_factory = function () use ( $client ) {
+			return $client;
+		};
+
+		$cache = $this->engine( array( '10.0.0.15:6379' ) );
+		$this->assertFalse( $cache->set_if_maybe_equals( 'k', array( 'content' => 'v' ), array( 'content' => 'w' ) ) );
+		$this->assertSame( array( 'watch', 'get' ), $client->calls );
+	}
+
+	/**
 	 * A failed usage statistics connect does not skip the live cache.
 	 */
 	public function test_failed_stats_connect_leaves_no_bypass() {
@@ -1316,10 +1332,24 @@ class W3tc_Redis_Watch_Client_Stub {
 	public $calls = array();
 
 	/**
+	 * Value isConnected() returns.
+	 *
+	 * @var bool
+	 */
+	public $connected = true;
+
+	/**
 	 * @return bool
 	 */
 	public function connect() {
 		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isConnected() {
+		return $this->connected;
 	}
 
 	/**
