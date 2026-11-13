@@ -22,28 +22,43 @@ use W3TC\Util_Java;
 class W3tc_Util_Java_Test extends WP_UnitTestCase {
 
 	/**
-	 * Path to a real, executable file that is always under the default
-	 * allowlist on Linux (/usr/bin). Resolved once and reused so tests
-	 * skip cleanly on platforms where the binary is missing.
+	 * Canonical path of a binary Util_Java::validate() accepted.
+	 * Resolved once and reused so tests skip when this host has no
+	 * in-allowlist executable among the candidates.
 	 *
 	 * @var string
 	 */
 	private static $valid_binary = '';
 
 	/**
-	 * Resolve a known-good executable path that lives under one of the
-	 * default allowed_dirs(). On stock Debian/Ubuntu /usr/bin/env is
-	 * always present.
+	 * Resolve a known-good executable path that validate() accepts.
+	 *
+	 * realpath() of /usr/bin/env can leave the default allowlist when
+	 * that path is a symlink to a coreutils build outside /usr/bin.
+	 * An executable realpath is not enough; keep the canonical path
+	 * only when Util_Java::validate() accepts the candidate. Later
+	 * names cover hosts where the coreutils names all resolve outside
+	 * the allowlist but /usr/bin/bash does not.
 	 *
 	 * @return void
 	 */
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
-		foreach ( array( '/usr/bin/env', '/usr/bin/true', '/usr/bin/test' ) as $candidate ) {
-			$real = realpath( $candidate );
-			if ( false !== $real && is_executable( $real ) ) {
-				self::$valid_binary = $real;
+		$candidates = array(
+			'/usr/bin/env',
+			'/usr/bin/true',
+			'/usr/bin/test',
+			'/usr/bin/bash',
+			'/usr/bin/dash',
+		);
+		foreach ( $candidates as $candidate ) {
+			if ( ! is_executable( $candidate ) ) {
+				continue;
+			}
+			$validated = Util_Java::validate( $candidate );
+			if ( is_string( $validated ) && '' !== $validated ) {
+				self::$valid_binary = $validated;
 				break;
 			}
 		}
