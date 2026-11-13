@@ -433,169 +433,169 @@ class Cdn_Core {
 		$w3tc_engine = $w3tc_c->get_string( 'cdn.engine' );
 		$compression = ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.html.compression' ) );
 
-			switch ( $w3tc_engine ) {
-				case 'azure':
-					$engine_config = array(
-						'user'        => $w3tc_c->get_string( 'cdn.azure.user' ),
-						'key'         => $w3tc_c->get_string( 'cdn.azure.key' ),
-						'container'   => $w3tc_c->get_string( 'cdn.azure.container' ),
-						'cname'       => $w3tc_c->get_array( 'cdn.azure.cname' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.azure.ssl' ),
-						'compression' => false,
-					);
-					break;
+		switch ( $w3tc_engine ) {
+			case 'azure':
+				$engine_config = array(
+					'user'        => $w3tc_c->get_string( 'cdn.azure.user' ),
+					'key'         => $w3tc_c->get_string( 'cdn.azure.key' ),
+					'container'   => $w3tc_c->get_string( 'cdn.azure.container' ),
+					'cname'       => $w3tc_c->get_array( 'cdn.azure.cname' ),
+					'ssl'         => $w3tc_c->get_string( 'cdn.azure.ssl' ),
+					'compression' => false,
+				);
+				break;
 
-				case 'azuremi':
-					$engine_config = array(
-						'user'        => $w3tc_c->get_string( 'cdn.azuremi.user' ),
-						'client_id'   => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
-						'container'   => $w3tc_c->get_string( 'cdn.azuremi.container' ),
-						'cname'       => $w3tc_c->get_array( 'cdn.azuremi.cname' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.azuremi.ssl' ),
-						'compression' => false,
-					);
-					break;
+			case 'azuremi':
+				$engine_config = array(
+					'user'        => $w3tc_c->get_string( 'cdn.azuremi.user' ),
+					'client_id'   => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
+					'container'   => $w3tc_c->get_string( 'cdn.azuremi.container' ),
+					'cname'       => $w3tc_c->get_array( 'cdn.azuremi.cname' ),
+					'ssl'         => $w3tc_c->get_string( 'cdn.azuremi.ssl' ),
+					'compression' => false,
+				);
+				break;
 
-				case 'cf':
-					$engine_config = array(
-						'key'             => $w3tc_c->get_string( 'cdn.cf.key' ),
-						'secret'          => $w3tc_c->get_string( 'cdn.cf.secret' ),
-						'bucket'          => $w3tc_c->get_string( 'cdn.cf.bucket' ),
-						'bucket_location' => self::get_region_id( $w3tc_c->get_string( 'cdn.cf.bucket.location' ) ),
-						'bucket_loc_id'   => $w3tc_c->get_string( 'cdn.cf.bucket.location' ),
-						'id'              => $w3tc_c->get_string( 'cdn.cf.id' ),
-						'cname'           => $w3tc_c->get_array( 'cdn.cf.cname' ),
-						'ssl'             => $w3tc_c->get_string( 'cdn.cf.ssl' ),
-						'public_objects'  => $w3tc_c->get_string( 'cdn.cf.public_objects' ),
-						'compression'     => $compression,
-					);
-					break;
+			case 'cf':
+				$engine_config = array(
+					'key'             => $w3tc_c->get_string( 'cdn.cf.key' ),
+					'secret'          => $w3tc_c->get_string( 'cdn.cf.secret' ),
+					'bucket'          => $w3tc_c->get_string( 'cdn.cf.bucket' ),
+					'bucket_location' => self::get_region_id( $w3tc_c->get_string( 'cdn.cf.bucket.location' ) ),
+					'bucket_loc_id'   => $w3tc_c->get_string( 'cdn.cf.bucket.location' ),
+					'id'              => $w3tc_c->get_string( 'cdn.cf.id' ),
+					'cname'           => $w3tc_c->get_array( 'cdn.cf.cname' ),
+					'ssl'             => $w3tc_c->get_string( 'cdn.cf.ssl' ),
+					'public_objects'  => $w3tc_c->get_string( 'cdn.cf.public_objects' ),
+					'compression'     => $compression,
+				);
+				break;
 
-				case 'cf2':
-					$engine_config = array(
-						'key'         => $w3tc_c->get_string( 'cdn.cf2.key' ),
-						'secret'      => $w3tc_c->get_string( 'cdn.cf2.secret' ),
-						'id'          => $w3tc_c->get_string( 'cdn.cf2.id' ),
-						'cname'       => $w3tc_c->get_array( 'cdn.cf2.cname' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.cf2.ssl' ),
-						'compression' => false,
-					);
-					break;
+			case 'cf2':
+				$engine_config = array(
+					'key'         => $w3tc_c->get_string( 'cdn.cf2.key' ),
+					'secret'      => $w3tc_c->get_string( 'cdn.cf2.secret' ),
+					'id'          => $w3tc_c->get_string( 'cdn.cf2.id' ),
+					'cname'       => $w3tc_c->get_array( 'cdn.cf2.cname' ),
+					'ssl'         => $w3tc_c->get_string( 'cdn.cf2.ssl' ),
+					'compression' => false,
+				);
+				break;
 
-				case 'ftp':
-					$engine_config = array(
-						'host'         => $w3tc_c->get_string( 'cdn.ftp.host' ),
-						'type'         => $w3tc_c->get_string( 'cdn.ftp.type' ),
-						'user'         => $w3tc_c->get_string( 'cdn.ftp.user' ),
-						'pass'         => $w3tc_c->get_string( 'cdn.ftp.pass' ),
-						'default_keys' => $w3tc_c->get_boolean( 'cdn.ftp.default_keys' ),
-						'pubkey'       => $w3tc_c->get_string( 'cdn.ftp.pubkey' ),
-						'privkey'      => $w3tc_c->get_string( 'cdn.ftp.privkey' ),
-						'path'         => $w3tc_c->get_string( 'cdn.ftp.path' ),
-						'pasv'         => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
-						'domain'       => $w3tc_c->get_array( 'cdn.ftp.domain' ),
-						'ssl'          => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
-						'compression'  => false,
-						'docroot'      => Util_Environment::document_root(),
-					);
-					break;
+			case 'ftp':
+				$engine_config = array(
+					'host'         => $w3tc_c->get_string( 'cdn.ftp.host' ),
+					'type'         => $w3tc_c->get_string( 'cdn.ftp.type' ),
+					'user'         => $w3tc_c->get_string( 'cdn.ftp.user' ),
+					'pass'         => $w3tc_c->get_string( 'cdn.ftp.pass' ),
+					'default_keys' => $w3tc_c->get_boolean( 'cdn.ftp.default_keys' ),
+					'pubkey'       => $w3tc_c->get_string( 'cdn.ftp.pubkey' ),
+					'privkey'      => $w3tc_c->get_string( 'cdn.ftp.privkey' ),
+					'path'         => $w3tc_c->get_string( 'cdn.ftp.path' ),
+					'pasv'         => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
+					'domain'       => $w3tc_c->get_array( 'cdn.ftp.domain' ),
+					'ssl'          => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
+					'compression'  => false,
+					'docroot'      => Util_Environment::document_root(),
+				);
+				break;
 
-				case 'google_drive':
-					$state = Dispatcher::config_state();
+			case 'google_drive':
+				$state = Dispatcher::config_state();
 
-					$engine_config = array(
-						'client_id'                 => $w3tc_c->get_string( 'cdn.google_drive.client_id' ),
-						'access_token'              => $state->get_string( 'cdn.google_drive.access_token' ),
-						'refresh_token'             => $w3tc_c->get_string( 'cdn.google_drive.refresh_token' ),
-						'root_url'                  => $w3tc_c->get_string( 'cdn.google_drive.folder.url' ),
-						'root_folder_id'            => $w3tc_c->get_string( 'cdn.google_drive.folder.id' ),
-						'new_access_token_callback' => array( $this, 'on_google_drive_new_access_token' ),
-					);
-					break;
+				$engine_config = array(
+					'client_id'                 => $w3tc_c->get_string( 'cdn.google_drive.client_id' ),
+					'access_token'              => $state->get_string( 'cdn.google_drive.access_token' ),
+					'refresh_token'             => $w3tc_c->get_string( 'cdn.google_drive.refresh_token' ),
+					'root_url'                  => $w3tc_c->get_string( 'cdn.google_drive.folder.url' ),
+					'root_folder_id'            => $w3tc_c->get_string( 'cdn.google_drive.folder.id' ),
+					'new_access_token_callback' => array( $this, 'on_google_drive_new_access_token' ),
+				);
+				break;
 
-				case 'mirror':
-					$engine_config = array(
-						'domain'      => $w3tc_c->get_array( 'cdn.mirror.domain' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.mirror.ssl' ),
-						'compression' => false,
-					);
-					break;
+			case 'mirror':
+				$engine_config = array(
+					'domain'      => $w3tc_c->get_array( 'cdn.mirror.domain' ),
+					'ssl'         => $w3tc_c->get_string( 'cdn.mirror.ssl' ),
+					'compression' => false,
+				);
+				break;
 
-				case 'rackspace_cdn':
-					$state = Dispatcher::config_state();
+			case 'rackspace_cdn':
+				$state = Dispatcher::config_state();
 
-					$engine_config = array(
-						'user_name'                 => $w3tc_c->get_string( 'cdn.rackspace_cdn.user_name' ),
-						'api_key'                   => $w3tc_c->get_string( 'cdn.rackspace_cdn.api_key' ),
-						'region'                    => $w3tc_c->get_string( 'cdn.rackspace_cdn.region' ),
-						'service_access_url'        => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.access_url' ),
-						'service_id'                => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.id' ),
-						'service_protocol'          => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.protocol' ),
-						'domains'                   => $w3tc_c->get_array( 'cdn.rackspace_cdn.domains' ),
-						'access_state'              => $state->get_string( 'cdn.rackspace_cdn.access_state' ),
-						'new_access_state_callback' => array( $this, 'on_rackspace_cdn_new_access_state' ),
+				$engine_config = array(
+					'user_name'                 => $w3tc_c->get_string( 'cdn.rackspace_cdn.user_name' ),
+					'api_key'                   => $w3tc_c->get_string( 'cdn.rackspace_cdn.api_key' ),
+					'region'                    => $w3tc_c->get_string( 'cdn.rackspace_cdn.region' ),
+					'service_access_url'        => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.access_url' ),
+					'service_id'                => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.id' ),
+					'service_protocol'          => $w3tc_c->get_string( 'cdn.rackspace_cdn.service.protocol' ),
+					'domains'                   => $w3tc_c->get_array( 'cdn.rackspace_cdn.domains' ),
+					'access_state'              => $state->get_string( 'cdn.rackspace_cdn.access_state' ),
+					'new_access_state_callback' => array( $this, 'on_rackspace_cdn_new_access_state' ),
 
-					);
-					break;
-				case 'rscf':
-					$state = Dispatcher::config_state();
+				);
+				break;
+			case 'rscf':
+				$state = Dispatcher::config_state();
 
-					$engine_config = array(
-						'user_name'                 => $w3tc_c->get_string( 'cdn.rscf.user' ),
-						'api_key'                   => $w3tc_c->get_string( 'cdn.rscf.key' ),
-						'region'                    => $w3tc_c->get_string( 'cdn.rscf.location' ),
-						'container'                 => $w3tc_c->get_string( 'cdn.rscf.container' ),
-						'cname'                     => $w3tc_c->get_array( 'cdn.rscf.cname' ),
-						'ssl'                       => $w3tc_c->get_string( 'cdn.rscf.ssl' ),
-						'compression'               => false,
-						'access_state'              => $state->get_string( 'cdn.rackspace_cf.access_state' ),
-						'new_access_state_callback' => array( $this, 'on_rackspace_cf_new_access_state' ),
+				$engine_config = array(
+					'user_name'                 => $w3tc_c->get_string( 'cdn.rscf.user' ),
+					'api_key'                   => $w3tc_c->get_string( 'cdn.rscf.key' ),
+					'region'                    => $w3tc_c->get_string( 'cdn.rscf.location' ),
+					'container'                 => $w3tc_c->get_string( 'cdn.rscf.container' ),
+					'cname'                     => $w3tc_c->get_array( 'cdn.rscf.cname' ),
+					'ssl'                       => $w3tc_c->get_string( 'cdn.rscf.ssl' ),
+					'compression'               => false,
+					'access_state'              => $state->get_string( 'cdn.rackspace_cf.access_state' ),
+					'new_access_state_callback' => array( $this, 'on_rackspace_cf_new_access_state' ),
 
-					);
-					break;
+				);
+				break;
 
-				case 's3':
-					$engine_config = array(
-						'key'             => $w3tc_c->get_string( 'cdn.s3.key' ),
-						'secret'          => $w3tc_c->get_string( 'cdn.s3.secret' ),
-						'bucket'          => $w3tc_c->get_string( 'cdn.s3.bucket' ),
-						'bucket_location' => self::get_region_id( $w3tc_c->get_string( 'cdn.s3.bucket.location' ) ),
-						'bucket_loc_id'   => $w3tc_c->get_string( 'cdn.s3.bucket.location' ),
-						'cname'           => $w3tc_c->get_array( 'cdn.s3.cname' ),
-						'ssl'             => $w3tc_c->get_string( 'cdn.s3.ssl' ),
-						'public_objects'  => $w3tc_c->get_string( 'cdn.s3.public_objects' ),
-						'compression'     => $compression,
-					);
-					break;
+			case 's3':
+				$engine_config = array(
+					'key'             => $w3tc_c->get_string( 'cdn.s3.key' ),
+					'secret'          => $w3tc_c->get_string( 'cdn.s3.secret' ),
+					'bucket'          => $w3tc_c->get_string( 'cdn.s3.bucket' ),
+					'bucket_location' => self::get_region_id( $w3tc_c->get_string( 'cdn.s3.bucket.location' ) ),
+					'bucket_loc_id'   => $w3tc_c->get_string( 'cdn.s3.bucket.location' ),
+					'cname'           => $w3tc_c->get_array( 'cdn.s3.cname' ),
+					'ssl'             => $w3tc_c->get_string( 'cdn.s3.ssl' ),
+					'public_objects'  => $w3tc_c->get_string( 'cdn.s3.public_objects' ),
+					'compression'     => $compression,
+				);
+				break;
 
-				case 's3_compatible':
-					$engine_config = array(
-						'key'         => $w3tc_c->get_string( 'cdn.s3.key' ),
-						'secret'      => $w3tc_c->get_string( 'cdn.s3.secret' ),
-						'bucket'      => $w3tc_c->get_string( 'cdn.s3.bucket' ),
-						'cname'       => $w3tc_c->get_array( 'cdn.s3.cname' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.s3.ssl' ),
-						'compression' => $compression,
-						'api_host'    => $w3tc_c->get_string( 'cdn.s3_compatible.api_host' ),
-					);
-					break;
+			case 's3_compatible':
+				$engine_config = array(
+					'key'         => $w3tc_c->get_string( 'cdn.s3.key' ),
+					'secret'      => $w3tc_c->get_string( 'cdn.s3.secret' ),
+					'bucket'      => $w3tc_c->get_string( 'cdn.s3.bucket' ),
+					'cname'       => $w3tc_c->get_array( 'cdn.s3.cname' ),
+					'ssl'         => $w3tc_c->get_string( 'cdn.s3.ssl' ),
+					'compression' => $compression,
+					'api_host'    => $w3tc_c->get_string( 'cdn.s3_compatible.api_host' ),
+				);
+				break;
 
-				case 'bunnycdn':
-					$engine_config = array(
-						'account_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
-						'storage_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
-						'stream_api_key'          => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
-						'pull_zone_id'            => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
-						'domain'                  => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
-						'cdn_hostname'            => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
-						'verify_tls_certificates' => $w3tc_c->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true ),
-					);
-					break;
+			case 'bunnycdn':
+				$engine_config = array(
+					'account_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
+					'storage_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
+					'stream_api_key'          => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
+					'pull_zone_id'            => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
+					'domain'                  => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+					'cdn_hostname'            => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+					'verify_tls_certificates' => $w3tc_c->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true ),
+				);
+				break;
 
-				default:
-					$engine_config = array();
-					break;
-			}
+			default:
+				$engine_config = array();
+				break;
+		}
 
 		$engine_config = array_merge(
 			$engine_config,

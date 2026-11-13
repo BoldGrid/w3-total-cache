@@ -455,6 +455,8 @@ class ConfigKeysSchema {
 	 * built once from every ConfigKeys entry that declares
 	 * `flags.dedicated_page`.
 	 *
+	 * @since 2.10.6
+	 *
 	 * @var array<string,string>|null
 	 */
 	private static $dedicated_page_index = null;
@@ -689,20 +691,20 @@ class ConfigKeysSchema {
 			 * (or unconstrained) — a blanket `cloudflare.` prefix would
 			 * silently drop General saves for widget_interval, etc.
 			 */
-			'cloudflare.email'                 => 'w3tc_extensions',
-			'cloudflare.key'                   => 'w3tc_extensions',
-			'cloudflare.zone_id'               => 'w3tc_extensions',
-			'cloudflare.zone_name'             => 'w3tc_extensions',
-			'cloudflare.widget_interval'       => 'w3tc_general',
-			'cloudflare.widget_cache_mins'     => 'w3tc_general',
-			'cloudflare.pagecache'             => 'w3tc_general',
-			'cloudflare.minify_js_rl_exclude'  => 'w3tc_general',
-			'swarmify.'                        => 'w3tc_extensions',
-			'amp.'                             => 'w3tc_extensions',
-			'genesis.theme.'                   => 'w3tc_extensions',
-			'alwayscached.'                    => 'w3tc_extensions',
-			'newrelic.'                        => 'w3tc_monitoring',
-			'extension.newrelic.'              => 'w3tc_monitoring',
+			'cloudflare.email'                => 'w3tc_extensions',
+			'cloudflare.key'                  => 'w3tc_extensions',
+			'cloudflare.zone_id'              => 'w3tc_extensions',
+			'cloudflare.zone_name'            => 'w3tc_extensions',
+			'cloudflare.widget_interval'      => 'w3tc_general',
+			'cloudflare.widget_cache_mins'    => 'w3tc_general',
+			'cloudflare.pagecache'            => 'w3tc_general',
+			'cloudflare.minify_js_rl_exclude' => 'w3tc_general',
+			'swarmify.'                       => 'w3tc_extensions',
+			'amp.'                            => 'w3tc_extensions',
+			'genesis.theme.'                  => 'w3tc_extensions',
+			'alwayscached.'                   => 'w3tc_extensions',
+			'newrelic.'                       => 'w3tc_monitoring',
+			'extension.newrelic.'             => 'w3tc_monitoring',
 		);
 	}
 
