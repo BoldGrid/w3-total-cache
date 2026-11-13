@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/BoldGrid/w3-total-cache.svg?branch=master)](https://app.travis-ci.com/BoldGrid/w3-total-cache)
+[![CI](https://github.com/BoldGrid/w3-total-cache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BoldGrid/w3-total-cache/actions/workflows/ci.yml)
 
 Welcome to the W3 Total Cache repository on GitHub. Here you can browse the source, look at open issues and keep track of development.
 
@@ -36,10 +36,10 @@ bash bin/install-wp-tests.sh wordpress_test root '' localhost
 
 A single test file can be targeted by passing its path, e.g. `./vendor/bin/phpunit tests/test-generic-plugin.php`. Code-coverage output is written to `coverage.xml` in [Clover](https://www.atlassian.com/software/clover) format and is what the CI job below feeds to Codecov.
 
-### Travis CI
-[Travis CI](https://app.travis-ci.com/BoldGrid/w3-total-cache) runs the PHPUnit suite on every push and pull request. The job matrix lives in [`.travis.yml`](.travis.yml) and exercises both ends of the supported PHP version range:
+### GitHub Actions
+[GitHub Actions](https://github.com/BoldGrid/w3-total-cache/actions/workflows/ci.yml) runs the PHPUnit suite on every pull request and push to `master`. The workflow lives in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and exercises both ends of the supported PHP version range:
 
-* **PHP 7.4** on Ubuntu 20.04 (Focal) — the lower bound of supported PHP. This job also uploads the PHPUnit coverage report to [Codecov](https://codecov.io/) and, on tag pushes, builds the release zip via `bin/release.sh` and publishes it to the GitHub Releases page.
-* **PHP 8.5** on Ubuntu 22.04 (Jammy) — the upper bound of supported PHP. PHP 8.5 is installed from the [Ondřej Surý PPA](https://launchpad.net/~ondrej/+archive/ubuntu/php) because Travis's `phpenv` does not yet ship a prebuilt 8.5 archive.
+* **PHP 7.4** — the lower bound of supported PHP. This job also uploads the PHPUnit coverage report to [Codecov](https://codecov.io/).
+* **PHP 8.5** — the upper bound of supported PHP.
 
-Each job installs Composer dependencies, downloads the WordPress test scaffolding via `bin/install-wp-tests.sh`, runs the PHPUnit suite described above, and PHP-lints every plugin source file. The live build status is shown by the badge at the top of this README.
+Each job installs Composer and yarn dependencies, downloads the WordPress test scaffolding via `bin/install-wp-tests.sh`, checks generated hooks documentation, runs the PHPUnit suite described above (plus the multisite group), installs production Composer dependencies, and PHP-lints every plugin source file. Tag pushes run [`.github/workflows/release.yml`](.github/workflows/release.yml), which repeats the test gate and then builds the release zip via `bin/release.sh`. The live build status is shown by the badge at the top of this README.

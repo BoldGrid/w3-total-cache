@@ -222,7 +222,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 				);
 			}
 
-			if ( $caching ) {
+			// A failed read leaves the mysqli result false. Reading col_info
+			// then calls mysqli_num_fields() on that false result and
+			// fatals on PHP 8, so the failure is not cached.
+			if ( $caching && false !== $return_val && empty( $this->wpdb_mixin->last_error ) ) {
 				$w3tc_data = array(
 					'last_error'  => $this->wpdb_mixin->last_error,
 					'last_query'  => $this->wpdb_mixin->last_query,

@@ -328,7 +328,7 @@ class Licensing_Plugin_Admin {
 			}
 
 			// Handle new activation status.
-			if ( isset( $activate_result ) ) {
+			if ( isset( $activate_result ) && is_object( $activate_result ) && isset( $activate_result->license_status ) ) {
 				$status = $activate_result->license_status;
 
 				switch ( true ) {
@@ -978,9 +978,9 @@ class Licensing_Plugin_Admin {
 		if ( ! empty( $w3tc_license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
 			$w3tc_license = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
 
-			if ( $w3tc_license ) {
+			if ( is_object( $w3tc_license ) && isset( $w3tc_license->license_status ) ) {
 				$status = $w3tc_license->license_status;
-				$terms  = $w3tc_license->license_terms;
+				$terms  = isset( $w3tc_license->license_terms ) ? $w3tc_license->license_terms : '';
 				if ( $this->_status_is( $status, 'active' ) ) {
 					$plugin_type = 'pro';
 				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) &&

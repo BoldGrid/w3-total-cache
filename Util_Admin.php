@@ -38,7 +38,21 @@ class Util_Admin {
 					$page = $page_url;
 				}
 
-				$params = array_merge( array( 'page' => $page ), $params );
+				if ( isset( $params['page'] ) ) {
+					$page = $params['page'];
+					unset( $params['page'] );
+				}
+
+				if ( '' === (string) $page ) {
+					$page = self::fallback_page();
+				}
+
+				// An empty page query makes admin.php return 403.
+				if ( '' === (string) $page ) {
+					$w3tc_url = 'index.php';
+				} else {
+					$params = array_merge( array( 'page' => $page ), $params );
+				}
 			}
 		}
 
@@ -115,13 +129,48 @@ class Util_Admin {
 			}
 		}
 
+		if ( '' === (string) $w3tc_data['query_string']['page'] ) {
+			$w3tc_data['query_string']['page'] = self::fallback_page();
+		}
+
 		$message_id = uniqid();
 
 		update_option( 'w3tc_message', array( $message_id => $w3tc_data ), 'yes' );
 
 		$w3tc_data['query_string']['w3tc_message'] = $message_id;
 
-		Util_Environment::redirect( 'admin.php', $w3tc_data['query_string'] );
+		if ( '' === (string) $w3tc_data['query_string']['page'] ) {
+			unset( $w3tc_data['query_string']['page'] );
+			Util_Environment::redirect( 'index.php', $w3tc_data['query_string'] );
+		} else {
+			Util_Environment::redirect( 'admin.php', $w3tc_data['query_string'] );
+		}
+	}
+
+	/**
+	 * Page slug for an admin.php redirect that has none.
+	 *
+	 * Mirrors the capability checks that register the W3TC Dashboard. Users who
+	 * cannot open it get an empty slug and are sent to the WordPress Dashboard.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	private static function fallback_page() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return '';
+		}
+
+		$base_capability = \is_network_admin() ? 'manage_network_options' : 'manage_options';
+		$base_capability = \apply_filters( 'w3tc_capability_menu', $base_capability );
+		if ( ! \current_user_can( $base_capability ) ) {
+			return '';
+		}
+
+		$capability = \apply_filters( 'w3tc_capability_menu_w3tc_dashboard', $base_capability );
+
+		return \current_user_can( $capability ) ? 'w3tc_dashboard' : '';
 	}
 
 
