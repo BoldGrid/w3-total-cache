@@ -1126,6 +1126,17 @@ class Generic_Plugin {
 		}
 
 		/**
+		 * Skip wp-admin. The page cache never serves admin screens, and the
+		 * content processors that use this buffer already refuse WP_ADMIN.
+		 * New Relic browser and APM snippets are injected through this buffer,
+		 * so they no longer run on admin screens. Admin HTML is sent as it is
+		 * generated instead of being held until the request ends.
+		 */
+		if ( defined( 'WP_ADMIN' ) ) {
+			return false;
+		}
+
+		/**
 		 * Skip REST API requests unless page-cache REST caching is enabled.
 		 * Uses URL detection because REST_REQUEST is defined later (parse_request).
 		 */

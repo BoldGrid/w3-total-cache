@@ -423,4 +423,23 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$this->assertTrue( $pagecache_ran );
 		$this->assertFalse( $minify_ran, 'Minify must not run on REST JSON even when REST caching is enabled.' );
 	}
+
+	/**
+	 * wp-admin requests are not output-buffered.
+	 *
+	 * New Relic browser and APM snippets are injected through this buffer,
+	 * so they do not run on admin screens either.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_can_ob_is_false_for_wp_admin() {
+		if ( ! defined( 'WP_ADMIN' ) ) {
+			define( 'WP_ADMIN', true );
+		}
+
+		$plugin = new Generic_Plugin();
+
+		$this->assertFalse( $plugin->can_ob() );
+	}
 }
