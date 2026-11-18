@@ -303,6 +303,39 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Builds one cookie-group entry for the Apache and Nginx rules.
+	 *
+	 * PgCache_ContentGrabber matches each entry as a regex, so the rules use
+	 * the entry text as a regex too. Only spaces are escaped, so a space
+	 * cannot split a rule line. An entry that does not compile is dropped,
+	 * which matches how the PHP matcher ignores it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $cookie Cookie entry with `+` already replaced by spaces.
+	 *
+	 * @return string|null Regex text for the rule, or null when the entry is not a valid regex.
+	 */
+	private static function cookie_group_rule_entry( $cookie ) {
+		$cookie = Util_Rule::sanitize_directive_value( $cookie );
+		if ( '' === $cookie ) {
+			return null;
+		}
+
+		$has_value = ( false !== strpos( $cookie, '=' ) );
+		$check     = $has_value ? $cookie : $cookie . '=.*';
+		if ( false === @preg_match( '~^(' . $check . ')$~i', '' ) ) {
+			return null;
+		}
+
+		if ( ! $has_value ) {
+			$cookie .= '=.*';
+		}
+
+		return strtr( $cookie, array( ' ' => '\\ ' ) );
+	}
+
+	/**
 	 * Determines if rules are required for the configuration.
 	 *
 	 * @since 2.0.0
@@ -1447,12 +1480,10 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
-							$cookie = Util_Rule::sanitize_directive_value( $cookie );
-							$cookie = Util_Environment::preg_quote( $cookie );
-							if ( strpos( $cookie, '=' ) === false ) {
-								$cookie .= '=.*';
+							$cookie = self::cookie_group_rule_entry( $cookie );
+							if ( null !== $cookie ) {
+								$cookies[] = $cookie;
 							}
-							$cookies[] = $cookie;
 						}
 					}
 
@@ -1870,13 +1901,11 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
-							$cookie = Util_Rule::sanitize_directive_value( $cookie );
-							$cookie = Util_Environment::preg_quote( $cookie );
-							if ( false === strpos( $cookie, '=' ) ) {
-								$cookie .= '=.*';
+							$cookie = self::cookie_group_rule_entry( $cookie );
+							if ( null !== $cookie ) {
+								// nginx expands `$name` inside double quotes; keep a regex `$` as text.
+								$cookies[] = preg_replace( '/\$(?=[A-Za-z_{])/', '\\\\$', $cookie );
 							}
-
-							$cookies[] = $cookie;
 						}
 					}
 
