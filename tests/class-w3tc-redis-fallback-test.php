@@ -563,6 +563,89 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A claim older than the claim age belongs to a crashed worker and is adopted.
+	 */
+	public function test_stale_replay_claim_is_adopted() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6401';
+		$engine = $this->engine( array( $server ) );
+		$key    = $engine->get_item_key( 'k' );
+		$claim  = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' ) . '.replay-999-stale';
+
+		file_put_contents( $claim, json_encode( array( 'op' => 'delete', 'key' => $key ) ) . "\n" );
+		touch( $claim, time() - ( Cache_Redis::REPLAY_CLAIM_MAX_AGE + 100 ) );
+
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$this->assertTrue( $engine->set( 'k', array( 'v' => 'v' ), 0, 'g' ) );
+
+		$this->assertContains( array( 'setex', $key, 1, '' ), $recovered->calls );
+		$this->assertFileDoesNotExist( $claim );
+		$this->assertSame( array(), glob( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-*' ) );
+	}
+
+	/**
+	 * A claim younger than the claim age belongs to a live replay. Readers wait and it is not taken over.
+	 */
+	public function test_live_replay_claim_blocks_reads_and_is_not_taken_over() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6402';
+		$engine = $this->engine( array( $server ) );
+		$key    = $engine->get_item_key( 'k' );
+		$claim  = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' ) . '.replay-999-live';
+
+		file_put_contents( $claim, json_encode( array( 'op' => 'delete', 'key' => $key ) ) . "\n" );
+		touch( $claim, time() - 120 );
+
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$this->assertFalse( $engine->set( 'k', array( 'v' => 'v' ), 0, 'g' ) );
+
+		$this->assertNotContains( array( 'setex', $key, 1, '' ), $recovered->calls );
+		$this->assertFileExists( $claim );
+		$this->assertFalse( Cache_Redis::is_server_bypassed( $server, 0 ) );
+	}
+
+	/**
+	 * An adopted claim applies before newer pending entries, in the same recovery.
+	 */
+	public function test_stale_claim_applies_before_newer_pending_entries() {
+		$this->use_temp_bypass();
+		$server  = '127.0.0.1:6403';
+		$engine  = $this->engine( array( $server ) );
+		$older   = $engine->get_item_key( 'older' );
+		$newer   = $engine->get_item_key( 'newer' );
+		$base    = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+		$claim   = $base . '.replay-999-stale';
+
+		file_put_contents( $claim, json_encode( array( 'op' => 'delete', 'key' => $older ) ) . "\n" );
+		touch( $claim, time() - ( Cache_Redis::REPLAY_CLAIM_MAX_AGE + 100 ) );
+		file_put_contents( $base, json_encode( array( 'op' => 'delete', 'key' => $newer ) ) . "\n" );
+
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$engine->get_with_old( 'k', 'g' );
+
+		$calls = array_map(
+			function ( $call ) {
+				return $call[1];
+			},
+			array_values( array_filter( $recovered->calls, function ( $call ) {
+				return 'setex' === $call[0];
+			} ) )
+		);
+
+		$this->assertSame( array( $older, $newer ), $calls );
+		$this->assertSame( array(), glob( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-*' ) );
+	}
+
+	/**
 	 * An expired marker file is left in place for the next write to replace.
 	 */
 	public function test_expired_marker_is_not_removed_on_read() {

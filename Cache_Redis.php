@@ -1217,6 +1217,16 @@ class Cache_Redis extends Cache_Base {
 	const PENDING_MAX_BYTES = 1048576;
 
 	/**
+	 * Age after which a replay claim belongs to a crashed worker and is adopted.
+	 *
+	 * Longer than a live replay of a queue near PENDING_MAX_BYTES. BYPASS_SECONDS
+	 * is the post-failure skip window and is not used for claim ownership.
+	 *
+	 * @since X.X.X
+	 */
+	const REPLAY_CLAIM_MAX_AGE = 300;
+
+	/**
 	 * Path of the cross-request queue of invalidations skipped during a bypass.
 	 *
 	 * @since X.X.X
@@ -1236,7 +1246,46 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
-	 * Whether another request has renamed the queue and is still applying it.
+	 * Replay claims for a pending queue, live or abandoned.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path  Pending queue path.
+	 * @param bool   $stale True for claims older than REPLAY_CLAIM_MAX_AGE, false for live claims.
+	 * @return string[]
+	 */
+	private static function replay_claims( $path, $stale ) {
+		if ( '' === $path || ! is_dir( dirname( $path ) ) ) {
+			return array();
+		}
+
+		$matches = glob( $path . '.replay-*' );
+
+		if ( ! is_array( $matches ) ) {
+			return array();
+		}
+
+		$cutoff = time() - self::REPLAY_CLAIM_MAX_AGE;
+
+		return array_values(
+			array_filter(
+				$matches,
+				function ( $file ) use ( $stale, $cutoff ) {
+					$mtime = @\filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+					$is_stale = ( false === $mtime ) || ( $mtime <= $cutoff );
+
+					return $stale === $is_stale;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Whether another worker holds a live replay claim.
+	 *
+	 * A claim younger than REPLAY_CLAIM_MAX_AGE is never taken over, so a slow
+	 * replay keeps its queue. Readers get a null accessor while it runs.
 	 *
 	 * @since X.X.X
 	 *
@@ -1244,13 +1293,7 @@ class Cache_Redis extends Cache_Base {
 	 * @return bool
 	 */
 	private static function replay_claim_exists( $path ) {
-		if ( '' === $path || ! is_dir( dirname( $path ) ) ) {
-			return false;
-		}
-
-		$matches = glob( $path . '.replay-*' );
-
-		return is_array( $matches ) && array() !== $matches;
+		return array() !== self::replay_claims( $path, false );
 	}
 
 	/**
@@ -1330,14 +1373,16 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Replay queued invalidations on a freshly connected client.
 	 *
-	 * The queue is claimed by rename first, so a concurrent request appends to a
-	 * new file. Entries that fail to apply are written back for the next try.
+	 * Each pass claims one file by rename, so a concurrent request appends to a
+	 * new file. An abandoned claim is adopted before the pending queue, so older
+	 * entries apply first. Entries that fail to apply are written back for the
+	 * next try.
 	 *
 	 * @since X.X.X
 	 *
 	 * @param object $redis  Connected client, before any guard.
 	 * @param string $server Server URI.
-	 * @return bool False when the server must stay bypassed.
+	 * @return bool False when the server must stay bypassed or another worker holds the queue.
 	 */
 	private function replay_queued_invalidations( $redis, $server ) {
 		$path = self::pending_path( $server, $this->_dbid );
@@ -1346,50 +1391,85 @@ class Cache_Redis extends Cache_Base {
 			return true;
 		}
 
-		if ( ! is_file( $path ) ) {
-			// A missing file is success only when nobody else is still applying it.
-			return ! self::replay_claim_exists( $path );
+		while ( true ) {
+			if ( self::replay_claim_exists( $path ) ) {
+				// Another worker is applying the queue. Its entries apply first.
+				return false;
+			}
+
+			$claimed = $this->claim_pending_queue( $path );
+
+			if ( null === $claimed ) {
+				// Nothing is queued.
+				return true;
+			}
+
+			if ( false === $claimed ) {
+				return false;
+			}
+
+			$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
+			$lines   = is_array( $lines ) ? $lines : array();
+			$applied = 0;
+
+			try {
+				foreach ( $lines as $line ) {
+					$entry = json_decode( $line, true );
+
+					if ( is_array( $entry ) && ! $this->apply_queued_invalidation( $redis, $entry ) ) {
+						break;
+					}
+
+					++$applied;
+				}
+			} catch ( \Exception $e ) {
+				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			if ( $applied < count( $lines ) ) {
+				$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
+				@\file_put_contents( $path, $rest, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+				@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+
+				return false;
+			}
+
+			@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+
+			// In-process version cache may be behind Redis after replay.
+			$this->_key_version = array();
+		}
+	}
+
+	/**
+	 * Claim the next file to replay: an abandoned claim first, then the pending queue.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Pending queue path.
+	 * @return string|false|null Claimed path, false when another request won the claim, null when nothing is queued.
+	 */
+	private function claim_pending_queue( $path ) {
+		$stale = self::replay_claims( $path, true );
+
+		if ( array() !== $stale ) {
+			$source = $stale[0];
+		} elseif ( is_file( $path ) ) {
+			$source = $path;
+		} else {
+			return null;
 		}
 
 		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
 
-		if ( ! @\rename( $path, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-			// Still pending here, or another request is applying the renamed file.
-			return ! is_file( $path ) && ! self::replay_claim_exists( $path );
-		}
-
-		$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
-		$lines   = is_array( $lines ) ? $lines : array();
-		$applied = 0;
-
-		try {
-			foreach ( $lines as $line ) {
-				$entry = json_decode( $line, true );
-
-				if ( is_array( $entry ) && ! $this->apply_queued_invalidation( $redis, $entry ) ) {
-					break;
-				}
-
-				++$applied;
-			}
-		} catch ( \Exception $e ) {
-			error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		}
-
-		if ( $applied < count( $lines ) ) {
-			$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
-			@\file_put_contents( $path, $rest, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-			@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-
+		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 			return false;
 		}
 
-		@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+		// The claim age counts from this claim, not from the last append.
+		@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 
-		// In-process version cache may be behind Redis after replay.
-		$this->_key_version = array();
-
-		return true;
+		return $claimed;
 	}
 
 	/**
