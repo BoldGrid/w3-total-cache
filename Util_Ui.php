@@ -2049,7 +2049,8 @@ class Util_Ui {
 		}
 
 		echo '<div style="float: right">';
-		echo '<input type="submit" class="button" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '" />';
+		// The dispatcher verifies a nonce for the full request key, including the "~<key>" suffix.
+		echo '<input type="submit" class="button" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '" data-w3tc-nonce="' . esc_attr( Util_Nonce::create_admin( $w3tc_name ) ) . '" />';
 		echo '</div>';
 	}
 
