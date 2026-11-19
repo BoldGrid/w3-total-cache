@@ -1462,8 +1462,10 @@ class Cache_Redis extends Cache_Base {
 
 					++$applied;
 
-					// Progress keeps the claim live. Only a replay that stalls goes stale.
-					@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+					// Progress keeps the claim live. Only a replay that stalls goes stale. Never re-create a claim that was moved away.
+					if ( is_file( $claimed ) ) {
+						@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+					}
 				}
 			} catch ( \Exception $e ) {
 				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -1472,15 +1474,14 @@ class Cache_Redis extends Cache_Base {
 			if ( $applied < count( $lines ) ) {
 				// Keep the unapplied tail as an abandoned claim. The next request adopts it before any newer entries.
 				$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
-				@\file_put_contents( $claimed, $rest, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-				$this->backdate_claim( $path, $claimed );
+				$this->abandon_claim( $path, $claimed, $rest );
 
 				return false;
 			}
 
 			if ( ! @\unlink( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-				// The replay applied, but the claim could not be removed. Let it age out so it is not held as live.
-				$this->backdate_claim( $path, $claimed );
+				// The replay applied, but the claim could not be removed. Empty it so it does not block reads.
+				$this->abandon_claim( $path, $claimed );
 
 				return false;
 			}
@@ -1529,26 +1530,43 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Make a claim abandoned so the next request adopts it before newer entries.
 	 *
-	 * Renames the claim to a name with an old time and sets its mtime to match. A
-	 * claim that cannot be renamed is backdated in place.
+	 * With a tail, the unapplied entries are written to a new claim with an old
+	 * time, so no write goes to a path another worker may have moved. Without one,
+	 * the claim is renamed to an old time. If that fails, the claim is emptied.
 	 *
 	 * @since X.X.X
 	 *
 	 * @param string $path    Pending queue path.
 	 * @param string $claimed Claim path.
+	 * @param string $rest    Unapplied entries, or empty.
 	 * @return void
 	 */
-	private function backdate_claim( $path, $claimed ) {
-		$old       = time() - self::REPLAY_CLAIM_MAX_AGE - 1;
-		$backdated = self::claim_path( $path, $old );
+	private function abandon_claim( $path, $claimed, $rest = '' ) {
+		$old = time() - self::REPLAY_CLAIM_MAX_AGE - 1;
 
-		if ( @\rename( $claimed, $backdated ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-			@\touch( $backdated, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( '' !== $rest ) {
+			$tail = self::claim_path( $path, $old );
+
+			if ( false === @\file_put_contents( $tail, $rest, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+				// Keep the claim as is, so the unapplied entries are not lost.
+				return;
+			}
+
+			@\touch( $tail, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+
+			if ( ! @\unlink( $claimed ) && is_file( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				// Applied entries must not stay live in the old claim.
+				@\file_put_contents( $claimed, '', LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
 
 			return;
 		}
 
-		@\touch( $claimed, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! @\rename( $claimed, self::claim_path( $path, $old ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( is_file( $claimed ) ) {
+				@\file_put_contents( $claimed, '', LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+		}
 	}
 
 	/**
