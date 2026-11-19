@@ -1271,16 +1271,54 @@ class Cache_Redis extends Cache_Base {
 			array_filter(
 				$matches,
 				function ( $file ) use ( $stale, $cutoff ) {
-					$mtime = @\filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-					$size  = @\filesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					$size = @\filesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 					// An empty claim holds no entries, so it never blocks a read.
-					$is_stale = ( false === $mtime ) || ( $mtime <= $cutoff ) || ( 0 === $size ) || ( false === $size );
+					$is_stale = ( self::replay_claim_last_seen( $file ) <= $cutoff ) || ( false === $size ) || ( 0 === $size );
 
 					return $stale === $is_stale;
 				}
 			)
 		);
+	}
+
+	/**
+	 * Last time a replay claim was alive: the later of its file time and the time in its name.
+	 *
+	 * The name carries the creation time, so a claim is live from the moment it is renamed. A claim
+	 * is refreshed by each applied entry. A stalled claim ages out after REPLAY_CLAIM_MAX_AGE.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $file Claim path.
+	 * @return int
+	 */
+	private static function replay_claim_last_seen( $file ) {
+		$mtime = @\filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$last  = false === $mtime ? 0 : (int) $mtime;
+
+		if ( preg_match( '~\.replay-\d+-([0-9a-f]{8})~', basename( $file ), $matches ) ) {
+			$last = max( $last, (int) hexdec( $matches[1] ) );
+		}
+
+		return $last;
+	}
+
+	/**
+	 * Claim path for a pending queue, named with the time it counts from.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string   $path Pending queue path.
+	 * @param int|null $time Unix time to record in the name, or null for now.
+	 * @return string
+	 */
+	private static function claim_path( $path, $time = null ) {
+		if ( null === $time ) {
+			return $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
+		}
+
+		return $path . '.replay-' . getmypid() . '-' . sprintf( '%08x00000', (int) $time ) . '.' . uniqid( '', true );
 	}
 
 	/**
@@ -1435,14 +1473,14 @@ class Cache_Redis extends Cache_Base {
 				// Keep the unapplied tail as an abandoned claim. The next request adopts it before any newer entries.
 				$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
 				@\file_put_contents( $claimed, $rest, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-				@\touch( $claimed, time() - self::REPLAY_CLAIM_MAX_AGE - 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+				$this->backdate_claim( $path, $claimed );
 
 				return false;
 			}
 
 			if ( ! @\unlink( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 				// The replay applied, but the claim could not be removed. Let it age out so it is not held as live.
-				@\touch( $claimed, time() - self::REPLAY_CLAIM_MAX_AGE - 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+				$this->backdate_claim( $path, $claimed );
 
 				return false;
 			}
@@ -1468,29 +1506,49 @@ class Cache_Redis extends Cache_Base {
 			usort(
 				$stale,
 				function ( $a, $b ) {
-					return @\filemtime( $a ) - @\filemtime( $b ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					return self::replay_claim_last_seen( $a ) - self::replay_claim_last_seen( $b );
 				}
 			);
 			$source = $stale[0];
 		} elseif ( is_file( $path ) ) {
 			$source = $path;
-			// A pending queue is not a claim. Refreshing it first keeps the claim live from creation.
-			@\touch( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 		} else {
 			return null;
 		}
 
-		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
+		// The claim name carries the current time, so the claim is live as soon as rename() succeeds.
+		$claimed = self::claim_path( $path );
 
 		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 			return false;
 		}
 
-		// Touch only after the rename owns the file. Touching a stale claim before it is renamed
-		// could leave a fresh claim that no worker owns.
-		@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
-
 		return $claimed;
+	}
+
+	/**
+	 * Make a claim abandoned so the next request adopts it before newer entries.
+	 *
+	 * Renames the claim to a name with an old time and sets its mtime to match. A
+	 * claim that cannot be renamed is backdated in place.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path    Pending queue path.
+	 * @param string $claimed Claim path.
+	 * @return void
+	 */
+	private function backdate_claim( $path, $claimed ) {
+		$old       = time() - self::REPLAY_CLAIM_MAX_AGE - 1;
+		$backdated = self::claim_path( $path, $old );
+
+		if ( @\rename( $claimed, $backdated ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			@\touch( $backdated, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+
+			return;
+		}
+
+		@\touch( $claimed, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/**
