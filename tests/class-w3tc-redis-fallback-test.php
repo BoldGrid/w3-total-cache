@@ -613,6 +613,26 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An empty claim holds no entries and does not block reads or writes.
+	 */
+	public function test_empty_replay_claim_does_not_block_reads() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6404';
+		$engine = $this->engine( array( $server ) );
+		$claim  = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' ) . '.replay-999-empty';
+
+		file_put_contents( $claim, '' );
+		touch( $claim );
+
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+		$this->assertTrue( $engine->set( 'k', array( 'v' => 'v' ), 0, 'g' ) );
+		$this->assertFileDoesNotExist( $claim );
+	}
+
+	/**
 	 * An adopted claim applies before newer pending entries, in the same recovery.
 	 */
 	public function test_stale_claim_applies_before_newer_pending_entries() {

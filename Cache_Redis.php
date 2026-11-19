@@ -1272,8 +1272,10 @@ class Cache_Redis extends Cache_Base {
 				$matches,
 				function ( $file ) use ( $stale, $cutoff ) {
 					$mtime = @\filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					$size  = @\filesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-					$is_stale = ( false === $mtime ) || ( $mtime <= $cutoff );
+					// An empty claim holds no entries, so it never blocks a read.
+					$is_stale = ( false === $mtime ) || ( $mtime <= $cutoff ) || ( 0 === $size ) || ( false === $size );
 
 					return $stale === $is_stale;
 				}
@@ -1472,18 +1474,21 @@ class Cache_Redis extends Cache_Base {
 			$source = $stale[0];
 		} elseif ( is_file( $path ) ) {
 			$source = $path;
+			// A pending queue is not a claim. Refreshing it first keeps the claim live from creation.
+			@\touch( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 		} else {
 			return null;
 		}
-
-		// Refresh the source first, so the claim is live from the moment it exists.
-		@\touch( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
 
 		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 			return false;
 		}
+
+		// Touch only after the rename owns the file. Touching a stale claim before it is renamed
+		// could leave a fresh claim that no worker owns.
+		@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return $claimed;
 	}
