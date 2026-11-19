@@ -31,9 +31,10 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	private static $valid_binary = '';
 
 	/**
-	 * Resolve a known-good executable path that lives under one of the
-	 * default allowed_dirs(). On stock Debian/Ubuntu /usr/bin/env is
-	 * always present.
+	 * Resolve a known-good executable path that validate() accepts.
+	 * A candidate whose realpath leaves the allowlist is skipped. Current
+	 * GitHub runners symlink /usr/bin/env to cargo coreutils, which is
+	 * executable but outside the allowlist, so realpath() alone is not enough.
 	 *
 	 * @return void
 	 */
@@ -41,9 +42,9 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 		parent::setUpBeforeClass();
 
 		foreach ( array( '/usr/bin/env', '/usr/bin/true', '/usr/bin/test' ) as $candidate ) {
-			$real = realpath( $candidate );
-			if ( false !== $real && is_executable( $real ) ) {
-				self::$valid_binary = $real;
+			$validated = Util_Java::validate( $candidate );
+			if ( is_string( $validated ) && '' !== $validated ) {
+				self::$valid_binary = $validated;
 				break;
 			}
 		}
