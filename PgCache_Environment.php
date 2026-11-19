@@ -1457,8 +1457,11 @@ class PgCache_Environment {
 					}
 
 					if ( count( $cookies ) > 0 ) {
-						$cookies_regexp  = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
-						$group_name_s    = Util_Rule::sanitize_directive_value( (string) $group_name );
+						$cookies_regexp = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
+						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
+
+						// First matching group wins, matching PgCache_ContentGrabber.
+						$rules          .= "    RewriteCond %{ENV:W3TC_COOKIE} ^$\n";
 						$rules          .= "    RewriteCond %{HTTP_COOKIE} $cookies_regexp [NC]\n";
 						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name_s . "]\n";
 						$env_W3TC_COOKIE = '%{ENV:W3TC_COOKIE}';
@@ -1881,7 +1884,8 @@ class PgCache_Environment {
 					}
 
 					if ( count( $cookies ) > 0 ) {
-						$cookies_regexp = '"^(.*;)?(' . implode( '|', $cookies ) . ')(;.*)?$"';
+						// Optional whitespace around the semicolon, so both cookie forms match.
+						$cookies_regexp = '"^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$"';
 						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
 
 						if ( $set_cookie_var ) {
@@ -1889,7 +1893,15 @@ class PgCache_Environment {
 							$set_cookie_var = false;
 						}
 
+						// First matching group wins. nginx has no AND, so combine the two checks.
+						$rules .= "set \$w3tc_cookie_candidate \"\";\n";
+						$rules .= "if (\$w3tc_cookie = \"\") {\n";
+						$rules .= "    set \$w3tc_cookie_candidate 1;\n";
+						$rules .= "}\n";
 						$rules .= "if (\$http_cookie ~* $cookies_regexp) {\n";
+						$rules .= "    set \$w3tc_cookie_candidate \"\${w3tc_cookie_candidate}1\";\n";
+						$rules .= "}\n";
+						$rules .= "if (\$w3tc_cookie_candidate = \"11\") {\n";
 						$rules .= '    set $w3tc_cookie _' . $group_name_s . ";\n";
 						$rules .= "}\n";
 
