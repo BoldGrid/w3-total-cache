@@ -2049,7 +2049,7 @@ class Util_Ui {
 		}
 
 		echo '<div style="float: right">';
-		echo '<input type="submit" class="button" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '" />';
+		echo '<input type="submit" class="button" name="' . esc_attr( $w3tc_name ) . '" value="' . esc_attr( $w3tc_value ) . '"' . wp_kses( self::admin_submit_nonce_attr( $w3tc_name ), array( 'data-w3tc-nonce' => array() ) ) . ' />';
 		echo '</div>';
 	}
 
