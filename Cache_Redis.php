@@ -1400,8 +1400,8 @@ class Cache_Redis extends Cache_Base {
 			$claimed = $this->claim_pending_queue( $path );
 
 			if ( null === $claimed ) {
-				// Nothing is queued.
-				return true;
+				// Nothing is queued, unless another worker just took the queue.
+				return ! self::replay_claim_exists( $path );
 			}
 
 			if ( false === $claimed ) {
@@ -1421,20 +1421,29 @@ class Cache_Redis extends Cache_Base {
 					}
 
 					++$applied;
+
+					// Progress keeps the claim live. Only a replay that stalls goes stale.
+					@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 				}
 			} catch ( \Exception $e ) {
 				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
 			if ( $applied < count( $lines ) ) {
+				// Keep the unapplied tail as an abandoned claim. The next request adopts it before any newer entries.
 				$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
-				@\file_put_contents( $path, $rest, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-				@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				@\file_put_contents( $claimed, $rest, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+				@\touch( $claimed, time() - self::REPLAY_CLAIM_MAX_AGE - 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 
 				return false;
 			}
 
-			@\unlink( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( ! @\unlink( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				// The replay applied, but the claim could not be removed. Let it age out so it is not held as live.
+				@\touch( $claimed, time() - self::REPLAY_CLAIM_MAX_AGE - 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+
+				return false;
+			}
 
 			// In-process version cache may be behind Redis after replay.
 			$this->_key_version = array();
@@ -1453,6 +1462,13 @@ class Cache_Redis extends Cache_Base {
 		$stale = self::replay_claims( $path, true );
 
 		if ( array() !== $stale ) {
+			// Oldest abandoned claim first, so earlier entries apply first.
+			usort(
+				$stale,
+				function ( $a, $b ) {
+					return @\filemtime( $a ) - @\filemtime( $b ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+			);
 			$source = $stale[0];
 		} elseif ( is_file( $path ) ) {
 			$source = $path;
@@ -1460,14 +1476,14 @@ class Cache_Redis extends Cache_Base {
 			return null;
 		}
 
+		// Refresh the source first, so the claim is live from the moment it exists.
+		@\touch( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+
 		$claimed = $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
 
 		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 			return false;
 		}
-
-		// The claim age counts from this claim, not from the last append.
-		@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return $claimed;
 	}

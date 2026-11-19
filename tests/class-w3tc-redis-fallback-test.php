@@ -533,6 +533,8 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 		$files = glob( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-*' );
 		$this->assertCount( 1, $files );
 		$this->assertStringContainsString( '"op":"delete"', file_get_contents( $files[0] ) );
+		// The unapplied tail is backdated, so the next request adopts it before newer entries.
+		$this->assertGreaterThan( Cache_Redis::REPLAY_CLAIM_MAX_AGE, time() - filemtime( $files[0] ) );
 		$this->assertTrue( Cache_Redis::is_server_bypassed( $server, 0 ) );
 	}
 
