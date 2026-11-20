@@ -322,7 +322,7 @@ class Licensing_Core {
 	}
 
 	/**
-	 * check_license with the configured license key.
+	 * Re-runs check_license() with the configured license key.
 	 *
 	 * @since 2.11.0
 	 *
@@ -592,7 +592,11 @@ class Licensing_Core {
 
 		$state = Dispatcher::config_state_master();
 		$ref   = new \ReflectionObject( $state );
-		foreach ( array( '_data' => $data, '_saved_encoded' => $encoded, '_loaded' => true ) as $prop_name => $prop_value ) {
+		foreach ( array(
+			'_data'          => $data,
+			'_saved_encoded' => $encoded,
+			'_loaded'        => true,
+		) as $prop_name => $prop_value ) {
 			$prop = $ref->getProperty( $prop_name );
 			$prop->setAccessible( true );
 			$prop->setValue( $state, $prop_value );
@@ -630,6 +634,8 @@ class Licensing_Core {
 
 	/**
 	 * Generates a purchase URL for the plugin.
+	 *
+	 * @since 0.10.0
 	 *
 	 * @param string $data_src  Optional data source for the URL.
 	 * @param string $renew_key Optional renewal key for the license.

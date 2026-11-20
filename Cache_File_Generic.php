@@ -534,6 +534,8 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Checks if entry exists
 	 *
+	 * @since 2.8.0
+	 *
 	 * @param string $w3tc_key Key.
 	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return boolean true if exists, false otherwise
@@ -617,6 +619,8 @@ class Cache_File_Generic extends Cache_File {
 	 * Gets a key extension for "ahead generation" mode.
 	 * Used by AlwaysCached functionality to regenerate content
 	 *
+	 * @since 2.8.0
+	 *
 	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
@@ -629,6 +633,8 @@ class Cache_File_Generic extends Cache_File {
 
 	/**
 	 * Flushes group with before condition
+	 *
+	 * @since 2.8.0
 	 *
 	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @param array  $w3tc_extension Used to set a condition what version to flush.
