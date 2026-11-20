@@ -84,6 +84,42 @@ class Cache_Redis extends Cache_Base {
 	private $_read_timeout;
 
 	/**
+	 * Seconds to skip a server after a failed connect or command.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const BYPASS_SECONDS = 30;
+
+	/**
+	 * Process-local bypass expiry, keyed by server and database.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var array<string,int>
+	 */
+	private static $bypass_until = array();
+
+	/**
+	 * Directory for the cross-request bypass files. Tests set this.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string|null
+	 */
+	public static $bypass_directory = null;
+
+	/**
+	 * Optional factory for the Redis client. Tests set this.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var callable|null
+	 */
+	public static $client_factory = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $w3tc_config Config.
@@ -96,9 +132,9 @@ class Cache_Redis extends Cache_Base {
 		$this->_verify_tls_certificates = self::verify_tls_certificates_enabled( $w3tc_config );
 		$this->_password                = $w3tc_config['password'];
 		$this->_dbid                    = $w3tc_config['dbid'];
-		$this->_timeout                 = $w3tc_config['timeout'] ?? 3600000;
+		$this->_timeout                 = self::fail_fast_seconds( $w3tc_config['timeout'] ?? 0 );
 		$this->_retry_interval          = $w3tc_config['retry_interval'] ?? 3600000;
-		$this->_read_timeout            = $w3tc_config['read_timeout'] ?? 60.0;
+		$this->_read_timeout            = self::fail_fast_seconds( $w3tc_config['read_timeout'] ?? 0 );
 
 		/**
 		 * When disabled - no extra requests are made to obtain key version,
@@ -283,8 +319,11 @@ class Cache_Redis extends Cache_Base {
 	public function delete( $w3tc_key, $w3tc_group = '' ) {
 		$storage_key = $this->get_item_key( $w3tc_key );
 		$accessor    = $this->_get_accessor( $storage_key );
+		$op          = $this->_use_expired_data ? 'delete_expired' : 'delete';
 
 		if ( is_null( $accessor ) ) {
+			// Queue the invalidation so recovery applies it before any read.
+			$this->queue_invalidation( $storage_key, $op );
 			return false;
 		}
 
@@ -292,14 +331,29 @@ class Cache_Redis extends Cache_Base {
 			$v   = $accessor->get( $storage_key );
 			$ttl = $accessor->ttl( $storage_key );
 
-			if ( is_array( $v ) ) {
+			if ( is_array( $v ) && ! $this->accessor_failed( $accessor ) ) {
 				$v['key_version'] = 0;
-				$accessor->setex( $storage_key, $ttl, $v );
-				return true;
+				$wrote            = $accessor->setex( $storage_key, $ttl, $v );
+
+				if ( false !== $wrote && ! $this->accessor_failed( $accessor ) ) {
+					return true;
+				}
+
+				$this->mark_bypass_unless_failed( $accessor, $storage_key );
+				$this->queue_invalidation( $storage_key, $op );
+				return false;
 			}
 		}
 
-		return $accessor->setex( $storage_key, 1, '' );
+		$wrote = $accessor->setex( $storage_key, 1, '' );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			$this->queue_invalidation( $storage_key, $op );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -314,10 +368,19 @@ class Cache_Redis extends Cache_Base {
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
+			$this->queue_invalidation( $storage_key, 'hard_delete' );
 			return false;
 		}
 
-		return $accessor->setex( $storage_key, 1, '' );
+		$wrote = $accessor->setex( $storage_key, 1, '' );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			$this->queue_invalidation( $storage_key, 'hard_delete' );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -330,8 +393,14 @@ class Cache_Redis extends Cache_Base {
 		$this->_get_key_version( $w3tc_group );   // Initialize $this->_key_version.
 		if ( isset( $this->_key_version[ $w3tc_group ] ) ) {
 			++$this->_key_version[ $w3tc_group ];
-			$this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group );
+
+			if ( $this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group ) ) {
+				return true;
+			}
 		}
+
+		// No live server: queue the group so recovery moves its version on.
+		$this->queue_invalidation( $this->_get_key_version_key( $w3tc_group ), 'flush', $w3tc_group );
 
 		return true;
 	}
@@ -363,7 +432,9 @@ class Cache_Redis extends Cache_Base {
 	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
 		$v = $this->_get_key_version( $w3tc_group );
 		if ( $w3tc_extension['key_version'] > $v ) {
-			$this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group );
+			if ( ! $this->_set_key_version( $w3tc_extension['key_version'], $w3tc_group ) ) {
+				$this->queue_invalidation( $this->_get_key_version_key( $w3tc_group ), 'flush', $w3tc_group );
+			}
 		}
 	}
 
@@ -409,8 +480,13 @@ class Cache_Redis extends Cache_Base {
 			}
 
 			$v_original = $accessor->get( $storage_key );
-			$v          = intval( $v_original );
-			$v          = ( $v > 0 ? $v : 1 );
+
+			if ( \method_exists( $accessor, 'is_failed' ) && $accessor->is_failed() ) {
+				return 0;
+			}
+
+			$v = intval( $v_original );
+			$v = ( $v > 0 ? $v : 1 );
 
 			if ( (string) $v_original !== (string) $v ) {
 				$accessor->set( $storage_key, $v );
@@ -437,9 +513,47 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		$accessor->set( $storage_key, $v );
+		$wrote = $accessor->set( $storage_key, $v );
+
+		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
+			$this->mark_bypass_unless_failed( $accessor, $storage_key );
+			return false;
+		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the guarded client already failed a command.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $accessor Redis client.
+	 * @return bool
+	 */
+	private function accessor_failed( $accessor ) {
+		return \method_exists( $accessor, 'is_failed' ) && $accessor->is_failed();
+	}
+
+	/**
+	 * Skip the server when a write failed without the guard noticing.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $accessor    Redis client.
+	 * @param string $storage_key Storage key.
+	 * @return void
+	 */
+	private function mark_bypass_unless_failed( $accessor, $storage_key ) {
+		if ( $this->accessor_failed( $accessor ) ) {
+			return;
+		}
+
+		$server = $this->server_for_key( $storage_key );
+
+		if ( null !== $server ) {
+			self::mark_server_bypassed( $server, $this->_dbid );
+		}
 	}
 
 	/**
@@ -698,7 +812,7 @@ class Cache_Redis extends Cache_Base {
 			$connect_args[]    = $port;
 		}
 
-		$connect_args[] = $this->_timeout;
+		$connect_args[] = self::fail_fast_seconds( $this->_timeout );
 		$connect_args[] = $this->_persistent ? $this->_instance_id . '_' . $this->_dbid : null;
 		$connect_args[] = $this->_retry_interval;
 
@@ -706,7 +820,7 @@ class Cache_Redis extends Cache_Base {
 
 		// The read_timeout parameter was added in phpredis 3.1.3.
 		if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
-			$connect_args[] = $this->_read_timeout;
+			$connect_args[] = self::fail_fast_seconds( $this->_read_timeout );
 		}
 
 		// Support for stream context was added in phpredis 5.3.2.
@@ -731,37 +845,933 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( isset( $this->_accessors[ $w3tc_index ] ) ) {
-			return $this->_accessors[ $w3tc_index ];
+			$cached = $this->_accessors[ $w3tc_index ];
+
+			if (
+				! \method_exists( $cached, 'is_failed' ) ||
+				! $cached->is_failed() ||
+				self::is_server_bypassed( $this->_servers[ $w3tc_index ], $this->_dbid )
+			) {
+				return $cached;
+			}
+
+			unset( $this->_accessors[ $w3tc_index ] );
 		}
 
 		if ( ! isset( $this->_servers[ $w3tc_index ] ) ) {
 			$this->_accessors[ $w3tc_index ] = null;
 		} else {
-			try {
-				$server       = $this->_servers[ $w3tc_index ];
-				$connect_args = $this->build_connect_args( $server );
+			$server = $this->_servers[ $w3tc_index ];
 
-				$accessor = new \Redis();
-
-				if ( $this->_persistent ) {
-					$accessor->pconnect( ...$connect_args );
-				} else {
-					$accessor->connect( ...$connect_args );
-				}
-
-				if ( ! empty( $this->_password ) ) {
-					$accessor->auth( $this->_password );
-				}
-
-				$accessor->select( $this->_dbid );
-			} catch ( \Exception $e ) {
-				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			if ( self::is_server_bypassed( $server, $this->_dbid ) ) {
 				$accessor = null;
+			} else {
+				try {
+					$connect_args = $this->build_connect_args( $server );
+					$accessor     = $this->new_redis_client();
+
+					if ( $this->_persistent ) {
+						$accessor->pconnect( ...$connect_args );
+					} else {
+						$accessor->connect( ...$connect_args );
+					}
+
+					$ready = ( empty( $this->_password ) || false !== $accessor->auth( $this->_password ) )
+						&& false !== $accessor->select( $this->_dbid );
+
+					// Queued invalidations apply before this connection serves any read.
+					$pending = self::pending_path( $server, $this->_dbid );
+
+					if ( $ready && $this->replay_queued_invalidations( $accessor, $server ) ) {
+						self::clear_server_bypass( $server, $this->_dbid );
+						$accessor = $this->guard_client( $accessor, $server );
+					} elseif ( $ready && self::replay_claim_exists( $pending ) ) {
+						// Another request is applying the queue. Do not read yet.
+						$accessor = null;
+					} else {
+						\error_log( __METHOD__ . ': AUTH, SELECT, or queued replay failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						self::mark_server_bypassed( $server, $this->_dbid );
+						$accessor = null;
+					}
+				} catch ( \Exception $e ) {
+					error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					self::mark_server_bypassed( $server, $this->_dbid );
+					$accessor = null;
+				}
 			}
 
 			$this->_accessors[ $w3tc_index ] = $accessor;
 		}
 
 		return $this->_accessors[ $w3tc_index ];
+	}
+
+	/**
+	 * A configured timeout of 0 waits forever. Use one second instead.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $timeout Configured seconds.
+	 * @return float
+	 */
+	public static function fail_fast_seconds( $timeout ) {
+		$timeout = (float) $timeout;
+
+		return $timeout > 0 ? $timeout : 1.0;
+	}
+
+	/**
+	 * Drop Redis engine and connection changes that did not answer a probe.
+	 *
+	 * Unchanged Redis connection settings are left alone so an outage does
+	 * not block saving unrelated settings. A failed probe restores the
+	 * previous engine and every Redis connection setting for that module,
+	 * so old servers are never paired with new credentials or options.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object        $new_config New config.
+	 * @param object|null   $old_config Previous config.
+	 * @param callable|null $probe      Optional probe ( $servers, $module ) : bool.
+	 * @return string[] Module names that were reverted.
+	 */
+	public static function enforce_verified_servers( $new_config, $old_config, $probe = null ) {
+		$modules  = array( 'dbcache', 'objectcache', 'pgcache', 'minify' );
+		$reverted = array();
+
+		foreach ( $modules as $module ) {
+			$engine_key = $module . '.engine';
+
+			if ( 'redis' !== (string) $new_config->get_string( $engine_key ) ) {
+				continue;
+			}
+
+			$new_settings = self::connection_settings( $new_config, $module );
+			$old_engine   = $old_config ? (string) $old_config->get_string( $engine_key ) : '';
+			$old_settings = $old_config ? self::connection_settings( $old_config, $module ) : array();
+
+			if ( 'redis' === $old_engine && $new_settings === $old_settings ) {
+				continue;
+			}
+
+			$new_servers = $new_settings[ $module . '.redis.servers' ];
+
+			if ( null === $probe ) {
+				$ok = self::probe_servers(
+					$new_servers,
+					$new_settings[ $module . '.redis.password' ],
+					$new_settings[ $module . '.redis.dbid' ],
+					$new_settings[ $module . '.redis.verify_tls_certificates' ],
+					$new_settings[ $module . '.redis.timeout' ],
+					$new_settings[ $module . '.redis.read_timeout' ]
+				);
+			} else {
+				$ok = (bool) \call_user_func( $probe, $new_servers, $module );
+			}
+
+			if ( $ok ) {
+				continue;
+			}
+
+			if ( $old_config ) {
+				$new_config->set( $engine_key, $old_engine );
+
+				foreach ( $old_settings as $key => $value ) {
+					$new_config->set( $key, $value );
+				}
+			}
+
+			$reverted[] = $module;
+		}
+
+		return $reverted;
+	}
+
+	/**
+	 * Redis connection settings for one module, keyed by config key.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $config Config.
+	 * @param string $module Module prefix.
+	 * @return array
+	 */
+	private static function connection_settings( $config, $module ) {
+		$prefix = $module . '.redis.';
+
+		return array(
+			$prefix . 'servers'                 => $config->get_array( $prefix . 'servers' ),
+			$prefix . 'password'                => (string) $config->get_string( $prefix . 'password' ),
+			$prefix . 'dbid'                    => $config->get_integer( $prefix . 'dbid' ),
+			$prefix . 'verify_tls_certificates' => $config->get_boolean( $prefix . 'verify_tls_certificates', true ),
+			$prefix . 'persistent'              => $config->get_boolean( $prefix . 'persistent' ),
+			$prefix . 'timeout'                 => $config->get_integer( $prefix . 'timeout' ),
+			$prefix . 'retry_interval'          => $config->get_integer( $prefix . 'retry_interval' ),
+			$prefix . 'read_timeout'            => $config->get_integer( $prefix . 'read_timeout' ),
+		);
+	}
+
+	/**
+	 * Connect and write a short-lived key. False when any server fails.
+	 *
+	 * Any bypass for the server is cleared before and after the probe, so a
+	 * recovered server is actually tried and a rejected save does not skip
+	 * the settings still in use.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array  $servers                 Server strings.
+	 * @param string $password                Password.
+	 * @param mixed  $dbid                    Database id.
+	 * @param bool   $verify_tls_certificates Whether to verify TLS certificates.
+	 * @param mixed  $timeout                 Connect timeout; 0 uses one second.
+	 * @param mixed  $read_timeout            Read timeout; 0 uses one second.
+	 * @return bool
+	 */
+	public static function probe_servers( $servers, $password, $dbid, $verify_tls_certificates = true, $timeout = 0, $read_timeout = 0 ) {
+		if ( ! \is_callable( self::$client_factory ) && ! \class_exists( 'Redis' ) ) {
+			return false;
+		}
+
+		foreach ( (array) $servers as $server ) {
+			$server = \trim( (string) $server );
+
+			if ( '' === $server ) {
+				return false;
+			}
+
+			self::clear_server_bypass( $server, $dbid );
+
+			try {
+				$cache = new self(
+					array(
+						'blog_id'                 => 0,
+						'servers'                 => array( $server ),
+						'persistent'              => false,
+						'password'                => (string) $password,
+						'dbid'                    => $dbid,
+						'timeout'                 => self::fail_fast_seconds( $timeout ),
+						'retry_interval'          => 0,
+						'read_timeout'            => self::fail_fast_seconds( $read_timeout ),
+						'verify_tls_certificates' => (bool) $verify_tls_certificates,
+					)
+				);
+				$wrote = $cache->set( 'w3tc_redis_probe', array( 'content' => '1' ), 30 );
+			} catch ( \Exception $e ) {
+				$wrote = false;
+			}
+
+			/**
+			 * The marker is keyed by server and database only, so a rejected
+			 * edit must not leave it behind for the configuration still in use.
+			 */
+			self::clear_server_bypass( $server, $dbid );
+
+			if ( ! $wrote ) {
+				return false;
+			}
+		}
+
+		return ! empty( $servers );
+	}
+
+	/**
+	 * Forget process-local test overrides.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function reset_runtime_state() {
+		self::$bypass_until     = array();
+		self::$bypass_directory = null;
+		self::$client_factory   = null;
+	}
+
+	/**
+	 * Whether this server should be skipped until the probe window ends.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return bool
+	 */
+	public static function is_server_bypassed( $server, $dbid ) {
+		$key   = self::bypass_key( $server, $dbid );
+		$until = isset( self::$bypass_until[ $key ] ) ? (int) self::$bypass_until[ $key ] : 0;
+
+		if ( $until > time() ) {
+			return true;
+		}
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path || ! is_file( $path ) ) {
+			return false;
+		}
+
+		// Concurrent requests may remove the file between these calls.
+		$until = (int) @\file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		if ( $until > time() ) {
+			self::$bypass_until[ $key ] = $until;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Skip this server for BYPASS_SECONDS.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return void
+	 */
+	public static function mark_server_bypassed( $server, $dbid ) {
+		$key   = self::bypass_key( $server, $dbid );
+		$until = time() + self::BYPASS_SECONDS;
+
+		self::$bypass_until[ $key ] = $until;
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path ) {
+			return;
+		}
+
+		$dir = dirname( $path );
+
+		if ( ! is_dir( $dir ) ) {
+			@\mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		if ( is_dir( $dir ) && \is_writable( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			@\file_put_contents( $path, (string) $until, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+	}
+
+	/**
+	 * Allow this server to be used again.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return void
+	 */
+	public static function clear_server_bypass( $server, $dbid ) {
+		unset( self::$bypass_until[ self::bypass_key( $server, $dbid ) ] );
+
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' !== $path && is_file( $path ) ) {
+			@\unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+	}
+
+	/**
+	 * Key for one server and database.
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function bypass_key( $server, $dbid ) {
+		return md5( (string) $server . '|' . (string) $dbid );
+	}
+
+	/**
+	 * Path of the cross-request bypass file.
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function bypass_path( $server, $dbid ) {
+		$dir = self::$bypass_directory;
+
+		if ( ! is_string( $dir ) || '' === $dir ) {
+			if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+				$dir = W3TC_CACHE_DIR;
+			} else {
+				$dir = \defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/cache' : '';
+			}
+		}
+
+		if ( '' === $dir ) {
+			return '';
+		}
+
+		return $dir . '/w3tc-redis-bypass-' . self::bypass_key( $server, $dbid );
+	}
+
+	/**
+	 * Queue file size above which the queue collapses to one database flush.
+	 *
+	 * @since X.X.X
+	 */
+	const PENDING_MAX_BYTES = 1048576;
+
+	/**
+	 * Age after which a replay claim belongs to a crashed worker and is adopted.
+	 *
+	 * Longer than a live replay of a queue near PENDING_MAX_BYTES. BYPASS_SECONDS
+	 * is the post-failure skip window and is not used for claim ownership.
+	 *
+	 * @since X.X.X
+	 */
+	const REPLAY_CLAIM_MAX_AGE = 300;
+
+	/**
+	 * Path of the cross-request queue of invalidations skipped during a bypass.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $server Server URI.
+	 * @param mixed  $dbid   Database id.
+	 * @return string
+	 */
+	private static function pending_path( $server, $dbid ) {
+		$path = self::bypass_path( $server, $dbid );
+
+		if ( '' === $path ) {
+			return '';
+		}
+
+		return dirname( $path ) . '/w3tc-redis-pending-' . self::bypass_key( $server, $dbid );
+	}
+
+	/**
+	 * Replay claims for a pending queue, live or abandoned.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path  Pending queue path.
+	 * @param bool   $stale True for claims older than REPLAY_CLAIM_MAX_AGE, false for live claims.
+	 * @return string[]
+	 */
+	private static function replay_claims( $path, $stale ) {
+		if ( '' === $path || ! is_dir( dirname( $path ) ) ) {
+			return array();
+		}
+
+		$matches = glob( $path . '.replay-*' );
+
+		if ( ! is_array( $matches ) ) {
+			return array();
+		}
+
+		$cutoff = time() - self::REPLAY_CLAIM_MAX_AGE;
+
+		return array_values(
+			array_filter(
+				$matches,
+				function ( $file ) use ( $stale, $cutoff ) {
+					$size = @\filesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+					// An empty claim holds no entries, so it never blocks a read.
+					$is_stale = ( self::replay_claim_last_seen( $file ) <= $cutoff ) || ( false === $size ) || ( 0 === $size );
+
+					return $stale === $is_stale;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Last time a replay claim was alive: the later of its file time and the time in its name.
+	 *
+	 * The name carries the creation time, so a claim is live from the moment it is renamed. A claim
+	 * is refreshed by each applied entry. A stalled claim ages out after REPLAY_CLAIM_MAX_AGE.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $file Claim path.
+	 * @return int
+	 */
+	private static function replay_claim_last_seen( $file ) {
+		$mtime = @\filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$last  = false === $mtime ? 0 : (int) $mtime;
+
+		if ( preg_match( '~\.replay-\d+-([0-9a-f]{8})~', basename( $file ), $matches ) ) {
+			$last = max( $last, (int) hexdec( $matches[1] ) );
+		}
+
+		return $last;
+	}
+
+	/**
+	 * Claim path for a pending queue, named with the time it counts from.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string   $path Pending queue path.
+	 * @param int|null $time Unix time to record in the name, or null for now.
+	 * @return string
+	 */
+	private static function claim_path( $path, $time = null ) {
+		if ( null === $time ) {
+			return $path . '.replay-' . getmypid() . '-' . uniqid( '', true );
+		}
+
+		return $path . '.replay-' . getmypid() . '-' . sprintf( '%08x00000', (int) $time ) . '.' . uniqid( '', true );
+	}
+
+	/**
+	 * Whether another worker holds a live replay claim.
+	 *
+	 * A claim younger than REPLAY_CLAIM_MAX_AGE is never taken over, so a slow
+	 * replay keeps its queue. Readers get a null accessor while it runs.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Pending queue path.
+	 * @return bool
+	 */
+	private static function replay_claim_exists( $path ) {
+		return array() !== self::replay_claims( $path, false );
+	}
+
+	/**
+	 * Server that owns a storage key, mirroring _get_accessor().
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $storage_key Storage key.
+	 * @return string|null
+	 */
+	private function server_for_key( $storage_key ) {
+		$count = count( $this->_servers );
+		$index = $count <= 1 ? 0 : crc32( $storage_key ) % $count;
+
+		return isset( $this->_servers[ $index ] ) ? $this->_servers[ $index ] : null;
+	}
+
+	/**
+	 * Record an invalidation that could not reach Redis, for replay on recovery.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $storage_key Storage key, or version key for 'flush'.
+	 * @param string $op          One of delete, delete_expired, hard_delete, flush.
+	 * @param string $group       Group, for 'flush'.
+	 * @return bool
+	 */
+	private function queue_invalidation( $storage_key, $op, $group = '' ) {
+		$server = $this->server_for_key( $storage_key );
+
+		if ( null === $server ) {
+			return false;
+		}
+
+		$path = self::pending_path( $server, $this->_dbid );
+
+		if ( '' === $path ) {
+			return false;
+		}
+
+		$dir = dirname( $path );
+
+		if ( ! is_dir( $dir ) ) {
+			@\mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		if ( ! is_dir( $dir ) || ! \is_writable( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			return false;
+		}
+
+		if ( is_file( $path ) && (int) @\filesize( $path ) > self::PENDING_MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			// Too many to replay one by one: recovery flushes the database instead.
+			$line = \json_encode( array( 'op' => 'flush_all' ) ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+
+			return false !== @\file_put_contents( $path, $line, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		if ( 'flush' === $op ) {
+			// The version key carries instance, blog, and module; the queue is shared by all of them.
+			$entry = array(
+				'op'    => 'flush',
+				'key'   => (string) $storage_key,
+				'group' => (string) $group,
+			);
+		} else {
+			$entry = array(
+				'op'  => $op,
+				'key' => (string) $storage_key,
+			);
+		}
+
+		$line = \json_encode( $entry ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+
+		return false !== @\file_put_contents( $path, $line, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	/**
+	 * Replay queued invalidations on a freshly connected client.
+	 *
+	 * Each pass claims one file by rename, so a concurrent request appends to a
+	 * new file. An abandoned claim is adopted before the pending queue, so older
+	 * entries apply first. Entries that fail to apply are written back for the
+	 * next try.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $redis  Connected client, before any guard.
+	 * @param string $server Server URI.
+	 * @return bool False when the server must stay bypassed or another worker holds the queue.
+	 */
+	private function replay_queued_invalidations( $redis, $server ) {
+		$path = self::pending_path( $server, $this->_dbid );
+
+		if ( '' === $path ) {
+			return true;
+		}
+
+		while ( true ) {
+			if ( self::replay_claim_exists( $path ) ) {
+				// Another worker is applying the queue. Its entries apply first.
+				return false;
+			}
+
+			$claimed = $this->claim_pending_queue( $path );
+
+			if ( null === $claimed ) {
+				// Nothing is queued, unless another worker just took the queue.
+				return ! self::replay_claim_exists( $path );
+			}
+
+			if ( false === $claimed ) {
+				return false;
+			}
+
+			$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
+			$lines   = is_array( $lines ) ? $lines : array();
+			$applied = 0;
+
+			try {
+				foreach ( $lines as $line ) {
+					$entry = json_decode( $line, true );
+
+					if ( is_array( $entry ) && ! $this->apply_queued_invalidation( $redis, $entry ) ) {
+						break;
+					}
+
+					++$applied;
+
+					// Progress keeps the claim live. Only a replay that stalls goes stale. Never re-create a claim that was moved away.
+					if ( is_file( $claimed ) ) {
+						@\touch( $claimed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+					}
+				}
+			} catch ( \Exception $e ) {
+				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			if ( $applied < count( $lines ) ) {
+				// Keep the unapplied tail as an abandoned claim. The next request adopts it before any newer entries.
+				$rest = implode( "\n", array_slice( $lines, $applied ) ) . "\n";
+				$this->abandon_claim( $path, $claimed, $rest );
+
+				return false;
+			}
+
+			if ( ! @\unlink( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				// The replay applied, but the claim could not be removed. Empty it so it does not block reads.
+				$this->abandon_claim( $path, $claimed );
+
+				return false;
+			}
+
+			// In-process version cache may be behind Redis after replay.
+			$this->_key_version = array();
+		}
+	}
+
+	/**
+	 * Claim the next file to replay: an abandoned claim first, then the pending queue.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Pending queue path.
+	 * @return string|false|null Claimed path, false when another request won the claim, null when nothing is queued.
+	 */
+	private function claim_pending_queue( $path ) {
+		$stale = self::replay_claims( $path, true );
+
+		if ( array() !== $stale ) {
+			// Oldest abandoned claim first, so earlier entries apply first.
+			usort(
+				$stale,
+				function ( $a, $b ) {
+					return self::replay_claim_last_seen( $a ) - self::replay_claim_last_seen( $b );
+				}
+			);
+			$source = $stale[0];
+		} elseif ( is_file( $path ) ) {
+			$source = $path;
+		} else {
+			return null;
+		}
+
+		// The claim name carries the current time, so the claim is live as soon as rename() succeeds.
+		$claimed = self::claim_path( $path );
+
+		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			return false;
+		}
+
+		return $claimed;
+	}
+
+	/**
+	 * Make a claim abandoned so the next request adopts it before newer entries.
+	 *
+	 * With a tail, the unapplied entries are written to a new claim with an old
+	 * time, so no write goes to a path another worker may have moved. Without one,
+	 * the claim is renamed to an old time. If that fails, the claim is emptied.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path    Pending queue path.
+	 * @param string $claimed Claim path.
+	 * @param string $rest    Unapplied entries, or empty.
+	 * @return void
+	 */
+	private function abandon_claim( $path, $claimed, $rest = '' ) {
+		$old = time() - self::REPLAY_CLAIM_MAX_AGE - 1;
+
+		if ( '' !== $rest ) {
+			$tail = self::claim_path( $path, $old );
+
+			if ( false === @\file_put_contents( $tail, $rest, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+				// Keep the claim as is, so the unapplied entries are not lost.
+				return;
+			}
+
+			@\touch( $tail, $old ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+
+			if ( ! @\unlink( $claimed ) && is_file( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				// Applied entries must not stay live in the old claim.
+				@\file_put_contents( $claimed, '', LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+
+			return;
+		}
+
+		if ( ! @\rename( $claimed, self::claim_path( $path, $old ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( is_file( $claimed ) ) {
+				@\file_put_contents( $claimed, '', LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+		}
+	}
+
+	/**
+	 * Apply one queued invalidation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object $redis Connected client.
+	 * @param array  $entry Decoded queue line.
+	 * @return bool False when the command did not succeed.
+	 */
+	private function apply_queued_invalidation( $redis, array $entry ) {
+		$op = isset( $entry['op'] ) ? $entry['op'] : '';
+
+		if ( 'flush_all' === $op ) {
+			return false !== $redis->flushdb();
+		}
+
+		if ( 'flush' === $op ) {
+			$version_key = isset( $entry['key'] )
+				? (string) $entry['key']
+				: $this->_get_key_version_key( isset( $entry['group'] ) ? (string) $entry['group'] : '' );
+			$v           = intval( $redis->get( $version_key ) );
+			$v           = $v > 0 ? $v : 1;
+
+			return false !== $redis->set( $version_key, $v + 1 );
+		}
+
+		if ( ! isset( $entry['key'] ) ) {
+			return true;
+		}
+
+		$key = $entry['key'];
+
+		if ( 'delete_expired' === $op ) {
+			$v   = $redis->get( $key );
+			$ttl = $redis->ttl( $key );
+
+			if ( is_array( $v ) && $ttl > 0 ) {
+				$v['key_version'] = 0;
+
+				return false !== $redis->setex( $key, $ttl, $v );
+			}
+		}
+
+		if ( in_array( $op, array( 'delete', 'delete_expired', 'hard_delete' ), true ) ) {
+			return false !== $redis->setex( $key, 1, '' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Build a Redis client, or the test factory's client.
+	 *
+	 * @return object
+	 */
+	private function new_redis_client() {
+		if ( is_callable( self::$client_factory ) ) {
+			return call_user_func( self::$client_factory );
+		}
+
+		return new \Redis();
+	}
+
+	/**
+	 * Catch later Redis exceptions so a dropped connection cannot escape.
+	 *
+	 * @param object $redis  Connected client.
+	 * @param string $server Server URI.
+	 * @return object
+	 */
+	private function guard_client( $redis, $server ) {
+		$dbid = $this->_dbid;
+
+		return new class( $redis, $server, $dbid ) {
+			/**
+			 * Connected client.
+			 *
+			 * @var object
+			 */
+			private $redis;
+
+			/**
+			 * Server URI.
+			 *
+			 * @var string
+			 */
+			private $server;
+
+			/**
+			 * Database id.
+			 *
+			 * @var mixed
+			 */
+			private $dbid;
+
+			/**
+			 * Whether a command already failed.
+			 *
+			 * @var bool
+			 */
+			private $dead = false;
+
+			/**
+			 * Whether a MULTI or PIPELINE block is open.
+			 *
+			 * @var bool
+			 */
+			private $queued = false;
+
+			/**
+			 * Store the client this guard wraps.
+			 *
+			 * @param object $redis  Connected client.
+			 * @param string $server Server URI.
+			 * @param mixed  $dbid   Database id.
+			 */
+			public function __construct( $redis, $server, $dbid ) {
+				$this->redis  = $redis;
+				$this->server = $server;
+				$this->dbid   = $dbid;
+			}
+
+			/**
+			 * Whether a command on this client already failed.
+			 *
+			 * @return bool
+			 */
+			public function is_failed() {
+				return $this->dead;
+			}
+
+			/**
+			 * Run a Redis command and bypass the server if it throws.
+			 *
+			 * Calls that return the client (MULTI and PIPELINE chains) return
+			 * this guard so queued commands and exec() stay guarded. After a
+			 * failure, an open chain keeps returning this guard until exec()
+			 * or discard() so callers never chain onto false. UNWATCH and
+			 * DISCARD are still sent after a failure, and exec() on an open
+			 * chain sends DISCARD instead, without changing what is returned.
+			 *
+			 * @param string $method Method.
+			 * @param array  $args   Arguments.
+			 * @return mixed
+			 */
+			public function __call( $method, $args ) {
+				$name     = \strtolower( $method );
+				$opens    = 'multi' === $name || 'pipeline' === $name;
+				$closes   = 'exec' === $name || 'discard' === $name;
+				$was_open = $this->queued;
+
+				if ( $opens ) {
+					$this->queued = true;
+				} elseif ( $closes ) {
+					$this->queued = false;
+				}
+
+				if ( ! $this->dead ) {
+					try {
+						$result = $this->redis->$method( ...$args );
+
+						if ( $result === $this->redis ) {
+							return $this;
+						}
+
+						if ( $opens ) {
+							$this->queued = false;
+						}
+
+						return $result;
+					} catch ( \Exception $e ) {
+						$this->dead = true;
+						\error_log( 'W3TC Cache_Redis::' . $method . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						Cache_Redis::mark_server_bypassed( $this->server, $this->dbid );
+					}
+				} elseif ( 'unwatch' === $name || 'discard' === $name || ( 'exec' === $name && $was_open ) ) {
+					$this->clean_up( 'unwatch' === $name ? 'unwatch' : 'discard' );
+				}
+
+				return ( $opens || ( $was_open && ! $closes ) ) ? $this : false;
+			}
+
+			/**
+			 * Send UNWATCH or DISCARD so a pooled connection does not keep
+			 * WATCH or MULTI state for the next request.
+			 *
+			 * WATCH and MULTI end with the connection, and a command on a
+			 * closed client reconnects, so a closed client is left alone.
+			 *
+			 * @param string $command Either 'unwatch' or 'discard'.
+			 * @return void
+			 */
+			private function clean_up( $command ) {
+				try {
+					if ( \method_exists( $this->redis, 'isConnected' ) && ! $this->redis->isConnected() ) {
+						return;
+					}
+
+					$this->redis->$command();
+				} catch ( \Exception $e ) {
+					\error_log( 'W3TC Cache_Redis::' . $command . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
+		};
 	}
 }

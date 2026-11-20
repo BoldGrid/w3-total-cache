@@ -281,6 +281,12 @@ class Generic_Plugin_Admin {
 		$new_config = $w3tc_data['new_config'];
 		$old_config = $w3tc_data['old_config'];
 
+		$reverted = Cache_Redis::enforce_verified_servers( $new_config, $old_config );
+
+		if ( $reverted ) {
+			$w3tc_data['response_errors'][] = 'redis_servers_unverified';
+		}
+
 		// Schedule purge if enabled.
 		if ( $new_config->get_boolean( 'allcache.wp_cron' ) ) {
 			$new_wp_cron_time      = $new_config->get_integer( 'allcache.wp_cron_time' );
@@ -1307,6 +1313,10 @@ class Generic_Plugin_Admin {
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		$error_messages = array(
+			'redis_servers_unverified'               => __(
+				'Redis settings were not applied because the server did not respond. The previous Redis settings were kept.',
+				'w3-total-cache'
+			),
 			'fancy_permalinks_disabled_pgcache'      => sprintf(
 				// translators: 1 enable button link.
 				__(
