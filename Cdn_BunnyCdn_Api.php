@@ -487,11 +487,58 @@ class Cdn_BunnyCdn_Api {
 	 */
 	public function purge( array $w3tc_data ) {
 		$this->api_type = 'account';
+		$last           = array();
 
-		return $this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/purge' ),
-			$w3tc_data
-		);
+		foreach ( $this->purge_requests( $w3tc_data ) as $request ) {
+			$query = array(
+				'url' => $request['url'],
+			);
+
+			if ( array_key_exists( 'async', $request ) ) {
+				$query['async'] = $request['async'] ? 'true' : 'false';
+			}
+
+			$last = $this->wp_remote_post( 'https://api.bunny.net/purge?' . \http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) );
+		}
+
+		return $last;
+	}
+
+	/**
+	 * URLs to purge, from either a single url entry or an items list.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $w3tc_data Purge payload from a caller.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function purge_requests( array $w3tc_data ) {
+		if ( isset( $w3tc_data['items'] ) && \is_array( $w3tc_data['items'] ) ) {
+			$items = $w3tc_data['items'];
+		} elseif ( isset( $w3tc_data['url'] ) ) {
+			$items = array( $w3tc_data );
+		} else {
+			$items = array();
+		}
+
+		$requests = array();
+
+		foreach ( $items as $item ) {
+			if ( \is_string( $item ) ) {
+				$item = array(
+					'url' => $item,
+				);
+			}
+
+			if ( ! \is_array( $item ) || empty( $item['url'] ) || ! \is_string( $item['url'] ) ) {
+				continue;
+			}
+
+			$requests[] = $item;
+		}
+
+		return $requests;
 	}
 
 	/**
