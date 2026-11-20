@@ -256,6 +256,7 @@ $w3tc_keys = array(
 			'data-srcset=',
 			'fullurl=',
 			'lazy-slider-img=',
+			'fetchpriority="high"',
 			'loading="eager"',
 			'no-lazy',
 			'rev-slidebg',

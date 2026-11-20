@@ -11,6 +11,7 @@
 
 declare( strict_types = 1 );
 
+use W3TC\Config;
 use W3TC\UserExperience_LazyLoad_Mutator;
 use W3TC\UserExperience_LazyLoad_Mutator_Picture;
 
@@ -402,5 +403,27 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 
 				$this->assertStringContainsString( "title='note loading=\"lazy\"'", $result );
 				$this->assertStringNotContainsString( "' loading=\"lazy\"", $result );
+		}
+
+		/**
+		 * An image marked to load first stays on its original URL.
+		 *
+		 * @since 2.11.0
+		 */
+		public function test_fetchpriority_high_is_not_lazy_loaded() {
+			$config = new Config();
+			$config->set( 'lazyload.process_img', true );
+			$mutator = new UserExperience_LazyLoad_Mutator( $config, array() );
+
+			$high = $mutator->run( '<img src="https://example.com/hero.jpg" fetchpriority="high" width="100" height="50" alt="">' );
+			$this->assertStringContainsString( 'src="https://example.com/hero.jpg"', $high );
+			$this->assertStringNotContainsString( 'data-src=', $high );
+
+			$eager = $mutator->run( '<img src="https://example.com/hero.jpg" loading="eager" width="100" height="50" alt="">' );
+			$this->assertStringContainsString( 'src="https://example.com/hero.jpg"', $eager );
+			$this->assertStringNotContainsString( 'data-src=', $eager );
+
+			$other = $mutator->run( '<img src="https://example.com/later.jpg" width="100" height="50" alt="">' );
+			$this->assertStringContainsString( 'data-src="https://example.com/later.jpg"', $other );
 		}
 }
