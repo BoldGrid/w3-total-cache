@@ -231,8 +231,20 @@ class Cache_File_Generic extends Cache_File {
 		@chmod( $path, 0644 );
 
 		if ( @filesize( $tmppath ) > 0 ) {
-			@unlink( $path );
-			@rename( $tmppath, $path );
+			$unchanged = false;
+
+			if ( is_file( $path ) && @filesize( $path ) === @filesize( $tmppath ) ) {
+				$existing  = @file_get_contents( $path );
+				$incoming  = @file_get_contents( $tmppath );
+				$unchanged = is_string( $existing ) && is_string( $incoming ) && hash_equals( $existing, $incoming );
+			}
+
+			if ( $unchanged ) {
+				@unlink( $tmppath );
+			} else {
+				@unlink( $path );
+				@rename( $tmppath, $path );
+			}
 		}
 
 		@unlink( $tmppath );
