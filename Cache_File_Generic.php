@@ -240,7 +240,8 @@ class Cache_File_Generic extends Cache_File {
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
-		if ( Util_Environment::is_apache() && isset( $w3tc_value['headers'] ) ) {
+		// Runs even without header rules, so a re-cache can remove .htaccess left by an earlier write.
+		if ( Util_Environment::is_apache() ) {
 			$rules = '';
 
 			if ( isset( $w3tc_value['headers']['Content-Type'] ) && 'text/xml' === substr( $w3tc_value['headers']['Content-Type'], 0, 8 ) ) {
@@ -295,18 +296,23 @@ class Cache_File_Generic extends Cache_File {
 				}
 			}
 
-			if ( ! empty( $rules ) ) {
-				$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
+			$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
 
-				$htaccess_dir = \realpath( dirname( $path ) );
-				$base_path    = \realpath( $this->_cache_dir );
-				if ( false !== $htaccess_dir && false !== $base_path ) {
-					$base_norm     = \rtrim( \str_replace( '\\', '/', $base_path ), '/' );
-					$base_prefix   = $base_norm . '/';
-					$htaccess_norm = \str_replace( '\\', '/', $htaccess_dir );
-					$htaccess_ok   = ( $htaccess_norm === $base_norm || 0 === \strpos( $htaccess_norm, $base_prefix ) );
+			$htaccess_dir = \realpath( dirname( $path ) );
+			$base_path    = \realpath( $this->_cache_dir );
+			if ( false !== $htaccess_dir && false !== $base_path ) {
+				$base_norm     = \rtrim( \str_replace( '\\', '/', $base_path ), '/' );
+				$base_prefix   = $base_norm . '/';
+				$htaccess_norm = \str_replace( '\\', '/', $htaccess_dir );
+				$htaccess_ok   = ( $htaccess_norm === $base_norm || 0 === \strpos( $htaccess_norm, $base_prefix ) );
 
-					if ( $htaccess_ok ) {
+				if ( $htaccess_ok ) {
+					if ( empty( $rules ) ) {
+						// No rules now: drop the file an earlier write left, so its stale headers stop applying.
+						if ( file_exists( $htaccess_path ) ) {
+							@unlink( $htaccess_path );
+						}
+					} else {
 						@file_put_contents( $htaccess_path, $rules );
 
 						$chmod = 0644;
