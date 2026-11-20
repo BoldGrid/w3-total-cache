@@ -183,7 +183,7 @@ add_filter(
 | `w3tc_lazyload_mutator_before` | `add_filter()` | 1 | `array( 'buffer' => $buffer, 'modified' => $this->modified, )` | [UserExperience_LazyLoad_Mutator.php:65](../UserExperience_LazyLoad_Mutator.php#L65) |
 | `w3tc_lazyload_on_initialized_javascript` | `add_filter()` | 1 | `''` | [UserExperience_LazyLoad_Plugin.php:207](../UserExperience_LazyLoad_Plugin.php#L207) |
 | `w3tc_minify_before` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:250](../Minify_Plugin.php#L250) |
-| `w3tc_minify_css_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:619](../lib/Minify/Minify.php#L619) |
+| `w3tc_minify_css_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:614](../lib/Minify/Minify.php#L614) |
 | `w3tc_minify_css_do_excluded_tag_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:267](../Minify_AutoCss.php#L267) |
 | `w3tc_minify_css_do_flush_collected` | `add_filter()` | 3 | `true, $last_style_tag, $this` | [Minify_AutoCss.php:316](../Minify_AutoCss.php#L316) |
 | `w3tc_minify_css_do_local_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:204](../Minify_AutoCss.php#L204) |
@@ -197,7 +197,7 @@ add_filter(
 | `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
 | `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:337](../lib/Minify/Minify/HTML.php#L337)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
 | `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1522](../Minify_Plugin.php#L1522) |
-| `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:622](../lib/Minify/Minify.php#L622) |
+| `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:617](../lib/Minify/Minify.php#L617) |
 | `w3tc_minify_js_do_excluded_tag_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:284](../Minify_AutoJs.php#L284) |
 | `w3tc_minify_js_do_flush_collected` | `add_filter()` | 4 | `true, $last_script_tag, $this, $sync_type` | [Minify_AutoJs.php:367](../Minify_AutoJs.php#L367) |
 | `w3tc_minify_js_do_local_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:220](../Minify_AutoJs.php#L220) |
