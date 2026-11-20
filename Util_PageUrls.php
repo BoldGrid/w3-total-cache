@@ -910,7 +910,8 @@ class Util_PageUrls {
 	public static function complement_with_mirror_urls( $queued_urls ) {
 		$w3tc_config = Dispatcher::config();
 
-		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) || Util_Environment::is_wpmu_subdomain() ) {
+		// Subdomain networks get mirror URLs too. Only the aliases setting controls this.
+		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) ) {
 			return $queued_urls;
 		}
 
