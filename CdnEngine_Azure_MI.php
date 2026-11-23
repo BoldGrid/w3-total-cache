@@ -457,10 +457,14 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain && ! empty( $this->_config['container'] ) ) {
-			$scheme   = $this->_get_scheme();
-			$w3tc_url = sprintf( '%1$s://%2$s/%3$s/%4$s', $scheme, $domain, $this->_config['container'], $path );
+			$scheme = $this->_get_scheme();
 
-			return $w3tc_url;
+			// Static website hosts serve the container at the host root.
+			if ( $this->_is_static_website_host( $domain ) ) {
+				return sprintf( '%1$s://%2$s/%3$s', $scheme, $domain, $path );
+			}
+
+			return sprintf( '%1$s://%2$s/%3$s/%4$s', $scheme, $domain, $this->_config['container'], $path );
 		}
 
 		return false;
@@ -486,8 +490,26 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	 * @return string
 	 */
 	public function get_prepend_path( $path ) {
-		$path = parent::get_prepend_path( $path );
-		$path = $this->_config['container'] ? trim( $path, '/' ) . '/' . trim( $this->_config['container'], '/' ) : $path;
-		return $path;
+		$url = parent::get_prepend_path( $path );
+
+		if ( ! $url || empty( $this->_config['container'] ) || $this->_is_static_website_host( $this->get_domain( $path ) ) ) {
+			return $url;
+		}
+
+		return trim( $url, '/' ) . '/' . trim( $this->_config['container'], '/' );
+	}
+
+	/**
+	 * Whether a hostname is an Azure static website endpoint.
+	 *
+	 * @param string $domain Hostname, with an optional port.
+	 *
+	 * @return bool
+	 */
+	private function _is_static_website_host( $domain ) {
+		$host = strtolower( (string) $domain );
+		$host = preg_replace( '/:\d+$/', '', $host );
+
+		return (bool) preg_match( '/\.web\.core\.windows\.net$/', $host );
 	}
 }

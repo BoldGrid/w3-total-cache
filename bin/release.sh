@@ -20,6 +20,6 @@ bash bin/make-pot.sh
 
 rm -f package.* yarn.lock
 
-# Create a tag in the Wordpress.org SVN repo when after your build succeeds via Travis.
+# Create a tag in the WordPress.org SVN repo after the GitHub Actions release job succeeds.
 # @link https://github.com/BoldGrid/wordpress-tag-sync
 chmod +x ./node_modules/@boldgrid/wordpress-tag-sync/release.sh && ./node_modules/@boldgrid/wordpress-tag-sync/release.sh
