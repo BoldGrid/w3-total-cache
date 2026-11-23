@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: ftp.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -139,8 +146,17 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_ftp_pass" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__ftp__pass" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.ftp.pass' ) ); ?>" size="30" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_ftp_pass',
+				'name'        => 'cdn__ftp__pass',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.ftp.pass' ),
+				'size'        => 30,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
@@ -302,15 +318,26 @@ if ( ! defined( 'W3TC' ) ) {
 		</label>
 	</th>
 	<td>
-		<input id="cdn_ftp_privkey" class="w3tc-ignore-change" type="text"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__ftp__privkey" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.ftp.privkey' ) ); ?>" size="30" <?php echo function_exists( 'ssh2_connect' ) ? '' : 'disabled'; ?> />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_ftp_privkey',
+				'name'        => 'cdn__ftp__privkey',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.ftp.privkey' ),
+				'size'        => 30,
+				'type'        => 'text',
+				'sealing_key' => 'cdn.',
+				'disabled'    => ! function_exists( 'ssh2_connect' ),
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cnames = $this->_config->get_array( 'cdn.ftp.domain' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.ftp.domain' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -343,6 +370,6 @@ if ( ! defined( 'W3TC' ) ) {
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 'ftp', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test FTP server', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 'ftp', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test FTP server', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

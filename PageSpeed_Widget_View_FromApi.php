@@ -11,6 +11,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -26,17 +27,29 @@ if ( ! defined( 'W3TC' ) ) {
 			</div>
 		</div>
 		<?php
-	} elseif ( ! empty( $api_response['mobile']['error'] ) || ! empty( $api_response['desktop']['error'] ) ) {
-		?>
-		<div class="w3tcps_feedback">
-			<div class="notice notice-error inline w3tcps_error">
-				<p><?php esc_html_e( 'An error has occured!', 'w3-total-cache' ); ?></p>
-				<p><?php esc_html_e( 'Mobile: ', 'w3-total-cache' ) . esc_html( $api_response['mobile']['error'] ); ?></p>
-				<p><?php esc_html_e( 'Desktop: ', 'w3-total-cache' ) . esc_html( $api_response['desktop']['error'] ); ?></p>
-			</div>
-		</div>
-		<?php
 	} else {
+		// Render whatever data is available. A strategy that errored shows a soft inline notice while the
+		// other still renders its gauge and metrics, avoiding a hard error state on a partial failure.
+		$mobile_has_error  = ! empty( $api_response['mobile']['error'] );
+		$desktop_has_error = ! empty( $api_response['desktop']['error'] );
+		$mobile_error      = $mobile_has_error ? Util_PageSpeed::get_value_recursive( $api_response, array( 'mobile', 'error', 'message' ) ) : '';
+		$desktop_error     = $desktop_has_error ? Util_PageSpeed::get_value_recursive( $api_response, array( 'desktop', 'error', 'message' ) ) : '';
+
+		if ( $mobile_has_error || $desktop_has_error ) {
+			?>
+			<div class="w3tcps_feedback">
+				<div class="notice notice-error inline w3tcps_error">
+					<p><?php esc_html_e( 'Some results could not be retrieved:', 'w3-total-cache' ); ?></p>
+					<?php if ( $mobile_has_error ) : ?>
+						<p><?php esc_html_e( 'Mobile: ', 'w3-total-cache' ); ?><?php echo esc_html( ! empty( $mobile_error ) ? $mobile_error : __( 'Unknown error.', 'w3-total-cache' ) ); ?></p>
+					<?php endif; ?>
+					<?php if ( $desktop_has_error ) : ?>
+						<p><?php esc_html_e( 'Desktop: ', 'w3-total-cache' ); ?><?php echo esc_html( ! empty( $desktop_error ) ? $desktop_error : __( 'Unknown error.', 'w3-total-cache' ) ); ?></p>
+					<?php endif; ?>
+				</div>
+			</div>
+			<?php
+		}
 		?>
 		<div id="w3tcps_legend">
 			<div class="w3tcps_gages">

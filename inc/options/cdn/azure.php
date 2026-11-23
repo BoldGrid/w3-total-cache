@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: azure.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -15,8 +22,17 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_azure_key"><?php esc_html_e( 'Account key:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_azure_key" class="w3tc-ignore-change"
-			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="password" name="cdn__azure__key" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.azure.key' ) ); ?>" size="60" />
+		<?php
+		Util_Ui::secret_input(
+			array(
+				'id'          => 'cdn_azure_key',
+				'name'        => 'cdn__azure__key',
+				'has_value'   => '' !== $this->_config->get_string( 'cdn.azure.key' ),
+				'size'        => 60,
+				'sealing_key' => 'cdn.',
+			)
+		);
+		?>
 	</td>
 </tr>
 <tr>
@@ -24,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<td>
 		<input id="cdn_azure_container" type="text"
 			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> name="cdn__azure__container" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.azure.container' ) ); ?>" size="30" />
-		<input id="cdn_create_container" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'azure', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
+		<input id="cdn_create_container" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> class="button {type: 'azure', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_create_container' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create container', 'w3-total-cache' ); ?>" />
 		<span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
 	</td>
 </tr>
@@ -86,9 +102,9 @@ if ( ! defined( 'W3TC' ) ) {
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cdn_azure_user = $this->_config->get_string( 'cdn.azure.user' );
-		if ( '' !== $cdn_azure_user ) {
-			echo esc_attr( $cdn_azure_user ) . '.blob.core.windows.net';
+		$w3tc_cdn_azure_user = $this->_config->get_string( 'cdn.azure.user' );
+		if ( '' !== $w3tc_cdn_azure_user ) {
+			echo esc_attr( $w3tc_cdn_azure_user ) . '.blob.core.windows.net';
 		} else {
 			echo '&lt;account name&gt;.blob.core.windows.net';
 		}
@@ -110,13 +126,13 @@ if ( ! defined( 'W3TC' ) ) {
 			)
 		);
 
-		$cnames = $this->_config->get_array( 'cdn.azure.cname' );
+		$w3tc_cnames = $this->_config->get_array( 'cdn.azure.cname' );
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 	</td>
 </tr>
 <tr>
 	<th colspan="2">
-		<input id="cdn_test" class="button {type: 'azure', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Microsoft Azure Storage upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
+		<input id="cdn_test" class="button {type: 'azure', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Test Microsoft Azure Storage upload', 'w3-total-cache' ); ?>" /> <span id="cdn_test_status" class="w3tc-status w3tc-process"></span>
 	</th>
 </tr>

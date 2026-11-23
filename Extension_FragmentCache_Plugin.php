@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_FragmentCache_Plugin
  *
@@ -53,11 +54,11 @@ class Extension_FragmentCache_Plugin {
 		*/
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-		$is_active = $this->_config->is_extension_active_frontend( 'fragmentcache' );
-		$engine    = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+		$is_active   = $this->_config->is_extension_active_frontend( 'fragmentcache' );
+		$w3tc_engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
 
 		// remainder only when extension is frontend-active.
-		if ( ! $is_active || empty( $engine ) ) {
+		if ( ! $is_active || empty( $w3tc_engine ) ) {
 			return;
 		}
 
@@ -66,18 +67,18 @@ class Extension_FragmentCache_Plugin {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
-		if ( 'file' === $engine ) {
+		if ( 'file' === $w3tc_engine ) {
 			add_action( 'w3_fragmentcache_cleanup', array( $this, 'cleanup' ) );
 		}
 
 		add_action( 'switch_blog', array( $this, 'switch_blog' ), 0, 2 );
 
 		$groups = $this->_config->get_array( array( 'fragmentcache', 'groups' ) );
-		foreach ( $groups as $group ) {
-			$split   = explode( ',', $group );
-			$group   = array_shift( $split );
-			$actions = $split;
-			$this->_core->register_group( $group, $actions, $this->_config->get_integer( array( 'fragmentcache', 'lifetime' ) ) );
+		foreach ( $groups as $w3tc_group ) {
+			$split      = explode( ',', $w3tc_group );
+			$w3tc_group = array_shift( $split );
+			$actions    = $split;
+			$this->_core->register_group( $w3tc_group, $actions, $this->_config->get_integer( array( 'fragmentcache', 'lifetime' ) ) );
 		}
 
 		// handle transients by own cache.
@@ -141,14 +142,14 @@ class Extension_FragmentCache_Plugin {
 	/**
 	 * Flushes a specific fragment cache group.
 	 *
-	 * @param string $group       The name of the cache group.
+	 * @param string $w3tc_group       The name of the cache group.
 	 * @param bool   $global_flag Whether to flush globally or locally.
 	 *
 	 * @return void
 	 */
-	public function w3tc_flush_fragmentcache_group( $group, $global_flag = false ) {
+	public function w3tc_flush_fragmentcache_group( $w3tc_group, $global_flag = false ) {
 		$cache = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-		$cache->flush_group( $group, $global_flag );
+		$cache->flush_group( $w3tc_group, $global_flag );
 	}
 
 	/**
@@ -204,8 +205,8 @@ class Extension_FragmentCache_Plugin {
 		$actions          = $this->_core->get_registered_actions();
 		$action           = current_filter();
 		$groups           = $actions[ $action ];
-		foreach ( $groups as $group ) {
-			$w3_fragmentcache->flush_group( $group );
+		foreach ( $groups as $w3tc_group ) {
+			$w3_fragmentcache->flush_group( $w3tc_group );
 		}
 	}
 
@@ -218,8 +219,8 @@ class Extension_FragmentCache_Plugin {
 	 * @return void
 	 */
 	public function switch_blog( $blog_id, $previous_blog_id ) {
-		$o = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-		$o->switch_blog( $blog_id );
+		$w3tc_o = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
+		$w3tc_o->switch_blog( $blog_id );
 	}
 
 	/**
@@ -230,8 +231,8 @@ class Extension_FragmentCache_Plugin {
 	 * @return array Modified footer comment strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
-		$o       = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-		$strings = $o->w3tc_footer_comment( $strings );
+		$w3tc_o  = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
+		$strings = $w3tc_o->w3tc_footer_comment( $strings );
 
 		return $strings;
 	}
@@ -244,8 +245,8 @@ class Extension_FragmentCache_Plugin {
 	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
-		$o = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-		$o->w3tc_usage_statistics_of_request( $storage );
+		$w3tc_o = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
+		$w3tc_o->w3tc_usage_statistics_of_request( $storage );
 	}
 
 	/**
@@ -268,28 +269,28 @@ class Extension_FragmentCache_Plugin {
 	/**
 	 * Provides a descriptor for specific configuration keys.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
-	 * @param mixed $descriptor The existing descriptor.
-	 * @param mixed $key        The configuration key.
+	 * @param mixed $w3tc_descriptor The existing descriptor.
+	 * @param mixed $w3tc_key        The configuration key.
 	 *
 	 * @return mixed Modified descriptor for the key.
 	 */
-	public function w3tc_config_key_descriptor( $descriptor, $key ) {
-		if ( is_array( $key ) && 'fragmentcache.groups' === implode( '.', $key ) ) {
-			$descriptor = array( 'type' => 'array' );
+	public function w3tc_config_key_descriptor( $w3tc_descriptor, $w3tc_key ) {
+		if ( is_array( $w3tc_key ) && 'fragmentcache.groups' === implode( '.', $w3tc_key ) ) {
+			$w3tc_descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+		return $w3tc_descriptor;
 	}
 }
 
-$p = new Extension_FragmentCache_Plugin();
-$p->run();
+$w3tc_p = new Extension_FragmentCache_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_FragmentCache_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_FragmentCache_Plugin_Admin();
+	$w3tc_p->run();
 }
 
 require W3TC_DIR . '/Extension_FragmentCache_Api.php';

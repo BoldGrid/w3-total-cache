@@ -1,27 +1,44 @@
-jQuery(function($) {
-	function w3tc_rackspace_resize(o) {
-		o.resize();
-	}
+/**
+ * File: Cdn_RackSpaceCloudFiles_Page_View.js
+ *
+ * Rackspace Cloud Files settings page lightbox interactions.
+ *
+ * @package W3TC
+ * @since   2.0.0
+ */
 
-	$('body')
-		.on('click', '.w3tc_cdn_rackspace_authorize', function() {
-		    W3tc_Lightbox.open({
-		        id:'w3tc-overlay',
-		        close: '',
-		        width: 800,
-		        height: 300,
-		        url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-            		'&w3tc_action=cdn_rackspace_authenticate',
-		        callback: w3tc_rackspace_resize
-		    });
-		})
+jQuery(function ($) {
+  function w3tc_rackspace_resize(o) {
+    o.resize();
+  }
 
+  $("body")
+    .on("click", ".w3tc_cdn_rackspace_authorize", function () {
+      W3tc_Lightbox.open({
+        id: "w3tc-overlay",
+        close: "",
+        width: 800,
+        height: 300,
+        url:
+          ajaxurl +
+          "?action=w3tc_ajax&_wpnonce=" +
+          w3tcGetAjaxNonce("cdn_rackspace_authenticate") +
+          "&w3tc_action=cdn_rackspace_authenticate",
+        callback: w3tc_rackspace_resize,
+      });
+    })
 
+    .on("click", ".w3tc_popup_submit", function () {
+      // load_form POSTs w3tc_action from the form; match the hub token on the URL query.
+      var url =
+        ajaxurl +
+        "?action=w3tc_ajax&_wpnonce=" +
+        w3tcGetAjaxNonceForForm(".w3tc_cdn_rackspace_form");
 
-		.on('click', '.w3tc_popup_submit', function() {
-			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce;
-
-	    	W3tc_Lightbox.load_form(url, '.w3tc_cdn_rackspace_form',
-	    		w3tc_rackspace_resize);
-	    })
+      W3tc_Lightbox.load_form(
+        url,
+        ".w3tc_cdn_rackspace_form",
+        w3tc_rackspace_resize,
+      );
+    });
 });

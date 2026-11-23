@@ -1,5 +1,135 @@
 === W3 Total Cache Changelog ===
 
+= 2.11.0 =
+* Feature: Extensions: Add the CloudLinux Max Cache extension
+* Update: Licensing: Store the license JWT and call the v2 APIs
+* Fix: REST API Cache: Clear a retained REST cache mode when Pro is inactive
+* Fix: Minify: Keep automatic minify file names to the hash and extension
+* Fix: Minify: Use a per-request id for HTML minify placeholders
+* Fix: Page Cache: Skip a second WP_CACHE define when the site already set it
+* Fix: Filesystem: Skip the credentials prompt after a successful empty rules-file write
+
+= 2.10.7 =
+* Feature: Minify: Cache selected external scripts locally for auto minify
+* Feature: Page Cache: Add a one-pass mode for sitemap cache preload
+* Enhancement: Developers: Add a generated reference of supported actions and filters
+* Fix: Browser Cache: Constrain unquoted URL rewriting when removing query strings from static resources
+* Fix: Page Cache: Remove the expired role-cookie compatibility path and skip caching for rejected roles
+* Fix: Page Cache: Avoid Options API calls before WordPress has loaded them during early bootstrap
+* Fix: Object Cache: Persist cache invalidation from wp-admin when admin object caching is disabled
+* Fix: CDN: Preserve custom attachment directories when pushing media
+* Fix: Google PageSpeed: Renew expired access tokens without discarding authorization
+* Fix: Licensing: Show the activation-limit notice for licenses that have reached their limit
+* Fix: Settings: Persist Purge via WP-Cron schedule settings
+* Fix: Settings: Skip unchanged w3tc_state option writes
+* Update: Remove leftover newsletter signup code
+* Update: Build: Omit development-only files from the release ZIP
+
+= 2.10.6 =
+* Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
+* Enhancement: Page Cache: Add w3tc_pgcache_rules_required filter to skip writing rewrite rules
+* Fix: Settings: Restrict POST updates to keys owned by the active admin page
+* Fix: Licensing: Limit plugin type updates to the license path
+* Fix: Image Converter: Require administrator capability for convert and submit
+* Fix: Config import: Validate structure before applying
+* Fix: Role cookies: Stop honoring legacy names unless explicitly enabled
+* Fix: Minify: Validate precache URLs before outbound fetch
+* Fix: URL constants: Apply host allowlists to overrides
+* Fix: Minify: Validate Java minifier JAR paths before invocation
+* Update: Bunny CDN and Redis: Enable verified TLS by default
+* Fix: Diagnostics: Extend log redaction across remaining formats
+* Fix: Reverse proxy: Apply forwarded client IP and scheme headers only from trusted proxies
+* Fix: CDN: Limit Media Library import to static assets
+* Fix: CDN: Render admin server responses as text
+* Fix: CDN: Use saved settings for Test
+* Fix: CDN: Scope CORS headers to font resources
+* Fix: Browser Cache: Normalize rewrite rule rendering
+* Fix: Support: Reduce client data sent from the Support page
+* Fix: Forums: Normalize API client responses
+* Fix: Lazy Load: Match background styles as top-level attributes only
+* Fix: Admin: Align request validation across notice, extension, setup, CDN, and minify flows
+
+= 2.10.5 =
+* Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
+
+= 2.10.4 =
+* Fix: Lazy Load: Match only quoted image attributes when rewriting src/srcset/sizes
+* Fix: Cache purge: Restore filterable capabilities for purge-all and purge-post
+
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
+
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
+
+= 2.10.1 =
+* Fix: General Settings: "The link you followed has expired" when emptying all caches
+* Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
+* Fix: At-rest credentials: Defer encryption until WordPress salts are available
+* Fix: Always Cached: Queue regeneration on nginx with Disk: Enhanced page cache
+* Fix: mfunc: Render unrecognized dynamic-fragment tags as empty output
+* Fix: Apache: Remove Options -MultiViews from root .htaccess (HTTP 500 on restrictive AllowOverride)
+* Fix: Multisite: Admin page links in network admin
+
+= 2.10.0 =
+* Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
+* Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
+* Security: Strengthened protections against code, command, and file-inclusion injection
+* Security: Hardened processing of dynamic and cached content, including data serialization
+* Security: Restricted outbound server-side requests to mitigate server-side request forgery (SSRF)
+* Security: Restricted configuration changes to prevent unauthorized modification
+* Security: Improved handling of stored credentials, cookies, and generated server-configuration files
+* Security: Reduced potential information disclosure and improved security logging
+
+= 2.9.4 =
+* Fix: Output buffering: Reverted to previous output buffering from 2.9.1
+* Fix: Cloudflare: Token/Key validation
+* Fix: Prevent mfunc processing bypss by user-agent
+
+= 2.9.3 =
+* Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
+* Fix: Output buffering: Add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g. FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
+
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
+
+= 2.9.1 =
+* Fix: Image Converter: Reset request when status is 404
+* Fix: Image Converter: Better handling of separate format requests
+* Fix: Image Converter: UI/JS changes
+* Fix: Config caching/saving issue
+
+= 2.9.0 =
+* Feature: Next-Gen AVIF image conversion (Pro)
+* Feature: Added notices for some billing issues
+* Fix: Bunny CDN purge section
+* Fix: New Relic API
+* Fix: Nginx + Memcached Unix socket compatability
+* Update: Setup Guide Wizard and test improvements
+* Update: WebP Converter renamed to Image Converter
+
+= 2.8.15 =
+* Fix: Elementor: Carousel lazy load
+* Fix: Elementor: Cache clearing issues
+* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
+* Fix: Better validation for file directory cleanup
+* Fix: Bunny CDN: Settings page purge URL section
+* Fix: Minify: Auto JS: Handle async and defer attributes with values
+* Fix: Google PageSpeed: Lighthouse changes
+* Fix: Cloudflare: Undefined array warning
+* Fix: Rackspace API: Reponse code handling
+* Fix: License deactivation messages
+* Update: ChartJS updated to v4.4.1
+* Enhancement: Added support links
+
 = 2.8.14 =
 * Fix: Better logic for mfunc/mclude processing
 * Enhancement: More consistent purge notices

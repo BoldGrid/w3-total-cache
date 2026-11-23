@@ -1,8 +1,15 @@
 <?php
-
 /**
- * Other mime types
+ * Other mime types.
+ *
+ * @package W3TC
  */
+
+defined( 'ABSPATH' ) || exit;
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 return array(
 	'asf|asx|wax|wmv|wmx'  => 'video/asf',
 	'avi'                  => 'video/avi',

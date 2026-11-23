@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: dbcluster-config.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -41,7 +48,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="submit">
 			<?php
 			echo wp_kses(
-				Util_Ui::nonce_field( 'w3tc' ),
+				Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_config_dbcluster_config_save' ) ),
 				array(
 					'input' => array(
 						'type'  => array(),
@@ -51,7 +58,7 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			?>
-			<input type="submit" name="w3tc_config_dbcluster_config_save" class="w3tc-button-save button-primary" value="<?php esc_attr_e( 'Save configuration file', 'w3-total-cache' ); ?>" />
+			<input type="submit" name="w3tc_config_dbcluster_config_save" class="w3tc-button-save button-primary" value="<?php esc_attr_e( 'Save configuration file', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_config_dbcluster_config_save' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>

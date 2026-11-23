@@ -1,7 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+set -a
+[ -r /etc/environment ] && . /etc/environment
+set +a
+
 URL="${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}${W3D_WP_SITE_URI}"
-LIMITED="sudo -u www-data"
+LIMITED="sudo -u www-data --preserve-env=PATH"
 
 echo "Installing WordPress ${W3D_WP_VERSION} at ${W3D_WP_PATH} for ${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}${W3D_WP_SITE_URI} ..."
+
+if ! command -v php >/dev/null 2>&1; then
+	echo "php not available before WordPress install"
+	exit 1
+fi
+
+if ! php -r 'exit(class_exists("ZipArchive") ? 0 : 1);'; then
+	echo "php ZipArchive extension required for wp core download"
+	exit 1
+fi
 
 mkdir -pv $W3D_WP_PATH
 chown -R www-data: $W3D_WP_PATH
@@ -10,8 +28,14 @@ cd $W3D_WP_PATH
 
 $LIMITED wp core download --version=$W3D_WP_VERSION
 
+if [ ! -f "${W3D_WP_PATH}index.php" ]; then
+	echo "wp core download failed at ${W3D_WP_PATH}"
+	exit 1
+fi
+
 echo -n "Installed.  Checking WordPress version... "
 $LIMITED wp core version
+echo
 
 echo "Creating database and user..."
 
@@ -72,3 +96,5 @@ if [ "$W3D_WP_CONTENT_PATH" != "${W3D_WP_PATH}wp-content/" ]; then
 fi
 
 echo "WordPress setup complete."
+
+/share/scripts/validate-wordpress-tree.sh /var/www/wp-sandbox

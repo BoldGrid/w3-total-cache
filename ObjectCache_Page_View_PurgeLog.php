@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -22,13 +23,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 	<h1><?php esc_html_e( 'Purges Log', 'w3-total-cache' ); ?></h1>
 
 	<div class="w3tc_purge_log_table">
-		<?php foreach ( $lines as $line ) : ?>
-			<div class="w3tc_purge_log_date"><?php echo esc_html( $line['date'] ); ?></div>
-			<div class="w3tc_purge_log_message"><td><?php echo esc_html( $line['message'] ); ?></div>
+		<?php foreach ( $lines as $w3tc_line ) : ?>
+			<div class="w3tc_purge_log_date"><?php echo esc_html( $w3tc_line['date'] ); ?></div>
+			<div class="w3tc_purge_log_message"><td><?php echo esc_html( $w3tc_line['message'] ); ?></div>
 			<div class="w3tc_purge_log_backtrace">
-					<?php foreach ( $line['backtrace'] as $backtrace_line ) : ?>
+					<?php foreach ( $w3tc_line['backtrace'] as $w3tc_backtrace_line ) : ?>
 						<div class="w3tc_purge_log_traceline">
-							<?php echo esc_html( $backtrace_line ); ?>
+							<?php echo esc_html( $w3tc_backtrace_line ); ?>
 						</div>
 					<?php endforeach ?>
 			</div>

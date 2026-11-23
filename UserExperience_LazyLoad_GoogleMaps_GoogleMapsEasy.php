@@ -24,17 +24,17 @@ class UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy {
 	 * Adjusts the output buffer to include a preload tag for the Google Maps script if applicable.
 	 * It also modifies the buffer for lazy loading and applies necessary filters.
 	 *
-	 * @param array $data {
+	 * @param array $w3tc_data {
 	 *     An array containing the buffer and a modified flag.
 	 *
 	 *     @type string $buffer   The HTML buffer to be modified.
 	 *     @type bool   $modified A flag indicating if the buffer was modified.
 	 * }
 	 *
-	 * @return array The modified `$data` array.
+	 * @return array The modified `$w3tc_data` array.
 	 */
-	public function w3tc_lazyload_mutator_before( $data ) {
-		$buffer = $data['buffer'];
+	public function w3tc_lazyload_mutator_before( $w3tc_data ) {
+		$buffer = $w3tc_data['buffer'];
 		$buffer = preg_replace_callback(
 			'~(<script\s[^>]+>)~i',
 			array( $this, 'tag_script' ),
@@ -54,10 +54,10 @@ class UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy {
 			add_filter( 'w3tc_lazyload_on_initialized_javascript', array( $this, 'w3tc_lazyload_on_initialized_javascript' ) );
 		}
 
-		$data['buffer']    = $buffer;
-		$data['modified'] |= ! empty( $this->preload_url );
+		$w3tc_data['buffer']    = $buffer;
+		$w3tc_data['modified'] |= ! empty( $this->preload_url );
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -81,13 +81,13 @@ class UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy {
 			! preg_match(
 				'~<script\s+[^<>]*src=["\']?([^"\'> ]+)["\'> ]~is',
 				$script_tag,
-				$match
+				$w3tc_match
 			)
 		) {
 			return $script_tag;
 		}
 
-		$script_src = $match[1];
+		$script_src = $w3tc_match[1];
 		$script_src = Util_Environment::url_relative_to_full( $script_src );
 
 		if ( ! $this->starts_with( $script_src, WP_PLUGIN_URL . '/google-maps-easy/modules/gmap/js/frontend.gmap.js' ) ) {

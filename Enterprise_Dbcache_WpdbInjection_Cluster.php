@@ -134,13 +134,41 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	public $collate = null;
 
 	/**
+	 * Callback result from dataset/blog_dataset callbacks.
+	 *
+	 * @var mixed
+	 */
+	private $callback_result;
+
+	/**
+	 * Current dataset name.
+	 *
+	 * @var string
+	 */
+	private $dataset;
+
+	/**
+	 * Connection handle name.
+	 *
+	 * @var string
+	 */
+	private $dbhname;
+
+	/**
+	 * Number of rows from the last query.
+	 *
+	 * @var int
+	 */
+	private $num_rows = 0;
+
+	/**
 	 * Initializes the database cluster.
 	 *
 	 * @return void
 	 */
 	public function initialize() {
-		global $wpdb_cluster;
-		$wpdb_cluster = $this;
+		global $w3tc_wpdb_cluster;
+		$w3tc_wpdb_cluster = $this;
 
 		if ( ! isset( $GLOBALS['w3tc_dbcluster_config'] ) && file_exists( WP_CONTENT_DIR . '/db-cluster-config.php' ) ) {
 			// The config file resides in WP_CONTENT_DIR.
@@ -168,7 +196,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Applies configuration to the database cluster.
 	 *
-	 * @param array $c {
+	 * @param array $w3tc_c {
 	 *     Configuration array for the database cluster.
 	 *
 	 *     @type bool   $persistent               Whether to enable persistent connections.
@@ -196,42 +224,42 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	 *
 	 * @return void
 	 */
-	public function apply_configuration( $c ) {
-		if ( isset( $c['persistent'] ) ) {
-			$this->persistent = $c['persistent'];
+	public function apply_configuration( $w3tc_c ) {
+		if ( isset( $w3tc_c['persistent'] ) ) {
+			$this->persistent = $w3tc_c['persistent'];
 		}
 
-		if ( isset( $c['check_tcp_responsiveness'] ) ) {
-			$this->persistent = $c['check_tcp_responsiveness'];
+		if ( isset( $w3tc_c['check_tcp_responsiveness'] ) ) {
+			$this->check_tcp_responsiveness = $w3tc_c['check_tcp_responsiveness'];
 		}
 
-		if ( isset( $c['use_master_in_backend'] ) ) {
-			$this->persistent = $c['use_master_in_backend'];
+		if ( isset( $w3tc_c['use_master_in_backend'] ) ) {
+			$this->use_master_in_backend = $w3tc_c['use_master_in_backend'];
 		}
 
-		if ( isset( $c['charset'] ) ) {
-			$this->persistent = $c['charset'];
+		if ( isset( $w3tc_c['charset'] ) ) {
+			$this->charset = $w3tc_c['charset'];
 		}
 
-		if ( isset( $c['collate'] ) ) {
-			$this->persistent = $c['collate'];
+		if ( isset( $w3tc_c['collate'] ) ) {
+			$this->collate = $w3tc_c['collate'];
 		}
 
-		if ( isset( $c['filters'] ) && is_array( $c['filters'] ) ) {
-			foreach ( $c['filters'] as $filter ) {
+		if ( isset( $w3tc_c['filters'] ) && is_array( $w3tc_c['filters'] ) ) {
+			foreach ( $w3tc_c['filters'] as $filter ) {
 				$this->add_callback( $filter['function_to_add'], $filter['tag'] );
 			}
 		}
 
-		if ( isset( $c['databases'] ) && is_array( $c['databases'] ) ) {
-			foreach ( $c['databases'] as $key => $db ) {
+		if ( isset( $w3tc_c['databases'] ) && is_array( $w3tc_c['databases'] ) ) {
+			foreach ( $w3tc_c['databases'] as $w3tc_key => $db ) {
 				$this->add_database( $db );
 			}
 		}
 
-		if ( isset( $c['zones'] ) && is_array( $c['zones'] ) ) {
-			foreach ( $c['zones'] as $key => $zone ) {
-				$zone['name'] = $key;
+		if ( isset( $w3tc_c['zones'] ) && is_array( $w3tc_c['zones'] ) ) {
+			foreach ( $w3tc_c['zones'] as $w3tc_key => $zone ) {
+				$zone['name'] = $w3tc_key;
 				$this->add_zone( $zone );
 			}
 		}
@@ -338,12 +366,12 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	 * Adds a callback to a specified group.
 	 *
 	 * @param callable $callback The callback function to add.
-	 * @param string   $group    The group to associate with the callback. Defaults to 'dataset'.
+	 * @param string   $w3tc_group    The group to associate with the callback. Defaults to 'dataset'.
 	 *
 	 * @return void
 	 */
-	public function add_callback( $callback, $group = 'dataset' ) {
-		$this->_callbacks[ $group ][] = $callback;
+	public function add_callback( $callback, $w3tc_group = 'dataset' ) {
+		$this->_callbacks[ $w3tc_group ][] = $callback;
 	}
 
 	/**
@@ -457,8 +485,8 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 					if ( is_array( $zone_servers ) ) {
 						$indexes = array_keys( $zone_servers );
 						shuffle( $indexes );
-						foreach ( $indexes as $index ) {
-							$servers[] = compact( 'zone', 'index' );
+						foreach ( $indexes as $w3tc_index ) {
+							$servers[] = compact( 'zone', 'w3tc_index' );
 						}
 					}
 				}
@@ -476,11 +504,11 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		$dbhname = $this->dbhname;
 
 		foreach ( $servers as $zone_index ) {
-			// $zone, $index.
+			// $zone, $w3tc_index.
 			extract( $zone_index, EXTR_OVERWRITE );
 
 			// $host, $user, $password, $name, $read, $write, $timeout
-			extract( $this->_cluster_servers[ $dataset ][ $operation ][ $zone ][ $index ], EXTR_OVERWRITE );
+			extract( $this->_cluster_servers[ $dataset ][ $operation ][ $zone ][ $w3tc_index ], EXTR_OVERWRITE );
 
 			// Split host:port into $host and $port.
 			list( $host, $port ) = Util_Content::endpoint_to_host_port( $host, 3306 );
@@ -597,8 +625,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			return null;
 		}
 
-		if ( ! mysqli_ping( $dbh ) ) {
-			// disconnect (ping failed).
+		if ( false === mysqli_query( $dbh, 'DO 1' ) ) {
 			$this->_disconnect( $dbhname );
 			return null;
 		}
@@ -660,7 +687,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	public function query( $query ) {
 		// some queries are made before the plugins have been loaded, and thus cannot be filtered with this method.
 		if ( function_exists( 'apply_filters' ) ) {
-			$query = apply_filters( 'query', $query );
+			$query = apply_filters( 'w3tc_dbcluster_query', $query );
 		}
 
 		$this->flush();
@@ -699,7 +726,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		}
 
 		if ( function_exists( 'apply_filters' ) ) {
-			apply_filters( 'after_query', $query );
+			apply_filters( 'w3tc_dbcluster_after_query', $query );
 		}
 
 		// If there is an error then take note of it.
@@ -720,14 +747,14 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			// Return number of rows affected.
 			return $this->wpdb_mixin->rows_affected;
 		} else {
-			$i                          = 0;
+			$w3tc_i                     = 0;
 			$this->wpdb_mixin->col_info = array();
 			$col_info                   = array();
 
 			if ( is_a( $this->wpdb_mixin->result, 'mysqli_result' ) ) {
-				while ( $i < @mysqli_num_fields( $this->wpdb_mixin->result ) ) {
-					$col_info[ $i ] = @mysqli_fetch_field( $this->wpdb_mixin->result );
-					++$i;
+				while ( $w3tc_i < @mysqli_num_fields( $this->wpdb_mixin->result ) ) {
+					$col_info[ $w3tc_i ] = @mysqli_fetch_field( $this->wpdb_mixin->result );
+					++$w3tc_i;
 				}
 			}
 
@@ -754,16 +781,16 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Escapes a string for safe insertion into the database.
 	 *
-	 * @param mixed $data The data to escape.
+	 * @param mixed $w3tc_data The data to escape.
 	 *
 	 * @return string Escaped data.
 	 */
-	public function _escape( $data ) {
+	public function _escape( $w3tc_data ) {
 		if ( ! $this->wpdb_mixin->dbh ) {
 			$this->db_connect( 'SELECT * FROM nothing' );
 		}
 
-		return $this->wpdb_mixin->default__escape( $data );
+		return $this->wpdb_mixin->default__escape( $w3tc_data );
 	}
 
 	/**
@@ -998,13 +1025,13 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Runs callbacks registered for a specific group.
 	 *
-	 * @param string $group The callback group to run.
+	 * @param string $w3tc_group The callback group to run.
 	 * @param mixed  $args  Optional. Arguments to pass to the callbacks.
 	 *
 	 * @return mixed|null The result of the callback, or null if none.
 	 */
-	public function _run_callbacks( $group, $args = null ) {
-		if ( ! isset( $this->_callbacks[ $group ] ) || ! is_array( $this->_callbacks[ $group ] ) ) {
+	public function _run_callbacks( $w3tc_group, $args = null ) {
+		if ( ! isset( $this->_callbacks[ $w3tc_group ] ) || ! is_array( $this->_callbacks[ $w3tc_group ] ) ) {
 			return null;
 		}
 
@@ -1016,10 +1043,10 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			$args = array( $args, $this );
 		}
 
-		foreach ( $this->_callbacks[ $group ] as $func ) {
-			$result = call_user_func_array( $func, $args );
-			if ( isset( $result ) ) {
-				return $result;
+		foreach ( $this->_callbacks[ $w3tc_group ] as $func ) {
+			$w3tc_result = call_user_func_array( $func, $args );
+			if ( isset( $w3tc_result ) ) {
+				return $w3tc_result;
 			}
 		}
 	}
@@ -1052,7 +1079,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		if ( WP_DEBUG ) {
 			mysqli_real_connect( $this->wpdb_mixin->dbh, DB_HOST, DB_USER, DB_PASSWORD, null, $port, $socket, $client_flags );
 		} else {
-			@mysqli_real_connect( $this->wpdb_mixin->dbh, $host, $user, $password, null, $port, $socket, $client_flags );
+			@mysqli_real_connect( $this->wpdb_mixin->dbh, DB_HOST, DB_USER, DB_PASSWORD, null, $port, $socket, $client_flags );
 		}
 
 		if ( ! is_object( $this->wpdb_mixin->dbh ) ) {

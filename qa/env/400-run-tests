@@ -13,6 +13,10 @@ import box
 import pid
 
 
+progress_lock = threading.Lock()
+progress = {'total': 0, 'done': 0, 'start': 0.0}
+
+
 def run():
 	box_instances_per_box = int(sys.argv[1])
 	threads_number = int(sys.argv[2])
@@ -47,7 +51,7 @@ def run():
 	tests.sort()
 
 	# for testing
-	# boxes = ["apache-php70-wp52-single"]
+	# boxes = ["nginx-php74-wp69-single"]
 	# tests = ['browsercache/basic.js']
 
 	# make instance descriptors
@@ -70,6 +74,10 @@ def run():
 			}
 			box_instances.append(o)
 
+	progress['total'] = len(boxes) * len(tests)
+	progress['start'] = time.time()
+	eprint('progress: 0/%d tests total (%d boxes x %d tests)' % \
+		(progress['total'], len(boxes), len(tests)))
 
 	threads = []
 	while len(box_instances) > 0:
@@ -164,7 +172,7 @@ def start_box(instance):
 def run_tests_in_box(instance):
 	eprint(instance['box_instance_name'] + ': run tests in a box')
 
- 	tests = instance['tests']
+	tests = instance['tests']
 	count = 0
 	while len(tests) > 0:
 		if not pid.is_file_exists():
@@ -175,8 +183,12 @@ def run_tests_in_box(instance):
 		count = count + 1
 
 		print(instance['box_instance_name'] + ': ' + test + ', remaining ' + str(len(tests)))
-		shell.ssh(instance['ssh_credentials'], \
-			"cd /root/w3tcqa && /share/scripts/w3test " + test + " --output=/share/reports/")
+		try:
+			shell.ssh(instance['ssh_credentials'], \
+				"cd /root/w3tcqa && /share/scripts/w3test " + test + " --output=/share/reports/")
+		finally:
+			# a popped test is consumed even if the box fails, so count it
+			progress_test_done()
 
 	eprint(instance['box_instance_name'] + ': ' + str(count) + ' tests executed')
 
@@ -196,6 +208,31 @@ def stop_box(instance):
 			'cd -')
 
 	aws.ec2_stop(instance['aws_instance_id'])
+
+
+
+def progress_test_done():
+	with progress_lock:
+		progress['done'] += 1
+		done = progress['done']
+
+	total = progress['total']
+	elapsed = time.time() - progress['start']
+	percent = 100.0 * done / total if total > 0 else 0.0
+
+	line = 'progress: %d/%d (%.1f%%), elapsed %s' % \
+		(done, total, percent, duration_string(elapsed))
+	if 0 < done < total:
+		line += ', estimated remaining %s' % \
+			duration_string(elapsed / done * (total - done))
+
+	eprint(line)
+
+
+
+def duration_string(seconds):
+	seconds = int(seconds)
+	return '%d:%02d:%02d' % (seconds // 3600, (seconds // 60) % 60, seconds % 60)
 
 
 

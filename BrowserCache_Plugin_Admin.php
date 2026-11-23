@@ -31,27 +31,27 @@ class BrowserCache_Plugin_Admin {
 	/**
 	 * Config UI save
 	 *
-	 * @param Config $config     Config.
+	 * @param Config $w3tc_config     Config.
 	 * @param Config $old_config Config.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_ui_save_w3tc_browsercache( $config, $old_config ) {
+	public function w3tc_config_ui_save_w3tc_browsercache( $w3tc_config, $old_config ) {
 		$prefix  = 'browsercache__security__fp__values__keyvalues__';
 		$prefixl = strlen( $prefix );
 
-		$fp_values = array();
+		$w3tc_fp_values = array();
 
-		foreach ( $_REQUEST as $key => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$value = Util_Request::get_string( $key );
-			if ( substr( $key, 0, $prefixl ) === $prefix ) {
-				$k = substr( $key, $prefixl );
-				if ( ! empty( $value ) ) {
-					$fp_values[ $k ] = $value;
+		foreach ( $_REQUEST as $w3tc_key => $w3tc_value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$w3tc_value = Util_Request::get_string( $w3tc_key );
+			if ( substr( $w3tc_key, 0, $prefixl ) === $prefix ) {
+				$k = substr( $w3tc_key, $prefixl );
+				if ( ! empty( $w3tc_value ) ) {
+					$w3tc_fp_values[ $k ] = $w3tc_value;
 				}
 			}
 		}
 
-		$config->set( 'browsercache.security.fp.values', $fp_values );
+		$w3tc_config->set( 'browsercache.security.fp.values', $w3tc_fp_values );
 	}
 }

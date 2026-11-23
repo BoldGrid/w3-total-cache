@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: yuijs2.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -26,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th>&nbsp;</th>
 	<td>
-		<input class="minifier_test button js_enabled {type: 'yuijs', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+		<input class="minifier_test button js_enabled {type: 'yuijs', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_test_minifier' ) ); ?>'}"
 			type="button" value="<?php esc_attr_e( 'Test YUI Compressor', 'w3-total-cache' ); ?>" />
 		<span class="minifier_test_status w3tc-status w3tc-process"></span>
 	</td>

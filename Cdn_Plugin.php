@@ -59,12 +59,23 @@ class Cdn_Plugin {
 	 * @return void
 	 */
 	public function run() {
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		/**
+		 * One-time migration: auto-disable CDN if the configured engine
+		 * is one of the removed integrations (akamai, cotendo, edgecast,
+		 * att) and purge any orphaned per-engine config keys left behind.
+		 * The upstream APIs / services have been shut down; leaving the
+		 * engine selected would silently route through CdnEngine_Base
+		 * (a no-op) without telling the admin. Coerce to empty so the
+		 * next save flow lets the admin pick a working engine.
+		 */
+		$this->migrate_removed_engines();
+
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
-		if ( ! Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
+		if ( ! Cdn_Util::is_engine_mirror( $w3tc_cdn_engine ) ) {
 			add_action( 'w3_cdn_cron_queue_process', array( $this, 'cron_queue_process' ) );
 			add_action( 'w3_cdn_cron_upload', array( $this, 'cron_upload' ) );
 			add_action( 'switch_theme', array( $this, 'switch_theme' ) );
@@ -74,7 +85,7 @@ class Cdn_Plugin {
 
 		add_action( 'send_headers', array( $this, 'send_headers' ) );
 
-		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
+		$default_override = Cdn_Util::get_flush_manually_default_override( $w3tc_cdn_engine );
 		$flush_on_actions = ! $this->_config->get_boolean( 'cdn.flush_manually', $default_override );
 
 		if ( $flush_on_actions ) {
@@ -98,7 +109,7 @@ class Cdn_Plugin {
 		// Start rewrite engine.
 		\add_action( 'init', array( $this, 'maybe_can_cdn' ), 10, 0 );
 
-		if ( is_admin() && Cdn_Util::can_purge( $cdn_engine ) ) {
+		if ( is_admin() && Cdn_Util::can_purge( $w3tc_cdn_engine ) ) {
 			add_filter( 'media_row_actions', array( $this, 'media_row_actions' ), 0, 2 );
 		}
 
@@ -106,18 +117,137 @@ class Cdn_Plugin {
 	}
 
 	/**
+	 * Auto-disable CDN when the configured engine is one whose upstream
+	 * service has been retired and the integration has been removed, and
+	 * purge any orphaned per-engine config keys left in `master.php`.
+	 *
+	 * Sites carrying a saved `cdn.engine` of `akamai`, `cotendo`,
+	 * `edgecast`, or `att` from before this upgrade would otherwise route
+	 * every CDN call through the default CdnEngine_Base (a no-op) and
+	 * surface no indication of what changed. This shim:
+	 *
+	 *  1. Sets `cdn.enabled = false` so cache-flush + upload hooks stop
+	 *     firing, and clears `cdn.engine` to the empty string so the
+	 *     admin lands on the "pick an engine" flow on next CDN-page visit.
+	 *  2. Removes the now-unknown `cdn.{akamai,cotendo,edgecast,att}.*`
+	 *     keys (including their stored credentials) so they are not
+	 *     written back to `master.php` on subsequent saves. The lists are
+	 *     frozen: these engines are gone and will never gain new keys.
+	 *  3. Sets a one-time admin-state flag so `Cdn_AdminNotes` surfaces an
+	 *     explanation of WHY the engine was disabled and what the admin
+	 *     should pick next.
+	 *
+	 * The key purge also runs for installs whose engine was already
+	 * cleared by an earlier release (cotendo / edgecast / att) but which
+	 * still carry the leftover keys; that path cleans up silently without
+	 * re-showing the notice.
+	 *
+	 * Idempotent: once the engine is cleared and the orphaned keys are
+	 * gone, subsequent calls find nothing to change and return without
+	 * rewriting the config.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return void
+	 */
+	private function migrate_removed_engines() {
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$removed_engines = array( 'akamai', 'cotendo', 'edgecast', 'att' );
+		$engine_removed  = in_array( $w3tc_cdn_engine, $removed_engines, true );
+
+		/**
+		 * Per-engine config keys for the removed integrations. Frozen
+		 * lists — the engines no longer exist, so these can never grow.
+		 * unset_key() returns true only when a key was actually present,
+		 * so $purged decides whether the config save runs at all.
+		 */
+		$orphan_keys = array(
+			// Akamai (CCU SOAP v1 — integration retired).
+			'cdn.akamai.username',
+			'cdn.akamai.password',
+			'cdn.akamai.email_notification',
+			'cdn.akamai.action',
+			'cdn.akamai.zone',
+			'cdn.akamai.domain',
+			'cdn.akamai.ssl',
+			// Cotendo (api.cotendo.net gone since 2012).
+			'cdn.cotendo.username',
+			'cdn.cotendo.password',
+			'cdn.cotendo.zones',
+			'cdn.cotendo.domain',
+			'cdn.cotendo.ssl',
+			// EdgeCast (Edgio Chapter 11; network offline Jan 2025).
+			'cdn.edgecast.account',
+			'cdn.edgecast.token',
+			'cdn.edgecast.domain',
+			'cdn.edgecast.ssl',
+			// AT&T (white-label of EdgeCast — died alongside it).
+			'cdn.att.account',
+			'cdn.att.token',
+			'cdn.att.domain',
+			'cdn.att.ssl',
+		);
+
+		$purged = false;
+		foreach ( $orphan_keys as $w3tc_key ) {
+			if ( $this->_config->unset_key( $w3tc_key ) ) {
+				$purged = true;
+			}
+		}
+
+		// No removed engine selected and no leftover keys: fast
+		// idempotent path, no config rewrite.
+		if ( ! $engine_removed && ! $purged ) {
+			return;
+		}
+
+		if ( $engine_removed ) {
+			$this->_config->set( 'cdn.enabled', false );
+			$this->_config->set( 'cdn.engine', '' );
+		}
+
+		try {
+			$this->_config->save();
+		} catch ( \Exception $e ) {
+			/**
+			 * Config save can fail on read-only `master.php` (rare in
+			 * production); the in-memory updates stay in place so the
+			 * rest of the request behaves as if CDN is off, and the
+			 * migration retries on the next request.
+			 */
+			return;
+		}
+
+		if ( $engine_removed ) {
+			$state = Dispatcher::config_state();
+			$state->set( 'cdn.removed_engine_was', $w3tc_cdn_engine );
+			$state->set( 'cdn.show_note_removed_engine', true );
+			$state->save();
+		}
+	}
+
+	/**
 	 * Send CDN Headers.
 	 *
 	 * @return void
 	 *
-	 * @since x.x.x
+	 * @since 2.8.10
 	 */
 	public function send_headers() {
-		$cdn_engine     = $this->_config->get_string( 'cdn.engine' );
-		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$is_cdn_enabled  = $this->_config->get_boolean( 'cdn.enabled' );
 
-		if ( $is_cdn_enabled && $cdn_engine ) {
-			@header( 'X-W3TC-CDN: ' . $cdn_engine );
+		if ( $is_cdn_enabled && $w3tc_cdn_engine ) {
+			/**
+			 * `cdn.engine` is admin-settable. The
+			 * ConfigKeys `enum` clause already constrains it to an
+			 * allowlisted slug at write time, but route it through
+			 * Util_Response::header anyway so any future bypass
+			 * (a filter mutating the value at read time, a
+			 * downstream caller using header() directly with a
+			 * crafted string) still cannot split this response.
+			 */
+			Util_Response::header( 'X-W3TC-CDN', $w3tc_cdn_engine );
 		}
 	}
 
@@ -166,9 +296,9 @@ class Cdn_Plugin {
 
 		$common = Dispatcher::component( 'Cdn_Core' );
 
-		foreach ( $files as $file ) {
-			$local_path  = $common->docroot_filename_to_absolute_path( $file );
-			$remote_path = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $file ) );
+		foreach ( $files as $w3tc_file ) {
+			$local_path  = $common->docroot_filename_to_absolute_path( $w3tc_file );
+			$remote_path = $common->uri_to_cdn_uri( $common->docroot_filename_to_uri( $w3tc_file ) );
 			$upload[]    = $common->build_file_descriptor( $local_path, $remote_path );
 		}
 
@@ -178,15 +308,15 @@ class Cdn_Plugin {
 	/**
 	 * Handles the insertion of new attachments by tracking their action (insert or update).
 	 *
-	 * @param array $data     Attachment data.
+	 * @param array $w3tc_data     Attachment data.
 	 * @param array $postarr  Post data for the attachment.
 	 *
 	 * @return array Modified attachment data.
 	 */
-	public function check_inserting_new_attachment( $data, $postarr ) {
+	public function check_inserting_new_attachment( $w3tc_data, $postarr ) {
 		$this->_attachments_action[ $postarr['file'] ] = empty( $postarr['ID'] ) ? 'insert' : 'update';
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -222,8 +352,8 @@ class Cdn_Plugin {
 
 		$results = array();
 
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-		if ( Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		if ( Cdn_Util::is_engine_mirror( $w3tc_cdn_engine ) ) {
 			if ( ! array_key_exists( $attached_file, $this->_attachments_action ) || 'update' === $this->_attachments_action[ $attached_file ] ) {
 				$common->purge( $files, $results );
 			}
@@ -248,8 +378,8 @@ class Cdn_Plugin {
 
 		$results = array();
 
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-		if ( Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		if ( Cdn_Util::is_engine_mirror( $w3tc_cdn_engine ) ) {
 			$common->purge( $files, $results );
 		} else {
 			$common->delete( $files, true, $results );
@@ -270,8 +400,8 @@ class Cdn_Plugin {
 
 		$results = array();
 
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-		if ( Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		if ( Cdn_Util::is_engine_mirror( $w3tc_cdn_engine ) ) {
 			if ( $this->_config->get_boolean( 'cdn.uploads.enable' ) ) {
 				$common->purge( $files, $results );
 			}
@@ -290,10 +420,10 @@ class Cdn_Plugin {
 	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
-		$c = $this->_config;
+		$w3tc_c = $this->_config;
 
-		if ( $c->get_boolean( 'cdn.enabled' ) && ! Cdn_Util::is_engine_mirror( $c->get_string( 'cdn.engine' ) ) ) {
-			$queue_interval = $c->get_integer( 'cdn.queue.interval' );
+		if ( $w3tc_c->get_boolean( 'cdn.enabled' ) && ! Cdn_Util::is_engine_mirror( $w3tc_c->get_string( 'cdn.engine' ) ) ) {
+			$queue_interval = $w3tc_c->get_integer( 'cdn.queue.interval' );
 
 			$schedules['w3_cdn_cron_queue_process'] = array(
 				'interval' => $queue_interval,
@@ -308,10 +438,10 @@ class Cdn_Plugin {
 			);
 		}
 
-		if ( $c->get_boolean( 'cdn.enabled' ) &&
-			$c->get_boolean( 'cdn.autoupload.enabled' ) &&
-			! Cdn_Util::is_engine_mirror( $c->get_string( 'cdn.engine' ) ) ) {
-			$autoupload_interval = $c->get_integer( 'cdn.autoupload.interval' );
+		if ( $w3tc_c->get_boolean( 'cdn.enabled' ) &&
+			$w3tc_c->get_boolean( 'cdn.autoupload.enabled' ) &&
+			! Cdn_Util::is_engine_mirror( $w3tc_c->get_string( 'cdn.engine' ) ) ) {
+			$autoupload_interval = $w3tc_c->get_integer( 'cdn.autoupload.interval' );
 
 			$schedules['w3_cdn_cron_upload'] = array(
 				'interval' => $autoupload_interval,
@@ -344,12 +474,12 @@ class Cdn_Plugin {
 	/**
 	 * Handles the feedback message for database upgrades.
 	 *
-	 * @param string $message The feedback message to handle.
+	 * @param string $w3tc_message The feedback message to handle.
 	 *
 	 * @return void
 	 */
-	public function update_feedback( $message ) {
-		if ( 'Upgrading database' === $message ) {
+	public function update_feedback( $w3tc_message ) {
+		if ( 'Upgrading database' === $w3tc_message ) {
 			$state = Dispatcher::config_state();
 			$state->set( 'cdn.show_note_wp_upgraded', true );
 			$state->save();
@@ -472,12 +602,14 @@ class Cdn_Plugin {
 
 			$urls = $minify->get_urls();
 
-			// In WPMU + network admin (this code used for minify manual only)
-			// common minify files are stored under context of main blog (i.e. 1)
-			// but have urls of 0 blog, so download has to be used.
+			/**
+			 * In WPMU + network admin (this code used for minify manual only)
+			 * common minify files are stored under context of main blog (i.e. 1)
+			 * but have urls of 0 blog, so download has to be used.
+			 */
 			if ( 'file' === $this->_config->get_string( 'minify.engine' ) && ! ( Util_Environment::is_wpmu() && is_network_admin() ) ) {
-				foreach ( $urls as $url ) {
-					Util_Http::get( $url );
+				foreach ( $urls as $w3tc_url ) {
+					Util_Http::get( $w3tc_url );
 				}
 
 				$files = Cdn_Util::search_files(
@@ -486,21 +618,21 @@ class Cdn_Plugin {
 					'*.css;*.js'
 				);
 			} else {
-				foreach ( $urls as $url ) {
-					$file = Util_Environment::normalize_file_minify( $url );
+				foreach ( $urls as $w3tc_url ) {
+					$w3tc_file = Util_Environment::normalize_file_minify( $w3tc_url );
 
-					if ( ! Util_Environment::is_url( $file ) ) {
-						$file = $document_root . '/' . $file;
-						$file = ltrim( str_replace( $minify_root, '', $file ), '/' );
+					if ( ! Util_Environment::is_url( $w3tc_file ) ) {
+						$w3tc_file = $document_root . '/' . $w3tc_file;
+						$w3tc_file = ltrim( str_replace( $minify_root, '', $w3tc_file ), '/' );
 
-						$dir = dirname( $file );
+						$dir = dirname( $w3tc_file );
 
 						if ( $dir ) {
 							Util_File::mkdir( $dir, 0777, $minify_root );
 						}
 
-						if ( Util_Http::download( $url, $minify_root . '/' . $file ) !== false ) {
-							$files[] = $minify_path . '/' . $file;
+						if ( Util_Http::download( $w3tc_url, $minify_root . '/' . $w3tc_file ) !== false ) {
+							$files[] = $minify_path . '/' . $w3tc_file;
 						}
 					}
 				}
@@ -767,8 +899,8 @@ class Cdn_Plugin {
 		$response['link'] = $this->wp_prepare_attachment_for_js_url( $response['link'] );
 
 		if ( ! empty( $response['sizes'] ) ) {
-			foreach ( $response['sizes'] as $size => &$data ) {
-				$data['url'] = $this->wp_prepare_attachment_for_js_url( $data['url'] );
+			foreach ( $response['sizes'] as $size => &$w3tc_data ) {
+				$w3tc_data['url'] = $this->wp_prepare_attachment_for_js_url( $w3tc_data['url'] );
 			}
 		}
 
@@ -778,30 +910,30 @@ class Cdn_Plugin {
 	/**
 	 * Prepares a URL for use in JavaScript, modifying it if necessary.
 	 *
-	 * @param string $url The original URL.
+	 * @param string $w3tc_url The original URL.
 	 *
 	 * @return string The potentially modified URL.
 	 */
-	private function wp_prepare_attachment_for_js_url( $url ) {
-		$url = trim( $url );
-		if ( ! empty( $url ) ) {
-			$parsed = wp_parse_url( $url );
+	private function wp_prepare_attachment_for_js_url( $w3tc_url ) {
+		$w3tc_url = trim( $w3tc_url );
+		if ( ! empty( $w3tc_url ) ) {
+			$parsed = wp_parse_url( $w3tc_url );
 			$uri    = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
 				( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 
 			$wp_upload_dir   = wp_upload_dir();
 			$upload_base_url = $wp_upload_dir['baseurl'];
 
-			if ( substr( $url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
+			if ( substr( $w3tc_url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
 				$common  = Dispatcher::component( 'Cdn_Core' );
-				$new_url = $common->url_to_cdn_url( $url, $uri );
+				$new_url = $common->url_to_cdn_url( $w3tc_url, $uri );
 				if ( ! is_null( $new_url ) ) {
-					$url = $new_url;
+					$w3tc_url = $new_url;
 				}
 			}
 		}
 
-		return $url;
+		return $w3tc_url;
 	}
 
 	/**
@@ -809,34 +941,34 @@ class Cdn_Plugin {
 	 *
 	 * Modifies the result link to point to the CDN URL for HTTP2 preload.
 	 *
-	 * @param array $data The data containing the result link.
+	 * @param array $w3tc_data The data containing the result link.
 	 *
 	 * @return array The modified data with the CDN URL.
 	 */
-	public function w3tc_minify_http2_preload_url( $data ) {
-		$url = $data['result_link'];
+	public function w3tc_minify_http2_preload_url( $w3tc_data ) {
+		$w3tc_url = $w3tc_data['result_link'];
 
-		$url = trim( $url );
-		if ( empty( $url ) ) {
-			return $data;
+		$w3tc_url = trim( $w3tc_url );
+		if ( empty( $w3tc_url ) ) {
+			return $w3tc_data;
 		}
 
-		$parsed = wp_parse_url( $url );
+		$parsed = wp_parse_url( $w3tc_url );
 		$uri    = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
 			( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 
 		$common  = Dispatcher::component( 'Cdn_Core' );
-		$new_url = $common->url_to_cdn_url( $url, $uri );
+		$new_url = $common->url_to_cdn_url( $w3tc_url, $uri );
 		if ( is_null( $new_url ) ) {
-			return $data;
+			return $w3tc_data;
 		}
 
-		$data['result_link'] = $new_url;
+		$w3tc_data['result_link'] = $new_url;
 
 		// url_to_cdn_url processed by browsercache internally.
-		$data['browsercache_processed'] = '*';
+		$w3tc_data['browsercache_processed'] = '*';
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -849,33 +981,33 @@ class Cdn_Plugin {
 	 * @return array The modified admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+		$w3tc_cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$current_page    = Util_Request::get_string( 'page', 'w3tc_dashboard' );
 
-		if ( Cdn_Util::can_purge_all( $cdn_engine ) ) {
+		if ( Cdn_Util::can_purge_all( $w3tc_cdn_engine ) ) {
 			$menu_items['20710.cdn'] = array(
 				'id'     => 'w3tc_cdn_flush_all',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'CDN Cache', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_cdn'
 					),
-					'w3tc'
+					'w3tc_flush_cdn'
 				),
 			);
 		}
 
-		if ( Cdn_Util::can_purge( $cdn_engine ) ) {
+		if ( Cdn_Util::can_purge( $w3tc_cdn_engine ) ) {
 			$menu_items['20790.cdn'] = array(
 				'id'     => 'w3tc_cdn_flush',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'CDN: Manual Purge', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_cdn_purge'
 					),
-					'w3tc'
+					'w3tc_cdn_purge'
 				),
 				'meta'   => array( 'onclick' => 'w3tc_popupadmin_bar(this.href); return false' ),
 			);
@@ -1057,15 +1189,15 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * @return string The modified `srcset` attribute value.
 	 */
 	public function _link_replace_callback( $matches ) {
-		list( $matched_url, $quote, $url, , , , $path ) = $matches;
+		list( $matched_url, $quote, $w3tc_url, , , , $path ) = $matches;
 
-		$path = ltrim( $path, '/' );
-		$r    = $this->_link_replace_callback_checks( $matched_url, $quote, $url, $path );
-		if ( is_null( $r ) ) {
-			$r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path );
+		$path   = ltrim( $path, '/' );
+		$w3tc_r = $this->_link_replace_callback_checks( $matched_url, $quote, $w3tc_url, $path );
+		if ( is_null( $w3tc_r ) ) {
+			$w3tc_r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $w3tc_url, $path );
 		}
 
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**
@@ -1082,7 +1214,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			return $matched_url;
 		}
 
-		$index = '%srcset-' . count( $this->_placeholders ) . '%';
+		$w3tc_index = '%srcset-' . count( $this->_placeholders ) . '%';
 
 		$srcset_urls     = explode( ',', $srcset );
 		$new_srcset_urls = array();
@@ -1111,9 +1243,9 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			}
 		}
 
-		$this->_placeholders[ $index ] = implode( ',', $new_srcset_urls );
+		$this->_placeholders[ $w3tc_index ] = implode( ',', $new_srcset_urls );
 
-		return 'srcset="' . $index . '"';
+		return 'srcset="' . $w3tc_index . '"';
 	}
 
 	/**
@@ -1302,9 +1434,9 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 						} elseif ( '/' === substr( $mask, 0, 1 ) ) { // uri.
 							$custom_regexps_uris[] = Cdn_Util::get_regexp_by_mask( $mask );
 						} else {
-							$file = Util_Environment::normalize_path( $mask );   // \ -> backspaces.
-							$file = str_replace( Util_Environment::site_root(), '', $file );
-							$file = ltrim( $file, '/' );
+							$w3tc_file = Util_Environment::normalize_path( $mask );   // \ -> backspaces.
+							$w3tc_file = str_replace( Util_Environment::site_root(), '', $w3tc_file );
+							$w3tc_file = ltrim( $w3tc_file, '/' );
 
 							$custom_regexps_docroot_related[] = Cdn_Util::get_regexp_by_mask( $mask );
 						}
@@ -1348,12 +1480,12 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @param string $matched_url The matched URL string.
 	 * @param string $quote       The quote character around the matched URL.
-	 * @param string $url         The original URL to be replaced.
+	 * @param string $w3tc_url         The original URL to be replaced.
 	 * @param string $path        The path portion of the matched URL.
 	 *
 	 * @return string|null Returns the replaced URL if accepted; otherwise, the original match.
 	 */
-	public function _link_replace_callback_checks( $matched_url, $quote, $url, $path ) {
+	public function _link_replace_callback_checks( $matched_url, $quote, $w3tc_url, $path ) {
 		global $wpdb;
 
 		static $queue = null, $reject_files = null;
@@ -1361,8 +1493,8 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 		/**
 		 * Check if URL was already replaced
 		 */
-		if ( isset( $this->_replaced_urls[ $url ] ) ) {
-			return $quote . $this->_replaced_urls[ $url ];
+		if ( isset( $this->_replaced_urls[ $w3tc_url ] ) ) {
+			return $quote . $this->_replaced_urls[ $w3tc_url ];
 		}
 
 		/**
@@ -1418,16 +1550,16 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @param string $matched_url The matched URL string.
 	 * @param string $quote       The quote character around the matched URL.
-	 * @param string $url         The original URL to be replaced.
+	 * @param string $w3tc_url         The original URL to be replaced.
 	 * @param string $path        The path portion of the matched URL.
 	 *
 	 * @return string The replaced URL if a valid replacement is found; otherwise, the original match.
 	 */
-	public function _link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path ) {
+	public function _link_replace_callback_ask_cdn( $matched_url, $quote, $w3tc_url, $path ) {
 		$common  = Dispatcher::component( 'Cdn_Core' );
-		$new_url = $common->url_to_cdn_url( $url, $path );
+		$new_url = $common->url_to_cdn_url( $w3tc_url, $path );
 		if ( ! is_null( $new_url ) ) {
-			$this->_replaced_urls[ $url ] = $new_url;
+			$this->_replaced_urls[ $w3tc_url ] = $new_url;
 			return $quote . $new_url;
 		}
 
@@ -1448,14 +1580,14 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	public function _minify_auto_pushcdn_link_replace_callback( $matches ) {
 		static $dispatcher = null;
 
-		list( $matched_url, $quote, $url, , , , $path ) = $matches;
+		list( $matched_url, $quote, $w3tc_url, , , , $path ) = $matches;
 
-		$path = ltrim( $path, '/' );
-		$r    = $this->_link_replace_callback_checks( $matched_url, $quote, $url, $path );
+		$path   = ltrim( $path, '/' );
+		$w3tc_r = $this->_link_replace_callback_checks( $matched_url, $quote, $w3tc_url, $path );
 
 		// Check if we can replace that URL (for auto mode it should be uploaded).
-		if ( ! Dispatcher::is_url_cdn_uploaded( $url ) ) {
-			Dispatcher::component( 'Cdn_Core' )->queue_upload_url( $url );
+		if ( ! Dispatcher::is_url_cdn_uploaded( $w3tc_url ) ) {
+			Dispatcher::component( 'Cdn_Core' )->queue_upload_url( $w3tc_url );
 			if ( ! self::$_upload_scheduled ) {
 				wp_schedule_single_event( time(), 'w3_cdn_cron_queue_process' );
 				add_action( 'shutdown', 'wp_cron' );
@@ -1466,10 +1598,10 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			return $matched_url;
 		}
 
-		if ( is_null( $r ) ) {
-			$r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path );
+		if ( is_null( $w3tc_r ) ) {
+			$w3tc_r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $w3tc_url, $path );
 		}
-		return $r;
+		return $w3tc_r;
 	}
 
 	/**

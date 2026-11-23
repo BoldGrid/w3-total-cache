@@ -20,7 +20,7 @@ class Cdn_Environment_LiteSpeed {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor for the Cdn_Environment_LiteSpeed class.
@@ -28,12 +28,12 @@ class Cdn_Environment_LiteSpeed {
 	 * This constructor initializes the object with the provided configuration.
 	 * It is typically called when an instance of the class is created to set up the configuration.
 	 *
-	 * @param object $config The configuration object that contains necessary settings.
+	 * @param object $w3tc_config The configuration object that contains necessary settings.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Cdn_Environment_LiteSpeed {
 			'add_header' => array(),
 		);
 
-		if ( $this->c->get_boolean( 'cdn.cors_header' ) ) {
+		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
 			$section_rules['add_header'][] = 'set Access-Control-Allow-Origin "*"';
 		}
 
@@ -65,16 +65,17 @@ class Cdn_Environment_LiteSpeed {
 			return '';
 		}
 
-		$section_rules = apply_filters( 'w3tc_cdn_rules_section', $section_rules, $this->c );
+		$section_rules = apply_filters( 'w3tc_cdn_rules_section', $section_rules, $this->w3tc_c );
 
 		$context_rules[] = '    extraHeaders <<<END_extraHeaders';
-		foreach ( $section_rules['add_header'] as $line ) {
-			$context_rules[] = '        ' . $line;
+		foreach ( $section_rules['add_header'] as $w3tc_line ) {
+			$context_rules[] = '        ' . $w3tc_line;
 		}
 		$context_rules[] = '    END_extraHeaders';
 
 		$rules   = array();
-		$rules[] = 'context exp:^.*(ttf|ttc|otf|eot|woff|woff2|font.css)$ {';
+		$group   = Cdn_Util::cors_font_regex_group();
+		$rules[] = 'context exp:(?i)^.*\\.(' . $group . ')$ {';
 		$rules[] = '    location $DOC_ROOT/$0';
 		$rules[] = '    allowBrowse 1';
 		$rules[] = implode( "\n", $context_rules );
@@ -94,7 +95,7 @@ class Cdn_Environment_LiteSpeed {
 	 * @return string|null The canonical header string or null if not generated.
 	 */
 	public function generate_canonical( $cdnftp = false ) {
-		if ( ! $this->c->get_boolean( 'cdn.canonical_header' ) ) {
+		if ( ! $this->w3tc_c->get_boolean( 'cdn.canonical_header' ) ) {
 			return null;
 		}
 
@@ -129,12 +130,10 @@ class Cdn_Environment_LiteSpeed {
 	 */
 	public function w3tc_browsercache_rules_section_extensions( $extensions, $section ) {
 		// CDN adds own rules for those extensions.
-		if ( $this->c->get_boolean( 'cdn.cors_header' ) ) {
-			unset( $extensions['ttf|ttc'] );
-			unset( $extensions['otf'] );
-			unset( $extensions['eot'] );
-			unset( $extensions['woff'] );
-			unset( $extensions['woff2'] );
+		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
+			foreach ( Cdn_Util::cors_font_browsercache_extension_keys() as $key ) {
+				unset( $extensions[ $key ] );
+			}
 		}
 
 		return $extensions;

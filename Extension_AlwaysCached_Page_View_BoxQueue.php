@@ -11,17 +11,18 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c                = Dispatcher::config();
-$pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' );
+$w3tc_c                = Dispatcher::config();
+$w3tc_pgcache_disabled = ! $w3tc_c->get_boolean( 'pgcache.enabled' );
 
-$count_pending   = Extension_AlwaysCached_Queue::row_count_pending();
-$count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
+$w3tc_count_pending   = Extension_AlwaysCached_Queue::row_count_pending();
+$w3tc_count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
 
-$time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
+$w3tc_time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'queue' ); ?>
@@ -45,8 +46,8 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				</label>
 			</th>
 			<td>
-				<?php echo esc_html( $count_pending ); ?>
-				<?php if ( $count_pending > 0 ) : ?>
+				<?php echo esc_html( $w3tc_count_pending ); ?>
+				<?php if ( $w3tc_count_pending > 0 ) : ?>
 					&nbsp;
 					<a href="#" class="w3tc-alwayscached-queue" data-mode="pending">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
@@ -62,8 +63,8 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				</label>
 			</th>
 			<td>
-				<?php echo esc_html( $count_postponed ); ?>
-				<?php if ( $count_postponed > 0 ) : ?>
+				<?php echo esc_html( $w3tc_count_postponed ); ?>
+				<?php if ( $w3tc_count_postponed > 0 ) : ?>
 					&nbsp;
 					<a href="#" class="w3tc-alwayscached-queue" data-mode="postponed">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
@@ -80,7 +81,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 			</th>
 			<td>
 				<?php
-				if ( empty( $time_lastrun ) ) {
+				if ( empty( $w3tc_time_lastrun ) ) {
 					esc_html_e( 'n/a', 'w3-total-cache' );
 				} else {
 					echo wp_kses(
@@ -90,8 +91,8 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 								'%1$s%2$s ago%3$s',
 								'w3-total-cache'
 							),
-							'<span title="' . esc_html( $time_lastrun ) . '">',
-							esc_html( human_time_diff( strtotime( $time_lastrun ), time() ) ),
+							'<span title="' . esc_html( $w3tc_time_lastrun ) . '">',
+							esc_html( human_time_diff( strtotime( $w3tc_time_lastrun ), time() ) ),
 							'</span>'
 						),
 						array(
@@ -108,7 +109,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 			<th></th>
 			<td>
 				<input id="w3tc-alwayscached-process" type="submit" name="w3tc_alwayscached_process"
-					value="<?php esc_html_e( 'Regenerate All', 'w3-total-cache' ); ?>" class="button" <?php echo $pgcache_disabled ? 'disabled="disabled"' : ''; ?>/>
+					value="<?php esc_html_e( 'Regenerate All', 'w3-total-cache' ); ?>" class="button" <?php echo $w3tc_pgcache_disabled ? 'disabled="disabled"' : ''; ?><?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_alwayscached_process' ), array( 'data-w3tc-nonce' => array() ) ); ?>/>
 				<p>
 					<?php esc_html_e( 'This button will manually trigger the queue processor to begin regenerating the cache entry for each item in the queue, thereby publishing all pending changes.', 'w3-total-cache' ); ?>
 				</p>
@@ -118,7 +119,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 			<th></th>
 			<td>
 				<input id="w3tc-alwayscached-empty" type="submit" name="w3tc_alwayscached_empty"
-					value="<?php esc_html_e( 'Clear Queue', 'w3-total-cache' ); ?>" class="button" <?php echo $pgcache_disabled ? 'disabled="disabled"' : ''; ?>/>
+					value="<?php esc_html_e( 'Clear Queue', 'w3-total-cache' ); ?>" class="button" <?php echo $w3tc_pgcache_disabled ? 'disabled="disabled"' : ''; ?><?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_alwayscached_empty' ), array( 'data-w3tc-nonce' => array() ) ); ?>/>
 				<p>
 					<?php esc_html_e( 'This button removes all items in the queue. The pending changes for each removed item will not be published until the corresponding existing cache entry expires. Removed items can be re-added to the queue via further modifications to the item or a flush all caches operation with the "Queue Purge All Requests" option enabled.', 'w3-total-cache' ); ?>
 				</p>

@@ -17,11 +17,11 @@ class Cdnfsd_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-		$c             = Dispatcher::config();
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+		$w3tc_c             = Dispatcher::config();
+		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 
 		// Attach to actions without firing class loading at all without need.
-		switch ( $cdnfsd_engine ) {
+		switch ( $w3tc_cdnfsd_engine ) {
 			case 'cloudfront':
 				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_CloudFront_Popup', 'w3tc_ajax' ) );
 				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_CloudFront_Page', 'w3tc_settings_box_cdnfsd' ) );
@@ -47,10 +47,10 @@ class Cdnfsd_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_cdn_footer() {
-		$config               = Dispatcher::config();
-		$cdnfsd_enabled       = $config->get_boolean( 'cdnfsd.enabled' );
-		$cdnfsd_engine        = $config->get_string( 'cdnfsd.engine' );
-		$is_pro               = Util_Environment::is_w3tc_pro( $config );
+		$w3tc_config          = Dispatcher::config();
+		$w3tc_cdnfsd_enabled  = $w3tc_config->get_boolean( 'cdnfsd.enabled' );
+		$w3tc_cdnfsd_engine   = $w3tc_config->get_string( 'cdnfsd.engine' );
+		$w3tc_is_pro          = Util_Environment::is_w3tc_pro( $w3tc_config );
 		$cdnfsd_engine_values = array();
 		$tag                  = '';
 
@@ -75,7 +75,7 @@ class Cdnfsd_Plugin_Admin {
 			'label' => __( 'TransparentCDN', 'w3-total-cache' ),
 		);
 
-		if ( 'cloudfront' === $cdnfsd_engine ) {
+		if ( 'cloudfront' === $w3tc_cdnfsd_engine ) {
 			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/cloudfront';
 		}
 

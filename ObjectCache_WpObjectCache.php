@@ -84,8 +84,8 @@ class ObjectCache_WpObjectCache {
 	public function register_cache( $cache, $use_for_object_groups ) {
 		$this->_caches[] = $cache;
 
-		foreach ( $use_for_object_groups as $group ) {
-			$this->_cache_by_group[ $group ] = $cache;
+		foreach ( $use_for_object_groups as $w3tc_group ) {
+			$this->_cache_by_group[ $w3tc_group ] = $cache;
 		}
 	}
 
@@ -93,91 +93,91 @@ class ObjectCache_WpObjectCache {
 	 * Retrieves a cached value by its ID from the specified group.
 	 *
 	 * @param string $id    The cache key.
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 * @param bool   $force Whether to force a cache retrieval, bypassing the cache expiration.
 	 * @param mixed  $found A reference to the variable that will store whether the value was found.
 	 *
 	 * @return mixed The cached value if found, otherwise false.
 	 */
-	public function get( $id, $group = 'default', $force = false, &$found = null ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->get( $id, $group, $force, $found );
+	public function get( $id, $w3tc_group = 'default', $force = false, &$found = null ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->get( $id, $w3tc_group, $force, $found );
 	}
 
 	/**
 	 * Retrieves multiple cached values by their IDs from the specified group.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
 	 * @param array  $ids    The cache keys.
-	 * @param string $group  The cache group.
+	 * @param string $w3tc_group  The cache group.
 	 * @param bool   $force  Whether to force a cache retrieval, bypassing the cache expiration.
 	 *
 	 * @return array An array of cached values, indexed by their respective IDs.
 	 */
-	public function get_multiple( $ids, $group = 'default', $force = false ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->get_multiple( $ids, $group, $force );
+	public function get_multiple( $ids, $w3tc_group = 'default', $force = false ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->get_multiple( $ids, $w3tc_group, $force );
 	}
 
 	/**
 	 * Sets a cache value for a given ID and group.
 	 *
 	 * @param string $id     The cache key.
-	 * @param mixed  $data   The data to store in the cache.
-	 * @param string $group  The cache group.
+	 * @param mixed  $w3tc_data   The data to store in the cache.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The cache expiration time in seconds.
 	 *
 	 * @return bool True if the data was successfully cached, otherwise false.
 	 */
-	public function set( $id, $data, $group = 'default', $expire = 0 ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->set( $id, $data, $group, $expire );
+	public function set( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->set( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Sets multiple cache values for their respective IDs and groups.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
-	 * @param array  $data   An array of data indexed by cache key.
-	 * @param string $group  The cache group.
+	 * @param array  $w3tc_data   An array of data indexed by cache key.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The cache expiration time in seconds.
 	 *
 	 * @return bool True if the data was successfully cached, otherwise false.
 	 */
-	public function set_multiple( $data, $group = 'default', $expire = 0 ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->set_multiple( $data, $group, $expire );
+	public function set_multiple( $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->set_multiple( $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Deletes a cached value by its ID from the specified group.
 	 *
 	 * @param string $id    The cache key.
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 * @param bool   $force Whether to forcefully delete the cache.
 	 *
 	 * @return bool True if the cache was successfully deleted, otherwise false.
 	 */
-	public function delete( $id, $group = 'default', $force = false ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->delete( $id, $group, $force );
+	public function delete( $id, $w3tc_group = 'default', $force = false ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->delete( $id, $w3tc_group, $force );
 	}
 
 	/**
 	 * Deletes multiple cached values by their IDs from the specified group.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
-	 * @param array  $keys  The cache keys.
-	 * @param string $group The cache group.
+	 * @param array  $w3tc_keys  The cache keys.
+	 * @param string $w3tc_group The cache group.
 	 *
 	 * @return bool True if the caches were successfully deleted, otherwise false.
 	 */
-	public function delete_multiple( $keys, $group = 'default' ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->delete_multiple( $keys, $group );
+	public function delete_multiple( $w3tc_keys, $w3tc_group = 'default' ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->delete_multiple( $w3tc_keys, $w3tc_group );
 	}
 
 
@@ -185,46 +185,46 @@ class ObjectCache_WpObjectCache {
 	 * Adds a new value to the cache if it does not already exist for the given ID and group.
 	 *
 	 * @param string $id     The cache key.
-	 * @param mixed  $data   The data to store in the cache.
-	 * @param string $group  The cache group.
+	 * @param mixed  $w3tc_data   The data to store in the cache.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The cache expiration time in seconds.
 	 *
 	 * @return bool True if the data was added, otherwise false.
 	 */
-	public function add( $id, $data, $group = 'default', $expire = 0 ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->add( $id, $data, $group, $expire );
+	public function add( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->add( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Adds multiple new values to the cache, ensuring they do not overwrite existing data.
 	 *
-	 * @since 2.2.8
+	 * @since 2.4.0
 	 *
-	 * @param array  $data   An array of data indexed by cache key.
-	 * @param string $group  The cache group.
+	 * @param array  $w3tc_data   An array of data indexed by cache key.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The cache expiration time in seconds.
 	 *
 	 * @return bool True if the data was successfully added, otherwise false.
 	 */
-	public function add_multiple( array $data, $group = '', $expire = 0 ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->add_multiple( $data, $group, $expire );
+	public function add_multiple( array $w3tc_data, $w3tc_group = '', $expire = 0 ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->add_multiple( $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
 	 * Replaces a cache value for the given ID and group.
 	 *
 	 * @param string $id     The cache key.
-	 * @param mixed  $data   The data to store in the cache.
-	 * @param string $group  The cache group.
+	 * @param mixed  $w3tc_data   The data to store in the cache.
+	 * @param string $w3tc_group  The cache group.
 	 * @param int    $expire The cache expiration time in seconds.
 	 *
 	 * @return bool True if the data was successfully replaced, otherwise false.
 	 */
-	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->replace( $id, $data, $group, $expire );
+	public function replace( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->replace( $id, $w3tc_data, $w3tc_group, $expire );
 	}
 
 	/**
@@ -233,13 +233,13 @@ class ObjectCache_WpObjectCache {
 	 * @return bool True if the cache was successfully reset, otherwise false.
 	 */
 	public function reset() {
-		$result = true;
+		$w3tc_result = true;
 
-		foreach ( $this->_caches as $engine ) {
-			$result = $result && $engine->reset();
+		foreach ( $this->_caches as $w3tc_engine ) {
+			$w3tc_result = $w3tc_result && $w3tc_engine->reset();
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -248,30 +248,30 @@ class ObjectCache_WpObjectCache {
 	 * @return bool True if the cache was successfully flushed, otherwise false.
 	 */
 	public function flush() {
-		$result = true;
+		$w3tc_result = true;
 
-		foreach ( $this->_caches as $engine ) {
-			$result = $result && $engine->flush();
+		foreach ( $this->_caches as $w3tc_engine ) {
+			$w3tc_result = $w3tc_result && $w3tc_engine->flush();
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
 	 * Flushes the cached data for a specific group.
 	 *
-	 * @param string $group  The cache group.
+	 * @param string $w3tc_group  The cache group.
 	 *
 	 * @return bool True if the cache for the group was successfully flushed, otherwise false.
 	 */
-	public function flush_group( $group ) {
-		$result = true;
+	public function flush_group( $w3tc_group ) {
+		$w3tc_result = true;
 
-		foreach ( $this->_caches as $engine ) {
-			$result = $result && $engine->flush_group( $group );
+		foreach ( $this->_caches as $w3tc_engine ) {
+			$w3tc_result = $w3tc_result && $w3tc_engine->flush_group( $w3tc_group );
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -280,13 +280,13 @@ class ObjectCache_WpObjectCache {
 	 * @return bool True if the runtime cache was successfully flushed, otherwise false.
 	 */
 	public function flush_runtime() {
-		$result = true;
+		$w3tc_result = true;
 
-		foreach ( $this->_caches as $engine ) {
-			$result = $result && $engine->flush_runtime();
+		foreach ( $this->_caches as $w3tc_engine ) {
+			$w3tc_result = $w3tc_result && $w3tc_engine->flush_runtime();
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -312,9 +312,9 @@ class ObjectCache_WpObjectCache {
 			$groups = array( $groups );
 		}
 
-		foreach ( $groups as $group ) {
-			$cache = $this->_get_engine( $group );
-			$cache->add_global_groups( array( $group ) );
+		foreach ( $groups as $w3tc_group ) {
+			$cache = $this->_get_engine( $w3tc_group );
+			$cache->add_global_groups( array( $w3tc_group ) );
 		}
 	}
 
@@ -330,22 +330,22 @@ class ObjectCache_WpObjectCache {
 			$groups = array( $groups );
 		}
 
-		foreach ( $groups as $group ) {
-			$cache = $this->_get_engine( $group );
-			$cache->add_nonpersistent_groups( array( $group ) );
+		foreach ( $groups as $w3tc_group ) {
+			$cache = $this->_get_engine( $w3tc_group );
+			$cache->add_nonpersistent_groups( array( $w3tc_group ) );
 		}
 	}
 
 	/**
 	 * Retrieves the appropriate cache engine based on the group.
 	 *
-	 * @param string $group The cache group.
+	 * @param string $w3tc_group The cache group.
 	 *
 	 * @return object The cache engine for the specified group.
 	 */
-	private function _get_engine( $group = '' ) {
-		if ( isset( $this->_cache_by_group[ $group ] ) ) {
-			return $this->_cache_by_group[ $group ];
+	private function _get_engine( $w3tc_group = '' ) {
+		if ( isset( $this->_cache_by_group[ $w3tc_group ] ) ) {
+			return $this->_cache_by_group[ $w3tc_group ];
 		}
 
 		return $this->_default_cache;
@@ -355,28 +355,28 @@ class ObjectCache_WpObjectCache {
 	 * Decreases the cached value of a given ID by a specified offset.
 	 *
 	 * @param string $id     The cache key.
-	 * @param int    $offset The value to decrease by.
-	 * @param string $group  The cache group.
+	 * @param int    $w3tc_offset The value to decrease by.
+	 * @param string $w3tc_group  The cache group.
 	 *
 	 * @return mixed The updated value if successful, otherwise false.
 	 */
-	public function decr( $id, $offset = 1, $group = 'default' ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->decr( $id, $offset, $group );
+	public function decr( $id, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->decr( $id, $w3tc_offset, $w3tc_group );
 	}
 
 	/**
 	 * Increases the cached value of a given ID by a specified offset.
 	 *
 	 * @param string $id     The cache key.
-	 * @param int    $offset The value to increase by.
-	 * @param string $group  The cache group.
+	 * @param int    $w3tc_offset The value to increase by.
+	 * @param string $w3tc_group  The cache group.
 	 *
 	 * @return mixed The updated value if successful, otherwise false.
 	 */
-	public function incr( $id, $offset = 1, $group = 'default' ) {
-		$cache = $this->_get_engine( $group );
-		return $cache->incr( $id, $offset, $group );
+	public function incr( $id, $w3tc_offset = 1, $w3tc_group = 'default' ) {
+		$cache = $this->_get_engine( $w3tc_group );
+		return $cache->incr( $id, $w3tc_offset, $w3tc_group );
 	}
 
 	/**

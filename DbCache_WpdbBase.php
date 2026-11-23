@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 global $wp_version;
 
 if ( version_compare( $wp_version, '6.1-beta1', '>=' ) ) {

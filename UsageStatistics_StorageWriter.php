@@ -82,11 +82,11 @@ class UsageStatistics_StorageWriter {
 	public function __construct() {
 		$this->cache_storage = Dispatcher::get_usage_statistics_cache();
 
-		$c                           = Dispatcher::config();
-		$this->slot_interval_seconds = $c->get_integer( 'stats.slot_seconds' );
+		$w3tc_c                      = Dispatcher::config();
+		$this->slot_interval_seconds = $w3tc_c->get_integer( 'stats.slot_seconds' );
 
-		$this->keep_history_interval_seconds = $c->get_integer( 'stats.slots_count' ) * $this->slot_interval_seconds;
-		$this->slots_count                   = $c->get_integer( 'stats.slots_count' );
+		$this->keep_history_interval_seconds = $w3tc_c->get_integer( 'stats.slots_count' ) * $this->slot_interval_seconds;
+		$this->slots_count                   = $w3tc_c->get_integer( 'stats.slots_count' );
 	}
 
 	/**
@@ -110,14 +110,14 @@ class UsageStatistics_StorageWriter {
 	 *
 	 * This method will increment a metric counter by the given value, if the cache storage is not null.
 	 *
-	 * @param string $metric The metric name to increment.
-	 * @param int    $value  The value to add to the metric counter.
+	 * @param string $w3tc_metric The metric name to increment.
+	 * @param int    $w3tc_value  The value to add to the metric counter.
 	 *
 	 * @return void
 	 */
-	public function counter_add( $metric, $value ) {
+	public function counter_add( $w3tc_metric, $w3tc_value ) {
 		if ( ! is_null( $this->cache_storage ) ) {
-			$this->cache_storage->counter_add( $metric, $value );
+			$this->cache_storage->counter_add( $w3tc_metric, $w3tc_value );
 		}
 	}
 
@@ -158,8 +158,8 @@ class UsageStatistics_StorageWriter {
 	 * @return void
 	 */
 	public function maybe_flush_hotspot_data() {
-		$result = $this->begin_flush_hotspot_data();
-		if ( 'not_needed' === $result ) {
+		$w3tc_result = $this->begin_flush_hotspot_data();
+		if ( 'not_needed' === $w3tc_result ) {
 			return;
 		}
 
@@ -190,7 +190,7 @@ class UsageStatistics_StorageWriter {
 		} else {
 			// rand value makes value unique for each process, so as a result next replace works as a lock
 			// passing only single process further.
-			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + ( wp_rand( 1, 9999 ) / 10000.0 );
+			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + self::hotspot_lock_fraction();
 
 			$succeeded         = $this->cache_storage->set_if_maybe_equals(
 				'hotspot_endtime',
@@ -203,6 +203,25 @@ class UsageStatistics_StorageWriter {
 		return $this->flush_state;
 	}
 
+	/**
+	 * Fractional offset that makes a hotspot lock unique per process.
+	 *
+	 * This runs from advanced-cache.php, before WordPress loads pluggable.php.
+	 * random_int() exists there. The pluggable wp_rand function does not.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return float
+	 */
+	private static function hotspot_lock_fraction() {
+		try {
+			$w3tc_rand = \random_int( 1, 9999 );
+		} catch ( \Exception $e ) {
+			$w3tc_rand = \mt_rand( 1, 9999 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+		}
+
+		return $w3tc_rand / 10000.0;
+	}
 
 	/**
 	 * Completes the flushing of the hotspot data.
@@ -242,7 +261,7 @@ class UsageStatistics_StorageWriter {
 			return; // not neeeded really, db state after.
 		}
 		if ( $this->new_hotspot_endtime <= 0 ) {
-			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + ( wp_rand( 1, 9999 ) / 10000.0 );
+			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds + self::hotspot_lock_fraction();
 		}
 
 		if ( $hotspot_endtime_int <= 0 ) {
@@ -272,9 +291,9 @@ class UsageStatistics_StorageWriter {
 		$metric_values['timestamp_end']   = $hotspot_endtime_int;
 
 		// try to limit time between get and reset of counter value to loose as small as posssible.
-		foreach ( $metrics as $metric ) {
-			$metric_values[ $metric ] = $this->cache_storage->counter_get( $metric );
-			$this->cache_storage->counter_set( $metric, 0 );
+		foreach ( $metrics as $w3tc_metric ) {
+			$metric_values[ $w3tc_metric ] = $this->cache_storage->counter_get( $w3tc_metric );
+			$this->cache_storage->counter_set( $w3tc_metric, 0 );
 		}
 
 		$metric_values = apply_filters( 'w3tc_usage_statistics_metric_values', $metric_values );
@@ -416,8 +435,8 @@ class _OptionStorageSingleSite {
 			$old_value
 		);
 
-		$result    = $wpdb->query( $q );
-		$succeeded = ( $result > 0 );
+		$w3tc_result = $wpdb->query( $q );
+		$succeeded   = ( $w3tc_result > 0 );
 
 		return $succeeded;
 	}
@@ -498,7 +517,7 @@ class _OptionStorageWpmu {
 	public function prolong_hotspot_end( $old_value, $new_value ) {
 		global $wpdb;
 
-		$result    = $wpdb->query(
+		$w3tc_result = $wpdb->query(
 			$wpdb->prepare(
 				'UPDATE ' . $wpdb->sitemeta . ' SET meta_value = %s WHERE site_id = %d AND meta_key = %s AND meta_value = %s',
 				$new_value,
@@ -507,7 +526,7 @@ class _OptionStorageWpmu {
 				$old_value
 			)
 		);
-		$succeeded = ( $result > 0 );
+		$succeeded   = ( $w3tc_result > 0 );
 
 		return $succeeded;
 	}

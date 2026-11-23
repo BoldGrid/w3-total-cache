@@ -49,8 +49,8 @@ class Generic_Faq {
 			return null;
 		}
 
-		$url      = $sections[ $section ];
-		$response = wp_remote_get( $url );
+		$w3tc_url = $sections[ $section ];
+		$response = wp_remote_get( $w3tc_url );
 
 		if ( is_wp_error( $response ) ) {
 			return null;
@@ -62,24 +62,24 @@ class Generic_Faq {
 			'~<li>.*?<a[^>]*href="/BoldGrid/w3-total-cache/wiki/FAQ([^"]+)"[^>]*>(.*?)</a>.*?</li>~mi',
 		);
 
-		foreach ( $regexes as $i => $regex ) {
+		foreach ( $regexes as $w3tc_i => $regex ) {
 			preg_match_all( $regex, $response['body'], $m );
 
 			if ( is_array( $m ) && count( $m ) > 1 ) {
-				$c = count( $m[1] );
+				$w3tc_c = count( $m[1] );
 
-				for ( $n = 0; $n < $c; $n++ ) {
-					if ( 0 === $i ) {
+				for ( $n = 0; $n < $w3tc_c; $n++ ) {
+					if ( 0 === $w3tc_i ) {
 						// Index 0 has the question first then the URL fragment.
 						$questions[] = array(
 							'q' => $m[1][ $n ],
-							'a' => $url . $m[2][ $n ],
+							'a' => $w3tc_url . $m[2][ $n ],
 						);
 					} else {
 						// Index 1 has the URL fragment first then the name.  Just use the original URL.
 						$questions[] = array(
 							'q' => $m[2][ $n ],
-							'a' => $url,
+							'a' => $w3tc_url,
 						);
 					}
 				}

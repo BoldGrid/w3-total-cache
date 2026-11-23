@@ -20,16 +20,16 @@ class ObjectCache_Environment {
 	/**
 	 * Fixes the object cache configuration on a WP admin request.
 	 *
-	 * @param Config $config           W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config           W3TC Config containing relevant settings.
 	 * @param bool   $force_all_checks Whether to force all checks.
 	 *
 	 * @return void
 	 *
 	 * @throws \Util_Environment_Exceptions If there are filesystem operation errors.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs                 = new Util_Environment_Exceptions();
-		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
+		$objectcache_enabled = $w3tc_config->get_boolean( 'objectcache.enabled' );
 
 		try {
 			$addin_required = apply_filters( 'w3tc_objectcache_addin_required', $objectcache_enabled );
@@ -51,18 +51,18 @@ class ObjectCache_Environment {
 	/**
 	 * Fixes the object cache configuration based on a specific event.
 	 *
-	 * @param Config      $config     W3TC Config containing relevant settings.
+	 * @param Config      $w3tc_config     W3TC Config containing relevant settings.
 	 * @param string      $event      Event name.
 	 * @param Config|null $old_config Optional old W3TC Config containing relevant settings.
 	 *
 	 * @return void
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
-		$engine              = $config->get_string( 'objectcache.engine' );
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		$objectcache_enabled = $w3tc_config->get_boolean( 'objectcache.enabled' );
+		$w3tc_engine         = $w3tc_config->get_string( 'objectcache.engine' );
 
-		if ( $objectcache_enabled && 'file' === $engine ) {
-			$new_interval = $config->get_integer( 'objectcache.file.gc' );
+		if ( $objectcache_enabled && 'file' === $w3tc_engine ) {
+			$new_interval = $w3tc_config->get_integer( 'objectcache.file.gc' );
 			$old_interval = $old_config ? $old_config->get_integer( 'objectcache.file.gc' ) : -1;
 
 			if ( null !== $old_config && $new_interval !== $old_interval ) {
@@ -104,11 +104,11 @@ class ObjectCache_Environment {
 	/**
 	 * Retrieves the required rules for the object cache.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return null Always returns null.
 	 */
-	public function get_required_rules( $config ) {
+	public function get_required_rules( $w3tc_config ) {
 		return null;
 	}
 
@@ -159,33 +159,32 @@ class ObjectCache_Environment {
 			} elseif ( ! $this->is_objectcache_old_add_in() ) {
 				$page_val = Util_Request::get_string( 'page' );
 				if ( ! empty( $page_val ) ) {
-					$url = 'admin.php?page=' . $page_val . '&amp;';
+					$w3tc_url = 'admin.php?page=' . $page_val . '&amp;';
 				} else {
-					$url = basename(
+					$w3tc_url = basename(
 						Util_Environment::remove_query_all(
 							isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''
 						)
 					) . '?page=w3tc_dashboard&amp;';
 				}
 
-				$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=objectcache' );
+				$remove_url    = Util_Ui::admin_url( $w3tc_url . 'w3tc_default_remove_add_in=objectcache' );
+				$remove_button = Util_Ui::button_link(
+					__(
+						'Yes, remove it for me',
+						'w3-total-cache'
+					),
+					Util_Nonce::admin_nonce_url( $remove_url, 'w3tc_default_remove_add_in' )
+				);
 
 				throw new Util_WpFile_FilesystemOperationException(
-					esc_html(
-						sprintf(
-							// translators: 1 HTML button link to remove object-cache.php file.
-							__(
-								'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s',
-								'w3-total-cache'
-							),
-							Util_Ui::button_link(
-								__(
-									'Yes, remove it for me',
-									'w3-total-cache'
-								),
-								wp_nonce_url( $remove_url, 'w3tc' )
-							)
-						)
+					sprintf(
+						// translators: 1 HTML button link to remove object-cache.php file.
+						esc_html__(
+							'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s',
+							'w3-total-cache'
+						),
+						wp_kses( $remove_button, Util_Ui::get_allowed_html_for_wp_kses_from_content( $remove_button ) )
 					)
 				);
 			}
@@ -215,9 +214,9 @@ class ObjectCache_Environment {
 	}
 
 	/**
-	 * Checks if the object cache add-in is an old version.
+	 * Checks if the object cache add-in is an old W3TC drop-in eligible for auto-upgrade.
 	 *
-	 * @return bool True if the object cache add-in is an old version, false otherwise.
+	 * @return bool True if the object cache add-in is an old W3TC version, false otherwise.
 	 */
 	public function is_objectcache_old_add_in() {
 		if ( ! $this->objectcache_installed() ) {
@@ -225,10 +224,19 @@ class ObjectCache_Environment {
 		}
 
 		$script_data = @file_get_contents( W3TC_ADDIN_FILE_OBJECT_CACHE );
-		return $script_data && (
-			strstr( $script_data, 'W3 Total Cache Object Cache' ) !== false ||
-			strstr( $script_data, 'w3_instance' ) !== false
-		);
+		if ( ! $script_data ) {
+			return false;
+		}
+
+		if ( false !== strstr( $script_data, 'w3_instance' ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/ObjectCache Version:\s*([\d.]+)/', $script_data, $matches ) ) {
+			return '1.5' !== $matches[1];
+		}
+
+		return false;
 	}
 
 	/**

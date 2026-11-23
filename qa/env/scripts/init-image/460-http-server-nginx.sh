@@ -26,5 +26,7 @@ ln -s /etc/nginx/sites-available/for-tests-sandbox.conf /etc/nginx/sites-enabled
 envsubst </share/scripts/init-image/templates/nginx-vhost-system-sandbox.conf >/etc/nginx/sites-available/system-sandbox.conf
 ln -s /etc/nginx/sites-available/system-sandbox.conf /etc/nginx/sites-enabled/
 
+/share/scripts/ensure-http-error-log.sh
+
 # restart
 /etc/init.d/nginx restart

@@ -5,13 +5,14 @@
  * @since   2.6.0
  * @package W3TC
  *
- * @param Config $config               W3TC configuration.
+ * @param Config $w3tc_config               W3TC configuration.
  * @param string $delete_pull_zone     Delete pull zon choice ("yes").
  * @param string $delete_error_message An error message if there was an error trying to delete the pull zone.  String already escaped.
  */
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
@@ -19,8 +20,13 @@ defined( 'W3TC' ) || die();
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
+		/**
+		 * Escape at the sink. See Cdn_BunnyCdn_Popup_View_Deauthorized.php
+		 * for the rationale — pin the escape here so an SDK error
+		 * message containing markup can't render.
+		 */
 		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
-		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo esc_html( (string) $delete_error_message ) . '.';
 		?>
 	</div>
 <?php endif; ?>

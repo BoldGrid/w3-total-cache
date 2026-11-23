@@ -27,9 +27,9 @@ class ConfigCache {
 	public static function util_array_from_storage( $blog_id, $preview ) {
 		$cache = self::get_cache();
 
-		$config = $cache->get( self::get_key( $blog_id, $preview ) );
-		if ( is_array( $config ) ) {
-			return $config;
+		$w3tc_config = $cache->get( self::get_key( $blog_id, $preview ) );
+		if ( is_array( $w3tc_config ) ) {
+			return $w3tc_config;
 		}
 
 		return null;
@@ -55,14 +55,14 @@ class ConfigCache {
 	 *
 	 * @param int   $blog_id Blog ID for which the configuration is saved.
 	 * @param bool  $preview Whether to save the preview configuration.
-	 * @param array $data    Configuration data to save.
+	 * @param array $w3tc_data    Configuration data to save.
 	 *
 	 * @return void
 	 */
-	public static function save_item( $blog_id, $preview, $data ) {
+	public static function save_item( $blog_id, $preview, $w3tc_data ) {
 		$cache = self::get_cache();
 
-		$cache->set( self::get_key( $blog_id, $preview ), $data );
+		$cache->set( self::get_key( $blog_id, $preview ), $w3tc_data );
 	}
 
 	/**

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -39,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 		<?php
-		$cname_class = 'w3tc-ignore-change';
+		$w3tc_cname_class = 'w3tc-ignore-change';
 		require W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">

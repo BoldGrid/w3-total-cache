@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: cdn_export_file.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -10,15 +17,15 @@ if ( ! defined( 'W3TC' ) ) {
 <script type="text/javascript">/*<![CDATA[*/
 	var files = [
 		<?php
-		$files_count = count( $files );
-		foreach ( $files as $index => $file ) :
-			echo "'" . esc_html( addslashes( $file ) ) . "'" . ( $index < $files_count - 1 ? ',' : '' );
+		$w3tc_files_count = count( $files );
+		foreach ( $files as $w3tc_index => $w3tc_file ) :
+			echo "'" . esc_html( addslashes( $w3tc_file ) ) . "'" . ( $w3tc_index < $w3tc_files_count - 1 ? ',' : '' );
 		endforeach;
 		?>
 	];
 
 	jQuery(function() {
-		W3tc_Popup_Cdn_Export_File.nonce = '<?php echo esc_html( wp_create_nonce( 'w3tc' ) ); ?>';
+		W3tc_Popup_Cdn_Export_File.nonce = '<?php echo esc_html( Util_Nonce::create_admin( 'w3tc_cdn_export_process' ) ); ?>';
 		W3tc_Popup_Cdn_Export_File.files = files;
 		W3tc_Popup_Cdn_Export_File.init();
 	});
@@ -28,7 +35,7 @@ if ( ! defined( 'W3TC' ) ) {
 <table cellspacing="5">
 	<tr>
 		<td><?php esc_html_e( 'Total files:', 'w3-total-cache' ); ?></td>
-		<td><?php echo esc_html( $files_count ); ?></td>
+		<td><?php echo esc_html( $w3tc_files_count ); ?></td>
 	</tr>
 	<tr>
 		<td><?php esc_html_e( 'Processed:', 'w3-total-cache' ); ?></td>
@@ -49,7 +56,7 @@ if ( ! defined( 'W3TC' ) ) {
 </table>
 
 <p>
-	<input id="cdn_export_file_start" class="button-primary" type="button" value="<?php esc_html_e( 'Start', 'w3-total-cache' ); ?>"<?php echo ! $files_count ? ' disabled="disabled"' : ''; ?> />
+	<input id="cdn_export_file_start" class="button-primary" type="button" value="<?php esc_html_e( 'Start', 'w3-total-cache' ); ?>"<?php echo ! $w3tc_files_count ? ' disabled="disabled"' : ''; ?> />
 </p>
 
 <div id="cdn_export_file_progress" class="media-item">

@@ -28,57 +28,26 @@ Add key to ssh agent:
 . ./000-evnvironment
 ```
 
-## Vagrant Requirements (functionaly to be restored)
-```
-sudo apt-get install vagrant
-```
+## Vagrant (local single cell)
 
-Add to `/etc/hosts`:
-```
-192.168.100.100 wp.sandbox
-192.168.100.100 b2.wp.sandbox
-192.168.100.100 system.sandbox
-```
+Walkthrough from a new host through `vagrant up` and `w3test`: [../VAGRANT.md](../VAGRANT.md).
 
-## How to start vagrant box
-- generate virtualboxes
-```
-./100-generate-envs
-```
-- check out w3tc plugin and tests
-```
-./w3tc-clone
-```
+Guest IP in generated `Vagrantfile`s is `192.168.56.100`. Do not use the old `192.168.100.100` hosts entries.
 
-- go to virtualbox directory of your choice in ./boxes folder
-- start virtual box
-```
-vagrant up
-```
+## Optional box environment flags
 
-- access virtualbox's terminal
-```
-vagrant ssh
-sudo su
-```
+Per-box variables are sourced from `/share/environments/<name>.env` when tests run.
 
-- access wordpress website
+- **`W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1`** — `800-w3tc.sh` runs
+  `755-w3tcqa-php-output-buffering.sh`, which installs `.user.ini` and (on Apache) appends
+  mod_php `output_buffering` overrides.
+- **`W3D_QA_PHP_OUTPUT_BUFFERING_OFF=0`** — the same script **removes** those artifacts
+  (only files/blocks it recognizes). Run again with `=1` to reinstall.
+- **Unset** — script does nothing (default matrix unchanged).
 
-[http://wp.sandbox/](http://wp.sandbox/)
-
-phpMyAdmin:
-
-[http://system.sandbox/phpmyadmin/](http://sandbox-system/phpmyadmin/)
-credentials: root / <empty password>
-
-- run some test
-in virtualbox's terminal
-```
-cd ~/w3tcqa
-w3test tests/pagecache/a03-check-disk-enhanced.js
-```
-
-if folder specified - all tests in that folder will be executed till first failure
+  On a live box: `export W3D_QA_PHP_OUTPUT_BUFFERING_OFF=1` or `=0` and run
+  `/share/scripts/init-box/755-w3tcqa-php-output-buffering.sh` to toggle without editing
+  `export.sh`.
 
 ## Tools
 
@@ -93,4 +62,4 @@ executes tests inside, builds summary report
 
 `800-report-generate` - builds summary report in working/summary.html file
 
-`dev-box-start apache-php73-wp52-single test-box` - creates test machine
+`dev-box-start nginx-php74-wp69-single test-box` - creates test machine

@@ -14,7 +14,7 @@ namespace W3TC;
 /**
  * UserExperience DeferScripts Mutator.
  *
- * @since 2.4.2
+ * @since 2.5.0
  */
 class UserExperience_DeferScripts_Mutator {
 	/**
@@ -22,7 +22,7 @@ class UserExperience_DeferScripts_Mutator {
 	 *
 	 * @var object
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Modified flag.
@@ -41,27 +41,27 @@ class UserExperience_DeferScripts_Mutator {
 	/**
 	 * User Experience DeferScripts Mutator constructor.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
-	 * @param object $config Config object.
+	 * @param object $w3tc_config Config object.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->config = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_config = $w3tc_config;
 	}
 
 	/**
 	 * Runs User Experience DeferScripts Mutator.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param string $buffer Buffer string containing browser output.
 	 *
 	 * @return string
 	 */
 	public function run( $buffer ) {
-		$r = apply_filters(
+		$w3tc_r = apply_filters(
 			'w3tc_deferscripts_mutator_before',
 			array(
 				'buffer'   => $buffer,
@@ -69,10 +69,10 @@ class UserExperience_DeferScripts_Mutator {
 			)
 		);
 
-		$buffer         = $r['buffer'];
-		$this->modified = $r['modified'];
+		$buffer         = $w3tc_r['buffer'];
+		$this->modified = $w3tc_r['modified'];
 
-		$this->includes = $this->config->get_array(
+		$this->includes = $this->w3tc_config->get_array(
 			array(
 				'user-experience-defer-scripts',
 				'includes',
@@ -94,7 +94,7 @@ class UserExperience_DeferScripts_Mutator {
 	/**
 	 * Get modified status flag.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @return boolean
 	 */
@@ -105,7 +105,7 @@ class UserExperience_DeferScripts_Mutator {
 	/**
 	 * Modifies script tag for script matched to be deferred.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param array $matches array of matched JS entries.
 	 *
@@ -115,16 +115,16 @@ class UserExperience_DeferScripts_Mutator {
 		$content = $matches[0];
 
 		if ( $this->is_content_included( $content ) ) {
-			$count   = 0;
-			$content = preg_replace(
+			$w3tc_count = 0;
+			$content    = preg_replace(
 				'~(\s)src=~is',
 				'$1data-lazy="w3tc" data-src=',
 				$content,
 				-1,
-				$count
+				$w3tc_count
 			);
 
-			if ( $count > 0 ) {
+			if ( $w3tc_count > 0 ) {
 				$this->modified = true;
 			}
 		}
@@ -135,7 +135,7 @@ class UserExperience_DeferScripts_Mutator {
 	/**
 	 * Checks if content has already been deferred.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param string $content script tag string.
 	 *
@@ -156,7 +156,7 @@ class UserExperience_DeferScripts_Mutator {
 	/**
 	 * Filters out scripts so Minify doesn't touch deferred scripts.
 	 *
-	 * @since 2.4.2
+	 * @since 2.5.0
 	 *
 	 * @param array $script_tags array of script tags.
 	 *
@@ -166,8 +166,8 @@ class UserExperience_DeferScripts_Mutator {
 		return array_values(
 			array_filter(
 				$script_tags,
-				function ( $i ) {
-					return ! preg_match( '~\sdata-lazy="w3tc"\s~', $i );
+				function ( $w3tc_i ) {
+					return ! preg_match( '~\sdata-lazy="w3tc"\s~', $w3tc_i );
 				}
 			)
 		);

@@ -11,13 +11,14 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c                 = Dispatcher::config();
-$pgcache_disabled  = ! $c->get_boolean( 'pgcache.enabled' );
-$flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
+$w3tc_c                 = Dispatcher::config();
+$w3tc_pgcache_disabled  = ! $w3tc_c->get_boolean( 'pgcache.enabled' );
+$w3tc_flushall_disabled = ! $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 
 ?>
 <div class="metabox-holder">
@@ -35,7 +36,7 @@ $flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
 				'description'    => esc_html__( 'With this enabled, the "Purge All Caches" action will instead queue items based on the below settings. If this is NOT enabled, the "Flush All" action will purge all caches and clear all queue entries as pending changes will be applied. Note that enabling this can cause the "Flush All" action to take longer, especially if the "Number of Latests Pages/Posts" are set at a high value.', 'w3-total-cache' ),
-				'disabled'       => $pgcache_disabled,
+				'disabled'       => $w3tc_pgcache_disabled,
 			)
 		);
 
@@ -56,7 +57,7 @@ $flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'description'    => esc_html__( 'This setting controls whether the homepage should be added to the queue when a flush all operation occurs.', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
-				'disabled'       => $pgcache_disabled || $flushall_disabled,
+				'disabled'       => $w3tc_pgcache_disabled || $w3tc_flushall_disabled,
 			)
 		);
 
@@ -71,7 +72,7 @@ $flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'control'      => 'textbox',
 				'textbox_type' => 'number',
 				'default'      => '10',
-				'disabled'     => $pgcache_disabled || $flushall_disabled,
+				'disabled'     => $w3tc_pgcache_disabled || $w3tc_flushall_disabled,
 			)
 		);
 
@@ -86,7 +87,7 @@ $flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'control'      => 'textbox',
 				'textbox_type' => 'number',
 				'default'      => '10',
-				'disabled'     => $pgcache_disabled || $flushall_disabled,
+				'disabled'     => $w3tc_pgcache_disabled || $w3tc_flushall_disabled,
 			)
 		);
 

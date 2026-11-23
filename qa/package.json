@@ -1,0 +1,5 @@
+{
+	"name": "w3tc-qa",
+	"private": true,
+	"description": "Keeps npm link scoped to qa/; without this file npm walks up to the plugin root package.json."
+}

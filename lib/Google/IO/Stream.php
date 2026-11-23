@@ -73,7 +73,7 @@ class W3TCG_Google_IO_Stream extends W3TCG_Google_IO_Abstract
         $default_options['ssl'] : array();
 
     if (!array_key_exists("cafile", $requestSslContext)) {
-      $requestSslContext["cafile"] = dirname(__FILE__) . '/cacerts.pem';
+      $requestSslContext["cafile"] = __DIR__ . '/cacerts.pem';
     }
 
     $options = array(
@@ -95,8 +95,10 @@ class W3TCG_Google_IO_Stream extends W3TCG_Google_IO_Abstract
       $url = self::ZLIB . $url;
     }
 
-    // We are trapping any thrown errors in this method only and
-    // throwing an exception.
+    /**
+     * We are trapping any thrown errors in this method only and
+     * throwing an exception.
+     */
     $this->trappedErrorNumber = null;
     $this->trappedErrorString = null;
 
@@ -126,7 +128,24 @@ class W3TCG_Google_IO_Stream extends W3TCG_Google_IO_Abstract
       $response_data = stream_get_contents($fh);
       fclose($fh);
 
-      $respHttpCode = $this->getHttpResponseCode($http_response_header);
+      /**
+       * PHP 8.5 deprecates the magic $http_response_header local; prefer the
+       * 8.4+ accessor. On older runtimes read it indirectly via
+       * get_defined_vars() so the deprecated token never appears in source.
+       */
+      if (function_exists('http_get_last_response_headers')) {
+        $raw_response_headers = http_get_last_response_headers();
+      } else {
+        $defined_vars = get_defined_vars();
+        $raw_response_headers = isset($defined_vars['http_response_header'])
+            ? $defined_vars['http_response_header']
+            : null;
+      }
+      if (!is_array($raw_response_headers)) {
+        $raw_response_headers = array();
+      }
+
+      $respHttpCode = $this->getHttpResponseCode($raw_response_headers);
     }
 
     if (false === $response_data) {
@@ -139,7 +158,7 @@ class W3TCG_Google_IO_Stream extends W3TCG_Google_IO_Abstract
       );
     }
 
-    $responseHeaders = $this->getHttpResponseHeaders($http_response_header);
+    $responseHeaders = $this->getHttpResponseHeaders($raw_response_headers);
 
     return array($response_data, $responseHeaders, $respHttpCode);
   }

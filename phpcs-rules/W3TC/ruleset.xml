@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ruleset name="W3TC-Security">
+	<description>W3TC-specific security regression sniffs.</description>
+	<rule ref="W3TC.Security.NoLegacyWizardNonce"/>
+	<rule ref="W3TC.Security.RequireSanitizeDirectiveValue"/>
+</ruleset>

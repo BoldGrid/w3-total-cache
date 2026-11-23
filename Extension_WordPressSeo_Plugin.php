@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_WordPressSeo_Plugin
  *
@@ -59,10 +60,10 @@ class Extension_WordPressSeo_Plugin {
 	}
 }
 
-$p = new Extension_WordPressSeo_Plugin();
-$p->run();
+$w3tc_p = new Extension_WordPressSeo_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_WordPressSeo_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_WordPressSeo_Plugin_Admin();
+	$w3tc_p->run();
 }

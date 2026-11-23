@@ -153,6 +153,24 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         return $options;
                     }
                 }
+                /**
+                 * W3TC FIX (CVE-2026-9282): restrict f_array entries to CSS/JS
+                 * assets. The W3TC request handler now only populates f_array
+                 * from the server-side hash lookup and clears any request-
+                 * supplied value in manual mode, but enforce a hard extension
+                 * allowlist at the sink as defense in depth so this file-read
+                 * loop can never serve wp-config.php or any other non-asset
+                 * file inside the docroot.
+                 */
+                $w3tc_ext = strtolower(pathinfo($realpath, PATHINFO_EXTENSION));
+                if ('css' !== $w3tc_ext && 'js' !== $w3tc_ext) {
+                    $this->log("Refusing non-CSS/JS file \"{$realpath}\" requested via f_array");
+                    continue;
+                }
+                if ($this->_path_in_minify_cache($realpath)) {
+                    $this->log("Refusing minify cache file \"{$realpath}\"");
+                    continue;
+                }
                 try {
                     parent::checkNotHidden($realpath);
                     parent::checkAllowDirs($realpath, $allowDirs, $uri);
@@ -204,6 +222,61 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             }
         }
         return new Minify_Source($spec);
+    }
+
+    /**
+     * Whether a resolved path lies in the minify cache directory.
+     *
+     * String file lists are document-root relative. A path that resolves
+     * inside the minify cache is not a source for those lists. Minify_Source
+     * entries are built by the handler and are not checked here.
+     *
+     * @since 2.11.0
+     *
+     * @param string $path Resolved path.
+     *
+     * @return bool
+     */
+    protected function _path_in_minify_cache($path)
+    {
+        if (!defined('W3TC_CACHE_MINIFY_DIR') || !is_string($path) || '' === $path) {
+            return false;
+        }
+
+        $root = \W3TC\Util_Environment::realpath(W3TC_CACHE_MINIFY_DIR);
+        if ($this->_path_has_dir_prefix($path, $root)) {
+            return true;
+        }
+
+        $fs_root = realpath(W3TC_CACHE_MINIFY_DIR);
+        $fs_path = realpath($path);
+        if (false !== $fs_root && false !== $fs_path && $this->_path_has_dir_prefix($fs_path, $fs_root)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether $path is $root or a file inside it.
+     *
+     * @since 2.11.0
+     *
+     * @param string $path Path.
+     * @param string $root Directory.
+     *
+     * @return bool
+     */
+    protected function _path_has_dir_prefix($path, $root)
+    {
+        if (!is_string($path) || !is_string($root) || '' === $root) {
+            return false;
+        }
+
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+
+        return $path === $root || 0 === strpos($path, $root . '/');
     }
 
     protected $_type = null;

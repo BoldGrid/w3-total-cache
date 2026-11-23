@@ -16,7 +16,7 @@ class UserExperience_LazyLoad_Mutator {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Tracks whether the content was modified during processing.
@@ -42,13 +42,13 @@ class UserExperience_LazyLoad_Mutator {
 	/**
 	 * Constructor for UserExperience_LazyLoad_Mutator.
 	 *
-	 * @param array $config       Configuration settings for lazy loading.
+	 * @param array $w3tc_config       Configuration settings for lazy loading.
 	 * @param array $posts_by_url Map of post URLs to their corresponding post IDs.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config, $posts_by_url ) {
-		$this->config       = $config;
+	public function __construct( $w3tc_config, $posts_by_url ) {
+		$this->w3tc_config  = $w3tc_config;
 		$this->posts_by_url = $posts_by_url;
 	}
 
@@ -60,22 +60,22 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified buffer with lazy loading applied.
 	 */
 	public function run( $buffer ) {
-		$this->excludes = apply_filters( 'w3tc_lazyload_excludes', $this->config->get_array( 'lazyload.exclude' ) );
+		$this->excludes = apply_filters( 'w3tc_lazyload_excludes', $this->w3tc_config->get_array( 'lazyload.exclude' ) );
 
-		$r              = apply_filters(
+		$w3tc_r         = apply_filters(
 			'w3tc_lazyload_mutator_before',
 			array(
 				'buffer'   => $buffer,
 				'modified' => $this->modified,
 			)
 		);
-		$buffer         = $r['buffer'];
-		$this->modified = $r['modified'];
+		$buffer         = $w3tc_r['buffer'];
+		$this->modified = $w3tc_r['modified'];
 
 		$unmutable = new UserExperience_LazyLoad_Mutator_Unmutable();
 		$buffer    = $unmutable->remove_unmutable( $buffer );
 
-		if ( $this->config->get_boolean( 'lazyload.process_img' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.process_img' ) ) {
 			$buffer = preg_replace_callback(
 				'~<picture(\s[^>]+)*>(.*?)</picture>~is',
 				array( $this, 'tag_picture' ),
@@ -88,7 +88,7 @@ class UserExperience_LazyLoad_Mutator {
 			);
 		}
 
-		if ( $this->config->get_boolean( 'lazyload.process_background' ) ) {
+		if ( $this->w3tc_config->get_boolean( 'lazyload.process_background' ) ) {
 			$buffer = preg_replace_callback(
 				'~<[^>]+background(-image)?:\s*url[^>]+>~is',
 				array( $this, 'tag_with_background' ),
@@ -157,21 +157,25 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified <img> tag.
 	 */
 	public function tag_img_content_replace( $content, $dim ) {
-		// do replace.
-		$count   = 0;
-		$content = preg_replace(
-			'~(\s)src=~is',
-			'$1src="' . $this->placeholder( $dim['w'], $dim['h'] ) . '" data-src=',
+		$placeholder = $this->placeholder( $dim['w'], $dim['h'] );
+		$w3tc_count  = 0;
+		$content     = $this->replace_top_level_quoted_attributes(
 			$content,
-			-1,
-			$count
+			'src',
+			static function ( $whitespace, $name, $quoted_value ) use ( $placeholder ) {
+				return $whitespace . 'src="' . $placeholder . '" data-src=' . $quoted_value;
+			},
+			1,
+			$w3tc_count
 		);
 
-		if ( $count > 0 ) {
-			$content = preg_replace(
-				'~(\s)(srcset|sizes)=~is',
-				'$1data-$2=',
-				$content
+		if ( $w3tc_count > 0 ) {
+			$content = $this->replace_top_level_quoted_attributes(
+				$content,
+				'srcset|sizes',
+				static function ( $whitespace, $name, $quoted_value ) {
+					return $whitespace . 'data-' . $name . '=' . $quoted_value;
+				}
 			);
 
 			$content        = $this->add_class_lazy( $content );
@@ -206,21 +210,14 @@ class UserExperience_LazyLoad_Mutator {
 		}
 
 		// if not in attributes - try to find via url.
-		if (
-			! preg_match(
-				'~\ssrc=(\'([^\']*)\'|"([^"]*)"|([^\'"][^\\s]*))~is',
-				$content,
-				$m
-			)
-		) {
+		$w3tc_url = $this->get_top_level_quoted_attribute_value( $content, 'src' );
+		if ( null === $w3tc_url ) {
 			return $dim;
 		}
 
-		$url = ( ! empty( $m[4] ) ? $m[4] : ( ( ! empty( $m[3] ) ? $m[3] : $m[2] ) ) );
-
 		// full url found.
-		if ( isset( $this->posts_by_url[ $url ] ) ) {
-			$post_id = $this->posts_by_url[ $url ];
+		if ( isset( $this->posts_by_url[ $w3tc_url ] ) ) {
+			$post_id = $this->posts_by_url[ $w3tc_url ];
 
 			$image = wp_get_attachment_image_src( $post_id, 'full' );
 			if ( $image ) {
@@ -238,8 +235,8 @@ class UserExperience_LazyLoad_Mutator {
 		}
 
 		if (
-			substr( $url, 0, strlen( $base_url ) ) === $base_url &&
-			preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~is', $url, $m )
+			substr( $w3tc_url, 0, strlen( $base_url ) ) === $base_url &&
+			preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~is', $w3tc_url, $m )
 		) {
 			$dim['w'] = (int) $m[2];
 			$dim['h'] = (int) $m[3];
@@ -262,24 +259,33 @@ class UserExperience_LazyLoad_Mutator {
 			return $content;
 		}
 
-		$quote_match = null;
-		if ( ! preg_match( '~\s+style\s*=\s*([\"\'])~is', $content, $quote_match ) ) {
+		$style = $this->get_top_level_quoted_attribute_value( $content, 'style' );
+		if ( null === $style || ! \preg_match( '~background(?:-image)?:\s*url\s*\(~is', $style ) ) {
 			return $content;
 		}
 
-		$quote = $quote_match[1];
-
-		$count   = 0;
-		$content = preg_replace_callback(
-			'~(\s+)(style\s*=\s*[' . $quote . '])(.*?)([' . $quote . '])~is',
-			array( $this, 'style_offload_background' ),
+		$updated = $this->replace_top_level_quoted_attributes(
 			$content,
-			-1,
-			$count
+			'style',
+			function ( $whitespace, $name, $quoted_value ) {
+				$quote = \substr( $quoted_value, 0, 1 );
+				$inner = \substr( $quoted_value, 1, -1 );
+
+				return $this->style_offload_background(
+					array(
+						$whitespace . $name . '=' . $quoted_value,
+						$whitespace,
+						$name . '=' . $quote,
+						$inner,
+						$quote,
+					)
+				);
+			},
+			1
 		);
 
-		if ( $count > 0 ) {
-			$content        = $this->add_class_lazy( $content );
+		if ( $updated !== $content ) {
+			$content        = $this->add_class_lazy( $updated );
 			$this->modified = true;
 		}
 
@@ -294,22 +300,33 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified style attribute with lazy loading applied.
 	 */
 	public function style_offload_background( $matches ) {
-		list( $match, $v1, $v2, $v, $quote ) = $matches;
+		list( $w3tc_match, $v1, $v2, $v, $quote ) = $matches;
 
 		$url_match = null;
 
-		preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
-
-		$v = preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
+		\preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
 
 		$raw_url = '';
 		if ( isset( $url_match[2] ) ) {
-			$charset = get_bloginfo( 'charset' );
-			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
-			$raw_url = trim( $raw_url, '\'"' );
+			$charset = \get_bloginfo( 'charset' );
+			$raw_url = \trim( \html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
+			$raw_url = \trim( $raw_url, '\'"' );
 		}
 
-		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . esc_attr( $raw_url ) . $quote;
+		if ( \preg_match( '~^([a-z][a-z0-9+.-]*):~i', $raw_url, $proto ) ) {
+			$scheme = \strtolower( $proto[1] );
+			if ( 'http' !== $scheme && 'https' !== $scheme ) {
+				return $w3tc_match;
+			}
+		}
+
+		if ( '' === $raw_url ) {
+			return $w3tc_match;
+		}
+
+		$v = \preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
+
+		return $v1 . $v2 . $v . $quote . ' data-bg="' . \esc_attr( $raw_url ) . '"';
 	}
 
 	/**
@@ -320,17 +337,30 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified content with the "lazy" class applied.
 	 */
 	private function add_class_lazy( $content ) {
-		$count   = 0;
-		$content = preg_replace_callback(
-			'~(\s+)(class=)([\"\'])(.*?)([\"\'])~is',
-			array( $this, 'class_process' ),
+		$w3tc_count = 0;
+		$content    = $this->replace_top_level_quoted_attributes(
 			$content,
+			'class',
+			function ( $whitespace, $name, $quoted_value ) {
+				$quote = \substr( $quoted_value, 0, 1 );
+				$inner = \substr( $quoted_value, 1, -1 );
+
+				return $this->class_process(
+					array(
+						$whitespace . $name . '=' . $quoted_value,
+						$whitespace,
+						$name . '=',
+						$quote,
+						$inner,
+					)
+				);
+			},
 			-1,
-			$count
+			$w3tc_count
 		);
 
-		if ( $count <= 0 ) {
-			$content = preg_replace(
+		if ( $w3tc_count <= 0 ) {
+			$content = \preg_replace(
 				'~<(\S+)(\s+)~is',
 				'<$1$2class="lazy" ',
 				$content
@@ -348,10 +378,17 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified content with native lazy loading removed.
 	 */
 	public function remove_native_lazy( $content ) {
-		return preg_replace(
-			'~(\s+)loading=[\'"]lazy[\'"]~is',
-			'',
-			$content
+		return $this->replace_top_level_quoted_attributes(
+			$content,
+			'loading',
+			static function ( $whitespace, $name, $quoted_value ) {
+				$inner = \substr( $quoted_value, 1, -1 );
+				if ( 0 === \strcasecmp( $inner, 'lazy' ) ) {
+					return '';
+				}
+
+				return $whitespace . $name . '=' . $quoted_value;
+			}
 		);
 	}
 
@@ -363,9 +400,9 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified class attribute.
 	 */
 	public function class_process( $matches ) {
-		list( $match, $v1, $v2, $quote, $v ) = $matches;
+		list( $w3tc_match, $v1, $v2, $quote, $v ) = $matches;
 		if ( preg_match( '~(^|\\s)lazy(\\s|$)~is', $v ) ) {
-			return $match;
+			return $w3tc_match;
 		}
 
 		$v .= ' lazy';
@@ -401,7 +438,128 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The SVG placeholder.
 	 */
 	public function placeholder( $w, $h ) {
-		return 'data:image/svg+xml,%3Csvg%20xmlns=\'http://www.w3.org/2000/svg\'%20viewBox=\'0%200%20' .
-			$w . '%20' . $h . '\'%3E%3C/svg%3E';
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' .
+			(int) $w . ' ' . (int) $h . '"></svg>';
+
+		return 'data:image/svg+xml,' . rawurlencode( $svg );
+	}
+
+	/**
+	 * Replace top-level quoted attributes, skipping matches inside other attribute values.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string   $content      Tag markup to rewrite.
+	 * @param string   $attr_pattern Attribute name or alternation (e.g. `src` or `srcset|sizes`).
+	 * @param callable $replacer     Callback `( $whitespace, $name, $quoted_value ) => string`.
+	 * @param int      $limit        Max replacements; -1 for all.
+	 * @param int      $count        Set to the number of replacements performed.
+	 *
+	 * @return string
+	 */
+	public function replace_top_level_quoted_attributes( $content, $attr_pattern, $replacer, $limit = -1, &$count = 0 ) {
+		$count = 0;
+
+		if ( ! preg_match_all(
+			'~(\s)(' . $attr_pattern . ')=(\'([^\']*)\'|"([^"]*)")~is',
+			$content,
+			$matches,
+			PREG_OFFSET_CAPTURE
+		) ) {
+			return $content;
+		}
+
+		$replacements = array();
+		foreach ( $matches[0] as $i => $full ) {
+			if ( $limit >= 0 && \count( $replacements ) >= $limit ) {
+				break;
+			}
+
+			$offset = $full[1];
+			if ( ! $this->is_outside_attribute_value( $content, $offset ) ) {
+				continue;
+			}
+
+			$replacements[] = array(
+				'offset'      => $offset,
+				'length'      => \strlen( $full[0] ),
+				'replacement' => \call_user_func(
+					$replacer,
+					$matches[1][ $i ][0],
+					$matches[2][ $i ][0],
+					$matches[3][ $i ][0]
+				),
+			);
+		}
+
+		for ( $i = \count( $replacements ) - 1; $i >= 0; $i-- ) {
+			$content = \substr_replace(
+				$content,
+				$replacements[ $i ]['replacement'],
+				$replacements[ $i ]['offset'],
+				$replacements[ $i ]['length']
+			);
+			++$count;
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Read the first top-level quoted attribute value, or null if none.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string $content Tag markup.
+	 * @param string $attr    Attribute name.
+	 *
+	 * @return string|null
+	 */
+	public function get_top_level_quoted_attribute_value( $content, $attr ) {
+		if ( ! preg_match_all(
+			'~(\s)' . \preg_quote( $attr, '~' ) . '=(\'([^\']*)\'|"([^"]*)")~is',
+			$content,
+			$matches,
+			PREG_OFFSET_CAPTURE
+		) ) {
+			return null;
+		}
+
+		foreach ( $matches[0] as $i => $full ) {
+			if ( ! $this->is_outside_attribute_value( $content, $full[1] ) ) {
+				continue;
+			}
+
+			$quoted = $matches[2][ $i ][0];
+			return \substr( $quoted, 1, -1 );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether the byte offset sits outside a quoted HTML attribute value.
+	 *
+	 * @since 2.10.4
+	 *
+	 * @param string $content Tag markup.
+	 * @param int    $offset  Byte offset into $content.
+	 *
+	 * @return bool
+	 */
+	private function is_outside_attribute_value( $content, $offset ) {
+		$in = null;
+		for ( $i = 0; $i < $offset; $i++ ) {
+			$ch = $content[ $i ];
+			if ( null === $in ) {
+				if ( '"' === $ch || "'" === $ch ) {
+					$in = $ch;
+				}
+			} elseif ( $ch === $in ) {
+				$in = null;
+			}
+		}
+
+		return null === $in;
 	}
 }

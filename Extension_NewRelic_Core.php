@@ -21,9 +21,9 @@ class Extension_NewRelic_Core {
 	 * @throws \Exception If there is an issue fetching the browser application.
 	 */
 	public function get_effective_browser_application() {
-		$c       = Dispatcher::config();
-		$api_key = $c->get( array( 'newrelic', 'api_key' ) );
-		$id      = $c->get( array( 'newrelic', 'browser.application_id' ) );
+		$w3tc_c  = Dispatcher::config();
+		$api_key = $w3tc_c->get( array( 'newrelic', 'api_key' ) );
+		$id      = $w3tc_c->get( array( 'newrelic', 'browser.application_id' ) );
 
 		if ( empty( $api_key ) || empty( $id ) ) {
 			return null;

@@ -20,12 +20,16 @@ namespace W3TC;
  *   common.hide_note_wp_content_permissions
  *   common.hide_note_no_zlib
  *   common.hide_note_zlib_output_compression
+ *   common.hide_note_nginx_restart_required
+ *   common.nginx_rules_dismiss_fingerprint
  *   common.show_note.nginx_restart_required
  *   common.hide_note_php_version_56
  *   license.status
+ *   license.jwt - license JWT for /v2/ service calls; not the license key
  *   license.next_check - time of next check
  *   license.terms - accepted/declined/''
  *   license.community_terms - accepted/declined/'' (master)
+ *   license.paypal_billing_update_required - whether PayPal billing update is needed
  *   minify.error.file
  *   minify.error.last
  *   minify.error.notification.last
@@ -34,6 +38,8 @@ namespace W3TC;
  *   extension.cloudflare.next_ips_check
  *   extension.cloudflare.ips.ip4
  *   extension.cloudflare.ips.ip6
+ *   extension.maxcache.hide_note_delivering
+ *   extension.maxcache.hide_note_available
  *
  * blog-level keys:
  *   newrelic.hide_note_pageload_slow
@@ -78,6 +84,22 @@ class ConfigState {
 	private $_is_master;
 
 	/**
+	 * Whether stored option data has been loaded.
+	 *
+	 * @var bool
+	 */
+	private $_loaded;
+
+	/**
+	 * Encoded option payload from the last successful load or save.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @var string|null
+	 */
+	private $_saved_encoded;
+
+	/**
 	 * Initializes the configuration state.
 	 *
 	 * @param bool $is_master Whether this is the master configuration state.
@@ -85,75 +107,69 @@ class ConfigState {
 	 * @return void
 	 */
 	public function __construct( $is_master ) {
-		$this->_is_master = $is_master;
+		$this->_is_master     = $is_master;
+		$this->_data          = array();
+		$this->_loaded        = false;
+		$this->_saved_encoded = null;
 
-		if ( $is_master ) {
-			$data_raw = get_site_option( 'w3tc_state' );
-		} else {
-			$data_raw = get_option( 'w3tc_state' );
-		}
-
-		$this->_data = @json_decode( $data_raw, true );
-		if ( ! is_array( $this->_data ) ) {
-			$this->_data = array();
-			$this->apply_defaults();
-			$this->save();
-		}
+		$this->load();
 	}
 
 	/**
 	 * Retrieves a value from the configuration state by key.
 	 *
-	 * @param string $key           The key to retrieve.
+	 * @param string $w3tc_key           The key to retrieve.
 	 * @param mixed  $default_value The default value to return if the key is not set.
 	 *
 	 * @return mixed The value associated with the key, or the default value.
 	 */
-	public function get( $key, $default_value ) {
-		if ( ! isset( $this->_data[ $key ] ) ) {
+	public function get( $w3tc_key, $default_value ) {
+		$this->load();
+
+		if ( ! isset( $this->_data[ $w3tc_key ] ) ) {
 			return $default_value;
 		}
 
-		return $this->_data[ $key ];
+		return $this->_data[ $w3tc_key ];
 	}
 
 	/**
 	 * Retrieves a string value from the configuration state.
 	 *
-	 * @param string $key           The key to retrieve.
+	 * @param string $w3tc_key           The key to retrieve.
 	 * @param string $default_value The default string to return if the key is not set. Default is an empty string.
 	 * @param bool   $trim          Whether to trim the returned string. Default is true.
 	 *
 	 * @return string The string value associated with the key, or the default string.
 	 */
-	public function get_string( $key, $default_value = '', $trim = true ) {
-		$value = (string) $this->get( $key, $default_value );
+	public function get_string( $w3tc_key, $default_value = '', $trim = true ) {
+		$w3tc_value = (string) $this->get( $w3tc_key, $default_value );
 
-		return $trim ? trim( $value ) : $value;
+		return $trim ? trim( $w3tc_value ) : $w3tc_value;
 	}
 
 	/**
 	 * Retrieves an integer value from the configuration state.
 	 *
-	 * @param string $key           The key to retrieve.
+	 * @param string $w3tc_key           The key to retrieve.
 	 * @param int    $default_value The default integer to return if the key is not set. Default is 0.
 	 *
 	 * @return int The integer value associated with the key, or the default integer.
 	 */
-	public function get_integer( $key, $default_value = 0 ) {
-		return (int) $this->get( $key, $default_value );
+	public function get_integer( $w3tc_key, $default_value = 0 ) {
+		return (int) $this->get( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Retrieves a boolean value from the configuration state.
 	 *
-	 * @param string $key           The key to retrieve.
+	 * @param string $w3tc_key           The key to retrieve.
 	 * @param bool   $default_value The default boolean to return if the key is not set. Default is false.
 	 *
 	 * @return bool The boolean value associated with the key, or the default boolean.
 	 */
-	public function get_boolean( $key, $default_value = false ) {
-		$v = $this->get( $key, $default_value );
+	public function get_boolean( $w3tc_key, $default_value = false ) {
+		$v = $this->get( $w3tc_key, $default_value );
 		if ( 'false' === $v || empty( $v ) ) {
 			$v = false;
 		}
@@ -164,25 +180,27 @@ class ConfigState {
 	/**
 	 * Retrieves an array value from the configuration state.
 	 *
-	 * @param string $key           The key to retrieve.
+	 * @param string $w3tc_key           The key to retrieve.
 	 * @param array  $default_value The default array to return if the key is not set. Default is an empty array.
 	 *
 	 * @return array The array value associated with the key, or the default array.
 	 */
-	public function get_array( $key, $default_value = array() ) {
-		return (array) $this->get( $key, $default_value );
+	public function get_array( $w3tc_key, $default_value = array() ) {
+		return (array) $this->get( $w3tc_key, $default_value );
 	}
 
 	/**
 	 * Sets a value in the configuration state.
 	 *
-	 * @param string $key   The key to set.
-	 * @param mixed  $value The value to associate with the key.
+	 * @param string $w3tc_key   The key to set.
+	 * @param mixed  $w3tc_value The value to associate with the key.
 	 *
 	 * @return void
 	 */
-	public function set( $key, $value ) {
-		$this->_data[ $key ] = $value;
+	public function set( $w3tc_key, $w3tc_value ) {
+		$this->load();
+
+		$this->_data[ $w3tc_key ] = $w3tc_value;
 	}
 
 	/**
@@ -191,7 +209,9 @@ class ConfigState {
 	 * @return void
 	 */
 	public function reset() {
-		$this->_data = array();
+		$this->_data          = array();
+		$this->_loaded        = true;
+		$this->_saved_encoded = null;
 		$this->apply_defaults();
 	}
 
@@ -201,11 +221,68 @@ class ConfigState {
 	 * @return void
 	 */
 	public function save() {
-		if ( $this->_is_master ) {
-			update_site_option( 'w3tc_state', wp_json_encode( $this->_data ) );
-		} else {
-			update_option( 'w3tc_state', wp_json_encode( $this->_data ) );
+		$this->load();
+
+		if ( ! $this->_loaded ) {
+			return;
 		}
+
+		$encoded = \wp_json_encode( $this->_data );
+		if ( false === $encoded || $encoded === $this->_saved_encoded ) {
+			return;
+		}
+
+		if ( $this->_is_master ) {
+			if ( ! \function_exists( 'update_site_option' ) ) {
+				return;
+			}
+			$saved = \update_site_option( 'w3tc_state', $encoded );
+		} else {
+			if ( ! \function_exists( 'update_option' ) ) {
+				return;
+			}
+			$saved = \update_option( 'w3tc_state', $encoded );
+		}
+
+		if ( $saved ) {
+			$this->_saved_encoded = $encoded;
+		}
+	}
+
+	/**
+	 * Loads stored option data when the Options API is available.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @return void
+	 */
+	private function load() {
+		if ( $this->_loaded ) {
+			return;
+		}
+
+		if ( $this->_is_master ) {
+			if ( ! \function_exists( 'get_site_option' ) ) {
+				return;
+			}
+			$data_raw = \get_site_option( 'w3tc_state' );
+		} else {
+			if ( ! \function_exists( 'get_option' ) ) {
+				return;
+			}
+			$data_raw = \get_option( 'w3tc_state' );
+		}
+
+		$this->_loaded = true;
+		$this->_data   = @json_decode( $data_raw, true );
+		if ( ! is_array( $this->_data ) ) {
+			$this->_data = array();
+			$this->apply_defaults();
+			$this->save();
+			return;
+		}
+
+		$this->_saved_encoded = \wp_json_encode( $this->_data );
 	}
 
 	/**

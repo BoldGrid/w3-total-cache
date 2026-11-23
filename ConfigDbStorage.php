@@ -28,11 +28,11 @@ class ConfigDbStorage {
 	 * @return array|null Array of configuration settings or null if none exist.
 	 */
 	public static function util_array_from_storage( $blog_id, $preview ) {
-		$content = self::load_content( $blog_id, $preview );
-		$config  = @json_decode( $content, true );
+		$content     = self::load_content( $blog_id, $preview );
+		$w3tc_config = @json_decode( $content, true );
 
-		if ( is_array( $config ) ) {
-			return $config;
+		if ( is_array( $w3tc_config ) ) {
+			return $w3tc_config;
 		}
 
 		return null;
@@ -95,15 +95,15 @@ class ConfigDbStorage {
 	 *
 	 * @param int          $blog_id Blog ID to save the configuration for.
 	 * @param bool         $preview Whether to save as a preview configuration.
-	 * @param string|array $data    Configuration data to save, either as a string or an array.
+	 * @param string|array $w3tc_data    Configuration data to save, either as a string or an array.
 	 *
 	 * @return void
 	 */
-	public static function save_item( $blog_id, $preview, $data ) {
-		if ( is_string( $data ) ) {
-			$config = $data;
+	public static function save_item( $blog_id, $preview, $w3tc_data ) {
+		if ( is_string( $w3tc_data ) ) {
+			$w3tc_config = $w3tc_data;
 		} else {
-			$config = wp_json_encode( $data );
+			$w3tc_config = wp_json_encode( $w3tc_data );
 		}
 
 		$table       = self::get_table( $blog_id );
@@ -116,7 +116,7 @@ class ConfigDbStorage {
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE $table SET option_value = %s WHERE option_name = %s",
-					$config,
+					$w3tc_config,
 					$option_name
 				)
 			);
@@ -125,7 +125,7 @@ class ConfigDbStorage {
 				$wpdb->prepare(
 					"INSERT INTO $table (option_name, option_value) VALUES (%s, %s)",
 					$option_name,
-					$config
+					$w3tc_config
 				)
 			);
 		}
@@ -272,17 +272,9 @@ class _WpdbEssentials {
 	public $ready;
 
 	/**
-	 * Use mysqli.
-	 *
-	 * @var    bool
-	 * @access private
-	 */
-	private $use_mysqli;
-
-	/**
 	 * MySQL connection handle.
 	 *
-	 * @var    \mysqli|resource|false
+	 * @var    \mysqli|null|false
 	 * @access private
 	 */
 	private $dbh;
@@ -338,10 +330,10 @@ class _WpdbEssentials {
 	/**
 	 * MySQL result.
 	 *
-	 * @var    \mysqli_result|resource|false
+	 * @var    \mysqli_result|false
 	 * @access private
 	 */
-	private $result;
+	private $w3tc_result;
 
 	/**
 	 * Initializes the database connection.
@@ -354,16 +346,6 @@ class _WpdbEssentials {
 	 * @return void
 	 */
 	public function __construct( $dbuser, $dbpassword, $dbname, $dbhost ) {
-		if ( function_exists( 'mysqli_connect' ) ) {
-			if ( defined( 'WP_USE_EXT_MYSQL' ) ) {
-				$this->use_mysqli = ! WP_USE_EXT_MYSQL;
-			} elseif ( version_compare( phpversion(), '5.5', '>=' ) || ! function_exists( 'mysql_connect' ) ) {
-				$this->use_mysqli = true;
-			} elseif ( false !== strpos( $GLOBALS['wp_version'], '-' ) ) {
-				$this->use_mysqli = true;
-			}
-		}
-
 		$this->dbuser     = $dbuser;
 		$this->dbpassword = $dbpassword;
 		$this->dbname     = $dbname;
@@ -382,53 +364,65 @@ class _WpdbEssentials {
 	public function db_connect( $allow_bail = true ) {
 		$this->is_mysql = true;
 
-		/*
-		 * Deprecated in 3.9+ when using MySQLi. No equivalent
-		 * $new_link parameter exists for mysqli_* functions.
+		$client_flags = defined( 'MYSQL_CLIENT_FLAGS' ) ? \MYSQL_CLIENT_FLAGS : 0;
+
+		$this->dbh = mysqli_init();
+
+		/**
+		 * Copilot review (PR #4): `mysqli_init()` can return `false`
+		 * when the mysqli driver can't allocate a handle (out-of-
+		 * memory, mysqli extension disabled / broken). Without this
+		 * guard the next line would pass `false` to
+		 * `mysqli_real_connect()` (TypeError on PHP 8) and the
+		 * subsequent `$this->dbh->connect_errno` deref would fatal.
+		 * Treat init failure as a connection failure: set the same
+		 * `ready=false` + `last_error` state the post-connect failure
+		 * path uses, so callers see a consistent "not connected"
+		 * shape regardless of which leg failed.
+		 *
+		 * @since 2.10.0
 		 */
-		$new_link     = defined( 'MYSQL_NEW_LINK' ) ? MYSQL_NEW_LINK : true;
-		$client_flags = defined( 'MYSQL_CLIENT_FLAGS' ) ? MYSQL_CLIENT_FLAGS : 0;
-
-		if ( $this->use_mysqli ) {
-			$this->dbh = mysqli_init();
-
-			// mysqli_real_connect doesn't support the host param including a port or socket
-			// like mysql_connect does. This duplicates how mysql_connect detects a port and/or socket file.
-			$port           = null;
-			$socket         = null;
-			$host           = $this->dbhost;
-			$port_or_socket = strstr( $host, ':' );
-			if ( ! empty( $port_or_socket ) ) {
-				$host           = substr( $host, 0, strpos( $host, ':' ) );
-				$port_or_socket = substr( $port_or_socket, 1 );
-				if ( 0 !== strpos( $port_or_socket, '/' ) ) {
-					$port         = intval( $port_or_socket );
-					$maybe_socket = strstr( $port_or_socket, ':' );
-					if ( ! empty( $maybe_socket ) ) {
-						$socket = substr( $maybe_socket, 1 );
-					}
-				} else {
-					$socket = $port_or_socket;
-				}
-			}
-
+		if ( ! ( $this->dbh instanceof \mysqli ) ) {
+			$this->dbh        = null;
+			$this->last_error = 'mysqli_init() failed; mysqli driver unavailable';
+			$this->ready      = false;
 			if ( WP_DEBUG ) {
-				mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
-			} else {
-				@mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
+				echo esc_html( $this->last_error );
 			}
+			return;
+		}
 
-			if ( $this->dbh->connect_errno ) {
-				$this->dbh        = null;
-				$this->last_error = 'Connection failed with ' . $this->dbh->connect_errno . ' error code';
-				if ( WP_DEBUG ) {
-					echo esc_html( $this->last_error );
+		$port           = null;
+		$socket         = null;
+		$host           = $this->dbhost;
+		$port_or_socket = strstr( $host, ':' );
+		if ( ! empty( $port_or_socket ) ) {
+			$host           = substr( $host, 0, strpos( $host, ':' ) );
+			$port_or_socket = substr( $port_or_socket, 1 );
+			if ( 0 !== strpos( $port_or_socket, '/' ) ) {
+				$port         = intval( $port_or_socket );
+				$maybe_socket = strstr( $port_or_socket, ':' );
+				if ( ! empty( $maybe_socket ) ) {
+					$socket = substr( $maybe_socket, 1 );
 				}
+			} else {
+				$socket = $port_or_socket;
 			}
-		} elseif ( WP_DEBUG ) {
-			$this->dbh = mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
+		}
+
+		if ( WP_DEBUG ) {
+			mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
 		} else {
-			$this->dbh = @mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
+			@mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
+		}
+
+		if ( $this->dbh->connect_errno ) {
+			$connect_errno    = $this->dbh->connect_errno;
+			$this->dbh        = null;
+			$this->last_error = 'Connection failed with ' . $connect_errno . ' error code';
+			if ( WP_DEBUG ) {
+				echo esc_html( $this->last_error );
+			}
 		}
 
 		if ( $this->dbh ) {
@@ -443,17 +437,18 @@ class _WpdbEssentials {
 	/**
 	 * Selects a database to use for the connection.
 	 *
-	 * @param string           $db  The name of the database to select.
-	 * @param \mysqli|resource $dbh Optional. The database connection resource. Defaults to the current connection.
+	 * @param string       $db  The name of the database to select.
+	 * @param \mysqli|null $dbh Optional. The database connection handle. Defaults to the current connection.
 	 *
 	 * @return void
 	 */
 	public function select( $db, $dbh = null ) {
-		if ( $this->use_mysqli ) {
-			$success = mysqli_select_db( $dbh, $db );
-		} else {
-			$success = mysql_select_db( $db, $dbh );
+		if ( null === $dbh ) {
+			$dbh = $this->dbh;
 		}
+
+		$success = $dbh instanceof \mysqli ? mysqli_select_db( $dbh, $db ) : false;
+
 		if ( ! $success ) {
 			$this->ready = false;
 			if ( WP_DEBUG ) {
@@ -508,11 +503,11 @@ class _WpdbEssentials {
 	 * @return string The escaped string.
 	 */
 	private function _real_escape( $string_value ) {
-		if ( $this->use_mysqli ) {
+		if ( $this->dbh instanceof \mysqli ) {
 			return mysqli_real_escape_string( $this->dbh, $string_value );
-		} else {
-			return mysql_real_escape_string( $string_value, $this->dbh );
 		}
+
+		return addslashes( $string_value );
 	}
 
 	/**
@@ -552,14 +547,8 @@ class _WpdbEssentials {
 
 		$this->_do_query( $query );
 		// If there is an error then take note of it.
-		if ( $this->use_mysqli ) {
-			if ( $this->dbh instanceof \mysqli ) {
-				$this->last_error = mysqli_error( $this->dbh );
-			} else {
-				$this->last_error = 'query: Unable to retrieve the error message from MySQL';
-			}
-		} elseif ( is_resource( $this->dbh ) ) {
-			$this->last_error = mysql_error( $this->dbh );
+		if ( $this->dbh instanceof \mysqli ) {
+			$this->last_error = mysqli_error( $this->dbh );
 		} else {
 			$this->last_error = 'query: Unable to retrieve the error message from MySQL';
 		}
@@ -573,19 +562,12 @@ class _WpdbEssentials {
 
 		$num_rows          = 0;
 		$this->last_result = array();
-		if ( $this->use_mysqli && $this->result instanceof \mysqli_result ) {
-			$row = mysqli_fetch_object( $this->result );
+		if ( $this->w3tc_result instanceof \mysqli_result ) {
+			$row = mysqli_fetch_object( $this->w3tc_result );
 			while ( false !== $row && null !== $row ) {
 				$this->last_result[ $num_rows ] = $row;
 				++$num_rows;
-				$row = mysqli_fetch_object( $this->result );
-			}
-		} elseif ( is_resource( $this->result ) ) {
-			$row = mysql_fetch_object( $this->result );
-			while ( false !== $row ) {
-				$this->last_result[ $num_rows ] = $row;
-				++$num_rows;
-				$row = mysql_fetch_object( $this->result );
+				$row = mysqli_fetch_object( $this->w3tc_result );
 			}
 		}
 
@@ -604,10 +586,8 @@ class _WpdbEssentials {
 	 * @return void
 	 */
 	private function _do_query( $query ) {
-		if ( ! empty( $this->dbh ) && $this->use_mysqli ) {
-			$this->result = mysqli_query( $this->dbh, $query );
-		} elseif ( ! empty( $this->dbh ) ) {
-			$this->result = mysql_query( $query, $this->dbh );
+		if ( $this->dbh instanceof \mysqli ) {
+			$this->w3tc_result = mysqli_query( $this->dbh, $query );
 		}
 	}
 
@@ -617,15 +597,11 @@ class _WpdbEssentials {
 	 * @return bool True if the connection was successfully closed, false otherwise.
 	 */
 	public function close() {
-		if ( ! $this->dbh ) {
+		if ( ! ( $this->dbh instanceof \mysqli ) ) {
 			return false;
 		}
 
-		if ( $this->use_mysqli ) {
-			$closed = mysqli_close( $this->dbh );
-		} else {
-			$closed = mysql_close( $this->dbh );
-		}
+		$closed = mysqli_close( $this->dbh );
 
 		if ( $closed ) {
 			$this->dbh           = null;

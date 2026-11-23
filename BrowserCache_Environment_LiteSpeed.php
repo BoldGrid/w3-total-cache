@@ -22,17 +22,17 @@ class BrowserCache_Environment_LiteSpeed {
 	 *
 	 * @var Config
 	 */
-	private $c;
+	private $w3tc_c;
 
 	/**
 	 * Constructor
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->c = $config;
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_c = $w3tc_config;
 	}
 
 	/**
@@ -50,8 +50,8 @@ class BrowserCache_Environment_LiteSpeed {
 			'content'  => $this->generate( $mime_types ),
 		);
 
-		if ( $this->c->get_boolean( 'browsercache.rewrite' ) || $this->c->get_boolean( 'browsercache.no404wp' ) ) {
-			$g               = new BrowserCache_Environment_Apache( $this->c );
+		if ( $this->w3tc_c->get_boolean( 'browsercache.rewrite' ) || $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
+			$g               = new BrowserCache_Environment_Apache( $this->w3tc_c );
 			$rewrite_rules[] = array(
 				'filename' => Util_Rule::get_apache_rules_path(),
 				'content'  =>
@@ -87,9 +87,9 @@ class BrowserCache_Environment_LiteSpeed {
 		$this->generate_section( $rules, $mime_types['html'], 'html' );
 		$this->generate_section( $rules, $mime_types['other'], 'other' );
 
-		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ) {
+		if ( $this->w3tc_c->get_boolean( 'browsercache.rewrite' ) ) {
 			$core       = Dispatcher::component( 'BrowserCache_Core' );
-			$extensions = $core->get_replace_extensions( $this->c );
+			$extensions = $core->get_replace_extensions( $this->w3tc_c );
 
 			$rules .= "<IfModule mod_rewrite.c>\n";
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
@@ -112,16 +112,16 @@ class BrowserCache_Environment_LiteSpeed {
 	 * @return void
 	 */
 	private function generate_section( &$rules, $mime_types, $section ) {
-		$expires       = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
-		$cache_control = $this->c->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$w3tc          = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
-		$last_modified = $this->c->get_boolean( 'browsercache.' . $section . '.last_modified' );
+		$expires       = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.expires' );
+		$cache_control = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.cache.control' );
+		$w3tc          = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.w3tc' );
+		$last_modified = $this->w3tc_c->get_boolean( 'browsercache.' . $section . '.last_modified' );
 
 		if ( $expires || $cache_control || $w3tc || ! $last_modified ) {
 			$mime_types2 = apply_filters(
 				'w3tc_browsercache_rules_section_extensions',
 				$mime_types,
-				$this->c,
+				$this->w3tc_c,
 				$section
 			);
 
@@ -137,14 +137,14 @@ class BrowserCache_Environment_LiteSpeed {
 			$extensions_string = implode( '|', $extensions );
 
 			$section_rules = self::section_rules( $section );
-			$section_rules = apply_filters( 'w3tc_browsercache_rules_section', $section_rules, $this->c, $section );
+			$section_rules = apply_filters( 'w3tc_browsercache_rules_section', $section_rules, $this->w3tc_c, $section );
 
 			$context_rules = $section_rules['other'];
 
 			if ( ! empty( $section_rules['add_header'] ) ) {
 				$context_rules[] = "    extraHeaders <<<END_extraHeaders";
-				foreach ( $section_rules['add_header'] as $line ) {
-					$context_rules[] = '        ' . $line;
+				foreach ( $section_rules['add_header'] as $w3tc_line ) {
+					$context_rules[] = '        ' . $w3tc_line;
 				}
 				$context_rules[] = "    END_extraHeaders";
 			}
@@ -173,8 +173,8 @@ class BrowserCache_Environment_LiteSpeed {
 	public function section_rules( $section ) {
 		$rules = array();
 
-		$expires  = $this->c->get_boolean( "browsercache.$section.expires" );
-		$lifetime = $this->c->get_integer( "browsercache.$section.lifetime" );
+		$expires  = $this->w3tc_c->get_boolean( "browsercache.$section.expires" );
+		$lifetime = $this->w3tc_c->get_integer( "browsercache.$section.lifetime" );
 
 		if ( $expires ) {
 			$rules[] = '    enableExpires 1';
@@ -186,12 +186,12 @@ class BrowserCache_Environment_LiteSpeed {
 
 		/*
 		Lastmod support not implemented
-		if ( $this->c->get_boolean( "browsercache.$section.last_modified" ) )
+		if ( $this->w3tc_c->get_boolean( "browsercache.$section.last_modified" ) )
 		*/
 
 		$add_header_rules = array();
-		if ( $this->c->get_boolean( "browsercache.$section.cache.control" ) ) {
-			$cache_policy = $this->c->get_string( "browsercache.$section.cache.policy" );
+		if ( $this->w3tc_c->get_boolean( "browsercache.$section.cache.control" ) ) {
+			$cache_policy = $this->w3tc_c->get_string( "browsercache.$section.cache.policy" );
 
 			switch ( $cache_policy ) {
 				case 'cache':
@@ -263,7 +263,7 @@ class BrowserCache_Environment_LiteSpeed {
 		}
 
 		// Need htaccess for rewrites.
-		$rewrite = $this->c->get_boolean( 'browsercache.rewrite' );
+		$rewrite = $this->w3tc_c->get_boolean( 'browsercache.rewrite' );
 
 		return array(
 			'add_header' => $add_header_rules,

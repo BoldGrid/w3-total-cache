@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -15,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 	<?php esc_html_e( 'NewRelic extension is currently', 'w3-total-cache' ); ?>
 	<?php
-	if ( $config->is_extension_active_frontend( 'newrelic' ) ) {
+	if ( $w3tc_config->is_extension_active_frontend( 'newrelic' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>.';
 	} else {
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>.';
@@ -130,7 +131,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="submit">
 			<?php
 			echo wp_kses(
-				Util_Ui::nonce_field( 'w3tc' ),
+				Util_Ui::nonce_field( Util_Nonce::admin_action( 'w3tc_save_new_relic' ) ),
 				array(
 					'input' => array(
 						'type'  => array(),
@@ -143,7 +144,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<input type="submit" name="w3tc_save_new_relic"
 				class="w3tc-button-save button-primary"
 				<?php Util_Ui::sealing_disabled( 'newrelic' ); ?>
-				value="<?php esc_attr_e( 'Save New Relic settings', 'w3-total-cache' ); ?>" />
+				value="<?php esc_attr_e( 'Save New Relic settings', 'w3-total-cache' ); ?>"<?php echo wp_kses( Util_Ui::admin_submit_nonce_attr( 'w3tc_save_new_relic' ), array( 'data-w3tc-nonce' => array() ) ); ?> />
 		</p>
 		<?php elseif ( empty( $application_settings ) ) : ?>
 		<p class="description">
@@ -180,7 +181,7 @@ if ( ! defined( 'W3TC' ) ) {
 					</label>
 				</th>
 				<td><input id="newrelic_cache_time" name="extension__newrelic__cache_time"
-					type="text" value="<?php echo esc_attr( $config->get_integer( array( 'newrelic', 'cache_time', 5 ) ) ); ?>"
+					type="text" value="<?php echo esc_attr( $w3tc_config->get_integer( array( 'newrelic', 'cache_time', 5 ) ) ); ?>"
 					<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
 					<p class="description">
 						<?php esc_html_e( 'How many minutes data retrieved from New Relic should be stored. Minimum is 1 minute.', 'w3-total-cache' ); ?>
@@ -199,8 +200,8 @@ if ( ! defined( 'W3TC' ) ) {
 					Util_Ui::checkbox(
 						'',
 						Util_Ui::config_key_to_http_name( array( 'newrelic', 'accept.logged_roles' ) ),
-						$config->get_boolean( array( 'newrelic', 'accept.logged_roles' ) ),
-						$config->is_sealed( 'newrelic' )
+						$w3tc_config->get_boolean( array( 'newrelic', 'accept.logged_roles' ) ),
+						$w3tc_config->is_sealed( 'newrelic' )
 					);
 					echo wp_kses(
 						sprintf(
@@ -242,14 +243,14 @@ if ( ! defined( 'W3TC' ) ) {
 					</p>
 
 					<div id="newrelic_accept_roles" class="w3tc_reject_roles">
-						<?php $saved_roles = $config->get_array( array( 'newrelic', 'accept.roles' ) ); ?>
+						<?php $w3tc_saved_roles = $w3tc_config->get_array( array( 'newrelic', 'accept.roles' ) ); ?>
 						<input type="hidden" name="newrelic___accept__roles" value="" /><br />
-						<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-							<input type="checkbox" name="newrelic___accept__roles[]" value="<?php echo esc_attr( $role_name ); ?>"
-								<?php checked( in_array( $role_name, $saved_roles, true ) ); ?>
-								id="role_<?php echo esc_attr( $role_name ); ?>"
+						<?php foreach ( get_editable_roles() as $w3tc_role_name => $w3tc_role_data ) : ?>
+							<input type="checkbox" name="newrelic___accept__roles[]" value="<?php echo esc_attr( $w3tc_role_name ); ?>"
+								<?php checked( in_array( $w3tc_role_name, $w3tc_saved_roles, true ) ); ?>
+								id="role_<?php echo esc_attr( $w3tc_role_name ); ?>"
 								<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
-							<label for="role_<?php echo esc_attr( $role_name ); ?>"><?php echo esc_html( $role_data['name'] ); ?></label>
+							<label for="role_<?php echo esc_attr( $w3tc_role_name ); ?>"><?php echo esc_html( $w3tc_role_data['name'] ); ?></label>
 						<?php endforeach; ?>
 					</div>
 				</th>
@@ -282,7 +283,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
 					<input id="newrelic_include_rum" name="extension__newrelic__include_rum"
 						type="checkbox" value="1"
-						<?php checked( $config->get_boolean( array( 'newrelic', 'include_rum' ) ) ); ?>
+						<?php checked( $w3tc_config->get_boolean( array( 'newrelic', 'include_rum' ) ) ); ?>
 						<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
 					<p class="description">
 						<?php
@@ -337,7 +338,7 @@ if ( ! defined( 'W3TC' ) ) {
 						</p>
 					<?php else : ?>
 					<input name="extension__newrelic__use_php_function" type="hidden" value="0" />
-					<input id="newrelic_use_php_function" name="extension__newrelic__use_php_function" type="checkbox" value="1" <?php checked( $config->get_boolean( array( 'newrelic', 'use_php_function' ) ) ); ?>/>
+					<input id="newrelic_use_php_function" name="extension__newrelic__use_php_function" type="checkbox" value="1" <?php checked( $w3tc_config->get_boolean( array( 'newrelic', 'use_php_function' ) ) ); ?>/>
 						<p class="description">
 							<?php
 							echo wp_kses(
@@ -370,7 +371,7 @@ if ( ! defined( 'W3TC' ) ) {
 					</label>
 				</th>
 				<td><input name="" type="hidden" value="0" />
-				<input id="newrelic_enable_xmit" name="extension__newrelic__enable_xmit" type="checkbox" value="1" <?php checked( $config->get_boolean( array( 'newrelic', 'enable_xmit' ) ) ); ?> <?php Util_Ui::sealing_disabled( 'newrelic' ); ?>/>
+				<input id="newrelic_enable_xmit" name="extension__newrelic__enable_xmit" type="checkbox" value="1" <?php checked( $w3tc_config->get_boolean( array( 'newrelic', 'enable_xmit' ) ) ); ?> <?php Util_Ui::sealing_disabled( 'newrelic' ); ?>/>
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -405,10 +406,10 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 <?php if ( $view_metric ) : ?>
 <table>
-	<?php foreach ( $metric_names as $metric ) : ?>
+	<?php foreach ( $metric_names as $w3tc_metric ) : ?>
 	<tr>
-		<th style="text-align: right"><strong><?php echo esc_html( $metric->name ); ?></strong></th>
-		<td><?php echo esc_html( implode( ', ', $metric->fields ) ); ?></td>
+		<th style="text-align: right"><strong><?php echo esc_html( $w3tc_metric->name ); ?></strong></th>
+		<td><?php echo esc_html( implode( ', ', $w3tc_metric->fields ) ); ?></td>
 	</tr>
 	<?php endforeach; ?>
 </table>

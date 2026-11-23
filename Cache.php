@@ -16,75 +16,75 @@ class Cache {
 	/**
 	 * Returns cache engine instance
 	 *
-	 * @param string $engine Engine key code.
-	 * @param array  $config Configuration.
+	 * @param string $w3tc_engine Engine key code.
+	 * @param array  $w3tc_config Configuration.
 	 *
 	 * @return W3_Cache_Base
 	 */
-	public static function instance( $engine, $config = array() ) {
+	public static function instance( $w3tc_engine, $w3tc_config = array() ) {
 		static $instances = array();
 
 		// Common configuration data.
-		if ( ! isset( $config['blog_id'] ) ) {
-			$config['blog_id'] = Util_Environment::blog_id();
+		if ( ! isset( $w3tc_config['blog_id'] ) ) {
+			$w3tc_config['blog_id'] = Util_Environment::blog_id();
 		}
 
-		$instance_key = sprintf( '%s_%s', $engine, md5( serialize( $config ) ) );
+		$instance_key = sprintf( '%s_%s', $w3tc_engine, md5( serialize( $w3tc_config ) ) );
 
 		if ( ! isset( $instances[ $instance_key ] ) ) {
-			switch ( $engine ) {
+			switch ( $w3tc_engine ) {
 				case 'apc':
 					if ( function_exists( 'apcu_store' ) ) {
-						$instances[ $instance_key ] = new Cache_Apcu( $config );
+						$instances[ $instance_key ] = new Cache_Apcu( $w3tc_config );
 					} elseif ( function_exists( 'apc_store' ) ) {
-							$instances[ $instance_key ] = new Cache_Apc( $config );
+							$instances[ $instance_key ] = new Cache_Apc( $w3tc_config );
 					}
 					break;
 
 				case 'eaccelerator':
-					$instances[ $instance_key ] = new Cache_Eaccelerator( $config );
+					$instances[ $instance_key ] = new Cache_Eaccelerator( $w3tc_config );
 					break;
 
 				case 'file':
-					$instances[ $instance_key ] = new Cache_File( $config );
+					$instances[ $instance_key ] = new Cache_File( $w3tc_config );
 					break;
 
 				case 'file_generic':
-					$instances[ $instance_key ] = new Cache_File_Generic( $config );
+					$instances[ $instance_key ] = new Cache_File_Generic( $w3tc_config );
 					break;
 
 				case 'memcached':
 					if ( class_exists( '\Memcached' ) ) {
-						$instances[ $instance_key ] = new Cache_Memcached( $config );
+						$instances[ $instance_key ] = new Cache_Memcached( $w3tc_config );
 					} elseif ( class_exists( '\Memcache' ) ) {
-						$instances[ $instance_key ] = new Cache_Memcache( $config );
+						$instances[ $instance_key ] = new Cache_Memcache( $w3tc_config );
 					}
 					break;
 
 				case 'nginx_memcached':
-					$instances[ $instance_key ] = new Cache_Nginx_Memcached( $config );
+					$instances[ $instance_key ] = new Cache_Nginx_Memcached( $w3tc_config );
 					break;
 
 				case 'redis':
-					$instances[ $instance_key ] = new Cache_Redis( $config );
+					$instances[ $instance_key ] = new Cache_Redis( $w3tc_config );
 					break;
 
 				case 'wincache':
-					$instances[ $instance_key ] = new Cache_Wincache( $config );
+					$instances[ $instance_key ] = new Cache_Wincache( $w3tc_config );
 					break;
 
 				case 'xcache':
-					$instances[ $instance_key ] = new Cache_Xcache( $config );
+					$instances[ $instance_key ] = new Cache_Xcache( $w3tc_config );
 					break;
 
 				default:
-					trigger_error( 'Incorrect cache engine ' . esc_html( $engine ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-					$instances[ $instance_key ] = new Cache_Base( $config );
+					trigger_error( 'Incorrect cache engine ' . esc_html( $w3tc_engine ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+					$instances[ $instance_key ] = new Cache_Base( $w3tc_config );
 					break;
 			}
 
 			if ( ! isset( $instances[ $instance_key ] ) || ! $instances[ $instance_key ]->available() ) {
-				$instances[ $instance_key ] = new Cache_Base( $config );
+				$instances[ $instance_key ] = new Cache_Base( $w3tc_config );
 			}
 		}
 
@@ -94,13 +94,13 @@ class Cache {
 	/**
 	 * Returns caching engine name.
 	 *
-	 * @param string $engine Engine key code.
-	 * @param string $module Module.
+	 * @param string $w3tc_engine Engine key code.
+	 * @param string $w3tc_module Module.
 	 *
 	 * @return string
 	 */
-	public static function engine_name( $engine, $module = '' ) {
-		switch ( $engine ) {
+	public static function engine_name( $w3tc_engine, $w3tc_module = '' ) {
+		switch ( $w3tc_engine ) {
 			case 'memcached':
 				if ( class_exists( 'Memcached' ) ) {
 					$engine_name = 'Memcached';
@@ -134,7 +134,7 @@ class Cache {
 				break;
 
 			case 'file':
-				if ( 'pgcache' === $module ) {
+				if ( 'pgcache' === $w3tc_module ) {
 					$engine_name = 'Disk: Basic';
 				} else {
 					$engine_name = 'Disk';
@@ -185,14 +185,6 @@ class Cache {
 				$engine_name = 'Microsoft Azure Storage (Managed Identity)';
 				break;
 
-			case 'edgecast':
-				$engine_name = 'Media Template ProCDN / EdgeCast';
-				break;
-
-			case 'att':
-				$engine_name = 'AT&amp;T';
-				break;
-
 			case 'rackspace_cdn':
 				$engine_name = 'Rackspace';
 				break;
@@ -206,7 +198,7 @@ class Cache {
 				break;
 
 			default:
-				$engine_name = $engine;
+				$engine_name = $w3tc_engine;
 				break;
 		}
 

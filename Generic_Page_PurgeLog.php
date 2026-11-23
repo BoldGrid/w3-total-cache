@@ -26,12 +26,12 @@ class Generic_Page_PurgeLog {
 	 * @return void
 	 */
 	public function __construct() {
-		$p = dirname( __DIR__ );
-		if ( $this->starts_with( $p, ABSPATH ) ) {
-			$p = substr( $p, strlen( ABSPATH ) );
+		$w3tc_p = dirname( __DIR__ );
+		if ( $this->starts_with( $w3tc_p, ABSPATH ) ) {
+			$w3tc_p = substr( $w3tc_p, strlen( ABSPATH ) );
 		}
 
-		$this->plugins_regexp = '~^(' . Util_Environment::preg_quote( $p ) . '/)([^/]+)(.*)~';
+		$this->plugins_regexp = '~^(' . Util_Environment::preg_quote( $w3tc_p ) . '/)([^/]+)(.*)~';
 	}
 
 	/**
@@ -40,20 +40,20 @@ class Generic_Page_PurgeLog {
 	 * @return void
 	 */
 	public function render_content() {
-		$module       = Util_Request::get_label( 'module' );
-		$log_filename = Util_Debug::log_filename( $module . '-purge' );
+		$w3tc_module  = Util_Request::get_label( 'module' );
+		$log_filename = Util_Debug::log_filename( $w3tc_module . '-purge' );
 		if ( file_exists( $log_filename ) ) {
 			$log_filefize = $this->to_human( filesize( $log_filename ) );
 		} else {
 			$log_filefize = 'n/a';
 		}
 
-		$lines = Util_DebugPurgeLog_Reader::read( $module );
+		$lines = Util_DebugPurgeLog_Reader::read( $w3tc_module );
 
 		$purgelog_modules = array();
-		$c                = Dispatcher::config();
+		$w3tc_c           = Dispatcher::config();
 
-		if ( $c->get_boolean( 'pgcache.debug_purge' ) ) {
+		if ( $w3tc_c->get_boolean( 'pgcache.debug_purge' ) ) {
 			$purgelog_modules[] = array(
 				'label'   => 'pagecache',
 				'name'    => 'Page Cache',
@@ -61,7 +61,7 @@ class Generic_Page_PurgeLog {
 			);
 		}
 
-		if ( $c->get_boolean( 'dbcache.debug_purge' ) ) {
+		if ( $w3tc_c->get_boolean( 'dbcache.debug_purge' ) ) {
 			$purgelog_modules[] = array(
 				'label'   => 'dbcache',
 				'name'    => 'Database Cache',
@@ -69,7 +69,7 @@ class Generic_Page_PurgeLog {
 			);
 		}
 
-		if ( $c->get_boolean( 'objectcache.debug_purge' ) ) {
+		if ( $w3tc_c->get_boolean( 'objectcache.debug_purge' ) ) {
 			$purgelog_modules[] = array(
 				'label'   => 'objectcache',
 				'name'    => 'Object Cache',

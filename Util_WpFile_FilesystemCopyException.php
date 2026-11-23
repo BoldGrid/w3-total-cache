@@ -32,18 +32,18 @@ class Util_WpFile_FilesystemCopyException extends Util_WpFile_FilesystemOperatio
 	 * credentials form, source filename, and destination filename properties. It also invokes
 	 * the parent class's constructor to initialize shared properties.
 	 *
-	 * @param string $message              The message to associate with the object.
+	 * @param string $w3tc_message              The message to associate with the object.
 	 * @param string $credentials_form     The credentials form content.
 	 * @param string $source_filename      The name of the source file.
 	 * @param string $destination_filename The name of the destination file.
 	 */
 	public function __construct(
-		$message,
+		$w3tc_message,
 		$credentials_form,
 		$source_filename,
 		$destination_filename
 	) {
-		parent::__construct( $message, $credentials_form );
+		parent::__construct( $w3tc_message, $credentials_form );
 
 		$this->source_filename      = $source_filename;
 		$this->destination_filename = $destination_filename;

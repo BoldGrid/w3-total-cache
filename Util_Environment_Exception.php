@@ -21,13 +21,13 @@ class Util_Environment_Exception extends \Exception {
 	/**
 	 * Constructor
 	 *
-	 * @param string $message           Message.
+	 * @param string $w3tc_message           Message.
 	 * @param string $technical_message Technical message.
 	 *
 	 * @return void
 	 */
-	public function __construct( $message, $technical_message = '' ) {
-		parent::__construct( $message );
+	public function __construct( $w3tc_message, $technical_message = '' ) {
+		parent::__construct( $w3tc_message );
 		$this->technical_message = $technical_message;
 	}
 

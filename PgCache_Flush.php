@@ -82,16 +82,51 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 *
 	 * Logs the purge operation for a given group if debug mode is enabled.
 	 *
-	 * @param string $group The cache group to flush.
+	 * @param string $w3tc_group The cache group to flush.
 	 *
 	 * @return void
 	 */
-	public function flush_group( $group ) {
+	public function flush_group( $w3tc_group ) {
 		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_group', $group );
+			Util_Debug::log_purge( 'pagecache', 'flush_group', $w3tc_group );
 		}
 
-		$this->queued_groups[ $group ] = '*';
+		$this->queued_groups[ $w3tc_group ] = '*';
+	}
+
+	/**
+	 * Whether a delayed page-cache flush should include the REST group.
+	 *
+	 * Uses Util_Environment::is_rest_cache_active() when that 2.11.0 method
+	 * is loaded. A partial update or stale opcode cache can leave an older
+	 * Util_Environment in memory; calling the missing method fatals on
+	 * shutdown. The fallback still honors a retained `pgcache.rest=cache`
+	 * value so the REST group is not skipped.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	private function pagecache_rest_group_active() {
+		if ( $this->rest_cache_helper_loaded() ) {
+			return Util_Environment::is_rest_cache_active( $this->_config );
+		}
+
+		return self::rest_cache_active_legacy( $this->_config );
+	}
+
+	/**
+	 * Whether the 2.11.0 REST-cache helper is loaded.
+	 *
+	 * A stale opcode cache can serve Util_Environment from 2.10.7, which
+	 * does not define is_rest_cache_active().
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	protected function rest_cache_helper_loaded() {
+		return \method_exists( Util_Environment::class, 'is_rest_cache_active' );
 	}
 
 	/**
@@ -154,7 +189,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		$feeds            = $this->_config->get_array( 'pgcache.purge.feed.types' );
 		$limit_post_pages = $this->_config->get_integer( 'pgcache.purge.postpages_limit' );
 
-		if ( 'cache' === $this->_config->get_string( 'pgcache.rest' ) ) {
+		if ( $this->pagecache_rest_group_active() ) {
 			$this->flush_group( 'rest' );
 		}
 
@@ -312,7 +347,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 		// add mirror urls.
 		$full_urls = Util_PageUrls::complement_with_mirror_urls( $full_urls );
-		$full_urls = apply_filters( 'pgcache_flush_post_queued_urls', $full_urls );
+		$full_urls = apply_filters( 'w3tc_pgcache_flush_post_queued_urls', $full_urls );
 
 		if ( $this->debug_purge ) {
 			Util_Debug::log_purge( 'pagecache', 'flush_post', $post_id, $full_urls );
@@ -320,8 +355,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 		// Queue flush.
 		if ( count( $full_urls ) ) {
-			foreach ( $full_urls as $url ) {
-				$this->queued_urls[ $url ] = '*';
+			foreach ( $full_urls as $w3tc_url ) {
+				$this->queued_urls[ $w3tc_url ] = '*';
 			}
 		}
 
@@ -331,21 +366,21 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	/**
 	 * Flushes the cache for a specific URL.
 	 *
-	 * @param string $url URL of the page to flush.
+	 * @param string $w3tc_url URL of the page to flush.
 	 *
 	 * @return void
 	 */
-	public function flush_url( $url ) {
-		$parts = wp_parse_url( $url );
-		$uri   = ( isset( $parts['path'] ) ? $parts['path'] : '' ) .
+	public function flush_url( $w3tc_url ) {
+		$parts      = wp_parse_url( $w3tc_url );
+		$uri        = ( isset( $parts['path'] ) ? $parts['path'] : '' ) .
 			( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
-		$group = $this->get_cache_group_by_uri( $uri );
+		$w3tc_group = $this->get_cache_group_by_uri( $uri );
 
 		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_url', array( $url, $group ) );
+			Util_Debug::log_purge( 'pagecache', 'flush_url', array( $w3tc_url, $w3tc_group ) );
 		}
 
-		$this->queued_urls[ $url ] = ( empty( $group ) ? '*' : $group );
+		$this->queued_urls[ $w3tc_url ] = ( empty( $w3tc_group ) ? '*' : $w3tc_group );
 	}
 
 	/**
@@ -360,37 +395,37 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			}
 
 			$groups_to_flush = array( '' );
-			if ( 'cache' === $this->_config->get_string( 'pgcache.rest' ) ) {
+			if ( $this->pagecache_rest_group_active() ) {
 				$groups_to_flush[] = 'rest';
 			}
 
 			$groups_to_flush = apply_filters( 'w3tc_pagecache_flush_all_groups', $groups_to_flush );
 
-			foreach ( $groups_to_flush as $group ) {
-				$cache = $this->_get_cache( $group );
-				$cache->flush( $group );
+			foreach ( $groups_to_flush as $w3tc_group ) {
+				$cache = $this->_get_cache( $w3tc_group );
+				$cache->flush( $w3tc_group );
 			}
 
-			$count                               = 999;
+			$w3tc_count                          = 999;
 			$this->flush_all_operation_requested = false;
 			$this->queued_urls                   = array();
 		} else {
-			$count = 0;
+			$w3tc_count = 0;
 			if ( count( $this->queued_groups ) > 0 ) {
-				$count += count( $this->queued_urls );
-				foreach ( $this->queued_groups as $group => $flag ) {
+				$w3tc_count += count( $this->queued_urls );
+				foreach ( $this->queued_groups as $w3tc_group => $flag ) {
 					if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
-						self::log( 'pgcache flush "' . $group . '" group' );
+						self::log( 'pgcache flush "' . $w3tc_group . '" group' );
 					}
 
-					$cache = $this->_get_cache( $group );
-					$cache->flush( $group );
+					$cache = $this->_get_cache( $w3tc_group );
+					$cache->flush( $w3tc_group );
 				}
 			}
 
 			if ( count( $this->queued_urls ) > 0 ) {
 				if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
-					self::log( 'pgcache flush ' . $count . ' urls' );
+					self::log( 'pgcache flush ' . $w3tc_count . ' urls' );
 				}
 
 				$mobile_groups   = $this->_get_mobile_groups();
@@ -403,60 +438,60 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 					'*' => $this->_get_cache(),
 				);
 
-				foreach ( $this->queued_urls as $url => $group ) {
-					if ( ! isset( $caches[ $group ] ) ) {
-						$caches[ $group ] = $this->_get_cache( $group );
+				foreach ( $this->queued_urls as $w3tc_url => $w3tc_group ) {
+					if ( ! isset( $caches[ $w3tc_group ] ) ) {
+						$caches[ $w3tc_group ] = $this->_get_cache( $w3tc_group );
 					}
 
 					$this->_flush_url(
 						array(
-							'url'             => $url,
-							'cache'           => $caches[ $group ],
+							'url'             => $w3tc_url,
+							'cache'           => $caches[ $w3tc_group ],
 							'mobile_groups'   => $mobile_groups,
 							'referrer_groups' => $referrer_groups,
 							'cookies'         => $cookies,
 							'encryptions'     => $encryptions,
 							'compressions'    => $compressions,
-							'group'           => '*' === $group ? '' : $group,
+							'group'           => '*' === $w3tc_group ? '' : $w3tc_group,
 						)
 					);
 				}
 
-				$count += count( $this->queued_urls );
+				$w3tc_count += count( $this->queued_urls );
 
 				// Purge sitemaps if a sitemap option has a regex.
 				if ( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ) {
 					$cache = $this->_get_cache( 'sitemaps' );
 					$cache->flush( 'sitemaps' );
-					++$count;
+					++$w3tc_count;
 				}
 
 				$this->queued_urls = array();
 			}
 		}
 
-		return $count;
+		return $w3tc_count;
 	}
 
 	/**
 	 * Flushed a specific URL by generating cache keys for different conditions.
 	 *
-	 * @param array $data Data required to flush the URL.
+	 * @param array $w3tc_data Data required to flush the URL.
 	 *
 	 * @return void
 	 */
-	private function _flush_url( $data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-		$data['parent'] = $this;
-		$data           = apply_filters( 'w3tc_pagecache_flush_url', $data );
-		if ( empty( $data ) || empty( $data['url'] ) ) {
+	private function _flush_url( $w3tc_data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+		$w3tc_data['parent'] = $this;
+		$w3tc_data           = apply_filters( 'w3tc_pagecache_flush_url', $w3tc_data );
+		if ( empty( $w3tc_data ) || empty( $w3tc_data['url'] ) ) {
 			return;
 		}
 
-		foreach ( $data['mobile_groups'] as $mobile_group ) {
-			foreach ( $data['referrer_groups'] as $referrer_group ) {
-				foreach ( $data['cookies'] as $cookie ) {
-					foreach ( $data['encryptions'] as $encryption ) {
-						foreach ( $data['compressions'] as $compression ) {
+		foreach ( $w3tc_data['mobile_groups'] as $mobile_group ) {
+			foreach ( $w3tc_data['referrer_groups'] as $referrer_group ) {
+				foreach ( $w3tc_data['cookies'] as $cookie ) {
+					foreach ( $w3tc_data['encryptions'] as $encryption ) {
+						foreach ( $w3tc_data['compressions'] as $compression ) {
 							$page_keys   = array();
 							$page_keys[] = $this->_get_page_key(
 								array(
@@ -465,15 +500,15 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 									'cookie'      => $cookie,
 									'encryption'  => $encryption,
 									'compression' => $compression,
-									'group'       => $data['group'],
+									'group'       => $w3tc_data['group'],
 								),
-								$data['url']
+								$w3tc_data['url']
 							);
 
 							$page_keys = apply_filters( 'w3tc_pagecache_flush_url_keys', $page_keys );
 
 							foreach ( $page_keys as $page_key ) {
-								$data['cache']->delete( $page_key, $data['group'] );
+								$w3tc_data['cache']->delete( $page_key, $w3tc_data['group'] );
 							}
 						}
 					}
@@ -485,26 +520,26 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	/**
 	 * Retrieves the ahead generation extension for a specific cache group.
 	 *
-	 * @param string $group Cache group identifier.
+	 * @param string $w3tc_group Cache group identifier.
 	 *
 	 * @return mixed The ahead generation extension for the group.
 	 */
-	public function get_ahead_generation_extension( $group ) {
-		$cache = $this->_get_cache( $group );
-		return $cache->get_ahead_generation_extension( $group );
+	public function get_ahead_generation_extension( $w3tc_group ) {
+		$cache = $this->_get_cache( $w3tc_group );
+		return $cache->get_ahead_generation_extension( $w3tc_group );
 	}
 
 	/**
 	 * Flushes the cache group after ahead generation.
 	 *
-	 * @param string $group     Cache group identifier.
-	 * @param mixed  $extension Extension used for the ahead generation.
+	 * @param string $w3tc_group     Cache group identifier.
+	 * @param mixed  $w3tc_extension Extension used for the ahead generation.
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
-		$cache = $this->_get_cache( $group );
-		$cache->flush_group_after_ahead_generation( $group, $extension );
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
+		$cache = $this->_get_cache( $w3tc_group );
+		$cache->flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension );
 	}
 
 	/**

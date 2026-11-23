@@ -16,19 +16,19 @@ class CdnEngine_Mirror extends CdnEngine_Base {
 	/**
 	 * Constructor for the CdnEngine_Mirror class.
 	 *
-	 * @param array $config Optional configuration settings for the engine.
+	 * @param array $w3tc_config Optional configuration settings for the engine.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		$config = array_merge(
+	public function __construct( $w3tc_config = array() ) {
+		$w3tc_config = array_merge(
 			array(
 				'domain' => array(),
 			),
-			$config
+			$w3tc_config
 		);
 
-		parent::__construct( $config );
+		parent::__construct( $w3tc_config );
 	}
 
 	/**

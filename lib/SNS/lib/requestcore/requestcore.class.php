@@ -461,7 +461,7 @@ class RequestCore
 	 */
 	public function set_seek_position($position)
 	{
-		$this->seek_position = isset($position) ? (integer) $position : null;
+		$this->seek_position = isset($position) ? (int) $position : null;
 
 		return $this;
 	}
@@ -632,7 +632,7 @@ class RequestCore
 		// chmod the file as 0755
 		if ($this->cacert_location === true)
 		{
-			curl_setopt($curl_handle, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
+			curl_setopt($curl_handle, CURLOPT_CAINFO, __DIR__ . '/cacert.pem');
 		}
 		elseif (is_string($this->cacert_location))
 		{
@@ -813,7 +813,7 @@ class RequestCore
 	 */
 	public function send_request($parse = false)
 	{
-		set_time_limit(0);
+		\W3TC\Util_Environment::set_time_limit(0);
 
 		$curl_handle = $this->prep_request();
 		$this->response = curl_exec($curl_handle);
@@ -846,7 +846,7 @@ class RequestCore
 	 */
 	public function send_multi_request($handles, $opt = null)
 	{
-		set_time_limit(0);
+		\W3TC\Util_Environment::set_time_limit(0);
 
 		// Skip everything if there are no handles to process.
 		if (count($handles) === 0) return array();

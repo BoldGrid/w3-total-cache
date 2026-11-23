@@ -35,44 +35,44 @@ class ConfigStateNote {
 	 * Initializes the ConfigStateNote instance with master and state configurations.
 	 *
 	 * @param object $config_state_master The master configuration state object.
-	 * @param object $config_state        The configuration state object.
+	 * @param object $w3tc_config_state        The configuration state object.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config_state_master, $config_state ) {
+	public function __construct( $config_state_master, $w3tc_config_state ) {
 		$this->_config_state_master = $config_state_master;
-		$this->_config_state        = $config_state;
+		$this->_config_state        = $w3tc_config_state;
 	}
 
 	/**
 	 * Retrieves a configuration value for a given key, considering timestamps.
 	 *
-	 * @param string $key The key for which to retrieve the configuration value.
+	 * @param string $w3tc_key The key for which to retrieve the configuration value.
 	 *
 	 * @return bool The boolean value of the configuration for the given key.
 	 */
-	public function get( $key ) {
-		$timestamp        = $this->_config_state->get_integer( $key . '.timestamp' );
-		$timestamp_master = $this->_config_state_master->get_integer( $key . '.timestamp' );
+	public function get( $w3tc_key ) {
+		$timestamp        = $this->_config_state->get_integer( $w3tc_key . '.timestamp' );
+		$timestamp_master = $this->_config_state_master->get_integer( $w3tc_key . '.timestamp' );
 
 		if ( $timestamp > $timestamp_master ) {
-			return $this->_config_state->get_boolean( $key );
+			return $this->_config_state->get_boolean( $w3tc_key );
 		} else {
-			return $this->_config_state_master->get_boolean( $key );
+			return $this->_config_state_master->get_boolean( $w3tc_key );
 		}
 	}
 
 	/**
 	 * Sets a configuration value and updates its timestamp.
 	 *
-	 * @param string $key   The key for which to set the configuration value.
-	 * @param mixed  $value The value to set for the given key.
+	 * @param string $w3tc_key   The key for which to set the configuration value.
+	 * @param mixed  $w3tc_value The value to set for the given key.
 	 *
 	 * @return void
 	 */
-	public function set( $key, $value ) {
-		$this->_config_state->set( $key, $value );
-		$this->_config_state->set( $key . '.timestamp', time() );
+	public function set( $w3tc_key, $w3tc_value ) {
+		$this->_config_state->set( $w3tc_key, $w3tc_value );
+		$this->_config_state->set( $w3tc_key . '.timestamp', time() );
 		$this->_config_state->save();
 	}
 }

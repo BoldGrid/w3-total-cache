@@ -29,12 +29,12 @@ class Extension_NewRelic_Widget {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Extension_NewRelic_Widget();
+		$w3tc_o = new Extension_NewRelic_Widget();
 
-		add_action( 'w3tc_ajax_newrelic_widgetdata_basic', array( $o, 'w3tc_ajax_newrelic_widgetdata_basic' ) );
-		add_action( 'w3tc_ajax_newrelic_widgetdata_pageloads', array( $o, 'w3tc_ajax_newrelic_widgetdata_pageloads' ) );
-		add_action( 'w3tc_ajax_newrelic_widgetdata_webtransactions', array( $o, 'w3tc_ajax_newrelic_widgetdata_webtransactions' ) );
-		add_action( 'w3tc_ajax_newrelic_widgetdata_dbtimes', array( $o, 'w3tc_ajax_newrelic_widgetdata_dbtimes' ) );
+		add_action( 'w3tc_ajax_newrelic_widgetdata_basic', array( $w3tc_o, 'w3tc_ajax_newrelic_widgetdata_basic' ) );
+		add_action( 'w3tc_ajax_newrelic_widgetdata_pageloads', array( $w3tc_o, 'w3tc_ajax_newrelic_widgetdata_pageloads' ) );
+		add_action( 'w3tc_ajax_newrelic_widgetdata_webtransactions', array( $w3tc_o, 'w3tc_ajax_newrelic_widgetdata_webtransactions' ) );
+		add_action( 'w3tc_ajax_newrelic_widgetdata_dbtimes', array( $w3tc_o, 'w3tc_ajax_newrelic_widgetdata_dbtimes' ) );
 	}
 
 	/**
@@ -43,18 +43,27 @@ class Extension_NewRelic_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o          = new Extension_NewRelic_Widget();
-		$o->_config = Dispatcher::config();
+		$w3tc_o          = new Extension_NewRelic_Widget();
+		$w3tc_o->_config = Dispatcher::config();
 
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 1000 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 1000 );
+		add_action( 'w3tc_widget_setup', array( $w3tc_o, 'wp_dashboard_setup' ), 1000 );
+		add_action( 'w3tc_network_dashboard_setup', array( $w3tc_o, 'wp_dashboard_setup' ), 1000 );
 
 		$nerser               = Dispatcher::component( 'Extension_NewRelic_Service' );
 		$view_application     = $nerser->get_effective_application_id();
-		$new_relic_configured = ( $o->_config->get_string( array( 'newrelic', 'api_key' ) ) && 0 !== $view_application );
-		$monitoring_type      = $o->_config->get_string( array( 'newrelic', 'monitoring_type' ) );
+		$new_relic_configured = ( $w3tc_o->_config->get_string( array( 'newrelic', 'api_key' ) ) && 0 !== $view_application );
+		$monitoring_type      = $w3tc_o->_config->get_string( array( 'newrelic', 'monitoring_type' ) );
 		if ( 'browser' !== $monitoring_type ) {
-			wp_enqueue_script( 'w3tc-widget-newrelic', plugins_url( 'Extension_NewRelic_Widget_View.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			// Dashboard widgets load outside the main W3TC admin script bootstrap.
+			Util_Nonce::enqueue_ajax_nonces(
+				array(
+					'newrelic_widgetdata_basic',
+					'newrelic_widgetdata_pageloads',
+					'newrelic_widgetdata_webtransactions',
+					'newrelic_widgetdata_dbtimes',
+				)
+			);
+			wp_enqueue_script( 'w3tc-widget-newrelic', plugins_url( 'Extension_NewRelic_Widget_View.js', W3TC_FILE ), array( 'w3tc-nonce' ), W3TC_VERSION, false );
 		}
 
 		wp_enqueue_style( 'w3tc-widget-newrelic', plugins_url( 'Extension_NewRelic_Widget_View.css', W3TC_FILE ), array(), W3TC_VERSION, false );
@@ -133,8 +142,8 @@ class Extension_NewRelic_Widget {
 			return;
 		}
 
-		$service        = Dispatcher::component( 'Extension_NewRelic_Service' );
-		$verify_running = $service->verify_running();
+		$w3tc_service   = Dispatcher::component( 'Extension_NewRelic_Service' );
+		$verify_running = $w3tc_service->verify_running();
 
 		$response = array(
 			'time' => time(),
@@ -147,10 +156,10 @@ class Extension_NewRelic_Widget {
 		}
 
 		try {
-			$subscription                   = $service->get_subscription();
+			$subscription                   = $w3tc_service->get_subscription();
 			$response['subscription_level'] = $subscription['product-name'];
 
-			$summary = $service->get_application_summary();
+			$summary = $w3tc_service->get_application_summary();
 			$this->_fill( $response, 'apdex', $summary, 'Apdex' );
 			$this->_fill( $response, 'application_busy', $summary, 'Application Busy' );
 			$this->_fill( $response, 'error_rate', $summary, 'Error Rate' );
@@ -161,16 +170,16 @@ class Extension_NewRelic_Widget {
 			$this->_fill( $response, 'cpu', $summary, 'CPU' );
 			$this->_fill( $response, 'memory', $summary, 'Memory' );
 
-			$can_use_metrics = $service->can_get_metrics();
+			$can_use_metrics = $w3tc_service->can_get_metrics();
 			if ( $can_use_metrics ) {
-				$dashboard_metrics = $service->get_dashboard_metrics();
+				$dashboard_metrics = $w3tc_service->get_dashboard_metrics();
 				$this->_fill_avg( $response, 'enduser', $dashboard_metrics, array( 'EndUser' ) );
 				$this->_fill_avg( $response, 'webtransaction', $dashboard_metrics, array( 'WebTransaction' ) );
 				$this->_fill_avg( $response, 'database', $dashboard_metrics, array( 'Datastore', 'Database' ) );
 			}
 
 			// load data for notification here too.
-			$pl = $service->get_frontend_response_time();
+			$pl = $w3tc_service->get_frontend_response_time();
 			update_option( 'w3tc_nr_frontend_response_time', $pl );
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}
@@ -190,10 +199,10 @@ class Extension_NewRelic_Widget {
 		);
 
 		try {
-			$service         = Dispatcher::component( 'Extension_NewRelic_Service' );
-			$can_use_metrics = $service->can_get_metrics();
+			$w3tc_service    = Dispatcher::component( 'Extension_NewRelic_Service' );
+			$can_use_metrics = $w3tc_service->can_get_metrics();
 			if ( $can_use_metrics ) {
-				$metric_slow_pages = $service->get_slowest_page_load();
+				$metric_slow_pages = $w3tc_service->get_slowest_page_load();
 				if ( count( $metric_slow_pages ) > 0 ) {
 					$s = '<table class="w3tcnr_slowest">';
 
@@ -224,10 +233,10 @@ class Extension_NewRelic_Widget {
 		);
 
 		try {
-			$service         = Dispatcher::component( 'Extension_NewRelic_Service' );
-			$can_use_metrics = $service->can_get_metrics();
+			$w3tc_service    = Dispatcher::component( 'Extension_NewRelic_Service' );
+			$can_use_metrics = $w3tc_service->can_get_metrics();
 			if ( $can_use_metrics ) {
-				$metric_slow = $service->get_slowest_webtransactions();
+				$metric_slow = $w3tc_service->get_slowest_webtransactions();
 				if ( count( $metric_slow ) > 0 ) {
 					$s = '<table class="w3tcnr_slowest">';
 
@@ -258,10 +267,10 @@ class Extension_NewRelic_Widget {
 		);
 
 		try {
-			$service         = Dispatcher::component( 'Extension_NewRelic_Service' );
-			$can_use_metrics = $service->can_get_metrics();
+			$w3tc_service    = Dispatcher::component( 'Extension_NewRelic_Service' );
+			$can_use_metrics = $w3tc_service->can_get_metrics();
 			if ( $can_use_metrics ) {
-				$metric_slow = $service->get_slowest_database();
+				$metric_slow = $w3tc_service->get_slowest_database();
 				if ( count( $metric_slow ) > 0 ) {
 					$s = '<table class="w3tcnr_slowest">';
 
@@ -300,40 +309,40 @@ class Extension_NewRelic_Widget {
 	/**
 	 * Fills the response array with average data from the metrics.
 	 *
-	 * @param array  $response    The response array to be populated.
-	 * @param string $response_key The key for the response data.
-	 * @param array  $metrics     The metrics data array.
+	 * @param array        $response    The response array to be populated.
+	 * @param string       $response_key The key for the response data.
+	 * @param array        $metrics     The metrics data array.
 	 * @param string|array $metric_key  The key(s) for the metric data.
 	 *
 	 * @return void
 	 */
 	private function _fill_avg( &$response, $response_key, $metrics, $metric_key ) {
-		$keys = (array) $metric_key;
-		$data = null;
+		$w3tc_keys = (array) $metric_key;
+		$w3tc_data = null;
 
-		foreach ( $keys as $k ) {
+		foreach ( $w3tc_keys as $k ) {
 			if ( isset( $metrics[ $k ] ) ) {
-				$data = $metrics[ $k ];
+				$w3tc_data = $metrics[ $k ];
 				break;
 			}
 		}
 
-		if ( empty( $data ) || ! isset( $data[0][0] ) ) {
+		if ( empty( $w3tc_data ) || ! isset( $w3tc_data[0][0] ) ) {
 			return;
 		}
 
-		$first = $data[0][0];
-		$value = null;
-		if ( isset( $first->average_response_time ) ) {
-			$value = $first->average_response_time;
-		} elseif ( isset( $first->average_value ) ) {
-			$value = $first->average_value;
+		$w3tc_first = $w3tc_data[0][0];
+		$w3tc_value = null;
+		if ( isset( $w3tc_first->average_response_time ) ) {
+			$w3tc_value = $w3tc_first->average_response_time;
+		} elseif ( isset( $w3tc_first->average_value ) ) {
+			$w3tc_value = $w3tc_first->average_value;
 		}
 
-		if ( null === $value ) {
+		if ( null === $w3tc_value ) {
 			return;
 		}
 
-		$response[ $response_key ] = Util_Ui::secs_to_time( $value );
+		$response[ $response_key ] = Util_Ui::secs_to_time( $w3tc_value );
 	}
 }

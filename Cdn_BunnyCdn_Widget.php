@@ -25,15 +25,15 @@ class Cdn_BunnyCdn_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o = new Cdn_BunnyCdn_Widget();
+		$w3tc_o = new Cdn_BunnyCdn_Widget();
 
-		add_action( 'admin_print_styles', array( $o, 'admin_print_styles' ) );
+		add_action( 'admin_print_styles', array( $w3tc_o, 'admin_print_styles' ) );
 
 		Util_Widget::add2(
 			'w3tc_bunnycdn',
 			400,
 			'<div class="w3tc-widget-bunnycdn-logo"></div>',
-			array( $o, 'widget_form' ),
+			array( $w3tc_o, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
 			'normal'
 		);
@@ -50,11 +50,11 @@ class Cdn_BunnyCdn_Widget {
 	 * @return void
 	 */
 	public function widget_form() {
-		$c          = Dispatcher::config();
-		$authorized = $c->get_string( 'cdn.engine' ) === 'bunnycdn' &&
-			( ! empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) ) || ! empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) ) );
+		$w3tc_c          = Dispatcher::config();
+		$w3tc_authorized = $w3tc_c->get_string( 'cdn.engine' ) === 'bunnycdn' &&
+			( ! empty( $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) ) || ! empty( $w3tc_c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) ) );
 
-		if ( $authorized ) {
+		if ( $w3tc_authorized ) {
 			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_BunnyCdn_Widget_View_Authorized.php';
 		} else {
 			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_BunnyCdn_Widget_View_Unauthorized.php';

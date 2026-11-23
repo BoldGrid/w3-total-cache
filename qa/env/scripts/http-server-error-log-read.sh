@@ -20,8 +20,10 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
 	grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 	grep -v 'Function wp_update_https_detection_errors is ' |\
 	grep -Fv 'favicon.ico' |\
-	grep -Fv 'Cron unschedule event error for hook' |\
-	grep -Ev 'Theme without (header|footer).php'
+	grep -Ev 'Cron (unschedule|reschedule) event error for hook' |\
+	grep -Ev 'Theme without (header|footer).php' |\
+	grep -Ev 'AH01630.*w3-total-cache/(pub|ini)' |\
+	grep -v 'php-cli-tools/lib/cli/Colors.php'
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	cat "${W3D_WP_CONTENT_PATH}debug.log" |\
@@ -44,8 +46,10 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 		grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 		grep -v 'Function wp_update_https_detection_errors is ' |\
 		grep -Fv 'favicon.ico' |\
-		grep -Fv 'Cron unschedule event error for hook' |\
-		grep -Ev 'Theme without (header|footer).php'
+		grep -Ev 'Cron (unschedule|reschedule) event error for hook' |\
+		grep -Ev 'Theme without (header|footer).php' |\
+		grep -Ev 'AH01630.*w3-total-cache/(pub|ini)' |\
+		grep -v 'php-cli-tools/lib/cli/Colors.php'
 fi
 # esc_attr in eval - pagecache/late-init test
 # in php7.0-fpm call stack is printed so should be eliminated
@@ -59,3 +63,11 @@ fi
 
 # "wp-admin/includes/dashboard.php on line 1227"
 # news loader gets some wrong url
+
+# AH01630 on w3-total-cache/pub/ and ini/ — expected when
+# public-endpoint-deny.js and sample-config-deny.js assert
+# .htaccess deny rules (403 is the desired HTTP outcome).
+
+# Cron (un|re)schedule event error for hook
+# both logged by wp-cron.php when concurrent wp-cron runs race on the
+# cron option (could_not_set); unrelated to the plugin under test.

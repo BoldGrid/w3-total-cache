@@ -102,7 +102,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test rmdir handles malformed paths without warnings.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.15
 	 */
 	public function test_rmdir_with_malformed_path() {
 		$path   = W3TC_DIR . '//test-dir-' . \gmdate( 'c' );
@@ -378,7 +378,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
        /**
         * Test check_htaccess creates file and returns expected boolean.
         *
-        * @since X.X.X
+        * @since 2.8.11
         */
        public function test_check_htaccess() {
                $dir = W3TC_CACHE_TMP_DIR . '/htaccess-test';

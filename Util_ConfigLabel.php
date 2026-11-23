@@ -14,19 +14,20 @@ class Util_ConfigLabel {
 	/**
 	 * Undocumented function
 	 *
-	 * @param string $key Key name.
+	 * @param string $w3tc_key Key name.
 	 */
-	public static function get( $key ) {
-		static $keys = null;
-		if ( is_null( $keys ) ) {
-			$keys = array(
+	public static function get( $w3tc_key ) {
+		static $w3tc_keys = null;
+		if ( is_null( $w3tc_keys ) ) {
+			$w3tc_keys = array(
 				'memcached.servers'             => __( 'Memcached hostname:port / <acronym title="Internet Protocol">IP</acronym>:port:', 'w3-total-cache' ),
 				'memcached.persistent'          => __( 'Persistent connection', 'w3-total-cache' ),
 				'memcached.username'            => __( 'Memcached username:', 'w3-total-cache' ),
 				'memcached.password'            => __( 'Memcached password:', 'w3-total-cache' ),
 				'memcached.binary_protocol'     => __( 'Binary protocol', 'w3-total-cache' ),
 				'redis.servers'                 => __( 'Redis hostname:port / <acronym title="Internet Protocol">IP</acronym>:port:', 'w3-total-cache' ),
-				'redis.verify_tls_certificates' => __( 'Verify TLS Certificates', 'w3-total-cache' ),
+				'redis.verify_tls_certificates'    => __( 'Verify TLS Certificates', 'w3-total-cache' ),
+				'bunnycdn.verify_tls_certificates' => __( 'Verify TLS Certificates', 'w3-total-cache' ),
 				'redis.persistent'              => __( 'Persistent connection', 'w3-total-cache' ),
 				'redis.timeout'                 => __( 'Connection timeout', 'w3-total-cache' ),
 				'redis.retry_interval'          => __( 'Connection retry interval', 'w3-total-cache' ),
@@ -36,6 +37,6 @@ class Util_ConfigLabel {
 			);
 		}
 
-		return $keys[ $key ];
+		return $w3tc_keys[ $w3tc_key ];
 	}
 }

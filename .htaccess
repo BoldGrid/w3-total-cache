@@ -1,0 +1,49 @@
+# W3 Total Cache plugin-root access control.
+#
+# rt9-141: Deny direct HTTP fetches of the three distribution metadata
+# files that ship in the plugin root — readme.txt, changelog.txt, and
+# security.md. These files exist so wordpress.org can render the plugin
+# listing and so packagers / sysadmins can read them locally; they are
+# never required to be web-served by the running plugin.
+#
+# Without this deny, an unauthenticated client can fetch
+# /wp-content/plugins/w3-total-cache/readme.txt and read
+#
+#   Stable tag: 2.9.4
+#
+# which fingerprints the exact installed version against any public CVE
+# database (wpscan, wordfence, NVD). changelog.txt enumerates which
+# security patches have landed, and security.md discloses the VDP
+# contact channel — both feed targeted exploit-selection.
+#
+# Compatible with Apache 2.2 (Order/Allow,Deny) and Apache 2.4+ (Require).
+# Nginx deployments must add an equivalent `location` block in the server
+# config — there is no per-directory equivalent of .htaccess on Nginx.
+# IIS deployments must add an equivalent <requestFiltering> rule in their
+# parent web.config; we don't ship one at the plugin root because IIS
+# inherits web.config along the URL tree and a plugin-shipped file would
+# unexpectedly override an operator's policy.
+
+<FilesMatch "^(readme\.txt|changelog\.txt|security\.md)$">
+	<IfModule mod_authz_core.c>
+		# Apache 2.4+
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		# Apache 2.2 fallback
+		Order Allow,Deny
+		Deny from all
+	</IfModule>
+</FilesMatch>
+
+# Always deny dotfiles (this .htaccess itself, plus anything an operator
+# might drop in by mistake).
+<FilesMatch "^\.">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order Allow,Deny
+		Deny from all
+	</IfModule>
+</FilesMatch>

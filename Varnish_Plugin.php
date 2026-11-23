@@ -75,13 +75,13 @@ class Varnish_Plugin {
 	 *
 	 * This method purges the cache for a given URL.
 	 *
-	 * @param string $url The URL to flush from the cache.
+	 * @param string $w3tc_url The URL to flush from the cache.
 	 *
 	 * @return mixed The result of the flush operation.
 	 */
-	public function varnish_flush_url( $url ) {
+	public function varnish_flush_url( $w3tc_url ) {
 		$varnishflush = Dispatcher::component( 'Varnish_Flush' );
-		$v            = $varnishflush->flush_url( $url );
+		$v            = $varnishflush->flush_url( $w3tc_url );
 
 		return $v;
 	}
@@ -103,11 +103,11 @@ class Varnish_Plugin {
 			'id'     => 'w3tc_flush_varnish',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Varnish Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url(
+			'href'   => Util_Nonce::admin_nonce_url(
 				admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_varnish'
 				),
-				'w3tc'
+				'w3tc_flush_varnish'
 			),
 		);
 

@@ -8,12 +8,22 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
 <?php if ( ! empty( $error_messages ) ) : ?>
 	<div class="error">
-		<?php echo $error_messages; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php
+		/**
+		 * Escape at the sink. See Cdn_BunnyCdn_Popup_View_Configured.php
+		 * for the rationale — `$error_messages` is the join of one or
+		 * more `\Exception::getMessage()` values from the BunnyCDN SDK
+		 * path and must be escaped at the echo, not trusted to be
+		 * pre-sanitised upstream.
+		 */
+		echo nl2br( esc_html( (string) $error_messages ) );
+		?>
 	</div>
 <?php endif; ?>
 <form class="w3tc_cdn_bunnycdn_fsd_form">

@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 	<?php esc_html_e( 'Swarmify extension is currently', 'w3-total-cache' ); ?>
 	<?php
-	if ( $config->is_extension_active_frontend( 'swarmify' ) ) {
+	if ( $w3tc_config->is_extension_active_frontend( 'swarmify' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>.';
 	} else {
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>.';

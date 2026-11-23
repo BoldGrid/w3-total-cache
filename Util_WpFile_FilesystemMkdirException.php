@@ -16,7 +16,7 @@ class Util_WpFile_FilesystemMkdirException extends Util_WpFile_FilesystemOperati
 	 *
 	 * @var string
 	 */
-	private $folder;
+	private $w3tc_folder;
 
 	/**
 	 * Initializes the object with a message, credentials form, and folder.
@@ -25,14 +25,14 @@ class Util_WpFile_FilesystemMkdirException extends Util_WpFile_FilesystemOperati
 	 * credentials form, and folder properties. It also invokes the parent class's constructor
 	 * to initialize shared properties.
 	 *
-	 * @param string $message The message to associate with the object.
+	 * @param string $w3tc_message The message to associate with the object.
 	 * @param string $credentials_form The credentials form content.
-	 * @param string $folder The folder associated with the object.
+	 * @param string $w3tc_folder The folder associated with the object.
 	 */
-	public function __construct( $message, $credentials_form, $folder ) {
-		parent::__construct( $message, $credentials_form );
+	public function __construct( $w3tc_message, $credentials_form, $w3tc_folder ) {
+		parent::__construct( $w3tc_message, $credentials_form );
 
-		$this->folder = $folder;
+		$this->w3tc_folder = $w3tc_folder;
 	}
 
 	/**
@@ -41,6 +41,6 @@ class Util_WpFile_FilesystemMkdirException extends Util_WpFile_FilesystemOperati
 	 * @return string The folder assigned during object initialization.
 	 */
 	public function folder() {
-		return $this->folder;
+		return $this->w3tc_folder;
 	}
 }

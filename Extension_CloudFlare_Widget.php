@@ -39,12 +39,12 @@ class Extension_CloudFlare_Widget {
 	 */
 	public function widget_form() {
 		$api      = Extension_CloudFlare_SettingsForUi::api();
-		$c        = Dispatcher::config();
-		$interval = $c->get_integer( array( 'cloudflare', 'widget_interval' ) );
+		$w3tc_c   = Dispatcher::config();
+		$interval = $w3tc_c->get_integer( array( 'cloudflare', 'widget_interval' ) );
 		$v        = get_transient( 'w3tc_cloudflare_stats' );
 		try {
-			$key = 'dashboard-' . $interval;
-			if ( ! isset( $v[ $key ] ) ) {
+			$w3tc_key = 'dashboard-' . $interval;
+			if ( ! isset( $v[ $w3tc_key ] ) ) {
 				if ( ! is_array( $v ) ) {
 					$v = array();
 				}
@@ -73,21 +73,21 @@ class Extension_CloudFlare_Widget {
 					'threats_all'      => 0,
 					'interval'         => $interval,
 					'cached_ts'        => current_time( 'Y-m-d H:i:s' ),
-					'cached_tf'        => $c->get_integer( array( 'cloudflare', 'widget_cache_mins' ) ),
+					'cached_tf'        => $w3tc_c->get_integer( array( 'cloudflare', 'widget_cache_mins' ) ),
 				);
 
 				$analytics_dashboard_data = $api->analytics_dashboard( $start, $end, $type );
-				foreach ( $analytics_dashboard_data['viewer']['zones'][0][ $dataset ] as $data ) {
-					$stats['bandwidth_all']    += $data['sum']['bytes'];
-					$stats['bandwidth_cached'] += $data['sum']['cachedBytes'];
-					$stats['requests_all']     += $data['sum']['requests'];
-					$stats['requests_cached']  += $data['sum']['cachedRequests'];
-					$stats['pageviews_all']    += $data['sum']['pageViews'];
-					$stats['uniques_all']      += $data['uniq']['uniques'];
-					$stats['threats_all']      += $data['sum']['threats'];
+				foreach ( $analytics_dashboard_data['viewer']['zones'][0][ $dataset ] as $w3tc_data ) {
+					$stats['bandwidth_all']    += $w3tc_data['sum']['bytes'];
+					$stats['bandwidth_cached'] += $w3tc_data['sum']['cachedBytes'];
+					$stats['requests_all']     += $w3tc_data['sum']['requests'];
+					$stats['requests_cached']  += $w3tc_data['sum']['cachedRequests'];
+					$stats['pageviews_all']    += $w3tc_data['sum']['pageViews'];
+					$stats['uniques_all']      += $w3tc_data['uniq']['uniques'];
+					$stats['threats_all']      += $w3tc_data['sum']['threats'];
 				}
 
-				$v[ $key ] = $stats;
+				$v[ $w3tc_key ] = $stats;
 
 				set_transient(
 					'w3tc_cloudflare_stats',
@@ -96,7 +96,7 @@ class Extension_CloudFlare_Widget {
 				);
 			}
 
-			$stats = $v[ $key ];
+			$stats = $v[ $w3tc_key ];
 		} catch ( \Exception $e ) {
 			$stats = null;
 		}
@@ -132,46 +132,46 @@ class Extension_CloudFlare_Widget {
 	/**
 	 * Outputs the formatted value for display in the widget.
 	 *
-	 * @param mixed $value The value to format and display.
+	 * @param mixed $w3tc_value The value to format and display.
 	 *
 	 * @return void
 	 */
-	private function value( $value ) {
+	private function value( $w3tc_value ) {
 		echo '<td class="cloudflare_td_value">';
-		echo number_format( $value );
+		echo number_format( $w3tc_value );
 		echo "</td>\n";
 	}
 
 	/**
 	 * Outputs the formatted date for display in the widget.
 	 *
-	 * @param string $value The date to format.
+	 * @param string $w3tc_value The date to format.
 	 *
 	 * @return void
 	 */
-	private function date( $value ) {
-		echo esc_html( gmdate( 'n/j/Y', strtotime( $value ) ) );
+	private function date( $w3tc_value ) {
+		echo esc_html( gmdate( 'n/j/Y', strtotime( $w3tc_value ) ) );
 	}
 
 	/**
 	 * Outputs the formatted date and time for display in the widget.
 	 *
-	 * @param string $value The date and time to format.
+	 * @param string $w3tc_value The date and time to format.
 	 *
 	 * @return void
 	 */
-	private function date_time( $value ) {
-		echo esc_html( gmdate( 'n/j/Y g:i a', strtotime( $value ) ) );
+	private function date_time( $w3tc_value ) {
+		echo esc_html( gmdate( 'n/j/Y g:i a', strtotime( $w3tc_value ) ) );
 	}
 
 	/**
 	 * Outputs the formatted date, time, and seconds for display in the widget.
 	 *
-	 * @param string $value The date and time to format.
+	 * @param string $w3tc_value The date and time to format.
 	 *
 	 * @return void
 	 */
-	private function date_time_sec( $value ) {
-		echo esc_html( gmdate( 'n/j/Y g:i:s a', strtotime( $value ) ) );
+	private function date_time_sec( $w3tc_value ) {
+		echo esc_html( gmdate( 'n/j/Y g:i:s a', strtotime( $w3tc_value ) ) );
 	}
 }

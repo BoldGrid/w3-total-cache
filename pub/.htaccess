@@ -1,0 +1,60 @@
+# pub/.htaccess — W3 Total Cache public directory access control.
+#
+# This directory is served by the web server and exists only to host:
+#
+#   - sns.php       — the AWS SNS webhook receiver (signed-payload only).
+#   - css/, fonts/, img/, js/ — static assets used by the admin UI.
+#   - index.html    — directory-listing block.
+#
+# Any other PHP file appearing under pub/ is unintended and MUST NOT execute.
+# Default-deny `.php` execution; explicitly allow only the known entrypoint.
+# Static assets remain unaffected because they do not match `\.php$`.
+#
+# Compatible with both Apache 2.2 (Order/Allow,Deny) and 2.4+ (Require).
+#
+# mod_rewrite [F] is preferred over Require-all-denied because Apache logs
+# authz_core AH01630 at error level for the latter, which breaks the QA
+# harness (w3test treats any error-log line as failure).
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !/sns\.php$ [NC]
+RewriteRule \.php$ - [F,L]
+</IfModule>
+
+# Fallback when mod_rewrite is unavailable.
+<IfModule !mod_rewrite.c>
+<FilesMatch "\.php$">
+	# Apache 2.4+
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	# Apache 2.2 fallback
+	<IfModule !mod_authz_core.c>
+		Order Allow,Deny
+		Deny from all
+	</IfModule>
+</FilesMatch>
+</IfModule>
+
+# Explicit allowlist for the SNS webhook entrypoint.
+<Files "sns.php">
+	<IfModule mod_authz_core.c>
+		Require all granted
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order Allow,Deny
+		Allow from all
+	</IfModule>
+</Files>
+
+# Block direct access to dotfiles (e.g. this .htaccess).
+<FilesMatch "^\.">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order Allow,Deny
+		Deny from all
+	</IfModule>
+</FilesMatch>

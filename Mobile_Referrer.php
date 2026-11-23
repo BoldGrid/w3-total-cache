@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 // W3TC Referrer detection.
 define( 'W3TC_REFERRER_COOKIE_NAME', 'w3tc_referrer' );
 
@@ -42,10 +43,15 @@ class Mobile_Referrer extends Mobile_Base {
 			} elseif ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 				$http_referrer = filter_var( $_SERVER['HTTP_REFERER'], FILTER_SANITIZE_URL ); // phpcs:ignore
 
-				setcookie( W3TC_REFERRER_COOKIE_NAME, $http_referrer, 0, '/' /* not defined yet Util_Environment::network_home_url_uri()*/ );
+				Util_Cookie::set( W3TC_REFERRER_COOKIE_NAME, $http_referrer, 0, '/' );
 			}
 		} elseif ( isset( $_COOKIE[ W3TC_REFERRER_COOKIE_NAME ] ) ) {
-			setcookie( W3TC_REFERRER_COOKIE_NAME, '', 1 );
+			// Pass the same explicit `/` path used by the set() branch
+			// above. Without it the clear() picks up COOKIEPATH, and on
+			// sites where COOKIEPATH differs from `/` the browser keeps
+			// the path-`/` cookie alive forever (set-cookie matches on
+			// (name, path, domain)).
+			Util_Cookie::clear( W3TC_REFERRER_COOKIE_NAME, '/' );
 		}
 
 		return $http_referrer;

@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.NamingConventions.PrefixAllGlobals
  *
  * W3 Total Cache Object Cache
  *
@@ -38,25 +38,25 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 	 */
 	function w3tc_use_ocdropin(): bool {
 		if ( class_exists( 'W3TC\Dispatcher' ) ) {
-			$config = ( new \W3TC\Dispatcher() )->config();
+			$w3tc_config = ( new \W3TC\Dispatcher() )->config();
 
 			// Don't use dropin if running in WP-CLI, object cache is enabled, set to disk, and not allows in settings.
 			if (
 				defined( 'WP_CLI' ) && \WP_CLI &&
-				$config->getf_boolean( 'objectcache.enabled' ) &&
-				'file' === $config->get_string( 'objectcache.engine' ) &&
-				! $config->get_boolean( 'objectcache.wpcli_disk' )
+				$w3tc_config->getf_boolean( 'objectcache.enabled' ) &&
+				'file' === $w3tc_config->get_string( 'objectcache.engine' ) &&
+				! $w3tc_config->get_boolean( 'objectcache.wpcli_disk' )
 			) {
 				return false;
 			}
 
 			// Use dropin if obect cache is enabled or fragment cache is enabled.
 			if (
-				$config->getf_boolean( 'objectcache.enabled' ) ||
+				$w3tc_config->getf_boolean( 'objectcache.enabled' ) ||
 				(
-					$config->is_extension_active( 'fragmentcache' ) &&
-					! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
-					$config->is_extension_active_frontend( 'fragmentcache' )
+					$w3tc_config->is_extension_active( 'fragmentcache' ) &&
+					! empty( $w3tc_config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
+					$w3tc_config->is_extension_active_frontend( 'fragmentcache' )
 				)
 			) {
 				return true;
@@ -94,13 +94,13 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		 * Get cache
 		 *
 		 * @param string    $id    ID.
-		 * @param string    $group Group.
+		 * @param string    $w3tc_group Group.
 		 * @param bool      $force Force.
 		 * @param bool|null $found Found.
 		 *
 		 * @return mixed
 		 */
-		function wp_cache_get( $id, $group = 'default', $force = false, &$found = null ) {
+		function wp_cache_get( $id, $w3tc_group = 'default', $force = false, &$found = null ) {
 			global $wp_object_cache;
 
 			static $wp_version;
@@ -114,7 +114,7 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 			if (
 				version_compare( $wp_version, '6.4', '>=' ) &&
 				version_compare( $wp_version, '6.8', '<' ) &&
-				'options' === $group &&
+				'options' === $w3tc_group &&
 				'notoptions' !== $id
 			) {
 				// Mirror WP 6.8's early notoptions lookup to avoid repeated external cache checks.
@@ -131,141 +131,141 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 				}
 			}
 
-			return $wp_object_cache->get( $id, $group, $force, $found );
+			return $wp_object_cache->get( $id, $w3tc_group, $force, $found );
 		}
 
 		/**
 		 * Retrieves multiple values from the cache in one call.
 		 *
-		 * @since 2.2.8
+		 * @since 2.4.0
 		 *
 		 * @param array  $ids  Array of keys under which the cache contents are stored.
-		 * @param string $group Optional. Where the cache contents are grouped. Default 'default'.
+		 * @param string $w3tc_group Optional. Where the cache contents are grouped. Default 'default'.
 		 * @param bool   $force Optional. Whether to force an update of the local cache
 		 *                      from the persistent cache. Default false.
 		 *
 		 * @return array Array of return values, grouped by key. Each value is either
 		 *               the cache contents on success, or false on failure.
 		 */
-		function wp_cache_get_multiple( $ids, $group = 'default', $force = false ) {
+		function wp_cache_get_multiple( $ids, $w3tc_group = 'default', $force = false ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->get_multiple( $ids, $group, $force );
+			return $wp_object_cache->get_multiple( $ids, $w3tc_group, $force );
 		}
 
 		/**
 		 * Set cache
 		 *
 		 * @param string  $id     ID.
-		 * @param mixed   $data   Data.
-		 * @param string  $group  Group.
+		 * @param mixed   $w3tc_data   Data.
+		 * @param string  $w3tc_group  Group.
 		 * @param integer $expire Expire.
 		 *
 		 * @return boolean
 		 */
-		function wp_cache_set( $id, $data, $group = 'default', $expire = 0 ) {
+		function wp_cache_set( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->set( $id, $data, $group, (int) $expire );
+			return $wp_object_cache->set( $id, $w3tc_data, $w3tc_group, (int) $expire );
 		}
 
 		/**
 		 * Sets multiple values to the cache in one call.
 		 *
-		 * @since 2.2.8
+		 * @since 2.4.0
 		 *
-		 * @param array  $data   Array of key and value to be set.
-		 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+		 * @param array  $w3tc_data   Array of key and value to be set.
+		 * @param string $w3tc_group  Optional. Where the cache contents are grouped. Default empty.
 		 * @param int    $expire Optional. When to expire the cache contents, in seconds.
 		 *                       Default 0 (no expiration).
 		 *
 		 * @return bool[] Array of return values, grouped by key. Each value is always true.
 		 */
-		function wp_cache_set_multiple( $data, $group = 'default', $expire = 0 ) {
+		function wp_cache_set_multiple( $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->set_multiple( $data, $group, (int) $expire );
+			return $wp_object_cache->set_multiple( $w3tc_data, $w3tc_group, (int) $expire );
 		}
 
 		/**
 		 * Delete from cache
 		 *
 		 * @param string $id    ID.
-		 * @param string $group Group.
+		 * @param string $w3tc_group Group.
 		 *
 		 * @return boolean
 		 */
-		function wp_cache_delete( $id, $group = 'default' ) {
+		function wp_cache_delete( $id, $w3tc_group = 'default' ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->delete( $id, $group );
+			return $wp_object_cache->delete( $id, $w3tc_group );
 		}
 
 		/**
 		 * Deletes multiple values from the cache in one call.
 		 *
-		 * @since 2.2.8
+		 * @since 2.4.0
 		 *
-		 * @param array  $keys  Array of keys to be deleted.
-		 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+		 * @param array  $w3tc_keys  Array of keys to be deleted.
+		 * @param string $w3tc_group Optional. Where the cache contents are grouped. Default empty.
 		 *
 		 * @return bool[] Array of return values, grouped by key. Each value is either
 		 *                true on success, or false if the contents were not deleted.
 		 */
-		function wp_cache_delete_multiple( $keys, $group = 'default' ) {
+		function wp_cache_delete_multiple( $w3tc_keys, $w3tc_group = 'default' ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->delete_multiple( $keys, $group );
+			return $wp_object_cache->delete_multiple( $w3tc_keys, $w3tc_group );
 		}
 
 		/**
 		 * Add data to cache
 		 *
 		 * @param string  $id     ID.
-		 * @param mixed   $data   Data.
-		 * @param string  $group  Group.
+		 * @param mixed   $w3tc_data   Data.
+		 * @param string  $w3tc_group  Group.
 		 * @param integer $expire Expire.
 		 *
 		 * @return boolean
 		 */
-		function wp_cache_add( $id, $data, $group = 'default', $expire = 0 ) {
+		function wp_cache_add( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->add( $id, $data, $group, (int) $expire );
+			return $wp_object_cache->add( $id, $w3tc_data, $w3tc_group, (int) $expire );
 		}
 
 		/**
 		 * Adds multiple values to the cache in one call, if the cache keys don't already exist.
 		 *
-		 * @since 2.2.8
+		 * @since 2.4.0
 		 *
-		 * @param array  $data   Array of keys and values to be added.
-		 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+		 * @param array  $w3tc_data   Array of keys and values to be added.
+		 * @param string $w3tc_group  Optional. Where the cache contents are grouped. Default empty.
 		 * @param int    $expire Optional. When to expire the cache contents, in seconds.
 		 *                       Default 0 (no expiration).
 		 * @return bool[] Array of return values, grouped by key. Each value is either
 		 *                true on success, or false if cache key and group already exist.
 		 */
-		function wp_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
+		function wp_cache_add_multiple( array $w3tc_data, $w3tc_group = '', $expire = 0 ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->add_multiple( $data, $group, $expire );
+			return $wp_object_cache->add_multiple( $w3tc_data, $w3tc_group, $expire );
 		}
 
 		/**
 		 * Replace data in cache
 		 *
 		 * @param string  $id     ID.
-		 * @param mixed   $data   Data.
-		 * @param string  $group  Group.
+		 * @param mixed   $w3tc_data   Data.
+		 * @param string  $w3tc_group  Group.
 		 * @param integer $expire Expire.
 		 *
 		 * @return boolean
 		 */
-		function wp_cache_replace( $id, $data, $group = 'default', $expire = 0 ) {
+		function wp_cache_replace( $id, $w3tc_data, $w3tc_group = 'default', $expire = 0 ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->replace( $id, $data, $group, (int) $expire );
+			return $wp_object_cache->replace( $id, $w3tc_data, $w3tc_group, (int) $expire );
 		}
 
 		/**
@@ -293,14 +293,14 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		/**
 		 * Removes all cache items in a group.
 		 *
-		 * @param string $group Group.
+		 * @param string $w3tc_group Group.
 		 *
 		 * @return boolean
 		 */
-		function wp_cache_flush_group( string $group ) {
+		function wp_cache_flush_group( string $w3tc_group ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->flush_group( $group );
+			return $wp_object_cache->flush_group( $w3tc_group );
 		}
 
 		/**
@@ -356,31 +356,31 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		/**
 		 * Increment numeric cache item's value
 		 *
-		 * @param int|string $key    The cache key to increment.
-		 * @param int        $offset The amount by which to increment the item's value. Default is 1.
-		 * @param string     $group  The group the key is in.
+		 * @param int|string $w3tc_key    The cache key to increment.
+		 * @param int        $w3tc_offset The amount by which to increment the item's value. Default is 1.
+		 * @param string     $w3tc_group  The group the key is in.
 		 *
 		 * @return bool|int False on failure, the item's new value on success.
 		 */
-		function wp_cache_incr( $key, $offset = 1, $group = 'default' ) {
+		function wp_cache_incr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->incr( $key, $offset, $group );
+			return $wp_object_cache->incr( $w3tc_key, $w3tc_offset, $w3tc_group );
 		}
 
 		/**
 		 * Decrement numeric cache item's value
 		 *
-		 * @param int|string $key    The cache key to increment.
-		 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
-		 * @param string     $group  The group the key is in.
+		 * @param int|string $w3tc_key    The cache key to increment.
+		 * @param int        $w3tc_offset The amount by which to decrement the item's value. Default is 1.
+		 * @param string     $w3tc_group  The group the key is in.
 		 *
 		 * @return bool|int False on failure, the item's new value on success.
 		 */
-		function wp_cache_decr( $key, $offset = 1, $group = 'default' ) {
+		function wp_cache_decr( $w3tc_key, $w3tc_offset = 1, $w3tc_group = 'default' ) {
 			global $wp_object_cache;
 
-			return $wp_object_cache->decr( $key, $offset, $group );
+			return $wp_object_cache->decr( $w3tc_key, $w3tc_offset, $w3tc_group );
 		}
 
 		/**

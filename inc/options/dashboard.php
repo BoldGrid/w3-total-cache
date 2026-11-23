@@ -1,6 +1,13 @@
 <?php
+/**
+ * File: dashboard.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -31,11 +38,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 	);
 	?>
 	<div id="w3tc-dashboard-widgets" class="clearfix widefat metabox-holder">
-		<?php $screen = get_current_screen(); ?>
+		<?php $w3tc_screen = get_current_screen(); ?>
 		<div id="postbox-container">
 			<div class="content">
 				<div class="widgets-container">
-					<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
+					<?php do_meta_boxes( $w3tc_screen->id, 'normal', '' ); ?>
 				</div>
 			</div>
 		</div>

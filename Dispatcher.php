@@ -83,13 +83,13 @@ class Dispatcher {
 			return self::config_state_master();
 		}
 
-		static $config_state = null;
+		static $w3tc_config_state = null;
 
-		if ( is_null( $config_state ) ) {
-			$config_state = new ConfigState( false );
+		if ( is_null( $w3tc_config_state ) ) {
+			$w3tc_config_state = new ConfigState( false );
 		}
 
-		return $config_state;
+		return $w3tc_config_state;
 	}
 
 	/**
@@ -98,13 +98,13 @@ class Dispatcher {
 	 * @return object The master state configuration instance.
 	 */
 	public static function config_state_master() {
-		static $config_state = null;
+		static $w3tc_config_state = null;
 
-		if ( is_null( $config_state ) ) {
-			$config_state = new ConfigState( true );
+		if ( is_null( $w3tc_config_state ) ) {
+			$w3tc_config_state = new ConfigState( true );
 		}
 
-		return $config_state;
+		return $w3tc_config_state;
 	}
 
 	/**
@@ -113,28 +113,28 @@ class Dispatcher {
 	 * @return object The configuration state note instance.
 	 */
 	public static function config_state_note() {
-		static $o = null;
+		static $w3tc_o = null;
 
-		if ( is_null( $o ) ) {
-			$o = new ConfigStateNote( self::config_state_master(), self::config_state() );
+		if ( is_null( $w3tc_o ) ) {
+			$w3tc_o = new ConfigStateNote( self::config_state_master(), self::config_state() );
 		}
 
-		return $o;
+		return $w3tc_o;
 	}
 
 	/**
 	 * Checks if a given URL has been uploaded to the CDN.
 	 *
-	 * @param string $url The URL to check.
+	 * @param string $w3tc_url The URL to check.
 	 *
 	 * @return bool True if the URL is uploaded to the CDN, false otherwise.
 	 */
-	public static function is_url_cdn_uploaded( $url ) {
+	public static function is_url_cdn_uploaded( $w3tc_url ) {
 		$minify_enabled = self::config()->get_boolean( 'minify.enabled' );
 		if ( $minify_enabled ) {
-			$minify = self::component( 'Minify_MinifiedFileRequestHandler' );
-			$data   = $minify->get_url_custom_data( $url );
-			if ( is_array( $data ) && isset( $data['cdn.status'] ) && 'uploaded' === $data['cdn.status'] ) {
+			$minify    = self::component( 'Minify_MinifiedFileRequestHandler' );
+			$w3tc_data = $minify->get_url_custom_data( $w3tc_url );
+			if ( is_array( $w3tc_data ) && isset( $w3tc_data['cdn.status'] ) && 'uploaded' === $w3tc_data['cdn.status'] ) {
 				return true;
 			}
 		}
@@ -154,7 +154,7 @@ class Dispatcher {
 		if ( $minify_enabled ) {
 			$minify_document_root = Util_Environment::cache_blog_dir( 'minify' ) . '/';
 
-			if ( ! substr( $filename, 0, strlen( $minify_document_root ) ) === $minify_document_root ) {
+			if ( 0 !== \strpos( $filename, $minify_document_root ) ) {
 				// unexpected file name.
 				return;
 			}
@@ -162,14 +162,14 @@ class Dispatcher {
 			$short_filename = substr( $filename, strlen( $minify_document_root ) );
 			$minify         = self::component( 'Minify_MinifiedFileRequestHandler' );
 
-			$data = $minify->process( $short_filename, true );
+			$w3tc_data = $minify->process( $short_filename, true );
 
-			if ( ! file_exists( $filename ) && isset( $data['content'] ) ) {
+			if ( ! file_exists( $filename ) && isset( $w3tc_data['content'] ) ) {
 				if ( ! file_exists( dirname( $filename ) ) ) {
 					Util_File::mkdir_from_safe( dirname( $filename ), W3TC_CACHE_DIR );
 				}
 			}
-			@file_put_contents( $filename, $data['content'] );
+			@file_put_contents( $filename, $w3tc_data['content'] );
 		}
 	}
 
@@ -185,7 +185,7 @@ class Dispatcher {
 		if ( $minify_enabled ) {
 			$minify_document_root = Util_Environment::cache_blog_dir( 'minify' ) . '/';
 
-			if ( ! substr( $file_name, 0, strlen( $minify_document_root ) ) === $minify_document_root ) {
+			if ( 0 !== \strpos( $file_name, $minify_document_root ) ) {
 				// unexpected file name.
 				return;
 			}
@@ -201,25 +201,25 @@ class Dispatcher {
 	 *
 	 * @todo change to filters, like litespeed does
 	 *
-	 * @param object $config               The configuration object.
+	 * @param object $w3tc_config               The configuration object.
 	 * @param string $section              The specific section for which to generate rules.
 	 * @param bool   $extra_add_headers_set Whether additional headers are included.
 	 *
 	 * @return array The generated Nginx rules.
 	 */
-	public static function nginx_rules_for_browsercache_section( $config, $section, $extra_add_headers_set = false ) {
+	public static function nginx_rules_for_browsercache_section( $w3tc_config, $section, $extra_add_headers_set = false ) {
 		$rules = array(
 			'other'      => array(),
 			'add_header' => array(),
 		);
-		if ( $config->get_boolean( 'browsercache.enabled' ) ) {
-			$o     = new BrowserCache_Environment_Nginx( $config );
-			$rules = $o->section_rules( $section, $extra_add_headers_set );
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
+			$w3tc_o = new BrowserCache_Environment_Nginx( $w3tc_config );
+			$rules  = $w3tc_o->section_rules( $section, $extra_add_headers_set );
 		}
 
-		if ( ! empty( $rules['add_header'] ) && $config->get_boolean( 'cdn.enabled' ) ) {
-			$o    = new Cdn_Environment_Nginx( $config );
-			$rule = $o->generate_canonical();
+		if ( ! empty( $rules['add_header'] ) && $w3tc_config->get_boolean( 'cdn.enabled' ) ) {
+			$w3tc_o = new Cdn_Environment_Nginx( $w3tc_config );
+			$rule   = $w3tc_o->generate_canonical();
 
 			if ( ! empty( $rule ) ) {
 				$rules['add_header'][] = $rule;
@@ -232,20 +232,20 @@ class Dispatcher {
 	/**
 	 * Retrieves the minify filename requested.
 	 *
-	 * @param object $config The configuration object.
-	 * @param string $file   The file name.
+	 * @param object $w3tc_config The configuration object.
+	 * @param string $w3tc_file   The file name.
 	 *
 	 * @return string The processed file name.
 	 */
-	public static function requested_minify_filename( $config, $file ) {
+	public static function requested_minify_filename( $w3tc_config, $w3tc_file ) {
 		// browsercache may alter filestructure, allow it to remove its uniqualizator.
-		if ( $config->get_boolean( 'browsercache.enabled' ) &&
-			$config->get_boolean( 'browsercache.rewrite' ) ) {
-			if ( preg_match( '~(.+)\.([0-9a-z]+)(\.[^.]+)$~', $file, $m ) ) {
-				$file = $m[1] . $m[3];
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) &&
+			$w3tc_config->get_boolean( 'browsercache.rewrite' ) ) {
+			if ( preg_match( '~(.+)\.([0-9a-z]+)(\.[^.]+)$~', $w3tc_file, $m ) ) {
+				$w3tc_file = $m[1] . $m[3];
 			}
 		}
-		return $file;
+		return $w3tc_file;
 	}
 
 	/**
@@ -256,15 +256,15 @@ class Dispatcher {
 	public static function get_usage_statistics_cache() {
 		static $cache = null;
 		if ( is_null( $cache ) ) {
-			$c             = self::config();
+			$w3tc_c        = self::config();
 			$engine_config = null;
-			if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
+			if ( $w3tc_c->getf_boolean( 'objectcache.enabled' ) ) {
 				$provider = self::component( 'ObjectCache_WpObjectCache_Regular' );
-			} elseif ( $c->get_boolean( 'dbcache.enabled' ) ) {
+			} elseif ( $w3tc_c->get_boolean( 'dbcache.enabled' ) ) {
 				$provider = self::component( 'DbCache_Core' );
-			} elseif ( $c->get_boolean( 'pgcache.enabled' ) ) {
+			} elseif ( $w3tc_c->get_boolean( 'pgcache.enabled' ) ) {
 				$provider = self::component( 'PgCache_ContentGrabber' );
-			} elseif ( $c->get_boolean( 'minify.enabled' ) ) {
+			} elseif ( $w3tc_c->get_boolean( 'minify.enabled' ) ) {
 				$provider = self::component( 'Minify_Core' );
 			} else {
 				$engine_config = array( 'engine' => 'file' );
@@ -295,8 +295,8 @@ class Dispatcher {
 	 * @return void
 	 */
 	public static function usage_statistics_apply_before_init_and_exit( $metrics_function ) {
-		$c = self::config();
-		if ( ! $c->get_boolean( 'stats.enabled' ) ) {
+		$w3tc_c = self::config();
+		if ( ! $w3tc_c->get_boolean( 'stats.enabled' ) ) {
 			exit();
 		}
 

@@ -16,7 +16,7 @@ use W3TC\Util_Environment;
 /**
  * Class: W3tc_Admin_Util_Environment_Test
  *
- * @since 2.7.4
+ * @since 2.8.6
  */
 class W3tc_Admin_Util_Environment_Test extends WP_UnitTestCase {
 	/**

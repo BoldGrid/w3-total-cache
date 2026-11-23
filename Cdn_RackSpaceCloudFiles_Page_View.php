@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -14,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th style="width: 300px;"><label><?php esc_html_e( 'Authorize:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php if ( ! $authorized ) : ?>
+		<?php if ( ! $w3tc_authorized ) : ?>
 			<input class="w3tc_cdn_rackspace_authorize button" type="button"
 				value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>" />
 		<?php else : ?>
@@ -24,23 +25,23 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 
-<?php if ( $authorized ) : ?>
+<?php if ( $w3tc_authorized ) : ?>
 <tr>
 	<th><?php esc_html_e( 'Username:', 'w3-total-cache' ); ?></th>
 	<td class="w3tc_config_value_text">
-		<?php echo esc_html( $config->get_string( 'cdn.rscf.user' ) ); ?>
+		<?php echo esc_html( $w3tc_config->get_string( 'cdn.rscf.user' ) ); ?>
 	</td>
 </tr>
 <tr>
 	<th><?php esc_html_e( 'Region:', 'w3-total-cache' ); ?></th>
 	<td class="w3tc_config_value_text">
-		<?php echo esc_html( $config->get_string( 'cdn.rscf.location' ) ); ?>
+		<?php echo esc_html( $w3tc_config->get_string( 'cdn.rscf.location' ) ); ?>
 	</td>
 </tr>
 <tr>
 	<th><?php esc_html_e( 'Container:', 'w3-total-cache' ); ?></th>
 	<td class="w3tc_config_value_text">
-		<?php echo esc_html( $config->get_string( 'cdn.rscf.container' ) ); ?>
+		<?php echo esc_html( $w3tc_config->get_string( 'cdn.rscf.container' ) ); ?>
 	</td>
 </tr>
 <tr>
@@ -99,9 +100,9 @@ if ( ! defined( 'W3TC' ) ) {
 	</th>
 	<td>
 		<select id="cdn_rackspace_ssl" name="cdn__rscf__ssl">
-			<option value="auto"<?php selected( $config->get_string( 'cdn.rscf.ssl' ), 'auto' ); ?>><?php esc_html_e( 'Auto (determine connection type automatically)', 'w3-total-cache' ); ?></option>
-			<option value="enabled"<?php selected( $config->get_string( 'cdn.rscf.ssl' ), 'enabled' ); ?>><?php esc_html_e( 'Enabled (always use SSL)', 'w3-total-cache' ); ?></option>
-			<option value="disabled"<?php selected( $config->get_string( 'cdn.rscf.ssl' ), 'disabled' ); ?>><?php esc_html_e( 'Disabled (always use HTTP)', 'w3-total-cache' ); ?></option>
+			<option value="auto"<?php selected( $w3tc_config->get_string( 'cdn.rscf.ssl' ), 'auto' ); ?>><?php esc_html_e( 'Auto (determine connection type automatically)', 'w3-total-cache' ); ?></option>
+			<option value="enabled"<?php selected( $w3tc_config->get_string( 'cdn.rscf.ssl' ), 'enabled' ); ?>><?php esc_html_e( 'Enabled (always use SSL)', 'w3-total-cache' ); ?></option>
+			<option value="disabled"<?php selected( $w3tc_config->get_string( 'cdn.rscf.ssl' ), 'disabled' ); ?>><?php esc_html_e( 'Disabled (always use HTTP)', 'w3-total-cache' ); ?></option>
 		</select>
 		<p class="description">
 			<?php
@@ -132,7 +133,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<th><?php esc_html_e( 'Replace site\'s hostname with:', 'w3-total-cache' ); ?></th>
 	<td>
 		<?php
-		$cnames = $config->get_array( 'cdn.rscf.cname' );
+		$w3tc_cnames = $w3tc_config->get_array( 'cdn.rscf.cname' );
 		include W3TC_INC_DIR . '/options/cdn/common/cnames.php';
 		?>
 		<p class="description">
@@ -163,7 +164,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th colspan="2">
 		<input id="cdn_test"
-			class="button {type: 'rscf', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+			class="button {type: 'rscf', nonce: '<?php echo esc_attr( Util_Nonce::create_admin( 'w3tc_cdn_test' ) ); ?>'}"
 			type="button"
 			value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="cdn_test_status" class="w3tc-status w3tc-process"></span>

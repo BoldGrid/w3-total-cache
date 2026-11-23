@@ -87,12 +87,12 @@ class UserExperience_LazyLoad_Mutator_Picture {
 	private function tag_source( $matches ) {
 		$content = $matches[0];
 
-		$content = preg_replace(
-			'~(\s)(srcset|sizes)=~i',
-			'$1data-$2=',
-			$content
+		return $this->common->replace_top_level_quoted_attributes(
+			$content,
+			'srcset|sizes',
+			static function ( $whitespace, $name, $quoted_value ) {
+				return $whitespace . 'data-' . $name . '=' . $quoted_value;
+			}
 		);
-
-		return $content;
 	}
 }

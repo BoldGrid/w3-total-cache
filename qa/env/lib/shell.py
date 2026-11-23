@@ -5,18 +5,45 @@ import sys
 
 
 
-def ssh(host, cmd):
-	print host + ': ' + cmd
-
-	v = shell_silent([
+def _ssh_cmd(host, cmd):
+	return [
 		'timeout', '600',
 		'ssh', host,
-		'-i', '~/.ssh/key-aws-w3tcqa.pem',
+		'-i', os.path.expanduser('~/.ssh/key-aws-w3tcqa.pem'),
 		'-o', 'StrictHostKeyChecking=no',
 		'-o', 'UserKnownHostsFile=./working/hosts',
-		cmd])
-	print v
-	return v
+		cmd]
+
+
+
+def ssh_exec(host, cmd):
+	print host + ': ' + cmd
+
+	proc = subprocess.Popen(
+		_ssh_cmd(host, cmd),
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT)
+	stdout, _ = proc.communicate()
+	output = stdout or ''
+
+	if output != '':
+		print output
+
+	return proc.returncode, output
+
+
+
+def ssh(host, cmd):
+	ret, output = ssh_exec(host, cmd)
+	return output
+
+
+
+def ssh_assert(host, cmd):
+	ret, output = ssh_exec(host, cmd)
+	if ret != 0:
+		raise Exception('failed to execute on ' + host + ': ' + cmd)
+	return output
 
 
 

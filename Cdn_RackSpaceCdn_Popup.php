@@ -22,18 +22,18 @@ class Cdn_RackSpaceCdn_Popup {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdn_RackSpaceCdn_Popup();
+		$w3tc_o = new Cdn_RackSpaceCdn_Popup();
 
-		add_action( 'w3tc_ajax_cdn_rackspace_intro', array( $o, 'w3tc_ajax_cdn_rackspace_intro' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_intro_done', array( $o, 'w3tc_ajax_cdn_rackspace_intro_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_regions_done', array( $o, 'w3tc_ajax_cdn_rackspace_regions_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_services_done', array( $o, 'w3tc_ajax_cdn_rackspace_services_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_service_create_done', array( $o, 'w3tc_ajax_cdn_rackspace_service_create_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_service_get_state', array( $o, 'w3tc_ajax_cdn_rackspace_service_get_state' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_service_created_done', array( $o, 'w3tc_ajax_cdn_rackspace_service_created_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_service_actualize_done', array( $o, 'w3tc_ajax_cdn_rackspace_service_actualize_done' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_configure_domains', array( $o, 'w3tc_ajax_cdn_rackspace_configure_domains' ) );
-		add_action( 'w3tc_ajax_cdn_rackspace_configure_domains_done', array( $o, 'w3tc_ajax_cdn_rackspace_configure_domains_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_intro', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_intro' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_intro_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_intro_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_regions_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_regions_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_services_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_services_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_service_create_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_service_create_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_service_get_state', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_service_get_state' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_service_created_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_service_created_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_service_actualize_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_service_actualize_done' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_configure_domains', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_configure_domains' ) );
+		add_action( 'w3tc_ajax_cdn_rackspace_configure_domains_done', array( $w3tc_o, 'w3tc_ajax_cdn_rackspace_configure_domains_done' ) );
 	}
 
 	/**
@@ -45,11 +45,11 @@ class Cdn_RackSpaceCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_rackspace_intro() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
 		$details = array(
-			'user_name' => $c->get_string( 'cdn.rackspace_cdn.user_name' ),
-			'api_key'   => $c->get_string( 'cdn.rackspace_cdn.api_key' ),
+			'user_name' => $w3tc_c->get_string( 'cdn.rackspace_cdn.user_name' ),
+			'api_key'   => $w3tc_c->get_string( 'cdn.rackspace_cdn.api_key' ),
 		);
 
 		include W3TC_DIR . '/Cdn_RackSpaceCdn_Popup_View_Intro.php';
@@ -88,7 +88,7 @@ class Cdn_RackSpaceCdn_Popup {
 		$api_key   = $details['api_key'];
 
 		try {
-			$r = Cdn_RackSpace_Api_Tokens::authenticate( $user_name, $api_key );
+			$w3tc_r = Cdn_RackSpace_Api_Tokens::authenticate( $user_name, $api_key );
 		} catch ( \Exception $ex ) {
 			$details = array(
 				'user_name'     => $user_name,
@@ -99,13 +99,13 @@ class Cdn_RackSpaceCdn_Popup {
 			exit();
 		}
 
-		$r['regions'] = Cdn_RackSpace_Api_Tokens::cdn_services_by_region( $r['services'] );
+		$w3tc_r['regions'] = Cdn_RackSpace_Api_Tokens::cdn_services_by_region( $w3tc_r['services'] );
 
-		$details['access_token']       = $r['access_token'];
-		$details['region_descriptors'] = $r['regions'];
+		$details['access_token']       = $w3tc_r['access_token'];
+		$details['region_descriptors'] = $w3tc_r['regions'];
 
 		// avoid fights with quotes, magic_quotes may break randomly.
-		$details['region_descriptors_serialized'] = strtr( wp_json_encode( $r['regions'] ), '"\\', '!^' );
+		$details['region_descriptors_serialized'] = strtr( wp_json_encode( $w3tc_r['regions'] ), '"\\', '!^' );
 
 		include W3TC_DIR . '/Cdn_RackSpaceCdn_Popup_View_Regions.php';
 		exit();
@@ -122,33 +122,33 @@ class Cdn_RackSpaceCdn_Popup {
 	public function w3tc_ajax_cdn_rackspace_regions_done() {
 		$user_name          = Util_Request::get_string( 'user_name' );
 		$api_key            = Util_Request::get_string( 'api_key' );
-		$access_token       = Util_Request::get_string( 'access_token' );
-		$region             = Util_Request::get_string( 'region' );
+		$w3tc_access_token  = Util_Request::get_string( 'access_token' );
+		$w3tc_region        = Util_Request::get_string( 'region' );
 		$region_descriptors = json_decode(
 			strtr( Util_Request::get_string( 'region_descriptors' ), '!^', '"\\' ),
 			true
 		);
 
-		if ( ! isset( $region_descriptors[ $region ] ) ) {
+		if ( ! isset( $region_descriptors[ $w3tc_region ] ) ) {
 			$this->_render_cdn_rackspace_regions(
 				array(
 					'user_name'     => $user_name,
 					'api_key'       => $api_key,
-					'error_message' => 'Please select region ' . $region,
+					'error_message' => 'Please select region ' . $w3tc_region,
 				)
 			);
 		}
 
 		$api = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token'             => $access_token,
-				'access_region_descriptor' => $region_descriptors[ $region ],
+				'access_token'             => $w3tc_access_token,
+				'access_region_descriptor' => $region_descriptors[ $w3tc_region ],
 				'new_access_required'      => '',
 			)
 		);
 
 		try {
-			$services = $api->services();
+			$w3tc_services = $api->services();
 		} catch ( \Exception $ex ) {
 			$details = array(
 				'user_name'     => $user_name,
@@ -162,11 +162,11 @@ class Cdn_RackSpaceCdn_Popup {
 		$details = array(
 			'user_name'                           => $user_name,
 			'api_key'                             => $api_key,
-			'access_token'                        => $access_token,
-			'access_region_descriptor_serialized' => strtr( wp_json_encode( $region_descriptors[ $region ] ), '"\\', '!^' ),
-			'region'                              => $region,
+			'access_token'                        => $w3tc_access_token,
+			'access_region_descriptor_serialized' => strtr( wp_json_encode( $region_descriptors[ $w3tc_region ] ), '"\\', '!^' ),
+			'region'                              => $w3tc_region,
 			// avoid fights with quotes, magic_quotes may break randomly.
-			'services'                            => $services,
+			'services'                            => $w3tc_services,
 		);
 
 		include W3TC_DIR . '/Cdn_RackSpaceCdn_Popup_View_Services.php';
@@ -184,20 +184,20 @@ class Cdn_RackSpaceCdn_Popup {
 	public function w3tc_ajax_cdn_rackspace_services_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
-		$access_token             = Util_Request::get_string( 'access_token' );
+		$w3tc_access_token        = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode( strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
-		$region                   = Util_Request::get_string( 'region' );
-		$service                  = Util_Request::get( 'service' );
+		$w3tc_region              = Util_Request::get_string( 'region' );
+		$w3tc_service             = Util_Request::get( 'service' );
 
-		if ( ! empty( $service ) ) {
+		if ( ! empty( $w3tc_service ) ) {
 			$this->_render_service_actualize(
 				array(
 					'user_name'                           => $user_name,
 					'api_key'                             => $api_key,
-					'access_token'                        => $access_token,
+					'access_token'                        => $w3tc_access_token,
 					'access_region_descriptor_serialized' => strtr( wp_json_encode( $access_region_descriptor ), '"\\', '!^' ),
-					'region'                              => $region,
-					'service_id'                          => $service,
+					'region'                              => $w3tc_region,
+					'service_id'                          => $w3tc_service,
 				)
 			);
 
@@ -212,9 +212,9 @@ class Cdn_RackSpaceCdn_Popup {
 		$details = array(
 			'user_name'                           => $user_name,
 			'api_key'                             => $api_key,
-			'access_token'                        => $access_token,
+			'access_token'                        => $w3tc_access_token,
 			'access_region_descriptor_serialized' => strtr( wp_json_encode( $access_region_descriptor ), '"\\', '!^' ),
-			'region'                              => $region,
+			'region'                              => $w3tc_region,
 			'name'                                => '',
 			'protocol'                            => ( $is_https ? 'https' : 'http' ),
 			'cname_http'                          => '',
@@ -239,18 +239,18 @@ class Cdn_RackSpaceCdn_Popup {
 	public function w3tc_ajax_cdn_rackspace_service_create_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
-		$access_token             = Util_Request::get_string( 'access_token' );
+		$w3tc_access_token        = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode( strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
-		$region                   = Util_Request::get_string( 'region' );
-		$name                     = Util_Request::get_string( 'name' );
+		$w3tc_region              = Util_Request::get_string( 'region' );
+		$w3tc_name                = Util_Request::get_string( 'name' );
 		$protocol                 = Util_Request::get_string( 'protocol' );
 		$cname_http               = Util_Request::get_string( 'cname_http' );
 		$cname_https_prefix       = Util_Request::get_string( 'cname_https_prefix' );
 		$is_https                 = ( 'https' === $protocol );
-		$cname                    = ( $is_https ? $cname_https_prefix : $cname_http );
+		$w3tc_cname               = ( $is_https ? $cname_https_prefix : $cname_http );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token'             => $access_token,
+				'access_token'             => $w3tc_access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
@@ -260,7 +260,7 @@ class Cdn_RackSpaceCdn_Popup {
 
 		try {
 			$domain = array(
-				'domain'   => $cname,
+				'domain'   => $w3tc_cname,
 				'protocol' => ( $is_https ? 'https' : 'http' ),
 			);
 
@@ -270,7 +270,7 @@ class Cdn_RackSpaceCdn_Popup {
 
 			$service_id = $api->service_create(
 				array(
-					'name'    => $name,
+					'name'    => $w3tc_name,
 					'domains' => array( $domain ),
 					'origins' => array(
 						array(
@@ -293,10 +293,10 @@ class Cdn_RackSpaceCdn_Popup {
 			$details = array(
 				'user_name'                           => $user_name,
 				'api_key'                             => $api_key,
-				'access_token'                        => $access_token,
+				'access_token'                        => $w3tc_access_token,
 				'access_region_descriptor_serialized' => strtr( wp_json_encode( $access_region_descriptor ), '"\\', '!^' ),
-				'region'                              => $region,
-				'name'                                => $name,
+				'region'                              => $w3tc_region,
+				'name'                                => $w3tc_name,
 				'protocol'                            => ( $is_https ? 'https' : 'http' ),
 				'cname_http'                          => $cname_http,
 				'cname_http_style'                    => ( $is_https ? 'display: none' : '' ),
@@ -313,12 +313,12 @@ class Cdn_RackSpaceCdn_Popup {
 		$details = array(
 			'user_name'                           => $user_name,
 			'api_key'                             => $api_key,
-			'access_token'                        => $access_token,
+			'access_token'                        => $w3tc_access_token,
 			'access_region_descriptor_serialized' => strtr( wp_json_encode( $access_region_descriptor ), '"\\', '!^' ),
-			'region'                              => $region,
-			'name'                                => $name,
+			'region'                              => $w3tc_region,
+			'name'                                => $w3tc_name,
 			'is_https'                            => $is_https,
-			'cname'                               => $cname,
+			'cname'                               => $w3tc_cname,
 			'service_id'                          => $service_id,
 		);
 
@@ -331,29 +331,29 @@ class Cdn_RackSpaceCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_rackspace_service_get_state() {
-		$access_token             = Util_Request::get_string( 'access_token' );
+		$w3tc_access_token        = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode( strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
 		$service_id               = Util_Request::get_string( 'service_id' );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token'             => $access_token,
+				'access_token'             => $w3tc_access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
 		);
-		$service                  = $api->service_get( $service_id );
+		$w3tc_service             = $api->service_get( $service_id );
 		$response                 = array( 'status' => 'Unknown' );
 
-		if ( isset( $service['status'] ) ) {
-			$response['status'] = $service['status'];
+		if ( isset( $w3tc_service['status'] ) ) {
+			$response['status'] = $w3tc_service['status'];
 		}
 
-		if ( isset( $service['links_by_rel']['access_url'] ) ) {
-			$response['access_url'] = $service['links_by_rel']['access_url']['href'];
+		if ( isset( $w3tc_service['links_by_rel']['access_url'] ) ) {
+			$response['access_url'] = $w3tc_service['links_by_rel']['access_url']['href'];
 		}
 
-		if ( isset( $service['domains'] ) ) {
-			$response['cname'] = $service['domains'][0]['domain'];
+		if ( isset( $w3tc_service['domains'] ) ) {
+			$response['cname'] = $w3tc_service['domains'][0]['domain'];
 		}
 
 		// decode to friendly name.
@@ -391,9 +391,9 @@ class Cdn_RackSpaceCdn_Popup {
 			)
 		);
 
-		$service = null;
+		$w3tc_service = null;
 		try {
-			$service = $api->service_get( $details['service_id'] );
+			$w3tc_service = $api->service_get( $details['service_id'] );
 		} catch ( \Exception $ex ) {
 			$details['error_message'] = $ex->getMessage();
 			include W3TC_DIR . '/Cdn_RackSpaceCdn_Popup_View_Intro.php';
@@ -402,12 +402,12 @@ class Cdn_RackSpaceCdn_Popup {
 
 		$origin   = '';
 		$protocol = 'http';
-		if ( isset( $service['origins'] ) && $service['origins'][0]['origin'] ) {
-			$protocol = $service['origins'][0]['ssl'] ? 'https' : 'http';
-			$origin   = $service['origins'][0]['origin'];
+		if ( isset( $w3tc_service['origins'] ) && $w3tc_service['origins'][0]['origin'] ) {
+			$protocol = $w3tc_service['origins'][0]['ssl'] ? 'https' : 'http';
+			$origin   = $w3tc_service['origins'][0]['origin'];
 		}
 
-		$details['name']     = $service['name'];
+		$details['name']     = $w3tc_service['name'];
 		$details['protocol'] = $protocol;
 		$details['origin']   = array(
 			'current' => $origin,
@@ -426,26 +426,26 @@ class Cdn_RackSpaceCdn_Popup {
 	public function w3tc_ajax_cdn_rackspace_service_actualize_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
-		$access_token             = Util_Request::get_string( 'access_token' );
+		$w3tc_access_token        = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode( strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
-		$region                   = Util_Request::get_string( 'region' );
+		$w3tc_region              = Util_Request::get_string( 'region' );
 		$service_id               = Util_Request::get_string( 'service_id' );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token'             => $access_token,
+				'access_token'             => $w3tc_access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
 		);
 
 		try {
-			$service = $api->service_get( $service_id );
+			$w3tc_service = $api->service_get( $service_id );
 
 			$is_https = false;
 			$origin   = '';
-			if ( isset( $service['origins'] ) && $service['origins'][0]['ssl'] ) {
-				$is_https = $service['origins'][0]['ssl'];
-				$origin   = $service['origins'][0]['origin'];
+			if ( isset( $w3tc_service['origins'] ) && $w3tc_service['origins'][0]['ssl'] ) {
+				$is_https = $w3tc_service['origins'][0]['ssl'];
+				$origin   = $w3tc_service['origins'][0]['origin'];
 			}
 
 			$new_origin = Util_Environment::home_url_host();
@@ -490,42 +490,42 @@ class Cdn_RackSpaceCdn_Popup {
 	private function _save_config() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
-		$access_token             = Util_Request::get_string( 'access_token' );
+		$w3tc_access_token        = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode( strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
-		$region                   = Util_Request::get_string( 'region' );
+		$w3tc_region              = Util_Request::get_string( 'region' );
 		$service_id               = Util_Request::get_string( 'service_id' );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token'             => $access_token,
+				'access_token'             => $w3tc_access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
 		);
-		$service                  = $api->service_get( $service_id );
-		$access_url               = $service['links_by_rel']['access_url']['href'];
+		$w3tc_service             = $api->service_get( $service_id );
+		$access_url               = $w3tc_service['links_by_rel']['access_url']['href'];
 		$protocol                 = 'http';
 		$domain                   = '';
 
-		if ( isset( $service['domains'] ) && $service['domains'][0]['protocol'] ) {
-			$protocol = $service['domains'][0]['protocol'];
-			$domain   = $service['domains'][0]['domain'];
+		if ( isset( $w3tc_service['domains'] ) && $w3tc_service['domains'][0]['protocol'] ) {
+			$protocol = $w3tc_service['domains'][0]['protocol'];
+			$domain   = $w3tc_service['domains'][0]['domain'];
 		}
 
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		$c->set( 'cdn.rackspace_cdn.user_name', $user_name );
-		$c->set( 'cdn.rackspace_cdn.api_key', $api_key );
-		$c->set( 'cdn.rackspace_cdn.region', $region );
-		$c->set( 'cdn.rackspace_cdn.service.name', $service['name'] );
-		$c->set( 'cdn.rackspace_cdn.service.id', $service_id );
-		$c->set( 'cdn.rackspace_cdn.service.access_url', $access_url );
-		$c->set( 'cdn.rackspace_cdn.service.protocol', $protocol );
+		$w3tc_c->set( 'cdn.rackspace_cdn.user_name', $user_name );
+		$w3tc_c->set( 'cdn.rackspace_cdn.api_key', $api_key );
+		$w3tc_c->set( 'cdn.rackspace_cdn.region', $w3tc_region );
+		$w3tc_c->set( 'cdn.rackspace_cdn.service.name', $w3tc_service['name'] );
+		$w3tc_c->set( 'cdn.rackspace_cdn.service.id', $service_id );
+		$w3tc_c->set( 'cdn.rackspace_cdn.service.access_url', $access_url );
+		$w3tc_c->set( 'cdn.rackspace_cdn.service.protocol', $protocol );
 
 		if ( 'https' !== $protocol ) {
-			$c->set( 'cdn.rackspace_cdn.domains', array( $domain ) );
+			$w3tc_c->set( 'cdn.rackspace_cdn.domains', array( $domain ) );
 		}
 
-		$c->save();
+		$w3tc_c->save();
 
 		// reset calculated state.
 		$state = Dispatcher::config_state();
@@ -567,9 +567,9 @@ class Cdn_RackSpaceCdn_Popup {
 			// try to obtain CNAMEs.
 			$cdn->service_domains_set( $details['cnames'] );
 
-			$c = Dispatcher::config();
-			$c->set( 'cdn.rackspace_cdn.domains', $details['cnames'] );
-			$c->save();
+			$w3tc_c = Dispatcher::config();
+			$w3tc_c->set( 'cdn.rackspace_cdn.domains', $details['cnames'] );
+			$w3tc_c->save();
 
 			$postfix = Util_Admin::custom_message_id(
 				array(),
@@ -594,17 +594,17 @@ class Cdn_RackSpaceCdn_Popup {
 	 */
 	private function render_configure_domains_form( $details = array() ) {
 		if ( isset( $details['cnames'] ) ) {
-			$cnames = $details['cnames'];
+			$w3tc_cnames = $details['cnames'];
 		} else {
 			$core = Dispatcher::component( 'Cdn_Core' );
 			$cdn  = $core->get_cdn();
 
 			try {
 				// try to obtain CNAMEs.
-				$cnames = $cdn->service_domains_get();
+				$w3tc_cnames = $cdn->service_domains_get();
 			} catch ( \Exception $ex ) {
 				$details['error_message'] = $ex->getMessage();
-				$cnames                   = array();
+				$w3tc_cnames              = array();
 			}
 		}
 

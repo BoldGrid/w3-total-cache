@@ -64,23 +64,23 @@ class Generic_Plugin_AdminCompatibility {
 	 */
 	public function verify() {
 		if ( is_network_admin() ) {
-			$active_plugins = (array) get_site_option( 'active_sitewide_plugins', array() );
-			$active_plugins = array_keys( $active_plugins );
+			$w3tc_active_plugins = (array) get_site_option( 'active_sitewide_plugins', array() );
+			$w3tc_active_plugins = array_keys( $w3tc_active_plugins );
 		} else {
-			$active_plugins = (array) get_option( 'active_plugins' );
+			$w3tc_active_plugins = (array) get_option( 'active_plugins' );
 		}
 
 		$incomp_plugins = $this->_get_incompatible_plugins();
 
-		$message = '';
-		$matches = array_intersect( $active_plugins, $incomp_plugins );
+		$w3tc_message = '';
+		$matches      = array_intersect( $w3tc_active_plugins, $incomp_plugins );
 
 		if ( $matches ) {
-			$message = $this->_custom_message( $matches );
+			$w3tc_message = $this->_custom_message( $matches );
 		}
 
-		if ( $message ) {
-			Util_Ui::error_box( $message );
+		if ( $w3tc_message ) {
+			Util_Ui::error_box( $w3tc_message );
 		} else {
 			set_transient( 'w3tc.verify_plugins', true, 7 * 24 * 3600 );
 		}
@@ -120,12 +120,12 @@ class Generic_Plugin_AdminCompatibility {
 	 * @return string
 	 */
 	private function _custom_message( $plugins ) {
-		$message = __( 'The following plugins are not compatible with W3 Total Cache and will cause unintended results:', 'w3-total-cache' );
+		$w3tc_message = __( 'The following plugins are not compatible with W3 Total Cache and will cause unintended results:', 'w3-total-cache' );
 
 		$plugin_names = array();
 		foreach ( $plugins as $plugin ) {
-			$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
-			$temp = "<li><div>{$data['Name']}</div>";
+			$w3tc_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+			$temp      = "<li><div>{$w3tc_data['Name']}</div>";
 
 			if ( is_network_admin() && current_user_can( 'manage_network_plugins' ) ) {
 				$temp .= ' <a class="button-secondary" href="' . network_admin_url( wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . $plugin . '&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_' . $plugin ) ) . '" title="' . esc_attr__( 'Deactivate this plugin', 'w3-total-cache' ) . '">' . __( 'Network Deactivate', 'w3-total-cache' ) . '</a>';
@@ -138,6 +138,6 @@ class Generic_Plugin_AdminCompatibility {
 			$plugin_names[] = $temp;
 		}
 
-		return sprintf( "<p>$message</p><ul class=\"w3tc-incomp-plugins\">%s</ul>", implode( '', $plugin_names ) );
+		return sprintf( "<p>$w3tc_message</p><ul class=\"w3tc-incomp-plugins\">%s</ul>", implode( '', $plugin_names ) );
 	}
 }

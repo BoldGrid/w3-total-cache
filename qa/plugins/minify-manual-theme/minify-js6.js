@@ -1,1 +1,1 @@
-jQuery('#js6').text('passed');
+jQuery("#js6").text("passed");

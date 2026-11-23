@@ -9,13 +9,14 @@
  * phpcs:disable Squiz.PHP.CommentedOutCode.Found
  */
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Descriptors of configuration keys for config
  *
  * Reminder: The maximum length of keys cannot exceed 64 chars. This is the limit for the name attribute in form fields.
  */
 
-$keys = array(
+$w3tc_keys = array(
 	'cluster.messagebus.debug'                             => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -31,10 +32,12 @@ $keys = array(
 	'cluster.messagebus.sns.api_key'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // AWS SNS API key — encrypted at rest.
 	),
 	'cluster.messagebus.sns.api_secret'                    => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'cluster.messagebus.sns.topic_arn'                     => array(
 		'type'    => 'string',
@@ -59,6 +62,10 @@ $keys = array(
 	'dbcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		), // Switches code path into a different engine; set only via dedicated page.
 	),
 	'dbcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -93,6 +100,7 @@ $keys = array(
 	'dbcache.memcached.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'dbcache.memcached.binary_protocol'                    => array(
 		'type'    => 'boolean',
@@ -115,6 +123,7 @@ $keys = array(
 	'dbcache.redis.password'                               => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'dbcache.redis.dbid'                                   => array(
 		'type'    => 'integer',
@@ -186,6 +195,18 @@ $keys = array(
 	'dbcache.wpcli_disk'                                   => array(
 		'type'    => 'boolean',
 		'default' => false,
+	),
+	'dbcache.wp_cron'                                      => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'dbcache.wp_cron_time'                                 => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'dbcache.wp_cron_interval'                             => array(
+		'type'    => 'string',
+		'default' => 'daily',
 	),
 	'docroot_fix.enable'                                   => array(
 		'type'    => 'boolean',
@@ -281,6 +302,10 @@ $keys = array(
 	'objectcache.engine'                                   => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'objectcache.file.locking'                             => array(
 		'type'    => 'boolean',
@@ -307,6 +332,7 @@ $keys = array(
 	'objectcache.memcached.password'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'objectcache.memcached.binary_protocol'                => array(
 		'type'    => 'boolean',
@@ -329,6 +355,7 @@ $keys = array(
 	'objectcache.redis.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'objectcache.redis.dbid'                               => array(
 		'type'    => 'integer',
@@ -369,6 +396,30 @@ $keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
+	'objectcache.wp_cron'                                  => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'objectcache.wp_cron_time'                             => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'objectcache.wp_cron_interval'                         => array(
+		'type'    => 'string',
+		'default' => 'daily',
+	),
+	'allcache.wp_cron'                                     => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'allcache.wp_cron_time'                                => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'allcache.wp_cron_interval'                            => array(
+		'type'    => 'string',
+		'default' => 'daily',
+	),
 	'pgcache.configuration_overloaded'                     => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -392,6 +443,10 @@ $keys = array(
 	'pgcache.engine'                                       => array(
 		'type'    => 'string',
 		'default' => 'file_generic',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'pgcache.file.gc'                                      => array(
 		'type'    => 'integer',
@@ -430,6 +485,7 @@ $keys = array(
 	'pgcache.memcached.password'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'pgcache.memcached.binary_protocol'                    => array(
 		'type'    => 'boolean',
@@ -452,6 +508,7 @@ $keys = array(
 	'pgcache.redis.password'                               => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'pgcache.redis.dbid'                                   => array(
 		'type'    => 'integer',
@@ -687,6 +744,10 @@ $keys = array(
 		'type'    => 'integer',
 		'default' => 10,
 	),
+	'pgcache.prime.sitemap_one_pass'                       => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
 	'pgcache.prime.sitemap'                                => array(
 		'type'    => 'string',
 		'default' => '',
@@ -734,6 +795,18 @@ $keys = array(
 				),
 			),
 		),
+	),
+	'pgcache.wp_cron'                                      => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'pgcache.wp_cron_time'                                 => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'pgcache.wp_cron_interval'                             => array(
+		'type'    => 'string',
+		'default' => 'daily',
 	),
 	'stats.enabled'                                        => array(
 		'type'    => 'boolean',
@@ -824,6 +897,7 @@ $keys = array(
 	'minify.memcached.password'                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Memcached SASL password — never reflect into HTML value=.
 	),
 	'minify.memcached.binary_protocol'                     => array(
 		'type'    => 'boolean',
@@ -846,6 +920,7 @@ $keys = array(
 	'minify.redis.password'                                => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ), // Redis password — never reflect into HTML value=.
 	),
 	'minify.redis.dbid'                                    => array(
 		'type'    => 'integer',
@@ -922,6 +997,10 @@ $keys = array(
 	'minify.css.engine'                                    => array(
 		'type'    => 'string',
 		'default' => 'css',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.css.method'                                    => array(
 		'type'    => 'string',
@@ -962,6 +1041,10 @@ $keys = array(
 	'minify.js.engine'                                     => array(
 		'type'    => 'string',
 		'default' => 'js',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.js.method'                                     => array(
 		'type'    => 'string',
@@ -1006,10 +1089,18 @@ $keys = array(
 	'minify.yuijs.path.java'                               => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		), // OS command-injection target; set only via dedicated page.
 	),
 	'minify.yuijs.path.jar'                                => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuijs.options.line-break'                      => array(
 		'type'    => 'integer',
@@ -1030,10 +1121,18 @@ $keys = array(
 	'minify.yuicss.path.java'                              => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuicss.path.jar'                               => array(
 		'type'    => 'string',
 		'default' => 'yuicompressor.jar',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.yuicss.options.line-break'                     => array(
 		'type'    => 'integer',
@@ -1042,10 +1141,18 @@ $keys = array(
 	'minify.ccjs.path.java'                                => array(
 		'type'    => 'string',
 		'default' => 'java',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.ccjs.path.jar'                                 => array(
 		'type'    => 'string',
 		'default' => 'compiler.jar',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_minify',
+		),
 	),
 	'minify.ccjs.options.compilation_level'                => array(
 		'type'    => 'string',
@@ -1163,6 +1270,18 @@ $keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
+	'minify.wp_cron'                                       => array(
+		'type'    => 'boolean',
+		'default' => false,
+	),
+	'minify.wp_cron_time'                                  => array(
+		'type'    => 'integer',
+		'default' => 0,
+	),
+	'minify.wp_cron_interval'                              => array(
+		'type'    => 'string',
+		'default' => 'daily',
+	),
 	'cdn.configuration_overloaded'                         => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -1182,6 +1301,36 @@ $keys = array(
 	'cdn.engine'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'no_import' => true,
+			'dedicated_page' => 'w3tc_general',
+		),
+		/**
+		 * The cdn.engine key is interpolated into the X-W3TC-CDN
+		 * Response header by Cdn_Plugin::send_headers. Without an
+		 * allowlist, an admin-settable value could carry CRLF and
+		 * inject arbitrary response headers (defense-in-depth on
+		 * PHP 7.x; PHP 8.3 already rejects raw CRLF in header()).
+		 * Enum derives from the supported engines listed in
+		 * Cdn_Core_Admin and Cache::engine_name; empty string is
+		 * the "no CDN" default and must remain valid.
+		 */
+		'enum'    => array(
+			'',
+			'azure',
+			'azuremi',
+			'bunnycdn',
+			'cf',
+			'cf2',
+			'cloudfront',
+			'ftp',
+			'google_drive',
+			'mirror',
+			'rackspace_cdn',
+			'rscf',
+			's3',
+			's3_compatible',
+		),
 	),
 	'cdn.uploads.enable'                                   => array(
 		'type'    => 'boolean',
@@ -1229,6 +1378,7 @@ $keys = array(
 	'cdn.import.files'                                     => array(
 		'type'    => 'string',
 		'default' => false,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.queue.interval'                                   => array(
 		'type'    => 'integer',
@@ -1265,246 +1415,343 @@ $keys = array(
 	'cdn.ftp.host'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.type'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.user'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pass'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // FTP password — encrypted at rest.
 	),
 	'cdn.ftp.path'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pasv'                                         => array(
 		'type'    => 'boolean',
 		'default' => false,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.domain'                                       => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.ssl'                                          => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.default_keys'                                 => array(
 		'type'    => 'boolean',
 		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.pubkey'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.privkey'                                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // SFTP private key — encrypted at rest.
 	),
 	'cdn.google_drive.client_id'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.refresh_token'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.google_drive.folder.id'                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.folder.title'                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.google_drive.folder.url'                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // S3 access key ID — encrypted at rest.
 	),
 	'cdn.s3.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		), // S3 secret key.
 	),
 	'cdn.s3.bucket'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.bucket.location'                               => array(
 		'type'    => 'string',
 		'default' => 'us-east-1',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.cname'                                         => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.ssl'                                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3.public_objects'                                => array(
 		'type'    => 'string',
 		'default' => 'enabled',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.s3_compatible.api_host'                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf.secret'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf.bucket'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.bucket.location'                               => array(
 		'type'    => 'string',
 		'default' => 'us-east-1',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.id'                                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.cname'                                         => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.ssl'                                           => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf.public_objects'                                => array(
 		'type'    => 'string',
 		'default' => 'enabled',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.key'                                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf2.secret'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.cf2.id'                                           => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.cname'                                        => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.cf2.ssl'                                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.user'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.key'                                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.rscf.location'                                    => array(
 		'type'    => 'string',
 		'default' => 'us',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.container'                                   => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.cname'                                       => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rscf.ssl'                                         => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.user_name'                          => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.api_key'                            => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.rackspace_cdn.region'                             => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.access_url'                 => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.id'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.name'                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.service.protocol'                   => array(
 		'type'    => 'string',
 		'default' => 'http',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.rackspace_cdn.domains'                            => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.user'                                       => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.key'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'secret' => true,
+			'dedicated_page' => 'w3tc_cdn',
+		),
 	),
 	'cdn.azure.container'                                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.cname'                                      => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azure.ssl'                                        => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.user'                                     => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.clientid'                                 => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.container'                                => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.cname'                                    => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.azuremi.ssl'                                      => array(
 		'type'    => 'string',
 		'default' => 'auto',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.mirror.domain'                                    => array(
 		'type'    => 'array',
@@ -1514,85 +1761,10 @@ $keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
-	'cdn.cotendo.username'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.cotendo.password'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.cotendo.zones'                                    => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.cotendo.domain'                                   => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.cotendo.ssl'                                      => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.akamai.username'                                  => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.akamai.password'                                  => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.akamai.email_notification'                        => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.akamai.action'                                    => array(
-		'type'    => 'string',
-		'default' => 'invalidate',
-	),
-	'cdn.akamai.zone'                                      => array(
-		'type'    => 'string',
-		'default' => 'production',
-	),
-	'cdn.akamai.domain'                                    => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.akamai.ssl'                                       => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.edgecast.account'                                 => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.edgecast.token'                                   => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.edgecast.domain'                                  => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.edgecast.ssl'                                     => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.att.account'                                      => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.att.token'                                        => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.att.domain'                                       => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.att.ssl'                                          => array(
-		'type'    => 'string',
-		'default' => 'auto',
+	'cdn.bunnycdn.verify_tls_certificates'                 => array(
+		'type'    => 'boolean',
+		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.reject.admins'                                    => array(
 		'type'    => 'boolean',
@@ -1641,26 +1813,37 @@ $keys = array(
 	'cdnfsd.cloudfront.access_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.cloudfront.secret_key'                         => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.cloudfront.distribution_id'                    => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.client_id'                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.client_secret'                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdnfsd.transparentcdn.company_id'                     => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
+	),
+	'cdnfsd.bunnycdn.verify_tls_certificates'              => array(
+		'type'    => 'boolean',
+		'default' => true,
+		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'varnish.configuration_overloaded'                     => array(
 		'type'    => 'boolean',
@@ -1699,6 +1882,16 @@ $keys = array(
 		'default' => array(
 			'robots\.txt',
 			'[a-z0-9_\-]*sitemap[a-z0-9_\.\-]*\.(xml|xsl|html)(\.gz)?',
+		),
+		/**
+		 * Rule-generation input: each entry is implode()'d into Apache
+		 * RewriteCond / Nginx location regexes. Flag so Config::set()
+		 * (and therefore Config::import()) strips CR/LF/NUL/<>/" before
+		 * the value can reach renderers or master.php.
+		 */
+		'flags'   => array(
+			'dedicated_page'   => 'w3tc_browsercache',
+			'directive_string' => true,
 		),
 	),
 	'browsercache.cssjs.last_modified'                     => array(
@@ -1872,6 +2065,9 @@ $keys = array(
 	'browsercache.security.xfo.allow'                      => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'directive_string' => true,
+		),
 	),
 	'browsercache.security.xss'                            => array(
 		'type'    => 'boolean',
@@ -1880,6 +2076,7 @@ $keys = array(
 	'browsercache.security.xss.directive'                  => array(
 		'type'    => 'string',
 		'default' => 'block',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.xcto'                           => array(
 		'type'    => 'boolean',
@@ -1889,21 +2086,25 @@ $keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.pkp.pin'                        => array(
+	'browsercache.security.pkp.pin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.pkp.pin.backup'                 => array(
+	'browsercache.security.pkp.pin.backup' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.pkp.extra'                      => array(
 		'type'    => 'string',
 		'default' => 'maxage',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.pkp.report.url'                 => array(
+	'browsercache.security.pkp.report.url' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.pkp.report.only'                => array(
 		'type'    => 'string',
@@ -1916,198 +2117,245 @@ $keys = array(
 	'browsercache.security.referrer.policy.directive'      => array(
 		'type'    => 'string',
 		'default' => 'no-referrer-when-downgrade',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.csp'                            => array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.csp.reporturi'                  => array(
+	'browsercache.security.csp.reporturi' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.reportto'                   => array(
+	'browsercache.security.csp.reportto' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.base'                       => array(
+	'browsercache.security.csp.base' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.frame'                      => array(
+	'browsercache.security.csp.frame' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.connect'                    => array(
+	'browsercache.security.csp.connect' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.font'                       => array(
+	'browsercache.security.csp.font' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.script'                     => array(
+	'browsercache.security.csp.script' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.style'                      => array(
+	'browsercache.security.csp.style' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.img'                        => array(
+	'browsercache.security.csp.img' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.media'                      => array(
+	'browsercache.security.csp.media' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.object'                     => array(
+	'browsercache.security.csp.object' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.plugin'                     => array(
+	'browsercache.security.csp.plugin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.form'                       => array(
+	'browsercache.security.csp.form' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.frame.ancestors'            => array(
+	'browsercache.security.csp.frame.ancestors' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.sandbox'                    => array(
+	'browsercache.security.csp.sandbox' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.child'                      => array(
+	'browsercache.security.csp.child' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.manifest'                   => array(
+	'browsercache.security.csp.manifest' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.scriptelem'                 => array(
+	'browsercache.security.csp.scriptelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.scriptattr'                 => array(
+	'browsercache.security.csp.scriptattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.styleelem'                  => array(
+	'browsercache.security.csp.styleelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.styleattr'                  => array(
+	'browsercache.security.csp.styleattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.worker'                     => array(
+	'browsercache.security.csp.worker' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.csp.default'                    => array(
+	'browsercache.security.csp.default' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.cspro'                          => array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
-	'browsercache.security.cspro.reporturi'                => array(
+	'browsercache.security.cspro.reporturi' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.reportto'                 => array(
+	'browsercache.security.cspro.reportto' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.base'                     => array(
+	'browsercache.security.cspro.base' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.frame'                    => array(
+	'browsercache.security.cspro.frame' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.connect'                  => array(
+	'browsercache.security.cspro.connect' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.font'                     => array(
+	'browsercache.security.cspro.font' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.script'                   => array(
+	'browsercache.security.cspro.script' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.style'                    => array(
+	'browsercache.security.cspro.style' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.img'                      => array(
+	'browsercache.security.cspro.img' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.media'                    => array(
+	'browsercache.security.cspro.media' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.object'                   => array(
+	'browsercache.security.cspro.object' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.plugin'                   => array(
+	'browsercache.security.cspro.plugin' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.form'                     => array(
+	'browsercache.security.cspro.form' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.frame.ancestors'          => array(
+	'browsercache.security.cspro.frame.ancestors' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.sandbox'                  => array(
+	'browsercache.security.cspro.sandbox' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.child'                    => array(
+	'browsercache.security.cspro.child' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.manifest'                 => array(
+	'browsercache.security.cspro.manifest' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.scriptelem'               => array(
+	'browsercache.security.cspro.scriptelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.scriptattr'               => array(
+	'browsercache.security.cspro.scriptattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.styleelem'                => array(
+	'browsercache.security.cspro.styleelem' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.styleattr'                => array(
+	'browsercache.security.cspro.styleattr' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.worker'                   => array(
+	'browsercache.security.cspro.worker' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
-	'browsercache.security.cspro.default'                  => array(
+	'browsercache.security.cspro.default' => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'browsercache.security.fp'                             => array(
 		'type'    => 'boolean',
@@ -2387,6 +2635,13 @@ $keys = array(
 		'type'    => 'boolean',
 		'default' => false,
 	),
+	// Exact IPs or CIDRs of reverse proxies allowed to set X-Forwarded-* / Forwarded.
+	// Empty default ignores those headers. General Settings → Reverse Proxy.
+	// Filter: w3tc_trusted_proxies. Cloudflare edges also via w3tc_cloudflare_proxy_cidrs.
+	'common.trusted_proxies'                               => array(
+		'type'    => 'array',
+		'default' => array(),
+	),
 	'common.tweeted'                                       => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -2471,24 +2726,35 @@ $keys = array(
 	'extensions.active'                                    => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ), // File-inclusion target; managed via Extensions UI only.
 	),
 	'extensions.active_frontend'                           => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'extensions.active_dropin'                             => array(
 		'type'    => 'array',
 		'default' => array(),
+		'flags'   => array( 'no_import' => true ),
 	),
 	'plugin.license_key'                                   => array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		'flags'       => array( 'secret' => true ), // EDD license key — encrypted at rest.
 	),
 	'plugin.type'                                          => array(
 		'type'        => 'string',
 		'default'     => '',
 		'master_only' => true,
+		/**
+		 * License-path only: no dedicated_page, so read_request() and
+		 * Config::import refuse writes. Licensing_Plugin_Admin updates
+		 * via Config::set() after EDD status checks.
+		 */
+		'flags'       => array( 'no_import' => true ),
+		'enum'        => array( '', 'pro', 'pro_dev' ),
 	),
 	'jquerymigrate.disabled'                               => array(
 		'type'    => 'boolean',
@@ -2573,7 +2839,7 @@ $keys = array(
 /*
  * Descriptors how sealed configuration keys affect overriding
  */
-$overloading_keys_scope = array(
+$w3tc_overloading_keys_scope = array(
 	array(
 		'key'    => 'browsercache.configuration_overloaded',
 		'prefix' => 'browsercache.',

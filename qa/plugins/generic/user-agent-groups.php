@@ -10,7 +10,7 @@
  * @package W3TC
  * @subpackage QA
  *
- * phpcs:disable: WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.GlobalVariablesOverride.Prohibited, WordPress.PHP.DevelopmentFunctions.error_log_var_dump
+ * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.GlobalVariablesOverride.Prohibited
  */
 
 if ( ! defined( 'DONOTCACHEPAGE' ) ) {
@@ -19,144 +19,94 @@ if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 
 require __DIR__ . '/wp-load.php';
 
-$blog_id   = $_REQUEST['blog_id'];
-$url       = $_REQUEST['url'];
-$parsed    = wp_parse_url( $url );
-$host_port = strtolower( $parsed['host'] ) . ( isset( $parsed['port'] ) ? ':' . $parsed['port'] : '' );
-$path      = $parsed['path'];
+if ( ! function_exists( 'w3tc_qa_pagecache_key_resolve' ) ) {
+	require defined( 'W3TC_DIR' ) ? W3TC_DIR . '/qa/plugins/pagecache-key.php' : __DIR__ . '/../pagecache-key.php';
+}
+
+$url = $_REQUEST['url'];
+
+$probe_options = array();
+if ( isset( $_REQUEST['blog_id'] ) ) {
+	$probe_options['blog_id'] = (int) $_REQUEST['blog_id'];
+}
+
+$chrome_ua = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111';
+$safari_ua = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
+
+$safari_options = array_merge( $probe_options, array( 'user_agent' => $safari_ua ) );
+$chrome_options = array_merge( $probe_options, array( 'user_agent' => $chrome_ua ) );
+
+$v1 = w3tc_qa_pagecache_cache_find( $url, $safari_options );
+$v2 = w3tc_qa_pagecache_cache_find( $url, $chrome_options );
+
+if ( is_array( $v1 ) && isset( $v1['content'] ) && is_array( $v2 ) && isset( $v2['content'] ) ) {
+	echo 'ok';
+	exit;
+}
 
 /**
- * Get cache key.
+ * Scans Redis for page-cache keys so failure output shows what runtime wrote.
  *
- * @param string $path      Path.
- * @param string $host_port Host port.
- * @param string $group     Group.
- * @return string
+ * @return array
  */
-function get_cache_key( $path, $host_port, $group ) {
-	global $url, $engine;
-
-	if ( 'file_generic' === $engine ) {
-		// Make sure one slash is at the end.
-		$extra = '';
-
-		if ( '/' === substr( $path, strlen( $path ) - 1, 1 ) ) {
-			$extra = '_slash';
-		}
-
-		// Return the cache key.
-		return $host_port . $path . '_index' . $extra . ( empty( $group ) ? '' : '_' . $group ) .
-			( preg_match( '/https/', $url ) ? '_ssl' : '' ) . '.html';
+function w3tc_qa_uag_redis_keys() {
+	if ( ! class_exists( 'Redis' ) ) {
+		return array( 'phpredis not available' );
 	}
 
-	$cache_key = md5( $host_port . $path ) . ( empty( $group ) ? '' : '_' . $group );
+	$config  = \W3TC\Dispatcher::config();
+	$servers = $config->get_array( 'pgcache.redis.servers' );
+	$keys    = array();
 
-	if ( preg_match( '/https/', $url ) ) {
-		$cache_key .= '_ssl';
-	};
+	foreach ( $servers as $server ) {
+		$parts = explode( ':', $server );
+		$redis = new Redis();
 
-	return $cache_key;
-}
+		try {
+			$redis->connect( $parts[0], isset( $parts[1] ) ? (int) $parts[1] : 6379, 2 );
 
-$engine     = $_REQUEST['engine'];
-$cache_key1 = get_cache_key( $path, $host_port, 'test1' );
-$cache_key2 = get_cache_key( $path, $host_port, '' );
+			$dbid = $config->get_integer( 'pgcache.redis.dbid' );
+			if ( $dbid ) {
+				$redis->select( $dbid );
+			}
 
-switch ( $engine ) {
-	case 'apc':
-		$instance = new \W3TC\Cache_Apcu(
-			array(
-				'section'     => 'page',
-				'blog_id'     => $blog_id,
-				'module'      => 'pgcache',
-				'host'        => '',
-				'instance_id' => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	case 'file':
-		$instance = new \W3TC\Cache_File(
-			array(
-				'section'         => 'page',
-				'locking'         => false,
-				'flush_timelimit' => 100,
-				'blog_id'         => $blog_id,
-				'module'          => 'pgcache',
-				'host'            => '',
-				'instance_id'     => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	case 'file_generic':
-		$instance = new \W3TC\Cache_File_Generic(
-			array(
-				'cache_dir'       => W3TC_CACHE_PAGE_ENHANCED_DIR,
-				'section'         => 'page',
-				'locking'         => false,
-				'flush_timelimit' => 100,
-				'blog_id'         => $blog_id,
-				'module'          => 'pgcache',
-				'host'            => '',
-				'instance_id'     => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	case 'memcached':
-		$params = array(
-			'section'     => 'page',
-			'servers'     => array( '127.0.0.1:11211' ),
-			'blog_id'     => $blog_id,
-			'module'      => 'pgcache',
-			'host'        => '',
-			'instance_id' => \W3TC\Util_Environment::instance_id(),
-		);
-
-		if ( class_exists( 'Memcached' ) ) {
-			$instance = new \W3TC\Cache_Memcached( $params );
-		} else {
-			$instance = new \W3TC\Cache_Memcache( $params );
+			$it = null;
+			while ( true ) {
+				$batch = $redis->scan( $it, '*pgcache*', 200 );
+				if ( false === $batch ) {
+					break;
+				}
+				foreach ( $batch as $k ) {
+					$keys[] = $k;
+				}
+				if ( 0 === $it ) {
+					break;
+				}
+			}
+		} catch ( Exception $e ) {
+			$keys[] = 'scan failed: ' . $e->getMessage();
 		}
+	}
 
-		break;
+	sort( $keys );
 
-	case 'redis':
-		$instance = new \W3TC\Cache_Redis(
-			array(
-				'section'        => 'page',
-				'servers'        => array( '127.0.0.1:6379' ),
-				'dbid'           => 0,
-				'password'       => '',
-				'blog_id'        => $blog_id,
-				'module'         => 'pgcache',
-				'host'           => '',
-				'instance_id'    => \W3TC\Util_Environment::instance_id(),
-				'timeout'        => 0,
-				'retry_interval' => 0,
-				'read_timeout'   => 0,
-			)
-		);
-		break;
-
-	case 'xcache':
-		$instance = new \W3TC\Cache_Xcache(
-			array(
-				'section'     => 'page',
-				'blog_id'     => $blog_id,
-				'module'      => 'pgcache',
-				'host'        => '',
-				'instance_id' => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
+	return $keys;
 }
 
-var_dump( $cache_key1 );
-var_dump( $cache_key2 );
+$config      = \W3TC\Dispatcher::config();
+$diag        = array(
+	'safari_found'    => is_array( $v1 ) && isset( $v1['content'] ) ? true : false,
+	'chrome_found'    => is_array( $v2 ) && isset( $v2['content'] ) ? true : false,
+	'safari_resolved' => w3tc_qa_pagecache_key_resolve( $url, $safari_options ),
+	'chrome_resolved' => w3tc_qa_pagecache_key_resolve( $url, $chrome_options ),
+	'probe_options'   => $probe_options,
+	'is_multisite'    => is_multisite(),
+	'util_blog_id'    => \W3TC\Util_Environment::blog_id(),
+	'instance_id'     => \W3TC\Util_Environment::instance_id(),
+	'pgcache_engine'  => $config->get_string( 'pgcache.engine' ),
+	'mobile_enabled'  => $config->get_boolean( 'mobile.enabled' ),
+	'mobile_rgroups'  => $config->get_array( 'mobile.rgroups' ),
+	'redis_keys'      => w3tc_qa_uag_redis_keys(),
+);
 
-$v1 = $instance->get( $cache_key1 );
-$v2 = $instance->get( $cache_key2 );
-
-echo isset( $v1['content'] ) && isset( $v2['content'] ) ? 'ok' : 'error';
+echo 'error ' . wp_json_encode( $diag, JSON_PRETTY_PRINT );

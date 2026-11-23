@@ -16,21 +16,48 @@ namespace W3TC;
  */
 class PgCache_Environment {
 	/**
+	 * Per-token site-transient key prefix used to gate the unauthenticated
+	 * `?w3tc_rewrite_test=1` echo in Generic_Plugin. Each issued token
+	 * becomes its own transient (`<prefix><token>`) so concurrent rewrite
+	 * tests cannot clobber each other's tokens. Only requests presenting a
+	 * matching token via the {@see self::PROBE_TOKEN_HEADER} header may
+	 * trigger the `OK` response.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_PREFIX = 'w3tc_pgcache_probe_';
+
+	/**
+	 * HTTP header carrying the probe token from the issuing admin
+	 * request to the unauthenticated `init`-hook rewrite-test handler.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @var string
+	 */
+	const PROBE_TOKEN_HEADER = 'X-W3TC-PgCache-Probe';
+
+	/**
 	 * Fixes environment settings on WP admin request.
 	 *
-	 * @param Config $config         Configuration object containing environment settings.
+	 * @param Config $w3tc_config         Configuration object containing environment settings.
 	 * @param bool   $force_all_checks Whether to force all checks regardless of current configuration.
 	 *
 	 * @return void
 	 *
 	 * @throws \Util_Environment_Exceptions If there are unresolved exceptions during the fixing process.
 	 */
-	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $w3tc_config, $force_all_checks ) {
 		$exs             = new Util_Environment_Exceptions();
-		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
-		$engine          = $config->get_string( 'pgcache.engine' );
+		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
+		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
-		if ( ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) ) {
+		// WordPress defines WP_CACHE as false in wp_initial_constants() when the
+		// site did not. A true value was set by the site, so leave wp-config alone.
+		// A false value still has to be checked against the site's config files.
+		if ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -38,25 +65,21 @@ class PgCache_Environment {
 			}
 		}
 
-		$this->fix_folders( $config, $exs );
+		$this->fix_folders( $w3tc_config, $exs );
 
-		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
-			if ( $this->is_rules_required( $config ) ) {
-				$this->rules_core_add( $config, $exs );
-				$this->rules_cache_add( $config, $exs );
-			} else {
-				$this->rules_core_remove( $exs );
-				$this->rules_cache_remove( $exs );
-			}
+		if ( $w3tc_config->get_boolean( 'config.check' ) || $force_all_checks ) {
+			$this->rules_apply_for_config( $w3tc_config, $exs );
 		}
 
 		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $pgcache_enabled && 'file_generic' === $engine ) {
+				if ( $pgcache_enabled && 'file_generic' === $w3tc_engine ) {
 					$this->verify_file_generic_compatibility();
 
-					if ( $config->get_boolean( 'pgcache.debug' ) ) {
+					// The rewrite test only makes sense while W3TC owns the rules: is_rules_required()
+					// answers no once something else took delivery.
+					if ( $w3tc_config->get_boolean( 'pgcache.debug' ) && $this->is_rules_required( $w3tc_config ) ) {
 						$this->verify_file_generic_rewrite_working();
 					}
 				}
@@ -73,19 +96,21 @@ class PgCache_Environment {
 	/**
 	 * Adjusts settings based on a specific event.
 	 *
-	 * @param Config      $config     W3TC Config containing relevant settings.
+	 * @param Config      $w3tc_config     W3TC Config containing relevant settings.
 	 * @param string      $event      The name of the event triggering the adjustment.
 	 * @param Config|null $old_config Optional. Previous W3TC Config object for comparison.
 	 *
 	 * @return void
+	 *
+	 * @throws Util_Environment_Exceptions When rewrite rules cannot be updated on config save.
 	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
-		$engine          = $config->get_string( 'pgcache.engine' );
+	public function fix_on_event( $w3tc_config, $event, $old_config = null ) {
+		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
+		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
 		// Schedules events.
-		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'pgcache.file.gc' );
+		if ( $pgcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$new_interval = $w3tc_config->get_integer( 'pgcache.file.gc' );
 			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.file.gc' ) : -1;
 
 			if ( null !== $old_config && $new_interval !== $old_interval ) {
@@ -100,11 +125,52 @@ class PgCache_Environment {
 		}
 
 		// Schedule prime event.
-		if ( $pgcache_enabled && $config->get_boolean( 'pgcache.prime.enabled' ) ) {
-			$new_interval = $config->get_integer( 'pgcache.prime.interval' );
+		$prime_enabled = $pgcache_enabled && $w3tc_config->get_boolean( 'pgcache.prime.enabled' );
+		$one_pass      = $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' );
+		$restart_prime = false;
+		$signature     = $this->prime_settings_signature( $w3tc_config );
+
+		if ( null !== $old_config ) {
+			$old_prime_enabled = (
+				$old_config->get_boolean( 'pgcache.enabled' ) &&
+				$old_config->get_boolean( 'pgcache.prime.enabled' )
+			);
+			$restart_prime     = $prime_enabled && (
+				! $old_prime_enabled ||
+				$one_pass !== $old_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ) ||
+				$w3tc_config->get_string( 'pgcache.prime.sitemap' ) !==
+					$old_config->get_string( 'pgcache.prime.sitemap' )
+			);
+		} else {
+			$stored_signature = get_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, false );
+			$restart_prime    = (
+				$prime_enabled &&
+				false !== $stored_signature &&
+				! hash_equals( (string) $stored_signature, $signature )
+			);
+		}
+
+		if ( 'activate' === $event && $prime_enabled ) {
+			$restart_prime = true;
+		}
+
+		if ( ! $prime_enabled || $restart_prime ) {
+			PgCache_Plugin_Admin::reset_prime();
+		}
+
+		update_option( PgCache_Plugin_Admin::PRIME_SETTINGS_OPTION, $signature, false );
+
+		$prime_completed = (
+			$one_pass &&
+			PgCache_Plugin_Admin::prime_generation() ===
+				get_option( PgCache_Plugin_Admin::PRIME_COMPLETED_OPTION, false )
+		);
+
+		if ( $prime_enabled && ! $prime_completed ) {
+			$new_interval = $w3tc_config->get_integer( 'pgcache.prime.interval' );
 			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
 
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
+			if ( $restart_prime || ( null !== $old_config && $new_interval !== $old_interval ) ) {
 				$this->unschedule_prime();
 			}
 
@@ -113,6 +179,61 @@ class PgCache_Environment {
 			}
 		} else {
 			$this->unschedule_prime();
+		}
+
+		if ( 'config_change' === $event ) {
+			$exs = new Util_Environment_Exceptions();
+			$this->fix_folders( $w3tc_config, $exs );
+			$this->rules_apply_for_config( $w3tc_config, $exs );
+
+			if ( count( $exs->exceptions() ) > 0 ) {
+				throw $exs;
+			}
+		}
+	}
+
+	/**
+	 * Creates the per-site signature for effective preload settings.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param Config $w3tc_config W3TC configuration.
+	 *
+	 * @return string
+	 */
+	private function prime_settings_signature( $w3tc_config ) {
+		return hash(
+			'sha256',
+			wp_json_encode(
+				array(
+					'enabled'  => (
+						$w3tc_config->get_boolean( 'pgcache.enabled' ) &&
+						$w3tc_config->get_boolean( 'pgcache.prime.enabled' )
+					),
+					'one_pass' => $w3tc_config->get_boolean( 'pgcache.prime.sitemap_one_pass' ),
+					'sitemap'  => $w3tc_config->get_string( 'pgcache.prime.sitemap' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * Adds or removes page-cache rewrite rules, for this plugin and for an extension that took delivery over.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param Config                      $w3tc_config W3TC Config containing relevant settings.
+	 * @param Util_Environment_Exceptions $exs         Exception collection.
+	 *
+	 * @return void
+	 */
+	public function rules_apply_for_config( $w3tc_config, $exs ) {
+		if ( $this->is_rules_required( $w3tc_config ) ) {
+			$this->rules_core_add( $w3tc_config, $exs );
+			$this->rules_cache_add( $w3tc_config, $exs );
+		} else {
+			$this->rules_core_remove( $exs );
+			$this->rules_cache_remove( $exs );
 		}
 	}
 
@@ -138,6 +259,7 @@ class PgCache_Environment {
 		$this->unschedule_gc();
 		$this->unschedule_prime();
 		$this->unschedule_purge_wpcron();
+		PgCache_Plugin_Admin::reset_prime();
 
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
@@ -145,29 +267,84 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Returns a copy of `$values` with every element passed through
+	 * {@see Util_Rule::sanitize_directive_value()}.
+	 *
+	 * Used by the rule-emitting paths above so admin-set arrays
+	 * (mobile/referrer agents, reject-cookie lists, rgroup keys)
+	 * can't carry a CR/LF / NUL / `<` / `>` / `"` into the rendered
+	 * `.htaccess` / `nginx.conf` and start a fresh directive on the
+	 * next line.
+	 *
+	 * Non-string entries pass through the helper unchanged (it returns
+	 * `''` for any non-string input). Entries that sanitise to an
+	 * empty string are dropped before return so a downstream
+	 * `implode( '|', ... )` regex alternation cannot pick up an empty
+	 * alternative that matches every request.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param array $values Raw array of values.
+	 *
+	 * @return array Sanitised values, in input order, with empties removed.
+	 */
+	private static function sanitize_directive_values( $values ) {
+		if ( ! is_array( $values ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $values as $v ) {
+			$sanitised = Util_Rule::sanitize_directive_value( $v );
+			if ( '' !== $sanitised ) {
+				$out[] = $sanitised;
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * Determines if rules are required for the configuration.
 	 *
-	 * @since 0.9.7.3
+	 * @since 2.0.0
 	 *
-	 * @param Config $c W3TC Config containing relevant settings.
+	 * @param Config $w3tc_c W3TC Config containing relevant settings.
 	 *
 	 * @return bool True if rules are required, false otherwise.
 	 */
-	private function is_rules_required( $c ) {
-		$e = $c->get_string( 'pgcache.engine' );
+	private function is_rules_required( $w3tc_c ) {
+		$e = $w3tc_c->get_string( 'pgcache.engine' );
 
-		return $c->get_boolean( 'pgcache.enabled' ) && ( 'file_generic' === $e || 'nginx_memcached' === $e );
+		$required = $w3tc_c->get_boolean( 'pgcache.enabled' ) && ( 'file_generic' === $e || 'nginx_memcached' === $e );
+
+		/**
+		 * Filter: Allow external code to suppress the page-cache rewrite rules.
+		 *
+		 * Returning false stops W3TC from writing its page-cache rewrite rules and removes the
+		 * core rules it wrote earlier, on both the Apache and the nginx path. Cache generation
+		 * is untouched, so pages keep being cached and delivery can be handled elsewhere - by a
+		 * server module, for example.
+		 *
+		 * The filter can only suppress: it is not consulted for configurations that do not use
+		 * rewrite rules in the first place, so it cannot emit rules for them.
+		 *
+		 * @since 2.10.6
+		 *
+		 * @param bool   $required Whether page-cache rewrite rules are required. Always true here,
+		 *                         since the filter runs only when W3TC would write the rules.
+		 * @param Config $w3tc_c   W3TC Config containing relevant settings.
+		 */
+		return $required && (bool) \apply_filters( 'w3tc_pgcache_rules_required', $required, $w3tc_c );
 	}
 
 	/**
 	 * Retrieves the required rules for the environment.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return array|null Array of required rules or null if none are required.
 	 */
-	public function get_required_rules( $config ) {
-		if ( ! $this->is_rules_required( $config ) ) {
+	public function get_required_rules( $w3tc_config ) {
+		if ( ! $this->is_rules_required( $w3tc_config ) ) {
 			return null;
 		}
 
@@ -175,14 +352,14 @@ class PgCache_Environment {
 		$pgcache_rules_core_path = Util_Rule::get_pgcache_rules_core_path();
 		$rewrite_rules[]         = array(
 			'filename' => $pgcache_rules_core_path,
-			'content'  => $this->rules_core_generate( $config ),
+			'content'  => $this->rules_core_generate( $w3tc_config ),
 			'priority' => 1000,
 		);
 
 		$pgcache_rules_cache_path = Util_Rule::get_pgcache_rules_cache_path();
 		$rewrite_rules[]          = array(
 			'filename' => $pgcache_rules_cache_path,
-			'content'  => $this->rules_cache_generate( $config ),
+			'content'  => $this->rules_cache_generate( $w3tc_config ),
 		);
 
 		return $rewrite_rules;
@@ -191,20 +368,20 @@ class PgCache_Environment {
 	/**
 	 * Ensures folders meet the required settings for caching.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param object $exs    Exception handler object.
 	 *
 	 * @return void
 	 */
-	private function fix_folders( $config, $exs ) {
-		if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
+	private function fix_folders( $w3tc_config, $exs ) {
+		if ( ! $w3tc_config->get_boolean( 'pgcache.enabled' ) ) {
 			return;
 		}
 
 		// folder that we delete if exists and not writeable.
-		if ( 'file_generic' === $config->get_string( 'pgcache.engine' ) ) {
+		if ( 'file_generic' === $w3tc_config->get_string( 'pgcache.engine' ) ) {
 			$dir = W3TC_CACHE_PAGE_ENHANCED_DIR;
-		} elseif ( 'file' !== $config->get_string( 'pgcache.engine' ) ) {
+		} elseif ( 'file' !== $w3tc_config->get_string( 'pgcache.engine' ) ) {
 			$dir = W3TC_CACHE_DIR . '/page';
 		} else {
 			return;
@@ -214,7 +391,13 @@ class PgCache_Environment {
 			if ( file_exists( $dir ) && ! is_writeable( $dir ) ) {
 				Util_WpFile::delete_folder( $dir, '', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 			}
+
+			if ( 'file_generic' === $w3tc_config->get_string( 'pgcache.engine' ) ) {
+				Util_WpFile::create_writeable_folder( $dir, dirname( W3TC_CACHE_DIR ) );
+			}
 		} catch ( Util_WpFile_FilesystemRmdirException $ex ) {
+			$exs->push( $ex );
+		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 			$exs->push( $ex );
 		}
 	}
@@ -227,9 +410,9 @@ class PgCache_Environment {
 	 * @throws \Util_Environment_Exception If the permalink structure is incompatible.
 	 */
 	private function verify_file_generic_compatibility() {
-		$permalink_structure = get_option( 'permalink_structure' );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
 
-		if ( empty( $permalink_structure ) ) {
+		if ( empty( $w3tc_permalink_structure ) ) {
 			throw new Util_Environment_Exception( 'Disk Enhanced mode can\'t work with "Default" permalinks structure' );
 		}
 	}
@@ -242,10 +425,10 @@ class PgCache_Environment {
 	 * @throws \Util_Environment_Exception If rewrite rules are not functioning as expected.
 	 */
 	private function verify_file_generic_rewrite_working() {
-		$url = get_home_url() . '/w3tc_rewrite_test' . wp_rand();
-		if ( ! $this->test_rewrite( $url ) ) {
-			$key    = sprintf( 'w3tc_rewrite_test_result_%s', substr( md5( $url ), 0, 16 ) );
-			$result = get_transient( $key );
+		$w3tc_url = get_home_url() . '/w3tc_rewrite_test' . wp_rand();
+		if ( ! $this->test_rewrite( $w3tc_url ) ) {
+			$w3tc_key    = sprintf( 'w3tc_rewrite_test_result_%s', substr( md5( $w3tc_url ), 0, 16 ) );
+			$w3tc_result = get_transient( $w3tc_key );
 
 			$home_url = get_home_url();
 
@@ -254,13 +437,13 @@ class PgCache_Environment {
 				' contains rules to rewrite url ' . $home_url . '/w3tc_rewrite_test into ' .
 				$home_url . '/?w3tc_rewrite_test which, if handled by plugin, return "OK" message.<br/>' .
 				'The plugin made a request to ' . $home_url . '/w3tc_rewrite_test but received: <br />' .
-				$result . '<br />instead of "OK" response. <br />';
+				$w3tc_result . '<br />instead of "OK" response. <br />';
 
 			$error = '<strong>W3 Total Cache error:</strong> It appears Page Cache ' .
 				'<acronym title="Uniform Resource Locator">URL</acronym> rewriting is not working. ';
 
 			if ( Util_Environment::is_preview_mode() ) {
-				$error .= ' This could be due to using Preview mode. <a href="' . $url .
+				$error .= ' This could be due to using Preview mode. <a href="' . $w3tc_url .
 					'">Click here</a> to manually verify its working. It should say OK. <br />';
 			}
 
@@ -274,7 +457,7 @@ class PgCache_Environment {
 			$error .= '<br />Unfortunately disk enhanced page caching will ' .
 				'not function without custom rewrite rules. ' .
 				'Please ask your server administrator for assistance. Also refer to <a href="' .
-				admin_url( 'admin.php?page=w3tc_install' ) .
+				Util_Ui::admin_url( 'admin.php?page=w3tc_install' ) .
 				'">the install page</a>  for the rules for your server.';
 
 			throw new Util_Environment_Exception(
@@ -287,28 +470,45 @@ class PgCache_Environment {
 	/**
 	 * Tests the rewrite rule functionality.
 	 *
-	 * @param string $url URL to test.
+	 * @param string $w3tc_url URL to test.
 	 *
 	 * @return bool True if the rewrite works, false otherwise.
 	 */
-	private function test_rewrite( $url ) {
-		$key    = sprintf( 'w3tc_rewrite_test_%s', substr( md5( $url ), 0, 16 ) );
-		$result = get_transient( $key );
+	private function test_rewrite( $w3tc_url ) {
+		$w3tc_key    = sprintf( 'w3tc_rewrite_test_%s', substr( md5( $w3tc_url ), 0, 16 ) );
+		$w3tc_result = get_transient( $w3tc_key );
 
-		if ( false === $result ) {
+		if ( false === $w3tc_result ) {
 
-			$response = Util_Http::get( $url );
+			/**
+			 * The rewrite-test probe URL points at the unauthenticated
+			 * `Generic_Plugin::on_init` handler. Anonymous callers must
+			 * not be able to drive the `?w3tc_rewrite_test=1` echo, so we
+			 * issue a one-shot capability token and forward it via the
+			 * PROBE_TOKEN_HEADER. The handler only emits `OK` when the
+			 * token matches.
+			 */
+			$probe_token = Util_ProbeToken::issue( self::PROBE_TOKEN_PREFIX );
 
-			$result = (
+			$response = Util_Http::get(
+				$w3tc_url,
+				array(
+					'headers' => array(
+						self::PROBE_TOKEN_HEADER => $probe_token,
+					),
+				)
+			);
+
+			$w3tc_result = (
 				! is_wp_error( $response ) &&
 				200 === $response['response']['code'] &&
 				'OK' === trim( $response['body'] )
 			);
 
-			if ( $result ) {
-				set_transient( $key, $result, 30 );
+			if ( $w3tc_result ) {
+				set_transient( $w3tc_key, $w3tc_result, 30 );
 			} else {
-				$key_result = sprintf( 'w3tc_rewrite_test_result_%s', substr( md5( $url ), 0, 16 ) );
+				$key_result = sprintf( 'w3tc_rewrite_test_result_%s', substr( md5( $w3tc_url ), 0, 16 ) );
 				set_transient(
 					$key_result,
 					is_wp_error( $response ) ? $response->get_error_message() : implode( ' ', $response['response'] ),
@@ -317,7 +517,7 @@ class PgCache_Environment {
 			}
 		}
 
-		return $result;
+		return $w3tc_result;
 	}
 
 	/**
@@ -356,6 +556,450 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Build wp-config contents for the WP_CACHE constant.
+	 *
+	 * The PHP constant is not a reliable signal here: WordPress defines it as
+	 * false before admin code runs. Skip the write when wp-config.php, or a
+	 * project file it loads, already defines WP_CACHE (true or false). Otherwise
+	 * insert the W3TC snippet once.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_path Path to wp-config.php.
+	 * @param string $config_data Current wp-config.php contents.
+	 * @return string
+	 */
+	private function wp_config_content_for_cache_constant( $config_path, $config_data ) {
+		if ( $this->site_config_defines_wp_cache( $config_path, $config_data ) ) {
+			return $config_data;
+		}
+
+		$new_config_data = $this->wp_config_remove_from_content( $config_data );
+		$updated         = preg_replace(
+			'~<\?(php)?~',
+			"\\0\r\n" . $this->wp_config_addon(),
+			$new_config_data,
+			1
+		);
+
+		return is_string( $updated ) ? $updated : $config_data;
+	}
+
+	/**
+	 * Whether the site's config, not WordPress core, already defines WP_CACHE.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_path Path to the file being checked.
+	 * @param string $config_data Contents of that file.
+	 * @param int    $depth       Include depth. wp-config is 0.
+	 * @return bool
+	 */
+	private function site_config_defines_wp_cache( $config_path, $config_data, $depth = 0 ) {
+		$code = $this->strip_php_comments( $config_data );
+
+		if ( $this->content_defines_wp_cache( $code ) ) {
+			return true;
+		}
+
+		if ( $this->environment_configs_define_wp_cache( $config_path, $code ) ) {
+			return true;
+		}
+
+		if ( $depth > 2 ) {
+			return false;
+		}
+
+		foreach ( $this->config_include_expressions( $code ) as $expression ) {
+			$included = $this->resolve_site_config_include( $config_path, $expression );
+			if ( ! is_string( $included ) ) {
+				continue;
+			}
+
+			$included_data = @file_get_contents( $included );
+			if ( ! is_string( $included_data ) ) {
+				continue;
+			}
+
+			if ( $this->site_config_defines_wp_cache( $included, $included_data, $depth + 1 ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a config file defines WP_CACHE, including Roots Config::define().
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_data File contents.
+	 * @return bool
+	 */
+	private function content_defines_wp_cache( $config_data ) {
+		return (bool) preg_match(
+			"~define\\s*\\(\\s*['\"]WP_CACHE['\"]~i",
+			$this->strip_php_comments( $config_data )
+		);
+	}
+
+	/**
+	 * Remove PHP comments so commented defines are not treated as live code.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_data File contents.
+	 * @return string
+	 */
+	private function strip_php_comments( $config_data ) {
+		$tokens = token_get_all( $config_data );
+		$code   = '';
+
+		foreach ( $tokens as $token ) {
+			if ( is_array( $token ) && in_array( $token[0], array( T_COMMENT, T_DOC_COMMENT ), true ) ) {
+				continue;
+			}
+
+			$code .= is_array( $token ) ? $token[1] : $token;
+		}
+
+		return $code;
+	}
+
+	/**
+	 * Read PHP expressions that follow require/include in a config file.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_data File contents.
+	 * @return string[]
+	 */
+	private function config_include_expressions( $config_data ) {
+		$expressions = array();
+
+		if ( ! preg_match_all( '~(?:require|include)(?:_once)?\s*~i', $config_data, $matches, PREG_OFFSET_CAPTURE ) ) {
+			return $expressions;
+		}
+
+		foreach ( $matches[0] as $match ) {
+			$expression = $this->read_php_expression( $config_data, $match[1] + strlen( $match[0] ) );
+			if ( '' !== $expression ) {
+				$expressions[] = $expression;
+			}
+		}
+
+		return $expressions;
+	}
+
+	/**
+	 * Read one PHP expression, stopping at the statement semicolon.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_data File contents.
+	 * @param int    $start       Offset of the expression.
+	 * @return string
+	 */
+	private function read_php_expression( $config_data, $start ) {
+		$length     = strlen( $config_data );
+		$depth      = 0;
+		$quote      = '';
+		$expression = '';
+
+		for ( $i = $start; $i < $length; $i++ ) {
+			$char = $config_data[ $i ];
+
+			if ( '' !== $quote ) {
+				$expression .= $char;
+				if ( '\\' === $char && ( $i + 1 ) < $length ) {
+					$expression .= $config_data[ ++$i ];
+				} elseif ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( "'" === $char || '"' === $char ) {
+				$quote       = $char;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( '(' === $char ) {
+				++$depth;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( ')' === $char ) {
+				if ( 0 === $depth ) {
+					break;
+				}
+				--$depth;
+				$expression .= $char;
+				continue;
+			}
+
+			if ( ';' === $char && 0 === $depth ) {
+				break;
+			}
+
+			$expression .= $char;
+		}
+
+		return trim( $expression );
+	}
+
+	/**
+	 * Resolve a static project include. Core and vendor files are ignored.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_path File that contains the include.
+	 * @param string $expression  PHP expression after require/include.
+	 * @return string|null Absolute path, or null when the include is not a site config.
+	 */
+	private function resolve_site_config_include( $config_path, $expression ) {
+		$expression = $this->strip_wrapping_parentheses( trim( $expression ) );
+		if (
+			'' === $expression ||
+			false !== strpos( $expression, 'ABSPATH' ) ||
+			false !== strpos( $expression, '$' )
+		) {
+			return null;
+		}
+
+		$expression = $this->normalize_file_dirname( $expression );
+
+		if ( preg_match( "~^dirname\\s*\\(\\s*__DIR__\\s*\\)\\s*\\.\\s*(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$base      = dirname( $config_path );
+			$relative  = $matches[2];
+			$candidate = dirname( $base ) . '/' . ltrim( $relative, '/' );
+		} elseif ( preg_match( "~^__DIR__\\s*\\.\\s*(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$relative  = $matches[2];
+			$candidate = dirname( $config_path ) . '/' . ltrim( $relative, '/' );
+		} elseif ( preg_match( "~^(['\"])([^'\"]+)\\1$~", $expression, $matches ) ) {
+			$candidate = $matches[2];
+			if ( ! $this->path_is_absolute( $candidate ) ) {
+				$candidate = dirname( $config_path ) . '/' . $candidate;
+			}
+		} else {
+			return null;
+		}
+
+		if ( false !== strpos( $candidate, '/vendor/' ) || false !== strpos( $candidate, '\\vendor\\' ) ) {
+			return null;
+		}
+
+		$real = realpath( $candidate );
+		if ( false === $real || ! is_file( $real ) || filesize( $real ) > 1048576 ) {
+			return null;
+		}
+
+		if ( 'wp-settings.php' === basename( $real ) ) {
+			return null;
+		}
+
+		$real_config = realpath( $config_path );
+		$config_dir  = $real_config ? dirname( $real_config ) : dirname( $config_path );
+		$allowed     = array( $config_dir, dirname( $config_dir ) );
+
+		foreach ( $allowed as $root ) {
+			if ( $real === $root || 0 === strpos( $real, $root . DIRECTORY_SEPARATOR ) ) {
+				if ( false !== strpos( $real, DIRECTORY_SEPARATOR . 'wp-includes' . DIRECTORY_SEPARATOR ) ) {
+					return null;
+				}
+				if ( false !== strpos( $real, DIRECTORY_SEPARATOR . 'wp-admin' . DIRECTORY_SEPARATOR ) ) {
+					return null;
+				}
+				return $real;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether the active environment file next to this config defines WP_CACHE.
+	 *
+	 * Bedrock loads config/environments/{WP_ENV}.php through a variable, so the
+	 * require itself cannot be resolved. Only that active file counts. A define
+	 * in another environment must not block the snippet.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $config_path File that mentioned the environments directory.
+	 * @param string $config_data Contents of that file.
+	 * @return bool
+	 */
+	private function environment_configs_define_wp_cache( $config_path, $config_data ) {
+		$config_data = $this->strip_php_comments( $config_data );
+
+		if ( false === strpos( $config_data, '/environments/' ) && false === strpos( $config_data, '\\environments\\' ) ) {
+			return false;
+		}
+
+		$environment = $this->active_wp_env();
+		if ( ! is_string( $environment ) || 1 !== preg_match( '/^[A-Za-z0-9_-]+$/', $environment ) ) {
+			return false;
+		}
+
+		$file = dirname( $config_path ) . '/environments/' . $environment . '.php';
+		if ( ! is_file( $file ) ) {
+			return false;
+		}
+
+		$contents = @file_get_contents( $file );
+
+		return is_string( $contents ) && $this->content_defines_wp_cache( $contents );
+	}
+
+	/**
+	 * Active environment name from WP_ENV, when the site defined one.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return string
+	 */
+	protected function active_wp_env() {
+		if ( ! defined( 'WP_ENV' ) || ! is_string( WP_ENV ) ) {
+			return '';
+		}
+
+		return WP_ENV;
+	}
+
+	/**
+	 * Treat dirname(__FILE__) as __DIR__ so static includes resolve.
+	 *
+	 * Calls to dirname(__FILE__) are rewritten to __DIR__. A nested call becomes
+	 * dirname(__DIR__) after the inner call is replaced. Whitespace inside the
+	 * parentheses is ignored. The two-argument forms dirname(__FILE__, 1) and
+	 * dirname(__FILE__, 2) are the same directories.
+	 *
+	 * A require whose whole expression is one quoted string is left unchanged.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $expression PHP expression after require/include.
+	 * @return string
+	 */
+	private function normalize_file_dirname( $expression ) {
+		if ( preg_match( "~^(['\"])(?:\\\\.|(?!\\1).)*\\1$~s", $expression ) ) {
+			return $expression;
+		}
+
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*,\s*2\s*\)~i', 'dirname(__DIR__)', $expression );
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*,\s*1\s*\)~i', '__DIR__', $expression );
+		$expression = preg_replace( '~dirname\s*\(\s*__FILE__\s*\)~i', '__DIR__', $expression );
+
+		return is_string( $expression ) ? $expression : '';
+	}
+
+	/**
+	 * Remove parentheses that wrap a whole require expression.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $expression PHP expression after require/include.
+	 * @return string
+	 */
+	private function strip_wrapping_parentheses( $expression ) {
+		$expression = trim( $expression );
+
+		for ( $unwraps = 0; $unwraps < 3; $unwraps++ ) {
+			$inner = $this->unwrap_one_parenthesis( $expression );
+			if ( null === $inner ) {
+				break;
+			}
+			$expression = trim( $inner );
+		}
+
+		return $expression;
+	}
+
+	/**
+	 * Return the inside of one wrapping parenthesis pair, when it wraps everything.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $expression Expression that may start with '('.
+	 * @return string|null Inside text, or null when the first parenthesis does not wrap the expression.
+	 */
+	private function unwrap_one_parenthesis( $expression ) {
+		$length = strlen( $expression );
+		if ( $length < 2 || '(' !== $expression[0] ) {
+			return null;
+		}
+
+		$depth = 0;
+		$quote = '';
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$char = $expression[ $i ];
+
+			if ( '' !== $quote ) {
+				if ( '\\' === $char && ( $i + 1 ) < $length ) {
+					++$i;
+					continue;
+				}
+				if ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( "'" === $char || '"' === $char ) {
+				$quote = $char;
+				continue;
+			}
+
+			if ( '(' === $char ) {
+				++$depth;
+				continue;
+			}
+
+			if ( ')' !== $char ) {
+				continue;
+			}
+
+			--$depth;
+			if ( 0 !== $depth ) {
+				continue;
+			}
+
+			if ( '' !== trim( substr( $expression, $i + 1 ) ) ) {
+				return null;
+			}
+
+			return substr( $expression, 1, $i - 1 );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether a path is absolute.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $path Path to test.
+	 * @return bool
+	 */
+	private function path_is_absolute( $path ) {
+		if ( '' === $path ) {
+			return false;
+		}
+
+		if ( '/' === $path[0] || '\\' === $path[0] ) {
+			return true;
+		}
+
+		return 1 === preg_match( '~^[A-Za-z]:[\\\\/]~', $path );
+	}
+
+	/**
 	 * Adds required directives to the wp-config.php file.
 	 *
 	 * @return void
@@ -366,19 +1010,16 @@ class PgCache_Environment {
 	 */
 	private function wp_config_add_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {
 			return;
 		}
 
-		$new_config_data = $this->wp_config_remove_from_content( $config_data );
-		$new_config_data = preg_replace(
-			'~<\?(php)?~',
-			"\\0\r\n" . $this->wp_config_addon(),
-			$new_config_data,
-			1
-		);
+		$new_config_data = $this->wp_config_content_for_cache_constant( $config_path, $config_data );
 
 		if ( $new_config_data !== $config_data ) {
 			try {
@@ -392,11 +1033,14 @@ class PgCache_Environment {
 					$this->wp_config_addon()
 				);
 			}
+
+			/**
+			 * That file was in opcache for sure and it may take time to
+			 * start execution of new modified now version.
+			 */
+			$w3tc_o = Dispatcher::component( 'SystemOpCache_Core' );
+			$w3tc_o->flush();
 		}
-		// that file was in opcache for sure and it may take time to
-		// start execution of new modified now version.
-		$o = Dispatcher::component( 'SystemOpCache_Core' );
-		$o->flush();
 	}
 
 	/**
@@ -408,6 +1052,9 @@ class PgCache_Environment {
 	 */
 	private function wp_config_remove_directive() {
 		$config_path = Util_Environment::wp_config_path();
+		if ( ! is_string( $config_path ) || '' === $config_path ) {
+			return;
+		}
 
 		$config_data = @file_get_contents( $config_path );
 		if ( false === $config_data ) {
@@ -465,16 +1112,16 @@ class PgCache_Environment {
 	/**
 	 * Adds core rules to the configuration.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 * @param object $exs    Exception handler object.
 	 *
 	 * @return void
 	 */
-	private function rules_core_add( $config, $exs ) {
+	private function rules_core_add( $w3tc_config, $exs ) {
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_pgcache_rules_core_path(),
-			$this->rules_core_generate( $config ),
+			$this->rules_core_generate( $w3tc_config ),
 			W3TC_MARKER_BEGIN_PGCACHE_CORE,
 			W3TC_MARKER_END_PGCACHE_CORE,
 			array(
@@ -505,74 +1152,156 @@ class PgCache_Environment {
 	}
 
 	/**
-	 * Generates the core rules based on the server environment.
+	 * Returns every cookie name whose presence keeps a visitor out of the page cache.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
-	 *
-	 * @return string Generated rules as a string.
+	 * @since 2.11.0
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 * @param bool   $logged_out  Whether the just-logged-out cookie belongs in the list. Passed at
+	 * every call site rather than defaulted: it is the one place the two rule generators differ.
+	 * @return string[]
 	 */
-	private function rules_core_generate( $config ) {
-		switch ( true ) {
-			case Util_Environment::is_apache():
-			case Util_Environment::is_litespeed():
-				return $this->rules_core_generate_apache( $config );
-
-			case Util_Environment::is_nginx():
-				return $this->rules_core_generate_nginx( $config );
-		}
-
-		return '';
-	}
-
-	/**
-	 * Generates Apache rewrite rules for page caching.
-	 *
-	 * @param \W3TC\Config $config Configuration object containing various settings for the cache.
-	 *
-	 * @return string The generated Apache rewrite rules.
-	 */
-	private function rules_core_generate_apache( $config ) {
-		$rewrite_base        = Util_Environment::network_home_url_uri();
-		$cache_dir           = Util_Environment::normalize_path( W3TC_CACHE_PAGE_ENHANCED_DIR );
-		$permalink_structure = get_option( 'permalink_structure' );
-
-		$current_user = wp_get_current_user();
-
+	public static function reject_cookies( $w3tc_config, $logged_out ) {
 		// Auto reject cookies.
 		$reject_cookies = array(
 			'comment_author',
 			'wp-postpass',
 		);
 
-		$reject_cookies[] = 'w3tc_logged_out';
+		if ( $logged_out ) {
+			$reject_cookies[] = 'w3tc_logged_out';
+		}
 
 		// Reject cache for logged in users OR Reject cache for roles if any.
-		if ( $config->get_boolean( 'pgcache.reject.logged' ) ) {
-			$reject_cookies = array_merge(
+		if ( $w3tc_config->get_boolean( 'pgcache.reject.logged' ) ) {
+			$reject_cookies = \array_merge(
 				$reject_cookies,
 				array(
 					'wordpress_logged_in',
 				)
 			);
-		} elseif ( $config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
+		} elseif ( $w3tc_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
 			$new_cookies = array();
-			foreach ( $config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				$new_cookies[] = 'w3tc_logged_' . md5( NONCE_KEY . $role );
+			foreach ( $w3tc_config->get_array( 'pgcache.reject.roles' ) as $role ) {
+				$new_cookies = \array_merge( $new_cookies, Util_Cookie::role_cookie_reject_names( $role ) );
 			}
 
-			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
+			$reject_cookies = \array_merge( $reject_cookies, $new_cookies );
 		}
 
 		// Custom config.
-		$reject_cookies = array_merge( $reject_cookies, $config->get_array( 'pgcache.reject.cookie' ) );
+		$reject_cookies = \array_merge( $reject_cookies, $w3tc_config->get_array( 'pgcache.reject.cookie' ) );
 		Util_Rule::array_trim( $reject_cookies );
 
-		$reject_user_agents = $config->get_array( 'pgcache.reject.ua' );
-		if ( $config->get_boolean( 'pgcache.compatibility' ) ) {
-			$reject_user_agents = array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
+		// Sanitised here so every consumer excludes the same visitors: preg_quote does not escape
+		// newlines, and an entry carrying one would land on the next line as a fresh RewriteRule.
+		return self::sanitize_directive_values( $reject_cookies );
+	}
+
+	/**
+	 * Returns every user-agent token whose presence keeps a visitor out of the page cache.
+	 *
+	 * @since 2.11.0
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 * @return string[]
+	 */
+	public static function reject_user_agents( $w3tc_config ) {
+		$reject_user_agents = $w3tc_config->get_array( 'pgcache.reject.ua' );
+
+		if ( $w3tc_config->get_boolean( 'pgcache.compatibility' ) ) {
+			$reject_user_agents = \array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
 		}
 
 		Util_Rule::array_trim( $reject_user_agents );
+
+		// Sanitised for the same reason as the cookie list: a newline in an entry would otherwise
+		// land on the next line as a fresh RewriteRule.
+		return self::sanitize_directive_values( $reject_user_agents );
+	}
+
+	/**
+	 * Generates the core rules based on the server environment.
+	 *
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
+	 *
+	 * @return string Generated rules as a string.
+	 */
+	private function rules_core_generate( $w3tc_config ) {
+		switch ( true ) {
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return $this->rules_core_generate_apache( $w3tc_config );
+
+			case Util_Environment::is_nginx():
+				return $this->rules_core_generate_nginx( $w3tc_config );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Returns the page-enhanced cache URI path for rewrite rules (relative to DOCUMENT_ROOT).
+	 *
+	 * WP-CLI rule generation can compute a different document_root() than Apache uses at
+	 * runtime, so the path is derived from the site URL mapping instead: ABSPATH is served
+	 * at the (network) site URI, e.g. ABSPATH=/var/www/site/wp/ <=> /wp/. This keeps the
+	 * `/wp/` prefix that ABSPATH-relative paths would drop on subdirectory installs.
+	 * When the cache directory lives outside ABSPATH (moved wp-content) or site_uri is
+	 * empty (subdomain at docroot), {@see Util_Environment::site_path()} supplies the
+	 * Apache DOCUMENT_ROOT used for .htaccess rules.
+	 *
+	 * Public because an integration handing delivery to a web-server module has to name the
+	 * same directory W3TC's own rewrite rules do; repeating this arithmetic elsewhere is how
+	 * the two drift apart on a subdirectory install.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param string $cache_dir Normalized absolute cache directory path.
+	 * @return string
+	 */
+	public function apache_cache_uri_path( $cache_dir ) {
+		$cache_dir = Util_Environment::normalize_path( $cache_dir );
+		$site_root = realpath( untrailingslashit( ABSPATH ) );
+		$site_uri  = Util_Environment::url_to_uri( network_site_url( '/' ) );
+
+		if ( $site_root && 0 === strpos( $cache_dir, $site_root . '/' ) ) {
+			return $site_uri . substr( $cache_dir, strlen( $site_root ) );
+		}
+
+		$doc_root = null;
+		if (
+			$site_root && '' !== $site_uri &&
+			substr( $site_root, -strlen( $site_uri ) ) === $site_uri
+		) {
+			$doc_root = substr( $site_root, 0, -strlen( $site_uri ) );
+		} else {
+			$doc_root = realpath( untrailingslashit( Util_Environment::site_path() ) );
+		}
+
+		if ( $doc_root && 0 === strpos( $cache_dir, $doc_root . '/' ) ) {
+			return substr( $cache_dir, strlen( $doc_root ) );
+		}
+
+		return str_replace( Util_Environment::document_root(), '', $cache_dir );
+	}
+
+	/**
+	 * Generates Apache rewrite rules for page caching.
+	 *
+	 * @param \W3TC\Config $w3tc_config Configuration object containing various settings for the cache.
+	 *
+	 * @return string The generated Apache rewrite rules.
+	 */
+	private function rules_core_generate_apache( $w3tc_config ) {
+		$rewrite_base             = Util_Environment::network_home_url_uri();
+		$cache_dir                = Util_Environment::normalize_path( W3TC_CACHE_PAGE_ENHANCED_DIR );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
+
+		$current_user = wp_get_current_user();
+
+		// True without a condition here, unlike the NGINX generator below: the Apache rules have
+		// always carried the just-logged-out cookie whatever the engine.
+		$reject_cookies     = self::reject_cookies( $w3tc_config, true );
+		$reject_user_agents = self::reject_user_agents( $w3tc_config );
 
 		// Generate directives.
 		$env_W3TC_UA     = '';
@@ -587,16 +1316,18 @@ class PgCache_Environment {
 		$rules .= "    RewriteEngine On\n";
 		$rules .= '    RewriteBase ' . $rewrite_base . "\n";
 
-		if ( $config->get_boolean( 'pgcache.debug' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.debug' ) ) {
 			$rules .= "    RewriteRule ^(.*\\/)?w3tc_rewrite_test([0-9]+)/?$ $1?w3tc_rewrite_test=1 [L]\n";
 		}
 
 		// Set accept query strings.
 		$w3tc_query_strings = apply_filters(
 			'w3tc_pagecache_rules_apache_accept_qs',
-			$config->get_array( 'pgcache.accept.qs' )
+			$w3tc_config->get_array( 'pgcache.accept.qs' )
 		);
 		Util_Rule::array_trim( $w3tc_query_strings );
+
+		$env_request_uri = '%{REQUEST_URI}';
 
 		if ( ! empty( $w3tc_query_strings ) ) {
 			$w3tc_query_strings = str_replace( ' ', '+', $w3tc_query_strings );
@@ -627,16 +1358,21 @@ class PgCache_Environment {
 
 			$rules .= "    RewriteCond %{ENV:W3TC_QUERY_STRING} ^&+$\n";
 			$rules .= "    RewriteRule ^ - [E=W3TC_QUERY_STRING]\n";
+
+			$rules          .= "    RewriteCond %{REQUEST_URI} ^([^?]*)(\\?.*)?$\n";
+			$rules          .= "    RewriteRule ^ - [E=W3TC_REQUEST_URI:%1]\n";
+			$env_request_uri = '%{ENV:W3TC_REQUEST_URI}';
 		}
 
 		// Check for mobile redirect.
-		if ( $config->get_boolean( 'mobile.enabled' ) ) {
-			$mobile_groups = $config->get_array( 'mobile.rgroups' );
+		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
+			$mobile_groups = $w3tc_config->get_array( 'mobile.rgroups' );
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
 				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
-				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_redirect = Util_Rule::sanitize_directive_value( isset( $mobile_config['redirect'] ) ? (string) $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( $mobile_agents );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && $mobile_redirect ) {
 					$rules .= '    RewriteCond %{HTTP_USER_AGENT} (' . implode( '|', $mobile_agents ) . ") [NC]\n";
@@ -646,13 +1382,14 @@ class PgCache_Environment {
 		}
 
 		// Check for referrer redirect.
-		if ( $config->get_boolean( 'referrer.enabled' ) ) {
-			$referrer_groups = $config->get_array( 'referrer.rgroups' );
+		if ( $w3tc_config->get_boolean( 'referrer.enabled' ) ) {
+			$referrer_groups = $w3tc_config->get_array( 'referrer.rgroups' );
 
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
-				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_redirect  = Util_Rule::sanitize_directive_value( isset( $referrer_config['redirect'] ) ? (string) $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( $referrer_referrers );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && $referrer_redirect ) {
 					$rules .= '    RewriteCond %{HTTP_COOKIE} w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ") [NC]\n";
@@ -662,42 +1399,46 @@ class PgCache_Environment {
 		}
 
 		// Set mobile groups.
-		if ( $config->get_boolean( 'mobile.enabled' ) ) {
-			$mobile_groups = array_reverse( $config->get_array( 'mobile.rgroups' ) );
+		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
+			$mobile_groups = array_reverse( $w3tc_config->get_array( 'mobile.rgroups' ) );
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
 				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( $mobile_agents );
+				$mobile_group_s  = Util_Rule::sanitize_directive_value( (string) $mobile_group );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && ! $mobile_redirect ) {
 					$rules      .= '    RewriteCond %{HTTP_USER_AGENT} (' . implode( '|', $mobile_agents ) . ") [NC]\n";
-					$rules      .= '    RewriteRule .* - [E=W3TC_UA:_' . $mobile_group . "]\n";
+					$rules      .= '    RewriteRule .* - [E=W3TC_UA:_' . $mobile_group_s . "]\n";
 					$env_W3TC_UA = '%{ENV:W3TC_UA}';
 				}
 			}
 		}
 
 		// Set referrer groups.
-		if ( $config->get_boolean( 'referrer.enabled' ) ) {
-			$referrer_groups = array_reverse( $config->get_array( 'referrer.rgroups' ) );
+		if ( $w3tc_config->get_boolean( 'referrer.enabled' ) ) {
+			$referrer_groups = array_reverse( $w3tc_config->get_array( 'referrer.rgroups' ) );
 
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
 				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( $referrer_referrers );
+				$referrer_group_s   = Util_Rule::sanitize_directive_value( (string) $referrer_group );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && ! $referrer_redirect ) {
 					$rules       .= '    RewriteCond %{HTTP_COOKIE} w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ") [NC]\n";
-					$rules       .= '    RewriteRule .* - [E=W3TC_REF:_' . $referrer_group . "]\n";
+					$rules       .= '    RewriteRule .* - [E=W3TC_REF:_' . $referrer_group_s . "]\n";
 					$env_W3TC_REF = '%{ENV:W3TC_REF}';
 				}
 			}
 		}
 
 		// Set cookie group.
-		if ( $config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
-			$cookie_groups = $config->get_array( 'pgcache.cookiegroups.groups' );
+		if ( $w3tc_config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
+			$cookie_groups = $w3tc_config->get_array( 'pgcache.cookiegroups.groups' );
 
 			foreach ( $cookie_groups as $group_name => $g ) {
 				if ( isset( $g['enabled'] ) && $g['enabled'] ) {
@@ -706,6 +1447,7 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
+							$cookie = Util_Rule::sanitize_directive_value( $cookie );
 							$cookie = Util_Environment::preg_quote( $cookie );
 							if ( strpos( $cookie, '=' ) === false ) {
 								$cookie .= '=.*';
@@ -716,8 +1458,9 @@ class PgCache_Environment {
 
 					if ( count( $cookies ) > 0 ) {
 						$cookies_regexp  = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
+						$group_name_s    = Util_Rule::sanitize_directive_value( (string) $group_name );
 						$rules          .= "    RewriteCond %{HTTP_COOKIE} $cookies_regexp [NC]\n";
-						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name . "]\n";
+						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name_s . "]\n";
 						$env_W3TC_COOKIE = '%{ENV:W3TC_COOKIE}';
 					}
 				}
@@ -725,7 +1468,7 @@ class PgCache_Environment {
 		}
 
 		// Set HTTPS.
-		if ( $config->get_boolean( 'pgcache.cache.ssl' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.cache.ssl' ) ) {
 			$rules       .= "    RewriteCond %{HTTPS} =on\n";
 			$rules       .= "    RewriteRule .* - [E=W3TC_SSL:_ssl]\n";
 			$rules       .= "    RewriteCond %{SERVER_PORT} =443\n";
@@ -735,17 +1478,17 @@ class PgCache_Environment {
 			$env_W3TC_SSL = '%{ENV:W3TC_SSL}';
 		}
 
-		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
+		$cache_path = $this->apache_cache_uri_path( $cache_dir );
 
 		// Set Accept-Encoding gzip.
-		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) && $w3tc_config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules       .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 			$rules       .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
 		}
 
 		// Set Accept-Encoding brotli.
-		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.brotli' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules       .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 			$rules       .= "    RewriteRule .* - [E=W3TC_ENC:_br]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
@@ -759,6 +1502,15 @@ class PgCache_Environment {
 		$rules         .= "    RewriteRule .* - [E=W3TC_SLASH:_slash]\n";
 		$env_W3TC_SLASH = '%{ENV:W3TC_SLASH}';
 
+		$uri_path_source = ( ! empty( $w3tc_query_strings ) ) ? '%{ENV:W3TC_REQUEST_URI}' : '%{REQUEST_URI}';
+
+		$rules             .= '    RewriteCond ' . $uri_path_source . " ^/+$\n";
+		$rules             .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:]\n";
+		$rules             .= '    RewriteCond ' . $uri_path_source . " !^/+$\n";
+		$rules             .= '    RewriteCond ' . $uri_path_source . " ^/+(.+?)/?$\n";
+		$rules             .= "    RewriteRule ^ - [E=W3TC_URI_PATH_SLASH:%1/]\n";
+		$env_uri_path_slash = '%{ENV:W3TC_URI_PATH_SLASH}';
+
 		$use_cache_rules = '';
 
 		// Don't accept POSTs.
@@ -769,7 +1521,7 @@ class PgCache_Environment {
 			"    RewriteCond %{QUERY_STRING} =\"\"\n" :
 			"    RewriteCond %{ENV:W3TC_QUERY_STRING} =\"\"\n";
 
-		// Check for rejected cookies.
+		// Check for rejected cookies. The list arrives sanitised from reject_cookies().
 		$use_cache_rules .= '    RewriteCond %{HTTP_COOKIE} !(' . implode(
 			'|',
 			array_map(
@@ -801,17 +1553,17 @@ class PgCache_Environment {
 		);
 
 		// Make final rewrites for specific files.
-		$uri_prefix = $cache_path . '/%{HTTP_HOST}/%{REQUEST_URI}/_index' . $env_W3TC_SLASH .
+		$uri_prefix = $cache_path . '/%{HTTP_HOST}/' . $env_uri_path_slash . '_index' . $env_W3TC_SLASH .
 			$env_W3TC_UA . $env_W3TC_REF . $env_W3TC_COOKIE . $env_W3TC_SSL . $env_W3TC_PREVIEW;
 		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_apache_uri_prefix', $uri_prefix );
 
-		$switch = ' -' . ( $config->get_boolean( 'pgcache.file.nfs' ) ? 'F' : 'f' );
+		$switch = ' -' . ( $w3tc_config->get_boolean( 'pgcache.file.nfs' ) ? 'F' : 'f' );
 
 		$document_root = Util_Rule::apache_docroot_variable();
 
 		// write rule to rewrite to .html/.xml file.
 		$exts = array( '.html' );
-		if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$exts[] = '.xml';
 		}
 
@@ -836,12 +1588,25 @@ class PgCache_Environment {
 			$env_W3TC_ENC
 		);
 
-		foreach ( $exts as $ext ) {
+		$has_enc_variant = (
+			! empty( $env_W3TC_ENC ) &&
+			'%{ENV:W3TC_ENC}' === $env_W3TC_ENC
+		);
+
+		foreach ( $exts as $w3tc_ext ) {
+			if ( $has_enc_variant ) {
+				$rules .= $use_cache_rules;
+
+				$rules .= '    RewriteCond "' . $document_root . $uri_prefix . $w3tc_ext . $env_W3TC_ENC .
+					'"' . $switch . "\n";
+				$rules .= '    RewriteRule .* "' . $uri_prefix . $w3tc_ext . $env_W3TC_ENC . "\" [L]\n";
+			}
+
 			$rules .= $use_cache_rules;
 
-			$rules .= '    RewriteCond "' . $document_root . $uri_prefix . $ext . $env_W3TC_ENC .
+			$rules .= '    RewriteCond "' . $document_root . $uri_prefix . $w3tc_ext .
 				'"' . $switch . "\n";
-			$rules .= '    RewriteRule .* "' . $uri_prefix . $ext . $env_W3TC_ENC . "\" [L]\n";
+			$rules .= '    RewriteRule .* "' . $uri_prefix . $w3tc_ext . "\" [L]\n";
 		}
 
 		$rules .= "</IfModule>\n";
@@ -854,53 +1619,19 @@ class PgCache_Environment {
 	/**
 	 * Generates NGINX configuration rules for page cache.
 	 *
-	 * @param \W3TC\Config $config Configuration object containing various settings for the cache.
+	 * @param \W3TC\Config $w3tc_config Configuration object containing various settings for the cache.
 	 *
 	 * @return string NGINX rules for page cache.
 	 */
-	private function rules_core_generate_nginx( $config ) {
+	private function rules_core_generate_nginx( $w3tc_config ) {
 		$is_network = Util_Environment::is_wpmu();
 
-		$cache_dir           = Util_Environment::normalize_path( W3TC_CACHE_PAGE_ENHANCED_DIR );
-		$permalink_structure = get_option( 'permalink_structure' );
-		$pgcache_engine      = $config->get_string( 'pgcache.engine' );
+		$cache_dir                = Util_Environment::normalize_path( W3TC_CACHE_PAGE_ENHANCED_DIR );
+		$w3tc_permalink_structure = get_option( 'permalink_structure' );
+		$pgcache_engine           = $w3tc_config->get_string( 'pgcache.engine' );
 
-		// Auto reject cookies.
-		$reject_cookies = array(
-			'comment_author',
-			'wp-postpass',
-		);
-
-		if ( 'file_generic' === $pgcache_engine ) {
-			$reject_cookies[] = 'w3tc_logged_out';
-		}
-
-		// Reject cache for logged in users OR Reject cache for roles if any.
-		if ( $config->get_boolean( 'pgcache.reject.logged' ) ) {
-			$reject_cookies = array_merge(
-				$reject_cookies,
-				array(
-					'wordpress_logged_in',
-				)
-			);
-		} elseif ( $config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
-			$new_cookies = array();
-			foreach ( $config->get_array( 'pgcache.reject.roles' ) as $role ) {
-				$new_cookies[] = 'w3tc_logged_' . md5( NONCE_KEY . $role );
-			}
-			$reject_cookies = array_merge( $reject_cookies, $new_cookies );
-		}
-
-		// Custom config.
-		$reject_cookies = array_merge( $reject_cookies, $config->get_array( 'pgcache.reject.cookie' ) );
-		Util_Rule::array_trim( $reject_cookies );
-
-		$reject_user_agents = $config->get_array( 'pgcache.reject.ua' );
-		if ( $config->get_boolean( 'pgcache.compatibility' ) ) {
-			$reject_user_agents = array_merge( array( W3TC_POWERED_BY ), $reject_user_agents );
-		}
-
-		Util_Rule::array_trim( $reject_user_agents );
+		$reject_cookies     = self::reject_cookies( $w3tc_config, 'file_generic' === $pgcache_engine );
+		$reject_user_agents = self::reject_user_agents( $w3tc_config );
 
 		// Generate rules.
 		$env_w3tc_ua     = '';
@@ -913,14 +1644,14 @@ class PgCache_Environment {
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CORE . "\n";
-		if ( $config->get_boolean( 'pgcache.debug' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.debug' ) ) {
 			$rules .= "rewrite ^(.*\\/)?w3tc_rewrite_test([0-9]+)/?$ $1?w3tc_rewrite_test=1 last;\n";
 		}
 
 		// Set accept query strings.
 		$w3tc_query_strings = apply_filters(
 			'w3tc_pagecache_rules_nginx_accept_qs',
-			$config->get_array( 'pgcache.accept.qs' )
+			$w3tc_config->get_array( 'pgcache.accept.qs' )
 		);
 
 		Util_Rule::array_trim( $w3tc_query_strings );
@@ -965,13 +1696,13 @@ class PgCache_Environment {
 		}
 
 		// Check for mobile redirect.
-		if ( $config->get_boolean( 'mobile.enabled' ) ) {
-			$mobile_groups = $config->get_array( 'mobile.rgroups' );
+		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
+			$mobile_groups = $w3tc_config->get_array( 'mobile.rgroups' );
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
-				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
-				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : array() );
+				$mobile_redirect = Util_Rule::sanitize_directive_value( isset( $mobile_config['redirect'] ) ? (string) $mobile_config['redirect'] : '' );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && $mobile_redirect ) {
 					$rules .= 'if ($http_user_agent ~* "(' . implode( '|', $mobile_agents ) . ")\") {\n";
@@ -982,13 +1713,13 @@ class PgCache_Environment {
 		}
 
 		// Check for referrer redirect.
-		if ( $config->get_boolean( 'referrer.enabled' ) ) {
-			$referrer_groups = $config->get_array( 'referrer.rgroups' );
+		if ( $w3tc_config->get_boolean( 'referrer.enabled' ) ) {
+			$referrer_groups = $w3tc_config->get_array( 'referrer.rgroups' );
 
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
-				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
-				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : array() );
+				$referrer_redirect  = Util_Rule::sanitize_directive_value( isset( $referrer_config['redirect'] ) ? (string) $referrer_config['redirect'] : '' );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) &&
 					$referrer_redirect ) {
@@ -1019,7 +1750,7 @@ class PgCache_Environment {
 
 		$env_w3tc_slash = '$w3tc_slash';
 
-		// Check for rejected cookies.
+		// Check for rejected cookies. The list arrives sanitised from reject_cookies().
 		$rules .= 'if ($http_cookie ~* "(' . implode(
 			'|',
 			array_map(
@@ -1049,15 +1780,36 @@ class PgCache_Environment {
 			$rules .= "}\n";
 		}
 
+		/**
+		 * Filter: Allow extensions to append nginx rewrite-suppression conditions.
+		 *
+		 * Mirrors the Apache "w3tc_pagecache_rules_apache_rewrite_cond" filter. The
+		 * returned string is emitted alongside the built-in reject conditions (POST,
+		 * non-empty query string, rejected cookies / user agents); hooked code should
+		 * append `if (...) { set $w3tc_rewrite 0; }` blocks so matching requests skip
+		 * the static page-cache rewrite and fall through to PHP. The returned string
+		 * is normalized to end with a single newline before it is appended.
+		 *
+		 * @since 2.10.1
+		 *
+		 * @param string $rewrite_conditions Nginx rewrite-suppression conditions buffer (starts empty).
+		 */
+		$rewrite_cond = (string) \apply_filters( 'w3tc_pagecache_rules_nginx_rewrite_cond', '' );
+		if ( '' !== $rewrite_cond ) {
+			// Normalize to exactly one trailing newline so a callback that omits it cannot glue the next rule on.
+			$rules .= rtrim( $rewrite_cond, "\n" ) . "\n";
+		}
+
 		// Check mobile groups.
-		if ( $config->get_boolean( 'mobile.enabled' ) ) {
-			$mobile_groups = array_reverse( $config->get_array( 'mobile.rgroups' ) );
+		if ( $w3tc_config->get_boolean( 'mobile.enabled' ) ) {
+			$mobile_groups = array_reverse( $w3tc_config->get_array( 'mobile.rgroups' ) );
 			$set_ua_var    = true;
 
 			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
 				$mobile_enabled  = ( isset( $mobile_config['enabled'] ) ? (bool) $mobile_config['enabled'] : false );
-				$mobile_agents   = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
+				$mobile_agents   = self::sanitize_directive_values( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : array() );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
+				$mobile_group_s  = Util_Rule::sanitize_directive_value( (string) $mobile_group );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && ! $mobile_redirect ) {
 					if ( $set_ua_var ) {
@@ -1065,7 +1817,7 @@ class PgCache_Environment {
 						$set_ua_var = false;
 					}
 					$rules .= 'if ($http_user_agent ~* "(' . implode( '|', $mobile_agents ) . ")\") {\n";
-					$rules .= '    set $w3tc_ua _' . $mobile_group . ";\n";
+					$rules .= '    set $w3tc_ua _' . $mobile_group_s . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ua = '$w3tc_ua';
@@ -1082,13 +1834,14 @@ class PgCache_Environment {
 		$env_w3tc_preview = '$w3tc_preview';
 
 		// Check referrer groups.
-		if ( $config->get_boolean( 'referrer.enabled' ) ) {
-			$referrer_groups = array_reverse( $config->get_array( 'referrer.rgroups' ) );
+		if ( $w3tc_config->get_boolean( 'referrer.enabled' ) ) {
+			$referrer_groups = array_reverse( $w3tc_config->get_array( 'referrer.rgroups' ) );
 			$set_ref_var     = true;
 			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
 				$referrer_enabled   = ( isset( $referrer_config['enabled'] ) ? (bool) $referrer_config['enabled'] : false );
-				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
+				$referrer_referrers = self::sanitize_directive_values( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : array() );
 				$referrer_redirect  = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
+				$referrer_group_s   = Util_Rule::sanitize_directive_value( (string) $referrer_group );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && ! $referrer_redirect ) {
 					if ( $set_ref_var ) {
@@ -1097,7 +1850,7 @@ class PgCache_Environment {
 					}
 
 					$rules .= 'if ($http_cookie ~* "w3tc_referrer=.*(' . implode( '|', $referrer_referrers ) . ")\") {\n";
-					$rules .= '    set $w3tc_ref _' . $referrer_group . ";\n";
+					$rules .= '    set $w3tc_ref _' . $referrer_group_s . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ref = '$w3tc_ref';
@@ -1106,8 +1859,8 @@ class PgCache_Environment {
 		}
 
 		// Set cookie group.
-		if ( $config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
-			$cookie_groups  = $config->get_array( 'pgcache.cookiegroups.groups' );
+		if ( $w3tc_config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
+			$cookie_groups  = $w3tc_config->get_array( 'pgcache.cookiegroups.groups' );
 			$set_cookie_var = true;
 
 			foreach ( $cookie_groups as $group_name => $g ) {
@@ -1117,6 +1870,7 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
+							$cookie = Util_Rule::sanitize_directive_value( $cookie );
 							$cookie = Util_Environment::preg_quote( $cookie );
 							if ( false === strpos( $cookie, '=' ) ) {
 								$cookie .= '=.*';
@@ -1128,6 +1882,7 @@ class PgCache_Environment {
 
 					if ( count( $cookies ) > 0 ) {
 						$cookies_regexp = '"^(.*;)?(' . implode( '|', $cookies ) . ')(;.*)?$"';
+						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
 
 						if ( $set_cookie_var ) {
 							$rules         .= "set \$w3tc_cookie \"\";\n";
@@ -1135,7 +1890,7 @@ class PgCache_Environment {
 						}
 
 						$rules .= "if (\$http_cookie ~* $cookies_regexp) {\n";
-						$rules .= '    set $w3tc_cookie _' . $group_name . ";\n";
+						$rules .= '    set $w3tc_cookie _' . $group_name_s . ";\n";
 						$rules .= "}\n";
 
 						$env_w3tc_cookie = '$w3tc_cookie';
@@ -1144,7 +1899,7 @@ class PgCache_Environment {
 			}
 		}
 
-		if ( $config->get_boolean( 'pgcache.cache.ssl' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.cache.ssl' ) ) {
 			$rules .= "set \$w3tc_ssl \"\";\n";
 
 			$rules .= "if (\$scheme = https) {\n";
@@ -1157,7 +1912,7 @@ class PgCache_Environment {
 			$env_w3tc_ssl = '$w3tc_ssl';
 		}
 
-		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) && $w3tc_config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
 			$rules .= "if (\$http_accept_encoding ~ gzip) {\n";
@@ -1167,7 +1922,7 @@ class PgCache_Environment {
 			$env_w3tc_enc = '$w3tc_enc';
 		}
 
-		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.brotli' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
 			$rules .= "if (\$http_accept_encoding ~ br) {\n";
@@ -1190,7 +1945,7 @@ class PgCache_Environment {
 
 		if ( 'file_generic' === $pgcache_engine ) {
 			$rules .= $this->for_file_generic(
-				$config,
+				$w3tc_config,
 				$cache_dir,
 				$env_request_uri,
 				$key_postfix,
@@ -1198,7 +1953,7 @@ class PgCache_Environment {
 			);
 		} elseif ( 'nginx_memcached' === $pgcache_engine ) {
 			$rules .= $this->for_nginx_memcached(
-				$config,
+				$w3tc_config,
 				$cache_dir,
 				$env_request_uri,
 				$key_postfix,
@@ -1214,7 +1969,7 @@ class PgCache_Environment {
 	/**
 	 * Generates the cache rules for file-based generic cache handling.
 	 *
-	 * @param Config $config          W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config          W3TC Config containing relevant settings.
 	 * @param string $cache_dir       The directory where cache files are stored.
 	 * @param string $env_request_uri The request URI for the environment.
 	 * @param string $key_postfix     The key postfix to be used in cache keys.
@@ -1222,19 +1977,41 @@ class PgCache_Environment {
 	 *
 	 * @return string The generated cache rules for nginx.
 	 */
-	private function for_file_generic( $config, $cache_dir, $env_request_uri, $key_postfix, $env_w3tc_enc ) {
+	private function for_file_generic( $w3tc_config, $cache_dir, $env_request_uri, $key_postfix, $env_w3tc_enc ) {
 		$rules = '';
 
-		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
-		$uri_prefix = "$cache_path/\$http_host/$env_request_uri/_index$key_postfix";
+		$cache_path = $this->apache_cache_uri_path( $cache_dir );
+
+		$rules .= "set \$w3tc_uri_path_slash \"\";\n";
+		$rules .= "if ($env_request_uri ~ ^/+(.+?)/?$) {\n";
+		$rules .= "    set \$w3tc_uri_path_slash \$1/;\n";
+		$rules .= "}\n";
+
+		$uri_prefix = "$cache_path/\$http_host/\$w3tc_uri_path_slash/_index$key_postfix";
 		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_nginx_uri_prefix', $uri_prefix );
 
-		if ( ! $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+		$has_enc_variant = ( ! empty( $env_w3tc_enc ) && '$w3tc_enc' === $env_w3tc_enc );
+
+		$rewrite_enc = $env_w3tc_enc;
+
+		if ( ! $w3tc_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$env_w3tc_ext = '.html';
 
-			$rules .= 'if (!-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_rewrite 0;' . "\n";
-			$rules .= "}\n";
+			if ( $has_enc_variant ) {
+				$rules       .= 'set $w3tc_disk_suffix ".html' . $env_w3tc_enc . '";' . "\n";
+				$rules       .= 'if (!-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
+				$rules       .= '    set $w3tc_disk_suffix ".html";' . "\n";
+				$rules       .= "}\n";
+				$rules       .= 'if (!-f "$document_root' . $uri_prefix . '$w3tc_disk_suffix") {' . "\n";
+				$rules       .= '  set $w3tc_rewrite 0;' . "\n";
+				$rules       .= "}\n";
+				$env_w3tc_ext = '$w3tc_disk_suffix';
+				$rewrite_enc  = '';
+			} else {
+				$rules .= 'if (!-f "$document_root' . $uri_prefix . '.html") {' . "\n";
+				$rules .= '  set $w3tc_rewrite 0;' . "\n";
+				$rules .= "}\n";
+			}
 		} else {
 			$env_w3tc_ext = '$w3tc_ext';
 
@@ -1253,7 +2030,7 @@ class PgCache_Environment {
 		}
 
 		$rules .= 'if ($w3tc_rewrite = 1) {' . "\n";
-		$rules .= '    rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc . '" last;' . "\n";
+		$rules .= '    rewrite .* "' . $uri_prefix . $env_w3tc_ext . $rewrite_enc . '" last;' . "\n";
 		$rules .= "}\n";
 
 		return $rules;
@@ -1262,7 +2039,7 @@ class PgCache_Environment {
 	/**
 	 * Generates the cache rules for nginx with memcached support.
 	 *
-	 * @param Config $config          W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config          W3TC Config containing relevant settings.
 	 * @param string $cache_dir       The directory where cache files are stored.
 	 * @param string $env_request_uri The request URI for the environment.
 	 * @param string $key_postfix     The key postfix to be used in cache keys.
@@ -1270,24 +2047,24 @@ class PgCache_Environment {
 	 *
 	 * @return string The generated cache rules for nginx with memcached support.
 	 */
-	private function for_nginx_memcached( $config, $cache_dir, $env_request_uri, $key_postfix, $env_w3tc_enc ) {
+	private function for_nginx_memcached( $w3tc_config, $cache_dir, $env_request_uri, $key_postfix, $env_w3tc_enc ) {
 		$rules  = "set \$request_uri_noslash $env_request_uri;\n";
 		$rules .= "if ($env_request_uri ~ \"(.*?)(/+)$\") {\n";
 		$rules .= '    set $request_uri_noslash $1;' . "\n";
 		$rules .= "}\n";
 
-		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
+		$cache_path = $this->apache_cache_uri_path( $cache_dir );
 
 		$rules .= 'location ~ ".*(?<!php)$" {' . "\n";
 		$rules .= '  set $memcached_key "$http_host$request_uri_noslash/' . $key_postfix . $env_w3tc_enc . '";' . "\n";
 
-		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+		if ( $w3tc_config->get_boolean( 'browsercache.enabled' ) && $w3tc_config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= '  memcached_gzip_flag 65536;' . "\n";
 		}
 
 		$rules .= '  default_type text/html;' . "\n";
 
-		$memcached_servers = $config->get_array( 'pgcache.memcached.servers' );
+		$memcached_servers = $w3tc_config->get_array( 'pgcache.memcached.servers' );
 		$memcached_pass    = ! empty( $memcached_servers ) ? array_values( $memcached_servers )[0] : 'localhost:11211';
 
 		list( $memcached_host, $memcached_port ) = Util_Content::endpoint_to_host_port( $memcached_pass );
@@ -1327,16 +2104,16 @@ class PgCache_Environment {
 	/**
 	 * Adds cache rules to a given set of existing rules.
 	 *
-	 * @param Config                      $config W3TC Config containing relevant settings.
+	 * @param Config                      $w3tc_config W3TC Config containing relevant settings.
 	 * @param Util_Environment_Exceptions $exs    The existing set of rules to which new cache rules will be added.
 	 *
 	 * @return void
 	 */
-	private function rules_cache_add( $config, $exs ) {
+	private function rules_cache_add( $w3tc_config, $exs ) {
 		Util_Rule::add_rules(
 			$exs,
 			Util_Rule::get_pgcache_rules_cache_path(),
-			$this->rules_cache_generate( $config ),
+			$this->rules_cache_generate( $w3tc_config ),
 			W3TC_MARKER_BEGIN_PGCACHE_CACHE,
 			W3TC_MARKER_END_PGCACHE_CACHE,
 			array(
@@ -1373,18 +2150,18 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules based on the environment (Apache or Nginx).
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules based on the server environment.
 	 */
-	public function rules_cache_generate( $config ) {
+	public function rules_cache_generate( $w3tc_config ) {
 		switch ( true ) {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
-				return $this->rules_cache_generate_apache( $config );
+				return $this->rules_cache_generate_apache( $w3tc_config );
 
 			case Util_Environment::is_nginx():
-				return $this->rules_cache_generate_nginx( $config );
+				return $this->rules_cache_generate_nginx( $w3tc_config );
 		}
 
 		return '';
@@ -1393,23 +2170,23 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules for Apache-based environments.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules for Apache-based environments.
 	 */
-	private function rules_cache_generate_apache( $config ) {
+	private function rules_cache_generate_apache( $w3tc_config ) {
 		$charset      = get_option( 'blog_charset' );
 		$pingback_url = get_bloginfo( 'pingback_url' );
 
-		$browsercache  = $config->get_boolean( 'browsercache.enabled' );
-		$brotli        = ( $browsercache && $config->get_boolean( 'browsercache.html.brotli' ) );
-		$compression   = ( $browsercache && $config->get_boolean( 'browsercache.html.compression' ) );
-		$expires       = ( $browsercache && $config->get_boolean( 'browsercache.html.expires' ) );
-		$lifetime      = ( $browsercache ? $config->get_integer( 'browsercache.html.lifetime' ) : 0 );
-		$cache_control = ( $browsercache && $config->get_boolean( 'browsercache.html.cache.control' ) );
-		$etag          = ( $browsercache && $config->get_integer( 'browsercache.html.etag' ) );
-		$w3tc          = ( $browsercache && $config->get_integer( 'browsercache.html.w3tc' ) );
-		$compatibility = $config->get_boolean( 'pgcache.compatibility' );
+		$browsercache  = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli        = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
+		$compression   = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
+		$expires       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.expires' ) );
+		$lifetime      = ( $browsercache ? $w3tc_config->get_integer( 'browsercache.html.lifetime' ) : 0 );
+		$cache_control = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.cache.control' ) );
+		$etag          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.etag' ) );
+		$w3tc          = ( $browsercache && $w3tc_config->get_integer( 'browsercache.html.w3tc' ) );
+		$compatibility = $w3tc_config->get_boolean( 'pgcache.compatibility' );
 
 		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\n";
@@ -1433,11 +2210,11 @@ class PgCache_Environment {
 			}
 		}
 
-		if ( $config->get_boolean( 'pgcache.file.nfs' ) ) {
+		if ( $w3tc_config->get_boolean( 'pgcache.file.nfs' ) ) {
 			$rules .= "EnableSendfile Off \n";
 		}
 
-		if ( ! $config->get_boolean( 'pgcache.remove_charset' ) ) {
+		if ( ! $w3tc_config->get_boolean( 'pgcache.remove_charset' ) ) {
 			$rules .= 'AddDefaultCharset ' . ( $charset ? $charset : 'utf-8' ) . "\n";
 		}
 
@@ -1492,14 +2269,14 @@ class PgCache_Environment {
 			$header_rules .= "    Header set Vary \"Accept-Encoding, Cookie\"\n";
 		}
 
-		$set_last_modified = $config->get_boolean( 'browsercache.html.last_modified' );
+		$set_last_modified = $w3tc_config->get_boolean( 'browsercache.html.last_modified' );
 
-		if ( ! $set_last_modified && $config->get_boolean( 'browsercache.enabled' ) ) {
+		if ( ! $set_last_modified && $w3tc_config->get_boolean( 'browsercache.enabled' ) ) {
 			$header_rules .= "    Header unset Last-Modified\n";
 		}
 
 		if ( $cache_control ) {
-			$cache_policy = $config->get_string( 'browsercache.html.cache.policy' );
+			$cache_policy = $w3tc_config->get_string( 'browsercache.html.cache.policy' );
 
 			switch ( $cache_policy ) {
 				case 'cache':
@@ -1563,27 +2340,27 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules for Nginx-based environments.
 	 *
-	 * @param Config $config W3TC Config containing relevant settings.
+	 * @param Config $w3tc_config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules for Nginx-based environments.
 	 */
-	private function rules_cache_generate_nginx( $config ) {
-		if ( 'file_generic' !== $config->get_string( 'pgcache.engine' ) ) {
+	private function rules_cache_generate_nginx( $w3tc_config ) {
+		if ( 'file_generic' !== $w3tc_config->get_string( 'pgcache.engine' ) ) {
 			return '';
 		}
 
 		$cache_root = Util_Environment::normalize_path( W3TC_CACHE_PAGE_ENHANCED_DIR );
-		$cache_dir  = rtrim( str_replace( Util_Environment::document_root(), '', $cache_root ), '/' );
+		$cache_dir  = rtrim( $this->apache_cache_uri_path( $cache_root ), '/' );
 
 		if ( Util_Environment::is_wpmu() ) {
 			$cache_dir = preg_replace( '~/w3tc.*?/~', '/w3tc.*?/', $cache_dir, 1 );
 		}
 
-		$browsercache = $config->get_boolean( 'browsercache.enabled' );
-		$brotli       = ( $browsercache && $config->get_boolean( 'browsercache.html.brotli' ) );
-		$compression  = ( $browsercache && $config->get_boolean( 'browsercache.html.compression' ) );
+		$browsercache = $w3tc_config->get_boolean( 'browsercache.enabled' );
+		$brotli       = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ) );
+		$compression  = ( $browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' ) );
 
-		$common_rules_a = Dispatcher::nginx_rules_for_browsercache_section( $config, 'html', true );
+		$common_rules_a = Dispatcher::nginx_rules_for_browsercache_section( $w3tc_config, 'html', true );
 		$common_rules   = '';
 		if ( ! empty( $common_rules_a ) ) {
 			$common_rules = '    ' . implode( "\n    ", $common_rules_a ) . "\n";
@@ -1594,7 +2371,7 @@ class PgCache_Environment {
 
 		if ( $brotli ) {
 			$maybe_xml = '';
-			if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+			if ( $w3tc_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 				$maybe_xml = "\n        text/xml xml_br;\n    ";
 			}
 
@@ -1609,7 +2386,7 @@ class PgCache_Environment {
 
 		if ( $compression ) {
 			$maybe_xml = '';
-			if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+			if ( $w3tc_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 				$maybe_xml = "\n        text/xml xml_gzip;\n    ";
 			}
 

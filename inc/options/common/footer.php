@@ -9,11 +9,12 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$config = Dispatcher::config();
+$w3tc_config = Dispatcher::config();
 
 do_action( 'w3tc-dashboard-footer' );
 ?>
@@ -45,8 +46,8 @@ do_action( 'w3tc-dashboard-footer' );
 				</h2>
 			</a>
 			<?php
-			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( Util_Nonce::create_admin( 'w3tc_licensing_upgrade' ) ) . '\'}"
 					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
 			}
 			?>
@@ -110,9 +111,6 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<div class="w3tc-footer-inner-column-50">
 				<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=newsletter_signup' ); ?>">
-				<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
-				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">
 					<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'W3 Edge', 'w3-total-cache' ); ?>
 				</a>

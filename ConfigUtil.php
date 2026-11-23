@@ -92,22 +92,22 @@ class ConfigUtil {
 	 *
 	 * @param int   $blog_id ID of the blog to save the item to.
 	 * @param bool  $preview Whether to save to the preview configuration.
-	 * @param array $data    Data to be saved in the configuration.
+	 * @param array $w3tc_data    Data to be saved in the configuration.
 	 *
 	 * @return void
 	 */
-	public static function save_item( $blog_id, $preview, $data ) {
+	public static function save_item( $blog_id, $preview, $w3tc_data ) {
 		if ( defined( 'W3TC_CONFIG_DATABASE' ) && W3TC_CONFIG_DATABASE ) {
-			ConfigDbStorage::save_item( $blog_id, $preview, $data );
+			ConfigDbStorage::save_item( $blog_id, $preview, $w3tc_data );
 		} else {
 			$filename = Config::util_config_filename( $blog_id, $preview );
 			if ( defined( 'JSON_PRETTY_PRINT' ) ) {
-				$config = wp_json_encode( $data, JSON_PRETTY_PRINT );
+				$w3tc_config = wp_json_encode( $w3tc_data, JSON_PRETTY_PRINT );
 			} else { // for older php versions.
-				$config = wp_json_encode( $data );
+				$w3tc_config = wp_json_encode( $w3tc_data );
 			}
 
-			Util_File::file_put_contents_atomic( $filename, '<?php exit; ?>' . $config );
+			Util_File::file_put_contents_atomic( $filename, '<?php exit; ?>' . $w3tc_config );
 		}
 
 		if ( defined( 'W3TC_CONFIG_CACHE_ENGINE' ) ) {

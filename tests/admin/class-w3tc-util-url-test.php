@@ -1,0 +1,348 @@
+<?php
+/**
+ * File: class-w3tc-util-url-test.php
+ *
+ * @package    W3TC
+ * @subpackage W3TC/tests/admin
+ * @since      2.10.0
+ */
+
+declare( strict_types = 1 );
+
+use W3TC\Util_Url;
+
+/**
+ * Class: W3tc_Util_Url_Test
+ *
+ * Coverage for the outbound-URL guard. Regressions here re-enable
+ * outbound fetches to admin-supplied URLs that resolve to internal
+ * ranges for every site routed through `Util_Url::is_public_host()`,
+ * so the negative coverage is exhaustive across the four families of
+ * private-range address (loopback, RFC1918, link-local, IPv4-mapped
+ * IPv6).
+ *
+ * @since 2.10.0
+ */
+class W3tc_Util_Url_Test extends WP_UnitTestCase {
+
+	/**
+	 * Bare IP literals — no DNS lookup needed — must be refused for
+	 * every private / loopback / link-local / reserved range.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_host_refuses_private_ipv4_literals() {
+		$inputs = array(
+			'loopback /8'      => 'http://127.0.0.1/',
+			'loopback alt'     => 'http://127.255.255.254/',
+			'this-network'     => 'http://0.0.0.0/',
+			'rfc1918 /8'       => 'http://10.0.0.1/',
+			'rfc1918 /12'      => 'http://172.16.0.1/',
+			'rfc1918 /12 mid'  => 'http://172.31.255.254/',
+			'rfc1918 /16'      => 'http://192.168.0.1/',
+			'aws metadata'     => 'http://169.254.169.254/',
+			'link-local /16'   => 'http://169.254.1.1/',
+		);
+
+		foreach ( $inputs as $label => $url ) {
+			$this->assertFalse(
+				Util_Url::is_public_host( $url ),
+				"Expected refusal for [$label] $url"
+			);
+		}
+	}
+
+	/**
+	 * Same for IPv6: loopback (`::1`), link-local (`fe80::/10`),
+	 * unique-local (`fc00::/7`), and the IPv4-mapped form
+	 * (`::ffff:127.0.0.1`) that would otherwise sneak past a v6 check.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_host_refuses_private_ipv6_literals() {
+		$inputs = array(
+			'ipv6 loopback'      => 'http://[::1]/',
+			'ipv6 link-local'    => 'http://[fe80::1]/',
+			'ipv6 unique-local'  => 'http://[fc00::1]/',
+			'ipv4-mapped lo'     => 'http://[::ffff:127.0.0.1]/',
+			'ipv4-mapped priv'   => 'http://[::ffff:10.0.0.1]/',
+			'ipv4-mapped aws'    => 'http://[::ffff:169.254.169.254]/',
+		);
+
+		foreach ( $inputs as $label => $url ) {
+			$this->assertFalse(
+				Util_Url::is_public_host( $url ),
+				"Expected refusal for [$label] $url"
+			);
+		}
+	}
+
+	/**
+	 * A host that resolves to a loopback address must be refused even
+	 * when expressed by name. The literal-IP fast-path doesn't run for
+	 * names; this exercises the gethostbynamel() branch.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_host_refuses_loopback_named_host() {
+		// `localhost` resolves to 127.0.0.1 on every supported host.
+		$this->assertFalse( Util_Url::is_public_host( 'http://localhost/' ) );
+	}
+
+	/**
+	 * Non-http(s) schemes are always refused — `file://`, `gopher://`,
+	 * `data://`, etc. each open out-of-band fetch paths and have no
+	 * place in a `wp_remote_*` call.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_host_refuses_non_http_schemes() {
+		$inputs = array(
+			'file:///etc/passwd',
+			'gopher://evil.example/',
+			'ftp://example.com/',
+			'data:,evil',
+			'php://input',
+		);
+		foreach ( $inputs as $url ) {
+			$this->assertFalse(
+				Util_Url::is_public_host( $url ),
+				"Expected refusal for non-http scheme: $url"
+			);
+		}
+	}
+
+	/**
+	 * Malformed / empty / non-string inputs are refused without
+	 * tripping a warning.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_host_refuses_malformed_input() {
+		$this->assertFalse( Util_Url::is_public_host( '' ) );
+		$this->assertFalse( Util_Url::is_public_host( null ) );
+		$this->assertFalse( Util_Url::is_public_host( 'not-a-url' ) );
+		$this->assertFalse( Util_Url::is_public_host( 'https:' ) );
+		$this->assertFalse( Util_Url::is_public_host( array( 'http://example.com/' ) ) );
+		$this->assertFalse( Util_Url::is_public_host( 42 ) );
+	}
+
+	/**
+	 * `is_valid_http_scheme()` accepts http and https only.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_valid_http_scheme_accepts_http_and_https() {
+		$this->assertTrue( Util_Url::is_valid_http_scheme( 'http://example.com/' ) );
+		$this->assertTrue( Util_Url::is_valid_http_scheme( 'https://example.com/' ) );
+
+		$this->assertFalse( Util_Url::is_valid_http_scheme( 'file:///etc/passwd' ) );
+		$this->assertFalse( Util_Url::is_valid_http_scheme( 'gopher://evil.example/' ) );
+		$this->assertFalse( Util_Url::is_valid_http_scheme( 'ftp://example.com/' ) );
+		$this->assertFalse( Util_Url::is_valid_http_scheme( '' ) );
+		$this->assertFalse( Util_Url::is_valid_http_scheme( null ) );
+	}
+
+	/**
+	 * `is_public_ip()` short-cuts the literal-IP check used by both
+	 * the literal-IP fast-path in `is_public_host()` and the
+	 * post-DNS-lookup loop.
+	 *
+	 * @since 2.10.0
+	 */
+	public function test_is_public_ip_classifies_ranges_correctly() {
+		// Known-public IPs (Google DNS, Cloudflare DNS).
+		$this->assertTrue( Util_Url::is_public_ip( '8.8.8.8' ) );
+		$this->assertTrue( Util_Url::is_public_ip( '1.1.1.1' ) );
+
+		// Private + reserved.
+		$this->assertFalse( Util_Url::is_public_ip( '127.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '10.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '172.16.0.1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '192.168.0.1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '169.254.169.254' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '0.0.0.0' ) );
+
+		// IPv6.
+		$this->assertFalse( Util_Url::is_public_ip( '::1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( 'fe80::1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '::ffff:127.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_public_ip( '::ffff:10.0.0.1' ) );
+
+		// Malformed.
+		$this->assertFalse( Util_Url::is_public_ip( '' ) );
+		$this->assertFalse( Util_Url::is_public_ip( 'not an ip' ) );
+	}
+
+	/**
+	 * Loopback classification for the Varnish PURGE exception path.
+	 *
+	 * @since 2.10.2
+	 */
+	public function test_is_loopback_ip_classifies_ranges_correctly() {
+		$this->assertTrue( Util_Url::is_loopback_ip( '127.0.0.1' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '127.255.255.254' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '::1' ) );
+		$this->assertTrue( Util_Url::is_loopback_ip( '::ffff:127.0.0.1' ) );
+
+		$this->assertFalse( Util_Url::is_loopback_ip( '10.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '192.168.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '169.254.169.254' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '8.8.8.8' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '::ffff:10.0.0.1' ) );
+		$this->assertFalse( Util_Url::is_loopback_ip( '' ) );
+	}
+
+	/**
+	 * Loopback on HTTP/Varnish ports is allowed; other loopback ports
+	 * and link-local destinations are refused.
+	 *
+	 * @since 2.10.2
+	 */
+	public function test_is_safe_varnish_purge_target_allows_loopback_http_ports() {
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 80 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 8080 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6081 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 443 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( 'localhost', 8080 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '::1', 80 ) );
+
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '10.0.0.1', 80 ) );
+		$this->assertTrue( Util_Url::is_safe_varnish_purge_target( '192.168.1.10', 8080 ) );
+
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 6379 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 11211 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '127.0.0.1', 3306 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( 'localhost', 6379 ) );
+
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 80 ) );
+		$this->assertFalse( Util_Url::is_safe_varnish_purge_target( '169.254.169.254', 8080 ) );
+	}
+
+	/**
+	 * Operators can extend the HTTP-port allow-list via filter.
+	 *
+	 * @since 2.10.2
+	 */
+	public function test_is_varnish_http_port_filterable() {
+		$this->assertFalse( Util_Url::is_varnish_http_port( 9080 ) );
+
+		$callback = static function ( $ports ) {
+			$ports[] = 9080;
+			return $ports;
+		};
+		\add_filter( 'w3tc_varnish_http_ports', $callback );
+		$this->assertTrue( Util_Url::is_varnish_http_port( 9080 ) );
+		\remove_filter( 'w3tc_varnish_http_ports', $callback );
+	}
+
+	/**
+ * Constant-override allowlist: https + exact host or leading-dot suffix.
+ *
+ * @since 2.10.6
+ */
+public function test_is_https_host_allowlisted_accepts_exact_and_suffix() {
+	$exact    = array( 'w3-edge.com' );
+	$suffixes = array( '.w3-edge.com' );
+
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://w3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://api2.w3-edge.com/notices', $exact, $suffixes )
+	);
+	$this->assertTrue(
+		Util_Url::is_https_host_allowlisted( 'https://staging.w3-edge.com/api', $exact, $suffixes )
+	);
+}
+
+/**
+ * Rejected schemes, foreign hosts, and suffix lookalikes fail closed.
+ *
+ * @since 2.10.6
+ */
+public function test_is_https_host_allowlisted_rejects_unsafe_values() {
+	$exact    = array( 'w3-edge.com' );
+	$suffixes = array( '.w3-edge.com' );
+
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'http://api2.w3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://evil.example/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://xw3-edge.com/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://w3-edge.com.evil.example/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( 'https://127.0.0.1/', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( '', $exact, $suffixes )
+	);
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted( null, $exact, $suffixes )
+	);
+}
+
+/**
+ * Suffix entries without a leading dot are ignored.
+ *
+ * @since 2.10.6
+ */
+public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes() {
+	$this->assertFalse(
+		Util_Url::is_https_host_allowlisted(
+			'https://api2.w3-edge.com/',
+			array(),
+			array( 'w3-edge.com' )
+		)
+	);
+}
+
+/**
+ * Outbound-fetch policy accepts this site's host and refuses
+ * private / non-http destinations.
+ *
+	 * @since 2.10.6
+	 */
+	public function test_is_allowed_outbound_url_policy() {
+		$this->assertTrue(
+			Util_Url::is_allowed_outbound_url( \home_url( '/wp-content/themes/style.css' ) )
+		);
+
+		$denied = array(
+			'http://127.0.0.1/style.css',
+			'http://10.0.0.1/style.css',
+			'http://169.254.169.254/latest/meta-data/',
+			'file:///etc/passwd',
+			'gopher://example.com/1',
+			'',
+		);
+
+		foreach ( $denied as $url ) {
+			$this->assertFalse(
+				Util_Url::is_allowed_outbound_url( $url ),
+				'Expected refusal for ' . $url
+			);
+		}
+	}
+
+	/**
+	 * Protocol-relative URLs pick up the current request scheme.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_normalize_protocol_relative_url() {
+		$scheme = Util_Url::normalize_protocol_relative_url( '//example.com/a.css' );
+		$this->assertMatchesRegularExpression( '#^https?://example\\.com/a\\.css$#', $scheme );
+	$this->assertSame(
+		'https://cdn.example/a.js',
+		Util_Url::normalize_protocol_relative_url( 'https://cdn.example/a.js' )
+	);
+	$this->assertSame( '', Util_Url::normalize_protocol_relative_url( '' ) );
+}
+}

@@ -19,15 +19,15 @@ class UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin {
 	 * it modifies the script to enable lazy loading of the maps using W3 Total Cache's lazy load
 	 * functionality. Additionally, it registers a callback for lazy loading initialization.
 	 *
-	 * @param array $data An associative array containing buffer data. The 'buffer' key holds the HTML
+	 * @param array $w3tc_data An associative array containing buffer data. The 'buffer' key holds the HTML
 	 *                    content to process.
 	 *
 	 * @return array Modified buffer data with Google Maps lazy load compatibility adjustments.
 	 */
-	public function w3tc_lazyload_mutator_before( $data ) {
-		$buffer = $data['buffer'];
+	public function w3tc_lazyload_mutator_before( $w3tc_data ) {
+		$buffer = $w3tc_data['buffer'];
 		if ( strpos( $buffer, '<script>jQuery(document).ready(function($) {var map' ) === false ) {
-			return $data;
+			return $w3tc_data;
 		}
 
 		$buffer = str_replace(
@@ -38,10 +38,10 @@ class UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin {
 
 		add_filter( 'w3tc_lazyload_on_initialized_javascript', array( $this, 'w3tc_lazyload_on_initialized_javascript' ) );
 
-		$data['buffer']   = $buffer;
-		$data['modified'] = true;
+		$w3tc_data['buffer']   = $buffer;
+		$w3tc_data['modified'] = true;
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**

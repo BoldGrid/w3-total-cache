@@ -86,7 +86,7 @@ class Minify_HTML {
 			$this->_jsMinifier = $options['jsMinifier'];
 		}
 
-		$this->_stripCrlf = (isset($options['stripCrlf']) ? (boolean) $options['stripCrlf'] : false) ;
+		$this->_stripCrlf = (isset($options['stripCrlf']) ? (bool) $options['stripCrlf'] : false) ;
 		$this->_ignoredComments = (isset($options['ignoredComments']) ? (array) $options['ignoredComments'] : array());
 	}
 
@@ -102,7 +102,7 @@ class Minify_HTML {
 			$this->_isXhtml = (false !== strpos($this->_html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'));
 		}
 
-		$this->_replacementHash = 'MINIFYHTML' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
+		$this->_ensurePlaceholderHash( $this->_html );
 		$this->_placeholders = array();
 
 		// replace dynamic tags
@@ -140,8 +140,10 @@ class Minify_HTML {
 			,array($this, '_removeTextareaCB')
 			,$this->_html);
 
-		// trim each line.
-		// @todo take into account attribute values that span multiple lines.
+		/**
+		 * trim each line.
+		 * @todo take into account attribute values that span multiple lines.
+		 */
 		$this->_html = preg_replace('/^\\s+|\\s+$/m', '', $this->_html);
 
 		// remove ws around block/undisplayed elements
@@ -186,19 +188,21 @@ class Minify_HTML {
 
 		// fill placeholders
 		$this->_html = str_replace(
-			array_keys($this->_placeholders)
-			,array_values($this->_placeholders)
+			array_keys( $this->_placeholders )
+			,array_values( $this->_placeholders )
 			,$this->_html
 		);
 		// issue 229: multi-pass to catch scripts that didn't get replaced in textareas
 		$this->_html = str_replace(
-			array_keys($this->_placeholders)
-			,array_values($this->_placeholders)
+			array_keys( $this->_placeholders )
+			,array_values( $this->_placeholders )
 			,$this->_html
 		);
 
-		// in HTML5, type attribute is unnecessary for JavaScript resources
-		// in HTML5, type attribute for style element is not needed and should be omitted
+		/**
+		 * in HTML5, type attribute is unnecessary for JavaScript resources
+		 * in HTML5, type attribute for style element is not needed and should be omitted
+		 */
 		if (false !== stripos($this->_html, '<!doctype html>')) {
 			$this->_html = preg_replace(
 				'/<(script|style)([^>]*)\\stype=[\'"]?(text\\/javascript|text\\/css|application\\/javascript)[\'"]?([^>]*)>/i'
@@ -231,6 +235,26 @@ class Minify_HTML {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Per-request placeholder id, extended when it already occurs in $source.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string|null $source Input before placeholders are inserted.
+	 * @return string
+	 */
+	protected function _ensurePlaceholderHash( $source = null ) {
+		if ( ! \is_string( $this->_replacementHash ) || '' === $this->_replacementHash ) {
+			$this->_replacementHash = 'MINIFYHTML' . \bin2hex( \random_bytes( 16 ) );
+		}
+
+		while ( \is_string( $source ) && false !== \strpos( $source, $this->_replacementHash ) ) {
+			$this->_replacementHash .= \bin2hex( \random_bytes( 8 ) );
+		}
+
+		return $this->_replacementHash;
 	}
 
 	protected function _reservePlace($content)
@@ -373,13 +397,17 @@ class Minify_HTML {
 			return $m[1] . $m[4];
 		}
 
-		// 1. <a href=bla/>hi</a> is sometimes (XHTML? HTML5 specs doesnt allow that)
-		// parsed as <a href=bla></a>hi</a> by browsers
-		// avoid that by turning it to <a href=bla/ >hi</a>
+		/**
+		 * 1. <a href=bla/>hi</a> is sometimes (XHTML? HTML5 specs doesnt allow that)
+		 * parsed as <a href=bla></a>hi</a> by browsers
+		 * avoid that by turning it to <a href=bla/ >hi</a>
+		 */
 
-		// 2. auto-closing tags without space at the end e.g. <div data-value="aa"/>
-		// should have space after value <div data-value=aa />
-		// otherwise some browsers assume data-value="aa/"
+		/**
+		 * 2. auto-closing tags without space at the end e.g. <div data-value="aa"/>
+		 * should have space after value <div data-value=aa />
+		 * otherwise some browsers assume data-value="aa/"
+		 */
 		if ( /* 1 */ $m[4] == '/>' ||
 			/* 2 */ ( $m[4] == '>' && substr( $m[3], -1, 1 ) == '/' ) ) {
 			return $m[1] . '=' . $m[3] . ' ' . $m[4];

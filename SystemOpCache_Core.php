@@ -36,9 +36,9 @@ class SystemOpCache_Core {
 		if ( Util_Installed::opcache() ) {
 			return opcache_reset();
 		} elseif ( Util_Installed::apc_opcache() ) {
-			$result  = apc_clear_cache(); // that doesnt clear user cache.
-			$result |= apc_clear_cache( 'opcode' ); // extra.
-			return $result;
+			$w3tc_result  = apc_clear_cache(); // that doesnt clear user cache.
+			$w3tc_result |= apc_clear_cache( 'opcode' ); // extra.
+			return $w3tc_result;
 		}
 
 		return false;

@@ -22,8 +22,8 @@ class ObjectCache_Plugin_Admin {
 		$config_labels = new ObjectCache_ConfigLabels();
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
-		$c = Dispatcher::config();
-		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->getf_boolean( 'objectcache.enabled' ) ) {
 			add_filter( 'w3tc_errors', array( $this, 'w3tc_errors' ) );
 			add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
 			add_filter( 'w3tc_usage_statistics_summary_from_history', array( $this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
@@ -36,13 +36,13 @@ class ObjectCache_Plugin_Admin {
 	/**
 	 * Handles saving of options, scheduling or clearing cron events for object cache.
 	 *
-	 * @param array $data Associative array containing 'new_config' and 'old_config' values.
+	 * @param array $w3tc_data Associative array containing 'new_config' and 'old_config' values.
 	 *
 	 * @return array Modified data array with options.
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		// Schedule purge if enabled.
 		if ( $new_config->get_boolean( 'objectcache.enabled' ) && $new_config->get_boolean( 'objectcache.wp_cron' ) ) {
@@ -66,7 +66,7 @@ class ObjectCache_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_objectcache_purge_wpcron' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -77,13 +77,13 @@ class ObjectCache_Plugin_Admin {
 	 * @return array Modified errors array.
 	 */
 	public function w3tc_errors( $errors ) {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 
-		if ( 'memcached' === $c->get_string( 'objectcache.engine' ) ) {
-			$memcached_servers         = $c->get_array( 'objectcache.memcached.servers' );
-			$memcached_binary_protocol = $c->get_boolean( 'objectcache.memcached.binary_protocol' );
-			$memcached_username        = $c->get_string( 'objectcache.memcached.username' );
-			$memcached_password        = $c->get_string( 'objectcache.memcached.password' );
+		if ( 'memcached' === $w3tc_c->get_string( 'objectcache.engine' ) ) {
+			$memcached_servers         = $w3tc_c->get_array( 'objectcache.memcached.servers' );
+			$memcached_binary_protocol = $w3tc_c->get_boolean( 'objectcache.memcached.binary_protocol' );
+			$memcached_username        = $w3tc_c->get_string( 'objectcache.memcached.username' );
+			$memcached_password        = $w3tc_c->get_string( 'objectcache.memcached.password' );
 
 			if (
 				! Util_Installed::is_memcache_available(
@@ -114,12 +114,12 @@ class ObjectCache_Plugin_Admin {
 	/**
 	 * Adds notes related to object cache state and actions needed.
 	 *
-	 * @param array $notes Existing notes to be modified or added to.
+	 * @param array $w3tc_notes Existing notes to be modified or added to.
 	 *
 	 * @return array Modified notes array.
 	 */
-	public function w3tc_notes( $notes ) {
-		$c          = Dispatcher::config();
+	public function w3tc_notes( $w3tc_notes ) {
+		$w3tc_c     = Dispatcher::config();
 		$state      = Dispatcher::config_state();
 		$state_note = Dispatcher::config_state_note();
 
@@ -127,9 +127,9 @@ class ObjectCache_Plugin_Admin {
 		if (
 			$state_note->get( 'objectcache.show_note.flush_needed' ) &&
 			! is_network_admin() && // flushed dont work under network admin.
-			! $c->is_preview()
+			! $w3tc_c->is_preview()
 		) {
-			$notes['objectcache_flush_needed'] = sprintf(
+			$w3tc_notes['objectcache_flush_needed'] = sprintf(
 				// Translators: 1 object cache flush button.
 				__(
 					'The setting change(s) made either invalidate the cached data or modify the behavior of the site. %1$s now to provide a consistent user experience.',
@@ -142,7 +142,7 @@ class ObjectCache_Plugin_Admin {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -159,8 +159,8 @@ class ObjectCache_Plugin_Admin {
 		$get_hits  = Util_UsageStatistics::sum( $history, 'objectcache_get_hits' );
 		$sets      = Util_UsageStatistics::sum( $history, 'objectcache_sets' );
 
-		$c = Dispatcher::config();
-		$e = $c->get_string( 'objectcache.engine' );
+		$w3tc_c = Dispatcher::config();
+		$e      = $w3tc_c->get_string( 'objectcache.engine' );
 
 		$summary['objectcache'] = array(
 			'get_total'        => Util_UsageStatistics::integer( $get_total ),
@@ -189,7 +189,7 @@ class ObjectCache_Plugin_Admin {
 			wp_enqueue_script(
 				'w3tc-objectcache-diskpopup',
 				plugins_url( 'ObjectCache_DiskPopup.js', W3TC_FILE ),
-				array(),
+				array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ),
 				W3TC_VERSION,
 				false
 			);

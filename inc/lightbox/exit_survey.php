@@ -7,6 +7,11 @@
  * @package W3TC
  */
 
+defined( 'ABSPATH' ) || exit;
+if ( ! defined( 'W3TC' ) ) {
+	die;
+}
+
 ?>
 <div id="w3tc-exit-survey-modal">
 	<div class="w3tc-modal-content">

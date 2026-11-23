@@ -12,12 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Generates a message indicating that the PHP version is outdated.
  *
- * This message notifies users that the PHP version must be updated to at least 7.2.5 to use W3 Total Cache.
+ * This message notifies users that the PHP version must be updated to at least 7.4 to use W3 Total Cache.
  *
  * @return string The warning message about outdated PHP.
  */
 function w3tc_old_php_message() {
-	$m = __( 'Please update your PHP. <strong>W3 Total Cache</strong> requires PHP version 7.2.5 or above', 'w3-total-cache' );
+	$m = __( 'Please update your PHP. <strong>W3 Total Cache</strong> requires PHP version 7.4 or above', 'w3-total-cache' );
 	return $m;
 }
 
@@ -36,7 +36,7 @@ function w3tc_old_php_activate() {
 /**
  * Adds an admin notice for outdated PHP versions.
  *
- * This method displays an error notice in the WordPress admin area, alerting users to update their PHP version to at least 7.2.5.
+ * This method displays an error notice in the WordPress admin area, alerting users to update their PHP version to at least 7.4.
  *
  * @return void
  */

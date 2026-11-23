@@ -22,6 +22,36 @@ if ( ! defined( 'W3TC_DIR' ) ) {
 	define( 'W3TC_DIR', dirname( __DIR__ ) );
 }
 
+/**
+ * PHPUnit loads the plugin from the checkout, not from the test
+ * WordPress install's WP_PLUGIN_DIR. Extension paths are relative to
+ * the plugins parent (e.g. w3-total-cache/Extension_*.php).
+ */
+if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
+	define( 'W3TC_EXTENSION_DIR', dirname( W3TC_DIR ) );
+}
+
+/**
+ * Known extension paths use the wordpress.org directory slug.
+ * Link that slug when the checkout folder has another name.
+ *
+ * @since 2.11.0
+ */
+function w3tc_phpunit_link_extension_slug() {
+	if ( 'w3-total-cache' === \basename( W3TC_DIR ) ) {
+		return;
+	}
+
+	$slug_dir = W3TC_EXTENSION_DIR . '/w3-total-cache';
+	if ( \file_exists( $slug_dir ) || \is_link( $slug_dir ) || ! \is_writable( W3TC_EXTENSION_DIR ) ) {
+		return;
+	}
+
+	\symlink( W3TC_DIR, $slug_dir );
+}
+
+w3tc_phpunit_link_extension_slug();
+
 // Require necessary files.
 $files = array(
 
@@ -57,11 +87,25 @@ function phpunit_error_log( $var ) {
 }
 
 /**
+ * Normalize $_SERVER so Util_Environment::document_root() resolves under PHPUnit CLI.
+ *
+ * WP's test bootstrap sets PHP_SELF to /index.php while PATH_TRANSLATED points at
+ * the PHPUnit binary, which yields a non-resolving document root.
+ *
+ * @since 2.10.0
+ */
+function w3tc_phpunit_normalize_server_docroot() {
+	$_SERVER['DOCUMENT_ROOT'] = \untrailingslashit( ABSPATH );
+	unset( $_SERVER['PATH_TRANSLATED'] );
+}
+
+/**
  * Manually load the plugin being tested.
  *
  * @since 2.3.1
  */
 function _manually_load_plugin() {
+	w3tc_phpunit_normalize_server_docroot();
 	require W3TC_DIR . '/w3-total-cache.php';
 }
 

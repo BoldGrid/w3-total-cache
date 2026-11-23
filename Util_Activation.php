@@ -20,26 +20,26 @@ class Util_Activation {
 	 * @return void
 	 */
 	private static function _cleanup() {
-		$active_plugins         = (array) get_option( 'active_plugins' );
+		$w3tc_active_plugins    = (array) get_option( 'active_plugins' );
 		$active_plugins_network = (array) get_site_option( 'active_sitewide_plugins' );
 
 		// workaround for WPMU deactivation bug.
-		remove_action( 'deactivate_' . W3TC_FILE, 'deactivate_sitewide_plugin' );
+		remove_action( 'deactivate_' . W3TC_FILE, 'deactivate_sitewide_plugin' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
-		do_action( 'deactivate_plugin', W3TC_FILE );
+		do_action( 'deactivate_plugin', W3TC_FILE ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
-		$key = array_search( W3TC_FILE, $active_plugins, true );
+		$w3tc_key = array_search( W3TC_FILE, $w3tc_active_plugins, true );
 
-		if ( false !== $key ) {
-			array_splice( $active_plugins, $key, 1 );
+		if ( false !== $w3tc_key ) {
+			array_splice( $w3tc_active_plugins, $w3tc_key, 1 );
 		}
 
 		unset( $active_plugins_network[ W3TC_FILE ] );
 
-		do_action( 'deactivate_' . W3TC_FILE );
-		do_action( 'deactivated_plugin', W3TC_FILE );
+		do_action( 'deactivate_' . W3TC_FILE ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		do_action( 'deactivated_plugin', W3TC_FILE ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
-		update_option( 'active_plugins', $active_plugins );
+		update_option( 'active_plugins', $w3tc_active_plugins );
 		update_site_option( 'active_sitewide_plugins', $active_plugins_network );
 	}
 
@@ -275,13 +275,13 @@ class Util_Activation {
 			$environment->fix_after_deactivation();
 			deactivate_plugins( plugin_basename( W3TC_FILE ) );
 		} catch ( SelfTestExceptions $exs ) {
-			$r = self::parse_environment_exceptions( $exs );
+			$w3tc_r = self::parse_environment_exceptions( $exs );
 
-			foreach ( $r['before_errors'] as $e ) {
+			foreach ( $w3tc_r['before_errors'] as $e ) {
 				$errors[] = $e;
 			}
 
-			if ( strlen( $r['required_changes'] ) > 0 ) {
+			if ( strlen( $w3tc_r['required_changes'] ) > 0 ) {
 				$changes_style = 'border: 1px solid black; background: white; margin: 10px 30px 10px 30px; padding: 10px; display: none';
 				$ftp_style     = 'border: 1px solid black; background: white; margin: 10px 30px 10px 30px; padding: 10px; display: none';
 				$ftp_form      = str_replace( 'class="wrap"', '', $exs->credentials_form() );
@@ -325,7 +325,7 @@ class Util_Activation {
 						'</a>'
 					),
 					Util_Ui::button_link( __( 'Contact Support', 'w3-total-cache' ), Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), false, 'button' )
-				) . '<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
+				) . '<div class="w3tc-required-changes" style="' . $changes_style . '">' . $w3tc_r['required_changes'] . '</div>' .
 					'<div class="w3tc-ftp-form" style="' . $ftp_style . '">' . $ftp_form . '</div>';
 
 				$errors[] = $error;

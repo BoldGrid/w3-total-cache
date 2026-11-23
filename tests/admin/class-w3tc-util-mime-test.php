@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.10.0
  */
 
 declare( strict_types = 1 );
@@ -14,13 +14,13 @@ use W3TC\Util_Mime;
 /**
  * Class: Util_Mime_Test
  *
- * @since X.X.X
+ * @since 2.8.11
  */
 class W3tc_Util_Mime_Test extends WP_UnitTestCase {
 	/**
 	* Test get_mime_type() for known and unknown extensions.
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_get_mime_type() {
 		$css = tempnam( sys_get_temp_dir(), 'w3tc' ) . '.css';
@@ -44,7 +44,7 @@ class W3tc_Util_Mime_Test extends WP_UnitTestCase {
 	/**
 	* Test sections_to_mime_types_map() and mime_type_to_section().
 	*
-	* @since X.X.X
+	* @since 2.8.11
 	*/
 	public function test_sections_and_mapping() {
 		$map = Util_Mime::sections_to_mime_types_map();

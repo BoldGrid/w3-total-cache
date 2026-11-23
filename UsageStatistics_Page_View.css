@@ -3,26 +3,30 @@
 	margin: auto;
 	padding-top: 50px;
 }
+
 .ustats_ad_metabox .inside {
-	background: url('./pub/img/stats-bg.png');
+	background: url(./pub/img/stats-bg.png);
 	background-repeat: no-repeat;
 	background-size: cover;
 	min-height: 400px;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .ustats_content {
 	text-align: right;
 }
+
 .ustats_p {
     text-align: center;
 }
+
 .ustats_block {
 	width: 100%;
 	display: none;
 	margin-bottom: 10px;
 
 }
+
 /* Reduce bottom margin for Object Cache and Database Cache */
 .ustats_block.ustats_objectcache,
 .ustats_block.ustats_dbcache {
@@ -31,45 +35,56 @@
 	min-height: 0;
 	overflow: hidden;
 }
+
 /* Reduce padding-bottom for these sections */
 .ustats_block.ustats_objectcache .ustats_block_data,
 .ustats_block.ustats_dbcache .ustats_block_data {
 	padding-bottom: 0;
 }
+
 /* Ensure chart containers don't add extra space */
 .ustats_block.ustats_objectcache .ustats_block_chart,
 .ustats_block.ustats_dbcache .ustats_block_chart {
 	padding-bottom: 0;
 	margin-bottom: 0;
 }
+
 /* Increase bottom margin for Database and PHP Memory sections */
 .ustats_block.ustats_wpdb {
 	margin-bottom: 25px;
 }
+
 /* Increase bottom margin for PHP Memory section (in System Info metabox) */
+
 /* The PHP Memory section is in a metabox-holder that comes after Database metabox */
 .metabox-holder ~ .metabox-holder .ustats_block.ustats_php {
 	margin-bottom: 25px;
 }
+
 /* Increase bottom margin for PHP Requests section (in Web Requests metabox) */
 .ustats_block.ustats_php {
 	margin-bottom: 25px;
 }
+
 .ustats_block_data {
 	width: 30%;
 	padding-bottom: 10px;
 }
+
 .ustats_block_data div {
 	display: none;
 }
+
 .ustats_block_data .ustats_header {
-    font-weight: bold;
+    font-weight: 700;
 	display: block;
 }
+
 .ustats_block_chart {
 	width: 70%;
 	height: 200px;
 }
+
 .ustats_block_chart canvas {
 	display: block;
 	height: 200px;
@@ -85,7 +100,7 @@
 td.ustats_td {
     padding: 0;
     padding-right: 10px;
-    font-weight: bold;
+    font-weight: 700;
     color: #333;
 }
 
@@ -94,7 +109,7 @@ td.ustats_td_header_name {
     padding-right: 5px;
     padding-top: 5px;
     text-align: left;
-    font-weight: bold;
+    font-weight: 700;
     color: #333;
 }
 
@@ -103,7 +118,7 @@ td.ustats_td_header {
     padding-right: 5px;
     padding-top: 5px;
     text-align: right;
-    font-weight: bold;
+    font-weight: 700;
     color: #333;
 }
 
@@ -119,16 +134,19 @@ td.ustats_td_value {
 .ustats_php_php_requests_pagecache_miss {
 	padding-left: 20px;
 }
+
 .ustats_block_data div.ustats_php_php_requests_pagecache_miss_level2_wrap {
 	display: flex;
 	padding-left: 40px;
 	flex-wrap: wrap;
 }
+
 .ustats_php_php_requests_pagecache_miss_level2 {
 	width: 50%;
 }
 
 @media (max-width: 1500px) {
+
 	.ustats_php_php_requests_pagecache_miss_level2 {
 		width: 100%
 	}

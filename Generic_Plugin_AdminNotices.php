@@ -47,7 +47,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Constructor.
 	 *
-	 * @since 2.8.6
+	 * @since 2.7.5
 	 *
 	 * @return void
 	 */
@@ -91,14 +91,27 @@ class Generic_Plugin_AdminNotices {
 	 */
 	public function admin_enqueue_scripts() {
 		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			\wp_register_script( 'w3tc-admin-notices', \plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+			// Notices can appear on non-W3TC admin screens where load_scripts() does not run.
+			Util_Nonce::enqueue_ajax_nonces(
+				array(
+					'get_notices',
+					'dismiss_notice',
+				)
+			);
+
+			\wp_register_script( 'w3tc-admin-notices', \plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, true );
 
 			\wp_localize_script(
 				'w3tc-admin-notices',
 				'W3tcNoticeData',
 				array(
-					'isW3tcPage' => $this->is_w3tc_page,
-					'w3tc_nonce' => \wp_create_nonce( 'w3tc' ),
+					'isW3tcPage'  => $this->is_w3tc_page,
+					'ajax_nonces' => Util_Nonce::create_ajax_map(
+						array(
+							'get_notices',
+							'dismiss_notice',
+						)
+					),
 				)
 			);
 
@@ -118,9 +131,16 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			\wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
+		Util_Nonce::verify_ajax( 'w3tc_ajax_get_notices' );
+
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			\wp_send_json_error(
+				array( 'message' => \esc_html__( 'Insufficient permissions.', 'w3-total-cache' ) ),
+				403
+			);
 		}
+
+		\wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
 	}
 
 	/**
@@ -131,8 +151,13 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_dismiss_notice() {
+		Util_Nonce::verify_ajax( 'w3tc_ajax_dismiss_notice' );
+
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			\wp_send_json_error(
+				array( 'message' => \esc_html__( 'Insufficient permissions.', 'w3-total-cache' ) ),
+				403
+			);
 		}
 
 		$notice_id         = Util_Request::get_integer( 'notice_id' );
@@ -145,9 +170,9 @@ class Generic_Plugin_AdminNotices {
 			// Update cached notices.
 			$cached_notices = $this->get_cached_notices();
 			if ( $cached_notices ) {
-				foreach ( $cached_notices as $key => $cached_notice ) {
+				foreach ( $cached_notices as $w3tc_key => $cached_notice ) {
 					if ( $cached_notice['id'] === $notice_id ) {
-						unset( $cached_notices[ $key ] );
+						unset( $cached_notices[ $w3tc_key ] );
 					}
 				}
 
@@ -200,7 +225,7 @@ class Generic_Plugin_AdminNotices {
 	 *     Array of active notices.
 	 *
 	 *     @type int            $id        Notice ID (1-2,147,483,647).  If adding custom notices, use IDs >= 100,000.
-	 *     @type string         $name      Name.
+	 *     @type string         $w3tc_name      Name.
 	 *     @type int            $is_active Is active (0 or 1).
 	 *     @type string         $audience  Audience ("all", "licensed", "unlicensed").
 	 *     @type int            $priority  Priority (1-255; lower number has higher priority).
@@ -225,7 +250,18 @@ class Generic_Plugin_AdminNotices {
 			return $cached_notices;
 		}
 
-		$api_response = \wp_remote_get( esc_url( W3TC_NOTICE_FEED ) );
+		$feed_url = \defined( 'W3TC_NOTICE_FEED' ) ? W3TC_NOTICE_FEED : '';
+		if ( ! Util_Url::is_https_host_allowlisted( $feed_url, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
+			return null;
+		}
+
+		$api_response = \wp_remote_get(
+			\esc_url( $feed_url ),
+			array(
+				'timeout'     => 15,
+				'redirection' => 0,
+			)
+		);
 
 		if ( \is_wp_error( $api_response ) || \wp_remote_retrieve_response_code( $api_response ) !== 200 ) {
 			return null;
@@ -245,7 +281,7 @@ class Generic_Plugin_AdminNotices {
 		$active_notices    = array();
 		$dismissed_notices = $this->get_dismissed_notices();
 		$current_time      = new \DateTime();
-		$is_pro            = Util_Environment::is_w3tc_pro( Dispatcher::config() );
+		$w3tc_is_pro       = Util_Environment::is_w3tc_pro( Dispatcher::config() );
 
 		foreach ( $notices as $notice ) {
 			// Process notice.
@@ -261,12 +297,12 @@ class Generic_Plugin_AdminNotices {
 			) {
 				switch ( $notice['audience'] ) {
 					case 'licensed':
-						if ( ! $is_pro ) {
+						if ( ! $w3tc_is_pro ) {
 							continue 2;
 						}
 						break;
 					case 'unlicensed':
-						if ( $is_pro ) {
+						if ( $w3tc_is_pro ) {
 							continue 2;
 						}
 						break;
@@ -381,7 +417,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @example array Notice {
 	 *     @type int            $id        Notice ID (1-2,147,483,647).  If adding custom notices, use IDs >= 100,000.
-	 *     @type string         $name      Name.
+	 *     @type string         $w3tc_name      Name.
 	 *     @type int            $is_active Is active (0 or 1).
 	 *     @type string         $audience  Audience ("all", "licensed", "unlicensed").
 	 *     @type int            $priority  Priority (1-255; lower number has higher priority).

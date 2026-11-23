@@ -14,130 +14,83 @@ if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 
 require __DIR__ . '/wp-load.php';
 
-$blog_id          = $_REQUEST['blog_id'];
+if ( ! function_exists( 'w3tc_qa_pagecache_key_resolve' ) ) {
+	require defined( 'W3TC_DIR' ) ? W3TC_DIR . '/qa/plugins/pagecache-key.php' : __DIR__ . '/pagecache-key.php';
+}
+
 $url              = $_REQUEST['url'];
 $wp_content_path  = $_REQUEST['wp_content_path'];
 $page_key_postfix = isset( $_REQUEST['page_key_postfix'] ) ? $_REQUEST['page_key_postfix'] : '';
 $parsed           = wp_parse_url( $url );
-$scheme           = $parsed['scheme'];
 $host_port        = strtolower( $parsed['host'] ) . ( isset( $parsed['port'] ) ? ':' . $parsed['port'] : '' );
-$path             = $parsed['path'];
-$content          = '';
+$path             = isset( $parsed['path'] ) ? $parsed['path'] : '/';
 $engine           = $_REQUEST['engine'];
 
+$key_info = w3tc_qa_pagecache_key_resolve(
+	$url,
+	array(
+		'page_key_postfix' => $page_key_postfix,
+		'blog_id'          => isset( $_REQUEST['blog_id'] ) ? (int) $_REQUEST['blog_id'] : 0,
+		'user_agent'       => w3tc_qa_pagecache_default_user_agent(),
+	)
+);
+
 if ( 'file_generic' === $engine ) {
-	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index_slash' .
-		( 'https' === $scheme ? '_ssl' : '' ) . $page_key_postfix . '.html';
-	$content    = 'Test of cache' . file_get_contents( $cache_path );
-	$success    = file_put_contents( $cache_path, $content );
+	$cache_path = w3tc_qa_pagecache_key_enhanced_path( $wp_content_path, $key_info['page_key'] );
+
+	if ( ! file_exists( $cache_path ) ) {
+		echo 'cache file missing: ' . esc_html( $cache_path );
+		exit;
+	}
+
+	$content = 'Test of cache' . file_get_contents( $cache_path );
+
+	file_put_contents( $cache_path, $content );
 
 	echo $content;
 	exit;
 }
 
-$cache_key = md5( $host_port . $path );
+$probe_options = array(
+	'page_key_postfix' => $page_key_postfix,
+	'blog_id'          => isset( $_REQUEST['blog_id'] ) ? (int) $_REQUEST['blog_id'] : 0,
+	'user_agent'       => w3tc_qa_pagecache_default_user_agent(),
+);
 
-if ( 'https' === $scheme ) {
-	$cache_key .= '_ssl';
-}
+$located = w3tc_qa_pagecache_cache_locate( $url, $probe_options );
 
-$cache_key .= $page_key_postfix;
-
-echo esc_html( 'checking ' . $host_port . $path . ' blog ' . $blog_id . ' cache key ' . $cache_key );
-
-switch ( $engine ) {
-	case 'apc':
-		$instance = new \W3TC\Cache_Apcu(
-			array(
-				'section'     => 'page',
-				'blog_id'     => $blog_id,
-				'module'      => 'pgcache',
-				'host'        => '',
-				'instance_id' => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	case 'file':
-		$instance = new \W3TC\Cache_File(
-			array(
-				'section'         => 'page',
-				'locking'         => false,
-				'flush_timelimit' => 100,
-				'blog_id'         => $blog_id,
-				'module'          => 'pgcache',
-				'host'            => '',
-				'instance_id'     => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	case 'memcached':
-		$params = array(
-			'section'     => 'page',
-			'servers'     => array( '127.0.0.1:11211' ),
-			'blog_id'     => $blog_id,
-			'module'      => 'pgcache',
-			'host'        => '',
-			'instance_id' => \W3TC\Util_Environment::instance_id(),
-		);
-
-		if ( class_exists( 'Memcached' ) ) {
-			$instance = new \W3TC\Cache_Memcached( $params );
-		} else {
-			$instance = new \W3TC\Cache_Memcache( $params );
-		}
-
-		break;
-
-	case 'redis':
-		$instance = new \W3TC\Cache_Redis(
-			array(
-				'section'        => 'page',
-				'servers'        => array( '127.0.0.1:6379' ),
-				'dbid'           => 0,
-				'password'       => '',
-				'blog_id'        => $blog_id,
-				'module'         => 'pgcache',
-				'host'           => '',
-				'instance_id'    => \W3TC\Util_Environment::instance_id(),
-				'timeout'        => 0,
-				'retry_interval' => 0,
-				'read_timeout'   => 0,
-			)
-		);
-		break;
-
-	case 'xcache':
-		$instance = new \W3TC\Cache_Xcache(
-			array(
-				'section'     => 'page',
-				'blog_id'     => $blog_id,
-				'module'      => 'pgcache',
-				'host'        => '',
-				'instance_id' => \W3TC\Util_Environment::instance_id(),
-			)
-		);
-		break;
-
-	default:
-		wp_die( 'Invalid cache engine' );
-		break;
-}
-
-$v = $instance->get( $cache_key );
-
-if ( ! isset( $v['content'] ) ) {
-	echo 'no entry found';
+if ( ! is_array( $located ) || ! isset( $located['page_key'] ) ) {
+	echo esc_html(
+		'checking ' . $host_port . $path . ' cache key ' . $key_info['page_key']
+	);
+	echo ' no entry found';
 	exit;
 }
 
-$v['content'] = 'Test of cache' . $v['content'];
+echo esc_html(
+	'checking ' . $host_port . $path . ' cache key ' . $located['page_key']
+);
 
-$instance->set( $cache_key, $v, 100 );
+$located['value']['content'] = 'Test of cache' . $located['value']['content'];
+unset( $located['value']['expires_at'], $located['value']['key_version'] );
 
-// Try to read again.
-$v       = $instance->get( $cache_key );
-$content = $v['content'];
+w3tc_qa_pagecache_cache_set(
+	$located['page_key'],
+	$located['value'],
+	100,
+	$located['page_group'],
+	$located['cache_group']
+);
 
-echo $content;
+$v = w3tc_qa_pagecache_cache_get(
+	$located['page_key'],
+	$located['page_group'],
+	$located['cache_group']
+);
+
+if ( ! is_array( $v ) || ! isset( $v['content'] ) ) {
+	echo ' no entry found';
+	exit;
+}
+
+echo $v['content'];

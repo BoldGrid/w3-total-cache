@@ -24,14 +24,14 @@ class Extension_FragmentCache_Plugin_Admin {
 	 * Adds the Fragment Cache extension details to the list of W3TC extensions.
 	 *
 	 * @param array  $extensions List of existing extensions.
-	 * @param object $config     Configuration object for W3 Total Cache.
+	 * @param object $w3tc_config     Configuration object for W3 Total Cache.
 	 *
 	 * @return array Updated list of extensions including Fragment Cache.
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $w3tc_config ) {
 		$requirements = array();
 
-		if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+		if ( ! Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 			$requirements[] = __( 'Valid W3 Total Cache Pro license', 'w3-total-cache' );
 		}
 
@@ -113,19 +113,19 @@ class Extension_FragmentCache_Plugin_Admin {
 	/**
 	 * Adds plugin-specific links for the Fragment Cache extension.
 	 *
-	 * @param array $links Existing plugin links.
+	 * @param array $w3tc_links Existing plugin links.
 	 *
 	 * @return array Updated plugin links for the Fragment Cache extension.
 	 */
-	public function w3tc_extension_plugin_links( $links ) {
-		$links = array();
+	public function w3tc_extension_plugin_links( $w3tc_links ) {
+		$w3tc_links = array();
 
 		if ( $this->_config->is_extension_active( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
-			$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ) ) . '">'
+			$w3tc_links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ) ) . '">'
 				. __( 'Settings', 'w3-total-cache' ) . '</a>';
 		}
 
-		return $links;
+		return $w3tc_links;
 	}
 
 	/**
@@ -163,11 +163,11 @@ class Extension_FragmentCache_Plugin_Admin {
 				'id'     => 'w3tc_flush_fragmentcache',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Fragment Cache', 'w3-total-cache' ),
-				'href'   => wp_nonce_url(
+				'href'   => Util_Nonce::admin_nonce_url(
 					admin_url(
 						'admin.php?page=' . $current_page . '&amp;w3tc_flush_fragmentcache'
 					),
-					'w3tc'
+					'w3tc_flush_fragmentcache'
 				),
 			);
 		}
@@ -188,18 +188,18 @@ class Extension_FragmentCache_Plugin_Admin {
 	/**
 	 * Updates the configuration when the W3TC settings are saved.
 	 *
-	 * @param object $config Configuration object being saved.
+	 * @param object $w3tc_config Configuration object being saved.
 	 *
 	 * @return void
 	 */
-	public function w3tc_config_save( $config ) {
+	public function w3tc_config_save( $w3tc_config ) {
 		// frontend activity.
 		$is_frontend_active = (
-			$config->is_extension_active( 'fragmentcache' ) &&
-			! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
-			Util_Environment::is_w3tc_pro( $config )
+			$w3tc_config->is_extension_active( 'fragmentcache' ) &&
+			! empty( $w3tc_config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
+			Util_Environment::is_w3tc_pro( $w3tc_config )
 		);
-		$config->set_extension_active_frontend( 'fragmentcache', $is_frontend_active );
+		$w3tc_config->set_extension_active_frontend( 'fragmentcache', $is_frontend_active );
 	}
 
 	/**
@@ -216,20 +216,20 @@ class Extension_FragmentCache_Plugin_Admin {
 		}
 
 		// memcached servers.
-		$c = Dispatcher::config();
-		if ( 'memcached' === $c->get_string( array( 'fragmentcache', 'engine' ) ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( 'memcached' === $w3tc_c->get_string( array( 'fragmentcache', 'engine' ) ) ) {
 			$summary['memcached_servers']['fragmentcache'] = array(
-				'servers'  => $c->get_array( array( 'fragmentcache', 'memcached.servers' ) ),
-				'username' => $c->get_string( array( 'fragmentcache', 'memcached.username' ) ),
-				'password' => $c->get_string( array( 'fragmentcache', 'memcached.password' ) ),
+				'servers'  => $w3tc_c->get_array( array( 'fragmentcache', 'memcached.servers' ) ),
+				'username' => $w3tc_c->get_string( array( 'fragmentcache', 'memcached.username' ) ),
+				'password' => $w3tc_c->get_string( array( 'fragmentcache', 'memcached.password' ) ),
 				'name'     => __( 'Fragment Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'redis' === $c->get_string( array( 'fragmentcache', 'engine' ) ) ) {
+		} elseif ( 'redis' === $w3tc_c->get_string( array( 'fragmentcache', 'engine' ) ) ) {
 			$summary['redis_servers']['fragmentcache'] = array(
-				'servers'  => $c->get_array( array( 'fragmentcache', 'redis.servers' ) ),
-				'username' => $c->get_boolean( array( 'fragmentcache', 'redis.username' ) ),
-				'dbid'     => $c->get_integer( array( 'fragmentcache', 'redis.dbid' ) ),
-				'password' => $c->get_string( array( 'fragmentcache', 'redis.password' ) ),
+				'servers'  => $w3tc_c->get_array( array( 'fragmentcache', 'redis.servers' ) ),
+				'username' => $w3tc_c->get_boolean( array( 'fragmentcache', 'redis.username' ) ),
+				'dbid'     => $w3tc_c->get_integer( array( 'fragmentcache', 'redis.dbid' ) ),
+				'password' => $w3tc_c->get_string( array( 'fragmentcache', 'redis.password' ) ),
 				'name'     => __( 'Fragment Cache', 'w3-total-cache' ),
 			);
 		}

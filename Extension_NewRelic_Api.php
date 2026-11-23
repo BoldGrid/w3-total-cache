@@ -31,7 +31,7 @@ class Extension_NewRelic_Api {
 	 *
 	 * @var string
 	 */
-	private static $url = 'https://api.newrelic.com';
+	private static $w3tc_url = 'https://api.newrelic.com';
 
 	/**
 	 * Constructor to initialize the API key.
@@ -62,10 +62,10 @@ class Extension_NewRelic_Api {
 			'body'    => $query,
 			'timeout' => 5,
 		);
-		$url      = self::$url . $api_call_url;
+		$w3tc_url = self::$w3tc_url . $api_call_url;
 
 		$start    = microtime( true );
-		$response = wp_remote_get( $url, $defaults );
+		$response = wp_remote_get( $w3tc_url, $defaults );
 		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
@@ -75,14 +75,14 @@ class Extension_NewRelic_Api {
 		} else {
 			switch ( $response['response']['code'] ) {
 				case '403':
-					$message = __( 'Invalid API key', 'w3-total-cache' );
+					$w3tc_message = __( 'Invalid API key', 'w3-total-cache' );
 					break;
 				default:
-					$message = $response['response']['message'];
+					$w3tc_message = $response['response']['message'];
 			}
 
 			throw new \Exception(
-				\esc_html( $message ),
+				\esc_html( $w3tc_message ),
 				\esc_html( $response['response']['code'] )
 			);
 		}
@@ -108,9 +108,9 @@ class Extension_NewRelic_Api {
 			'body'    => $params,
 			'timeout' => 5,
 		);
-		$url      = self::$url . $api_call_url;
+		$w3tc_url = self::$w3tc_url . $api_call_url;
 		$start    = microtime( true );
-		$response = wp_remote_request( $url, $defaults );
+		$response = wp_remote_request( $w3tc_url, $defaults );
 		$elapsed  = round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $response ) ) {
@@ -135,16 +135,16 @@ class Extension_NewRelic_Api {
 	 */
 	public function get_browser_applications() {
 		$response = $this->_get( '/v2/browser_applications.json' );
-		$r        = @json_decode( $response, true );
-		if ( ! $r ) {
+		$w3tc_r   = @json_decode( $response, true );
+		if ( ! $w3tc_r ) {
 			throw new \Exception( 'Received unexpected response' );
 		}
 
-		if ( ! isset( $r['browser_applications'] ) ) {
+		if ( ! isset( $w3tc_r['browser_applications'] ) ) {
 			return array();
 		}
 
-		return $r['browser_applications'];
+		return $w3tc_r['browser_applications'];
 	}
 
 	/**
@@ -158,15 +158,15 @@ class Extension_NewRelic_Api {
 	 */
 	public function get_browser_application( $id ) {
 		$response = $this->_get( '/v2/browser_applications.json', array( 'filter[ids]' => $id ) );
-		$r        = @json_decode( $response, true );
-		if ( ! $r ) {
+		$w3tc_r   = @json_decode( $response, true );
+		if ( ! $w3tc_r ) {
 			throw new \Exception( 'Received unexpected response' );
 		}
 
-		if ( ! isset( $r['browser_applications'] ) || 1 !== count( $r['browser_applications'] ) ) {
+		if ( ! isset( $w3tc_r['browser_applications'] ) || 1 !== count( $w3tc_r['browser_applications'] ) ) {
 			return null;
 		}
 
-		return $r['browser_applications'][0];
+		return $w3tc_r['browser_applications'][0];
 	}
 }

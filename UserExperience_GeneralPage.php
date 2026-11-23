@@ -20,10 +20,10 @@ class UserExperience_GeneralPage {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_general() {
-		$o = new UserExperience_GeneralPage();
+		$w3tc_o = new UserExperience_GeneralPage();
 
-		add_filter( 'w3tc_settings_general_anchors', array( $o, 'w3tc_settings_general_anchors' ) );
-		add_action( 'w3tc_settings_general_boxarea_userexperience', array( $o, 'w3tc_settings_general_boxarea_userexperience' ) );
+		add_filter( 'w3tc_settings_general_anchors', array( $w3tc_o, 'w3tc_settings_general_anchors' ) );
+		add_action( 'w3tc_settings_general_boxarea_userexperience', array( $w3tc_o, 'w3tc_settings_general_boxarea_userexperience' ) );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class UserExperience_GeneralPage {
 	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_userexperience() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
 		include W3TC_DIR . '/UserExperience_GeneralPage_View.php';
 	}

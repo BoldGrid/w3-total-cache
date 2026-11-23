@@ -17,12 +17,12 @@ class Extension_NewRelic_GeneralPage {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_general() {
-		$o = new Extension_NewRelic_GeneralPage();
+		$w3tc_o = new Extension_NewRelic_GeneralPage();
 
-		add_filter( 'w3tc_settings_general_anchors', array( $o, 'w3tc_settings_general_anchors' ) );
-		add_action( 'w3tc_settings_general_boxarea_monitoring', array( $o, 'w3tc_settings_general_boxarea_monitoring' ) );
+		add_filter( 'w3tc_settings_general_anchors', array( $w3tc_o, 'w3tc_settings_general_anchors' ) );
+		add_action( 'w3tc_settings_general_boxarea_monitoring', array( $w3tc_o, 'w3tc_settings_general_boxarea_monitoring' ) );
 
-		wp_enqueue_script( 'w3tc_extension_newrelic_popup', plugins_url( 'Extension_NewRelic_Popup_View.js', W3TC_FILE ), array( 'jquery' ), '1.0', false );
+		wp_enqueue_script( 'w3tc_extension_newrelic_popup', plugins_url( 'Extension_NewRelic_Popup_View.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce', 'w3tc-lightbox' ), '1.0', false );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Extension_NewRelic_GeneralPage {
 	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_monitoring() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
 		$nerser              = Dispatcher::component( 'Extension_NewRelic_Service' );
 		$new_relic_installed = $nerser->module_is_enabled();

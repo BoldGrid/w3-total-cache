@@ -1,0 +1,6 @@
+{
+  "plugin.type": "community",
+  "plugin.license_key": "",
+  "cdn.import.files": "*.css;*.js",
+  "browsercache.no404wp.exceptions": ["favicon.ico", "robots.txt"]
+}

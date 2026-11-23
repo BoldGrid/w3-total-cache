@@ -23,7 +23,7 @@ class ObjectCache_Plugin {
 	/**
 	 * If the object cache has been flushed.
 	 *
-	 * @since 2.2.10
+	 * @since 2.0.0
 	 *
 	 * @var boolean
 	 */
@@ -102,12 +102,12 @@ class ObjectCache_Plugin {
 	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
-		$c                   = $this->_config;
-		$objectcache_enabled = $c->get_boolean( 'objectcache.enabled' );
-		$engine              = $c->get_string( 'objectcache.engine' );
+		$w3tc_c              = $this->_config;
+		$objectcache_enabled = $w3tc_c->get_boolean( 'objectcache.enabled' );
+		$w3tc_engine         = $w3tc_c->get_string( 'objectcache.engine' );
 
-		if ( $objectcache_enabled && 'file' === $engine ) {
-			$interval                            = $c->get_integer( 'objectcache.file.gc' );
+		if ( $objectcache_enabled && 'file' === $w3tc_engine ) {
+			$interval                            = $w3tc_c->get_integer( 'objectcache.file.gc' );
 			$schedules['w3_objectcache_cleanup'] = array(
 				'interval' => $interval,
 				'display'  => sprintf(
@@ -147,11 +147,11 @@ class ObjectCache_Plugin {
 			'id'     => 'w3tc_flush_objectcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Object Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url(
+			'href'   => Util_Nonce::admin_nonce_url(
 				admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_objectcache'
 				),
-				'w3tc'
+				'w3tc_flush_objectcache'
 			),
 		);
 
@@ -165,8 +165,8 @@ class ObjectCache_Plugin {
 	 * @return array Modified footer strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
-		$o       = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
-		$strings = $o->w3tc_footer_comment( $strings );
+		$w3tc_o  = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+		$strings = $w3tc_o->w3tc_footer_comment( $strings );
 
 		return $strings;
 	}
@@ -179,8 +179,8 @@ class ObjectCache_Plugin {
 	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
-		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
-		$o->w3tc_usage_statistics_of_request( $storage );
+		$w3tc_o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+		$w3tc_o->w3tc_usage_statistics_of_request( $storage );
 	}
 
 	/**
@@ -213,26 +213,26 @@ class ObjectCache_Plugin {
 	 * @return array Modified sources.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
-		$c = Dispatcher::config();
-		if ( 'apc' === $c->get_string( 'objectcache.engine' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( 'apc' === $w3tc_c->get_string( 'objectcache.engine' ) ) {
 			$sources['apc_servers']['objectcache'] = array(
 				'name' => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'memcached' === $c->get_string( 'objectcache.engine' ) ) {
+		} elseif ( 'memcached' === $w3tc_c->get_string( 'objectcache.engine' ) ) {
 			$sources['memcached_servers']['objectcache'] = array(
-				'servers'         => $c->get_array( 'objectcache.memcached.servers' ),
-				'username'        => $c->get_string( 'objectcache.memcached.username' ),
-				'password'        => $c->get_string( 'objectcache.memcached.password' ),
-				'binary_protocol' => $c->get_boolean( 'objectcache.memcached.binary_protocol' ),
+				'servers'         => $w3tc_c->get_array( 'objectcache.memcached.servers' ),
+				'username'        => $w3tc_c->get_string( 'objectcache.memcached.username' ),
+				'password'        => $w3tc_c->get_string( 'objectcache.memcached.password' ),
+				'binary_protocol' => $w3tc_c->get_boolean( 'objectcache.memcached.binary_protocol' ),
 				'name'            => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( 'redis' === $c->get_string( 'objectcache.engine' ) ) {
+		} elseif ( 'redis' === $w3tc_c->get_string( 'objectcache.engine' ) ) {
 			$sources['redis_servers']['objectcache'] = array(
-				'servers'                 => $c->get_array( 'objectcache.redis.servers' ),
-				'verify_tls_certificates' => $c->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
-				'username'                => $c->get_boolean( 'objectcache.redis.username' ),
-				'dbid'                    => $c->get_integer( 'objectcache.redis.dbid' ),
-				'password'                => $c->get_string( 'objectcache.redis.password' ),
+				'servers'                 => $w3tc_c->get_array( 'objectcache.redis.servers' ),
+				'verify_tls_certificates' => $w3tc_c->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
+				'username'                => $w3tc_c->get_boolean( 'objectcache.redis.username' ),
+				'dbid'                    => $w3tc_c->get_integer( 'objectcache.redis.dbid' ),
+				'password'                => $w3tc_c->get_string( 'objectcache.redis.password' ),
 				'name'                    => __( 'Object Cache', 'w3-total-cache' ),
 			);
 		}

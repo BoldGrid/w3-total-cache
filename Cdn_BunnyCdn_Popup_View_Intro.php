@@ -11,20 +11,37 @@
  * @param array $details {
  *     Bunny CDN API configuration details.
  *
- *     @type string $account_api_key Account API key.
- *     @type string $error_message   Error message (optional).  String already escaped.
+ *     @type string $w3tc_account_api_key Account API key.
+ *     @type string $error_message   Error message (optional). Suppliers MUST pass
+ *                                    the raw translated string (no `esc_html()`,
+ *                                    no `esc_html__()`) — this view is the single
+ *                                    sink-side escape point. See Copilot PR #4
+ *                                    feedback on the double-escape cosmetic
+ *                                    regression that the prior supplier-side
+ *                                    `\esc_html()` wraps were causing.
  * }
  */
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 defined( 'W3TC' ) || die();
 
 ?>
 <form class="w3tc_cdn_bunnycdn_form">
 	<?php if ( isset( $details['error_message'] ) ) : ?>
 		<div class="error">
-			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php
+			/**
+			 * Escape at the sink — single escape point. Suppliers
+			 * (Cdn_BunnyCdn_Popup::render_intro callers) pass raw
+			 * `__()` strings per the docblock contract above. If a
+			 * future supplier mistakenly wraps in `esc_html()`, the
+			 * only visible effect is cosmetic double-escape; the
+			 * XSS guarantee here is unaffected (defense in depth).
+			 */
+			echo esc_html( (string) $details['error_message'] );
+			?>
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">
@@ -33,8 +50,24 @@ defined( 'W3TC' ) || die();
 			<tr>
 				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>
 				<td>
-					<input id="w3tc-account-api-key" name="account_api_key" type="text" class="w3tc-ignore-change"
-						style="width: 550px" value="<?php echo esc_attr( $details['account_api_key'] ); ?>" />
+					<?php
+					/**
+					 * RT9-19: This intro wizard step takes a Bunny CDN
+					 * Account API key. Render as `type="password"` with
+					 * `autocomplete="new-password"` so browsers don't
+					 * autofill / autosave / display the key, and so a
+					 * page reload after entry doesn't leave the value
+					 * on-screen for shoulder-surfing. The wizard never
+					 * pre-fills this from stored config (the API key is
+					 * only sent forward to the listing step), but the
+					 * principle is the same: a credential never wants
+					 * `type="text"` on a settings page.
+					 */
+					$w3tc_intro_api_key = isset( $details['account_api_key'] ) ? (string) $details['account_api_key'] : '';
+					?>
+					<input id="w3tc-account-api-key" name="account_api_key" type="password" class="w3tc-ignore-change"
+						style="width: 550px" autocomplete="new-password"
+						value="<?php echo esc_attr( $w3tc_intro_api_key ); ?>" />
 					<p class="description">
 						<?php esc_html_e( 'To obtain your account API key,', 'w3-total-cache' ); ?>
 						<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_SETTINGS_URL ); ?>"><?php esc_html_e( 'click here', 'w3-total-cache' ); ?></a>,

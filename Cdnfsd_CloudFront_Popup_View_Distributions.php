@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -28,12 +29,12 @@ if ( ! defined( 'W3TC' ) ) {
 					}
 					?>
 
-					<?php foreach ( $details['distributions'] as $distribution ) : ?>
+					<?php foreach ( $details['distributions'] as $w3tc_distribution ) : ?>
 						<label>
 							<input name="distribution_id" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $distribution['Id'] ); ?>" />
-							<?php echo esc_html( $distribution['Comment'] ); ?>
-							(origin <?php echo esc_html( $distribution['Origin_DomainName'] ); ?>)
+								value="<?php echo esc_attr( $w3tc_distribution['Id'] ); ?>" />
+							<?php echo esc_html( $w3tc_distribution['Comment'] ); ?>
+							(origin <?php echo esc_html( $w3tc_distribution['Origin_DomainName'] ); ?>)
 						</label><br />
 					<?php endforeach; ?>
 

@@ -66,7 +66,7 @@ class Minify_Plugin_Admin {
 			'id'     => 'w3tc_overlay_minify',
 			'parent' => 'w3tc_debug_overlays',
 			'title'  => __( 'Minify Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=minify_help' ), 'w3tc' ),
+			'href'   => network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=minify_help' ),
 		);
 
 		return $menu_items;
@@ -78,20 +78,20 @@ class Minify_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_message_action_minify_help() {
-		wp_enqueue_script( 'w3tc-minify-help', plugins_url( 'Minify_GeneralPage_View_ShowHelp.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		wp_enqueue_script( 'w3tc-minify-help', plugins_url( 'Minify_GeneralPage_View_ShowHelp.js', W3TC_FILE ), array( 'w3tc-nonce', 'w3tc-lightbox' ), W3TC_VERSION, false );
 		wp_enqueue_script( 'w3tc-minify-help-force', plugins_url( 'Minify_GeneralPage_View_ShowHelpForce.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 	}
 
 	/**
 	 * Processes and saves plugin options.
 	 *
-	 * @param array $data Array containing new and old configuration data.
+	 * @param array $w3tc_data Array containing new and old configuration data.
 	 *
 	 * @return array Processed configuration data.
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public function w3tc_save_options( $w3tc_data ) {
+		$new_config = $w3tc_data['new_config'];
+		$old_config = $w3tc_data['old_config'];
 
 		if ( $new_config->get_boolean( 'minify.enabled' ) && ! $old_config->get_boolean( 'minify.enabled' ) ) {
 			$state = Dispatcher::config_state();
@@ -122,7 +122,7 @@ class Minify_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_minifycache_purge_wpcron' );
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
@@ -133,7 +133,7 @@ class Minify_Plugin_Admin {
 	public static function admin_print_scripts_w3tc_general() {
 		$state = Dispatcher::config_state();
 		if ( ! $state->get_boolean( 'minify.hide_minify_help' ) ) {
-			wp_enqueue_script( 'w3tc-minify-help', plugins_url( 'Minify_GeneralPage_View_ShowHelp.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_enqueue_script( 'w3tc-minify-help', plugins_url( 'Minify_GeneralPage_View_ShowHelp.js', W3TC_FILE ), array( 'w3tc-nonce', 'w3tc-lightbox' ), W3TC_VERSION, false );
 		}
 	}
 
@@ -167,8 +167,8 @@ class Minify_Plugin_Admin {
 	 * @return array Updated list of errors.
 	 */
 	public function w3tc_errors( $errors ) {
-		$c     = Dispatcher::config();
-		$state = Dispatcher::config_state_master();
+		$w3tc_c = Dispatcher::config();
+		$state  = Dispatcher::config_state_master();
 
 		// Minify error occured.
 		if ( $state->get_boolean( 'minify.show_note_minify_error' ) ) {
@@ -189,11 +189,11 @@ class Minify_Plugin_Admin {
 			);
 		}
 
-		if ( 'memcached' === $c->get_string( 'minify.engine' ) ) {
-			$memcached_servers         = $c->get_array( 'minify.memcached.servers' );
-			$memcached_binary_protocol = $c->get_boolean( 'minify.memcached.binary_protocol' );
-			$memcached_username        = $c->get_string( 'minify.memcached.username' );
-			$memcached_password        = $c->get_string( 'minify.memcached.password' );
+		if ( 'memcached' === $w3tc_c->get_string( 'minify.engine' ) ) {
+			$memcached_servers         = $w3tc_c->get_array( 'minify.memcached.servers' );
+			$memcached_binary_protocol = $w3tc_c->get_boolean( 'minify.memcached.binary_protocol' );
+			$memcached_username        = $w3tc_c->get_string( 'minify.memcached.username' );
+			$memcached_password        = $w3tc_c->get_string( 'minify.memcached.password' );
 
 			if (
 				! Util_Installed::is_memcache_available(
@@ -224,11 +224,11 @@ class Minify_Plugin_Admin {
 	/**
 	 * Adds notes or messages related to Minify cache actions.
 	 *
-	 * @param array $notes Existing notes.
+	 * @param array $w3tc_notes Existing notes.
 	 *
 	 * @return array Updated notes.
 	 */
-	public function w3tc_notes( $notes ) {
+	public function w3tc_notes( $w3tc_notes ) {
 		$state_note = Dispatcher::config_state();
 
 		// Show notification when minify needs to be emptied.
@@ -237,7 +237,7 @@ class Minify_Plugin_Admin {
 			! is_network_admin() && // flushing doesnt work in network admin.
 			! $this->_config->is_preview()
 		) {
-			$notes['minify_flush_needed'] = sprintf(
+			$w3tc_notes['minify_flush_needed'] = sprintf(
 				// Translators: 1 empty cache button.
 				__(
 					'The setting change(s) made either invalidate the cached data or modify the behavior of the site. %1$s now to provide a consistent user experience.',
@@ -250,7 +250,7 @@ class Minify_Plugin_Admin {
 			);
 		}
 
-		return $notes;
+		return $w3tc_notes;
 	}
 
 	/**
@@ -272,39 +272,39 @@ class Minify_Plugin_Admin {
 	 */
 	public function w3tc_usage_statistics_summary_from_history( $summary, $history ) {
 		// memcached servers.
-		$c = Dispatcher::config();
-		if ( 'memcached' === $c->get_string( 'minify.engine' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( 'memcached' === $w3tc_c->get_string( 'minify.engine' ) ) {
 			$summary['memcached_servers']['minify'] = array(
-				'servers'         => $c->get_array( 'minify.memcached.servers' ),
-				'username'        => $c->get_string( 'minify.memcached.username' ),
-				'password'        => $c->get_string( 'minify.memcached.password' ),
-				'binary_protocol' => $c->get_boolean( 'minify.memcached.binary_protocol' ),
+				'servers'         => $w3tc_c->get_array( 'minify.memcached.servers' ),
+				'username'        => $w3tc_c->get_string( 'minify.memcached.username' ),
+				'password'        => $w3tc_c->get_string( 'minify.memcached.password' ),
+				'binary_protocol' => $w3tc_c->get_boolean( 'minify.memcached.binary_protocol' ),
 				'name'            => __( 'Minification', 'w3-total-cache' ),
 			);
-		} elseif ( 'redis' === $c->get_string( 'minify.engine' ) ) {
+		} elseif ( 'redis' === $w3tc_c->get_string( 'minify.engine' ) ) {
 			$summary['redis_servers']['minify'] = array(
-				'servers'  => $c->get_array( 'minify.redis.servers' ),
-				'username' => $c->get_boolean( 'minify.redis.username' ),
-				'dbid'     => $c->get_integer( 'minify.redis.dbid' ),
-				'password' => $c->get_string( 'minify.redis.password' ),
+				'servers'  => $w3tc_c->get_array( 'minify.redis.servers' ),
+				'username' => $w3tc_c->get_boolean( 'minify.redis.username' ),
+				'dbid'     => $w3tc_c->get_integer( 'minify.redis.dbid' ),
+				'password' => $w3tc_c->get_string( 'minify.redis.password' ),
 				'name'     => __( 'Minification', 'w3-total-cache' ),
 			);
 		}
 
-		$e = $this->_config->get_string( 'minify.engine' );
-		$a = array(
+		$e      = $this->_config->get_string( 'minify.engine' );
+		$w3tc_a = array(
 			'size_visible'     => ( 'file' === $e ),
 			'requests_visible' => ! ( 'file' === $e && $this->_config->get_boolean( 'minify.rewrite' ) ),
 		);
 
 		if ( ! isset( $summary['period']['timestamp_end'] ) ) {
 			// summary requested, enough.
-			$summary['minify'] = $a;
+			$summary['minify'] = $w3tc_a;
 			return $summary;
 		}
 
 		// get requests rate stats.
-		if ( $a['requests_visible'] ) {
+		if ( $w3tc_a['requests_visible'] ) {
 			// counters.
 			$requests_total      = Util_UsageStatistics::sum( $history, 'minify_requests_total' );
 			$original_length_css = Util_UsageStatistics::sum( $history, 'minify_original_length_css' );
@@ -313,12 +313,12 @@ class Minify_Plugin_Admin {
 			$original_length_js = Util_UsageStatistics::sum( $history, 'minify_original_length_js' );
 			$output_length_js   = Util_UsageStatistics::sum( $history, 'minify_output_length_js' );
 
-			$a['requests_total']      = Util_UsageStatistics::integer( $requests_total );
-			$a['requests_per_second'] = Util_UsageStatistics::value_per_period_seconds( $requests_total, $summary );
-			$a['compression_css']     = Util_UsageStatistics::percent( $original_length_css - $output_length_css, $original_length_css );
-			$a['compression_js']      = Util_UsageStatistics::percent( $original_length_js - $output_length_js, $original_length_js );
+			$w3tc_a['requests_total']      = Util_UsageStatistics::integer( $requests_total );
+			$w3tc_a['requests_per_second'] = Util_UsageStatistics::value_per_period_seconds( $requests_total, $summary );
+			$w3tc_a['compression_css']     = Util_UsageStatistics::percent( $original_length_css - $output_length_css, $original_length_css );
+			$w3tc_a['compression_js']      = Util_UsageStatistics::percent( $original_length_js - $output_length_js, $original_length_js );
 		}
-		if ( $a['size_visible'] ) {
+		if ( $w3tc_a['size_visible'] ) {
 			list( $v, $should_count ) = Util_UsageStatistics::get_or_init_size_transient( 'w3tc_ustats_minify_size', $summary );
 			if ( $should_count ) {
 				$h     = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
@@ -346,14 +346,14 @@ class Minify_Plugin_Admin {
 			}
 
 			if ( isset( $v['size_used'] ) ) {
-				$a['size_used']            = $v['size_used'];
-				$a['size_items']           = empty( $v['size_items'] ) ? null : $v['size_items'];
-				$a['size_compression_css'] = empty( $v['size_compression_css'] ) ? null : $v['size_compression_css'];
-				$a['size_compression_js']  = empty( $v['size_compression_js'] ) ? null : $v['size_compression_js'];
+				$w3tc_a['size_used']            = $v['size_used'];
+				$w3tc_a['size_items']           = empty( $v['size_items'] ) ? null : $v['size_items'];
+				$w3tc_a['size_compression_css'] = empty( $v['size_compression_css'] ) ? null : $v['size_compression_css'];
+				$w3tc_a['size_compression_js']  = empty( $v['size_compression_js'] ) ? null : $v['size_compression_js'];
 			}
 		}
 
-		$summary['minify'] = $a;
+		$summary['minify'] = $w3tc_a;
 
 		return $summary;
 	}

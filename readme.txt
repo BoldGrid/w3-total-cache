@@ -1,9 +1,9 @@
 === W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
-Requires at least: 5.3
-Tested up to: 6.9
-Stable tag: 2.8.15
+Requires at least: 6.0
+Tested up to: 7.1
+Stable tag: 2.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Caching of (minified and compressed) pages and posts in memory or on disk or on (FSD) CDN (by user agent group)
 * Caching of (minified and compressed) CSS and JavaScript in memory, on disk or on CDN
 * Caching of feeds (site, categories, tags, comments, search results) in memory or on disk or on CDN
-* Caching of search results pages (i.e. URIs with query string variables) in memory or on disk
+* Caching of search results pages (i.e., URIs with query string variables) in memory or on disk
 * Caching of database objects in memory or on disk
 * Caching of objects in memory or on disk
 * Caching of fragments in memory or on disk
@@ -45,7 +45,7 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Minification of posts and pages and RSS feeds
 * Minification of inline, embedded or 3rd party JavaScript with automated updates to assets
 * Minification of inline, embedded or 3rd party CSS with automated updates to assets
-* Defer non critical CSS and Javascript for rendering pages faster than ever before
+* Defer non-critical CSS and JavaScript for rendering pages faster than ever before
 * Defer offscreen images using Lazy Load to improve the user experience
 * Browser caching using cache-control, future expire headers and entity tags (ETag) with "cache-busting"
 * JavaScript grouping by template (home page, post page etc) with embed location control
@@ -181,7 +181,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, WordPress 6.0 or higher with PHP 7.4 or higher is required.
 
 = Why doesn't minify work for me? =
 
@@ -365,139 +365,155 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
-= 2.8.15 =
-* Fix: Elementor: Carousel lazy load
-* Fix: Elementor: Cache clearing issues
-* Fix: Strip all mfunc/mclude tags from REST, feeds, and comments
-* Fix: Better validation for file directory cleanup
-* Fix: Bunny CDN: Settings page purge URL section
-* Fix: Minify: Auto JS: Handle async and defer attributes with values
-* Fix: Google PageSpeed: Lighthouse changes
-* Fix: Cloudflare: Undefined array warning
-* Fix: Rackspace API: Reponse code handling
-* Fix: License deactivation messages
-* Update: ChartJS updated to v4.4.1
-* Enhancement: Added support links
+= 2.11.0 =
+* Feature: Extensions: Add the CloudLinux Max Cache extension
+* Update: Licensing: Store the license JWT and call the v2 APIs
+* Fix: REST API Cache: Clear a retained REST cache mode when Pro is inactive
+* Fix: Minify: Keep automatic minify file names to the hash and extension
+* Fix: Minify: Use a per-request id for HTML minify placeholders
+* Fix: Page Cache: Skip a second WP_CACHE define when the site already set it
+* Fix: Filesystem: Skip the credentials prompt after a successful empty rules-file write
 
-= 2.8.14 =
-* Fix: Better logic for mfunc/mclude processing
-* Enhancement: More consistent purge notices
+= 2.10.7 =
+* Feature: Minify: Cache selected external scripts locally for auto minify
+* Feature: Page Cache: Add a one-pass mode for sitemap cache preload
+* Enhancement: Developers: Add a generated reference of supported actions and filters
+* Fix: Browser Cache: Constrain unquoted URL rewriting when removing query strings from static resources
+* Fix: Page Cache: Remove the expired role-cookie compatibility path and skip caching for rejected roles
+* Fix: Page Cache: Avoid Options API calls before WordPress has loaded them during early bootstrap
+* Fix: Object Cache: Persist cache invalidation from wp-admin when admin object caching is disabled
+* Fix: CDN: Preserve custom attachment directories when pushing media
+* Fix: Google PageSpeed: Renew expired access tokens without discarding authorization
+* Fix: Licensing: Show the activation-limit notice for licenses that have reached their limit
+* Fix: Settings: Persist Purge via WP-Cron schedule settings
+* Fix: Settings: Skip unchanged w3tc_state option writes
+* Update: Remove leftover newsletter signup code
+* Update: Build: Omit development-only files from the release ZIP
 
-= 2.8.13 =
-* Fix: Sanitize mfunc/mclude content in REST calls
-* Fix: Resolved plugin check errors
-* Fix: Discard simplexml errors
-* Fix: Missing text domains
-* Fix: Ensure array type for filter "w3tc_footer_comment"
-* Enhancement: Image Converter: WP_Query optimizations
+= 2.10.6 =
+* Fix: Database Cluster: Restore placeholder unescape so admin searches with wildcards match
+* Enhancement: Page Cache: Add w3tc_pgcache_rules_required filter to skip writing rewrite rules
+* Fix: Settings: Restrict POST updates to keys owned by the active admin page
+* Fix: Licensing: Limit plugin type updates to the license path
+* Fix: Image Converter: Require administrator capability for convert and submit
+* Fix: Config import: Validate structure before applying
+* Fix: Role cookies: Stop honoring legacy names unless explicitly enabled
+* Fix: Minify: Validate precache URLs before outbound fetch
+* Fix: URL constants: Apply host allowlists to overrides
+* Fix: Minify: Validate Java minifier JAR paths before invocation
+* Update: Bunny CDN and Redis: Enable verified TLS by default
+* Fix: Diagnostics: Extend log redaction across remaining formats
+* Fix: Reverse proxy: Apply forwarded client IP and scheme headers only from trusted proxies
+* Fix: CDN: Limit Media Library import to static assets
+* Fix: CDN: Render admin server responses as text
+* Fix: CDN: Use saved settings for Test
+* Fix: CDN: Scope CORS headers to font resources
+* Fix: Browser Cache: Normalize rewrite rule rendering
+* Fix: Support: Reduce client data sent from the Support page
+* Fix: Forums: Normalize API client responses
+* Fix: Lazy Load: Match background styles as top-level attributes only
+* Fix: Admin: Align request validation across notice, extension, setup, CDN, and minify flows
 
-= 2.8.12 =
-* Fix: Lazy load background-image style handing
-* Fix: Elementor: Also flush Object Cache after Page Cache is flushed
-* Fix: Canonicalize Cache read path to avoid variants
+= 2.10.5 =
+* Fix: Page Cache: Keep Disk Enhanced cache file operations within the cache directory
 
-= 2.8.11 =
-* Fix: Avoid redundant object cache misses in WP 6.4 - 6.7
-* Fix: Admin bar: Do not show "Purge All Caches Except Cloudflare" if disabled after it was configured
-* Fix: Error handling for URL downloads
-* Fix: Menu items for non-administrators
-* Update: Lazy load library: 12.2.0 => 19.1.2
-* Enhancement: Use SimpleXMLElement to parse sitemaps and RSS feeds
-* Enhancement: Flush Elementor cache when all caches are flushed
+= 2.10.4 =
+* Fix: Lazy Load: Match only quoted image attributes when rewriting src/srcset/sizes
+* Fix: Cache purge: Restore filterable capabilities for purge-all and purge-post
 
-= 2.8.10 =
-* Fix: Exception handling on activation
-* Fix: wp_resource_hint handling for arrays
-* Enhancement: Added X-W3TC-CDN header
+= 2.10.3 =
+* Fix: Output buffering: Skip REST API requests unless page cache REST caching is enabled
+* Fix: Minify: Keep cache file operations within the cache directory
+* Fix: Defer Scripts: Restore timeout configuration placeholder replacement
 
-= 2.8.9 =
-* Fix: AWS S3 test
-* Fix: Gravity Forms submissions
-* Fix: Windows: Configuration import
-* Fix: Redis: Fix PHP 8 warning for incrBy value not being an integer
-* Fix: DbCache Cluster: Check for mysqli_result before using the object
-* Fix: PHP 8 warnings
-* Fix: Typos on settings pages
+= 2.10.2 =
+* Fix: Disk cache: Restore file-locking writes on PHP 8+
+* Fix: Apache: Limit Options -MultiViews in page cache rules to compatibility mode
+* Fix: Page Cache: Skip storing redirect responses
 
-= 2.8.8 =
-* Fix: Usage Statistics JavaScript error
-* Fix: Regex matching for Cookie Cache Groups
-* Fix: Image Service: Error when get_current_screen() is run before admin_init
-* Fix: _load_textdomain_just_in_time timing issue for WP-CLI and the Setup Guide
-* Fix: "DOMDocument::loadHTML(): ID  already defined in Entity" errors
-* Fix: Cloudflare: Saving settings with a value of 0
-* Update: Removed StackPath, Limelight, and Highwinds CDNs due to end of service
+= 2.10.1 =
+* Fix: General Settings: "The link you followed has expired" when emptying all caches
+* Fix: Redis/Memcached/CDN: Restore connection handling after 2.10.0 at-rest credential encryption
+* Fix: At-rest credentials: Defer encryption until WordPress salts are available
+* Fix: Always Cached: Queue regeneration on nginx with Disk: Enhanced page cache
+* Fix: mfunc: Render unrecognized dynamic-fragment tags as empty output
+* Fix: Apache: Remove Options -MultiViews from root .htaccess (HTTP 500 on restrictive AllowOverride)
+* Fix: Multisite: Admin page links in network admin
 
-= 2.8.7 =
-* Fix: Exit survey email field submission
-* Fix: Setup Guide analytics
-* Update: Allow deleting plugin data when skipping the exit survey on deactivation
-* Update: aws/aws-php-sns-message-validator (1.9.0 => 1.9.1)
+= 2.10.0 =
+* Security: Hardened authorization, capability, and request-verification (nonce/CSRF) checks across admin and AJAX endpoints
+* Security: Improved input validation and output escaping to prevent cross-site scripting (XSS)
+* Security: Strengthened protections against code, command, and file-inclusion injection
+* Security: Hardened processing of dynamic and cached content, including data serialization
+* Security: Restricted outbound server-side requests to mitigate server-side request forgery (SSRF)
+* Security: Restricted configuration changes to prevent unauthorized modification
+* Security: Improved handling of stored credentials, cookies, and generated server-configuration files
+* Security: Reduced potential information disclosure and improved security logging
 
-= 2.8.6 =
-* Fix: Error deactivating when selected to delete plugin data
-* Fix: WP-CLI: Enable Object Cache depending on settings
-* Fix: Delete all plugin WordPress Options if selected on deactivation
-* Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
-* Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
-* Enhancement: Added an email field to the exit survey for requesting help
-* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
+= 2.9.4 =
+* Fix: Output buffering: Reverted to the previous output buffering from 2.9.1
+* Fix: Cloudflare: Token/Key validation
+* Fix: Prevent mfunc processing bypass by user-agent
 
-= 2.8.5 =
-* Fix: CDN: Amazon S3 long hostname for default region
-* Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
-* Fix: WP-CLI: Remove HTML in output
-* Enhancement: Simplified license messsaging
+= 2.9.3 =
+* Fix: Output buffering: Discard nested OB contents for non-HTML responses (JSON/AJAX) to prevent HTML prepended to JSON output
+* Fix: Output buffering: Add wp_die_ajax_handler and wp_die_json_handler filters to properly handle AJAX die paths
+* Fix: Page cache: REST API responses no longer cached due to output buffering pipeline being skipped for non-HTML responses
+* Fix: Lazy load: Add debounced MutationObserver so images injected by AJAX plugins (e.g., FacetWP) are processed without requiring per-plugin integration; also fix async_head embed method not updating window.w3tc_lazyload to the live LazyLoad instance after initialization
 
-= 2.8.4 =
-* Fix: Deactivation modal JS error
+= 2.9.2 =
+* Fix: Patch broken access control for Image Service AJAX operations
+* Fix: mfunc dynamic output buffering fatal error causing blank pages
+* Fix: Patch mfunc security vulnerability
 
-= 2.8.3 =
-* Fix: HTTP API calls for checking required files
-* Fix: script-src-elem and style-src-attr security headers
-* Fix: Handle multiple line srcset attributes for CDN URL replacement
-* Fix: Fragment Cache: Fixed logic for navigation links
-* Fix: Check for modified advanced-cache.php dropin/addin file
-* Fix: Log directory name is made unique
-* Enhancement: Added an exit survey with option to delete plugin data on deactivation
-* Enhancement: Fragment Cache: Added notices for configuration
-* Enhancement: Use admin-ajax for settings help tab content links
-* Update: Handle XML MIME types in cache by default
-* Update: Added "immutable" options for cache-control headers
-* Update: Added WP-CLI command descriptions
-* Update: CDN widget notices for BunnyCDN
-* Update: Image Converter widget notice
+= 2.9.1 =
+* Fix: Image Converter: Reset request when status is 404
+* Fix: Image Converter: Better handling of separate format requests
+* Fix: Image Converter: UI/JS changes
+* Fix: Config caching/saving issue
 
-= 2.8.2 =
-* Fix: Added additional user capability checks
-* Fix: Ensure Object Cache garbage collection (disk) WP Cron event is scheduled
-* Fix: Added additional checks when loading the Object Cache dropin
-* Fix: Disable Database, Object, and Fragment Cache when using WP-CLI
-* Fix: Object Cache debug logging
-* Fix: FAQ help tabs
-* Update: Coding standards
-
-= 2.8.1=
-* Fix: Ensure WP Cron events get scheduled when using the Setup Guide wizard and on upgrade
-* Fix: Undefined variable when the Object Cache purge debug log is enabled
-* Update: Added warnings in the Setup Guide and the General Settings page when using Disk for Database and Object Caches
-* Update: Skip Database and Object caches when using WP-CLI
-
-= 2.8.0 =
-* Feature: Always Cached extension
-* Feature: Purge caches on WP-Cron schedules
-* Fix: Cloudflare: Some settings were not saved correctly
-* Fix: Check and update file mode/permissions for cache files
-* Fix: Issue prompting for credentials for some non-direct filesystem types
-* Enhancement: Added an admin notice if WP-Cron is not functioning correctly
-* Enhancement: Added Browser Cache filters
-* Update: Upgraded JSMin library to 2.4.3
-* Update: Added Premium Services tabs
+= 2.9.0 =
+* Feature: Next-Gen AVIF image conversion (Pro)
+* Feature: Added notices for some billing issues
+* Fix: Bunny CDN purge section
+* Fix: New Relic API
+* Fix: Nginx + Memcached Unix socket compatability
+* Update: Setup Guide Wizard and test improvements
+* Update: WebP Converter renamed to Image Converter
 
 == Upgrade Notice ==
 
+= 2.11.0 =
+This release adds the CloudLinux Max Cache extension and stores the license JWT for the v2 APIs. All users are encouraged to update. It also skips a second WP_CACHE define when the site already set one.
+
+= 2.10.7 =
+This is a security update. All users are strongly encouraged to update.
+This update also adds local caching of selected external scripts, one-pass sitemap preload, and fixes for CDN media paths, Google PageSpeed authorization, and settings persistence.
+
+= 2.10.6 =
+This is a security update. All users are strongly encouraged to update.
+This update improves settings handling, CDN and minify behavior, TLS defaults, and diagnostic logging.
+
+= 2.10.5 =
+This is a security update. All users are strongly encouraged to update.
+
+= 2.10.4 =
+This update restores filterable cache-purge capabilities and improves Lazy Load image attribute handling. All users are encouraged to update.
+
+= 2.10.3 =
+This update resolves Block Editor save failures related to output buffering and restores Defer Scripts timeout configuration. All users are encouraged to update.
+
+= 2.10.1 =
+This update resolves regressions introduced in 2.10.0. Users who upgraded to 2.10.0 are encouraged to update.
+
+= 2.10.0 =
+This is a MAJOR security update that resolves multiple vulnerabilities. All users are strongly urged to update to this version as soon as possible.
+
+= 2.9.4 =
+This is a security update.  Users who implement mfunc/mclude should update to this version.
+
 = 2.8.13 =
-This is a security update.  Users that implement mfunc/mclude should update to this version.
+This is a security update.  Users who implement mfunc/mclude should update to this version.
 
 = 2.8.2 =
 This is a security update.  All users are encouraged to update to this version.
@@ -530,10 +546,10 @@ Thanks for using W3 Total Cache! This release introduces hundreds of well-tested
 This release includes various fixes for MaxCDN and minify users. As always there are general stability / compatibility improvements. Make sure to test in a sandbox or staging environment and report any issues via the bug submission form available on the support tab of the plugin.
 
 = 0.9.2.10 =
-This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatbility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
+This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatibility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
 
 = 0.9.2.9 =
-This release addresses security issues for Cloudflare users as well as users that implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
+This release addresses security issues for Cloudflare users as well as users who implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
 
 = 0.9.2.8 =
 WordPress attempts to use built-in support for managing files had issues. File management is a critical issue that will cause lots of issues if it doesn't work perfectly. This release is an attempt to restore file management back to the reliability of previous versions.

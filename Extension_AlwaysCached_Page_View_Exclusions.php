@@ -11,12 +11,13 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c                = Dispatcher::config();
-$pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' )
+$w3tc_c                = Dispatcher::config();
+$w3tc_pgcache_disabled = ! $w3tc_c->get_boolean( 'pgcache.enabled' )
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
@@ -31,7 +32,7 @@ $pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' )
 				'control'     => 'textarea',
 				'label'       => esc_html__( 'Exclusions:', 'w3-total-cache' ),
 				'description' => esc_html__( 'URLs defined here will be excluded from the Always Cached process and will behave normally in that updates will invalidate relevent cache entries rather than be added to the queue. Specify one URL per line. These can be absolute or releative, and can include wildcards.', 'w3-total-cache' ),
-				'disabled'    => $pgcache_disabled,
+				'disabled'    => $w3tc_pgcache_disabled,
 			)
 		);
 		?>

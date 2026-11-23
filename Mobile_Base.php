@@ -50,8 +50,8 @@ abstract class Mobile_Base {
 	 * @return void
 	 */
 	public function __construct( $config_key, $compare_key ) {
-		$config             = Dispatcher::config();
-		$this->_groups      = $config->get_array( $config_key );
+		$w3tc_config        = Dispatcher::config();
+		$this->_groups      = $w3tc_config->get_array( $config_key );
 		$this->_config_key  = $config_key;
 		$this->_compare_key = $compare_key;
 		$this->_cachecase   = substr( $config_key, 0, strpos( $config_key, '.' ) );
@@ -72,26 +72,26 @@ abstract class Mobile_Base {
 	 * @return string|false The name of the active group or false if no group is active.
 	 */
 	public function get_group() {
-		static $group = null;
+		static $w3tc_group = null;
 
-		if ( null === $group ) {
+		if ( null === $w3tc_group ) {
 			if ( $this->do_get_group() ) {
-				foreach ( $this->_groups as $config_group => $config ) {
-					if ( isset( $config['enabled'] ) && $config['enabled'] && isset( $config[ $this->_compare_key ] ) ) {
-						foreach ( (array) $config[ $this->_compare_key ] as $group_compare_value ) {
+				foreach ( $this->_groups as $config_group => $w3tc_config ) {
+					if ( isset( $w3tc_config['enabled'] ) && $w3tc_config['enabled'] && isset( $w3tc_config[ $this->_compare_key ] ) ) {
+						foreach ( (array) $w3tc_config[ $this->_compare_key ] as $group_compare_value ) {
 							if ( $group_compare_value && $this->group_verifier( $group_compare_value ) ) {
-								$group = $config_group;
-								return $group;
+								$w3tc_group = $config_group;
+								return $w3tc_group;
 							}
 						}
 					}
 				}
 			}
 
-			$group = false;
+			$w3tc_group = false;
 		}
 
-		return $group;
+		return $w3tc_group;
 	}
 
 	/**
@@ -133,10 +133,10 @@ abstract class Mobile_Base {
 	 * @return string|false The redirect URL or false if none is defined.
 	 */
 	public function get_redirect() {
-		$group = $this->get_group();
+		$w3tc_group = $this->get_group();
 
-		if ( isset( $this->_groups[ $group ]['redirect'] ) ) {
-			return $this->_groups[ $group ]['redirect'];
+		if ( isset( $this->_groups[ $w3tc_group ]['redirect'] ) ) {
+			return $this->_groups[ $w3tc_group ]['redirect'];
 		}
 
 		return false;
@@ -148,10 +148,10 @@ abstract class Mobile_Base {
 	 * @return string|false The theme key or false if none is associated.
 	 */
 	public function get_theme() {
-		$group = $this->get_group();
+		$w3tc_group = $this->get_group();
 
-		if ( isset( $this->_groups[ $group ]['theme'] ) ) {
-			return $this->_groups[ $group ]['theme'];
+		if ( isset( $this->_groups[ $w3tc_group ]['theme'] ) ) {
+			return $this->_groups[ $w3tc_group ]['theme'];
 		}
 
 		return false;
@@ -167,8 +167,8 @@ abstract class Mobile_Base {
 		$wp_themes = Util_Theme::get_themes();
 
 		foreach ( $wp_themes as $wp_theme ) {
-			$theme_key            = sprintf( '%s/%s', $wp_theme['Template'], $wp_theme['Stylesheet'] );
-			$themes[ $theme_key ] = $wp_theme['Name'];
+			$w3tc_theme_key            = sprintf( '%s/%s', $wp_theme['Template'], $wp_theme['Stylesheet'] );
+			$themes[ $w3tc_theme_key ] = $wp_theme['Name'];
 		}
 
 		return $themes;
@@ -180,8 +180,8 @@ abstract class Mobile_Base {
 	 * @return bool True if at least one group is enabled, otherwise false.
 	 */
 	public function has_enabled_groups() {
-		foreach ( $this->_groups as $group => $config ) {
-			if ( isset( $config['enabled'] ) && $config['enabled'] ) {
+		foreach ( $this->_groups as $w3tc_group => $w3tc_config ) {
+			if ( isset( $w3tc_config['enabled'] ) && $w3tc_config['enabled'] ) {
 				return true;
 			}
 		}
@@ -201,81 +201,81 @@ abstract class Mobile_Base {
 	/**
 	 * Saves or updates the configuration for a specific group.
 	 *
-	 * @param string $group    The name of the group to save or update.
+	 * @param string $w3tc_group    The name of the group to save or update.
 	 * @param string $theme    The theme associated with the group.
 	 * @param string $redirect The redirect URL for the group.
 	 * @param array  $values   The values used to compare for this group.
-	 * @param bool   $enabled  Whether the group is enabled.
+	 * @param bool   $w3tc_enabled  Whether the group is enabled.
 	 *
 	 * @return void
 	 */
-	public function save_group( $group, $theme = 'default', $redirect = '', $values = array(), $enabled = false ) {
-		$config                   = Dispatcher::config();
-		$groups                   = $config->get_array( $this->_config_key );
-		$group_config             = array();
-		$group_config['theme']    = $theme;
-		$group_config['enabled']  = $enabled;
-		$group_config['redirect'] = $redirect;
-		$values                   = array_unique( $values );
-		$values                   = array_map( 'strtolower', $values );
+	public function save_group( $w3tc_group, $theme = 'default', $redirect = '', $values = array(), $w3tc_enabled = false ) {
+		$w3tc_config                   = Dispatcher::config();
+		$groups                        = $w3tc_config->get_array( $this->_config_key );
+		$w3tc_group_config             = array();
+		$w3tc_group_config['theme']    = $theme;
+		$w3tc_group_config['enabled']  = $w3tc_enabled;
+		$w3tc_group_config['redirect'] = $redirect;
+		$values                        = array_unique( $values );
+		$values                        = array_map( 'strtolower', $values );
 
 		sort( $values );
 
-		$group_config[ $this->_compare_key ] = $values;
-		$groups[ $group ]                    = $group_config;
+		$w3tc_group_config[ $this->_compare_key ] = $values;
+		$groups[ $w3tc_group ]                    = $w3tc_group_config;
 
 		$enable = false;
-		foreach ( $groups as $group => $group_config ) {
-			if ( $group_config['enabled'] ) {
+		foreach ( $groups as $w3tc_group => $w3tc_group_config ) {
+			if ( $w3tc_group_config['enabled'] ) {
 				$enable = true;
 				break;
 			}
 		}
 
-		$config->set( $this->_cachecase . '.enabled', $enable );
-		$config->set( $this->_config_key, $groups );
-		$config->save();
+		$w3tc_config->set( $this->_cachecase . '.enabled', $enable );
+		$w3tc_config->set( $this->_config_key, $groups );
+		$w3tc_config->save();
 		$this->_groups = $groups;
 	}
 
 	/**
 	 * Deletes a specific group from the configuration.
 	 *
-	 * @param string $group The name of the group to delete.
+	 * @param string $w3tc_group The name of the group to delete.
 	 *
 	 * @return void
 	 */
-	public function delete_group( $group ) {
-		$config = Dispatcher::config();
-		$groups = $config->get_array( 'mobile.rgroups' );
-		unset( $groups[ $group ] );
+	public function delete_group( $w3tc_group ) {
+		$w3tc_config = Dispatcher::config();
+		$groups      = $w3tc_config->get_array( 'mobile.rgroups' );
+		unset( $groups[ $w3tc_group ] );
 
 		$enable = false;
-		foreach ( $groups as $group => $group_config ) {
-			if ( $group_config['enabled'] ) {
+		foreach ( $groups as $w3tc_group => $w3tc_group_config ) {
+			if ( $w3tc_group_config['enabled'] ) {
 				$enable = true;
 				break;
 			}
 		}
 
-		$config->set( $this->_cachecase . '.enabled', $enable );
-		$config->set( $this->_config_key, $groups );
-		$config->save();
+		$w3tc_config->set( $this->_cachecase . '.enabled', $enable );
+		$w3tc_config->set( $this->_config_key, $groups );
+		$w3tc_config->save();
 		$this->_groups = $groups;
 	}
 
 	/**
 	 * Retrieves the configuration values for a specific group.
 	 *
-	 * @param string $group The name of the group whose values are retrieved.
+	 * @param string $w3tc_group The name of the group whose values are retrieved.
 	 *
 	 * @return array The configuration values of the specified group.
 	 */
-	public function get_group_values( $group ) {
-		$config = Dispatcher::config();
-		$groups = $config->get_array( $this->_config_key );
+	public function get_group_values( $w3tc_group ) {
+		$w3tc_config = Dispatcher::config();
+		$groups      = $w3tc_config->get_array( $this->_config_key );
 
-		return $groups[ $group ];
+		return $groups[ $w3tc_group ];
 	}
 
 	/**

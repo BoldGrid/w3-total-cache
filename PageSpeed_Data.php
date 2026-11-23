@@ -23,33 +23,33 @@ class PageSpeed_Data {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param array $data PageSpeed analysis data.
+	 * @param array $w3tc_data PageSpeed analysis data.
 	 *
 	 * @return array
 	 */
-	public static function prepare_pagespeed_data( $data ) {
-		$score = Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'categories', 'performance', 'score' ) );
+	public static function prepare_pagespeed_data( $w3tc_data ) {
+		$score = Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'categories', 'performance', 'score' ) );
 
 		$pagespeed_data = array(
 			'score'                    => self::normalize_score( $score ),
-			'first-contentful-paint'   => self::collect_core_metric( $data, 'first-contentful-paint' ),
-			'largest-contentful-paint' => self::collect_core_metric( $data, 'largest-contentful-paint' ),
-			'interactive'              => self::collect_core_metric( $data, 'interactive' ),
-			'cumulative-layout-shift'  => self::collect_core_metric( $data, 'cumulative-layout-shift' ),
-			'total-blocking-time'      => self::collect_core_metric( $data, 'total-blocking-time' ),
-			'speed-index'              => self::collect_core_metric( $data, 'speed-index' ),
+			'first-contentful-paint'   => self::collect_core_metric( $w3tc_data, 'first-contentful-paint' ),
+			'largest-contentful-paint' => self::collect_core_metric( $w3tc_data, 'largest-contentful-paint' ),
+			'interactive'              => self::collect_core_metric( $w3tc_data, 'interactive' ),
+			'cumulative-layout-shift'  => self::collect_core_metric( $w3tc_data, 'cumulative-layout-shift' ),
+			'total-blocking-time'      => self::collect_core_metric( $w3tc_data, 'total-blocking-time' ),
+			'speed-index'              => self::collect_core_metric( $w3tc_data, 'speed-index' ),
 			'screenshots'              => array(
 				'final' => array(
-					'title'      => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'final-screenshot', 'title' ) ),
-					'screenshot' => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'final-screenshot', 'details', 'data' ) ),
+					'title'      => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', 'final-screenshot', 'title' ) ),
+					'screenshot' => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', 'final-screenshot', 'details', 'data' ) ),
 				),
 				'other' => array(
-					'title'       => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'screenshot-thumbnails', 'title' ) ),
-					'screenshots' => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'screenshot-thumbnails', 'details', 'items' ) ),
+					'title'       => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', 'screenshot-thumbnails', 'title' ) ),
+					'screenshots' => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', 'screenshot-thumbnails', 'details', 'items' ) ),
 				),
 			),
-			'insights'                 => self::collect_audits_by_group( $data, 'insights' ),
-			'diagnostics'              => self::collect_audits_by_group( $data, 'diagnostics' ),
+			'insights'                 => self::collect_audits_by_group( $w3tc_data, 'insights' ),
+			'diagnostics'              => self::collect_audits_by_group( $w3tc_data, 'diagnostics' ),
 		);
 
 		$pagespeed_data['insights']    = self::filter_metrics_by_title( $pagespeed_data['insights'] );
@@ -65,25 +65,25 @@ class PageSpeed_Data {
 	/**
 	 * Collect core web vital metrics in a consistent format.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param array  $data   PageSpeed data payload.
-	 * @param string $metric Lighthouse audit identifier.
+	 * @param array  $w3tc_data   PageSpeed data payload.
+	 * @param string $w3tc_metric Lighthouse audit identifier.
 	 *
 	 * @return array
 	 */
-	private static function collect_core_metric( $data, $metric ) {
+	private static function collect_core_metric( $w3tc_data, $w3tc_metric ) {
 		return array(
-			'score'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', $metric, 'score' ) ),
-			'scoreDisplayMode' => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', $metric, 'scoreDisplayMode' ) ),
-			'displayValue'     => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', $metric, 'displayValue' ) ),
+			'score'            => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', $w3tc_metric, 'score' ) ),
+			'scoreDisplayMode' => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', $w3tc_metric, 'scoreDisplayMode' ) ),
+			'displayValue'     => Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits', $w3tc_metric, 'displayValue' ) ),
 		);
 	}
 
 	/**
 	 * Log the raw metric keys and configured instruction keys when debugging is enabled.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $pagespeed_data Prepared PageSpeed data.
 	 *
@@ -121,16 +121,16 @@ class PageSpeed_Data {
 	/**
 	 * Collect audits belonging to the given Lighthouse category group.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
-	 * @param array  $data  Raw Lighthouse API payload.
-	 * @param string $group Lighthouse category group identifier.
+	 * @param array  $w3tc_data  Raw Lighthouse API payload.
+	 * @param string $w3tc_group Lighthouse category group identifier.
 	 *
 	 * @return array
 	 */
-	private static function collect_audits_by_group( $data, $group ) {
-		$audit_refs = Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'categories', 'performance', 'auditRefs' ) );
-		$audits     = Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits' ) );
+	private static function collect_audits_by_group( $w3tc_data, $w3tc_group ) {
+		$audit_refs = Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'categories', 'performance', 'auditRefs' ) );
+		$audits     = Util_PageSpeed::get_value_recursive( $w3tc_data, array( 'lighthouseResult', 'audits' ) );
 		if ( empty( $audit_refs ) || ! \is_array( $audit_refs ) || empty( $audits ) || ! \is_array( $audits ) ) {
 			return array();
 		}
@@ -138,7 +138,7 @@ class PageSpeed_Data {
 		$metrics = array();
 
 		foreach ( $audit_refs as $audit_ref ) {
-			if ( empty( $audit_ref['id'] ) || empty( $audit_ref['group'] ) || $group !== $audit_ref['group'] ) {
+			if ( empty( $audit_ref['id'] ) || empty( $audit_ref['group'] ) || $w3tc_group !== $audit_ref['group'] ) {
 				continue;
 			}
 
@@ -157,7 +157,7 @@ class PageSpeed_Data {
 	/**
 	 * Format a single Lighthouse audit into the structure expected by the UI.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $audit_id Lighthouse audit identifier.
 	 * @param array  $audit    Lighthouse audit payload.
@@ -165,7 +165,7 @@ class PageSpeed_Data {
 	 * @return array
 	 */
 	private static function format_audit_metric( $audit_id, $audit ) {
-		$metric = array(
+		$w3tc_metric = array(
 			'id'               => $audit_id,
 			'title'            => $audit['title'] ?? null,
 			'description'      => $audit['description'] ?? null,
@@ -176,22 +176,22 @@ class PageSpeed_Data {
 		);
 
 		if ( 'network-dependency-tree-insight' === $audit_id ) {
-			$metric['networkDependency'] = self::format_network_dependency_details( $audit['details'] ?? array() );
-			$metric['details']           = array();
+			$w3tc_metric['networkDependency'] = self::format_network_dependency_details( $audit['details'] ?? array() );
+			$w3tc_metric['details']           = array();
 		}
 
 		$types = self::resolve_metric_types( $audit_id, $audit );
 		if ( ! empty( $types ) ) {
-			$metric['type'] = $types;
+			$w3tc_metric['type'] = $types;
 		}
 
-		return $metric;
+		return $w3tc_metric;
 	}
 
 	/**
 	 * Normalize Lighthouse audit details to a list structure.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param mixed $details Lighthouse audit details.
 	 *
@@ -207,9 +207,9 @@ class PageSpeed_Data {
 		}
 
 		$alternative_keys = array( 'chains', 'nodes', 'entries', 'timings' );
-		foreach ( $alternative_keys as $key ) {
-			if ( isset( $details[ $key ] ) && \is_array( $details[ $key ] ) ) {
-				return $details[ $key ];
+		foreach ( $alternative_keys as $w3tc_key ) {
+			if ( isset( $details[ $w3tc_key ] ) && \is_array( $details[ $w3tc_key ] ) ) {
+				return $details[ $w3tc_key ];
 			}
 		}
 
@@ -219,7 +219,7 @@ class PageSpeed_Data {
 	/**
 	 * Determine which Core Web Vitals an audit influences.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param string $audit_id Lighthouse audit identifier.
 	 * @param array  $audit    Lighthouse audit payload.
@@ -235,9 +235,9 @@ class PageSpeed_Data {
 		}
 
 		if ( empty( $types ) && isset( $audit['metricSavings'] ) && \is_array( $audit['metricSavings'] ) ) {
-			foreach ( $audit['metricSavings'] as $metric => $value ) {
-				if ( \in_array( $metric, array( 'FCP', 'LCP', 'TBT', 'CLS' ), true ) ) {
-					$types[] = $metric;
+			foreach ( $audit['metricSavings'] as $w3tc_metric => $w3tc_value ) {
+				if ( \in_array( $w3tc_metric, array( 'FCP', 'LCP', 'TBT', 'CLS' ), true ) ) {
+					$types[] = $w3tc_metric;
 				}
 			}
 		}
@@ -248,7 +248,7 @@ class PageSpeed_Data {
 	/**
 	 * Normalize the network dependency tree insight payload.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $details Lighthouse network dependency tree details payload.
 	 *
@@ -283,7 +283,7 @@ class PageSpeed_Data {
 	/**
 	 * Normalize a network dependency chain node recursively.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $node Node payload.
 	 *
@@ -310,7 +310,7 @@ class PageSpeed_Data {
 	/**
 	 * Normalize preconnect insight sections.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $section Section payload from Lighthouse.
 	 *
@@ -321,46 +321,46 @@ class PageSpeed_Data {
 			return array();
 		}
 
-		$value = $section['value'] ?? array();
-		$data  = array(
+		$w3tc_value = $section['value'] ?? array();
+		$w3tc_data  = array(
 			'title'       => $section['title'] ?? '',
 			'description' => $section['description'] ?? '',
 			'entries'     => array(),
 		);
 
-		if ( isset( $value['value'] ) && ! empty( $value['value'] ) && \is_string( $value['value'] ) ) {
-			$data['entries'] = $value['value'];
-			return $data;
+		if ( isset( $w3tc_value['value'] ) && ! empty( $w3tc_value['value'] ) && \is_string( $w3tc_value['value'] ) ) {
+			$w3tc_data['entries'] = $w3tc_value['value'];
+			return $w3tc_data;
 		}
 
-		if ( isset( $value['items'] ) && \is_array( $value['items'] ) ) {
+		if ( isset( $w3tc_value['items'] ) && \is_array( $w3tc_value['items'] ) ) {
 			$entries = array();
-			foreach ( $value['items'] as $item ) {
-				if ( \is_string( $item ) ) {
-					$entries[] = $item;
-				} elseif ( isset( $item['origin'] ) ) {
-					$entries[] = $item['origin'];
-				} elseif ( isset( $item['value'] ) && \is_string( $item['value'] ) ) {
-					$entries[] = $item['value'];
+			foreach ( $w3tc_value['items'] as $w3tc_item ) {
+				if ( \is_string( $w3tc_item ) ) {
+					$entries[] = $w3tc_item;
+				} elseif ( isset( $w3tc_item['origin'] ) ) {
+					$entries[] = $w3tc_item['origin'];
+				} elseif ( isset( $w3tc_item['value'] ) && \is_string( $w3tc_item['value'] ) ) {
+					$entries[] = $w3tc_item['value'];
 				}
 			}
 
 			if ( ! empty( $entries ) ) {
-				$data['entries'] = $entries;
-			} elseif ( ! empty( $value ) ) {
-				$data['entries'] = \wp_json_encode( $value );
+				$w3tc_data['entries'] = $entries;
+			} elseif ( ! empty( $w3tc_value ) ) {
+				$w3tc_data['entries'] = \wp_json_encode( $w3tc_value );
 			}
-		} elseif ( ! empty( $value ) && \is_string( $value ) ) {
-			$data['entries'] = $value;
+		} elseif ( ! empty( $w3tc_value ) && \is_string( $w3tc_value ) ) {
+			$w3tc_data['entries'] = $w3tc_value;
 		}
 
-		return $data;
+		return $w3tc_data;
 	}
 
 	/**
 	 * Provide a mapping of audit identifiers to Core Web Vital type tags.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @return array
 	 */
@@ -409,7 +409,7 @@ class PageSpeed_Data {
 	/**
 	 * Normalize score values to 0-100 scale while avoiding PHP warnings when score is missing.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param mixed $score Score from the Lighthouse payload.
 	 *
@@ -426,7 +426,7 @@ class PageSpeed_Data {
 	/**
 	 * Drop metrics that Google didn't include in the latest payload.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $metrics Raw metrics bucket.
 	 *
@@ -439,8 +439,8 @@ class PageSpeed_Data {
 
 		return \array_filter(
 			$metrics,
-			static function ( $metric ) {
-				return \is_array( $metric ) && isset( $metric['title'] ) && '' !== $metric['title'];
+			static function ( $w3tc_metric ) {
+				return \is_array( $w3tc_metric ) && isset( $w3tc_metric['title'] ) && '' !== $w3tc_metric['title'];
 			}
 		);
 	}
@@ -448,7 +448,7 @@ class PageSpeed_Data {
 	/**
 	 * Attach instructions for metrics that survived the filtering step.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.0
 	 *
 	 * @param array $pagespeed_data Prepared PageSpeed data.
 	 *
@@ -464,20 +464,20 @@ class PageSpeed_Data {
 			}
 
 			if ( empty( $instructions[ $bucket ] ) ) {
-				foreach ( $pagespeed_data[ $bucket ] as $key => $metric ) {
-					$pagespeed_data[ $bucket ][ $key ]['instructions'] = $default_instruction;
+				foreach ( $pagespeed_data[ $bucket ] as $w3tc_key => $w3tc_metric ) {
+					$pagespeed_data[ $bucket ][ $w3tc_key ]['instructions'] = $default_instruction;
 				}
 				continue;
 			}
 
-			foreach ( $pagespeed_data[ $bucket ] as $key => $metric ) {
-				if ( isset( $instructions[ $bucket ][ $key ] ) ) {
-					$pagespeed_data[ $bucket ][ $key ] = \array_merge(
-						$metric,
-						$instructions[ $bucket ][ $key ]
+			foreach ( $pagespeed_data[ $bucket ] as $w3tc_key => $w3tc_metric ) {
+				if ( isset( $instructions[ $bucket ][ $w3tc_key ] ) ) {
+					$pagespeed_data[ $bucket ][ $w3tc_key ] = \array_merge(
+						$w3tc_metric,
+						$instructions[ $bucket ][ $w3tc_key ]
 					);
 				} else {
-					$pagespeed_data[ $bucket ][ $key ]['instructions'] = $default_instruction;
+					$pagespeed_data[ $bucket ][ $w3tc_key ]['instructions'] = $default_instruction;
 				}
 			}
 		}

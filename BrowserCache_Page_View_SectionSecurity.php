@@ -10,14 +10,15 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c         = Dispatcher::config();
-$fp_values = $c->get_array( 'browsercache.security.fp.values' );
+$w3tc_c         = Dispatcher::config();
+$w3tc_fp_values = $w3tc_c->get_array( 'browsercache.security.fp.values' );
 
-$feature_policies = array(
+$w3tc_feature_policies = array(
 	array(
 		'label'       => 'accelerometer',
 		'description' => esc_html__( 'Controls whether the current document is allowed to gather information about the acceleration of the device through the Accelerometer interface.', 'w3-total-cache' ),
@@ -191,7 +192,7 @@ $feature_policies = array(
 		array(
 			'key'              => 'browsercache.security.session.use_only_cookies',
 			'control'          => 'selectbox',
-			'selectbox_values' => $security_session_values,
+			'selectbox_values' => $w3tc_security_session_values,
 			'description'      => wp_kses(
 				sprintf(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -216,7 +217,7 @@ $feature_policies = array(
 		array(
 			'key'              => 'browsercache.security.session.cookie_httponly',
 			'control'          => 'selectbox',
-			'selectbox_values' => $security_session_values,
+			'selectbox_values' => $w3tc_security_session_values,
 			'description'      => esc_html__( 'This tells the user\'s browser not to make the session cookie accessible to client side scripting such as JavaScript. This makes it harder for an attacker to hijack the session ID and masquerade as the effected user.', 'w3-total-cache' ),
 		)
 	);
@@ -226,7 +227,7 @@ $feature_policies = array(
 		array(
 			'key'              => 'browsercache.security.session.cookie_secure',
 			'control'          => 'selectbox',
-			'selectbox_values' => $security_session_values,
+			'selectbox_values' => $w3tc_security_session_values,
 			'description'      => esc_html__( 'This will prevent the user\'s session ID from being transmitted in plain text, making it much harder to hijack the user\'s session.', 'w3-total-cache' ),
 		)
 	);
@@ -279,11 +280,11 @@ $feature_policies = array(
 			<select id="browsercache_security_hsts_directive"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__hsts__directive">
-				<?php $value = $this->_config->get_string( 'browsercache.security.hsts.directive' ); ?>
-				<option value="maxage"<?php selected( $value, 'maxage' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS' ); ?></option>
-				<option value="maxagepre"<?php selected( $value, 'maxagepre' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; preload' ); ?></option>
-				<option value="maxageinc"<?php selected( $value, 'maxageinc' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains' ); ?></option>
-				<option value="maxageincpre"<?php selected( $value, 'maxageincpre' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains; preload' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.hsts.directive' ); ?>
+				<option value="maxage"<?php selected( $w3tc_value, 'maxage' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS' ); ?></option>
+				<option value="maxagepre"<?php selected( $w3tc_value, 'maxagepre' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; preload' ); ?></option>
+				<option value="maxageinc"<?php selected( $w3tc_value, 'maxageinc' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains' ); ?></option>
+				<option value="maxageincpre"<?php selected( $w3tc_value, 'maxageincpre' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains; preload' ); ?></option>
 			</select>
 			<div id="browsercache_security_hsts_directive_description"></div>
 		</td>
@@ -304,10 +305,10 @@ $feature_policies = array(
 			<select id="browsercache_security_xfo_directive"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__xfo__directive">
-				<?php $value = $this->_config->get_string( 'browsercache.security.xfo.directive' ); ?>
-				<option value="same"<?php selected( $value, 'same' ); ?>><?php echo esc_html( 'SameOrigin' ); ?></option>
-				<option value="deny"<?php selected( $value, 'deny' ); ?>><?php echo esc_html( 'Deny' ); ?></option>
-				<option value="allow"<?php selected( $value, 'allow' ); ?>><?php echo esc_html( 'Allow-From' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.xfo.directive' ); ?>
+				<option value="same"<?php selected( $w3tc_value, 'same' ); ?>><?php echo esc_html( 'SameOrigin' ); ?></option>
+				<option value="deny"<?php selected( $w3tc_value, 'deny' ); ?>><?php echo esc_html( 'Deny' ); ?></option>
+				<option value="allow"<?php selected( $w3tc_value, 'allow' ); ?>><?php echo esc_html( 'Allow-From' ); ?></option>
 			</select>
 			<input id="browsercache_security_xfo_allow" type="text" name="browsercache__security__xfo__allow"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.xfo.allow' ) ); ?>" size="50" placeholder="Enter URL" />
@@ -347,10 +348,10 @@ $feature_policies = array(
 			<select id="browsercache_security_xss_directive"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__xss__directive">
-				<?php $value = $this->_config->get_string( 'browsercache.security.xss.directive' ); ?>
-				<option value="0"<?php selected( $value, '0' ); ?>><?php echo esc_html( '0' ); ?></option>
-				<option value="1"<?php selected( $value, '1' ); ?>><?php echo esc_html( '1' ); ?></option>
-				<option value="block"<?php selected( $value, 'block' ); ?>><?php echo esc_html( '1; mode=block' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.xss.directive' ); ?>
+				<option value="0"<?php selected( $w3tc_value, '0' ); ?>><?php echo esc_html( '0' ); ?></option>
+				<option value="1"<?php selected( $w3tc_value, '1' ); ?>><?php echo esc_html( '1' ); ?></option>
+				<option value="block"<?php selected( $w3tc_value, 'block' ); ?>><?php echo esc_html( '1; mode=block' ); ?></option>
 			</select>
 			<div id="browsercache_security_xss_directive_description"></div>
 		</td>
@@ -472,9 +473,9 @@ $feature_policies = array(
 			<select id="browsercache_security_pkp_extra"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__pkp__extra">
-				<?php $value = $this->_config->get_string( 'browsercache.security.pkp.extra' ); ?>
-				<option value="maxage"<?php selected( $value, 'maxage' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS' ); ?></option>
-				<option value="maxageinc"<?php selected( $value, 'maxageinc' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.pkp.extra' ); ?>
+				<option value="maxage"<?php selected( $w3tc_value, 'maxage' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS' ); ?></option>
+				<option value="maxageinc"<?php selected( $w3tc_value, 'maxageinc' ); ?>><?php echo esc_html( 'max-age=EXPIRES_SECONDS; includeSubDomains' ); ?></option>
 			</select>
 			<div id="browsercache_security_pkp_extra_description"></div>
 		</td>
@@ -518,9 +519,9 @@ $feature_policies = array(
 			<select id="browsercache_security_pkp_report_only"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__pkp__report__only">
-				<?php $value = $this->_config->get_string( 'browsercache.security.pkp.report.only' ); ?>
-				<option value="0"<?php selected( $value, '0' ); ?>><?php esc_html_e( 'No = Enforce HPKP', 'w3-total-cache' ); ?></option>
-				<option value="1"<?php selected( $value, '1' ); ?>><?php esc_html_e( 'Yes = Don\'t Enforce HPKP', 'w3-total-cache' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.pkp.report.only' ); ?>
+				<option value="0"<?php selected( $w3tc_value, '0' ); ?>><?php esc_html_e( 'No = Enforce HPKP', 'w3-total-cache' ); ?></option>
+				<option value="1"<?php selected( $w3tc_value, '1' ); ?>><?php esc_html_e( 'Yes = Don\'t Enforce HPKP', 'w3-total-cache' ); ?></option>
 			</select>
 			<div id="browsercache_security_pkp_report_only_description"></div>
 		</td>
@@ -541,16 +542,16 @@ $feature_policies = array(
 			<select id="browsercache_security_referrer_policy_directive"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 				name="browsercache__security__referrer__policy__directive">
-				<?php $value = $this->_config->get_string( 'browsercache.security.referrer.policy.directive' ); ?>
-				<option value="0"<?php selected( $value, '0' ); ?>><?php esc_html_e( 'Not Set', 'w3-total-cache' ); ?></option>
-				<option value="no-referrer"<?php selected( $value, 'no-referrer' ); ?>><?php echo esc_html( 'no-referrer' ); ?></option>
-				<option value="no-referrer-when-downgrade"<?php selected( $value, 'no-referrer-when-downgrade' ); ?>><?php echo esc_html( 'no-referrer-when-downgrade' ); ?></option>
-				<option value="same-origin"<?php selected( $value, 'same-origin' ); ?>><?php echo esc_html( 'same-origin' ); ?></option>
-				<option value="origin"<?php selected( $value, 'origin' ); ?>><?php echo esc_html( 'origin' ); ?></option>
-				<option value="strict-origin"<?php selected( $value, 'strict-origin' ); ?>><?php echo esc_html( 'strict-origin' ); ?></option>
-				<option value="origin-when-cross-origin"<?php selected( $value, 'origin-when-cross-origin' ); ?>><?php echo esc_html( 'origin-when-cross-origin' ); ?></option>
-				<option value="strict-origin-when-cross-origin"<?php selected( $value, 'strict-origin-when-cross-origin' ); ?>><?php echo esc_html( 'strict-origin-when-cross-origin' ); ?></option>
-				<option value="unsafe-url"<?php selected( $value, 'unsafe-url' ); ?>><?php echo esc_html( 'unsafe-url' ); ?></option>
+				<?php $w3tc_value = $this->_config->get_string( 'browsercache.security.referrer.policy.directive' ); ?>
+				<option value="0"<?php selected( $w3tc_value, '0' ); ?>><?php esc_html_e( 'Not Set', 'w3-total-cache' ); ?></option>
+				<option value="no-referrer"<?php selected( $w3tc_value, 'no-referrer' ); ?>><?php echo esc_html( 'no-referrer' ); ?></option>
+				<option value="no-referrer-when-downgrade"<?php selected( $w3tc_value, 'no-referrer-when-downgrade' ); ?>><?php echo esc_html( 'no-referrer-when-downgrade' ); ?></option>
+				<option value="same-origin"<?php selected( $w3tc_value, 'same-origin' ); ?>><?php echo esc_html( 'same-origin' ); ?></option>
+				<option value="origin"<?php selected( $w3tc_value, 'origin' ); ?>><?php echo esc_html( 'origin' ); ?></option>
+				<option value="strict-origin"<?php selected( $w3tc_value, 'strict-origin' ); ?>><?php echo esc_html( 'strict-origin' ); ?></option>
+				<option value="origin-when-cross-origin"<?php selected( $w3tc_value, 'origin-when-cross-origin' ); ?>><?php echo esc_html( 'origin-when-cross-origin' ); ?></option>
+				<option value="strict-origin-when-cross-origin"<?php selected( $w3tc_value, 'strict-origin-when-cross-origin' ); ?>><?php echo esc_html( 'strict-origin-when-cross-origin' ); ?></option>
+				<option value="unsafe-url"<?php selected( $w3tc_value, 'unsafe-url' ); ?>><?php echo esc_html( 'unsafe-url' ); ?></option>
 			</select>
 			<div id="browsercache_security_referrer_policy_directive_description"></div>
 		</td>
@@ -1216,17 +1217,17 @@ $feature_policies = array(
 	?>
 
 	<?php
-	foreach ( $feature_policies as $i ) {
+	foreach ( $w3tc_feature_policies as $w3tc_i ) {
 		Util_Ui::config_item(
 			array(
-				'key'                 => 'browsercache.security.fp.values.keyvalues.' . $i['label'],
-				'value'               => ! empty( $fp_values[ $i['label'] ] ) ? $fp_values[ $i['label'] ] : '',
+				'key'                 => 'browsercache.security.fp.values.keyvalues.' . $w3tc_i['label'],
+				'value'               => ! empty( $w3tc_fp_values[ $w3tc_i['label'] ] ) ? $w3tc_fp_values[ $w3tc_i['label'] ] : '',
 				'disabled'            => Util_Ui::sealing_disabled( 'browsercache.' ),
 				'control'             => 'textbox',
-				'label'               => $i['label'],
+				'label'               => $w3tc_i['label'],
 				'textbox_size'        => '50',
 				'textbox_placeholder' => esc_html__( 'One of:', 'w3-total-cache' ) . esc_html( " * 'self' 'src' 'none' *.domain.com" ),
-				'description'         => $i['description'],
+				'description'         => $w3tc_i['description'],
 			)
 		);
 	}

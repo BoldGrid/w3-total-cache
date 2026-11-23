@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -19,16 +20,6 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( 'w3tc-rackspace-access-token', 'access_token', $details['access_token'] );
 	Util_Ui::hidden( 'w3tc-rackspace-access-region-descriptor', 'access_region_descriptor', $details['access_region_descriptor_serialized'] );
 	Util_Ui::hidden( 'w3tc-rackspace-region', 'region', $details['region'] );
-	echo wp_kses(
-		Util_Ui::nonce_field( 'w3tc' ),
-		array(
-			'input' => array(
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-			),
-		)
-	);
 
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';

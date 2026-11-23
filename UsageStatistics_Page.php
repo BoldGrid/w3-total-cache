@@ -21,13 +21,13 @@ class UsageStatistics_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_stats() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
 		wp_enqueue_style( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
 
-		if ( Util_Environment::is_w3tc_pro( $config ) && $config->get_boolean( 'stats.enabled' ) ) {
+		if ( Util_Environment::is_w3tc_pro( $w3tc_config ) && $w3tc_config->get_boolean( 'stats.enabled' ) ) {
 			wp_enqueue_script( 'w3tc-canvasjs', plugins_url( 'pub/js/chart.umd.min.js', W3TC_FILE ), array(), '4.4.1', false );
-			wp_enqueue_script( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ), array( 'w3tc-canvasjs' ), W3TC_VERSION, false );
+			wp_enqueue_script( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ), array( 'w3tc-canvasjs', 'w3tc-nonce' ), W3TC_VERSION, false );
 		}
 	}
 
@@ -41,10 +41,10 @@ class UsageStatistics_Page {
 	 * @return void
 	 */
 	public function render() {
-		$c       = Dispatcher::config();
-		$enabled = ( $c->get_boolean( 'stats.enabled' ) && Util_Environment::is_w3tc_pro( $c ) );
-		if ( ! $enabled ) {
-			if ( ! Util_Environment::is_w3tc_pro( $c ) ) {
+		$w3tc_c       = Dispatcher::config();
+		$w3tc_enabled = ( $w3tc_c->get_boolean( 'stats.enabled' ) && Util_Environment::is_w3tc_pro( $w3tc_c ) );
+		if ( ! $w3tc_enabled ) {
+			if ( ! Util_Environment::is_w3tc_pro( $w3tc_c ) ) {
 				include W3TC_DIR . '/UsageStatistics_Page_View_Free.php';
 			} else {
 				include W3TC_DIR . '/UsageStatistics_Page_View_Disabled.php';
@@ -78,7 +78,7 @@ class UsageStatistics_Page {
 				$sort_column = 'sum_time_ms';
 			}
 
-			if ( ! $c->get_boolean( 'dbcache.debug' ) ) {
+			if ( ! $w3tc_c->get_boolean( 'dbcache.debug' ) ) {
 				include W3TC_DIR . '/UsageStatistics_Page_View_NoDebugMode.php';
 				return;
 			}
@@ -86,7 +86,7 @@ class UsageStatistics_Page {
 			$reader = new UsageStatistics_Source_DbQueriesLog( $timestamp_start, $sort_column );
 			$items  = $reader->list_entries();
 
-			$result = array(
+			$w3tc_result = array(
 				'date_min'    => Util_UsageStatistics::time_mins( $timestamp_start ),
 				'date_max'    => Util_UsageStatistics::time_mins( time() ),
 				'sort_column' => $sort_column,
@@ -120,7 +120,7 @@ class UsageStatistics_Page {
 				$sort_column = 'sum_time_ms';
 			}
 
-			if ( ! $c->get_boolean( 'objectcache.debug' ) ) {
+			if ( ! $w3tc_c->get_boolean( 'objectcache.debug' ) ) {
 				include W3TC_DIR . '/UsageStatistics_Page_View_NoDebugMode.php';
 				return;
 			}
@@ -128,7 +128,7 @@ class UsageStatistics_Page {
 			$reader = new UsageStatistics_Source_ObjectCacheLog( $timestamp_start, $sort_column );
 			$items  = $reader->list_entries();
 
-			$result = array(
+			$w3tc_result = array(
 				'date_min'    => Util_UsageStatistics::time_mins( $timestamp_start ),
 				'date_max'    => Util_UsageStatistics::time_mins( time() ),
 				'sort_column' => $sort_column,
@@ -159,7 +159,7 @@ class UsageStatistics_Page {
 				$sort_column = 'sum_time_ms';
 			}
 
-			if ( ! $c->get_boolean( 'pgcache.debug' ) ) {
+			if ( ! $w3tc_c->get_boolean( 'pgcache.debug' ) ) {
 				include W3TC_DIR . '/UsageStatistics_Page_View_NoDebugMode.php';
 				return;
 			}
@@ -171,7 +171,7 @@ class UsageStatistics_Page {
 			);
 			$items  = $reader->list_entries();
 
-			$result = array(
+			$w3tc_result = array(
 				'date_min'    => Util_UsageStatistics::time_mins( $timestamp_start ),
 				'date_max'    => Util_UsageStatistics::time_mins( time() ),
 				'sort_column' => $sort_column,
@@ -180,10 +180,10 @@ class UsageStatistics_Page {
 
 			include W3TC_DIR . '/UsageStatistics_Page_PageCacheRequests_View.php';
 		} else {
-			$c = Dispatcher::config();
+			$w3tc_c = Dispatcher::config();
 
 			$php_php_requests_pagecache_hit_name = 'Cache hit';
-			if ( $c->get_boolean( 'pgcache.enabled' ) && 'file_generic' === $c->get_string( 'pgcache.engine' ) ) {
+			if ( $w3tc_c->get_boolean( 'pgcache.enabled' ) && 'file_generic' === $w3tc_c->get_string( 'pgcache.engine' ) ) {
 				$php_php_requests_pagecache_hit_name = 'Cache fallback hit';
 			}
 
@@ -198,22 +198,22 @@ class UsageStatistics_Page {
 	 * If the column is already the active sort column, it displays the name in bold. Otherwise, it
 	 * creates a link to sort by the specified column.
 	 *
-	 * @param array  $result      The result array containing current sorting information.
-	 * @param string $name        The name of the column to display.
+	 * @param array  $w3tc_result      The result array containing current sorting information.
+	 * @param string $w3tc_name        The name of the column to display.
 	 * @param string $sort_column The column name to sort by.
 	 *
 	 * @return void
 	 */
-	public function sort_link( $result, $name, $sort_column ) {
-		if ( $result['sort_column'] === $sort_column ) {
-			echo '<strong>' . esc_html( $name ) . '</strong>';
+	public function sort_link( $w3tc_result, $w3tc_name, $sort_column ) {
+		if ( $w3tc_result['sort_column'] === $sort_column ) {
+			echo '<strong>' . esc_html( $w3tc_name ) . '</strong>';
 			return;
 		}
 
 		$new_query_string         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$new_query_string['sort'] = sanitize_text_field( $sort_column );
 
-		echo '<a href="' . esc_url( 'admin.php?' . http_build_query( $new_query_string ) ) . '">' . esc_html( $name ) . '</a>';
+		echo '<a href="' . esc_url( 'admin.php?' . http_build_query( $new_query_string ) ) . '">' . esc_html( $w3tc_name ) . '</a>';
 	}
 
 	/**
@@ -224,7 +224,7 @@ class UsageStatistics_Page {
 	 * linking to more detailed statistics.
 	 *
 	 * @param string $id                 The ID of the summary item.
-	 * @param string $name               The name of the summary item.
+	 * @param string $w3tc_name               The name of the summary item.
 	 * @param bool   $checked            Whether the checkbox is checked or not. Default is false.
 	 * @param string $extra_class        Extra CSS classes to apply to the item.
 	 * @param string $column_background  Background color for the column associated with the item.
@@ -232,11 +232,11 @@ class UsageStatistics_Page {
 	 *
 	 * @return void
 	 */
-	public function summary_item( $id, $name, $checked = false, $extra_class = '', $column_background = '', $link_key = '' ) {
+	public function summary_item( $id, $w3tc_name, $checked = false, $extra_class = '', $column_background = '', $link_key = '' ) {
 		echo '<div class="ustats_' . esc_attr( $id ) . ' ' . esc_attr( $extra_class ) . '"><br />';
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( 'w3tcus_chart_check_' . $id ) . '" data-name="' .
-			esc_attr( $name ) . '" data-column="' . esc_attr( $id ) . '" ';
+			esc_attr( $w3tc_name ) . '" data-column="' . esc_attr( $id ) . '" ';
 
 		if ( ! empty( $column_background ) ) {
 			echo 'data-background="' . esc_attr( $column_background ) . '" ';
@@ -247,10 +247,10 @@ class UsageStatistics_Page {
 		echo ' />';
 		if ( ! empty( $link_key ) ) {
 			$link_url = 'admin.php?page=w3tc_stats&view=pagecache_requests&status=' . rawurlencode( $link_key ) .
-				'&status_name=' . rawurlencode( $name );
-			echo '<a href="' . esc_url( $link_url ) . '">' . esc_html( $name ) . '</a>';
+				'&status_name=' . rawurlencode( $w3tc_name );
+			echo '<a href="' . esc_url( $link_url ) . '">' . esc_html( $w3tc_name ) . '</a>';
 		} else {
-			echo esc_html( $name );
+			echo esc_html( $w3tc_name );
 		}
 		echo ': <span></span><br />';
 

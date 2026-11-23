@@ -17,14 +17,14 @@ class Extension_Swarmify_Page {
 	 * @return void
 	 */
 	public function render_content() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		$api_key    = $config->get_string( array( 'swarmify', 'api_key' ) );
-		$authorized = ! empty( $api_key );
+		$api_key         = $w3tc_config->get_string( array( 'swarmify', 'api_key' ) );
+		$w3tc_authorized = ! empty( $api_key );
 
-		$email = get_bloginfo( 'admin_email' );
-		$u     = wp_get_current_user();
-		$name  = $u->first_name . ( empty( $u->first_name ) ? '' : ' ' ) . $u->last_name;
+		$email     = get_bloginfo( 'admin_email' );
+		$u         = wp_get_current_user();
+		$w3tc_name = $u->first_name . ( empty( $u->first_name ) ? '' : ' ' ) . $u->last_name;
 
 		$swarmify_signup_url = Extension_Swarmify_Core::signup_url();
 

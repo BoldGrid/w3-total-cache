@@ -15,6 +15,22 @@ namespace W3TC;
  */
 class Cdn_RackSpace_Api_Tokens {
 	/**
+	 * Host suffixes Rackspace uses on service-catalog public URLs.
+	 *
+	 * Storage and CDN API endpoints use `.clouddrive.com`. Older catalog
+	 * entries and edge hostnames use `.rackspacecloud.com` and
+	 * `.rackcdn.com`. The leading dot keeps a lookalike such as
+	 * `clouddrive.com.evil.example` from matching.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string[]
+	 */
+	public static function service_url_suffixes() {
+		return array( '.rackspacecloud.com', '.rackcdn.com', '.clouddrive.com' );
+	}
+
+	/**
 	 * Authenticates a user with the Rackspace API using the provided credentials.
 	 *
 	 * This method sends a request to the Rackspace API's authentication endpoint
@@ -39,7 +55,7 @@ class Cdn_RackSpace_Api_Tokens {
 			),
 		);
 
-		$result = wp_remote_post(
+		$w3tc_result = wp_remote_post(
 			'https://identity.api.rackspacecloud.com/v2.0/tokens',
 			array(
 				'headers' => array(
@@ -47,30 +63,30 @@ class Cdn_RackSpace_Api_Tokens {
 					'Content-Type' => 'application/json',
 				),
 				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-				// 'sslcertificates' => dirname( __FILE__ ) .
+				// 'sslcertificates' => __DIR__ .
 				// '/Cdn_RackSpace_Api_CaCert.pem',
 				'body'    => wp_json_encode( $request_json ),
 			)
 		);
 
-		$response = self::_decode_response( $result );
+		$response = self::_decode_response( $w3tc_result );
 		if ( ! isset( $response['access'] ) ) {
 			throw new \Exception( 'Unexpected authentication response: access token not found' );
 		}
 
-		$r = $response['access'];
+		$w3tc_r = $response['access'];
 
 		// fill service descriptors by region.
 
-		if ( ! isset( $r['serviceCatalog'] ) ) {
+		if ( ! isset( $w3tc_r['serviceCatalog'] ) ) {
 			throw new \Exception( 'Unexpected authentication response: serviceCatalog token not found' );
 		}
 
-		$services = $r['serviceCatalog'];
+		$w3tc_services = $w3tc_r['serviceCatalog'];
 
 		return array(
-			'access_token' => $r['token']['id'],
-			'services'     => $services,
+			'access_token' => $w3tc_r['token']['id'],
+			'services'     => $w3tc_services,
 		);
 	}
 
@@ -80,7 +96,7 @@ class Cdn_RackSpace_Api_Tokens {
 	 * This method processes the provided service descriptors and organizes
 	 * object-store and CDN service endpoints by their respective regions.
 	 *
-	 * @param array $services The array of service descriptors from Rackspace.
+	 * @param array $w3tc_services The array of service descriptors from Rackspace.
 	 *
 	 * @return array {
 	 *     An associative array of regions with their service endpoints, including:
@@ -90,28 +106,28 @@ class Cdn_RackSpace_Api_Tokens {
 	 *     @type string $object-cdn.publicURL     Public URL for CDN services.
 	 * }
 	 */
-	public static function cloudfiles_services_by_region( $services ) {
+	public static function cloudfiles_services_by_region( $w3tc_services ) {
 		$by_region = array();
 
-		foreach ( $services as $s ) {
+		foreach ( $w3tc_services as $s ) {
 			if ( 'object-store' === $s['type'] ) {
 				foreach ( $s['endpoints'] as $endpoint ) {
-					$region = $endpoint['region'];
-					if ( ! isset( $by_region[ $region ] ) ) {
-						$by_region[ $region ] = array();
+					$w3tc_region = $endpoint['region'];
+					if ( ! isset( $by_region[ $w3tc_region ] ) ) {
+						$by_region[ $w3tc_region ] = array();
 					}
 
-					$by_region[ $region ]['object-store.publicURL']   = $endpoint['publicURL'];
-					$by_region[ $region ]['object-store.internalURL'] = $endpoint['internalURL'];
+					$by_region[ $w3tc_region ]['object-store.publicURL']   = $endpoint['publicURL'];
+					$by_region[ $w3tc_region ]['object-store.internalURL'] = $endpoint['internalURL'];
 				}
 			} elseif ( 'rax:object-cdn' === $s['type'] ) {
 				foreach ( $s['endpoints'] as $endpoint ) {
-					$region = $endpoint['region'];
-					if ( ! isset( $by_region[ $region ] ) ) {
-						$by_region[ $region ] = array();
+					$w3tc_region = $endpoint['region'];
+					if ( ! isset( $by_region[ $w3tc_region ] ) ) {
+						$by_region[ $w3tc_region ] = array();
 					}
 
-					$by_region[ $region ]['object-cdn.publicURL'] = $endpoint['publicURL'];
+					$by_region[ $w3tc_region ]['object-cdn.publicURL'] = $endpoint['publicURL'];
 				}
 			}
 		}
@@ -126,7 +142,7 @@ class Cdn_RackSpace_Api_Tokens {
 	 * This method processes the provided service descriptors and organizes
 	 * CDN endpoints by their respective regions.
 	 *
-	 * @param array $services The array of service descriptors from Rackspace.
+	 * @param array $w3tc_services The array of service descriptors from Rackspace.
 	 *
 	 * @return array {
 	 *     An associative array of regions with their CDN endpoints, including:
@@ -134,18 +150,18 @@ class Cdn_RackSpace_Api_Tokens {
 	 *     @type string $cdn.publicURL Public URL for CDN services.
 	 * }
 	 */
-	public static function cdn_services_by_region( $services ) {
+	public static function cdn_services_by_region( $w3tc_services ) {
 		$by_region = array();
 
-		foreach ( $services as $s ) {
+		foreach ( $w3tc_services as $s ) {
 			if ( 'rax:cdn' === $s['type'] ) {
 				foreach ( $s['endpoints'] as $endpoint ) {
-					$region = $endpoint['region'];
-					if ( ! isset( $by_region[ $region ] ) ) {
-						$by_region[ $region ] = array();
+					$w3tc_region = $endpoint['region'];
+					if ( ! isset( $by_region[ $w3tc_region ] ) ) {
+						$by_region[ $w3tc_region ] = array();
 					}
 
-					$by_region[ $region ]['cdn.publicURL'] = $endpoint['publicURL'];
+					$by_region[ $w3tc_region ]['cdn.publicURL'] = $endpoint['publicURL'];
 				}
 			}
 		}
@@ -175,12 +191,12 @@ class Cdn_RackSpace_Api_Tokens {
 			'SYD' => 'Sydney (SYD)',
 		);
 
-		$keys = array_keys( $by_region );
-		foreach ( $keys as $region ) {
-			if ( isset( $region_names[ $region ] ) ) {
-				$by_region[ $region ]['name'] = $region_names[ $region ];
+		$w3tc_keys = array_keys( $by_region );
+		foreach ( $w3tc_keys as $w3tc_region ) {
+			if ( isset( $region_names[ $w3tc_region ] ) ) {
+				$by_region[ $w3tc_region ]['name'] = $region_names[ $w3tc_region ];
 			} else {
-				$by_region[ $region ]['name'] = $region;
+				$by_region[ $w3tc_region ]['name'] = $w3tc_region;
 			}
 		}
 
@@ -193,24 +209,24 @@ class Cdn_RackSpace_Api_Tokens {
 	 * This method processes the response from a Rackspace API request, verifying
 	 * that the response is valid and does not contain errors.
 	 *
-	 * @param array $result The API response returned by wp_remote_post().
+	 * @param array $w3tc_result The API response returned by wp_remote_post().
 	 *
 	 * @return array The decoded JSON response as an associative array.
 	 *
 	 * @throws \Exception If the API request fails or the response contains errors.
 	 */
-	private static function _decode_response( $result ) {
-		if ( is_wp_error( $result ) ) {
+	private static function _decode_response( $w3tc_result ) {
+		if ( is_wp_error( $w3tc_result ) ) {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		$response_json = @json_decode( $result['body'], true );
+		$response_json = @json_decode( $w3tc_result['body'], true );
 		if ( is_null( $response_json ) ) {
 			throw new \Exception(
 				sprintf(
 					// Translators: 1 Result body.
 					\esc_html__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
-					\wp_kses_post( $result['body'] )
+					\wp_kses_post( $w3tc_result['body'] )
 				)
 			);
 		}
@@ -219,8 +235,8 @@ class Cdn_RackSpace_Api_Tokens {
 			throw new \Exception( \esc_html( $response_json['unauthorized']['message'] ) );
 		}
 
-		if ( ! in_array( (int) $result['response']['code'], array( 200, 201 ), true ) ) {
-			throw new \Exception( \wp_kses_post( $result['body'] ) );
+		if ( ! in_array( (int) $w3tc_result['response']['code'], array( 200, 201 ), true ) ) {
+			throw new \Exception( \wp_kses_post( $w3tc_result['body'] ) );
 		}
 
 		return $response_json;

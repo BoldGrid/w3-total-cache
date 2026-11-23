@@ -21,9 +21,9 @@ class Cdn_RackSpaceCdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_rackspace_cdn_domains_reload() {
-		$c    = Dispatcher::config();
-		$core = Dispatcher::component( 'Cdn_Core' );
-		$cdn  = $core->get_cdn();
+		$w3tc_c = Dispatcher::config();
+		$core   = Dispatcher::component( 'Cdn_Core' );
+		$cdn    = $core->get_cdn();
 
 		try {
 			// try to obtain CNAMEs.
@@ -38,8 +38,8 @@ class Cdn_RackSpaceCdn_AdminActions {
 			return;
 		}
 
-		$c->set( 'cdn.rackspace_cdn.domains', $domains );
-		$c->save();
+		$w3tc_c->set( 'cdn.rackspace_cdn.domains', $domains );
+		$w3tc_c->save();
 
 		Util_Admin::redirect_with_custom_messages2(
 			array(

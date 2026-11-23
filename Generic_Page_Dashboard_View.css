@@ -16,7 +16,7 @@
 
 #w3tc-dashboard-widgets .hndle, #w3tc-dashboard-widgets .hndle span {
     font-family: Arial, sans-serif;
-    font-weight: bold;
+    font-weight: 700;
     text-shadow: none;
     -webkit-box-shadow:  none;
     box-shadow:  none;
@@ -34,7 +34,7 @@
     float: left;
     width: 150px;
     height: 35px;
-    background: url("pub/img/w3tc_newrelic-logo.png") 0 3px no-repeat;
+    background: url(pub/img/w3tc_newrelic-logo.png) 0 3px no-repeat;
 }
 
 .w3tc-widget-configure {
@@ -50,27 +50,27 @@
     float: left;
     width: 50px;
     height: 35px;
-    background: url("pub/img/w3tc_w3tc-logo.png") 0 0 no-repeat;
+    background: url(pub/img/w3tc_w3tc-logo.png) 0 0 no-repeat;
 }
 
 .w3tc-widget-services-logo {
     float: left;
     width: 50px;
     height: 35px;
-    background: url("pub/img/w3tc_w3edge-logo.png") 0 0 no-repeat;
+    background: url(pub/img/w3tc_w3edge-logo.png) 0 0 no-repeat;
 }
 
 .w3tc-widget-pagespeed-logo {
     float: left;
     width: 110px;
     height: 35px;
-    background: url("pub/img/w3tc_google-logo.png") 0 3px no-repeat;
+    background: url(pub/img/w3tc_google-logo.png) 0 3px no-repeat;
 }
 
 .w3tc-widget-boldgrid-logo {
 	width: 70%;
     height: 100%;
-    background: url("Generic_WidgetBoldGrid_Logo.svg") 0 0px no-repeat;
+    background: url(Generic_WidgetBoldGrid_Logo.svg) 0 0 no-repeat;
     float: left;
 	margin-right: 10px;
 }
@@ -166,19 +166,19 @@
 #w3tc_page_cache #page_cache_chart_ad,
 #w3tc_page_cache #page_cache_chart_enable,
 #w3tc_page_cache #page_cache_chart_subenable {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-page-cache.png");
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(pub/img/w3tc-stats-page-cache.png);
 }
 
 #w3tc_object_cache #object_cache_chart_ad,
 #w3tc_object_cache #object_cache_chart_enable,
 #w3tc_object_cache #object_cache_chart_subenable {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-object-cache.png");
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(pub/img/w3tc-stats-object-cache.png);
 }
 
 #w3tc_database_cache #database_cache_chart_ad,
 #w3tc_database_cache #database_cache_chart_enable,
 #w3tc_database_cache #database_cache_chart_subenable {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-database-cache.png");
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(pub/img/w3tc-stats-database-cache.png);
 }
 
 #w3tc_page_cache .postbox-header,
@@ -216,6 +216,7 @@
 }
 
 svg > g:last-child > g:last-child { pointer-events: none }
+
 div.google-visualization-tooltip { pointer-events: none }
 
 #w3tc_imageservice .w3tc-webp-widget-stats-inactive {
@@ -230,7 +231,7 @@ div.google-visualization-tooltip { pointer-events: none }
 }
 
 #w3tc_imageservice .w3tc-webp-widget-stats-inactive {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-image-converter.png");
+	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url(pub/img/w3tc-image-converter.png);
 }
 
 #w3tc_partners #partner-list li {
@@ -255,6 +256,7 @@ div.google-visualization-tooltip { pointer-events: none }
 }
 
 @media only screen and (max-width: 1200px) {
+
 	.general-settings-container {
 		column-gap: 35px;
 	}
@@ -265,12 +267,14 @@ div.google-visualization-tooltip { pointer-events: none }
 }
 
 @media only screen and (max-width: 980px) {
+
 	.general-settings-container .general-setting {
 		width: 100%;
 	}
 }
 
 @media only screen and (max-width: 782px) {
+
 	.general-settings-container {
 		column-gap: 35px;
 	}
@@ -281,6 +285,7 @@ div.google-visualization-tooltip { pointer-events: none }
 }
 
 @media only screen and (max-device-width: 480px) {
+
     .w3tc_generic_widgetservice_label {
         display: inline;
     }
@@ -288,6 +293,7 @@ div.google-visualization-tooltip { pointer-events: none }
 	.general-settings-container .general-setting {
 		width: 100%;
 	}
+
 	#api_charts #apihourly_chart,
 	#api_charts #apimonthly_chart {
 		width: 100%;

@@ -1,5 +1,11 @@
 <?php
+/**
+ * File: dbcluster-config-sample.php
+ *
+ * @package W3TC
+ */
 
+defined( 'ABSPATH' ) || exit;
 global $w3tc_dbcluster_config;
 
 $w3tc_dbcluster_config = array(
@@ -7,13 +13,13 @@ $w3tc_dbcluster_config = array(
 	 * Persistent (bool)
 	 *
 	 * This determines whether to use mysql_connect or mysql_pconnect. The effects
-	 * of this setting may vary and should be carefully tested.
+	 * Of this setting may vary and should be carefully tested.
 	 * Default: false
 	 */
 	'persistent'               => false,
 
 	/**
-	 * check_tcp_responsiveness
+	 * Check_tcp_responsiveness
 	 *
 	 * Enables checking TCP responsiveness by fsockopen prior to mysql_connect or
 	 * mysql_pconnect. This was added because PHP's mysql functions do not provide
@@ -36,19 +42,19 @@ $w3tc_dbcluster_config = array(
 
 	/**
 	 * This set the charset that the db connection should use.
-	 * If DB_CHARSET is set there is no need to set $wpdb_cluster->charset.
+	 * If DB_CHARSET is set there is no need to set $w3tc_wpdb_cluster->charset.
 	 */
 	'charset'                  => DB_CHARSET,
 
 	/**
 	 * This set the charset that the db connection should use.
-	 * If DB_COLLATE is set there is no need to set $wpdb_cluster->collate.
+	 * If DB_COLLATE is set there is no need to set $w3tc_wpdb_cluster->collate.
 	 */
 	'collate'                  => DB_COLLATE,
 	/** Configuration Functions */
 
 	/**
-	 * database is an associative array with these parameters:
+	 * Database is an associative array with these parameters:
 	 * host             (required) Hostname with optional :port. Default port is 3306.
 	 * user             (required) MySQL user name.
 	 * password         (required) MySQL user password.
@@ -147,6 +153,7 @@ $w3tc_dbcluster_config = array(
  * This adds the same server again, only this time it is configured as a slave.
  * The last three parameters are set to the defaults but are shown for clarity.
  */
+
 /*
 $w3tc_dbcluster_config = array(
 	'databases' => array(
@@ -173,6 +180,7 @@ $w3tc_dbcluster_config = array(
  * This example shows a setup where the multisite blog tables have been
  * separated from the global dataset.
  */
+
 /*
 $w3tc_dbcluster_config = array(
 	'databases' => array(
@@ -198,7 +206,7 @@ $w3tc_dbcluster_config = array(
 	)
 );
 
-function my_db_callback($blog_id, $wpdb_cluster) {
+function my_db_callback($blog_id, $w3tc_wpdb_cluster) {
 	if ($blog_id > 5))
 		return 'blog2';
 }

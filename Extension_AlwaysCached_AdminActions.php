@@ -26,14 +26,14 @@ class Extension_AlwaysCached_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_alwayscached_regenerate() {
-		$post_id = Util_Request::get_integer( 'post_id' );
-		$url     = get_permalink( $post_id );
+		$post_id  = Util_Request::get_integer( 'post_id' );
+		$w3tc_url = get_permalink( $post_id );
 
-		if ( empty( $url ) ) {
-			$note = __( 'Failed to detect current page.', 'w3-total-cache' );
+		if ( empty( $w3tc_url ) ) {
+			$w3tc_note = __( 'Failed to detect current page.', 'w3-total-cache' );
 		} else {
-			$result = wp_remote_request(
-				$url,
+			$w3tc_result = wp_remote_request(
+				$w3tc_url,
 				array(
 					'headers' => array(
 						'w3tcalwayscached' => '-10',
@@ -42,22 +42,22 @@ class Extension_AlwaysCached_AdminActions {
 			);
 
 			if (
-				is_wp_error( $result )
-				|| empty( $result['response']['code'] )
-				|| 500 === $result['response']['code']
+				is_wp_error( $w3tc_result )
+				|| empty( $w3tc_result['response']['code'] )
+				|| 500 === $w3tc_result['response']['code']
 			) {
-				$note = __( 'Failed to handle url ', 'w3-total-cache' ) . $url;
-			} elseif ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
-				$note = __( 'No evidence of cache refresh.', 'w3-total-cache' );
+				$w3tc_note = __( 'Failed to handle url ', 'w3-total-cache' ) . $w3tc_url;
+			} elseif ( empty( $w3tc_result['headers'] ) || empty( $w3tc_result['headers']['w3tcalwayscached'] ) ) {
+				$w3tc_note = __( 'No evidence of cache refresh.', 'w3-total-cache' );
 			} else {
-				$note = __( 'Page was successfully regenerated.', 'w3-total-cache' );
+				$w3tc_note = __( 'Page was successfully regenerated.', 'w3-total-cache' );
 			}
 		}
 
 		Util_Admin::redirect_with_custom_messages2(
 			array(
 				'notes' => array(
-					'alwayscached_regenerated' => $note,
+					'alwayscached_regenerated' => $w3tc_note,
 				),
 			)
 		);

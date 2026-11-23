@@ -59,24 +59,24 @@ class UsageStatistics_Sources {
 		}
 
 		// cpu snapshot.
-		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'stats.cpu.enabled' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->get_boolean( 'stats.cpu.enabled' ) ) {
 			$summary['cpu'] = array(
 				'avg' => round( Util_UsageStatistics::avg( $history, 'cpu' ), 2 ),
 			);
 		}
 
 		// access log data.
-		if ( $c->get_boolean( 'stats.access_log.enabled' ) ) {
-			$o = new UsageStatistics_Source_AccessLog(
+		if ( $w3tc_c->get_boolean( 'stats.access_log.enabled' ) ) {
+			$w3tc_o = new UsageStatistics_Source_AccessLog(
 				array(
-					'webserver' => $c->get_string( 'stats.access_log.webserver' ),
-					'filename'  => $c->get_string( 'stats.access_log.filename' ),
-					'format'    => $c->get_string( 'stats.access_log.format' ),
+					'webserver' => $w3tc_c->get_string( 'stats.access_log.webserver' ),
+					'filename'  => $w3tc_c->get_string( 'stats.access_log.filename' ),
+					'format'    => $w3tc_c->get_string( 'stats.access_log.format' ),
 				)
 			);
 
-			$summary = $o->w3tc_usage_statistics_summary_from_history( $summary, $history );
+			$summary = $w3tc_o->w3tc_usage_statistics_summary_from_history( $summary, $history );
 		}
 
 		return $summary;
@@ -116,8 +116,8 @@ class UsageStatistics_Sources {
 			$metric_values['redis'] = $redis->get_snapshot();
 		}
 
-		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'stats.cpu.enabled' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->get_boolean( 'stats.cpu.enabled' ) ) {
 			// cpu snapshot.
 			$cpu = sys_getloadavg();
 			if ( isset( $cpu[0] ) ) {
@@ -139,18 +139,18 @@ class UsageStatistics_Sources {
 	 * @return array The updated history with additional data.
 	 */
 	public static function w3tc_usage_statistics_history_set( $history ) {
-		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'stats.access_log.enabled' ) ) {
+		$w3tc_c = Dispatcher::config();
+		if ( $w3tc_c->get_boolean( 'stats.access_log.enabled' ) ) {
 			// read access log.
-			$o = new UsageStatistics_Source_AccessLog(
+			$w3tc_o = new UsageStatistics_Source_AccessLog(
 				array(
-					'webserver' => $c->get_string( 'stats.access_log.webserver' ),
-					'filename'  => $c->get_string( 'stats.access_log.filename' ),
-					'format'    => $c->get_string( 'stats.access_log.format' ),
+					'webserver' => $w3tc_c->get_string( 'stats.access_log.webserver' ),
+					'filename'  => $w3tc_c->get_string( 'stats.access_log.filename' ),
+					'format'    => $w3tc_c->get_string( 'stats.access_log.format' ),
 				)
 			);
 
-			$history = $o->w3tc_usage_statistics_history_set( $history );
+			$history = $w3tc_o->w3tc_usage_statistics_history_set( $history );
 		}
 
 		return $history;

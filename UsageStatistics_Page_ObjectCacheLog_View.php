@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
@@ -20,32 +21,32 @@ require W3TC_INC_DIR . '/options/common/header.php';
 	<h1><?php esc_html_e( 'Object Cache Calls', 'w3-total-cache' ); ?></h1>
 	<p>
 		<?php esc_html_e( 'Period', 'w3-total-cache' ); ?>
-		<?php echo esc_html( $result['date_min'] ); ?>
+		<?php echo esc_html( $w3tc_result['date_min'] ); ?>
 		-
-		<?php echo esc_html( $result['date_max'] ); ?>
+		<?php echo esc_html( $w3tc_result['date_max'] ); ?>
 	</p>
 
 	<table style="width: 100%">
 		<tr>
-			<td><?php $this->sort_link( $result, 'Group', 'group' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Calls', 'count_total' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Get', 'count_get_total' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Cache Hits', 'count_get_hit' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Set', 'count_set' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Total processed time (ms)', 'sum_time_ms' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Total size transfeffed', 'sum_size' ); ?></td>
-			<td><?php $this->sort_link( $result, 'Avg Size', 'avg_size' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Group', 'group' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Calls', 'count_total' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Get', 'count_get_total' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Cache Hits', 'count_get_hit' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Set', 'count_set' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Total processed time (ms)', 'sum_time_ms' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Total size transfeffed', 'sum_size' ); ?></td>
+			<td><?php $this->sort_link( $w3tc_result, 'Avg Size', 'avg_size' ); ?></td>
 		</tr>
-	<?php foreach ( $result['items'] as $i ) : ?>
+	<?php foreach ( $w3tc_result['items'] as $w3tc_i ) : ?>
 		<tr>
-			<td><?php echo esc_html( $i['group'] ); ?></td>
-			<td><?php echo esc_html( $i['count_total'] ); ?></td>
-			<td><?php echo esc_html( $i['count_get_total'] ); ?></td>
-			<td><?php echo esc_html( $i['count_get_hit'] ); ?></td>
-			<td><?php echo esc_html( $i['count_set'] ); ?></td>
-			<td><?php echo esc_html( $i['sum_time_ms'] ); ?></td>
-			<td><?php echo 0 === $i['sum_size'] ? 'n/a' : esc_html( $i['sum_size'] ); ?></td>
-			<td><?php echo 0 === $i['avg_size'] ? 'n/a' : esc_html( $i['avg_size'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['group'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['count_total'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['count_get_total'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['count_get_hit'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['count_set'] ); ?></td>
+			<td><?php echo esc_html( $w3tc_i['sum_time_ms'] ); ?></td>
+			<td><?php echo 0 === $w3tc_i['sum_size'] ? 'n/a' : esc_html( $w3tc_i['sum_size'] ); ?></td>
+			<td><?php echo 0 === $w3tc_i['avg_size'] ? 'n/a' : esc_html( $w3tc_i['avg_size'] ); ?></td>
 		</tr>
 	<?php endforeach ?>
 	</table>

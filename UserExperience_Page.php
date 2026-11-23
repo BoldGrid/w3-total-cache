@@ -20,7 +20,7 @@ class UserExperience_Page {
 	 * @return void
 	 */
 	public function render_content() {
-		$c = Dispatcher::config();
+		$w3tc_c = Dispatcher::config();
 		include W3TC_DIR . '/UserExperience_Page_View.php';
 	}
 }

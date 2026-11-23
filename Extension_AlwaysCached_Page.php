@@ -27,7 +27,7 @@ class Extension_AlwaysCached_Page {
 	 */
 	public static function admin_print_scripts() {
 		if ( 'alwayscached' === Util_Request::get_string( 'extension' ) ) {
-			wp_register_script( 'w3tc_extension_alwayscached', plugins_url( 'Extension_AlwaysCached_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+			wp_register_script( 'w3tc_extension_alwayscached', plugins_url( 'Extension_AlwaysCached_Page_View.js', W3TC_FILE ), array( 'jquery', 'w3tc-nonce' ), W3TC_VERSION, true );
 
 			wp_localize_script(
 				'w3tc_extension_alwayscached',
@@ -59,7 +59,7 @@ class Extension_AlwaysCached_Page {
 	 * @return void
 	 */
 	public static function w3tc_extension_page_alwayscached() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		include W3TC_DIR . '/Extension_AlwaysCached_Page_View.php';
 	}
 
@@ -104,12 +104,12 @@ class Extension_AlwaysCached_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax_extension_alwayscached_process_queue_item() {
-		$item_url = Util_Request::get_string( 'item_url' );
-		$item     = Extension_AlwaysCached_Queue::get_by_url( $item_url );
-		$result   = Extension_AlwaysCached_Worker::process_item( $item, true );
+		$item_url    = Util_Request::get_string( 'item_url' );
+		$w3tc_item   = Extension_AlwaysCached_Queue::get_by_url( $item_url );
+		$w3tc_result = Extension_AlwaysCached_Worker::process_item( $w3tc_item, true );
 
-		if ( 'ok' === $result ) {
-			Extension_AlwaysCached_Queue::pop_item_finish( $item, true );
+		if ( 'ok' === $w3tc_result ) {
+			Extension_AlwaysCached_Queue::pop_item_finish( $w3tc_item, true );
 			wp_send_json_success( 'ok' );
 		} else {
 			wp_send_json_error( 'failed' );
@@ -136,23 +136,23 @@ class Extension_AlwaysCached_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax_extension_alwayscached_queue_filter() {
-		$queue_mode   = Util_Request::get_string( 'mode' );
-		$search_query = Util_Request::get_string( 'search', '' );
-		$current_page = Util_Request::get_integer( 'page', 1 );
-		$limit        = 15;
-		$offset       = ( $current_page - 1 ) * $limit;
-		$rows         = Extension_AlwaysCached_Queue::rows( $queue_mode, $offset, $limit, $search_query );
+		$w3tc_queue_mode = Util_Request::get_string( 'mode' );
+		$search_query    = Util_Request::get_string( 'search', '' );
+		$current_page    = Util_Request::get_integer( 'page', 1 );
+		$w3tc_limit      = 15;
+		$w3tc_offset     = ( $current_page - 1 ) * $w3tc_limit;
+		$w3tc_rows       = Extension_AlwaysCached_Queue::rows( $w3tc_queue_mode, $w3tc_offset, $w3tc_limit, $search_query );
 
-		if ( 'postponed' === $queue_mode ) {
-			$total_rows = Extension_AlwaysCached_Queue::row_count_postponed( $search_query );
+		if ( 'postponed' === $w3tc_queue_mode ) {
+			$w3tc_total_rows = Extension_AlwaysCached_Queue::row_count_postponed( $search_query );
 		} else {
-			$total_rows = Extension_AlwaysCached_Queue::row_count_pending( $search_query );
+			$w3tc_total_rows = Extension_AlwaysCached_Queue::row_count_pending( $search_query );
 		}
 
 		wp_send_json(
 			array(
-				'rows'         => $rows,
-				'total_pages'  => ceil( $total_rows / $limit ),
+				'rows'         => $w3tc_rows,
+				'total_pages'  => ceil( $w3tc_total_rows / $w3tc_limit ),
 				'current_page' => $current_page,
 			)
 		);

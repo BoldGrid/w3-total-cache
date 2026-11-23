@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class Extension_NewRelic_Plugin
  *
@@ -45,9 +46,9 @@ class Extension_NewRelic_Plugin {
 	public function run() {
 		add_filter( 'w3tc_config_default_values', array( $this, 'w3tc_config_default_values' ) );
 
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 		// remainder only when extension is frontend-active.
-		if ( ! $config->is_extension_active_frontend( 'newrelic' ) ) {
+		if ( ! $w3tc_config->is_extension_active_frontend( 'newrelic' ) ) {
 			return;
 		}
 
@@ -239,9 +240,9 @@ class Extension_NewRelic_Plugin {
 	public function set_appname() {
 		static $appname_set;
 		if ( ! $appname_set && ( $this->_config->get_boolean( array( 'newrelic', 'use_php_function' ) ) || Util_Environment::is_wpmu() ) ) {
-			$appname_set = true;
-			$service     = Dispatcher::component( 'Extension_NewRelic_Service' );
-			$appname     = $service->get_effective_appname();
+			$appname_set  = true;
+			$w3tc_service = Dispatcher::component( 'Extension_NewRelic_Service' );
+			$appname      = $w3tc_service->get_effective_appname();
 
 			$enable_xmit = $this->_config->get_boolean( array( 'newrelic', 'enable_xmit' ) );
 			\NewRelicWrapper::set_appname( $appname, '', $enable_xmit );
@@ -269,10 +270,10 @@ class Extension_NewRelic_Plugin {
 	}
 }
 
-$p = new Extension_NewRelic_Plugin();
-$p->run();
+$w3tc_p = new Extension_NewRelic_Plugin();
+$w3tc_p->run();
 
 if ( is_admin() ) {
-	$p = new Extension_NewRelic_Plugin_Admin();
-	$p->run();
+	$w3tc_p = new Extension_NewRelic_Plugin_Admin();
+	$w3tc_p->run();
 }

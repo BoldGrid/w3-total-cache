@@ -51,35 +51,35 @@ class Extensions_Page extends Base_Page_Settings {
 			}
 		}
 
-		$extension_val = Util_Request::get_string( 'extension' );
-		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$extension_val  = Util_Request::get_string( 'extension' );
+		$w3tc_extension = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
 
 		$action_val = Util_Request::get_string( 'action' );
 		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
-		foreach ( $extensions_active as $key => $ext ) {
-			if ( isset( $ext['public'] ) && false === $ext['public'] ) {
-				unset( $extensions_active[ $key ] );
+		foreach ( $extensions_active as $w3tc_key => $w3tc_ext ) {
+			if ( isset( $w3tc_ext['public'] ) && false === $w3tc_ext['public'] ) {
+				unset( $extensions_active[ $w3tc_key ] );
 			}
 		}
 
-		if ( $extension && $view && ! empty( $extensions_active[ $extension ] ) ) {
+		if ( $w3tc_extension && $view && ! empty( $extensions_active[ $w3tc_extension ] ) ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
-			$meta         = $extensions_active[ $extension ];
+			$w3tc_meta    = $extensions_active[ $w3tc_extension ];
 			$sub_view     = 'settings';
 		} else {
 			$extensions_all = Extensions_Util::get_extensions( $this->_config );
-			foreach ( $extensions_all as $key => $ext ) {
-				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
-					unset( $extensions_all[ $key ] );
+			foreach ( $extensions_all as $w3tc_key => $w3tc_ext ) {
+				if ( isset( $w3tc_ext['public'] ) && false === $w3tc_ext['public'] ) {
+					unset( $extensions_all[ $w3tc_key ] );
 				}
 			}
 
 			$extensions_inactive = Extensions_Util::get_inactive_extensions( $this->_config );
-			foreach ( $extensions_inactive as $key => $ext ) {
-				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
-					unset( $extensions_inactive[ $key ] );
+			foreach ( $extensions_inactive as $w3tc_key => $w3tc_ext ) {
+				if ( isset( $w3tc_ext['public'] ) && false === $w3tc_ext['public'] ) {
+					unset( $extensions_inactive[ $w3tc_key ] );
 				}
 			}
 
@@ -100,17 +100,17 @@ class Extensions_Page extends Base_Page_Settings {
 	 *
 	 * Merges the provided metadata with a set of default values.
 	 *
-	 * @param array $meta {
+	 * @param array $w3tc_meta {
 	 *     Array of extension metadata to be merged with defaults.
 	 *
-	 *     @type string  $name          Extension name.
+	 *     @type string  $w3tc_name          Extension name.
 	 *     @type string  $author        Author name.
 	 *     @type string  $description   Extension description.
 	 *     @type string  $author_uri    Author URL.
 	 *     @type string  $extension_uri Extension URL.
 	 *     @type string  $extension_id  Unique extension ID.
 	 *     @type string  $version       Extension version.
-	 *     @type bool    $enabled       Whether the extension is enabled. Default true.
+	 *     @type bool    $w3tc_enabled       Whether the extension is enabled. Default true.
 	 *     @type array   $requirements  List of extension requirements.
 	 *     @type bool    $core          Whether the extension is a core feature. Default false.
 	 *     @type bool    $public        Whether the extension is publicly available. Default true.
@@ -119,7 +119,7 @@ class Extensions_Page extends Base_Page_Settings {
 	 *
 	 * @return array Merged array of default and provided extension metadata.
 	 */
-	public function default_meta( $meta ) {
+	public function default_meta( $w3tc_meta ) {
 		$default = array(
 			'name'          => '',
 			'author'        => '',
@@ -134,6 +134,6 @@ class Extensions_Page extends Base_Page_Settings {
 			'public'        => true,
 			'path'          => '',
 		);
-		return array_merge( $default, $meta );
+		return array_merge( $default, $w3tc_meta );
 	}
 }

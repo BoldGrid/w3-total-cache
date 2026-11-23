@@ -7,6 +7,7 @@
 
 namespace W3TC;
 
+defined( 'ABSPATH' ) || exit;
 /**
  * Class UserExperience_Emoji_Extension
  */
@@ -95,5 +96,5 @@ class UserExperience_Emoji_Extension {
 	}
 }
 
-$o = new UserExperience_Emoji_Extension();
-$o->run();
+$w3tc_o = new UserExperience_Emoji_Extension();
+$w3tc_o->run();

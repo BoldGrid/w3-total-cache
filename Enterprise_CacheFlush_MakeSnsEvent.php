@@ -69,15 +69,15 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	/**
 	 * Flushes a specific fragment cache group.
 	 *
-	 * @param string $group The cache group to flush.
+	 * @param string $w3tc_group The cache group to flush.
 	 *
 	 * @return void
 	 */
-	public function fragmentcache_flush_group( $group ) {
+	public function fragmentcache_flush_group( $w3tc_group ) {
 		$this->_prepare_message(
 			array(
 				'action' => 'fragmentcache_flush_group',
-				'group'  => $group,
+				'group'  => $w3tc_group,
 			)
 		);
 	}
@@ -194,16 +194,16 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	/**
 	 * Flushes a specific cache group.
 	 *
-	 * @param string $group  The group to flush.
+	 * @param string $w3tc_group  The group to flush.
 	 * @param mixed  $extras Additional data for flushing.
 	 *
 	 * @return bool
 	 */
-	public function flush_group( $group, $extras ) {
+	public function flush_group( $w3tc_group, $extras ) {
 		return $this->_prepare_message(
 			array(
 				'action' => 'flush_group',
-				'group'  => $group,
+				'group'  => $w3tc_group,
 				'extras' => $extras,
 			)
 		);
@@ -212,16 +212,16 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	/**
 	 * Flushes the cache for a specific URL.
 	 *
-	 * @param string $url    The URL to flush.
+	 * @param string $w3tc_url    The URL to flush.
 	 * @param mixed  $extras Additional data for flushing.
 	 *
 	 * @return bool
 	 */
-	public function flush_url( $url, $extras ) {
+	public function flush_url( $w3tc_url, $extras ) {
 		return $this->_prepare_message(
 			array(
 				'action' => 'flush_url',
-				'url'    => $url,
+				'url'    => $w3tc_url,
 				'extras' => $extras,
 			)
 		);
@@ -246,18 +246,18 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	/**
 	 * Prepares a message for the caching system.
 	 *
-	 * @param array $message The message to prepare.
+	 * @param array $w3tc_message The message to prepare.
 	 *
 	 * @return bool
 	 */
-	private function _prepare_message( $message ) {
-		$message_signature = wp_json_encode( $message );
+	private function _prepare_message( $w3tc_message ) {
+		$message_signature = wp_json_encode( $w3tc_message );
 		if ( isset( $this->messages_by_signature[ $message_signature ] ) ) {
 			return true;
 		}
 
 		$this->messages_by_signature[ $message_signature ] = '*';
-		$this->messages[]                                  = $message;
+		$this->messages[]                                  = $w3tc_message;
 
 		$action = $this->_get_action();
 		if ( ! $action ) {
@@ -282,12 +282,12 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 
 		$this->_log( $this->_get_action() . ' sending messages' );
 
-		$message             = array();
-		$message['actions']  = $this->messages;
-		$message['blog_id']  = Util_Environment::blog_id();
-		$message['host']     = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
-		$message['hostname'] = @gethostname();
-		$v                   = wp_json_encode( $message );
+		$w3tc_message             = array();
+		$w3tc_message['actions']  = $this->messages;
+		$w3tc_message['blog_id']  = Util_Environment::blog_id();
+		$w3tc_message['host']     = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
+		$w3tc_message['hostname'] = @gethostname();
+		$v                        = wp_json_encode( $w3tc_message );
 
 		try {
 			$api = $this->_get_api();
@@ -298,7 +298,7 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 			}
 
 			$this->_log( $origin . ' sending message ' . $v );
-			$this->_log( 'Host: ' . $message['host'] );
+			$this->_log( 'Host: ' . $w3tc_message['host'] );
 
 			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 				$this->_log( 'URL: ' . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
@@ -320,15 +320,15 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 
 			$this->_log( 'Backtrace ', $backtrace_optimized );
 
-			$r = $api->publish(
+			$w3tc_r = $api->publish(
 				array(
 					'Message'  => $v,
 					'TopicArn' => $this->_topic_arn,
 				)
 			);
-			if ( 200 !== $r['@metadata']['statusCode'] ) {
+			if ( 200 !== $w3tc_r['@metadata']['statusCode'] ) {
 				$this->_log( 'Error' );
-				$this->_log( wp_json_encode( $r ) );
+				$this->_log( wp_json_encode( $w3tc_r ) );
 				return false;
 			}
 		} catch ( \Exception $e ) {

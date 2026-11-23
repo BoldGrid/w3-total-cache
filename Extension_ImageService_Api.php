@@ -23,7 +23,7 @@ class Extension_ImageService_Api {
 	 *
 	 * @var string
 	 */
-	private $license_key = '0';
+	private $w3tc_license_key = '0';
 
 	/**
 	 * W3TC Pro licensed home URL.
@@ -56,7 +56,7 @@ class Extension_ImageService_Api {
 	private $endpoints = array(
 		'convert'  => array(
 			'method' => 'POST',
-			'uri'    => '/image/convert',
+			'uri'    => '/v2/image/convert',
 		),
 		'status'   => array(
 			'method' => 'GET',
@@ -68,7 +68,7 @@ class Extension_ImageService_Api {
 		),
 		'usage'    => array(
 			'method' => 'GET',
-			'uri'    => '/image/usage',
+			'uri'    => '/v2/image/usage',
 		),
 	);
 
@@ -78,12 +78,12 @@ class Extension_ImageService_Api {
 	 * @since 2.2.0
 	 */
 	public function __construct() {
-		$config = Dispatcher::config();
+		$w3tc_config = Dispatcher::config();
 
-		if ( Util_Environment::is_w3tc_pro( $config ) ) {
-			$this->license_key = $config->get_string( 'plugin.license_key' );
-			$this->home_url    = network_home_url();
-			$this->item_name   = W3TC_PURCHASE_PRODUCT_NAME;
+		if ( Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
+			$this->w3tc_license_key = $w3tc_config->get_string( 'plugin.license_key' );
+			$this->home_url         = network_home_url();
+			$this->item_name        = W3TC_PURCHASE_PRODUCT_NAME;
 		} else {
 			$this->home_url = md5( network_home_url() );
 		}
@@ -102,32 +102,35 @@ class Extension_ImageService_Api {
 	 */
 	public function convert( $filepath, array $options = array() ) {
 		// Abort if rate-limit exceeded.
-		$result = get_transient( 'w3tc_imageservice_limited' );
+		$w3tc_result = get_transient( 'w3tc_imageservice_limited' );
 
-		if ( ! empty( $result ) ) {
-			return $result;
+		if ( ! empty( $w3tc_result ) ) {
+			return $w3tc_result;
 		}
 
 		// Prepare request.
-		$config   = Dispatcher::config();
-		$settings = $config->get_array( 'imageservice' );
-		$options  = array_merge(
+		$w3tc_config   = Dispatcher::config();
+		$w3tc_settings = $w3tc_config->get_array( 'imageservice' );
+		$options       = array_merge(
 			array(
-				'optimize' => 'lossy' === $settings['compression'] ? '1' : '0',
+				'optimize' => 'lossy' === $w3tc_settings['compression'] ? '1' : '0',
 			),
 			$options
 		);
-		$boundary = wp_generate_password( 24 );
-		$body     = '';
+		$boundary      = wp_generate_password( 24 );
+		$body          = '';
 
+		$token       = $this->service_bearer_token();
 		$post_fields = array(
-			'license_key' => $this->license_key,
-			'home_url'    => $this->home_url,
-			'item_name'   => $this->item_name,
-			'optimize'    => $options['optimize'],
+			'home_url'  => $this->home_url,
+			'item_name' => $this->item_name,
+			'optimize'  => $options['optimize'],
 		);
+		if ( '' === $token ) {
+			$post_fields = array( 'license_key' => $this->w3tc_license_key ) + $post_fields;
+		}
 
-		if ( Util_Environment::is_pro_constant( $config ) ) {
+		if ( Util_Environment::is_pro_constant( $w3tc_config ) ) {
 			$post_fields['pro_c'] = 1;
 		}
 
@@ -139,15 +142,17 @@ class Extension_ImageService_Api {
 			$mime_types_out = $options['formats'];
 		} else {
 			// Check webp setting.
-			$webp_enabled = isset( $settings['webp'] ) && ! empty( $settings['webp'] );
-			if ( $webp_enabled ) {
+			$w3tc_webp_enabled = isset( $w3tc_settings['webp'] ) && ! empty( $w3tc_settings['webp'] );
+			if ( $w3tc_webp_enabled ) {
 				$mime_types_out[] = 'image/webp';
 			}
 
-			// Check avif setting - handle both boolean and string values, default to true if not set.
-			// Only allow AVIF for Pro license holders.
-			$avif_enabled = ! isset( $settings['avif'] ) || ( true === $settings['avif'] || '1' === $settings['avif'] || 1 === $settings['avif'] );
-			if ( $avif_enabled && Util_Environment::is_w3tc_pro( $config ) ) {
+			/**
+			 * Check avif setting - handle both boolean and string values, default to true if not set.
+			 * Only allow AVIF for Pro license holders.
+			 */
+			$w3tc_avif_enabled = ! isset( $w3tc_settings['avif'] ) || ( true === $w3tc_settings['avif'] || '1' === $w3tc_settings['avif'] || 1 === $w3tc_settings['avif'] );
+			if ( $w3tc_avif_enabled && Util_Environment::is_w3tc_pro( $w3tc_config ) ) {
 				$mime_types_out[] = 'image/avif';
 			}
 
@@ -180,17 +185,16 @@ class Extension_ImageService_Api {
 		$body .= file_get_contents( $filepath ) . "\r\n" . '--' . $boundary . '--'; // phpcs:ignore WordPress.WP.AlternativeFunctions
 
 		// Send request.
-		$response = wp_remote_request(
+		$response = $this->remote_request(
 			Util_Environment::get_api_base_url() . $this->endpoints['convert']['uri'],
 			array(
-				'method'    => $this->endpoints['convert']['method'],
-				'sslverify' => false,
-				'timeout'   => 30,
-				'headers'   => array(
+				'method'  => $this->endpoints['convert']['method'],
+				'timeout' => 30,
+				'headers' => array(
 					'Accept'       => 'application/json',
 					'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
 				),
-				'body'      => $body,
+				'body'    => $body,
 			)
 		);
 
@@ -215,7 +219,7 @@ class Extension_ImageService_Api {
 
 		// Handle non-200 response codes.
 		if ( 200 !== $response['response']['code'] ) {
-			$result = array(
+			$w3tc_result = array(
 				'code'   => $response['response']['code'],
 				'error'  => esc_html__( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
 				'status' => 'error',
@@ -223,7 +227,7 @@ class Extension_ImageService_Api {
 			);
 
 			if ( isset( $response_body['error']['id'] ) && 'exceeded-hourly' === $response_body['error']['id'] ) {
-				$result['message'] = sprintf(
+				$w3tc_result['message'] = sprintf(
 					// translators: 1: Hourly request limit.
 					esc_html__( 'You reached your hourly limit of %1$d; try again later%2$s.', 'w3-total-cache' ),
 					esc_attr( $response_body['limit_hourly'] ),
@@ -235,26 +239,26 @@ class Extension_ImageService_Api {
 							'</a>'
 						)
 				);
-				set_transient( 'w3tc_imageservice_limited', $result, 30 * MINUTE_IN_SECONDS );
+				set_transient( 'w3tc_imageservice_limited', $w3tc_result, 30 * MINUTE_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
-				$result['message'] = sprintf(
+				$w3tc_result['message'] = sprintf(
 					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 					esc_html__( 'You reached your monthly limit of %1$d; try again later or %2$supgrade to Pro%3$s for unlimited.', 'w3-total-cache' ),
 					esc_attr( $response_body['limit_monthly'] ),
 					'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
 					'</a>'
 				);
-				set_transient( 'w3tc_imageservice_limited', $result, DAY_IN_SECONDS );
+				set_transient( 'w3tc_imageservice_limited', $w3tc_result, DAY_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-output-mime' === $response_body['error']['id'] ) {
-				$result['message'] = esc_html__( 'Invalid output image MIME type.', 'w3-total-cache' );
+				$w3tc_result['message'] = esc_html__( 'Invalid output image MIME type.', 'w3-total-cache' );
 			} elseif ( isset( $response_body['error']['id'] ) && 'missing-image' === $response_body['error']['id'] ) {
-				$result['message'] = esc_html__( 'An image file is required.', 'w3-total-cache' );
+				$w3tc_result['message'] = esc_html__( 'An image file is required.', 'w3-total-cache' );
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-image' === $response_body['error']['id'] ) {
-				$result['message'] = esc_html__( 'Valid image data is required.', 'w3-total-cache' );
+				$w3tc_result['message'] = esc_html__( 'Valid image data is required.', 'w3-total-cache' );
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-input-mime' === $response_body['error']['id'] ) {
-				$result['message'] = esc_html__( 'Invalid input image MIME type.', 'w3-total-cache' );
+				$w3tc_result['message'] = esc_html__( 'Invalid input image MIME type.', 'w3-total-cache' );
 			} elseif ( 403 === $response['response']['code'] ) {
-				$result['message'] = sprintf(
+				$w3tc_result['message'] = sprintf(
 					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 					esc_html__( 'Please verify your license key in %1$sGeneral Settings%2$s.', 'w3-total-cache' ),
 					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#licensing' ) ) . '">',
@@ -262,10 +266,10 @@ class Extension_ImageService_Api {
 				);
 			} elseif ( isset( $response_body['error']['message'] ) ) {
 				// Unknown error message id; forward the error message.
-				$result['message'] = esc_html( $response_body['error']['message'] );
+				$w3tc_result['message'] = esc_html( $response_body['error']['message'] );
 			}
 
-			return $result;
+			return $w3tc_result;
 		}
 
 		return $response_body;
@@ -284,10 +288,9 @@ class Extension_ImageService_Api {
 		$response = wp_remote_request(
 			Util_Environment::get_api_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
-				'method'    => $this->endpoints['status']['method'],
-				'sslverify' => false,
-				'timeout'   => 10,
-				'headers'   => array(
+				'method'  => $this->endpoints['status']['method'],
+				'timeout' => 10,
+				'headers' => array(
 					'Accept' => 'application/json',
 				),
 			)
@@ -299,17 +302,37 @@ class Extension_ImageService_Api {
 			);
 		}
 
-		// Convert response body to an array.
-		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		// Pass error message.
-		if ( isset( $response['error'] ) ) {
+		if ( 404 === $response_code || ( isset( $response_body['error']['code'] ) && 404 === (int) $response_body['error']['code'] ) ) {
 			return array(
-				'error' => $response['error'],
+				'code'   => 404,
+				'status' => 'notfound',
+				'error'  => isset( $response_body['error'] ) ? $response_body['error'] : __( 'Error: Job not found (404).', 'w3-total-cache' ),
 			);
 		}
 
-		return $response;
+		if ( 200 !== $response_code ) {
+			return array(
+				'code'   => $response_code,
+				'status' => 'error',
+				'error'  => sprintf(
+					// translators: 1: HTTP status code.
+					__( 'Error: Received a non-200 response code: %1$d', 'w3-total-cache' ),
+					$response_code
+				),
+			);
+		}
+
+		// Pass error message.
+		if ( isset( $response_body['error'] ) ) {
+			return array(
+				'error' => $response_body['error'],
+			);
+		}
+
+		return $response_body;
 	}
 
 	/**
@@ -323,18 +346,18 @@ class Extension_ImageService_Api {
 	 * @return array WP response array.
 	 */
 	public function download( $job_id, $signature, $mime_type_out = null ) {
-		$url = Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature;
+		$w3tc_url = Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature;
 
 		// Add mimeTypeOut as query parameter if provided.
 		if ( ! empty( $mime_type_out ) ) {
-			$url .= '?mimeTypeOut=' . rawurlencode( $mime_type_out );
+			$w3tc_url .= '?mimeTypeOut=' . rawurlencode( $mime_type_out );
 		}
 
 		$response = wp_remote_request(
-			$url,
+			$w3tc_url,
 			array(
-				'method'    => $this->endpoints['download']['method'],
-				'timeout'   => 10,
+				'method'  => $this->endpoints['download']['method'],
+				'timeout' => 10,
 			)
 		);
 
@@ -407,18 +430,20 @@ class Extension_ImageService_Api {
 			'limit_monthly_licensed'   => $error_message,
 		);
 
-		$response = wp_remote_request(
+		$token       = $this->service_bearer_token();
+		$license_key = '' === $token ? $this->w3tc_license_key : '0';
+		$item_name   = '' === $token ? $this->item_name : 'Item';
+		$response    = $this->remote_request(
 			esc_url(
 				Util_Environment::get_api_base_url() . $this->endpoints['usage']['uri'] .
-					'/' . rawurlencode( $this->license_key ) .
-					'/' . urlencode( $this->item_name ) . // phpcs:ignore
+					'/' . rawurlencode( $license_key ) .
+					'/' . urlencode( $item_name ) . // phpcs:ignore
 					'/' . rawurlencode( $this->home_url )
 			),
 			array(
-				'method'    => $this->endpoints['usage']['method'],
-				'sslverify' => false,
-				'timeout'   => 10,
-				'headers'   => array(
+				'method'  => $this->endpoints['usage']['method'],
+				'timeout' => 10,
+				'headers' => array(
 					'Accept' => 'application/json',
 				),
 			)
@@ -450,27 +475,94 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.7.4
 	 *
-	 * @param array $data Usage data.
+	 * @param array $w3tc_data Usage data.
 	 */
-	private function set_transient_data( array $data ): void {
+	private function set_transient_data( array $w3tc_data ): void {
 			// Ensure that the monthly limit is represented correctly.
-			$data['limit_monthly'] = $data['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+			$w3tc_data['limit_monthly'] = $w3tc_data['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
 
 			// Update usage transient data.
 			set_transient(
 				'w3tc_imageservice_usage',
 				array(
 					'updated_at'               => time(),
-					'usage_hourly'             => $data['usage_hourly'] ?? null,
-					'usage_monthly'            => $data['usage_monthly'] ?? null,
-					'limit_hourly'             => $data['limit_hourly'] ?? null,
-					'limit_monthly'            => $data['limit_monthly'], // Validated above.
-					'limit_hourly_unlicensed'  => $data['limit_hourly_unlicensed'] ?? null,
-					'limit_monthly_unlicensed' => $data['limit_monthly_unlicensed'] ?? null,
-					'limit_hourly_licensed'    => $data['limit_hourly_licensed'] ?? null,
-					'limit_monthly_licensed'   => $data['limit_monthly_licensed'] ?? null,
+					'usage_hourly'             => $w3tc_data['usage_hourly'] ?? null,
+					'usage_monthly'            => $w3tc_data['usage_monthly'] ?? null,
+					'limit_hourly'             => $w3tc_data['limit_hourly'] ?? null,
+					'limit_monthly'            => $w3tc_data['limit_monthly'], // Validated above.
+					'limit_hourly_unlicensed'  => $w3tc_data['limit_hourly_unlicensed'] ?? null,
+					'limit_monthly_unlicensed' => $w3tc_data['limit_monthly_unlicensed'] ?? null,
+					'limit_hourly_licensed'    => $w3tc_data['limit_hourly_licensed'] ?? null,
+					'limit_monthly_licensed'   => $w3tc_data['limit_monthly_licensed'] ?? null,
 				),
 				DAY_IN_SECONDS
 			);
+	}
+
+	/**
+	 * Pro bearer token, issuing or refreshing it before a /v2/ image call.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return string
+	 */
+	private function service_bearer_token() {
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return '';
+		}
+
+		return Licensing_Core::ensure_service_token();
+	}
+
+	/**
+	 * Image request with bearer auth and a single 401 retry.
+	 *
+	 * 403 is returned as-is.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $url  URL.
+	 * @param array  $args Request args.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private function remote_request( $url, array $args ) {
+		$response = wp_remote_request( $url, $this->with_bearer( $args ) );
+		if ( is_wp_error( $response ) || 401 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return $response;
+		}
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return $response;
+		}
+
+		Licensing_Core::reissue_for_unauthorized();
+		return wp_remote_request( $url, $this->with_bearer( $args ) );
+	}
+
+	/**
+	 * Attach the current JWT when this site is Pro and a token is stored.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $args Request args.
+	 *
+	 * @return array
+	 */
+	private function with_bearer( array $args ) {
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return $args;
+		}
+
+		$token = Licensing_Core::current_jwt();
+		if ( '' === $token ) {
+			return $args;
+		}
+
+		if ( ! isset( $args['headers'] ) || ! is_array( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['Authorization'] = 'Bearer ' . $token;
+		$args['redirection']              = 0;
+		return $args;
 	}
 }

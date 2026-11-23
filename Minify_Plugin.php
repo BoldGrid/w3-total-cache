@@ -89,6 +89,10 @@ class Minify_Plugin {
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_action( 'w3tc_minifycache_purge_wpcron', array( $this, 'w3tc_minifycache_purge_wpcron' ) );
+		add_action(
+			Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK,
+			array( $this, 'w3tc_minify_precache_external_script' )
+		);
 
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -115,12 +119,12 @@ class Minify_Plugin {
 	 * @return void
 	 */
 	public function init() {
-		$url    = Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR );
-		$parsed = wp_parse_url( $url );
-		$prefix = '/' . trim( $parsed['path'], '/' ) . '/';
+		$w3tc_url = Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR );
+		$parsed   = $w3tc_url ? wp_parse_url( $w3tc_url ) : false;
+		$prefix   = ( is_array( $parsed ) && ! empty( $parsed['path'] ) ) ? '/' . trim( $parsed['path'], '/' ) . '/' : '';
 
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		if ( substr( $request_uri, 0, strlen( $prefix ) ) === $prefix ) {
+		if ( '' !== $prefix && substr( $request_uri, 0, strlen( $prefix ) ) === $prefix ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
 			$filename  = Util_Environment::remove_query_all( substr( $request_uri, strlen( $prefix ) ) );
 			$w3_minify->process( $filename );
@@ -140,8 +144,8 @@ class Minify_Plugin {
 	 * @return void
 	 */
 	public function cleanup() {
-		$a = Dispatcher::component( 'Minify_Plugin_Admin' );
-		$a->cleanup();
+		$w3tc_a = Dispatcher::component( 'Minify_Plugin_Admin' );
+		$w3tc_a->cleanup();
 	}
 
 	/**
@@ -152,12 +156,12 @@ class Minify_Plugin {
 	 * @return array The updated cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
-		$c              = $this->_config;
-		$minify_enabled = $c->get_boolean( 'minify.enabled' );
-		$engine         = $c->get_string( 'minify.engine' );
+		$w3tc_c         = $this->_config;
+		$minify_enabled = $w3tc_c->get_boolean( 'minify.enabled' );
+		$w3tc_engine    = $w3tc_c->get_string( 'minify.engine' );
 
-		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$interval                       = $c->get_integer( 'minify.file.gc' );
+		if ( $minify_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) ) {
+			$interval                       = $w3tc_c->get_integer( 'minify.file.gc' );
 			$schedules['w3_minify_cleanup'] = array(
 				'interval' => $interval,
 				'display'  => sprintf(
@@ -184,6 +188,30 @@ class Minify_Plugin {
 	}
 
 	/**
+	 * Retrieves a queued external script outside of page generation.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return void
+	 */
+	public function w3tc_minify_precache_external_script( $w3tc_url ) {
+		if ( ! is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return;
+		}
+
+		// The selection may have changed since the event was queued.
+		$helpers = new _W3_MinifyHelpers( $this->_config );
+		if ( 'url' !== $helpers->is_file_for_minification( $w3tc_url, null ) ) {
+			return;
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->_precache_file( $w3tc_url, 'js' );
+	}
+
+	/**
 	 * Handles output buffering for minification and optimization.
 	 *
 	 * @param string $buffer The output buffer content.
@@ -206,7 +234,7 @@ class Minify_Plugin {
 		$css_enable  = $this->_config->get_boolean( 'minify.css.enable' );
 		$html_enable = $this->_config->get_boolean( 'minify.html.enable' );
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->is_query_available() && is_feed() ) {
 			$js_enable  = false;
 			$css_enable = false;
 		}
@@ -361,11 +389,11 @@ var extsrc=null;
 			'id'     => 'w3tc_flush_minify',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Minify Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url(
+			'href'   => Util_Nonce::admin_nonce_url(
 				admin_url(
 					'admin.php?page=' . $current_page . '&amp;w3tc_flush_minify'
 				),
-				'w3tc'
+				'w3tc_flush_minify'
 			),
 		);
 
@@ -403,16 +431,16 @@ var extsrc=null;
 			if ( count( $this->replaced_styles ) ) {
 				$strings[] = 'Replaced CSS files:';
 
-				foreach ( $this->replaced_styles as $index => $file ) {
-					$strings[] = sprintf( '%d. %s', $index + 1, Util_Content::escape_comment( $file ) );
+				foreach ( $this->replaced_styles as $w3tc_index => $w3tc_file ) {
+					$strings[] = sprintf( '%d. %s', $w3tc_index + 1, Util_Content::escape_comment( $w3tc_file ) );
 				}
 			}
 
 			if ( count( $this->replaced_scripts ) ) {
 				$strings[] = 'Replaced JavaScript files:';
 
-				foreach ( $this->replaced_scripts as $index => $file ) {
-					$strings[] = sprintf( "%d. %s\r\n", $index + 1, Util_Content::escape_comment( $file ) );
+				foreach ( $this->replaced_scripts as $w3tc_index => $w3tc_file ) {
+					$strings[] = sprintf( "%d. %s\r\n", $w3tc_index + 1, Util_Content::escape_comment( $w3tc_file ) );
 				}
 			}
 
@@ -432,9 +460,9 @@ var extsrc=null;
 	 * @return bool True if the location does not exist, false otherwise.
 	 */
 	public function _custom_location_does_not_exist( $pattern, &$source, $script ) {
-		$count  = 0;
-		$source = preg_replace( $pattern, $script, $source, 1, $count );
-		return 0 === $count;
+		$w3tc_count = 0;
+		$source     = preg_replace( $pattern, $script, $source, 1, $w3tc_count );
+		return 0 === $w3tc_count;
 	}
 
 	/**
@@ -454,29 +482,29 @@ var extsrc=null;
 			$path = ltrim( Util_Environment::home_url_uri(), '/' );
 		}
 
-		foreach ( $files as $file ) {
-			if ( $path && strpos( $file, $path ) === 0 ) {
-				$file = substr( $file, strlen( $path ) );
+		foreach ( $files as $w3tc_file ) {
+			if ( $path && strpos( $w3tc_file, $path ) === 0 ) {
+				$w3tc_file = substr( $w3tc_file, strlen( $path ) );
 			}
 
-			$this->replaced_styles[] = $file;
+			$this->replaced_styles[] = $w3tc_file;
 
-			if ( Util_Environment::is_url( $file ) && ! preg_match( '~' . $home_url_regexp . '~i', $file ) ) {
+			if ( Util_Environment::is_url( $w3tc_file ) && ! preg_match( '~' . $home_url_regexp . '~i', $w3tc_file ) ) {
 				// external CSS files.
-				$regexps[] = Util_Environment::preg_quote( $file );
+				$regexps[] = Util_Environment::preg_quote( $w3tc_file );
 			} else {
 				// local CSS files.
-				$file = ltrim( $file, '/' );
+				$w3tc_file = ltrim( $w3tc_file, '/' );
 				if (
 					home_url() === site_url() &&
 					ltrim( Util_Environment::site_url_uri(), '/' ) &&
-					strpos( $file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0
+					strpos( $w3tc_file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0
 				) {
-					$file = str_replace( ltrim( Util_Environment::site_url_uri(), '/' ), '', $file );
+					$w3tc_file = str_replace( ltrim( Util_Environment::site_url_uri(), '/' ), '', $w3tc_file );
 				}
 
-				$file      = ltrim( preg_replace( '~' . $home_url_regexp . '~i', '', $file ), '/\\' );
-				$regexps[] = '(' . $home_url_regexp . ')?/?' . Util_Environment::preg_quote( $file );
+				$w3tc_file = ltrim( preg_replace( '~' . $home_url_regexp . '~i', '', $w3tc_file ), '/\\' );
+				$regexps[] = '(' . $home_url_regexp . ')?/?' . Util_Environment::preg_quote( $w3tc_file );
 			}
 		}
 
@@ -505,29 +533,29 @@ var extsrc=null;
 			$path = ltrim( Util_Environment::network_home_url_uri(), '/' );
 		}
 
-		foreach ( $files as $file ) {
-			if ( $path && strpos( $file, $path ) === 0 ) {
-				$file = substr( $file, strlen( $path ) );
+		foreach ( $files as $w3tc_file ) {
+			if ( $path && strpos( $w3tc_file, $path ) === 0 ) {
+				$w3tc_file = substr( $w3tc_file, strlen( $path ) );
 			}
 
-			$this->replaced_scripts[] = $file;
+			$this->replaced_scripts[] = $w3tc_file;
 
-			if ( Util_Environment::is_url( $file ) && ! preg_match( '~' . $home_url_regexp . '~i', $file ) ) {
+			if ( Util_Environment::is_url( $w3tc_file ) && ! preg_match( '~' . $home_url_regexp . '~i', $w3tc_file ) ) {
 				// external JS files.
-				$regexps[] = Util_Environment::preg_quote( $file );
+				$regexps[] = Util_Environment::preg_quote( $w3tc_file );
 			} else {
 				// local JS files.
-				$file = ltrim( $file, '/' );
+				$w3tc_file = ltrim( $w3tc_file, '/' );
 				if (
 					home_url() === site_url() &&
 					ltrim( Util_Environment::site_url_uri(), '/' ) &&
-					strpos( $file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0
+					strpos( $w3tc_file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0
 				) {
-					$file = str_replace( ltrim( Util_Environment::site_url_uri(), '/' ), '', $file );
+					$w3tc_file = str_replace( ltrim( Util_Environment::site_url_uri(), '/' ), '', $w3tc_file );
 				}
 
-				$file      = ltrim( preg_replace( '~' . $home_url_regexp . '~i', '', $file ), '/\\' );
-				$regexps[] = '(' . $home_url_regexp . ')?/?' . Util_Environment::preg_quote( $file );
+				$w3tc_file = ltrim( preg_replace( '~' . $home_url_regexp . '~i', '', $w3tc_file ), '/\\' );
+				$regexps[] = '(' . $home_url_regexp . ')?/?' . Util_Environment::preg_quote( $w3tc_file );
 			}
 		}
 
@@ -636,20 +664,20 @@ var extsrc=null;
 			$html = \W3TCL\Minify\Minify_Inline_CSS::minify( $html, $css_minifier, $css_options );
 		}
 
-		$engine = $this->_config->get_string( 'minify.html.engine' );
+		$w3tc_engine = $this->_config->get_string( 'minify.html.engine' );
 
-		if ( ! $w3_minifier->exists( $engine ) || ! $w3_minifier->available( $engine ) ) {
-			$engine = 'html';
+		if ( ! $w3_minifier->exists( $w3tc_engine ) || ! $w3_minifier->available( $w3tc_engine ) ) {
+			$w3tc_engine = 'html';
 		}
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
-			$engine .= 'xml';
+		if ( $this->is_query_available() && is_feed() ) {
+			$w3tc_engine .= 'xml';
 		}
 
-		$minifier = $w3_minifier->get_minifier( $engine );
-		$options  = $w3_minifier->get_options( $engine );
+		$minifier = $w3_minifier->get_minifier( $w3tc_engine );
+		$options  = $w3_minifier->get_options( $w3tc_engine );
 
-		$w3_minifier->init( $engine );
+		$w3_minifier->init( $w3tc_engine );
 
 		$html = call_user_func( $minifier, $html, $options );
 
@@ -726,19 +754,19 @@ var extsrc=null;
 	 *
 	 * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
 	 *
-	 * @param string $url        URL of the stylesheet.
+	 * @param string $w3tc_url        URL of the stylesheet.
 	 * @param bool   $import     Whether to use @import syntax.
 	 * @param bool   $use_style  Whether to wrap @import in <style> tags.
 	 *
 	 * @return string Generated HTML markup.
 	 */
-	public function get_style( $url, $import = false, $use_style = true ) {
+	public function get_style( $w3tc_url, $import = false, $use_style = true ) {
 		if ( $import && $use_style ) {
-			return '<style media="all">@import url("' . $url . "\");</style>\r\n";
+			return '<style media="all">@import url("' . $w3tc_url . "\");</style>\r\n";
 		} elseif ( $import && ! $use_style ) {
-			return '@import url("' . $url . "\");\r\n";
+			return '@import url("' . $w3tc_url . "\");\r\n";
 		} else {
-			return '<link rel="stylesheet" href="' . str_replace( '&', '&amp;', $url ) . "\" media=\"all\" />\r\n";
+			return '<link rel="stylesheet" href="' . str_replace( '&', '&amp;', $w3tc_url ) . "\" media=\"all\" />\r\n";
 		}
 	}
 
@@ -874,7 +902,15 @@ var extsrc=null;
 	 * @return string The generated URL.
 	 */
 	public function get_minify_manual_url( $theme, $template, $location, $type ) {
-		return Minify_Core::minified_url( $this->get_minify_manual_filename( $theme, $template, $location, $type ) );
+		$minify_filename = $this->get_minify_manual_filename( $theme, $template, $location, $type );
+		if ( ! $minify_filename ) {
+			return Minify_Core::minified_url( $minify_filename );
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
+
+		return Minify_Core::minified_url( $minify_filename );
 	}
 
 	/**
@@ -888,21 +924,21 @@ var extsrc=null;
 		$js_groups  = $this->_config->get_array( 'minify.js.groups' );
 		$css_groups = $this->_config->get_array( 'minify.css.groups' );
 
-		foreach ( $js_groups as $js_theme => $js_templates ) {
-			foreach ( $js_templates as $js_template => $js_locations ) {
-				foreach ( (array) $js_locations as $js_location => $js_config ) {
-					if ( ! empty( $js_config['files'] ) ) {
-						$files[] = $this->get_minify_manual_url( $js_theme, $js_template, $js_location, 'js' );
+		foreach ( $js_groups as $w3tc_js_theme => $w3tc_js_templates ) {
+			foreach ( $w3tc_js_templates as $w3tc_js_template => $w3tc_js_locations ) {
+				foreach ( (array) $w3tc_js_locations as $w3tc_js_location => $w3tc_js_config ) {
+					if ( ! empty( $w3tc_js_config['files'] ) ) {
+						$files[] = $this->get_minify_manual_url( $w3tc_js_theme, $w3tc_js_template, $w3tc_js_location, 'js' );
 					}
 				}
 			}
 		}
 
-		foreach ( $css_groups as $css_theme => $css_templates ) {
-			foreach ( $css_templates as $css_template => $css_locations ) {
-				foreach ( (array) $css_locations as $css_location => $css_config ) {
-					if ( ! empty( $css_config['files'] ) ) {
-						$files[] = $this->get_minify_manual_url( $css_theme, $css_template, $css_location, 'css' );
+		foreach ( $css_groups as $w3tc_css_theme => $w3tc_css_templates ) {
+			foreach ( $w3tc_css_templates as $w3tc_css_template => $w3tc_css_locations ) {
+				foreach ( (array) $w3tc_css_locations as $w3tc_css_location => $w3tc_css_config ) {
+					if ( ! empty( $w3tc_css_config['files'] ) ) {
+						$files[] = $this->get_minify_manual_url( $w3tc_css_theme, $w3tc_css_template, $w3tc_css_location, 'css' );
 					}
 				}
 			}
@@ -984,6 +1020,21 @@ var extsrc=null;
 	}
 
 	/**
+	 * Checks whether WordPress conditional query tags can be evaluated.
+	 *
+	 * Conditional tags always return false and emit a notice when the main query has not run,
+	 * which happens when a request aborts before the WordPress load completes but the output
+	 * buffer is still flushed.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return bool True when conditional query tags are safe to call.
+	 */
+	private function is_query_available() {
+		return \function_exists( 'is_feed' ) && isset( $GLOBALS['wp_query'] );
+	}
+
+	/**
 	 * Checks whether minification can be applied to the provided buffer.
 	 *
 	 * @param string $buffer The buffer to check.
@@ -999,7 +1050,7 @@ var extsrc=null;
 		}
 
 		// Check feed minify.
-		if ( $this->_config->get_boolean( 'minify.html.reject.feed' ) && function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->_config->get_boolean( 'minify.html.reject.feed' ) && $this->is_query_available() && is_feed() ) {
 			$this->minify_reject_reason = 'Feed is rejected';
 
 			return false;
@@ -1091,8 +1142,8 @@ var extsrc=null;
 	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
-		$o = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-		$o->w3tc_usage_statistics_of_request( $storage );
+		$w3tc_o = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$w3tc_o->w3tc_usage_statistics_of_request( $storage );
 	}
 
 	/**
@@ -1147,7 +1198,7 @@ class _W3_MinifyHelpers {
 	 *
 	 * @var Config
 	 */
-	private $config;
+	private $w3tc_config;
 
 	/**
 	 * Debug flag
@@ -1159,13 +1210,13 @@ class _W3_MinifyHelpers {
 	/**
 	 * Initializes the _W3_MinifyHelpers class.
 	 *
-	 * @param Config $config Configuration instance used for the class.
+	 * @param Config $w3tc_config Configuration instance used for the class.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
-		$this->config = $config;
-		$this->debug  = $config->get_boolean( 'minify.debug' );
+	public function __construct( $w3tc_config ) {
+		$this->w3tc_config = $w3tc_config;
+		$this->debug       = $w3tc_config->get_boolean( 'minify.debug' );
 	}
 
 	/**
@@ -1182,12 +1233,39 @@ class _W3_MinifyHelpers {
 			return null;
 		}
 
-		$url = Minify_Core::minified_url( $minify_filename );
-		$url = Util_Environment::url_to_maybe_https( $url );
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
 
-		$url = apply_filters( 'w3tc_minify_url_for_files', $url, $files, $type );
+		$w3tc_url = Minify_Core::minified_url( $minify_filename );
+		$w3tc_url = Util_Environment::url_to_maybe_https( $w3tc_url );
 
-		return $url;
+		$w3tc_url = apply_filters( 'w3tc_minify_url_for_files', $w3tc_url, $files, $type );
+
+		return $w3tc_url;
+	}
+
+	/**
+	 * Confirms that an external script already has a usable cached source.
+	 *
+	 * This check must not retrieve the script because it runs while page HTML
+	 * is being generated. Cache population and refresh happen in the minify
+	 * request handler.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return bool
+	 */
+	public function is_external_script_cached( $w3tc_url ) {
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$cached = false !== $minify->get_cached_external_script( $w3tc_url );
+
+		if ( ! $cached ) {
+			$minify->schedule_external_script_precache( $w3tc_url );
+		}
+
+		return $cached;
 	}
 
 	/**
@@ -1223,13 +1301,13 @@ class _W3_MinifyHelpers {
 	/**
 	 * Generates a script tag for a given URL and embed type.
 	 *
-	 * @param string $url        URL of the script.
+	 * @param string $w3tc_url        URL of the script.
 	 * @param string $embed_type Type of embed (e.g., 'blocking', 'nb-js', 'nb-async').
 	 * @param array  $attributes Additional attributes to preserve.
 	 *
 	 * @return string The generated script tag.
 	 */
-	public function generate_script_tag( $url, $embed_type = 'blocking', $attributes = array() ) {
+	public function generate_script_tag( $w3tc_url, $embed_type = 'blocking', $attributes = array() ) {
 		static $non_blocking_function = false;
 
 		$attributes = (array) $attributes;
@@ -1245,7 +1323,7 @@ class _W3_MinifyHelpers {
 		}
 
 		$can_add_cfasync = ( 'nb-js' !== $embed_type );
-		if ( $can_add_cfasync && $this->config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ) {
+		if ( $can_add_cfasync && $this->w3tc_config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ) {
 			// Respect Cloudflare Rocket Loader opt-out unless we're using the inline nb-js loader.
 			$attributes['data-cfasync'] = 'false';
 		}
@@ -1259,33 +1337,33 @@ class _W3_MinifyHelpers {
 					$script                = "<script>function w3tc_load_js(u){var d=document,p=d.getElementsByTagName('HEAD')[0],c=d.createElement('script');c.src=u;p.appendChild(c);}</script>";
 				}
 
-				$script .= "<script>w3tc_load_js('" . esc_js( $url ) . "');</script>";
+				$script .= "<script>w3tc_load_js('" . esc_js( $w3tc_url ) . "');</script>";
 				break;
 
 			case 'nb-async':
-				$attributes['src']   = $url;
+				$attributes['src']   = $w3tc_url;
 				$attributes['async'] = true;
 				$script              = $this->build_script_tag( $attributes );
 				break;
 
 			case 'nb-defer':
-				$attributes['src']   = $url;
+				$attributes['src']   = $w3tc_url;
 				$attributes['defer'] = true;
 				$script              = $this->build_script_tag( $attributes );
 				break;
 
 			case 'extsrc':
-				$attributes['extsrc'] = $url;
+				$attributes['extsrc'] = $w3tc_url;
 				$script               = $this->build_script_tag( $attributes );
 				break;
 
 			case 'asyncsrc':
-				$attributes['asyncsrc'] = $url;
+				$attributes['asyncsrc'] = $w3tc_url;
 				$script                 = $this->build_script_tag( $attributes );
 				break;
 
 			default:
-				$attributes['src'] = $url;
+				$attributes['src'] = $w3tc_url;
 				$script            = $this->build_script_tag( $attributes );
 				break;
 		}
@@ -1320,20 +1398,20 @@ class _W3_MinifyHelpers {
 
 		$parts = array();
 
-		foreach ( $attributes as $name => $value ) {
-			if ( is_bool( $value ) ) {
-				if ( $value ) {
-					$parts[] = $name;
+		foreach ( $attributes as $w3tc_name => $w3tc_value ) {
+			if ( is_bool( $w3tc_value ) ) {
+				if ( $w3tc_value ) {
+					$parts[] = $w3tc_name;
 				}
 
 				continue;
 			}
 
-			if ( null === $value || '' === $value ) {
+			if ( null === $w3tc_value || '' === $w3tc_value ) {
 				continue;
 			}
 
-			$parts[] = $name . '="' . esc_attr( $value ) . '"';
+			$parts[] = $w3tc_name . '="' . esc_attr( $w3tc_value ) . '"';
 		}
 
 		return implode( ' ', $parts );
@@ -1342,70 +1420,70 @@ class _W3_MinifyHelpers {
 	/**
 	 * Determines whether a given file or URL should be minified.
 	 *
-	 * @param string $url  URL of the file to check.
-	 * @param string $file File path to check (optional).
+	 * @param string $w3tc_url  URL of the file to check.
+	 * @param string $w3tc_file File path to check (optional).
 	 *
 	 * @return string Indicates the type of minification ('url', 'file', or empty string).
 	 */
-	public function is_file_for_minification( $url, $file ) {
+	public function is_file_for_minification( $w3tc_url, $w3tc_file ) {
 		static $external;
 		static $external_regexp;
 		if ( ! isset( $external ) ) {
-			$external        = $this->config->get_array( 'minify.cache.files' );
-			$external_regexp = $this->config->get_boolean( 'minify.cache.files_regexp' );
+			$external        = $this->w3tc_config->get_array( 'minify.cache.files' );
+			$external_regexp = $this->w3tc_config->get_boolean( 'minify.cache.files_regexp' );
 		}
 
-		$normalized_url = Util_Environment::remove_query_all( $url );
+		$normalized_url = Util_Environment::remove_query_all( $w3tc_url );
 		if ( strpos( $normalized_url, 'wp-includes/js/dist/script-modules/' ) !== false ) {
 			// Core WP modules break when re-minified, so allow them to pass through untouched.
 			if ( $this->debug ) {
-				Minify_Core::log( 'is_file_for_minification: skipping WordPress script module ' . $url );
+				Minify_Core::log( 'is_file_for_minification: skipping WordPress script module ' . $w3tc_url );
 			}
 
 			return '';
 		}
 
-		foreach ( $external as $item ) {
-			if ( empty( $item ) ) {
+		foreach ( $external as $w3tc_item ) {
+			if ( empty( $w3tc_item ) ) {
 				continue;
 			}
 
 			if ( $external_regexp ) {
-				$item = str_replace( '~', '\~', $item );
-				if ( ! preg_match( '~' . $item . '~', $url ) ) {
+				$w3tc_item = str_replace( '~', '\~', $w3tc_item );
+				if ( ! preg_match( '~' . $w3tc_item . '~', $w3tc_url ) ) {
 					continue;
 				}
-			} elseif ( ! preg_match( '~^' . Util_Environment::get_url_regexp( $item ) . '~', $url ) ) {
+			} elseif ( ! preg_match( '~^' . Util_Environment::get_url_regexp( $w3tc_item ) . '~', $w3tc_url ) ) {
 				continue;
 			}
 
 			if ( $this->debug ) {
-				Minify_Core::log( 'is_file_for_minification: whilelisted ' . $url . ' by ' . $item );
+				Minify_Core::log( 'is_file_for_minification: whilelisted ' . $w3tc_url . ' by ' . $w3tc_item );
 			}
 
 			return 'url';
 		}
 
-		if ( is_null( $file ) ) {
+		if ( is_null( $w3tc_file ) ) {
 			if ( $this->debug ) {
-				Minify_Core::log( 'is_file_for_minification: external not whitelisted url ' . $url );
+				Minify_Core::log( 'is_file_for_minification: external not whitelisted url ' . $w3tc_url );
 			}
 
 			return '';
 		}
 
-		$file_normalized = Util_Environment::remove_query_all( $file );
-		$ext             = strrchr( $file_normalized, '.' );
+		$file_normalized = Util_Environment::remove_query_all( $w3tc_file );
+		$w3tc_ext        = strrchr( $file_normalized, '.' );
 
-		if ( '.js' !== $ext && '.css' !== $ext ) {
+		if ( '.js' !== $w3tc_ext && '.css' !== $w3tc_ext ) {
 			if ( $this->debug ) {
-				Minify_Core::log( 'is_file_for_minification: unknown extension ' . $ext . ' for ' . $file );
+				Minify_Core::log( 'is_file_for_minification: unknown extension ' . $w3tc_ext . ' for ' . $w3tc_file );
 			}
 
 			return '';
 		}
 
-		$path = Util_Environment::docroot_to_full_filename( $file );
+		$path = Util_Environment::docroot_to_full_filename( $w3tc_file );
 
 		if ( ! file_exists( $path ) ) {
 			if ( $this->debug ) {
@@ -1416,7 +1494,7 @@ class _W3_MinifyHelpers {
 		}
 
 		if ( $this->debug ) {
-			Minify_Core::log( 'is_file_for_minification: true for file ' . $file . ' path ' . $path );
+			Minify_Core::log( 'is_file_for_minification: true for file ' . $w3tc_file . ' path ' . $path );
 		}
 
 		return 'file';
@@ -1425,31 +1503,31 @@ class _W3_MinifyHelpers {
 	/**
 	 * Adds an HTTP/2 header for preloading a given URL.
 	 *
-	 * @param string $url  URL to be preloaded.
+	 * @param string $w3tc_url  URL to be preloaded.
 	 * @param string $type Resource type (e.g., 'script', 'style').
 	 *
 	 * @return void
 	 */
-	public function http2_header_add( $url, $type ) {
-		if ( empty( $url ) ) {
+	public function http2_header_add( $w3tc_url, $type ) {
+		if ( empty( $w3tc_url ) ) {
 			return;
 		}
 
 		// Cloudflare needs URI without host.
-		$uri = Util_Environment::url_to_uri( $url );
+		$uri = Util_Environment::url_to_uri( $w3tc_url );
 
 		// priorities attached:
 		// 3000 - cdn
 		// 4000 - browsercache.
-		$data = apply_filters(
+		$w3tc_data = apply_filters(
 			'w3tc_minify_http2_preload_url',
 			array(
 				'result_link'  => $uri,
-				'original_url' => $url,
+				'original_url' => $w3tc_url,
 			)
 		);
 
-		header( 'Link: <' . $data['result_link'] . '>; rel=preload; as=' . $type, false );
+		header( 'Link: <' . $w3tc_data['result_link'] . '>; rel=preload; as=' . $type, false );
 	}
 
 	/**

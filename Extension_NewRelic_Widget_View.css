@@ -2,30 +2,36 @@
     margin-bottom: 3px;
     padding: 0;
 }
+
 #new-relic-widget ul li span {
     display: block;
-    font-weight: bold;
+    font-weight: 700;
     width: 110px;
     float:left;
 }
+
 #new-relic-top-list {
     margin-left: -10px;
     margin-right: -10px;
 }
+
 #new-relic-top-list h4 {
     padding-left: 10px;
 }
+
 #new-relic-widget #new-relic-summary{
     display: block;
     float:left;
 }
+
 #new-relic-widget h4 {
     font-size:13px;
     margin: 0 0 10px;
 }
+
 #new-relic-widget h5 {
     font-size:12px;
-    font-weight: bold;
+    font-weight: 700;
     margin-top: 10px;
     margin-left: 0;
     margin-bottom: 0;
@@ -55,9 +61,11 @@
 #new-relic-extra-metrics {
     float:left;
 }
+
 #new-relic-top-list {
     clear:both;
 }
+
 #new-relic-top-list h4 {
     padding-top: 20px;
     color: #8F8F8F;
@@ -66,6 +74,7 @@
 .w3tcnr_slowest th{
     text-align: left;
 }
+
 .w3tcnr_slowest td {
     font-family: Arial, Verdana, sans-serif;
     border:none;

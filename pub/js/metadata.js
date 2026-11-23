@@ -18,35 +18,35 @@
  * There are four supported types of metadata storage:
  *
  *   attr:  Inside an attribute. The name parameter indicates *which* attribute.
- *          
+ *
  *   class: Inside the class attribute, wrapped in curly braces: { }
- *   
+ *
  *   elem:  Inside a child element (e.g. a script tag). The
  *          name parameter indicates *which* element.
  *   html5: Values are stored in data-* attributes.
- *          
+ *
  * The metadata for an element is loaded the first time the element is accessed via jQuery.
  *
  * As a result, you can define the metadata type, use $(expr) to load the metadata into the elements
  * matched by expr, then redefine the metadata type and run another $(expr) for other elements.
- * 
+ *
  * @name $.metadata.setType
  *
  * @example <p id="one" class="some_class {item_id: 1, item_label: 'Label'}">This is a p</p>
  * @before $.metadata.setType("class")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from the class attribute
- * 
+ *
  * @example <p id="one" class="some_class" data="{item_id: 1, item_label: 'Label'}">This is a p</p>
  * @before $.metadata.setType("attr", "data")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a "data" attribute
- * 
+ *
  * @example <p id="one" class="some_class"><script>{item_id: 1, item_label: 'Label'}</script>This is a p</p>
  * @before $.metadata.setType("elem", "script")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a nested script element
- * 
+ *
  * @example <p id="one" class="some_class" data-item_id="1" data-item_label="Label">This is a p</p>
  * @before $.metadata.setType("html5")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
@@ -60,81 +60,78 @@
  * @see metadata()
  */
 
-(function($) {
+(
+  function ($) {
+    $.extend({
+      metadata: {
+        defaults: {
+          type: "class",
+          name: "metadata",
+          cre: /({.*})/,
+          single: "metadata",
+        },
+        setType: function (type, name) {
+          this.defaults.type = type;
+          this.defaults.name = name;
+        },
+        get: function (elem, opts) {
+          var settings = $.extend({}, this.defaults, opts);
+          // check for empty string in single property
+          if (!settings.single.length) settings.single = "metadata";
 
-$.extend({
-  metadata : {
-    defaults : {
-      type: 'class',
-      name: 'metadata',
-      cre: /({.*})/,
-      single: 'metadata'
-    },
-    setType: function( type, name ){
-      this.defaults.type = type;
-      this.defaults.name = name;
-    },
-    get: function( elem, opts ){
-      var settings = $.extend({},this.defaults,opts);
-      // check for empty string in single property
-      if ( !settings.single.length ) settings.single = 'metadata';
-      
-      var data = $.data(elem, settings.single);
-      // returned cached data if it already exists
-      if ( data ) return data;
-      
-      data = "{}";
-      
-      var getObject = function(data) {
-        if(typeof data != "string") return data;
-        
-        data = eval("(" + data + ")");
-        return data;
-      };
-      
-      if ( settings.type == "html5" ) {
-        var object = {};
-        $( elem.attributes ).each(function() {
-          var name = this.nodeName;
-          if(name.match(/^data-/)) name = name.replace(/^data-/, '');
-          else return true;
-          object[name] = getObject(this.nodeValue);
-        });
-      } else {
-        if ( settings.type == "class" ) {
-          var m = settings.cre.exec( elem.className );
-          if ( m )
-            data = m[1];
-        } else if ( settings.type == "elem" ) {
-          if( !elem.getElementsByTagName ) return;
-          var e = elem.getElementsByTagName(settings.name);
-          if ( e.length )
-            data = $.trim(e[0].innerHTML);
-        } else if ( elem.getAttribute != undefined ) {
-          var attr = elem.getAttribute( settings.name );
-          if ( attr )
-            data = attr;
-        }
-        object = getObject(data.indexOf("{") < 0 ? "{" + data + "}" : data);
-      }
-      
-      $.data( elem, settings.single, object );
-      return object;
-    }
+          var data = $.data(elem, settings.single);
+          // returned cached data if it already exists
+          if (data) return data;
+
+          data = "{}";
+
+          var getObject = function (data) {
+            if (typeof data != "string") return data;
+
+            data = eval("(" + data + ")");
+            return data;
+          };
+
+          if (settings.type == "html5") {
+            var object = {};
+            $(elem.attributes).each(function () {
+              var name = this.nodeName;
+              if (name.match(/^data-/)) name = name.replace(/^data-/, "");
+              else return true;
+              object[name] = getObject(this.nodeValue);
+            });
+          } else {
+            if (settings.type == "class") {
+              var m = settings.cre.exec(elem.className);
+              if (m) data = m[1];
+            } else if (settings.type == "elem") {
+              if (!elem.getElementsByTagName) return;
+              var e = elem.getElementsByTagName(settings.name);
+              if (e.length) data = $.trim(e[0].innerHTML);
+            } else if (elem.getAttribute != undefined) {
+              var attr = elem.getAttribute(settings.name);
+              if (attr) data = attr;
+            }
+            object = getObject(data.indexOf("{") < 0 ? "{" + data + "}" : data);
+          }
+
+          $.data(elem, settings.single, object);
+          return object;
+        },
+      },
+    });
+
+    /**
+     * Returns the metadata object for the first member of the jQuery object.
+     *
+     * @name metadata
+     * @descr Returns element's metadata object
+     * @param Object opts An object contianing settings to override the defaults
+     * @type jQuery
+     * @cat Plugins/Metadata
+     */
+    $.fn.metadata = function (opts) {
+      return $.metadata.get(this[0], opts);
+    };
   }
-});
-
-/**
- * Returns the metadata object for the first member of the jQuery object.
- *
- * @name metadata
- * @descr Returns element's metadata object
- * @param Object opts An object contianing settings to override the defaults
- * @type jQuery
- * @cat Plugins/Metadata
- */
-$.fn.metadata = function( opts ){
-  return $.metadata.get( this[0], opts );
-};
-
-})(jQuery);
+)(jQuery);

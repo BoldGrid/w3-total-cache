@@ -29,14 +29,14 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * PHP5-style constructor
 	 *
-	 * @param Config $config Config.
+	 * @param Config $w3tc_config Config.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config = array() ) {
-		parent::__construct( $config );
+	public function __construct( $w3tc_config = array() ) {
+		parent::__construct( $w3tc_config );
 
-		$this->_expire = ( isset( $config['expire'] ) ? (int) $config['expire'] : 0 );
+		$this->_expire = ( isset( $w3tc_config['expire'] ) ? (int) $w3tc_config['expire'] : 0 );
 
 		if ( ! $this->_expire || $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
 			$this->_expire = W3TC_CACHE_FILE_EXPIRE_MAX;
@@ -44,24 +44,158 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Resolve a cache key to an absolute path under the cache root.
+	 *
+	 * Rejects parent-directory segments, NUL bytes, absolute paths, and drive
+	 * prefixes. Walks existing ancestors with realpath() so symlink escapes
+	 * outside `_cache_dir` (and `W3TC_CACHE_DIR` when defined) are refused —
+	 * including when the final directory already exists. When the cache root
+	 * is not on disk yet, confinement uses the normalized `W3TC_CACHE_DIR`
+	 * string so callers can recreate it.
+	 *
+	 * @since 2.10.5
+	 *
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
+	 *
+	 * @return string|false Absolute path under `_cache_dir`, or false when rejected.
+	 */
+	private function _resolve_path( $w3tc_key, $w3tc_group = '' ) {
+		if ( ! \is_string( $w3tc_key ) || '' === $w3tc_key || false !== \strpos( $w3tc_key, "\0" ) ) {
+			return false;
+		}
+
+		if ( ! \is_string( $w3tc_group ) || false !== \strpos( $w3tc_group, "\0" ) ) {
+			return false;
+		}
+
+		$key_norm   = \str_replace( '\\', '/', $w3tc_key );
+		$group_norm = \str_replace( '\\', '/', $w3tc_group );
+
+		if ( false !== \strpos( $key_norm, '..' ) || false !== \strpos( $group_norm, '..' ) ) {
+			return false;
+		}
+
+		if ( '' !== $key_norm && ( '/' === $key_norm[0] || \preg_match( '#^[a-zA-Z]:/#', $key_norm ) ) ) {
+			return false;
+		}
+
+		if ( '' !== $group_norm && ( '/' === $group_norm[0] || \preg_match( '#^[a-zA-Z]:/#', $group_norm ) ) ) {
+			return false;
+		}
+
+		$sub_path = ( '' === $group_norm ? '' : $group_norm . '/' ) . $key_norm;
+
+		$w3tc_norm = null;
+		if ( \defined( 'W3TC_CACHE_DIR' ) ) {
+			$w3tc_base = \realpath( W3TC_CACHE_DIR );
+			if ( false !== $w3tc_base ) {
+				$w3tc_norm = \rtrim( \str_replace( '\\', '/', $w3tc_base ), '/' );
+			} else {
+				$w3tc_norm = \rtrim( \str_replace( '\\', '/', Util_Environment::realpath( W3TC_CACHE_DIR ) ), '/' );
+				if ( '' === $w3tc_norm ) {
+					return false;
+				}
+			}
+		}
+
+		$base = \realpath( $this->_cache_dir );
+		if ( false === $base ) {
+			if ( null === $w3tc_norm ) {
+				return false;
+			}
+
+			$w3tc_prefix = $w3tc_norm . '/';
+			$cache_norm  = \rtrim( \str_replace( '\\', '/', $this->_cache_dir ), '/' );
+
+			if ( $cache_norm !== $w3tc_norm && 0 !== \strpos( $cache_norm, $w3tc_prefix ) ) {
+				return false;
+			}
+
+			$candidate   = $cache_norm . '/' . \ltrim( $sub_path, '/' );
+			$candidate_n = \str_replace( '\\', '/', $candidate );
+			if ( $candidate_n !== $w3tc_norm && 0 !== \strpos( $candidate_n, $w3tc_prefix ) ) {
+				return false;
+			}
+
+			$base_norm   = $w3tc_norm;
+			$base_prefix = $w3tc_prefix;
+		} else {
+			$base_norm   = \rtrim( \str_replace( '\\', '/', $base ), '/' );
+			$base_prefix = $base_norm . '/';
+
+			if ( null !== $w3tc_norm ) {
+				$w3tc_prefix = $w3tc_norm . '/';
+				if ( $base_norm !== $w3tc_norm && 0 !== \strpos( $base_norm, $w3tc_prefix ) ) {
+					return false;
+				}
+			}
+
+			$candidate = $base_prefix . \ltrim( $sub_path, '/' );
+		}
+
+		$probe = $candidate;
+		while ( true ) {
+			$fs = \realpath( $probe );
+			if ( false !== $fs ) {
+				$resolved = \str_replace( '\\', '/', $fs );
+				if ( $resolved === $base_norm || 0 === \strpos( $resolved, $base_prefix ) ) {
+					break;
+				}
+
+				$probe_norm = \str_replace( '\\', '/', $probe );
+				if ( $probe_norm === $base_norm || 0 === \strpos( $probe_norm, $base_prefix ) ) {
+					return false;
+				}
+
+				$candidate_n = \str_replace( '\\', '/', $candidate );
+				if ( $candidate_n !== $base_norm && 0 !== \strpos( $candidate_n, $base_prefix ) ) {
+					return false;
+				}
+				break;
+			}
+
+			$parent = \dirname( $probe );
+			if ( $parent === $probe || '' === $parent ) {
+				$candidate_n = \str_replace( '\\', '/', $candidate );
+				if ( $candidate_n !== $base_norm && 0 !== \strpos( $candidate_n, $base_prefix ) ) {
+					return false;
+				}
+				break;
+			}
+			$probe = $parent;
+		}
+
+		return $candidate;
+	}
+
+	/**
 	 * Sets data
 	 *
-	 * @param string $key    Key.
-	 * @param string $value  Value.
+	 * @param string $w3tc_key    Key.
+	 * @param string $w3tc_value  Value.
 	 * @param int    $expire Time to expire.
-	 * @param string $group  Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function set( $key, $value, $expire = 0, $group = '' ) {
-		$key      = $this->get_item_key( $key );
-		$sub_path = $this->_get_path( $key, $group );
-		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
+	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		$dir = dirname( $path );
 
 		if ( ! @is_dir( $dir ) ) {
-			if ( ! Util_File::mkdir_from_safe( $dir, dirname( W3TC_CACHE_DIR ) ) ) {
+			if ( \defined( 'W3TC_CACHE_DIR' ) && ! @is_dir( W3TC_CACHE_DIR ) ) {
+				if ( ! Util_File::mkdir_from_safe( W3TC_CACHE_DIR, \dirname( W3TC_CACHE_DIR ) ) ) {
+					return false;
+				}
+			}
+
+			if ( ! Util_File::mkdir_from_safe( $dir, W3TC_CACHE_DIR ) ) {
 				return false;
 			}
 		}
@@ -77,7 +211,13 @@ class Cache_File_Generic extends Cache_File {
 			@flock( $fp, LOCK_EX );
 		}
 
-		@fputs( $fp, $value['content'] );
+		@fputs( $fp, $w3tc_value['content'] );
+
+		if ( $this->_locking ) {
+			@\fflush( $fp );
+			@flock( $fp, LOCK_UN );
+		}
+
 		@fclose( $fp );
 
 		$chmod = 0644;
@@ -86,10 +226,6 @@ class Cache_File_Generic extends Cache_File {
 		}
 
 		@chmod( $tmppath, $chmod );
-
-		if ( $this->_locking ) {
-			@flock( $fp, LOCK_UN );
-		}
 
 		// some hostings create files with restrictive permissions not allowing apache to read it later.
 		@chmod( $path, 0644 );
@@ -104,10 +240,11 @@ class Cache_File_Generic extends Cache_File {
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
-		if ( Util_Environment::is_apache() && isset( $value['headers'] ) ) {
+		// Runs even without header rules, so a re-cache can remove .htaccess left by an earlier write.
+		if ( Util_Environment::is_apache() ) {
 			$rules = '';
 
-			if ( isset( $value['headers']['Content-Type'] ) && 'text/xml' === substr( $value['headers']['Content-Type'], 0, 8 ) ) {
+			if ( isset( $w3tc_value['headers']['Content-Type'] ) && 'text/xml' === substr( $w3tc_value['headers']['Content-Type'], 0, 8 ) ) {
 
 				$rules .= "<IfModule mod_mime.c>\n";
 				$rules .= "    RemoveType .html_gzip\n";
@@ -117,9 +254,9 @@ class Cache_File_Generic extends Cache_File {
 				$rules .= "</IfModule>\n";
 			}
 
-			if ( isset( $value['headers'] ) ) {
+			if ( isset( $w3tc_value['headers'] ) ) {
 				$headers = array();
-				foreach ( $value['headers'] as $h ) {
+				foreach ( $w3tc_value['headers'] as $h ) {
 					if ( isset( $h['n'] ) && isset( $h['v'] ) ) {
 						$h2 = apply_filters( 'w3tc_pagecache_set_header', $h, $h, 'file_generic' );
 
@@ -144,11 +281,11 @@ class Cache_File_Generic extends Cache_File {
 				}
 
 				$header_rules = '';
-				foreach ( $headers as $name_escaped => $value ) {
+				foreach ( $headers as $name_escaped => $w3tc_value ) {
 					// Link header doesnt apply to .xml assets.
-					$header_rules .= '    <FilesMatch "' . $value['files_match'] . "\">\n";
+					$header_rules .= '    <FilesMatch "' . $w3tc_value['files_match'] . "\">\n";
 					$header_rules .= "        Header unset $name_escaped\n";
-					$header_rules .= implode( "\n", $value['values'] );
+					$header_rules .= implode( "\n", $w3tc_value['values'] );
 					$header_rules .= "    </FilesMatch>\n";
 				}
 
@@ -159,17 +296,33 @@ class Cache_File_Generic extends Cache_File {
 				}
 			}
 
-			if ( ! empty( $rules ) ) {
-				$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
+			$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
 
-				@file_put_contents( $htaccess_path, $rules );
+			$htaccess_dir = \realpath( dirname( $path ) );
+			$base_path    = \realpath( $this->_cache_dir );
+			if ( false !== $htaccess_dir && false !== $base_path ) {
+				$base_norm     = \rtrim( \str_replace( '\\', '/', $base_path ), '/' );
+				$base_prefix   = $base_norm . '/';
+				$htaccess_norm = \str_replace( '\\', '/', $htaccess_dir );
+				$htaccess_ok   = ( $htaccess_norm === $base_norm || 0 === \strpos( $htaccess_norm, $base_prefix ) );
 
-				$chmod = 0644;
-				if ( defined( 'FS_CHMOD_FILE' ) ) {
-					$chmod = FS_CHMOD_FILE;
+				if ( $htaccess_ok ) {
+					if ( empty( $rules ) ) {
+						// No rules now: drop the file an earlier write left, so its stale headers stop applying.
+						if ( file_exists( $htaccess_path ) ) {
+							@unlink( $htaccess_path );
+						}
+					} else {
+						@file_put_contents( $htaccess_path, $rules );
+
+						$chmod = 0644;
+						if ( defined( 'FS_CHMOD_FILE' ) ) {
+							$chmod = FS_CHMOD_FILE;
+						}
+
+						@chmod( $htaccess_path, $chmod );
+					}
 				}
-
-				@chmod( $htaccess_path, $chmod );
 			}
 		}
 
@@ -188,20 +341,32 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
-	 * Escape header value
+	 * Escape header value for Apache single-quoted Header directives.
+	 *
+	 * Strips CR/LF/NUL while preserving double quotes and Link angle
+	 * brackets so HTTP/2 preload values (`<uri>; rel=preload; as=…`) stay
+	 * RFC-valid inside the single-quoted Apache `Header add` context.
+	 * Angle-bracket stripping belongs on directive tokens
+	 * ({@see Util_Rule::sanitize_directive_value()}), not quoted header values.
 	 *
 	 * @param string $v Value.
 	 *
-	 * @return array
+	 * @return string
 	 */
 	private function escape_header_value( $v ) {
-		return str_replace(
+		if ( ! \is_string( $v ) ) {
+			return '';
+		}
+
+		$v = \preg_replace( '/[\r\n\x00]/', '', \trim( $v ) );
+
+		return \str_replace(
 			"'",
 			"\\'",
-			str_replace(
-				"\\",
-				"\\\\\\", // htaccess need escape of \ to \\\.
-				preg_replace( '~[\r\n]~m', '_', trim( $v ) )
+			\str_replace(
+				'\\',
+				'\\\\\\', // htaccess need escape of \ to \\\.
+				$v
 			)
 		);
 	}
@@ -209,19 +374,22 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Returns data
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
 	 */
-	public function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
-		$key          = $this->get_item_key( $key );
-		$path         = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+		$w3tc_key     = $this->get_item_key( $w3tc_key );
+		$path         = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return array( null, $has_old_data );
+		}
 
-		$data = $this->_read( $path );
-		if ( null !== $data ) {
-			return array( $data, $has_old_data );
+		$w3tc_data = $this->_read( $path );
+		if ( null !== $w3tc_data ) {
+			return array( $w3tc_data, $has_old_data );
 		}
 
 		/**
@@ -293,11 +461,11 @@ class Cache_File_Generic extends Cache_File {
 			$var .= @fread( $fp, 4096 );
 		}
 
-		@fclose( $fp );
-
 		if ( $this->_locking ) {
 			@flock( $fp, LOCK_UN );
 		}
+
+		@fclose( $fp );
 
 		$headers = array();
 		if ( '.xml' === substr( $path, -4 ) ) {
@@ -315,14 +483,17 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Deletes data
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function delete( $key, $group = '' ) {
-		$key  = $this->get_item_key( $key );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		if ( ! file_exists( $path ) ) {
 			return true;
@@ -363,13 +534,16 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Checks if entry exists
 	 *
-	 * @param string $key Key.
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_key Key.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 * @return boolean true if exists, false otherwise
 	 */
-	public function exists( $key, $group = '' ) {
-		$key  = $this->get_item_key( $key );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function exists( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
 
 		return file_exists( $path );
 	}
@@ -377,14 +551,18 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Key to delete, deletes _old and primary if exists.
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 *
 	 * @return bool
 	 */
-	public function hard_delete( $key, $group = '' ) {
-		$key            = $this->get_item_key( $key );
-		$path           = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		$w3tc_key = $this->get_item_key( $w3tc_key );
+		$path     = $this->_resolve_path( $w3tc_key, $w3tc_group );
+		if ( false === $path ) {
+			return false;
+		}
+
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
@@ -400,27 +578,27 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Flushes all data
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function flush( $group = '' ) {
-		if ( 'sitemaps' === $group ) {
-			$config        = Dispatcher::config();
-			$sitemap_regex = $config->get_string( 'pgcache.purge.sitemap_regex' );
+	public function flush( $w3tc_group = '' ) {
+		if ( 'sitemaps' === $w3tc_group ) {
+			$w3tc_config   = Dispatcher::config();
+			$sitemap_regex = $w3tc_config->get_string( 'pgcache.purge.sitemap_regex' );
 			$this->_flush_based_on_regex( $sitemap_regex );
 		} else {
 			$dir = $this->_flush_dir;
-			if ( ! empty( $group ) ) {
-				$c = new Cache_File_Cleaner_Generic_HardDelete(
+			if ( ! empty( $w3tc_group ) ) {
+				$w3tc_c = new Cache_File_Cleaner_Generic_HardDelete(
 					array(
-						'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $group,
+						'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $w3tc_group,
 						'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 						'clean_timelimit' => $this->_flush_timelimit,
 					)
 				);
 			} else {
-				$c = new Cache_File_Cleaner_Generic(
+				$w3tc_c = new Cache_File_Cleaner_Generic(
 					array(
 						'cache_dir'       => $this->_flush_dir,
 						'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
@@ -429,7 +607,7 @@ class Cache_File_Generic extends Cache_File {
 				);
 			}
 
-			$c->clean();
+			$w3tc_c->clean();
 		}
 
 		return true;
@@ -439,11 +617,11 @@ class Cache_File_Generic extends Cache_File {
 	 * Gets a key extension for "ahead generation" mode.
 	 * Used by AlwaysCached functionality to regenerate content
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
 	 *
 	 * @return array
 	 */
-	public function get_ahead_generation_extension( $group ) {
+	public function get_ahead_generation_extension( $w3tc_group ) {
 		return array(
 			'before_time' => time(),
 		);
@@ -452,57 +630,57 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Flushes group with before condition
 	 *
-	 * @param string $group Used to differentiate between groups of cache values.
-	 * @param array  $extension Used to set a condition what version to flush.
+	 * @param string $w3tc_group Used to differentiate between groups of cache values.
+	 * @param array  $w3tc_extension Used to set a condition what version to flush.
 	 *
 	 * @return void
 	 */
-	public function flush_group_after_ahead_generation( $group, $extension ) {
+	public function flush_group_after_ahead_generation( $w3tc_group, $w3tc_extension ) {
 		$dir = $this->_flush_dir;
-		if ( ! empty( $group ) ) {
-			$c = new Cache_File_Cleaner_Generic_HardDelete(
+		if ( ! empty( $w3tc_group ) ) {
+			$w3tc_c = new Cache_File_Cleaner_Generic_HardDelete(
 				array(
-					'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $group,
+					'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $w3tc_group,
 					'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid'  => $extension['before_time'],
+					'time_min_valid'  => $w3tc_extension['before_time'],
 				)
 			);
 		} else {
-			$c = new Cache_File_Cleaner_Generic(
+			$w3tc_c = new Cache_File_Cleaner_Generic(
 				array(
 					'cache_dir'       => $this->_flush_dir,
 					'exclude'         => $this->_exclude, // phpcs:ignore WordPressVIPMinimum
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid'  => $extension['before_time'],
+					'time_min_valid'  => $w3tc_extension['before_time'],
 				)
 			);
 		}
 
-		$c->clean();
+		$w3tc_c->clean();
 	}
 
 	/**
 	 * Returns cache file path by key
 	 *
-	 * @param string $key   Key.
-	 * @param string $group Group.
+	 * @param string $w3tc_key   Key.
+	 * @param string $w3tc_group Group.
 	 *
 	 * @return string
 	 */
-	public function _get_path( $key, $group = '' ) {
-		return ( empty( $group ) ? '' : $group . DIRECTORY_SEPARATOR ) . $key;
+	public function _get_path( $w3tc_key, $w3tc_group = '' ) {
+		return ( empty( $w3tc_group ) ? '' : $w3tc_group . DIRECTORY_SEPARATOR ) . $w3tc_key;
 	}
 
 	/**
 	 * Returns item key
 	 *
-	 * @param string $key Key.
+	 * @param string $w3tc_key Key.
 	 *
 	 * @return string
 	 */
-	public function get_item_key( $key ) {
-		return $key;
+	public function get_item_key( $w3tc_key ) {
+		return $w3tc_key;
 	}
 
 	/**
@@ -525,18 +703,18 @@ class Cache_File_Generic extends Cache_File {
 
 		$dir = @opendir( $flush_dir );
 		if ( $dir ) {
-			$entry = @readdir( $dir );
-			while ( false !== $entry ) {
-				if ( '.' === $entry || '..' === $entry ) {
-					$entry = @readdir( $dir );
+			$w3tc_entry = @readdir( $dir );
+			while ( false !== $w3tc_entry ) {
+				if ( '.' === $w3tc_entry || '..' === $w3tc_entry ) {
+					$w3tc_entry = @readdir( $dir );
 					continue;
 				}
 
-				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
-					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
+				if ( preg_match( '~' . $regex . '~', basename( $w3tc_entry ) ) ) {
+					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $w3tc_entry );
 				}
 
-				$entry = @readdir( $dir );
+				$w3tc_entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
