@@ -323,7 +323,7 @@ class Cache_Redis extends Cache_Base {
 
 		if ( is_null( $accessor ) ) {
 			// Queue the invalidation so recovery applies it before any read.
-			$this->queue_invalidation( $storage_key, $op );
+			$this->queue_invalidation( $storage_key, $op, $w3tc_group );
 			return false;
 		}
 
@@ -340,7 +340,7 @@ class Cache_Redis extends Cache_Base {
 				}
 
 				$this->mark_bypass_unless_failed( $accessor, $storage_key );
-				$this->queue_invalidation( $storage_key, $op );
+				$this->queue_invalidation( $storage_key, $op, $w3tc_group );
 				return false;
 			}
 		}
@@ -349,7 +349,7 @@ class Cache_Redis extends Cache_Base {
 
 		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
 			$this->mark_bypass_unless_failed( $accessor, $storage_key );
-			$this->queue_invalidation( $storage_key, $op );
+			$this->queue_invalidation( $storage_key, $op, $w3tc_group );
 			return false;
 		}
 
@@ -368,7 +368,7 @@ class Cache_Redis extends Cache_Base {
 		$accessor    = $this->_get_accessor( $storage_key );
 
 		if ( is_null( $accessor ) ) {
-			$this->queue_invalidation( $storage_key, 'hard_delete' );
+			$this->queue_invalidation( $storage_key, 'hard_delete', $w3tc_group );
 			return false;
 		}
 
@@ -376,7 +376,7 @@ class Cache_Redis extends Cache_Base {
 
 		if ( false === $wrote || $this->accessor_failed( $accessor ) ) {
 			$this->mark_bypass_unless_failed( $accessor, $storage_key );
-			$this->queue_invalidation( $storage_key, 'hard_delete' );
+			$this->queue_invalidation( $storage_key, 'hard_delete', $w3tc_group );
 			return false;
 		}
 
@@ -834,8 +834,11 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Get accessor.
 	 *
+	 * A stored false means the server is held for this request only, because
+	 * another worker is replaying its queue. It is returned as null.
+	 *
 	 * @param string $w3tc_key Key.
-	 * @return object
+	 * @return object|null
 	 */
 	private function _get_accessor( $w3tc_key ) {
 		if ( count( $this->_servers ) <= 1 ) {
@@ -846,6 +849,11 @@ class Cache_Redis extends Cache_Base {
 
 		if ( isset( $this->_accessors[ $w3tc_index ] ) ) {
 			$cached = $this->_accessors[ $w3tc_index ];
+
+			if ( false === $cached ) {
+				// Another worker is replaying the queue. Stay off this server for the rest of the request.
+				return null;
+			}
 
 			if (
 				! \method_exists( $cached, 'is_failed' ) ||
@@ -863,8 +871,13 @@ class Cache_Redis extends Cache_Base {
 		} else {
 			$server = $this->_servers[ $w3tc_index ];
 
+			$pending = self::pending_path( $server, $this->_dbid );
+
 			if ( self::is_server_bypassed( $server, $this->_dbid ) ) {
 				$accessor = null;
+			} elseif ( self::replay_claim_exists( $pending ) ) {
+				// Another worker is applying the queue. Do not connect or read yet.
+				$accessor = false;
 			} else {
 				try {
 					$connect_args = $this->build_connect_args( $server );
@@ -880,14 +893,12 @@ class Cache_Redis extends Cache_Base {
 						&& false !== $accessor->select( $this->_dbid );
 
 					// Queued invalidations apply before this connection serves any read.
-					$pending = self::pending_path( $server, $this->_dbid );
-
 					if ( $ready && $this->replay_queued_invalidations( $accessor, $server ) ) {
 						self::clear_server_bypass( $server, $this->_dbid );
 						$accessor = $this->guard_client( $accessor, $server );
 					} elseif ( $ready && self::replay_claim_exists( $pending ) ) {
-						// Another request is applying the queue. Do not read yet.
-						$accessor = null;
+						// Another request took the queue while this one connected. Do not read yet.
+						$accessor = false;
 					} else {
 						\error_log( __METHOD__ . ': AUTH, SELECT, or queued replay failed for database ' . $this->_dbid ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						self::mark_server_bypassed( $server, $this->_dbid );
@@ -903,7 +914,7 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[ $w3tc_index ] = $accessor;
 		}
 
-		return $this->_accessors[ $w3tc_index ];
+		return false === $this->_accessors[ $w3tc_index ] ? null : $this->_accessors[ $w3tc_index ];
 	}
 
 	/**
@@ -1210,7 +1221,7 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
-	 * Queue file size above which the queue collapses to one database flush.
+	 * Queue file size above which the queue collapses to one group version bump per engine.
 	 *
 	 * @since X.X.X
 	 */
@@ -1384,11 +1395,24 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		if ( is_file( $path ) && (int) @\filesize( $path ) > self::PENDING_MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			// Too many to replay one by one: recovery flushes the database instead.
-			$line = \json_encode( array( 'op' => 'flush_all' ) ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$version_key = 'flush' === $op ? (string) $storage_key : $this->_get_key_version_key( $group );
 
-			return false !== @\file_put_contents( $path, $line, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( is_file( $path ) && (int) @\filesize( $path ) > self::PENDING_MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			// Too many to replay one by one: recovery moves on the group version of each engine that queued.
+			$version_keys   = self::queued_version_keys( $path );
+			$version_keys[] = $version_key;
+			$lines          = '';
+
+			foreach ( array_unique( $version_keys ) as $queued_key ) {
+				$lines .= \json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+					array(
+						'op'  => 'flush',
+						'key' => $queued_key,
+					)
+				) . "\n";
+			}
+
+			return false !== @\file_put_contents( $path, $lines, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
 		if ( 'flush' === $op ) {
@@ -1400,14 +1424,44 @@ class Cache_Redis extends Cache_Base {
 			);
 		} else {
 			$entry = array(
-				'op'  => $op,
-				'key' => (string) $storage_key,
+				'op'   => $op,
+				'key'  => (string) $storage_key,
+				'vkey' => $version_key,
 			);
 		}
 
 		$line = \json_encode( $entry ) . "\n"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 
 		return false !== @\file_put_contents( $path, $line, FILE_APPEND | LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	/**
+	 * Group version keys named by the entries of a pending queue.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Pending queue path.
+	 * @return string[]
+	 */
+	private static function queued_version_keys( $path ) {
+		$lines = @\file( $path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
+		$keys  = array();
+
+		foreach ( is_array( $lines ) ? $lines : array() as $line ) {
+			$entry = json_decode( $line, true );
+
+			if ( ! is_array( $entry ) ) {
+				continue;
+			}
+
+			if ( isset( $entry['op'], $entry['key'] ) && 'flush' === $entry['op'] ) {
+				$keys[] = (string) $entry['key'];
+			} elseif ( isset( $entry['vkey'] ) ) {
+				$keys[] = (string) $entry['vkey'];
+			}
+		}
+
+		return $keys;
 	}
 
 	/**
@@ -1580,10 +1634,6 @@ class Cache_Redis extends Cache_Base {
 	 */
 	private function apply_queued_invalidation( $redis, array $entry ) {
 		$op = isset( $entry['op'] ) ? $entry['op'] : '';
-
-		if ( 'flush_all' === $op ) {
-			return false !== $redis->flushdb();
-		}
 
 		if ( 'flush' === $op ) {
 			$version_key = isset( $entry['key'] )

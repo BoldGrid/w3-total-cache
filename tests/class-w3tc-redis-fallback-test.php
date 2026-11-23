@@ -539,29 +539,72 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A queue past the size cap collapses to one database flush on recovery.
+	 * A queue past the size cap collapses to one group version bump per engine, never a database flush.
 	 */
-	public function test_oversized_queue_collapses_to_database_flush() {
+	public function test_oversized_queue_collapses_to_group_version_bumps() {
 		$this->use_temp_bypass();
-		$server = '127.0.0.1:6400';
-		$engine = $this->engine( array( $server ) );
-		$path   = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+		$server   = '127.0.0.1:6400';
+		$engine   = $this->engine_for( $server, 1, 'objectcache' );
+		$other    = $this->engine_for( $server, 1, 'dbcache' );
+		$path     = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+		$version  = new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' );
+		$version->setAccessible( true );
+		$own_key   = $version->invoke( $engine, 'g' );
+		$other_key = $version->invoke( $other, 'h' );
+		$entries   = '';
 
-		file_put_contents( $path, str_repeat( 'x', Cache_Redis::PENDING_MAX_BYTES + 1 ) );
+		while ( strlen( $entries ) <= Cache_Redis::PENDING_MAX_BYTES ) {
+			$entries .= json_encode( array( 'op' => 'delete', 'key' => 'w3tc_a', 'vkey' => $other_key ) ) . "\n";
+		}
+
+		file_put_contents( $path, $entries );
 		Cache_Redis::$client_factory = function () {
 			return new W3tc_Redis_Replay_Client_Stub( true );
 		};
 		$engine->delete( 'k', 'g' );
 
 		Cache_Redis::clear_server_bypass( $server, 0 );
-		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
-		Cache_Redis::$client_factory = function () use ( $recovered ) {
+		$recovered                             = new W3tc_Redis_Replay_Client_Stub( false );
+		$recovered->get_values[ $own_key ]     = '3';
+		$recovered->get_values[ $other_key ]   = '7';
+		Cache_Redis::$client_factory           = function () use ( $recovered ) {
 			return $recovered;
 		};
 		$engine->get_with_old( 'k', 'g' );
 
-		$this->assertContains( array( 'flushdb' ), $recovered->calls );
+		$this->assertContains( array( 'set', $own_key, 4 ), $recovered->calls );
+		$this->assertContains( array( 'set', $other_key, 8 ), $recovered->calls );
+		$this->assertNotContains( array( 'flushdb' ), $recovered->calls );
 		$this->assertFileDoesNotExist( $path );
+	}
+
+	/**
+	 * A live replay claim holds the server for the request: one lookup, no connects, no repeated checks.
+	 */
+	public function test_live_replay_claim_does_not_reconnect_within_a_request() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6406';
+		$engine = $this->engine( array( $server ) );
+		$claim  = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' ) . '.replay-999-live';
+		$built  = 0;
+
+		file_put_contents( $claim, json_encode( array( 'op' => 'delete', 'key' => 'w3tc_x' ) ) . "\n" );
+		touch( $claim, time() - 120 );
+
+		Cache_Redis::$client_factory = function () use ( &$built ) {
+			++$built;
+
+			return new W3tc_Redis_Replay_Client_Stub( false );
+		};
+
+		$engine->get_with_old( 'a', 'g' );
+		$engine->get_with_old( 'b', 'g' );
+		$this->assertFalse( $engine->set( 'c', array( 'v' => 'v' ), 0, 'g' ) );
+		$this->assertSame( array( null, false ), $engine->get_with_old( 'd', 'g' ) );
+
+		$this->assertSame( 0, $built );
+		$this->assertFileExists( $claim );
+		$this->assertFalse( Cache_Redis::is_server_bypassed( $server, 0 ) );
 	}
 
 	/**
