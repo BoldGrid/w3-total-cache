@@ -586,10 +586,12 @@ class Minify_Environment {
 	 * @return void
 	 */
 	private function rules_cache_add( $w3tc_config, $exs ) {
+		$rules_path = Util_Rule::get_minify_rules_cache_path();
+
 		Util_Rule::add_rules(
 			$exs,
-			Util_Rule::get_minify_rules_cache_path(),
-			$this->rules_cache_generate( $w3tc_config ),
+			$rules_path,
+			$this->rules_cache_filtered( $w3tc_config, $rules_path ),
 			W3TC_MARKER_BEGIN_MINIFY_CACHE,
 			W3TC_MARKER_END_MINIFY_CACHE,
 			array(
@@ -600,6 +602,45 @@ class Minify_Environment {
 				W3TC_MARKER_BEGIN_WORDPRESS          => 0,
 			)
 		);
+	}
+
+	/**
+	 * Generates cache rules and applies the `w3tc_environment_get_required_rules` filter to them.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config       $w3tc_config W3TC Config containing relevant settings.
+	 * @param string|false $rules_path  Path of the file the rules are written to.
+	 *
+	 * @return string Cache rules for the file at $rules_path.
+	 */
+	private function rules_cache_filtered( $w3tc_config, $rules_path ) {
+		$required_rules = array(
+			array(
+				'filename' => $rules_path,
+				'content'  => $this->rules_cache_generate( $w3tc_config ),
+			),
+		);
+
+		$descriptors = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $w3tc_config );
+
+		$content = array();
+
+		foreach ( (array) $descriptors as $descriptor ) {
+			if ( ! isset( $descriptor['filename'] ) || $descriptor['filename'] !== $rules_path ) {
+				continue;
+			}
+
+			if ( ! isset( $descriptor['position'] ) ) {
+				$content[] = $descriptor['content'];
+			} elseif ( isset( $content[ $descriptor['position'] ] ) ) {
+				$content[ $descriptor['position'] ] .= $descriptor['content'];
+			} else {
+				$content[ $descriptor['position'] ] = $descriptor['content'];
+			}
+		}
+
+		return implode( '', $content );
 	}
 
 	/**
