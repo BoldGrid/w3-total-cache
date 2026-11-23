@@ -1,0 +1,81 @@
+name: Release
+
+# Tag builds only (replaces Travis deploy providers). Run CI checks before release artifacts.
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  test:
+    name: PHP 7.4 (pre-release)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get install -y subversion
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, xml, mysql, mysqli, curl, zip, gd, intl
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+      - uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            node_modules
+            ~/.composer/cache
+          key: ${{ runner.os }}-release-deps-${{ hashFiles('composer.lock', 'yarn.lock') }}
+      - run: yarn run install:deps
+      - run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest true
+      - run: yarn run hooks:check
+      - run: vendor/bin/phpunit
+      - run: WP_MULTISITE=1 vendor/bin/phpunit --group multisite --no-coverage
+
+  release:
+    name: Build and publish
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, xml, curl, zip
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+      - run: yarn run install:deps
+      - run: composer install --no-dev --no-interaction --prefer-dist -o --no-progress
+      - run: chmod +x ./bin/release.sh && ./bin/release.sh
+        env:
+          WP_SVN_REPO: https://plugins.svn.wordpress.org/w3-total-cache
+          WP_USERNAME: ${{ secrets.SVN_USERNAME }}
+          WP_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: w3-total-cache.zip
+          generate_release_notes: true

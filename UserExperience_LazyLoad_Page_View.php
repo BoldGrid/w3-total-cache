@@ -164,7 +164,7 @@ $w3tc_is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $w3tc_ac
 								sprintf(
 									// translators: 1 opening HTML a tag to Google Maps Easy plugin, 2 closing HTML a tag.
 									__(
-										'%1$sGoogle Maps Easy%2$s plugin',
+										'%1$sEasy Google Maps%2$s plugin',
 										'w3-total-cache'
 									),
 									'<a href="' . esc_url( 'https://wordpress.org/plugins/google-maps-easy/' ) . '" target="_blank">',

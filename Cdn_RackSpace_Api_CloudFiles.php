@@ -86,13 +86,7 @@ class Cdn_RackSpace_Api_CloudFiles {
 		if ( ! \is_array( $w3tc_descriptor ) ) {
 			return array();
 		}
-		/**
-		 * Rackspace-issued URLs end in `.rackspacecloud.com` or
-		 * `.rackcdn.com`. Leading dot in the suffix list prevents
-		 * attacker-owned `*rackspacecloud.com.evil.example` from
-		 * matching by accident.
-		 */
-		$suffixes = array( '.rackspacecloud.com', '.rackcdn.com' );
+		$suffixes = Cdn_RackSpace_Api_Tokens::service_url_suffixes();
 		if (
 			! empty( $w3tc_descriptor['object-store.publicURL'] )
 			&& ! Util_Url::is_https_public_host_with_suffix(

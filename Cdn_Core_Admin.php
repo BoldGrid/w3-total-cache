@@ -343,7 +343,7 @@ class Cdn_Core_Admin {
 		$uploads_use_yearmonth_folders = get_option( 'uploads_use_yearmonth_folders' );
 		$document_root                 = Util_Environment::document_root();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) );
 
 		if ( $upload_info ) {
 			/**
@@ -601,7 +601,7 @@ class Cdn_Core_Admin {
 	public function rename_domain( $names, $w3tc_limit, $w3tc_offset, &$w3tc_count, &$total, &$results ) {
 		global $wpdb;
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) );
 
 		$w3tc_count = 0;
 		$total      = 0;

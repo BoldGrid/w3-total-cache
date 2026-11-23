@@ -76,7 +76,7 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 		if ( ! \is_array( $w3tc_descriptor ) ) {
 			return array();
 		}
-		$suffixes = array( '.rackspacecloud.com', '.rackcdn.com' );
+		$suffixes = Cdn_RackSpace_Api_Tokens::service_url_suffixes();
 		if (
 			! empty( $w3tc_descriptor['object-cdn.publicURL'] )
 			&& ! Util_Url::is_https_public_host_with_suffix(
