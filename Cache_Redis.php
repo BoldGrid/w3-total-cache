@@ -93,7 +93,7 @@ class Cache_Redis extends Cache_Base {
 
 		$this->_persistent              = ( isset( $w3tc_config['persistent'] ) && $w3tc_config['persistent'] );
 		$this->_servers                 = (array) $w3tc_config['servers'];
-		$this->_verify_tls_certificates = ( isset( $w3tc_config['verify_tls_certificates'] ) && $w3tc_config['verify_tls_certificates'] );
+		$this->_verify_tls_certificates = self::verify_tls_certificates_enabled( $w3tc_config );
 		$this->_password                = $w3tc_config['password'];
 		$this->_dbid                    = $w3tc_config['dbid'];
 		$this->_timeout                 = $w3tc_config['timeout'] ?? 3600000;
@@ -107,6 +107,54 @@ class Cache_Redis extends Cache_Base {
 		if ( isset( $w3tc_config['key_version_mode'] ) && 'disabled' === $w3tc_config['key_version_mode'] ) {
 			$this->_key_version[''] = 1;
 		}
+	}
+
+	/**
+	 * Whether TLS peer and certificate verification is enabled.
+	 *
+	 * Missing keys verify. Only an explicit false/0 opt-out disables.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array $w3tc_config Redis engine construction array.
+	 *
+	 * @return bool
+	 */
+	public static function verify_tls_certificates_enabled( array $w3tc_config ) {
+		if ( ! array_key_exists( 'verify_tls_certificates', $w3tc_config ) ) {
+			return true;
+		}
+
+		return (bool) $w3tc_config['verify_tls_certificates'];
+	}
+
+	/**
+	 * Stream context for a Redis server URI.
+	 *
+	 * Non-TLS URIs get an empty context. TLS URIs always set verify_peer
+	 * and verify_peer_name explicitly so PHP defaults cannot silently
+	 * disable verification.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $server                   Server URI.
+	 * @param bool   $verify_tls_certificates  Whether to verify.
+	 *
+	 * @return array
+	 */
+	public static function tls_stream_context( $server, $verify_tls_certificates ) {
+		if ( 0 !== strpos( (string) $server, 'tls:' ) ) {
+			return array();
+		}
+
+		$verify = (bool) $verify_tls_certificates;
+
+		return array(
+			'stream' => array(
+				'verify_peer'      => $verify,
+				'verify_peer_name' => $verify,
+			),
+		);
 	}
 
 	/**
@@ -663,14 +711,7 @@ class Cache_Redis extends Cache_Base {
 
 		// Support for stream context was added in phpredis 5.3.2.
 		if ( version_compare( $phpredis_version, '5.3.2', '>=' ) ) {
-			$context = array();
-			if ( 'tls:' === substr( $server, 0, 4 ) && ! $this->_verify_tls_certificates ) {
-				$context['stream'] = array(
-					'verify_peer'      => false,
-					'verify_peer_name' => false,
-				);
-			}
-			$connect_args[] = $context;
+			$connect_args[] = self::tls_stream_context( $server, $this->_verify_tls_certificates );
 		}
 
 		return $connect_args;

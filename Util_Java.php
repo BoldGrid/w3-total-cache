@@ -12,13 +12,14 @@ namespace W3TC;
 /**
  * Class Util_Java
  *
- * Validates an administrator-supplied path to a Java binary against an
- * allowlist of trusted directories before that path is assigned to the
- * vendored minifier wrapper's static `$javaExecutable` property. The
- * vendored code (`lib/Minify/Minify/{YUICompressor,ClosureCompiler}.php`)
- * concatenates that property into the command string passed to `exec()`,
- * so values that are not first run through this validator would not be
- * escaped at the boundary.
+ * Validates administrator-supplied paths to a Java binary and to the
+ * minifier JAR against allowlists of trusted directories before those
+ * paths are assigned to the vendored minifier wrapper statics
+ * (`$javaExecutable`, `$jarFile`). The vendored code
+ * (`lib/Minify/Minify/{YUICompressor,ClosureCompiler}.php`) concatenates
+ * those properties into the command string passed to `exec()`, so values
+ * that are not first run through these validators would not be escaped
+ * at the boundary.
  *
  * The candidate path must canonicalize via `realpath()`, must be
  * `is_file()` + `is_executable()`, and must live underneath one of the
@@ -70,12 +71,7 @@ class Util_Java {
 		 * `realpath()` + the allowlist below to enforce the actual
 		 * "is this a Java binary" check.
 		 */
-		if ( '\\' === DIRECTORY_SEPARATOR ) {
-			$metachar_re = '/[\x00-\x1F\x7F&|<>^"\*\?]/';
-		} else {
-			$metachar_re = '/[\x00-\x1F\x7F;&|`$<>"\'\\\\(){}\[\]\*\?]/';
-		}
-		if ( \preg_match( $metachar_re, $path ) ) {
+		if ( self::contains_shell_metacharacters( $path ) ) {
 			return false;
 		}
 
@@ -98,23 +94,11 @@ class Util_Java {
 			}
 		}
 
-		$allowed      = self::allowed_dirs();
-		$is_windows   = '\\' === DIRECTORY_SEPARATOR;
-		$real_compare = $is_windows ? \strtolower( $real ) : $real;
-		foreach ( $allowed as $dir ) {
-			if ( '' === $dir ) {
-				continue;
-			}
-			$prefix = \rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
-			if ( $is_windows ) {
-				$prefix = \strtolower( $prefix );
-			}
-			if ( 0 === \strpos( $real_compare, $prefix ) ) {
-				return $real;
-			}
+		if ( ! self::is_under_allowed_dirs( $real, self::allowed_dirs() ) ) {
+			return false;
 		}
 
-		return false;
+		return $real;
 	}
 
 	/**
@@ -158,6 +142,171 @@ class Util_Java {
 			);
 		}
 		return $w3tc_result;
+	}
+
+	/**
+	 * Validate a candidate JAR path before it is passed to `java -jar`.
+	 *
+	 * Returns the canonical absolute path on success, or `false` on
+	 * any failure. Callers must not fall back to the raw value: the
+	 * vendored minifier wrappers interpolate `$jarFile` into `exec()`.
+	 *
+	 * The candidate must canonicalize via `realpath()` (symlink targets
+	 * that leave the allowlist are refused), must be a readable regular
+	 * file whose name ends in `.jar`, must start with ZIP magic bytes,
+	 * and must live under one of `allowed_jar_dirs()`. Operators with
+	 * non-standard layouts may extend the list by defining
+	 * `W3TC_JAVA_JAR_ALLOWED_DIRS` in `wp-config.php`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $path Candidate path to a JAR.
+	 *
+	 * @return string|false Canonical path on success, false on rejection.
+	 */
+	public static function validate_jar( $path ) {
+		if ( ! \is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		if ( self::contains_shell_metacharacters( $path ) ) {
+			return false;
+		}
+
+		$real = \realpath( $path );
+		if ( false === $real || '' === $real ) {
+			return false;
+		}
+
+		if ( ! \is_file( $real ) || ! \is_readable( $real ) ) {
+			return false;
+		}
+
+		if ( '.jar' !== \strtolower( \substr( $real, -4 ) ) ) {
+			return false;
+		}
+
+		if ( ! self::is_under_allowed_dirs( $real, self::allowed_jar_dirs() ) ) {
+			return false;
+		}
+
+		/**
+		 * JAR files are ZIP archives. Read magic only after the
+		 * allowlist check so out-of-boundary files are never opened.
+		 */
+		$handle = \fopen( $real, 'rb' );
+		if ( false === $handle ) {
+			return false;
+		}
+		$magic = \fread( $handle, 4 );
+		\fclose( $handle );
+		if ( ! \is_string( $magic ) || 2 > \strlen( $magic ) || 0 !== \strpos( $magic, 'PK' ) ) {
+			return false;
+		}
+
+		return $real;
+	}
+
+	/**
+	 * Validate a candidate JAR path and emit a minify debug-log entry
+	 * if the candidate is rejected.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $path    Candidate path to a JAR.
+	 * @param string $context Short tag used in the debug-log entry.
+	 *
+	 * @return string|false Canonical path on success, false on rejection.
+	 */
+	public static function validate_jar_with_log( $path, $context = '' ) {
+		$w3tc_result = self::validate_jar( $path );
+		if ( false === $w3tc_result ) {
+			$tag         = '' === $context ? 'jar' : $context;
+			$logged_path = \is_string( $path ) ? $path : '(non-string)';
+			Util_Debug::log(
+				'minify',
+				\sprintf(
+					'Util_Java: rejected JAR path "%s" for %s (allowed dirs: %s).',
+					$logged_path,
+					$tag,
+					\implode( PATH_SEPARATOR, self::allowed_jar_dirs() )
+				)
+			);
+		}
+		return $w3tc_result;
+	}
+
+	/**
+	 * Validate a Java executable and JAR together.
+	 *
+	 * Returns canonical paths on success, or `false` if either path is
+	 * rejected. Callers should treat `false` as "do not invoke the tool".
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $path_java Candidate Java executable.
+	 * @param string $path_jar  Candidate JAR.
+	 * @param string $context   Short tag for debug-log entries.
+	 *
+	 * @return array{java:string,jar:string}|false
+	 */
+	public static function validate_tools( $path_java, $path_jar, $context = '' ) {
+		$java = self::validate_with_log( $path_java, $context );
+		if ( false === $java ) {
+			return false;
+		}
+
+		$jar = self::validate_jar_with_log( $path_jar, $context );
+		if ( false === $jar ) {
+			return false;
+		}
+
+		return array(
+			'java' => $java,
+			'jar'  => $jar,
+		);
+	}
+
+	/**
+	 * Returns the list of directories from which a JAR is accepted.
+	 *
+	 * Defaults include the plugin directory, `WP_CONTENT_DIR`, and
+	 * platform package locations. Operators may override by defining
+	 * `W3TC_JAVA_JAR_ALLOWED_DIRS` in `wp-config.php` using
+	 * `PATH_SEPARATOR`. Existing directories are canonicalized so a
+	 * symlinked `wp-content` still matches `realpath()` of a JAR.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[]
+	 */
+	public static function allowed_jar_dirs() {
+		if ( \defined( 'W3TC_JAVA_JAR_ALLOWED_DIRS' ) ) {
+			$raw  = (string) \constant( 'W3TC_JAVA_JAR_ALLOWED_DIRS' );
+			$dirs = \array_filter( \array_map( 'trim', \explode( PATH_SEPARATOR, $raw ) ) );
+			if ( ! empty( $dirs ) ) {
+				return self::canonicalize_allowed_dirs( \array_values( $dirs ) );
+			}
+		}
+
+		$dirs = array();
+		if ( \defined( 'W3TC_DIR' ) && \is_string( \constant( 'W3TC_DIR' ) ) && '' !== \constant( 'W3TC_DIR' ) ) {
+			$dirs[] = \constant( 'W3TC_DIR' );
+		}
+		if ( \defined( 'WP_CONTENT_DIR' ) && \is_string( \WP_CONTENT_DIR ) && '' !== \WP_CONTENT_DIR ) {
+			$dirs[] = \WP_CONTENT_DIR;
+		}
+
+		if ( '\\' === DIRECTORY_SEPARATOR ) {
+			$dirs[] = 'C:\\Program Files';
+			$dirs[] = 'C:\\Program Files (x86)';
+		} else {
+			$dirs[] = '/usr/share/java';
+			$dirs[] = '/usr/share';
+			$dirs[] = '/opt';
+		}
+
+		return self::canonicalize_allowed_dirs( $dirs );
 	}
 
 	/**
@@ -291,5 +440,75 @@ class Util_Java {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * True when $path contains a control byte or shell metacharacter.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $path Candidate path.
+	 *
+	 * @return bool
+	 */
+	private static function contains_shell_metacharacters( $path ) {
+		if ( '\\' === DIRECTORY_SEPARATOR ) {
+			$metachar_re = '/[\x00-\x1F\x7F&|<>^"\*\?]/';
+		} else {
+			$metachar_re = '/[\x00-\x1F\x7F;&|`$<>"\'\\\\(){}\[\]\*\?]/';
+		}
+
+		return 1 === \preg_match( $metachar_re, $path );
+	}
+
+	/**
+	 * True when canonical $real is under one of $allowed as a directory prefix.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string   $real    Canonical absolute path.
+	 * @param string[] $allowed Directory prefixes.
+	 *
+	 * @return bool
+	 */
+	private static function is_under_allowed_dirs( $real, array $allowed ) {
+		$is_windows   = '\\' === DIRECTORY_SEPARATOR;
+		$real_compare = $is_windows ? \strtolower( $real ) : $real;
+		foreach ( $allowed as $dir ) {
+			if ( '' === $dir ) {
+				continue;
+			}
+			$prefix = \rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
+			if ( $is_windows ) {
+				$prefix = \strtolower( $prefix );
+			}
+			if ( 0 === \strpos( $real_compare, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Canonicalize existing allowlist directories so prefix checks match realpath().
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string[] $dirs Directory prefixes.
+	 *
+	 * @return string[]
+	 */
+	private static function canonicalize_allowed_dirs( array $dirs ) {
+		$out = array();
+		foreach ( $dirs as $dir ) {
+			if ( ! \is_string( $dir ) || '' === $dir ) {
+				continue;
+			}
+			$resolved = \realpath( $dir );
+			$out[]    = false !== $resolved && '' !== $resolved ? $resolved : $dir;
+		}
+
+		return \array_values( \array_unique( $out ) );
 	}
 }

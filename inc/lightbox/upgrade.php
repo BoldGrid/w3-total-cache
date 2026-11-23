@@ -23,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 		</div>
 	</div>
 	<div class="w3tc_overlay_upgrade_header">
-		<iframe src="https://www.w3-edge.com/checkout-ad/?data_src=<?php echo esc_attr( $data_src ); ?>&client_id=<?php echo esc_attr( $client_id ); ?>" width="100%" height="410px"></iframe>
+		<iframe src="<?php echo esc_url( Licensing_Core::purchase_url( $data_src, $renew_key, $client_id ) ); ?>" width="100%" height="410px"></iframe>
 	</div>
 	<div class="w3tc_upgrade_footer">
 		<?php if ( \W3TC\Util_Environment::is_https() ) : ?>

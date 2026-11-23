@@ -56,8 +56,9 @@ class Cdn_Environment_Nginx {
 		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
 			$rules_a   = Dispatcher::nginx_rules_for_browsercache_section( $this->w3tc_c, 'other', true );
 			$rules_a[] = 'add_header Access-Control-Allow-Origin "*";';
+			$group     = Cdn_Util::cors_font_regex_group();
 
-			$rules .= "location ~ \\.(ttf|ttc|otf|eot|woff|woff2|font.css)\$ {\n    " . implode( "\n    ", $rules_a ) . "\n}\n";
+			$rules .= 'location ~* \\.(' . $group . ")\$ {\n    " . implode( "\n    ", $rules_a ) . "\n}\n";
 		}
 
 		if ( strlen( $rules ) > 0 ) {
@@ -103,11 +104,9 @@ class Cdn_Environment_Nginx {
 	public function w3tc_browsercache_rules_section_extensions( $extensions, $section ) {
 		// CDN adds own rules for those extensions.
 		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
-			unset( $extensions['ttf|ttc'] );
-			unset( $extensions['otf'] );
-			unset( $extensions['eot'] );
-			unset( $extensions['woff'] );
-			unset( $extensions['woff2'] );
+			foreach ( Cdn_Util::cors_font_browsercache_extension_keys() as $key ) {
+				unset( $extensions[ $key ] );
+			}
 		}
 
 		return $extensions;

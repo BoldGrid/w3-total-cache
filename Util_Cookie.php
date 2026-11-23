@@ -41,9 +41,8 @@ namespace W3TC;
  *    defined; see `role_cookie_name()` for the full rationale. Rotating
  *    `AUTH_KEY`/`AUTH_SALT` invalidates these cookies cleanly.
  *
- *    Migration: `role_cookie_name_legacy()` returns the old MD5 form
- *    so readers can accept both names for one release window. Drop
- *    the legacy reader in the next release.
+ *    Role cookies use HMAC names only. Pre-HMAC leftover cookies
+ *    are ignored on read and write.
  *
  * @since 2.10.0
  */
@@ -179,25 +178,107 @@ class Util_Cookie {
 	}
 
 	/**
-	 * Returns the legacy MD5 cookie-name suffix for a given WP role.
+	 * Cookie names written into page-cache rewrite reject lists
+	 * for a given role.
 	 *
-	 * Used ONLY by the read path during the one-release back-compat
-	 * window so an upgrade doesn't immediately log every cached user
-	 * back in. Writers must always use `role_cookie_name()` so that
-	 * new cookies carry the HMAC name; readers walk both forms.
-	 *
-	 * Drop this method (and the dual-read in PgCache_ContentGrabber)
-	 * in the release AFTER the one that lands this PR.
-	 *
-	 * @since 2.10.0
+	 * @since 2.10.6
 	 *
 	 * @param string $role WordPress role slug.
 	 *
-	 * @return string 32-char lowercase hex.
+	 * @return string[]
 	 */
-	public static function role_cookie_name_legacy( $role ) {
-		$nonce_key = defined( 'NONCE_KEY' ) ? (string) NONCE_KEY : '';
+	public static function role_cookie_reject_names( $role ) {
+		return array(
+			'w3tc_logged_' . self::role_cookie_name( $role ),
+		);
+	}
 
-		return \md5( $nonce_key . (string) $role );
+	/**
+	 * Whether a request cookie name matches a rejected role.
+	 *
+	 * Malformed or unrecognized `w3tc_logged_*` names never match.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $cookie_name Raw cookie name from the request.
+	 * @param string $role        WordPress role slug.
+	 *
+	 * @return bool
+	 */
+	public static function cookie_matches_rejected_role( $cookie_name, $role ) {
+		if ( ! is_string( $cookie_name ) || 0 !== \strpos( $cookie_name, 'w3tc_logged_' ) ) {
+			return false;
+		}
+
+		return false !== \strstr( $cookie_name, self::role_cookie_name( (string) $role ) );
+	}
+
+	/**
+	 * Whether the current request carries a rejected-role cache-bypass cookie.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string[] $roles Role slugs configured for cache rejection.
+	 *
+	 * @return bool True when page cache must be skipped.
+	 */
+	public static function request_has_rejected_role_cookie( $roles ) {
+		if ( ! is_array( $roles ) || empty( $roles ) ) {
+			return false;
+		}
+
+		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) ) {
+			return false;
+		}
+
+		foreach ( \array_keys( $_COOKIE ) as $cookie_name ) {
+			foreach ( $roles as $role ) {
+				if ( self::cookie_matches_rejected_role( (string) $cookie_name, (string) $role ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether the current WordPress user has a rejected page-cache role.
+	 *
+	 * Used on the page-cache write path after WordPress has loaded.
+	 * The early `advanced-cache.php` read path cannot use this.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string[] $roles Role slugs configured for cache rejection.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_has_rejected_role( $roles ) {
+		if ( ! is_array( $roles ) || empty( $roles ) ) {
+			return false;
+		}
+
+		if ( ! \function_exists( 'is_user_logged_in' ) || ! \function_exists( 'wp_get_current_user' ) ) {
+			return false;
+		}
+
+		if ( ! \is_user_logged_in() ) {
+			return false;
+		}
+
+		$current_user = \wp_get_current_user();
+
+		if ( empty( $current_user->roles ) || ! is_array( $current_user->roles ) ) {
+			return false;
+		}
+
+		foreach ( $current_user->roles as $role ) {
+			if ( \in_array( $role, $roles, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

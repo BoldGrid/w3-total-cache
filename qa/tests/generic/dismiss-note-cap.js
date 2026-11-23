@@ -14,11 +14,12 @@
  * even if they somehow had a nonce.
  *
  * Posture: feature side asserts an admin GET to
- * `w3tc_default_hide_note&note=<key>` flips the corresponding
+ * `w3tc_default_hide_note&note=<known-key>` flips the corresponding
  * `notes.<key>` slot in the main config blob to false (legacy
  * dismiss path still used by a few notices such as CloudFlare).
  * Regression side uses an unauthenticated request (no admin cookies)
- * and asserts the slot stays unset.
+ * and asserts an unknown `notes.*` slot stays unset (allowlisted
+ * dismiss path refuses invented keys).
  *
  * @package W3TC
  * @subpackage QA
@@ -40,12 +41,10 @@ const w3tc = requireRoot("lib/w3tc");
 /**environments: environments('blog') */
 
 /**
- * A note key that is not used by any real notice; we choose
- * something unique enough to verify the option write deterministically
- * via wp-cli read-back. The handler doesn't validate against a
- * known-keys list (it's a generic dismiss endpoint), so this works.
+ * Known dismissable note ID from ConfigKeysSchema::is_known_note_id().
+ * Arbitrary invented keys are refused by the allowlist.
  */
-const PROBE_NOTE = "qa_probe_dismiss_note_" + Date.now();
+const PROBE_NOTE = "cloudflare_plugin";
 
 /**
  * Run PHP in WP context without a shell so `$variables` are not
@@ -90,6 +89,24 @@ async function readNoteFlag(noteKey) {
 }
 
 /**
+ * Seed notes.<key> to true so a subsequent dismiss can flip it to false.
+ *
+ * @param {string} noteKey Bare note id.
+ * @return {Promise<void>}
+ */
+async function seedNoteFlagTrue(noteKey) {
+  let configKey = "notes." + noteKey;
+  let php =
+    "$c=\\W3TC\\Dispatcher::config();" +
+    "$c->set(" +
+    JSON.stringify(configKey) +
+    ",true);" +
+    "$c->save();" +
+    "echo 'ok';";
+  await wpEval(php);
+}
+
+/**
  * Return a per-handler admin nonce from the localized w3tc_admin_nonces map.
  *
  * Loads w3tc_dashboard so w3tc-nonce.js and the admin nonce map are present.
@@ -119,9 +136,10 @@ describe("Admin-note dismiss endpoint capability gate", function () {
    * status report.
    */
   it("admin GET to w3tc_default_hide_note sets notes.<key>=false", async () => {
-    let nonce = await dashboardAdminNonce("w3tc_default_hide_note");
+    await seedNoteFlagTrue(PROBE_NOTE);
+    expect(await readNoteFlag(PROBE_NOTE)).equals(true);
 
-    expect(await readNoteFlag(PROBE_NOTE)).equals(null);
+    let nonce = await dashboardAdminNonce("w3tc_default_hide_note");
 
     /**
      * Match `Util_Ui::button_hide_note()` URL shape; top-level
@@ -158,9 +176,8 @@ describe("Admin-note dismiss endpoint capability gate", function () {
   });
 
   /**
-   * Regression side: unauthenticated request to the same URL
-   * must NOT flip the flag. `_require_admin_cap()` returns 403
-   * via `wp_die()` before the config write.
+   * Regression side: unauthenticated request with an invented note
+   * key must NOT create the slot. Cap gate and allowlist both refuse.
    */
   it("anon request to w3tc_default_hide_note does NOT flip notes.<key>", async () => {
     let probeKey = "qa_anon_probe_" + Date.now();

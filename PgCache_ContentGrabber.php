@@ -633,11 +633,59 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Whether REST response caching is active.
+	 *
+	 * Calls the 2.11.0 helper when it is loaded. A stale Util_Environment
+	 * from 2.10.7 does not define that method, and an unguarded call fatals.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object|null $config Config.
+	 * @return bool
+	 */
+	public static function rest_cache_is_active( $config ) {
+		if ( \method_exists( Util_Environment::class, 'is_rest_cache_active' ) ) {
+			return Util_Environment::is_rest_cache_active( $config );
+		}
+
+		return self::rest_cache_active_legacy( $config );
+	}
+
+	/**
+	 * REST flush/cache decision when the 2.11.0 helper is not loaded.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param object|null $config Config.
+	 * @return bool
+	 */
+	public static function rest_cache_active_legacy( $config ) {
+		if ( ! \is_object( $config ) || 'cache' !== $config->get_string( 'pgcache.rest' ) ) {
+			return false;
+		}
+
+		if ( \method_exists( Util_Environment::class, 'is_w3tc_pro' ) ) {
+			return Util_Environment::is_w3tc_pro( $config );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines if the cache can be read for the current request.
 	 *
 	 * @return bool True if cache can be read, false otherwise.
 	 */
 	private function _can_read_cache() {
+		if (
+			! self::rest_cache_is_active( $this->_config ) &&
+			Util_Environment::is_rest_request( $this->_request_uri )
+		) {
+			$this->cache_reject_reason = 'REST request';
+			$this->process_status      = 'miss_api_call';
+			return false;
+		}
+
 		// Don't cache in console mode.
 		if ( PHP_SAPI === 'cli' ) {
 			$this->cache_reject_reason = 'Console mode';
@@ -685,7 +733,7 @@ class PgCache_ContentGrabber {
 
 			if (
 				$should_reject_qs &&
-				'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
+				self::rest_cache_is_active( $this->_config ) &&
 				Util_Environment::is_rest_request( $this->_request_uri )
 			) {
 				$should_reject_qs = false;
@@ -759,6 +807,15 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
+		if ( $this->_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
+			$roles = $this->_config->get_array( 'pgcache.reject.roles' );
+			if ( Util_Cookie::current_user_has_rejected_role( $roles ) ) {
+				$this->cache_reject_reason = 'Rejected user role is logged in';
+				$this->process_status      = 'miss_logged_in';
+				return false;
+			}
+		}
+
 		// Check for DONOTCACHEPAGE constant.
 		if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
 			$this->cache_reject_reason = 'DONOTCACHEPAGE constant is defined';
@@ -766,7 +823,7 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		if ( 'cache' !== $this->_config->get_string( 'pgcache.rest' ) ) {
+		if ( ! self::rest_cache_is_active( $this->_config ) ) {
 			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 				$this->cache_reject_reason = 'REST request';
 				$this->process_status      = 'miss_api_call';
@@ -1274,28 +1331,7 @@ class PgCache_ContentGrabber {
 			return true;
 		}
 
-		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
-			if ( strpos( $cookie_name, 'w3tc_logged_' ) === 0 ) {
-				foreach ( $roles as $role ) {
-					/**
-					 * Accept BOTH the new HMAC-SHA256 cookie name and the
-					 * legacy MD5(NONCE_KEY . $role) form for one release
-					 * window so an upgrade doesn't immediately serve the
-					 * logged-out-cache to users whose browsers still hold
-					 * the old-named cookie. The legacy lookup is dropped
-					 * in the release AFTER this one.
-					 */
-					if ( strstr( $cookie_name, Util_Cookie::role_cookie_name( $role ) ) ) {
-						return false;
-					}
-					if ( strstr( $cookie_name, Util_Cookie::role_cookie_name_legacy( $role ) ) ) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
+		return ! Util_Cookie::request_has_rejected_role_cookie( $roles );
 	}
 
 	/**
@@ -1313,8 +1349,15 @@ class PgCache_ContentGrabber {
 			return;
 		}
 
-		// we call it as little times as possible its expensive, but have to restore lost .htaccess file.
 		$e = Dispatcher::component( 'PgCache_Environment' );
+
+		// When the "w3tc_pgcache_rules_required" filter suppresses the rules this file is never
+		// written, so without the exit the restore below would repeat on every cache miss.
+		if ( null === $e->get_required_rules( $this->_config ) ) {
+			return;
+		}
+
+		// we call it as little times as possible its expensive, but have to restore lost .htaccess file.
 		try {
 			$e->fix_on_wpadmin_request( $this->_config, true );
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -1465,9 +1508,8 @@ class PgCache_ContentGrabber {
 		}
 
 		if (
-			'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
-			Util_Environment::is_rest_request( $uri ) &&
-			Util_Environment::is_w3tc_pro( $this->_config )
+			self::rest_cache_is_active( $this->_config ) &&
+			Util_Environment::is_rest_request( $uri )
 		) {
 			return 'rest';
 		}
@@ -1722,18 +1764,7 @@ class PgCache_ContentGrabber {
 		// key postfix.
 		$key_postfix = '';
 		if ( $this->_enhanced_mode && empty( $page_key_extension['group'] ) ) {
-			$key_postfix = '.html';
-			if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
-				$content_type = isset( $page_key_extension['content_type'] ) ? $page_key_extension['content_type'] : '';
-
-				if (
-					@preg_match( '~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i', $content_type ) ||
-					preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
-					false !== strpos( $request_url_fragments['path'], '.xsl' )
-				) {
-					$key_postfix = '.xml';
-				}
-			}
+			$key_postfix = $this->_enhanced_key_postfix( $page_key_extension, $request_url_fragments );
 		}
 
 		// key compression.
@@ -1757,6 +1788,42 @@ class PgCache_ContentGrabber {
 		);
 
 		return implode( '', $w3tc_key['key'] );
+	}
+
+	/**
+	 * File extension for a Disk Enhanced cache entry with no cache group.
+	 *
+	 * JSON uses its own extension. The HTML extension is what the web server
+	 * serves as HTML. A read that does not yet know the media type keeps
+	 * `.html` so existing HTML entries still match.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $page_key_extension     Page key extension.
+	 * @param array $request_url_fragments  URL fragments for the request.
+	 *
+	 * @return string
+	 */
+	private function _enhanced_key_postfix( $page_key_extension, $request_url_fragments ) {
+		$content_type = isset( $page_key_extension['content_type'] ) ? (string) $page_key_extension['content_type'] : '';
+		$media_type   = strtolower( trim( explode( ';', $content_type, 2 )[0] ) );
+
+		if ( 'application/json' === $media_type || \substr( $media_type, -5 ) === '+json' ) {
+			return '.json';
+		}
+
+		$key_postfix = '.html';
+		if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+			if (
+				@preg_match( '~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i', $content_type ) ||
+				preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
+				false !== strpos( $request_url_fragments['path'], '.xsl' )
+			) {
+				$key_postfix = '.xml';
+			}
+		}
+
+		return $key_postfix;
 	}
 
 	/**
@@ -1910,6 +1977,45 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Adds a nosniff header when a cached body is not HTML.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $headers Headers about to be sent.
+	 *
+	 * @return array
+	 */
+	public function _ensure_cached_media_headers( $headers ) {
+		if ( ! is_array( $headers ) ) {
+			return array();
+		}
+
+		$media_type = '';
+		foreach ( $headers as $name => $value ) {
+			if ( ! is_string( $name ) || 0 !== strcasecmp( $name, 'Content-Type' ) || ! is_string( $value ) ) {
+				continue;
+			}
+
+			$media_type = strtolower( trim( explode( ';', $value, 2 )[0] ) );
+		}
+
+		$group = '';
+		if (
+			is_array( $this->_page_key_extension ) &&
+			isset( $this->_page_key_extension['group'] ) &&
+			is_string( $this->_page_key_extension['group'] )
+		) {
+			$group = $this->_page_key_extension['group'];
+		}
+
+		if ( 'rest' === $group || ( '' !== $media_type && 'text/html' !== $media_type ) ) {
+			$headers['X-Content-Type-Options'] = 'nosniff';
+		}
+
+		return $headers;
+	}
+
+	/**
 	 * Sends caching-related headers.
 	 *
 	 * @param bool   $is_404         Whether the current request is a 404 error.
@@ -1998,6 +2104,7 @@ class PgCache_ContentGrabber {
 			$headers,
 			$this->_get_common_headers( $compression )
 		);
+		$headers = $this->_ensure_cached_media_headers( $headers );
 
 		// Send headers to client.
 		$w3tc_result = $this->_headers( $headers );
@@ -3092,8 +3199,10 @@ class PgCache_ContentGrabber {
 		 * so the redacted form was never written and the log file kept
 		 * the raw `_wpnonce=` value. Keep the variable name on `$w3tc_data`
 		 * so the file_put_contents below writes the redacted form.
+		 * Full `redact()` covers nonces plus remaining assignment forms
+		 * (query secrets, JSON, cookies) that appear on REQUEST_URI.
 		 */
-		$w3tc_data = Util_Debug::redact_wpnonce( $w3tc_data );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
 

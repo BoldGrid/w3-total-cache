@@ -25,6 +25,7 @@ namespace W3TC;
  *   common.show_note.nginx_restart_required
  *   common.hide_note_php_version_56
  *   license.status
+ *   license.jwt - license JWT for /v2/ service calls; not the license key
  *   license.next_check - time of next check
  *   license.terms - accepted/declined/''
  *   license.community_terms - accepted/declined/'' (master)
@@ -37,6 +38,8 @@ namespace W3TC;
  *   extension.cloudflare.next_ips_check
  *   extension.cloudflare.ips.ip4
  *   extension.cloudflare.ips.ip6
+ *   extension.maxcache.hide_note_delivering
+ *   extension.maxcache.hide_note_available
  *
  * blog-level keys:
  *   newrelic.hide_note_pageload_slow
@@ -81,6 +84,22 @@ class ConfigState {
 	private $_is_master;
 
 	/**
+	 * Whether stored option data has been loaded.
+	 *
+	 * @var bool
+	 */
+	private $_loaded;
+
+	/**
+	 * Encoded option payload from the last successful load or save.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @var string|null
+	 */
+	private $_saved_encoded;
+
+	/**
 	 * Initializes the configuration state.
 	 *
 	 * @param bool $is_master Whether this is the master configuration state.
@@ -88,20 +107,12 @@ class ConfigState {
 	 * @return void
 	 */
 	public function __construct( $is_master ) {
-		$this->_is_master = $is_master;
+		$this->_is_master     = $is_master;
+		$this->_data          = array();
+		$this->_loaded        = false;
+		$this->_saved_encoded = null;
 
-		if ( $is_master ) {
-			$data_raw = get_site_option( 'w3tc_state' );
-		} else {
-			$data_raw = get_option( 'w3tc_state' );
-		}
-
-		$this->_data = @json_decode( $data_raw, true );
-		if ( ! is_array( $this->_data ) ) {
-			$this->_data = array();
-			$this->apply_defaults();
-			$this->save();
-		}
+		$this->load();
 	}
 
 	/**
@@ -113,6 +124,8 @@ class ConfigState {
 	 * @return mixed The value associated with the key, or the default value.
 	 */
 	public function get( $w3tc_key, $default_value ) {
+		$this->load();
+
 		if ( ! isset( $this->_data[ $w3tc_key ] ) ) {
 			return $default_value;
 		}
@@ -185,6 +198,8 @@ class ConfigState {
 	 * @return void
 	 */
 	public function set( $w3tc_key, $w3tc_value ) {
+		$this->load();
+
 		$this->_data[ $w3tc_key ] = $w3tc_value;
 	}
 
@@ -194,7 +209,9 @@ class ConfigState {
 	 * @return void
 	 */
 	public function reset() {
-		$this->_data = array();
+		$this->_data          = array();
+		$this->_loaded        = true;
+		$this->_saved_encoded = null;
 		$this->apply_defaults();
 	}
 
@@ -204,11 +221,68 @@ class ConfigState {
 	 * @return void
 	 */
 	public function save() {
-		if ( $this->_is_master ) {
-			update_site_option( 'w3tc_state', wp_json_encode( $this->_data ) );
-		} else {
-			update_option( 'w3tc_state', wp_json_encode( $this->_data ) );
+		$this->load();
+
+		if ( ! $this->_loaded ) {
+			return;
 		}
+
+		$encoded = \wp_json_encode( $this->_data );
+		if ( false === $encoded || $encoded === $this->_saved_encoded ) {
+			return;
+		}
+
+		if ( $this->_is_master ) {
+			if ( ! \function_exists( 'update_site_option' ) ) {
+				return;
+			}
+			$saved = \update_site_option( 'w3tc_state', $encoded );
+		} else {
+			if ( ! \function_exists( 'update_option' ) ) {
+				return;
+			}
+			$saved = \update_option( 'w3tc_state', $encoded );
+		}
+
+		if ( $saved ) {
+			$this->_saved_encoded = $encoded;
+		}
+	}
+
+	/**
+	 * Loads stored option data when the Options API is available.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @return void
+	 */
+	private function load() {
+		if ( $this->_loaded ) {
+			return;
+		}
+
+		if ( $this->_is_master ) {
+			if ( ! \function_exists( 'get_site_option' ) ) {
+				return;
+			}
+			$data_raw = \get_site_option( 'w3tc_state' );
+		} else {
+			if ( ! \function_exists( 'get_option' ) ) {
+				return;
+			}
+			$data_raw = \get_option( 'w3tc_state' );
+		}
+
+		$this->_loaded = true;
+		$this->_data   = @json_decode( $data_raw, true );
+		if ( ! is_array( $this->_data ) ) {
+			$this->_data = array();
+			$this->apply_defaults();
+			$this->save();
+			return;
+		}
+
+		$this->_saved_encoded = \wp_json_encode( $this->_data );
 	}
 
 	/**

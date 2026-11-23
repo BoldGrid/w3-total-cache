@@ -69,12 +69,12 @@ class Minify_ContentMinifier {
 	 * Checks if the given minifier engine is available with the required files.
 	 *
 	 * For Java-backed engines (yuijs, yuicss, ccjs) the configured Java
-	 * executable is run through `Util_Java::validate()` as part of the
-	 * availability check, not only during `init()`.  Callers
-	 * (`Minify_Plugin`, `Minify_MinifiedFileRequestHandler`) gate engine
-	 * selection on `available()`, so refusing the engine here is what
-	 * actually stops a rejected `path.java` from being used by an
-	 * `init()` whose return value the caller ignores.
+	 * executable and JAR are run through `Util_Java::validate_tools()`
+	 * as part of the availability check, not only during `init()`.
+	 * Callers (`Minify_Plugin`, `Minify_MinifiedFileRequestHandler`)
+	 * gate engine selection on `available()`, so refusing the engine
+	 * here is what actually stops a rejected path from being used by
+	 * an `init()` whose return value the caller ignores.
 	 *
 	 * @param string $w3tc_engine The minifier engine to check.
 	 *
@@ -83,25 +83,9 @@ class Minify_ContentMinifier {
 	public function available( $w3tc_engine ) {
 		switch ( $w3tc_engine ) {
 			case 'yuijs':
-				$path_java = $this->_config->get_string( 'minify.yuijs.path.java' );
-				$path_jar  = $this->_config->get_string( 'minify.yuijs.path.jar' );
-
-				return false !== Util_Java::validate_with_log( $path_java, 'yuijs' )
-					&& file_exists( $path_jar );
-
 			case 'yuicss':
-				$path_java = $this->_config->get_string( 'minify.yuicss.path.java' );
-				$path_jar  = $this->_config->get_string( 'minify.yuicss.path.jar' );
-
-				return false !== Util_Java::validate_with_log( $path_java, 'yuicss' )
-					&& file_exists( $path_jar );
-
 			case 'ccjs':
-				$path_java = $this->_config->get_string( 'minify.ccjs.path.java' );
-				$path_jar  = $this->_config->get_string( 'minify.ccjs.path.jar' );
-
-				return false !== Util_Java::validate_with_log( $path_java, 'ccjs' )
-					&& file_exists( $path_jar );
+				return false !== $this->validated_java_tools( $w3tc_engine, true );
 
 			case 'htmltidy':
 			case 'htmltidyxml':
@@ -129,17 +113,15 @@ class Minify_ContentMinifier {
 	/**
 	 * Initializes the given minifier engine.
 	 *
-	 * Java-backed engines re-run `Util_Java::validate()` and refuse to
-	 * assign the vendored static `$javaExecutable` when the configured
-	 * path is rejected; in that case the method returns `false` so
-	 * callers that want to fall back can do so. Note that `available()`
-	 * already runs the same allowlist check (via `validate_with_log()`,
-	 * which emits the minify-debug log entry once per request), so a
-	 * properly-gated caller will not reach `init()` with a bad path in
-	 * the first place — the return value here is defense-in-depth.
-	 * Using plain `validate()` rather than `validate_with_log()` here
-	 * avoids double-logging the same rejection from `available()` and
-	 * `init()` on the rare path where both run.
+	 * Java-backed engines re-run path validation and refuse to assign
+	 * the vendored static `$javaExecutable` / `$jarFile` when either
+	 * configured path is rejected; in that case the method returns
+	 * `false` so callers that want to fall back can do so. Note that
+	 * `available()` already runs the same allowlist check (with
+	 * logging), so a properly-gated caller will not reach `init()`
+	 * with a bad path — the return value here is defense-in-depth.
+	 * Using the non-logging validators here avoids double-logging
+	 * the same rejection from `available()` and `init()`.
 	 *
 	 * @param string $w3tc_engine The minifier engine to initialize.
 	 *
@@ -149,37 +131,84 @@ class Minify_ContentMinifier {
 	public function init( $w3tc_engine ) {
 		switch ( $w3tc_engine ) {
 			case 'yuijs':
-				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuijs.path.java' ) );
-				if ( false === $java ) {
+				$tools = $this->validated_java_tools( $w3tc_engine, false );
+				if ( false === $tools ) {
 					return false;
 				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
-				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuijs.path.jar' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $tools['java'];
+				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $tools['jar'];
 				return true;
 
 			case 'yuicss':
-				$java = Util_Java::validate( $this->_config->get_string( 'minify.yuicss.path.java' ) );
-				if ( false === $java ) {
+				$tools = $this->validated_java_tools( $w3tc_engine, false );
+				if ( false === $tools ) {
 					return false;
 				}
 				\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $java;
-				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $this->_config->get_string( 'minify.yuicss.path.jar' );
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $tools['java'];
+				\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $tools['jar'];
 				return true;
 
 			case 'ccjs':
-				$java = Util_Java::validate( $this->_config->get_string( 'minify.ccjs.path.java' ) );
-				if ( false === $java ) {
+				$tools = $this->validated_java_tools( $w3tc_engine, false );
+				if ( false === $tools ) {
 					return false;
 				}
 				\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
-				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $java;
-				\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $this->_config->get_string( 'minify.ccjs.path.jar' );
+				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $tools['java'];
+				\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $tools['jar'];
 				return true;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Canonicalize the configured Java executable and JAR for an engine.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $w3tc_engine Engine slug.
+	 * @param bool   $with_log    Whether to emit minify debug-log on rejection.
+	 *
+	 * @return array{java:string,jar:string}|false
+	 */
+	private function validated_java_tools( $w3tc_engine, $with_log ) {
+		switch ( $w3tc_engine ) {
+			case 'yuijs':
+				$path_java = $this->_config->get_string( 'minify.yuijs.path.java' );
+				$path_jar  = $this->_config->get_string( 'minify.yuijs.path.jar' );
+				break;
+			case 'yuicss':
+				$path_java = $this->_config->get_string( 'minify.yuicss.path.java' );
+				$path_jar  = $this->_config->get_string( 'minify.yuicss.path.jar' );
+				break;
+			case 'ccjs':
+				$path_java = $this->_config->get_string( 'minify.ccjs.path.java' );
+				$path_jar  = $this->_config->get_string( 'minify.ccjs.path.jar' );
+				break;
+			default:
+				return false;
+		}
+
+		if ( $with_log ) {
+			return Util_Java::validate_tools( $path_java, $path_jar, $w3tc_engine );
+		}
+
+		$java = Util_Java::validate( $path_java );
+		if ( false === $java ) {
+			return false;
+		}
+		$jar = Util_Java::validate_jar( $path_jar );
+		if ( false === $jar ) {
+			return false;
+		}
+
+		return array(
+			'java' => $java,
+			'jar'  => $jar,
+		);
 	}
 
 	/**

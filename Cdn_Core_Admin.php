@@ -279,10 +279,12 @@ class Cdn_Core_Admin {
 					if ( $post->file ) {
 						$w3tc_file = $common->normalize_attachment_file( $post->file );
 
-						$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
-						$remote_file = ltrim( $upload_info['baseurlpath'] . $w3tc_file, '/' );
+						if ( '' !== $w3tc_file ) {
+							$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
+							$remote_file = ltrim( $upload_info['baseurlpath'] . $w3tc_file, '/' );
 
-						$post_files[] = $common->build_file_descriptor( $local_file, $remote_file );
+							$post_files[] = $common->build_file_descriptor( $local_file, $remote_file );
+						}
 					}
 
 					if ( $post->metadata ) {
@@ -341,7 +343,7 @@ class Cdn_Core_Admin {
 		$uploads_use_yearmonth_folders = get_option( 'uploads_use_yearmonth_folders' );
 		$document_root                 = Util_Environment::document_root();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) );
 
 		if ( $upload_info ) {
 			/**
@@ -375,7 +377,7 @@ class Cdn_Core_Admin {
 			if ( $posts ) {
 				$w3tc_count        = count( $posts );
 				$total             = $this->get_import_posts_count();
-				$regexp            = '~(' . $this->get_regexp_by_mask( $this->_config->get_string( 'cdn.import.files' ) ) . ')$~';
+				$import_mask       = $this->_config->get_string( 'cdn.import.files' );
 				$w3tc_config_state = Dispatcher::config_state();
 				$import_external   = $w3tc_config_state->get_boolean( 'cdn.import.external' );
 
@@ -412,17 +414,7 @@ class Cdn_Core_Admin {
 								/**
 								 * Check file extension
 								 */
-								$check_src = $src;
-
-								if ( Util_Environment::is_url( $check_src ) ) {
-									$qpos = strpos( $check_src, '?' );
-
-									if ( false !== $qpos ) {
-										$check_src = substr( $check_src, 0, $qpos );
-									}
-								}
-
-								if ( preg_match( $regexp, $check_src ) ) {
+								if ( Cdn_Util::url_matches_import_policy( $src, $import_mask ) ) {
 									/**
 									 * Check for already uploaded attachment
 									 */
@@ -440,8 +432,9 @@ class Cdn_Core_Admin {
 											$upload_url    = $upload_info['baseurl'];
 										}
 
-										$src_filename  = pathinfo( $src, PATHINFO_FILENAME );
-										$src_extension = pathinfo( $src, PATHINFO_EXTENSION );
+										$normalized_src = Cdn_Util::import_url_path( $src );
+										$src_filename   = pathinfo( $normalized_src, PATHINFO_FILENAME );
+										$src_extension  = Cdn_Util::import_url_extension( $src );
 
 										/**
 										 * Get available filename
@@ -608,7 +601,7 @@ class Cdn_Core_Admin {
 	public function rename_domain( $names, $w3tc_limit, $w3tc_offset, &$w3tc_count, &$total, &$results ) {
 		global $wpdb;
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) );
 
 		$w3tc_count = 0;
 		$total      = 0;

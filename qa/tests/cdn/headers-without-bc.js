@@ -49,6 +49,7 @@ describe("check that canonical headers present with pull CDN", function () {
     expect(response.headers()["content-type"]).equals("image/jpeg");
     expect(response.status()).equals(200);
     expectCommonHeaders(response.headers());
+    expect(response.headers()["access-control-allow-origin"]).to.not.be.ok;
 
     log.log("checking " + targetUrl + "/font.woff2");
     let response2 = await sys.httpGet(targetUrl + "/font.woff2");

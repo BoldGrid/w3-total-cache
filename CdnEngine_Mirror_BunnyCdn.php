@@ -110,20 +110,26 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 		}
 
 		// Purge active pull zones: CDN & CDNFSD.
-		$active_zone_ids = array();
-		$w3tc_config     = Dispatcher::config();
-		$cdn_zone_id     = $w3tc_config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
-		$cdnfsd_zone_id  = $w3tc_config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
+		$zones       = array();
+		$w3tc_config = Dispatcher::config();
+		$cdn_zone_id = $w3tc_config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
+		$fsd_zone_id = $w3tc_config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
 
 		if ( $w3tc_config->get_boolean( 'cdn.enabled' ) && 'bunnycdn' === $w3tc_config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
-			$active_ids[] = $cdn_zone_id;
+			$zones[] = array(
+				'id'                      => $cdn_zone_id,
+				'verify_tls_certificates' => $w3tc_config->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true ),
+			);
 		}
 
-		if ( $w3tc_config->get_boolean( 'cdnfsd.enabled' ) && 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' ) && $cdnfsd_zone_id ) {
-			$active_ids[] = $cdnfsd_zone_id;
+		if ( $w3tc_config->get_boolean( 'cdnfsd.enabled' ) && 'bunnycdn' === $w3tc_config->get_string( 'cdnfsd.engine' ) && $fsd_zone_id ) {
+			$zones[] = array(
+				'id'                      => $fsd_zone_id,
+				'verify_tls_certificates' => $w3tc_config->get_boolean( 'cdnfsd.bunnycdn.verify_tls_certificates', true ),
+			);
 		}
 
-		if ( empty( $active_ids ) ) {
+		if ( empty( $zones ) ) {
 			$results = $this->_get_results( array(), W3TC_CDN_RESULT_HALT, __( 'Missing pull zone id.', 'w3-total-cache' ) );
 
 			return false;
@@ -131,8 +137,16 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 
 		$results = array();
 
-		foreach ( $active_ids as $id ) {
-			$api = new Cdn_BunnyCdn_Api( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
+		foreach ( $zones as $zone ) {
+			$api = new Cdn_BunnyCdn_Api(
+				array_merge(
+					$this->_config,
+					array(
+						'pull_zone_id'            => $zone['id'],
+						'verify_tls_certificates' => $zone['verify_tls_certificates'],
+					)
+				)
+			);
 
 			try {
 				$api->purge_pull_zone();

@@ -4,14 +4,31 @@
  * @since 0.15.0
  */
 jQuery(document).ready(function ($) {
-  box = document.getElementById("tcdn_test_status");
+  var box = document.getElementById("tcdn_test_status");
+  var strings = transparent_configuration_strings;
+
+  function setPlain(el, text) {
+    el.textContent = text;
+  }
+
+  function setFailure(el) {
+    var prefix = document.createTextNode(strings.test_failure_prefix);
+    var link = document.createElement("a");
+    var suffix = document.createTextNode(strings.test_failure_suffix);
+
+    el.textContent = "";
+    w3tc_cdn_set_url(link, strings.support_url);
+    link.textContent = strings.test_failure_link;
+    el.appendChild(prefix);
+    el.appendChild(link);
+    el.appendChild(suffix);
+  }
 
   if (box) {
-    box.innerHTML = transparent_configuration_strings.test_string;
+    setPlain(box, strings.test_string);
 
     $("#transparentcdn_test").on("click", function (e) {
       var url = "https://api.transparentcdn.com/v1/oauth2/access_token/",
-        p = document.getElementById("tcdn_test_text"),
         client_id =
           "client_id" +
           "=" +
@@ -28,13 +45,13 @@ jQuery(document).ready(function ($) {
 
       req.open("POST", url, true);
       req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      req.onreadystatechange = function (e) {
+      req.onreadystatechange = function () {
         if (4 == req.readyState) {
           if (200 == req.status) {
-            box.innerHTML = transparent_configuration_strings.test_success;
+            setPlain(box, strings.test_success);
             box.className = "w3tc-status w3tc-success";
           } else {
-            box.innerHTML = transparent_configuration_strings.test_failure;
+            setFailure(box);
             box.className = "w3tc-status w3tc-error";
           }
         }

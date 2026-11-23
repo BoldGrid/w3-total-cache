@@ -278,12 +278,15 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
 		$config                    = \W3TC\Dispatcher::config();
 		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$prev_type                 = $config->get_string( 'plugin.type' );
 		$config->set( 'pgcache.rest', 'cache' );
+		$config->set( 'plugin.type', 'pro' );
 
 		$plugin = new Generic_Plugin();
 		$can_ob = $plugin->can_ob();
 
 		$config->set( 'pgcache.rest', $prev_rest );
+		$config->set( 'plugin.type', $prev_type );
 		if ( null === $prev_uri ) {
 			unset( $_SERVER['REQUEST_URI'] );
 		} else {
@@ -293,7 +296,45 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 
 		$this->assertTrue(
 			$can_ob,
-			'can_ob() must return true for REST URIs when pgcache.rest is cache.'
+			'can_ob() must return true for REST URIs when pgcache.rest is cache and Pro is active.'
+		);
+	}
+
+	/**
+	 * A retained REST cache mode must not buffer REST responses after Pro is inactive.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return void
+	 */
+	public function test_can_ob_rejects_rest_when_cache_mode_remains_without_pro() {
+		global $w3tc_w3_late_init;
+
+		$prev_late                 = $w3tc_w3_late_init;
+		$w3tc_w3_late_init         = false;
+		$prev_uri                  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$_SERVER['REQUEST_URI']    = '/wp-json/wp/v2/posts/1';
+		$config                    = \W3TC\Dispatcher::config();
+		$prev_rest                 = $config->get_string( 'pgcache.rest' );
+		$prev_type                 = $config->get_string( 'plugin.type' );
+		$config->set( 'pgcache.rest', 'cache' );
+		$config->set( 'plugin.type', '' );
+
+		$plugin = new Generic_Plugin();
+		$can_ob = $plugin->can_ob();
+
+		$config->set( 'pgcache.rest', $prev_rest );
+		$config->set( 'plugin.type', $prev_type );
+		if ( null === $prev_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $prev_uri;
+		}
+		$w3tc_w3_late_init = $prev_late;
+
+		$this->assertFalse(
+			$can_ob,
+			'can_ob() must return false for REST URIs when pgcache.rest is cache but Pro is inactive.'
 		);
 	}
 
@@ -346,7 +387,9 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts/1';
 		$config                 = \W3TC\Dispatcher::config();
 		$prev_rest              = $config->get_string( 'pgcache.rest' );
+		$prev_type              = $config->get_string( 'plugin.type' );
 		$config->set( 'pgcache.rest', 'cache' );
+		$config->set( 'plugin.type', 'pro' );
 
 		$minify_ran    = false;
 		$pagecache_ran = false;
@@ -369,6 +412,7 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 		$result = $this->plugin->ob_callback( $json );
 
 		$config->set( 'pgcache.rest', $prev_rest );
+		$config->set( 'plugin.type', $prev_type );
 		if ( null === $prev_uri ) {
 			unset( $_SERVER['REQUEST_URI'] );
 		} else {

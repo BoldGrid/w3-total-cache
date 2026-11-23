@@ -43,6 +43,25 @@ $w3tc_is_unavailable  = ! empty( $w3tc_account_api_key ) && $w3tc_config->get_st
 			<?php endif; ?>
 		</td>
 	</tr>
+	<tr>
+		<th>
+			<label for="cdn__bunnycdn__verify_tls_certificates">
+				<?php echo wp_kses( Util_ConfigLabel::get( 'bunnycdn.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?>:
+			</label>
+		</th>
+		<td>
+			<?php
+			Util_Ui::checkbox(
+				'cdn__bunnycdn__verify_tls_certificates',
+				'cdn__bunnycdn__verify_tls_certificates',
+				$w3tc_config->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true )
+			);
+			?>
+			<p class="description">
+				<?php esc_html_e( 'Verify TLS certificates when talking to the Bunny CDN API. Uncheck only as an explicit compatibility opt-out; verification is not disabled automatically.', 'w3-total-cache' ); ?>
+			</p>
+		</td>
+	</tr>
 
 	<?php if ( $w3tc_is_authorized ) : ?>
 	<tr>

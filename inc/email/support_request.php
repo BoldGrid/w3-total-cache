@@ -50,9 +50,10 @@ defined( 'W3TC' ) || die();
 
 		<font size="-1" color="#ccc">
 			<?php
+			$w3tc_from_ip = \W3TC\Util_Environment::get_client_ip();
 			echo esc_html__( 'E-mail sent from IP: ', 'w3-total-cache' ) .
-				( isset( $_SERVER['REMOTE_ADDR'] ) ?
-				esc_html( sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) ) : esc_html__( 'Unknown', 'w3-total-cache' ) ) . '<br />';
+				( '' !== $w3tc_from_ip ?
+				esc_html( $w3tc_from_ip ) : esc_html__( 'Unknown', 'w3-total-cache' ) ) . '<br />';
 			echo esc_html__( 'User Agent: ', 'w3-total-cache' ) .
 				( isset( $_SERVER['HTTP_USER_AGENT'] ) ?
 				esc_html( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : esc_html__( 'Unknown', 'w3-total-cache' ) );

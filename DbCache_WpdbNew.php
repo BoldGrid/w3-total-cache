@@ -132,6 +132,7 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 			round( $request_time_total, 4 )
 		) . implode( "\n", $strings ) . "\n";
 		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'dbcache' );
 		@file_put_contents( $filename, $w3tc_data, FILE_APPEND );
@@ -213,6 +214,9 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	 * @return mixed The result of the query.
 	 */
 	public function query( $query ) {
+		// Cluster reimplements query and skips core's `query` filter / placeholder unescape.
+		$query = $this->remove_placeholder_escape( $query );
+
 		return $this->active_processor->query( $query );
 	}
 

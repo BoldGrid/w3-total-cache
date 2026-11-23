@@ -499,29 +499,43 @@ class BrowserCache_Environment {
 			$rules_headers = "<IfModule mod_headers.c>\n";
 
 			if ( $w3tc_config->get_boolean( 'browsercache.hsts' ) ) {
-				$dir            = $w3tc_config->get_string( 'browsercache.security.hsts.directive' );
-				$rules_headers .= '    Header always set Strict-Transport-Security "max-age=' . $lifetime .
-					( strpos( $dir, 'inc' ) ? '; includeSubDomains' : '' ) . ( strpos( $dir, 'pre' ) ? '; preload' : '' ) . "\"\n";
+				$dir = BrowserCache_RuleDirectives::normalize_enum(
+					'hsts',
+					$w3tc_config->get_string( 'browsercache.security.hsts.directive' )
+				);
+				if ( null !== $dir ) {
+					$rules_headers .= '    Header always set Strict-Transport-Security "max-age=' . $lifetime .
+						( strpos( $dir, 'inc' ) ? '; includeSubDomains' : '' ) . ( strpos( $dir, 'pre' ) ? '; preload' : '' ) . "\"\n";
+				}
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.xfo' ) ) {
-				$dir      = $w3tc_config->get_string( 'browsercache.security.xfo.directive' );
-				$w3tc_url = trim( $w3tc_config->get_string( 'browsercache.security.xfo.allow' ) );
+				$dir = BrowserCache_RuleDirectives::normalize_enum(
+					'xfo',
+					$w3tc_config->get_string( 'browsercache.security.xfo.directive' )
+				);
+				if ( null !== $dir ) {
+					$w3tc_url = trim( $w3tc_config->get_string( 'browsercache.security.xfo.allow' ) );
 
-				if ( empty( $w3tc_url ) ) {
-					$w3tc_url = Util_Environment::home_url_maybe_https();
+					if ( empty( $w3tc_url ) ) {
+						$w3tc_url = Util_Environment::home_url_maybe_https();
+					}
+
+					$w3tc_url = Util_Rule::sanitize_directive_value( $w3tc_url );
+
+					$rules_headers .= '    Header always append X-Frame-Options "' .
+						( 'same' === $dir ? 'SAMEORIGIN' : ( 'deny' === $dir ? 'DENY' : 'ALLOW-FROM' . $w3tc_url ) ) . "\"\n";
 				}
-
-				$w3tc_url = Util_Rule::sanitize_directive_value( $w3tc_url );
-
-				$rules_headers .= '    Header always append X-Frame-Options "' .
-					( 'same' === $dir ? 'SAMEORIGIN' : ( 'deny' === $dir ? 'DENY' : 'ALLOW-FROM' . $w3tc_url ) ) . "\"\n";
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.xss' ) ) {
-				$dir            = Util_Rule::sanitize_directive_value( $w3tc_config->get_string( 'browsercache.security.xss.directive' ) );
-				$rules_headers .= '    Header set X-XSS-Protection "' . ( 'block' === $dir ? '1; mode=block' : $dir ) . "\"\n";
-
+				$dir = BrowserCache_RuleDirectives::normalize_enum(
+					'xss',
+					$w3tc_config->get_string( 'browsercache.security.xss.directive' )
+				);
+				if ( null !== $dir ) {
+					$rules_headers .= '    Header set X-XSS-Protection "' . ( 'block' === $dir ? '1; mode=block' : $dir ) . "\"\n";
+				}
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.xcto' ) ) {
@@ -529,19 +543,32 @@ class BrowserCache_Environment {
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.pkp' ) ) {
-				$pin            = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.pin' ) ) );
-				$pinbak         = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.pin.backup' ) ) );
-				$extra          = Util_Rule::sanitize_directive_value( $w3tc_config->get_string( 'browsercache.security.pkp.extra' ) );
-				$w3tc_url       = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.report.url' ) ) );
-				$rep_only       = '1' === $w3tc_config->get_string( 'browsercache.security.pkp.report.only' ) ? true : false;
-				$rules_headers .= '    Header set ' . ( $rep_only ? 'Public-Key-Pins-Report-Only' : 'Public-Key-Pins' ) .
-					' "pin-sha256="$pin"; pin-sha256="$pinbak"; max-age=' . $lifetime . ( strpos( $extra, 'inc' ) ? '; includeSubDomains' : '' ) .
-					( ! empty( $w3tc_url ) ? '; report-uri="$w3tc_url"' : '' ) . "\"\n";
+				$pin      = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.pin' ) ) );
+				$pinbak   = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.pin.backup' ) ) );
+				$extra    = BrowserCache_RuleDirectives::normalize_enum(
+					'pkp_extra',
+					$w3tc_config->get_string( 'browsercache.security.pkp.extra' )
+				);
+				$w3tc_url = Util_Rule::sanitize_directive_value( trim( $w3tc_config->get_string( 'browsercache.security.pkp.report.url' ) ) );
+				$rep_only = BrowserCache_RuleDirectives::normalize_enum(
+					'pkp_report_only',
+					$w3tc_config->get_string( 'browsercache.security.pkp.report.only' )
+				);
+				if ( null !== $extra && null !== $rep_only && '' !== $pin && '' !== $pinbak ) {
+					$rules_headers .= '    Header set ' . ( '1' === $rep_only ? 'Public-Key-Pins-Report-Only' : 'Public-Key-Pins' ) .
+						' "pin-sha256="$pin"; pin-sha256="$pinbak"; max-age=' . $lifetime . ( strpos( $extra, 'inc' ) ? '; includeSubDomains' : '' ) .
+						( ! empty( $w3tc_url ) ? '; report-uri="$w3tc_url"' : '' ) . "\"\n";
+				}
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.referrer.policy' ) ) {
-				$dir            = Util_Rule::sanitize_directive_value( $w3tc_config->get_string( 'browsercache.security.referrer.policy.directive' ) );
-				$rules_headers .= '    Header set Referrer-Policy "' . ( empty( $dir ) ? '' : $dir ) . "\"\n";
+				$dir = BrowserCache_RuleDirectives::normalize_enum(
+					'referrer_policy',
+					$w3tc_config->get_string( 'browsercache.security.referrer.policy.directive' )
+				);
+				if ( null !== $dir ) {
+					$rules_headers .= '    Header set Referrer-Policy "' . ( '0' === $dir ? '' : $dir ) . "\"\n";
+				}
 			}
 
 			if ( $w3tc_config->get_boolean( 'browsercache.security.csp' ) ) {

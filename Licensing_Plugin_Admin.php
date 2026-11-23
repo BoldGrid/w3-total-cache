@@ -181,6 +181,12 @@ class Licensing_Plugin_Admin {
 			delete_transient( $old_transient_key );
 		}
 
+		if ( $old_key !== $new_key ) {
+			Licensing_Core::clear_license_jwt();
+			delete_transient( 'w3tc_imageservice_usage' );
+			delete_transient( 'w3tc_imageservice_limited' );
+		}
+
 		switch ( true ) {
 			// No new key or old key. Do nothing.
 			case ( ! $new_key_set && ! $old_key_set ):
@@ -322,7 +328,7 @@ class Licensing_Plugin_Admin {
 			}
 
 			// Handle new activation status.
-			if ( isset( $activate_result ) ) {
+			if ( isset( $activate_result ) && is_object( $activate_result ) && isset( $activate_result->license_status ) ) {
 				$status = $activate_result->license_status;
 
 				switch ( true ) {
@@ -686,6 +692,21 @@ class Licensing_Plugin_Admin {
 						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
 				);
 
+			/*
+			 * Longer prefixes must be tested first. _status_is() is a prefix
+			 * match, so inactive.by_rooturi also matches
+			 * inactive.by_rooturi.activations_limit_reached.
+			 */
+			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
+				return sprintf(
+					// Translators: 1 Product name.
+					__(
+						'Your %1$s license key is not active and cannot be activated due to the license activation limit being reached.',
+						'w3-total-cache'
+					),
+					W3TC_POWERED_BY
+				);
+
 			case $this->_status_is( $status, 'inactive.by_rooturi' ) || $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ):
 				// Only show this notice if there's actually a license key.
 				if ( empty( $w3tc_license_key ) ) {
@@ -706,16 +727,6 @@ class Licensing_Plugin_Admin {
 					W3TC_POWERED_BY,
 					'<a class="w3tc_licensing_reset_rooturi" href="' . esc_url( $reset_url ) . '">',
 					'</a>'
-				);
-
-			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
-				return sprintf(
-					// Translators: 1 Product name.
-					__(
-						'Your %1$s license key is not active and cannot be activated due to the license activation limit being reached.',
-						'w3-total-cache'
-					),
-					W3TC_POWERED_BY
 				);
 
 			case $this->_status_is( $status, 'inactive' ):
@@ -812,27 +823,8 @@ class Licensing_Plugin_Admin {
 			'license_key' => $w3tc_license_key,
 		);
 
-		/**
-		 * Mirrors the allowlist in {@see Licensing_Core::_license_api_base_url()}.
-		 * Inlined rather than exposed because this is the only off-class
-		 * caller and the helper is intentionally private.
-		 */
-		$base    = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
-		$scheme  = \wp_parse_url( $base, PHP_URL_SCHEME );
-		$host    = \wp_parse_url( $base, PHP_URL_HOST );
-		$host_lc = \is_string( $host ) ? \strtolower( $host ) : '';
-		$suffix  = '.w3-edge.com';
-		$slen    = \strlen( $suffix );
-		$hlen    = \strlen( $host_lc );
-		$allowed = (
-			'https' === $scheme
-			&& '' !== $host_lc
-			&& (
-				'w3-edge.com' === $host_lc
-				|| ( $hlen > $slen && \substr( $host_lc, -$slen ) === $suffix )
-			)
-		);
-		if ( ! $allowed ) {
+		$base = \defined( 'W3TC_LICENSE_API_URL' ) ? W3TC_LICENSE_API_URL : '';
+		if ( ! Util_Url::is_https_host_allowlisted( $base, array( 'w3-edge.com' ), array( '.w3-edge.com' ) ) ) {
 			return '';
 		}
 
@@ -968,6 +960,7 @@ class Licensing_Plugin_Admin {
 		);
 
 		if ( ! $is_stuck_no_key && time() < $state->get_integer( 'license.next_check' ) ) {
+			$this->release_pro_rest_cache_if_unlicensed();
 			return;
 		}
 
@@ -985,9 +978,9 @@ class Licensing_Plugin_Admin {
 		if ( ! empty( $w3tc_license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
 			$w3tc_license = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
 
-			if ( $w3tc_license ) {
+			if ( is_object( $w3tc_license ) && isset( $w3tc_license->license_status ) ) {
 				$status = $w3tc_license->license_status;
-				$terms  = $w3tc_license->license_terms;
+				$terms  = isset( $w3tc_license->license_terms ) ? $w3tc_license->license_terms : '';
 				if ( $this->_status_is( $status, 'active' ) ) {
 					$plugin_type = 'pro';
 				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) &&
@@ -1047,7 +1040,52 @@ class Licensing_Plugin_Admin {
 				// missing exception handle?
 			}
 		}
+
+		$this->release_pro_rest_cache_if_unlicensed();
+
 		return $status;
+	}
+
+	/**
+	 * Drops a retained Pro REST cache mode when Pro is not active.
+	 *
+	 * Disk Enhanced stores an ungrouped response as a static HTML file.
+	 * REST caching belongs in the rest group, and only while Pro is active.
+	 * Clear the retained mode and flush page cache so those files are removed.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return void
+	 */
+	public function release_pro_rest_cache_if_unlicensed() {
+		if ( 'cache' !== $this->_config->get_string( 'pgcache.rest' ) ) {
+			return;
+		}
+
+		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			return;
+		}
+
+		$this->_config->set( 'pgcache.rest', '' );
+
+		try {
+			$this->_config->save();
+		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			return;
+		}
+
+		try {
+			$flush = Dispatcher::component( 'PgCache_Flush' );
+			$flush->flush_group( 'rest' );
+			$flush->flush_group( '' );
+			$flush->flush_post_cleanup();
+
+			if ( function_exists( '\w3tc_flush_posts' ) ) {
+				\w3tc_flush_posts();
+			}
+		} catch ( \Throwable $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			return;
+		}
 	}
 
 	/**

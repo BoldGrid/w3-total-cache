@@ -12,14 +12,86 @@ namespace W3TC;
  */
 class Support_Page {
 	/**
-	 * Prints the W3TC support scripts in the admin area.
+	 * Default Wufoo form hash.
 	 *
-	 * This method localizes and sets up the necessary variables to be used
-	 * by the W3TC support JavaScript in the admin area.
+	 * @since 2.10.6
 	 *
-	 * @return void
+	 * @var string
 	 */
-	public static function admin_print_scripts_w3tc_support() {
+	const FORM_HASH_DEFAULT = 'm5pom8z0qy59rm';
+
+	/**
+	 * Third-party form script URL. HTTPS only.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @var string
+	 */
+	const FORM_SCRIPT = 'https://www.wufoo.com/scripts/embed/form.js';
+
+	/**
+	 * Keys allowed in the Support page localization object.
+	 *
+	 * Contact fields are intentionally absent. The third-party form
+	 * collects those on submit.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return string[]
+	 */
+	public static function allowed_client_keys() {
+		return array(
+			'home_url',
+			'form_hash',
+			'field_name',
+			'field_value',
+			'postprocess',
+			'form_script',
+			'page',
+		);
+	}
+
+	/**
+	 * Localization payload for the Support page script.
+	 *
+	 * Returns null on the thank-you (`done`) view so the third-party
+	 * form is not offered after submission.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array<string, string>|null
+	 */
+	public static function client_data() {
+		if ( ! empty( Util_Request::get_string( 'done' ) ) ) {
+			return null;
+		}
+
+		$form_hash   = self::FORM_HASH_DEFAULT;
+		$field_name  = '';
+		$field_value = '';
+
+		$service_item_val = Util_Request::get_integer( 'service_item' );
+		if ( ! empty( $service_item_val ) ) {
+			$pos = $service_item_val;
+			$v   = get_site_option( 'w3tc_generic_widgetservices' );
+			try {
+				$v = json_decode( $v, true );
+				if ( isset( $v['items'] ) && isset( $v['items'][ $pos ] ) && is_array( $v['items'][ $pos ] ) ) {
+					$item = $v['items'][ $pos ];
+					$hash = self::sanitize_form_hash( isset( $item['form_hash'] ) ? $item['form_hash'] : '' );
+					if ( '' !== $hash ) {
+						$form_hash   = $hash;
+						$field_name  = self::sanitize_field_name( isset( $item['parameter_name'] ) ? $item['parameter_name'] : '' );
+						$field_value = self::sanitize_field_value( isset( $item['parameter_value'] ) ? $item['parameter_value'] : '' );
+						if ( '' === $field_name ) {
+							$field_value = '';
+						}
+					}
+				}
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			}
+		}
+
 		$w3tc_url = get_home_url();
 		if ( 'http://' === substr( $w3tc_url, 0, 7 ) ) {
 			$w3tc_url = substr( $w3tc_url, 7 );
@@ -27,53 +99,119 @@ class Support_Page {
 			$w3tc_url = substr( $w3tc_url, 8 );
 		}
 
-		// values from widget.
-		$w3tc_support_form_hash   = 'm5pom8z0qy59rm';
-		$w3tc_support_field_name  = '';
-		$w3tc_support_field_value = '';
+		return array(
+			'home_url'     => $w3tc_url,
+			'form_hash'    => $form_hash,
+			'field_name'   => $field_name,
+			'field_value'  => $field_value,
+			'postprocess'  => rawurlencode(
+				rawurlencode(
+					Util_Ui::admin_url(
+						Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_support_send_details' ) . '&page=w3tc_support&done=1'
+					)
+				)
+			),
+			'form_script'  => self::FORM_SCRIPT,
+			'page'         => 'w3tc_support',
+		);
+	}
 
-		$service_item_val = Util_Request::get_integer( 'service_item' );
-		if ( ! empty( $service_item_val ) ) {
-			$pos = $service_item_val;
-
-			$v = get_site_option( 'w3tc_generic_widgetservices' );
-			try {
-				$v = json_decode( $v, true );
-				if ( isset( $v['items'] ) && isset( $v['items'][ $pos ] ) ) {
-					$w3tc_i                   = $v['items'][ $pos ];
-					$w3tc_support_form_hash   = $w3tc_i['form_hash'];
-					$w3tc_support_field_name  = $w3tc_i['parameter_name'];
-					$w3tc_support_field_value = $w3tc_i['parameter_value'];
-				}
-			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			}
+	/**
+	 * Prints the W3TC support scripts in the admin area.
+	 *
+	 * Enqueued only on the Support page hook. The thank-you view does
+	 * not receive the payload or the loader.
+	 *
+	 * @return void
+	 */
+	public static function admin_print_scripts_w3tc_support() {
+		$data = self::client_data();
+		if ( null === $data ) {
+			return;
 		}
 
-		$u = wp_get_current_user();
-
-		// w3tc-options script is already queued so attach to it
-		// just to make vars printed (while it's not related by semantics).
-		wp_localize_script(
-			'w3tc-options',
-			'w3tc_support_data',
-			array(
-				'home_url'    => $w3tc_url,
-				'email'       => get_bloginfo( 'admin_email' ),
-				'first_name'  => $u->first_name,
-				'last_name'   => $u->last_name,
-				'form_hash'   => $w3tc_support_form_hash,
-				'field_name'  => $w3tc_support_field_name,
-				'field_value' => $w3tc_support_field_value,
-				'postprocess' => rawurlencode(
-					rawurlencode(
-						Util_Ui::admin_url(
-							// The _wpnonce minted here is forwarded by options() into the w3tc_support_send_details action URL.
-							Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_support_send_details' ) . '&page=w3tc_support&done=1'
-						)
-					)
-				),
-			)
+		wp_register_script(
+			'w3tc-support',
+			plugins_url( 'pub/js/support.js', W3TC_FILE ),
+			array(),
+			W3TC_VERSION,
+			true
 		);
+
+		wp_localize_script( 'w3tc-support', 'w3tc_support_data', $data );
+		wp_enqueue_script( 'w3tc-support' );
+	}
+
+	/**
+	 * Restrict widget form hashes to the Wufoo token alphabet.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $hash Raw hash.
+	 *
+	 * @return string
+	 */
+	public static function sanitize_form_hash( $hash ) {
+		if ( ! is_string( $hash ) ) {
+			return '';
+		}
+
+		$hash = trim( $hash );
+		if ( '' === $hash || ! preg_match( '/^[A-Za-z0-9]+$/', $hash ) ) {
+			return '';
+		}
+
+		return $hash;
+	}
+
+	/**
+	 * Restrict extra Wufoo field names to `field` plus digits.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $name Raw field name.
+	 *
+	 * @return string
+	 */
+	public static function sanitize_field_name( $name ) {
+		if ( ! is_string( $name ) ) {
+			return '';
+		}
+
+		$name = trim( $name );
+		if ( '' === $name || ! preg_match( '/^field[0-9]+$/', $name ) ) {
+			return '';
+		}
+
+		return $name;
+	}
+
+	/**
+	 * Sanitize an extra Wufoo field value.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param mixed $value Raw value.
+	 *
+	 * @return string
+	 */
+	public static function sanitize_field_value( $value ) {
+		if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_text_field( (string) $value );
+		if ( strlen( $value ) > 200 ) {
+			$value = substr( $value, 0, 200 );
+		}
+
+		// Fail closed on query delimiters so a widget value cannot
+		// split Wufoo defaultValues even if a caller forgets to encode.
+		if ( '' === $value || preg_match( '/[&?=]/', $value ) ) {
+			return '';
+		}
+
+		return $value;
 	}
 
 	/**

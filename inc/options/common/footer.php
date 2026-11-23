@@ -111,9 +111,6 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<div class="w3tc-footer-inner-column-50">
 				<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/?utm_source=w3tc&utm_medium=footer_link&utm_campaign=newsletter_signup' ); ?>">
-				<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
-				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">
 					<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'W3 Edge', 'w3-total-cache' ); ?>
 				</a>

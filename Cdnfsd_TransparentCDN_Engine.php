@@ -123,15 +123,21 @@ class Cdn_TransparentCDN_Api {
 	 */
 	public function _purge_content( $files, &$error ) {
 		$w3tc_url = sprintf( W3TC_CDN_TRANSPARENTCDN_PURGE_URL, $this->_config['company_id'] );
-		$args     = array(
-			'method'     => 'POST',
-			'user-agent' => W3TC_POWERED_BY,
-			'headers'    => array(
+		if ( ! Util_Url::is_https_host_allowlisted( $w3tc_url, array( 'transparentcdn.com' ), array( '.transparentcdn.com' ) ) ) {
+			$error = __( 'Invalid Request URI', 'w3-total-cache' );
+			return false;
+		}
+
+		$args = array(
+			'method'      => 'POST',
+			'user-agent'  => W3TC_POWERED_BY,
+			'headers'     => array(
 				'Accept'        => 'application/json',
 				'Content-Type'  => 'application/json',
 				'Authorization' => sprintf( 'Bearer %s', $this->_token ),
 			),
-			'body'       => wp_json_encode( array( 'urls' => $files ) ),
+			'body'        => wp_json_encode( array( 'urls' => $files ) ),
+			'redirection' => 0,
 		);
 
 		$response = wp_remote_request( $w3tc_url, $args );
@@ -207,19 +213,25 @@ class Cdn_TransparentCDN_Api {
 	 * @throws \Exception If the token retrieval fails.
 	 */
 	public function _get_token() {
+		$auth_url = W3TC_CDN_TRANSPARENTCDN_AUTHORIZATION_URL;
+		if ( ! Util_Url::is_https_host_allowlisted( $auth_url, array( 'transparentcdn.com' ), array( '.transparentcdn.com' ) ) ) {
+			return false;
+		}
+
 		$client_id     = $this->_config['client_id'];
 		$client_secret = $this->_config['client_secret'];
 		$args          = array(
-			'method'     => 'POST',
-			'user-agent' => W3TC_POWERED_BY,
-			'headers'    => array(
+			'method'      => 'POST',
+			'user-agent'  => W3TC_POWERED_BY,
+			'headers'     => array(
 				'Accept'       => 'application/json',
 				'Content-Type' => 'application/x-www-form-urlencoded',
 			),
-			'body'       => "grant_type=client_credentials&client_id=$client_id&client_secret=$client_secret",
+			'body'        => "grant_type=client_credentials&client_id=$client_id&client_secret=$client_secret",
+			'redirection' => 0,
 		);
 
-		$response = wp_remote_request( W3TC_CDN_TRANSPARENTCDN_AUTHORIZATION_URL, $args );
+		$response = wp_remote_request( $auth_url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			$error = implode( '; ', $response->get_error_messages() );

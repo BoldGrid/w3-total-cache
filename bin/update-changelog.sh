@@ -96,8 +96,16 @@ insert_after_changelog_header() {
 	local bullets_file="$3"
 	local tmp
 	tmp="$(mktemp)"
+	# The header is already followed by one blank line. Skip that line so the new block does not add a second.
 	awk -v ver="${version}" -v bullets="${bullets_file}" '
-		{ print }
+		{
+			if (skip_blank && $0 == "") {
+				skip_blank = 0
+				next
+			}
+			skip_blank = 0
+			print
+		}
 		$0 == "== Changelog ==" {
 			print ""
 			print "= " ver " ="
@@ -106,6 +114,7 @@ insert_after_changelog_header() {
 			}
 			close(bullets)
 			print ""
+			skip_blank = 1
 		}
 	' "${file}" > "${tmp}"
 	mv "${tmp}" "${file}"
@@ -137,22 +146,48 @@ insert_upgrade_notice() {
 	local notice="$2"
 	local tmp
 	tmp="$(mktemp)"
+	# The header is already followed by one blank line. Skip that line so the new block does not add a second.
 	awk -v ver="${version}" -v notice="${notice}" '
-		{ print }
+		{
+			if (skip_blank && $0 == "") {
+				skip_blank = 0
+				next
+			}
+			skip_blank = 0
+			print
+		}
 		$0 == "== Upgrade Notice ==" {
 			print ""
 			print "= " ver " ="
 			print notice
 			print ""
+			skip_blank = 1
 		}
 	' "${README}" > "${tmp}"
 	mv "${tmp}" "${README}"
+}
+
+reject_double_blanks() {
+	if awk '
+		$0 == "== Changelog ==" || $0 == "== Upgrade Notice ==" { in_section = 1; prev_blank = 0; next }
+		in_section && $0 ~ /^== / { in_section = 0; prev_blank = 0 }
+		in_section && $0 == "" {
+			if (prev_blank) { found = 1 }
+			prev_blank = 1
+			next
+		}
+		{ prev_blank = 0 }
+		END { exit !found }
+	' "${README}"; then
+		die "readme.txt Changelog or Upgrade Notice has consecutive blank lines; separate version blocks with one blank line"
+	fi
 }
 
 cmd_check() {
 	local version="${1:-}"
 	[[ -n "${version}" ]] || die "check requires <version>"
 	validate_version "${version}"
+	reject_double_blanks
 
 	version_exists_in_readme "${version}" || die "version ${version} missing from readme.txt changelog"
 	version_exists_in_changelog "${version}" || die "version ${version} missing from changelog.txt"

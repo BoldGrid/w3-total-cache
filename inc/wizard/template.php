@@ -191,7 +191,13 @@ class Template {
 			</div>
 		</div>
 
-			<?php wp_nonce_field( 'w3tc_wizard' ); ?>
+			<?php
+			/**
+			 * Form marker only — SetupGuide AJAX posts per-action nonces from
+			 * `W3TC_SetupGuide.nonces`. A shared field is no longer accepted.
+			 */
+			?>
+			<input type="hidden" name="w3tc_wizard_form" value="1" />
 		<div id="test-results" class="hidden"></div>
 	</div>
 

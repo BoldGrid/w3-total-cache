@@ -59,6 +59,13 @@ class Generic_Plugin {
 	 * @return void
 	 */
 	public function run() {
+		if (
+			'cache' === $this->_config->get_string( 'pgcache.rest' ) &&
+			! Util_Environment::is_w3tc_pro( $this->_config )
+		) {
+			Dispatcher::component( 'Licensing_Plugin_Admin' )->release_pro_rest_cache_if_unlicensed();
+		}
+
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
 		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
@@ -84,16 +91,15 @@ class Generic_Plugin {
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		/**
 		 * The W3TC theme preview filters force-swap the active theme
-		 * for any visitor that supplies the public W3TC_POWERED_BY
-		 * User-Agent. Gate the registration on edit_theme_options so
-		 * unauthenticated visitors cannot probe installed themes
-		 *.
+		 * for a request that supplies the public W3TC_POWERED_BY
+		 * User-Agent. The capability check runs inside the callbacks,
+		 * after pluggable.php has loaded. The wizard loopback reaches
+		 * this code before that file exists.
 		 *
 		 * @since 2.10.0
 		 */
 		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) )
-			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false
-			&& \current_user_can( 'edit_theme_options' ) ) {
+			&& stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array( $this, 'template_preview' ) );
 			add_filter( 'stylesheet', array( $this, 'stylesheet_preview' ) );
 		} elseif ( $this->_config->get_boolean( 'mobile.enabled' ) || $this->_config->get_boolean( 'referrer.enabled' ) ) {
@@ -939,9 +945,13 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	public function template_preview( $template ) {
+		if ( ! \current_user_can( 'edit_theme_options' ) ) {
+			return $template;
+		}
+
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
-		$theme = Util_Theme::get( $w3tc_theme_name );
+		$theme = Util_Theme::get_by_key_or_name( $w3tc_theme_name );
 
 		if ( $theme ) {
 			return $theme['Template'];
@@ -958,9 +968,13 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	public function stylesheet_preview( $stylesheet ) {
+		if ( ! \current_user_can( 'edit_theme_options' ) ) {
+			return $stylesheet;
+		}
+
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
-		$theme = Util_Theme::get( $w3tc_theme_name );
+		$theme = Util_Theme::get_by_key_or_name( $w3tc_theme_name );
 
 		if ( $theme ) {
 			return $theme['Stylesheet'];
@@ -1149,7 +1163,7 @@ class Generic_Plugin {
 	 * @return bool
 	 */
 	private function should_ob_process_rest() {
-		return 'cache' === $this->_config->get_string( 'pgcache.rest' );
+		return PgCache_ContentGrabber::rest_cache_is_active( $this->_config );
 	}
 
 	/**
@@ -1185,12 +1199,6 @@ class Generic_Plugin {
 		if ( 'logged_out' === $action ) {
 			foreach ( $rejected_roles as $role ) {
 				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name( $role ) );
-				/**
-				 * One-release back-compat: also clear the legacy MD5-named
-				 * cookie so an upgrade doesn't leave a stale bypass-cookie
-				 * behind. Drop this `clear()` call in the next release.
-				 */
-				Util_Cookie::clear( 'w3tc_logged_' . Util_Cookie::role_cookie_name_legacy( $role ) );
 			}
 
 			return;

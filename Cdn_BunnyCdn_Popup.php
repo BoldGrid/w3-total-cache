@@ -92,7 +92,10 @@ class Cdn_BunnyCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_list_pull_zones() {
 		$w3tc_account_api_key = Util_Request::get_string( 'account_api_key' );
-		$api                  = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
+		$w3tc_config          = Dispatcher::config();
+		$api                  = new Cdn_BunnyCdn_Api(
+			Cdn_BunnyCdn_Api::client_config_from_saved( $w3tc_account_api_key, $w3tc_config )
+		);
 
 		// Try to retrieve pull zones.
 		try {
@@ -120,8 +123,6 @@ class Cdn_BunnyCdn_Popup {
 		}
 
 		// Save the account API key, if added or changed.
-		$w3tc_config = Dispatcher::config();
-
 		if ( $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' ) !== $w3tc_account_api_key ) {
 			$w3tc_config->set( 'cdn.bunnycdn.account_api_key', $w3tc_account_api_key );
 			$w3tc_config->save();
@@ -165,7 +166,9 @@ class Cdn_BunnyCdn_Popup {
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
-			$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
+			$api = new Cdn_BunnyCdn_Api(
+				Cdn_BunnyCdn_Api::client_config_from_saved( $w3tc_account_api_key, $w3tc_config )
+			);
 
 			// Try to create a new pull zone.
 			try {
@@ -276,7 +279,9 @@ class Cdn_BunnyCdn_Popup {
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
-			$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
+			$api = new Cdn_BunnyCdn_Api(
+				Cdn_BunnyCdn_Api::client_config_from_saved( $w3tc_account_api_key, $w3tc_config )
+			);
 
 			// Try to delete pull zone.
 			try {

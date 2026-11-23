@@ -7,26 +7,19 @@ find . -name '.git*' -type f -delete
 echo 'Finding and deleting .git folders.'
 find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
-# Cleanup development and build contents.
-rm -f .jshintrc AGENTS.md CLAUDE.md codecov coverage.xml package.* phpcs.xml yarn.lock
-rm -rf .claude .cursor .github qa
+# Cleanup development and build contents (keep package.json until after yarn aliases).
+bash bin/release-strip-dev.sh
 
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
 
-# Replace any leftover @since X.X.X placeholders (prefer yarn run update:since on the release branch before tagging).
-chmod +x ./bin/update-since-versions.sh && ./bin/update-since-versions.sh
+# Replace leftover @since X.X.X placeholders, then regenerate the POT.
+# Call the bash scripts directly; these aliases do not need yarn or node_modules.
+bash bin/update-since-versions.sh
+bash bin/make-pot.sh
 
-# Install WP-CLI
-wget -O /tmp/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x /tmp/wp
+rm -f package.* yarn.lock
 
-# Update the POT language file.  Set "xdebug.max_nesting_level=512" to avoid errors.
-php -d xdebug.max_nesting_level=512 /tmp/wp i18n make-pot . languages/w3-total-cache.pot
-
-# Remove temporary WP-CLI binary.
-rm -f /tmp/wp
-
-# Create a tag in the Wordpress.org SVN repo when after your build succeeds via Travis.
+# Create a tag in the WordPress.org SVN repo after the GitHub Actions release job succeeds.
 # @link https://github.com/BoldGrid/wordpress-tag-sync
 chmod +x ./node_modules/@boldgrid/wordpress-tag-sync/release.sh && ./node_modules/@boldgrid/wordpress-tag-sync/release.sh

@@ -95,7 +95,7 @@ class Varnish_Flush {
 	 * @throws \Exception Not explicitly thrown, but errors are logged using `_log` and returned as a `WP_Error`.
 	 */
 	protected function _purge( $w3tc_url ) {
-		@set_time_limit( $this->_timeout ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_timeout );
 		$return = true;
 
 		foreach ( (array) $this->_servers as $server ) {
@@ -263,6 +263,7 @@ class Varnish_Flush {
 		if ( $this->_debug ) {
 			$w3tc_data = sprintf( "[%s] [%s] %s\n", gmdate( 'r' ), $w3tc_url, $msg );
 			$w3tc_data = strtr( $w3tc_data, '<>', '' );
+			$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 			$filename = Util_Debug::log_filename( 'varnish' );
 

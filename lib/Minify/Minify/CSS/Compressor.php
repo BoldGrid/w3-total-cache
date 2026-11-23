@@ -70,7 +70,7 @@ class Minify_CSS_Compressor {
      */
     protected function _process($css)
     {
-        $this->_replacementHash = 'MINIFYCSS' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
+        $this->_ensurePlaceholderHash( $css );
         $this->_placeholders = array();
 
         $css = preg_replace_callback('~(".*"|\'.*\')~U', array($this, '_removeQuotesCB'), $css);
@@ -160,8 +160,8 @@ class Minify_CSS_Compressor {
 
         // fill placeholders
         $css = str_replace(
-            array_keys($this->_placeholders)
-            , array_values($this->_placeholders)
+            array_keys( $this->_placeholders )
+            , array_values( $this->_placeholders )
             , $css
         );
 
@@ -267,6 +267,26 @@ class Minify_CSS_Compressor {
             $out .= $piece;
         }
         return $out . $m[2];
+    }
+
+    /**
+     * Per-request placeholder id, extended when it already occurs in $source.
+     *
+     * @since 2.11.0
+     *
+     * @param string|null $source Input before placeholders are inserted.
+     * @return string
+     */
+    protected function _ensurePlaceholderHash( $source = null ) {
+        if ( ! \is_string( $this->_replacementHash ) || '' === $this->_replacementHash ) {
+            $this->_replacementHash = 'MINIFYCSS' . \bin2hex( \random_bytes( 16 ) );
+        }
+
+        while ( \is_string( $source ) && false !== \strpos( $source, $this->_replacementHash ) ) {
+            $this->_replacementHash .= \bin2hex( \random_bytes( 8 ) );
+        }
+
+        return $this->_replacementHash;
     }
 
     protected function _reservePlace($content) {

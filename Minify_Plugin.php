@@ -89,6 +89,10 @@ class Minify_Plugin {
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_action( 'w3tc_minifycache_purge_wpcron', array( $this, 'w3tc_minifycache_purge_wpcron' ) );
+		add_action(
+			Minify_MinifiedFileRequestHandler::EXTERNAL_JS_PRECACHE_HOOK,
+			array( $this, 'w3tc_minify_precache_external_script' )
+		);
 
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -181,6 +185,30 @@ class Minify_Plugin {
 	public function w3tc_minifycache_purge_wpcron() {
 		$flusher = Dispatcher::component( 'CacheFlush' );
 		$flusher->minifycache_flush();
+	}
+
+	/**
+	 * Retrieves a queued external script outside of page generation.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return void
+	 */
+	public function w3tc_minify_precache_external_script( $w3tc_url ) {
+		if ( ! is_string( $w3tc_url ) || '' === $w3tc_url ) {
+			return;
+		}
+
+		// The selection may have changed since the event was queued.
+		$helpers = new _W3_MinifyHelpers( $this->_config );
+		if ( 'url' !== $helpers->is_file_for_minification( $w3tc_url, null ) ) {
+			return;
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->_precache_file( $w3tc_url, 'js' );
 	}
 
 	/**
@@ -874,7 +902,15 @@ var extsrc=null;
 	 * @return string The generated URL.
 	 */
 	public function get_minify_manual_url( $theme, $template, $location, $type ) {
-		return Minify_Core::minified_url( $this->get_minify_manual_filename( $theme, $template, $location, $type ) );
+		$minify_filename = $this->get_minify_manual_filename( $theme, $template, $location, $type );
+		if ( ! $minify_filename ) {
+			return Minify_Core::minified_url( $minify_filename );
+		}
+
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
+
+		return Minify_Core::minified_url( $minify_filename );
 	}
 
 	/**
@@ -990,7 +1026,7 @@ var extsrc=null;
 	 * which happens when a request aborts before the WordPress load completes but the output
 	 * buffer is still flushed.
 	 *
-	 * @since X.X.X
+	 * @since 2.10.6
 	 *
 	 * @return bool True when conditional query tags are safe to call.
 	 */
@@ -1197,12 +1233,39 @@ class _W3_MinifyHelpers {
 			return null;
 		}
 
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$minify->ensure_minify_file_exists( $minify_filename );
+
 		$w3tc_url = Minify_Core::minified_url( $minify_filename );
 		$w3tc_url = Util_Environment::url_to_maybe_https( $w3tc_url );
 
 		$w3tc_url = apply_filters( 'w3tc_minify_url_for_files', $w3tc_url, $files, $type );
 
 		return $w3tc_url;
+	}
+
+	/**
+	 * Confirms that an external script already has a usable cached source.
+	 *
+	 * This check must not retrieve the script because it runs while page HTML
+	 * is being generated. Cache population and refresh happen in the minify
+	 * request handler.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return bool
+	 */
+	public function is_external_script_cached( $w3tc_url ) {
+		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
+		$cached = false !== $minify->get_cached_external_script( $w3tc_url );
+
+		if ( ! $cached ) {
+			$minify->schedule_external_script_precache( $w3tc_url );
+		}
+
+		return $cached;
 	}
 
 	/**

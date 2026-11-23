@@ -98,7 +98,7 @@ class Licensing_AdminActions {
 		Licensing_Core::activate_license( $w3tc_license_key, W3TC_VERSION );
 
 		$w3tc_license = Licensing_Core::check_license( $w3tc_license_key, W3TC_VERSION );
-		if ( $w3tc_license ) {
+		if ( is_object( $w3tc_license ) && isset( $w3tc_license->license_status ) ) {
 			$status = $w3tc_license->license_status;
 			if ( 'active.' === substr( $status . '.', 0, 7 ) ) {
 				Util_Admin::redirect_with_custom_messages2(

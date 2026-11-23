@@ -97,25 +97,174 @@ class Util_Http {
 	 * @return bool Returns true on success, or false on failure.
 	 */
 	public static function download( $w3tc_url, $w3tc_file, $args = array() ) {
-		// Ensure the URL has a protocol.
-		if ( strpos( $w3tc_url, '//' ) === 0 ) {
-			$w3tc_url = ( Util_Environment::is_https() ? 'https:' : 'http:' ) . $w3tc_url;
-		}
-
-		if ( ! Util_Url::is_self_host_url( $w3tc_url ) && ! Util_Url::is_public_host( $w3tc_url ) ) {
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url ) {
 			return false;
 		}
 
-		// Send a GET request to the URL to fetch the content.
-		$response = self::get( $w3tc_url, $args );
+		$public_only = ! empty( $args['w3tc_public_only'] );
+		$https_only  = ! empty( $args['w3tc_https_only'] );
+		$same_host   = ! empty( $args['w3tc_same_host'] );
+		$max_size    = isset( $args['w3tc_max_response_size'] ) ? (int) $args['w3tc_max_response_size'] : 0;
+		$validator   = isset( $args['w3tc_response_validator'] ) && \is_callable( $args['w3tc_response_validator'] ) ?
+			$args['w3tc_response_validator'] :
+			null;
+		unset(
+			$args['w3tc_public_only'],
+			$args['w3tc_https_only'],
+			$args['w3tc_same_host'],
+			$args['w3tc_max_response_size'],
+			$args['w3tc_response_validator']
+		);
 
-		// Check if the response contains an error.
-		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
+		$original_host = self::normalized_url_host( $w3tc_url );
+		if ( $same_host && '' === $original_host ) {
 			return false;
 		}
 
-		// Attempt to write the response body to the specified file.
-		return (bool) @file_put_contents( $w3tc_file, $response['body'] );
+		/**
+		 * Follow Location responses manually so each hop is evaluated
+		 * against the requested policy before the next request.
+		 */
+		$max_redirects = 5;
+		for ( $hop = 0; $hop <= $max_redirects; $hop++ ) {
+			if ( $https_only && 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ) {
+				return false;
+			}
+
+			if ( $same_host && self::normalized_url_host( $w3tc_url ) !== $original_host ) {
+				return false;
+			}
+
+			$allowed = $public_only ?
+				Util_Url::is_public_host( $w3tc_url ) :
+				Util_Url::is_allowed_outbound_url( $w3tc_url );
+			if ( ! $allowed ) {
+				return false;
+			}
+
+			$request_args = \array_merge(
+				$args,
+				array(
+					'redirection' => 0,
+				)
+			);
+			if ( $max_size > 0 ) {
+				$request_args['limit_response_size'] = $max_size + 1;
+			}
+
+			$response = self::get( $w3tc_url, $request_args );
+			if ( \is_wp_error( $response ) ) {
+				return false;
+			}
+
+			$code = isset( $response['response']['code'] ) ? (int) $response['response']['code'] : 0;
+			if ( $code >= 300 && $code < 400 ) {
+				$location = self::response_location_header( $response );
+				if ( '' === $location ) {
+					return false;
+				}
+
+				$w3tc_url = self::resolve_redirect_url( $w3tc_url, $location );
+				if ( '' === $w3tc_url ) {
+					return false;
+				}
+
+				continue;
+			}
+
+			if ( 200 !== $code ) {
+				return false;
+			}
+
+			$body = isset( $response['body'] ) && \is_string( $response['body'] ) ? $response['body'] : '';
+			if ( ( $max_size > 0 && \strlen( $body ) > $max_size ) || ( $validator && ! \call_user_func( $validator, $response ) ) ) {
+				return false;
+			}
+
+			return (bool) @file_put_contents( $w3tc_file, $body );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns a normalized host for redirect comparisons.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $url URL to inspect.
+	 *
+	 * @return string
+	 */
+	private static function normalized_url_host( $url ) {
+		$host = \wp_parse_url( $url, PHP_URL_HOST );
+
+		return \is_string( $host ) ? \strtolower( \rtrim( $host, '.' ) ) : '';
+	}
+
+	/**
+	 * Reads the Location header from a wp_remote_* response.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param array $response HTTP API response.
+	 *
+	 * @return string
+	 */
+	private static function response_location_header( $response ) {
+		if ( empty( $response['headers'] ) ) {
+			return '';
+		}
+
+		$headers = $response['headers'];
+		if ( \is_array( $headers ) && isset( $headers['location'] ) ) {
+			$location = $headers['location'];
+		} elseif ( \is_object( $headers ) && isset( $headers['location'] ) ) {
+			$location = $headers['location'];
+		} else {
+			return '';
+		}
+
+		if ( \is_array( $location ) ) {
+			$location = \reset( $location );
+		}
+
+		return \is_string( $location ) ? \trim( $location ) : '';
+	}
+
+	/**
+	 * Resolves a redirect Location against the current request URL.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @param string $current  Absolute URL of the current hop.
+	 * @param string $location Location header value.
+	 *
+	 * @return string Absolute URL, or empty string when resolution fails.
+	 */
+	private static function resolve_redirect_url( $current, $location ) {
+		if ( ! \is_string( $location ) || '' === $location ) {
+			return '';
+		}
+
+		$parts = \wp_parse_url( $current );
+		if ( ! \is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return '';
+		}
+
+		// A protocol-relative Location keeps the scheme of the hop that returned it.
+		if ( 0 === \strpos( $location, '//' ) ) {
+			$location = $parts['scheme'] . ':' . $location;
+		}
+
+		if ( ! \class_exists( '\WP_Http' ) ) {
+			return '';
+		}
+
+		$resolved = \WP_Http::make_absolute_url( $location, $current );
+
+		return Util_Url::is_valid_http_scheme( $resolved ) ? $resolved : '';
 	}
 
 	/**

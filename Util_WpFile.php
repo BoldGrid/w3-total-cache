@@ -99,7 +99,9 @@ class Util_WpFile {
 			$chmod = FS_CHMOD_FILE;
 		}
 
-		if ( @file_put_contents( $filename, $content ) ) {
+		// Against false, not truthiness: an empty write returns int(0), read as failure it asked for
+		// filesystem credentials on a writable file.
+		if ( false !== @file_put_contents( $filename, $content ) ) {
 			@chmod( $filename, $chmod );
 			return;
 		}

@@ -305,6 +305,57 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A retained REST cache mode is cleared on the rate-limited path when Pro is inactive.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return void
+	 */
+	public function test_retained_rest_cache_mode_cleared_when_pro_inactive() {
+		$this->install_edd_mock();
+
+		$this->set_config(
+			array(
+				'plugin.license_key' => 'usEr689iH6ZX4vJwCxR9RQDzpBvaT3es',
+				'plugin.type'        => '',
+				'pgcache.rest'       => 'cache',
+			)
+		);
+		$this->set_state(
+			array(
+				'license.status'     => 'inactive',
+				'license.next_check' => time() + 3600 * 24 * 5,
+			)
+		);
+
+		$flushed  = false;
+		$callback = static function () use ( &$flushed ) {
+			$flushed = true;
+		};
+		add_action( 'w3tc_flush_posts', $callback );
+
+		$admin = Dispatcher::component( 'Licensing_Plugin_Admin' );
+		$this->invoke_maybe_update( $admin );
+		remove_action( 'w3tc_flush_posts', $callback );
+
+		$this->assertFalse(
+			$this->http_called,
+			'The rate-limit gate must still hold when license status is already inactive.'
+		);
+
+		$config_after = Dispatcher::config();
+		$this->assertSame(
+			'',
+			$config_after->get_string( 'pgcache.rest' ),
+			'Retained REST cache mode must be cleared when Pro is inactive.'
+		);
+		$this->assertTrue( $flushed, 'Page cache must be flushed when the retained REST cache mode is cleared.' );
+
+		$config_after->set( 'pgcache.rest', '' );
+		$config_after->set( 'plugin.type', '' );
+	}
+
+	/**
 	 * Reflectively invokes the private `maybe_update_license_status()`
 	 * so we can assert the guard logic without exposing internals.
 	 *

@@ -56,7 +56,7 @@ class Extension_ImageService_Api {
 	private $endpoints = array(
 		'convert'  => array(
 			'method' => 'POST',
-			'uri'    => '/image/convert',
+			'uri'    => '/v2/image/convert',
 		),
 		'status'   => array(
 			'method' => 'GET',
@@ -68,7 +68,7 @@ class Extension_ImageService_Api {
 		),
 		'usage'    => array(
 			'method' => 'GET',
-			'uri'    => '/image/usage',
+			'uri'    => '/v2/image/usage',
 		),
 	);
 
@@ -120,12 +120,15 @@ class Extension_ImageService_Api {
 		$boundary      = wp_generate_password( 24 );
 		$body          = '';
 
+		$token       = $this->service_bearer_token();
 		$post_fields = array(
-			'license_key' => $this->w3tc_license_key,
-			'home_url'    => $this->home_url,
-			'item_name'   => $this->item_name,
-			'optimize'    => $options['optimize'],
+			'home_url'  => $this->home_url,
+			'item_name' => $this->item_name,
+			'optimize'  => $options['optimize'],
 		);
+		if ( '' === $token ) {
+			$post_fields = array( 'license_key' => $this->w3tc_license_key ) + $post_fields;
+		}
 
 		if ( Util_Environment::is_pro_constant( $w3tc_config ) ) {
 			$post_fields['pro_c'] = 1;
@@ -182,7 +185,7 @@ class Extension_ImageService_Api {
 		$body .= file_get_contents( $filepath ) . "\r\n" . '--' . $boundary . '--'; // phpcs:ignore WordPress.WP.AlternativeFunctions
 
 		// Send request.
-		$response = wp_remote_request(
+		$response = $this->remote_request(
 			Util_Environment::get_api_base_url() . $this->endpoints['convert']['uri'],
 			array(
 				'method'  => $this->endpoints['convert']['method'],
@@ -427,11 +430,14 @@ class Extension_ImageService_Api {
 			'limit_monthly_licensed'   => $error_message,
 		);
 
-		$response = wp_remote_request(
+		$token       = $this->service_bearer_token();
+		$license_key = '' === $token ? $this->w3tc_license_key : '0';
+		$item_name   = '' === $token ? $this->item_name : 'Item';
+		$response    = $this->remote_request(
 			esc_url(
 				Util_Environment::get_api_base_url() . $this->endpoints['usage']['uri'] .
-					'/' . rawurlencode( $this->w3tc_license_key ) .
-					'/' . urlencode( $this->item_name ) . // phpcs:ignore
+					'/' . rawurlencode( $license_key ) .
+					'/' . urlencode( $item_name ) . // phpcs:ignore
 					'/' . rawurlencode( $this->home_url )
 			),
 			array(
@@ -491,5 +497,72 @@ class Extension_ImageService_Api {
 				),
 				DAY_IN_SECONDS
 			);
+	}
+
+	/**
+	 * Pro bearer token, issuing or refreshing it before a /v2/ image call.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return string
+	 */
+	private function service_bearer_token() {
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return '';
+		}
+
+		return Licensing_Core::ensure_service_token();
+	}
+
+	/**
+	 * Image request with bearer auth and a single 401 retry.
+	 *
+	 * 403 is returned as-is.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $url  URL.
+	 * @param array  $args Request args.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private function remote_request( $url, array $args ) {
+		$response = wp_remote_request( $url, $this->with_bearer( $args ) );
+		if ( is_wp_error( $response ) || 401 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return $response;
+		}
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return $response;
+		}
+
+		Licensing_Core::reissue_for_unauthorized();
+		return wp_remote_request( $url, $this->with_bearer( $args ) );
+	}
+
+	/**
+	 * Attach the current JWT when this site is Pro and a token is stored.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $args Request args.
+	 *
+	 * @return array
+	 */
+	private function with_bearer( array $args ) {
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return $args;
+		}
+
+		$token = Licensing_Core::current_jwt();
+		if ( '' === $token ) {
+			return $args;
+		}
+
+		if ( ! isset( $args['headers'] ) || ! is_array( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['Authorization'] = 'Bearer ' . $token;
+		$args['redirection']              = 0;
+		return $args;
 	}
 }

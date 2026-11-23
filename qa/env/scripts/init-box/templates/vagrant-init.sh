@@ -1,5 +1,8 @@
 set -e
 
+# vboxsf preserves 0644 from git; AWS chmod's after scp.
+find /share/scripts -type f \( -name '*.sh' -o -name '*.rb' -o -name 'w3test' -o -name 'batch-test' \) -exec chmod a+x {} +
+
 # Configure env scripts
 cat /share/vagrant/vagrant-ami-export.sh >>/etc/environment
 cat /share/vagrant/export.sh >>/etc/environment

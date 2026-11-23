@@ -158,7 +158,9 @@ class BrowserCache_Environment_Nginx {
 		}
 
 		if ( $this->w3tc_c->get_boolean( 'browsercache.no404wp' ) ) {
-			$exceptions = $this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' );
+			$exceptions = BrowserCache_RuleDirectives::normalize_exceptions(
+				$this->w3tc_c->get_array( 'browsercache.no404wp.exceptions' )
+			);
 
 			$impoloded = implode( '|', $exceptions );
 			if ( ! empty( $impoloded ) ) {
@@ -216,22 +218,28 @@ class BrowserCache_Environment_Nginx {
 			$lifetime = $this->w3tc_c->get_integer( 'browsercache.other.lifetime' );
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.hsts' ) ) {
-				$dir     = $g( 'browsercache.security.hsts.directive' );
-				$rules[] = "add_header Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir, "inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\";";
+				$dir = BrowserCache_RuleDirectives::normalize_enum( 'hsts', $g( 'browsercache.security.hsts.directive' ) );
+				if ( null !== $dir ) {
+					$rules[] = "add_header Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir, "inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\";";
+				}
 			}
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xfo' ) ) {
-				$dir      = $g( 'browsercache.security.xfo.directive' );
-				$w3tc_url = trim( $g( 'browsercache.security.xfo.allow' ) );
-				if ( empty( $w3tc_url ) ) {
-					$w3tc_url = Util_Rule::sanitize_directive_value( Util_Environment::home_url_maybe_https() );
+				$dir = BrowserCache_RuleDirectives::normalize_enum( 'xfo', $g( 'browsercache.security.xfo.directive' ) );
+				if ( null !== $dir ) {
+					$w3tc_url = trim( $g( 'browsercache.security.xfo.allow' ) );
+					if ( empty( $w3tc_url ) ) {
+						$w3tc_url = Util_Rule::sanitize_directive_value( Util_Environment::home_url_maybe_https() );
+					}
+					$rules[] = "add_header X-Frame-Options \"" . ( 'same' === $dir ? "SAMEORIGIN" : ( 'deny' === $dir ? "DENY" : "ALLOW-FROM $w3tc_url" ) ) . "\";";
 				}
-				$rules[] = "add_header X-Frame-Options \"" . ( 'same' === $dir ? "SAMEORIGIN" : ( 'deny' === $dir ? "DENY" : "ALLOW-FROM $w3tc_url" ) ) . "\";";
 			}
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xss' ) ) {
-				$dir     = $g( 'browsercache.security.xss.directive' );
-				$rules[] = "add_header X-XSS-Protection \"" . ( 'block' === $dir ? "1; mode=block" : $dir ) . "\";";
+				$dir = BrowserCache_RuleDirectives::normalize_enum( 'xss', $g( 'browsercache.security.xss.directive' ) );
+				if ( null !== $dir ) {
+					$rules[] = "add_header X-XSS-Protection \"" . ( 'block' === $dir ? "1; mode=block" : $dir ) . "\";";
+				}
 			}
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.xcto' ) ) {
@@ -241,15 +249,19 @@ class BrowserCache_Environment_Nginx {
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.pkp' ) ) {
 				$pin      = trim( $g( 'browsercache.security.pkp.pin' ) );
 				$pinbak   = trim( $g( 'browsercache.security.pkp.pin.backup' ) );
-				$extra    = $g( 'browsercache.security.pkp.extra' );
+				$extra    = BrowserCache_RuleDirectives::normalize_enum( 'pkp_extra', $g( 'browsercache.security.pkp.extra' ) );
 				$w3tc_url = trim( $g( 'browsercache.security.pkp.report.url' ) );
-				$rep_only = '1' === $g( 'browsercache.security.pkp.report.only' ) ? true : false;
-				$rules[]  = "add_header " . ( $rep_only ? "Public-Key-Pins-Report-Only" : "Public-Key-Pins" ) . " 'pin-sha256=\"$pin\"; pin-sha256=\"$pinbak\"; max-age=$lifetime" . ( strpos( $extra, "inc" ) ? "; includeSubDomains" : "" ) . ( ! empty( $w3tc_url ) ? "; report-uri=\"$w3tc_url\"" : "" ) . "';";
+				$rep_only = BrowserCache_RuleDirectives::normalize_enum( 'pkp_report_only', $g( 'browsercache.security.pkp.report.only' ) );
+				if ( null !== $extra && null !== $rep_only && '' !== $pin && '' !== $pinbak ) {
+					$rules[] = "add_header " . ( '1' === $rep_only ? "Public-Key-Pins-Report-Only" : "Public-Key-Pins" ) . " 'pin-sha256=\"$pin\"; pin-sha256=\"$pinbak\"; max-age=$lifetime" . ( strpos( $extra, "inc" ) ? "; includeSubDomains" : "" ) . ( ! empty( $w3tc_url ) ? "; report-uri=\"$w3tc_url\"" : "" ) . "';";
+				}
 			}
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.referrer.policy' ) ) {
-				$dir     = $g( 'browsercache.security.referrer.policy.directive' );
-				$rules[] = "add_header Referrer-Policy \"" . ( '0' === $dir ? "" : $dir ) . "\";";
+				$dir = BrowserCache_RuleDirectives::normalize_enum( 'referrer_policy', $g( 'browsercache.security.referrer.policy.directive' ) );
+				if ( null !== $dir ) {
+					$rules[] = "add_header Referrer-Policy \"" . ( '0' === $dir ? "" : $dir ) . "\";";
+				}
 			}
 
 			if ( $this->w3tc_c->get_boolean( 'browsercache.security.csp' ) ) {

@@ -102,7 +102,7 @@ class Minify_HTML {
 			$this->_isXhtml = (false !== strpos($this->_html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'));
 		}
 
-		$this->_replacementHash = 'MINIFYHTML' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
+		$this->_ensurePlaceholderHash( $this->_html );
 		$this->_placeholders = array();
 
 		// replace dynamic tags
@@ -188,14 +188,14 @@ class Minify_HTML {
 
 		// fill placeholders
 		$this->_html = str_replace(
-			array_keys($this->_placeholders)
-			,array_values($this->_placeholders)
+			array_keys( $this->_placeholders )
+			,array_values( $this->_placeholders )
 			,$this->_html
 		);
 		// issue 229: multi-pass to catch scripts that didn't get replaced in textareas
 		$this->_html = str_replace(
-			array_keys($this->_placeholders)
-			,array_values($this->_placeholders)
+			array_keys( $this->_placeholders )
+			,array_values( $this->_placeholders )
 			,$this->_html
 		);
 
@@ -235,6 +235,26 @@ class Minify_HTML {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Per-request placeholder id, extended when it already occurs in $source.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string|null $source Input before placeholders are inserted.
+	 * @return string
+	 */
+	protected function _ensurePlaceholderHash( $source = null ) {
+		if ( ! \is_string( $this->_replacementHash ) || '' === $this->_replacementHash ) {
+			$this->_replacementHash = 'MINIFYHTML' . \bin2hex( \random_bytes( 16 ) );
+		}
+
+		while ( \is_string( $source ) && false !== \strpos( $source, $this->_replacementHash ) ) {
+			$this->_replacementHash .= \bin2hex( \random_bytes( 8 ) );
+		}
+
+		return $this->_replacementHash;
 	}
 
 	protected function _reservePlace($content)

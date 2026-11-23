@@ -42,24 +42,34 @@ describe("", function () {
 
     await sys.afterRulesChange();
 
-    //
-    // check test button
-    //
     await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_cdn");
-    let cdnTest = "#cdn_test";
-    await adminPage.evaluate(
-      (cdnTest) => document.querySelector(cdnTest).click(),
-      cdnTest,
-    );
-
-    await adminPage.waitForSelector("#cdn_test_status", { visible: true });
-    await adminPage.waitForFunction(function () {
-      return (
-        document.querySelector("#cdn_test_status").textContent != "Testing..."
-      );
-    });
-
-    let text = await adminPage.$eval("#cdn_test_status", (e) => e.textContent);
+    let text = await clickCdnTestAndWait();
     expect(text).equals("Test passed");
+
+    /**
+     * Test uses saved settings, not the unsaved form. Point the
+     * host field at loopback without saving; Test must still pass
+     * against the stored RFC1918 sandbox host.
+     */
+    await adminPage.$eval("#cdn_ftp_host", (e) => {
+      e.value = "127.0.0.1";
+    });
+    let textAfterUnsavedHost = await clickCdnTestAndWait();
+    expect(textAfterUnsavedHost).equals("Test passed");
+    expect(textAfterUnsavedHost).not.contains("loopback");
   });
 });
+
+async function clickCdnTestAndWait() {
+  await adminPage.evaluate(() => document.querySelector("#cdn_test").click());
+  await adminPage.waitForFunction(() => {
+    let el = document.querySelector("#cdn_test_status");
+    return el && el.textContent === "Testing...";
+  });
+  await adminPage.waitForFunction(() => {
+    let el = document.querySelector("#cdn_test_status");
+    return el && el.textContent && el.textContent !== "Testing...";
+  });
+
+  return adminPage.$eval("#cdn_test_status", (e) => e.textContent);
+}

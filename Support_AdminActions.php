@@ -102,6 +102,7 @@ class Support_AdminActions {
 
 		// Attach server info.
 		$server_info = print_r( $this->get_server_info(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		$server_info = Util_Debug::redact( $server_info );
 		$server_info = str_replace( "\n", "\r\n", $server_info );
 
 		$attachments[] = array(

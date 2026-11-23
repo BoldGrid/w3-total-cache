@@ -108,29 +108,28 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Resolve the per-action nonce key for the current AJAX action.
 	 *
-	 * Falls back to the legacy shared `w3tc_wizard` nonce so older cached
-	 * wizard pages (still posting a shared nonce) don't break for admins
-	 * mid-session.
+	 * Unknown actions return an empty string so they cannot authenticate
+	 * against a shared legacy key.
 	 *
 	 * @since 2.10.0
 	 *
 	 * @param string $action The action key (e.g. `w3tc_config_pgcache`).
 	 *
-	 * @return string Nonce action name to verify against.
+	 * @return string Nonce action name to verify against, or empty when unknown.
 	 */
 	private static function get_nonce_action( $action ) {
 		if ( isset( self::$nonce_actions[ $action ] ) ) {
 			return self::$nonce_actions[ $action ];
 		}
 
-		return 'w3tc_wizard';
+		return '';
 	}
 
 	/**
 	 * Verify the request's nonce for a SetupGuide AJAX handler.
 	 *
-	 * Performs the inner capability check first (defense-in-depth) and then
-	 * checks the per-action nonce. Sends a JSON error and dies on failure.
+	 * Checks the per-action nonce and then the required capability.
+	 * Sends a JSON error and dies on failure.
 	 *
 	 * @since 2.10.0
 	 *
@@ -139,21 +138,15 @@ class SetupGuide_Plugin_Admin {
 	 * @return void
 	 */
 	private function verify_ajax_request( $action ) {
-		if ( ! \current_user_can( 'manage_options' ) ) {
-			\wp_send_json_error( __( 'Insufficient permissions', 'w3-total-cache' ), 403 );
-		}
-
 		$primary  = self::get_nonce_action( $action );
 		$provided = Util_Nonce::read_nonce( '_wpnonce' );
 
-		/**
-		 * Accept either the per-action nonce or the legacy shared `w3tc_wizard`
-		 * nonce. The legacy fallback covers admins still on a cached wizard
-		 * page rendered before this release; new requests always send the
-		 * per-action nonce.
-		 */
-		if ( ! \wp_verify_nonce( $provided, $primary ) && ! \wp_verify_nonce( $provided, 'w3tc_wizard' ) ) {
+		if ( '' === $primary || ! \wp_verify_nonce( $provided, $primary ) ) {
 			\wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_send_json_error( __( 'Insufficient permissions', 'w3-total-cache' ), 403 );
 		}
 	}
 

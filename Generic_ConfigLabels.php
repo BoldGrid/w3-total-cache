@@ -121,6 +121,7 @@ class Generic_ConfigLabels {
 				'varnish.enabled'                     => __( 'Enable reverse proxy caching via varnish', 'w3-total-cache' ),
 				'varnish.debug'                       => __( 'Reverse Proxy', 'w3-total-cache' ),
 				'varnish.servers'                     => __( 'Varnish servers:', 'w3-total-cache' ),
+				'common.trusted_proxies'              => __( 'Trusted reverse proxies:', 'w3-total-cache' ),
 			)
 		);
 	}

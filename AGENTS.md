@@ -90,3 +90,10 @@ The operational details (how to PATCH an advisory, how to rename a TPF PR, how t
  - `.claude/skills/repost-pr-reviews-to-tpf/SKILL.md` — repost GitHub review content (Copilot bot reviews, human-reviewer threads) from a closed public PR onto its GHSA temporary-private-fork PR, anchored to the source's `original_commit_id` at `original_line` so GitHub renders each comment as a historical outdated comment matching the original review UX exactly. Use after `move-pr-to-private-ghsa` to restore reviewer-thread continuity on the TPF — reviews/inline comments do not migrate with the commits, so the TPF starts from a blank Conversation tab without this follow-up. Attribution lives in an inline preface on every body.
  - `.claude/skills/analyze-w3tcqa-environment/SKILL.md` — map the W3TCQA AWS matrix (orchestrator `~/ci` / `qa/env`, EC2 `/share` layout, report artifacts, box naming, log triage). Use when analyzing uploaded `w3tcqa-ci.zip`, `summary.html`, per-box logs, or planning fixes to `qa/plugins` probe scripts. Implementation split: `IMPLEMENTATION-PLANS.md` in the same directory.
  - `.claude/skills/update-changelog/SKILL.md` — add or verify release changelog bullets in `readme.txt` and `changelog.txt` (plus optional Upgrade Notice). Use `bin/update-changelog.sh check|add|add-upgrade-notice`.
+
+## RT hub
+
+Smoke/QA and shared agent playbooks: clone `inmotionhosting/internal-rt-tools`, read `AGENTS.md`.
+Project overlay: `internal-rt-tools/.cursor/projects/w3-total-cache/`
+Smoke paths: `wp-qa-smoke --manifest …/w3-total-cache/smoke-paths.yaml`
+Security engagement config: `.sec-project.yaml` + `tmp/sec-ideas/_profile.md` (this repo). Prefer hub `.claude/` skills — do not duplicate generic `sec-*` / `pr-*` trees here.

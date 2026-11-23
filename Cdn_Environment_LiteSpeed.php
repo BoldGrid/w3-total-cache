@@ -74,7 +74,8 @@ class Cdn_Environment_LiteSpeed {
 		$context_rules[] = '    END_extraHeaders';
 
 		$rules   = array();
-		$rules[] = 'context exp:^.*(ttf|ttc|otf|eot|woff|woff2|font.css)$ {';
+		$group   = Cdn_Util::cors_font_regex_group();
+		$rules[] = 'context exp:(?i)^.*\\.(' . $group . ')$ {';
 		$rules[] = '    location $DOC_ROOT/$0';
 		$rules[] = '    allowBrowse 1';
 		$rules[] = implode( "\n", $context_rules );
@@ -130,11 +131,9 @@ class Cdn_Environment_LiteSpeed {
 	public function w3tc_browsercache_rules_section_extensions( $extensions, $section ) {
 		// CDN adds own rules for those extensions.
 		if ( $this->w3tc_c->get_boolean( 'cdn.cors_header' ) ) {
-			unset( $extensions['ttf|ttc'] );
-			unset( $extensions['otf'] );
-			unset( $extensions['eot'] );
-			unset( $extensions['woff'] );
-			unset( $extensions['woff2'] );
+			foreach ( Cdn_Util::cors_font_browsercache_extension_keys() as $key ) {
+				unset( $extensions[ $key ] );
+			}
 		}
 
 		return $extensions;

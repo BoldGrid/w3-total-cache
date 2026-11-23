@@ -37,7 +37,7 @@ Util_Ui::config_item(
 		'label'          => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
 		'control'        => 'checkbox',
 		'checkbox_label' => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
-		'description'    => __( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ),
+		'description'    => __( 'Verify the server\'s certificate when connecting via TLS. Uncheck only as an explicit compatibility opt-out; verification is not disabled automatically.', 'w3-total-cache' ),
 	)
 );
 

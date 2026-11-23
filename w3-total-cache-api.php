@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || die;
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.10.5' );
+define( 'W3TC_VERSION', '2.11.0' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -28,7 +28,6 @@ define( 'W3TC_SUPPORT_SERVICES_URL', 'https://api.w3-edge.com/v1/support-service
 define( 'W3TC_FAQ_URL', 'https://api.w3-edge.com/v1/redirects/faq' );
 define( 'W3TC_TERMS_URL', 'https://api.w3-edge.com/v1/redirects/policies-terms' );
 define( 'W3TC_TERMS_ACCEPT_URL', 'https://api.w3-edge.com/v1/redirects/policies-accept' );
-define( 'W3TC_MAILLINGLIST_SIGNUP_URL', 'https://api.w3-edge.com/v1/signup-newsletter' );
 define( 'W3TC_NEWRELIC_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/newrelic/signup' );
 define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledrive/authorize' );
 define( 'W3TC_BUNNYCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/signup' );
@@ -139,6 +138,7 @@ define( 'W3TC_ADDIN_FILE_OBJECT_CACHE', WP_CONTENT_DIR . '/object-cache.php' );
 define( 'W3TC_MARKER_BEGIN_WORDPRESS', '# BEGIN WordPress' );
 define( 'W3TC_MARKER_BEGIN_PGCACHE_CORE', '# BEGIN W3TC Page Cache core' );
 define( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE', '# BEGIN W3TC Page Cache cache' );
+define( 'W3TC_MARKER_BEGIN_PGCACHE_MAXCACHE', '# BEGIN W3TC Page Cache MAx Cache' );
 define( 'W3TC_MARKER_BEGIN_PGCACHE_WPSC', '# BEGIN WPSuperCache' );
 define( 'W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE', '# BEGIN W3TC Browser Cache' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_CORE', '# BEGIN W3TC Minify core' );
@@ -152,6 +152,7 @@ define( 'W3TC_MARKER_BEGIN_PLUGIN_DIR_DENY', '# BEGIN W3TC Plugin Dir Deny' );
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
 define( 'W3TC_MARKER_END_PGCACHE_CORE', '# END W3TC Page Cache core' );
 define( 'W3TC_MARKER_END_PGCACHE_CACHE', '# END W3TC Page Cache cache' );
+define( 'W3TC_MARKER_END_PGCACHE_MAXCACHE', '# END W3TC Page Cache MAx Cache' );
 define( 'W3TC_MARKER_END_PGCACHE_LEGACY', '# END W3TC Page Cache' );
 define( 'W3TC_MARKER_END_PGCACHE_WPSC', '# END WPSuperCache' );
 define( 'W3TC_MARKER_END_BROWSERCACHE_CACHE', '# END W3TC Browser Cache' );

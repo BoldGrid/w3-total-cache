@@ -1,0 +1,11 @@
+---
+description: Keep a single blank line between readme.txt changelog version blocks
+globs: readme.txt
+alwaysApply: false
+---
+
+# readme.txt changelog spacing
+
+In `== Changelog ==` and `== Upgrade Notice ==`, separate version blocks with one blank line.
+
+Do not insert a second blank line before the next `= X.Y.Z =` heading. `bin/update-changelog.sh check <version>` fails when either section has consecutive blank lines.

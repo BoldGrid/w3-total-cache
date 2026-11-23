@@ -1,0 +1,11 @@
+---
+description: Keep generated hooks documentation synchronized with source changes
+alwaysApply: true
+---
+
+# Generated hooks documentation
+
+- Before finishing any code change, run `yarn run hooks:check`.
+- If it fails because generated hooks documentation is stale, run `yarn run hooks:generate`.
+- Re-run `yarn run hooks:check` and include the generated documentation changes with the source change.
+- Do not treat unrelated command failures as a reason to regenerate documentation.

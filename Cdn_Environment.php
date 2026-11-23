@@ -515,23 +515,22 @@ class Cdn_Environment {
 	/**
 	 * Generates the CORS allow origin rule.
 	 *
-	 * This method generates the Apache or Nginx header rule for allowing cross-origin resource sharing (CORS). It sets the
-	 * `Access-Control-Allow-Origin` header to allow any origin, which is useful for CDN assets.
+	 * Font resources only. Apache FilesMatch is always applied so CORS is not
+	 * emitted for unrelated CSS, JavaScript, images, documents, or archives.
 	 *
-	 * @param bool $cdnftp Whether FTP settings should be included in the rule.
+	 * @param bool $cdnftp Unused; retained for call-site compatibility.
 	 *
 	 * @return string The generated CORS allow origin rule.
 	 */
 	private function allow_origin( $cdnftp = false ) {
-		$w3tc_r  = "<IfModule mod_headers.c>\n";
+		$group   = Cdn_Util::cors_font_regex_group( true );
+		$w3tc_r  = '<FilesMatch "\\.(' . $group . ")$\">\n";
+		$w3tc_r .= "<IfModule mod_headers.c>\n";
 		$w3tc_r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
 		$w3tc_r .= "</IfModule>\n";
+		$w3tc_r .= "</FilesMatch>\n";
 
-		if ( ! $cdnftp ) {
-			return $w3tc_r;
-		} else {
-			return "<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" . $w3tc_r . "</FilesMatch>\n";
-		}
+		return $w3tc_r;
 	}
 
 	/**

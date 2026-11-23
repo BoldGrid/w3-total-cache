@@ -414,11 +414,15 @@ class CdnEngine_Base {
 		$link = $w3tc_file['original_url'];
 
 		$headers = array(
-			'Content-Type'                => $mime_type,
-			'Last-Modified'               => Util_Content::http_date( time() ),
-			'Access-Control-Allow-Origin' => '*',
-			'Link'                        => '<' . $link . '>; rel="canonical"',
+			'Content-Type'  => $mime_type,
+			'Last-Modified' => Util_Content::http_date( time() ),
 		);
+
+		if ( Cdn_Util::path_needs_cors_header( $local_path ) ) {
+			$headers['Access-Control-Allow-Origin'] = '*';
+		}
+
+		$headers['Link'] = '<' . $link . '>; rel="canonical"';
 
 		$section = Util_Mime::mime_type_to_section( $mime_type );
 
@@ -635,6 +639,7 @@ class CdnEngine_Base {
 	public function _log( $local_path, $remote_path, $error ) {
 		$w3tc_data = sprintf( "[%s] [%s => %s] %s\n", gmdate( 'r' ), $local_path, $remote_path, $error );
 		$w3tc_data = strtr( $w3tc_data, '<>', '..' );
+		$w3tc_data = Util_Debug::redact( $w3tc_data );
 
 		$filename = Util_Debug::log_filename( 'cdn' );
 

@@ -222,25 +222,36 @@ class Generic_AdminActions_Test {
 		}
 
 		/*
-		 * Validate the admin-supplied `path_java` against the
-		 * Util_Java allowlist before assigning it to the vendored
-		 * minifier wrapper's static $javaExecutable. The vendored
-		 * code concatenates that property into the command string
-		 * passed to exec(), so without this validator the value
-		 * would not be escaped at the boundary.
+		 * Validate the admin-supplied Java executable and JAR against
+		 * the Util_Java allowlists before assigning them to the vendored
+		 * minifier wrapper statics. The vendored code concatenates those
+		 * properties into the command string passed to exec().
 		 *
 		 * @since 2.10.0
 		 */
 		$validated_java = '';
+		$validated_jar  = '';
 		if ( empty( $error ) && 'googleccjs' !== $w3tc_engine ) {
-			$validated_java = Util_Java::validate_with_log( $path_java, 'test_minifier' );
-			if ( false === $validated_java ) {
-				$error = sprintf(
-					/* translators: 1: comma-separated list of allowed directories, 2: wp-config.php constant name. */
-					__( 'JAVA executable path is not allowed. The path must be an existing, executable file under one of: %1$s. Operators may extend the allowlist via the %2$s constant in wp-config.php.', 'w3-total-cache' ),
-					implode( ', ', Util_Java::allowed_dirs() ),
-					'W3TC_JAVA_BIN_ALLOWED_DIRS'
-				);
+			$tools = Util_Java::validate_tools( $path_java, $path_jar, 'test_minifier' );
+			if ( false === $tools ) {
+				if ( false === Util_Java::validate( $path_java ) ) {
+					$error = sprintf(
+						/* translators: 1: comma-separated list of allowed directories, 2: wp-config.php constant name. */
+						__( 'JAVA executable path is not allowed. The path must be an existing, executable file under one of: %1$s. Operators may extend the allowlist via the %2$s constant in wp-config.php.', 'w3-total-cache' ),
+						implode( ', ', Util_Java::allowed_dirs() ),
+						'W3TC_JAVA_BIN_ALLOWED_DIRS'
+					);
+				} else {
+					$error = sprintf(
+						/* translators: 1: comma-separated list of allowed directories, 2: wp-config.php constant name. */
+						__( 'JAR file path is not allowed. The path must be an existing readable .jar under one of: %1$s. Operators may extend the allowlist via the %2$s constant in wp-config.php.', 'w3-total-cache' ),
+						implode( ', ', Util_Java::allowed_jar_dirs() ),
+						'W3TC_JAVA_JAR_ALLOWED_DIRS'
+					);
+				}
+			} else {
+				$validated_java = $tools['java'];
+				$validated_jar  = $tools['jar'];
 			}
 		}
 
@@ -249,7 +260,7 @@ class Generic_AdminActions_Test {
 				case 'yuijs':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
 					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
-					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
+					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $validated_jar;
 
 					$w3tc_result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
 					break;
@@ -257,7 +268,7 @@ class Generic_AdminActions_Test {
 				case 'yuicss':
 					\W3TCL\Minify\Minify_YUICompressor::$tempDir        = Util_File::create_tmp_dir();
 					\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $validated_java;
-					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $path_jar;
+					\W3TCL\Minify\Minify_YUICompressor::$jarFile        = $validated_jar;
 
 					$w3tc_result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
 					break;
@@ -265,7 +276,7 @@ class Generic_AdminActions_Test {
 				case 'ccjs':
 					\W3TCL\Minify\Minify_ClosureCompiler::$tempDir        = Util_File::create_tmp_dir();
 					\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $validated_java;
-					\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $path_jar;
+					\W3TCL\Minify\Minify_ClosureCompiler::$jarFile        = $validated_jar;
 
 					$w3tc_result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
 					break;

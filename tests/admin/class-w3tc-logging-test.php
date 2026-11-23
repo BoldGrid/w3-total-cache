@@ -6,7 +6,9 @@
  *  - Util_Debug::log sanitizes CR / LF / TAB / NUL (no log forging).
  *  - Util_Debug::redact strips nonces, password/secret/token/key
  *    query params, Authorization headers, and the wp-config
- *    secret-bearing define() blocks.
+ *    secret-bearing define() blocks. Remaining formats (JSON,
+ *    print_r, encoded, nested audit context) are in
+ *    class-w3tc-redact-formats-test.php.
  *  - Util_Debug::audit_log fires the `w3tc_audit_log` action with
  *    redacted context and auto-populated `user_id`.
  *
@@ -129,6 +131,18 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 		$twice = Util_Debug::redact( $once );
 
 		$this->assertSame( $once, $twice );
+	}
+
+	/**
+	 * Parameter-name redactors require a leading delimiter so keys
+	 * that merely *end* in `key` / `pass` (monkey, compass) stay intact.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_redact_query_requires_leading_delimiter() {
+		$out = Util_Debug::redact( 'GET /foo?monkey=banana&pass=hunter2&compass=north' );
+
+		$this->assertSame( 'GET /foo?monkey=banana&pass=REDACTED&compass=north', $out );
 	}
 
 	/**

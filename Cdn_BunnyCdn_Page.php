@@ -137,10 +137,31 @@ class Cdn_BunnyCdn_Page {
 			);
 		}
 
+		$user_id = (string) \get_current_user_id();
+		if ( ! Util_RateLimit::allow( 'bunnycdn_purge_url', 60, 60, $user_id ) ) {
+			Util_Debug::audit_log(
+				'bunnycdn.purge_rate_limited',
+				array(
+					'handler' => 'cdn_bunnycdn_purge_url',
+				)
+			);
+			\wp_send_json_error(
+				array(
+					'error_message' => \esc_html__( 'Rate limit exceeded. Try again in a minute.', 'w3-total-cache' ),
+				),
+				429
+			);
+		}
+
 		$w3tc_config          = Dispatcher::config();
 		$w3tc_account_api_key = $w3tc_config->get_string( 'cdn.bunnycdn.account_api_key' );
 
-		$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $w3tc_account_api_key ) );
+		$api = new Cdn_BunnyCdn_Api(
+			array(
+				'account_api_key'         => $w3tc_account_api_key,
+				'verify_tls_certificates' => Cdn_BunnyCdn_Api::url_purge_verify_tls_certificates( $w3tc_config ),
+			)
+		);
 
 		// Try to delete pull zone.
 		try {

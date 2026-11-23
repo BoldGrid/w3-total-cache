@@ -105,7 +105,11 @@ class Cdn_Core {
 		$upload_info = Util_Http::upload_info();
 
 		if ( $upload_info ) {
-			$w3tc_file   = $this->normalize_attachment_file( $w3tc_file );
+			$w3tc_file = $this->normalize_attachment_file( $w3tc_file );
+			if ( '' === $w3tc_file ) {
+				return $files;
+			}
+
 			$local_file  = $upload_info['basedir'] . '/' . $w3tc_file;
 			$parsed      = wp_parse_url( rtrim( $upload_info['baseurl'], '/' ) . '/' . $w3tc_file );
 			$local_uri   = $parsed['path'];
@@ -213,7 +217,7 @@ class Cdn_Core {
 		$cdn           = $this->get_cdn();
 		$force_rewrite = $this->_config->get_boolean( 'cdn.force.rewrite' );
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
 
 		$w3tc_engine = $this->_config->get_string( 'cdn.engine' );
 		$return      = $cdn->upload( $files, $results, $force_rewrite, $timeout_time );
@@ -241,7 +245,7 @@ class Cdn_Core {
 	public function delete( $files, $queue_failed, &$results ) {
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_delete' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_delete' ) );
 
 		$return = $cdn->delete( $files, $results );
 		if ( $this->debug ) {
@@ -289,7 +293,7 @@ class Cdn_Core {
 		 */
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) );
 
 		$return = $cdn->purge( $files, $results );
 
@@ -314,7 +318,7 @@ class Cdn_Core {
 	public function purge_all( &$results ) {
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) );
 
 		return $cdn->purge_all( $results );
 	}
@@ -350,37 +354,84 @@ class Cdn_Core {
 	public function normalize_attachment_file( $w3tc_file ) {
 		$upload_info = Util_Http::upload_info();
 
-		if ( $upload_info ) {
-			$w3tc_file = ltrim( str_replace( $upload_info['basedir'], '', $w3tc_file ), '/\\' );
-			$matches   = null;
+		if ( ! $upload_info ) {
+			return '';
+		}
 
-			if ( preg_match( '~(\d{4}/\d{2}/)?[^/]+$~', $w3tc_file, $matches ) ) {
-				$w3tc_file = $matches[0];
+		return $this->normalize_attachment_file_under_basedir( $upload_info['basedir'], $w3tc_file );
+	}
+
+	/**
+	 * Normalize an attachment path against a specific uploads basedir.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $basedir   Upload basedir.
+	 * @param string $w3tc_file Candidate attachment path.
+	 *
+	 * @return string Relative path under basedir, or empty string when rejected.
+	 */
+	private function normalize_attachment_file_under_basedir( $basedir, $w3tc_file ) {
+		if ( ! is_string( $basedir ) || '' === $basedir || ! is_string( $w3tc_file ) || '' === $w3tc_file || false !== strpos( $w3tc_file, "\0" ) ) {
+			return '';
+		}
+
+		$basedir   = Util_Environment::normalize_path( $basedir );
+		$w3tc_file = Util_Environment::normalize_path( $w3tc_file );
+
+		if ( preg_match( '~^(?:/|[a-zA-Z]:/)~', $w3tc_file ) ) {
+			$basedir_prefix = $basedir . '/';
+
+			if ( ! $this->absolute_path_has_prefix( $w3tc_file, $basedir_prefix ) ) {
+				return '';
 			}
+
+			$w3tc_file = substr( $w3tc_file, strlen( $basedir_prefix ) );
+		}
+
+		if ( '' === $w3tc_file || preg_match( '~(?:^|/)\.{1,2}(?:/|$)~', $w3tc_file ) ) {
+			return '';
 		}
 
 		return $w3tc_file;
 	}
 
 	/**
-	 * Retrieves the CDN configuration based on the specified CDN engine.
+	 * Whether an absolute path is contained by a basedir prefix.
 	 *
-	 * This method checks the current configuration settings and returns an array
-	 * containing the appropriate configuration for the specified CDN engine.
-	 * The configuration details are dependent on the engine selected, such as
-	 * Cloudflare or S3, and include settings such as API keys, domain,
-	 * SSL configurations, and compression options. The method caches the configuration
-	 * after the first retrieval for subsequent calls.
+	 * Drive-letter case is ignored for Windows-style paths; the remainder
+	 * of the path comparison stays case-sensitive.
 	 *
-	 * @return array|null The CDN configuration array or null if not configured.
+	 * @since 2.10.7
+	 *
+	 * @param string $path   Normalized absolute path.
+	 * @param string $prefix Normalized basedir prefix ending in `/`.
+	 *
+	 * @return bool
 	 */
-	public function get_cdn() {
-		static $cdn = null;
+	private function absolute_path_has_prefix( $path, $prefix ) {
+		if ( preg_match( '~^[a-zA-Z]:/~', $path ) && preg_match( '~^[a-zA-Z]:/~', $prefix ) ) {
+			$path   = \strtoupper( $path[0] ) . \substr( $path, 1 );
+			$prefix = \strtoupper( $prefix[0] ) . \substr( $prefix, 1 );
+		}
 
-		if ( is_null( $cdn ) ) {
-			$w3tc_c      = $this->_config;
-			$w3tc_engine = $w3tc_c->get_string( 'cdn.engine' );
-			$compression = ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.html.compression' ) );
+		return 0 === \strpos( $path, $prefix );
+	}
+
+	/**
+	 * Build the engine config array from saved settings.
+	 *
+	 * Used by {@see get_cdn()} and by Test CDN so the browser cannot
+	 * supply a substitute host, bucket, or credential set.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @return array
+	 */
+	public function engine_config() {
+		$w3tc_c      = $this->_config;
+		$w3tc_engine = $w3tc_c->get_string( 'cdn.engine' );
+		$compression = ( $w3tc_c->get_boolean( 'browsercache.enabled' ) && $w3tc_c->get_boolean( 'browsercache.html.compression' ) );
 
 			switch ( $w3tc_engine ) {
 				case 'azure':
@@ -397,7 +448,7 @@ class Cdn_Core {
 				case 'azuremi':
 					$engine_config = array(
 						'user'        => $w3tc_c->get_string( 'cdn.azuremi.user' ),
-						'clientid'    => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
+						'client_id'   => $w3tc_c->get_string( 'cdn.azuremi.clientid' ),
 						'container'   => $w3tc_c->get_string( 'cdn.azuremi.container' ),
 						'cname'       => $w3tc_c->get_array( 'cdn.azuremi.cname' ),
 						'ssl'         => $w3tc_c->get_string( 'cdn.azuremi.ssl' ),
@@ -433,16 +484,19 @@ class Cdn_Core {
 
 				case 'ftp':
 					$engine_config = array(
-						'host'        => $w3tc_c->get_string( 'cdn.ftp.host' ),
-						'type'        => $w3tc_c->get_string( 'cdn.ftp.type' ),
-						'user'        => $w3tc_c->get_string( 'cdn.ftp.user' ),
-						'pass'        => $w3tc_c->get_string( 'cdn.ftp.pass' ),
-						'path'        => $w3tc_c->get_string( 'cdn.ftp.path' ),
-						'pasv'        => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
-						'domain'      => $w3tc_c->get_array( 'cdn.ftp.domain' ),
-						'ssl'         => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
-						'compression' => false,
-						'docroot'     => Util_Environment::document_root(),
+						'host'         => $w3tc_c->get_string( 'cdn.ftp.host' ),
+						'type'         => $w3tc_c->get_string( 'cdn.ftp.type' ),
+						'user'         => $w3tc_c->get_string( 'cdn.ftp.user' ),
+						'pass'         => $w3tc_c->get_string( 'cdn.ftp.pass' ),
+						'default_keys' => $w3tc_c->get_boolean( 'cdn.ftp.default_keys' ),
+						'pubkey'       => $w3tc_c->get_string( 'cdn.ftp.pubkey' ),
+						'privkey'      => $w3tc_c->get_string( 'cdn.ftp.privkey' ),
+						'path'         => $w3tc_c->get_string( 'cdn.ftp.path' ),
+						'pasv'         => $w3tc_c->get_boolean( 'cdn.ftp.pasv' ),
+						'domain'       => $w3tc_c->get_array( 'cdn.ftp.domain' ),
+						'ssl'          => $w3tc_c->get_string( 'cdn.ftp.ssl' ),
+						'compression'  => false,
+						'docroot'      => Util_Environment::document_root(),
 					);
 					break;
 
@@ -528,11 +582,13 @@ class Cdn_Core {
 
 				case 'bunnycdn':
 					$engine_config = array(
-						'account_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
-						'storage_api_key' => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
-						'stream_api_key'  => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
-						'pull_zone_id'    => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
-						'domain'          => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'account_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.account_api_key' ),
+						'storage_api_key'         => $w3tc_c->get_string( 'cdn.bunnycdn.storage_api_key' ),
+						'stream_api_key'          => $w3tc_c->get_string( 'cdn.bunnycdn.stream_api_key' ),
+						'pull_zone_id'            => $w3tc_c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
+						'domain'                  => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'cdn_hostname'            => $w3tc_c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
+						'verify_tls_certificates' => $w3tc_c->get_boolean( 'cdn.bunnycdn.verify_tls_certificates', true ),
 					);
 					break;
 
@@ -541,15 +597,32 @@ class Cdn_Core {
 					break;
 			}
 
-			$engine_config = array_merge(
-				$engine_config,
-				array(
-					'debug'   => $w3tc_c->get_boolean( 'cdn.debug' ),
-					'headers' => apply_filters( 'w3tc_cdn_config_headers', array() ),
-				)
-			);
+		$engine_config = array_merge(
+			$engine_config,
+			array(
+				'debug'   => $w3tc_c->get_boolean( 'cdn.debug' ),
+				'headers' => apply_filters( 'w3tc_cdn_config_headers', array() ),
+			)
+		);
 
-			$cdn = CdnEngine::instance( $w3tc_engine, $engine_config );
+		return $engine_config;
+	}
+
+	/**
+	 * Returns the CDN engine for the saved configuration.
+	 *
+	 * Cached after the first retrieval for subsequent calls in the request.
+	 *
+	 * @return CdnEngine_Base
+	 */
+	public function get_cdn() {
+		static $cdn = null;
+
+		if ( is_null( $cdn ) ) {
+			$cdn = CdnEngine::instance(
+				$this->_config->get_string( 'cdn.engine' ),
+				$this->engine_config()
+			);
 		}
 
 		return $cdn;

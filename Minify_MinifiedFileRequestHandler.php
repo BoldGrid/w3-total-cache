@@ -9,7 +9,7 @@ namespace W3TC;
 
 defined( 'ABSPATH' ) || exit;
 // Define repeated regex to simplify changes.
-define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9_-]+)\\.(css|js)([?].*)?' );
+define( 'W3TC_MINIFY_AUTO_FILENAME_REGEX', '([a-zA-Z0-9_-]+)\\.(css|js)' );
 define( 'W3TC_MINIFY_MANUAL_FILENAME_REGEX', '([a-f0-9]+)\\.([a-zA-Z0-9_-]+)\\.(include(\\-(footer|body))?)\\.[a-f0-9]+\\.(css|js)' );
 
 /**
@@ -73,6 +73,21 @@ class Minify_MinifiedFileRequestHandler {
 	 * @var string
 	 */
 	const PROBE_TOKEN_HEADER = 'X-W3TC-Minify-Probe';
+
+	/**
+	 * Limits for external JavaScript retrieval.
+	 *
+	 * @since 2.10.7
+	 */
+	const EXTERNAL_JS_TIMEOUT  = 5;
+	const EXTERNAL_JS_MAX_SIZE = 1048576;
+
+	/**
+	 * Cron hook that retrieves selected external JavaScript.
+	 *
+	 * @since 2.10.7
+	 */
+	const EXTERNAL_JS_PRECACHE_HOOK = 'w3tc_minify_precache_external_script';
 
 	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
@@ -292,9 +307,13 @@ class Minify_MinifiedFileRequestHandler {
 		$cache = $this->_get_cache();
 		\W3TCL\Minify\Minify::setCache( $cache );
 
-		// Set cache ID.
-		$cache_id = $this->get_cache_id( $w3tc_file );
-		\W3TCL\Minify\Minify::setCacheId( $w3tc_file );
+		// Set cache ID from the parsed name. Auto mode is hash plus extension.
+		if ( $hash ) {
+			$cache_id = $hash . '.' . $type;
+		} else {
+			$cache_id = $this->get_cache_id( $w3tc_file );
+		}
+		\W3TCL\Minify\Minify::setCacheId( $cache_id );
 
 		// Set logger.
 		\W3TCL\Minify\Minify_Logger::setLogger(
@@ -335,9 +354,24 @@ class Minify_MinifiedFileRequestHandler {
 		);
 
 		// Set sources.
+		$had_request_base   = false;
+		$saved_request_base = null;
 		if ( $hash ) {
 			$_GET['f_array'] = $this->minify_filename_to_filenames_for_minification( $hash, $type );
 			$_GET['ext']     = $type;
+			/**
+			 * The file list comes from the stored map and is document-root
+			 * relative. Drop a request base so those paths are not rerooted.
+			 * Restore it after the serve so a quiet call does not clear the
+			 * outer request.
+			 */
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- preserved verbatim for restoration after serve.
+			if ( array_key_exists( 'b', $_GET ) ) {
+				$had_request_base   = true;
+				$saved_request_base = $_GET['b'];
+			}
+			unset( $_GET['b'] );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		} else {
 			/**
 			 * Manual mode (empty hash): the file list is derived server-side
@@ -404,6 +438,9 @@ class Minify_MinifiedFileRequestHandler {
 		}
 
 		if ( empty( Util_Request::get( 'f_array' ) ) && empty( Util_Request::get_string( 'g' ) ) ) {
+			if ( $had_request_base ) {
+				$_GET['b'] = $saved_request_base;
+			}
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 
@@ -414,7 +451,14 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$return = \W3TCL\Minify\Minify::serve( 'MinApp', $serve_options );
 		} catch ( \Exception $exception ) {
+			if ( $had_request_base ) {
+				$_GET['b'] = $saved_request_base;
+			}
 			return $this->finish_with_error( $exception->getMessage(), $quiet );
+		}
+
+		if ( $had_request_base ) {
+			$_GET['b'] = $saved_request_base;
 		}
 
 		if ( ! is_null( \W3TCL\Minify\Minify::$recoverableError ) ) {
@@ -511,6 +555,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return mixed|null Custom data associated with the URL, or null if none exists.
 	 */
 	public function get_url_custom_data( $w3tc_url ) {
+		$w3tc_url = Util_Environment::remove_query_all( $w3tc_url );
 		if ( preg_match( '~/' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_url, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
@@ -530,6 +575,7 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return void
 	 */
 	public function set_file_custom_data( $w3tc_file, $w3tc_data ) {
+		$w3tc_file = Util_Environment::remove_query_all( $w3tc_file );
 		if ( preg_match( '~' . W3TC_MINIFY_AUTO_FILENAME_REGEX . '$~', $w3tc_file, $matches ) ) {
 			list( , $hash, $type ) = $matches;
 
@@ -784,7 +830,33 @@ class Minify_MinifiedFileRequestHandler {
 	public function finish_with_error( $error, $quiet = false, $report_about_error = true ) {
 		$this->_error_occurred = true;
 
+		if ( ! $report_about_error ) {
+			$ip = Util_Environment::get_client_ip();
+			if ( '' === $ip ) {
+				$ip = 'unknown';
+			}
+			if ( ! Util_RateLimit::allow( 'minify_bad_request', 30, 60, $ip ) ) {
+				$w3tc_limited = __( 'Too many minify requests.', 'w3-total-cache' );
+				if ( $quiet ) {
+					return array(
+						'content' => \esc_html( $w3tc_limited ),
+					);
+				}
+				status_header( 429 );
+				echo \esc_html( $w3tc_limited );
+				die();
+			}
+		}
+
 		Minify_Core::debug_error( $error );
+
+		Util_Debug::audit_log(
+			'minify.request_error',
+			array(
+				'message'  => \is_string( $error ) ? $error : '',
+				'reported' => (bool) $report_about_error,
+			)
+		);
 
 		if ( $report_about_error ) {
 			$this->_handle_error( $error );
@@ -823,6 +895,55 @@ class Minify_MinifiedFileRequestHandler {
 	}
 
 	/**
+	 * Ensures a disk-based minify artifact exists before a rewrite URL is emitted.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $minify_filename Minify filename (for example `52704.css`).
+	 *
+	 * @return void
+	 */
+	public function ensure_minify_file_exists( $minify_filename ) {
+		if ( 'file' !== $this->_config->get_string( 'minify.engine' ) || ! $this->_config->get_boolean( 'minify.rewrite' ) ) {
+			return;
+		}
+
+		if ( ! is_string( $minify_filename ) || '' === $minify_filename ) {
+			return;
+		}
+
+		$path = Util_Environment::cache_blog_minify_dir() . DIRECTORY_SEPARATOR . $minify_filename;
+		if ( file_exists( $path ) ) {
+			return;
+		}
+
+		$request_keys   = array( 'f_array', 'ext', 'g' );
+		$request_values = array();
+
+		// phpcs:disable WordPress.Security -- Preserve the original values verbatim for immediate restoration.
+		foreach ( $request_keys as $request_key ) {
+			if ( array_key_exists( $request_key, $_GET ) ) {
+				$request_values[ $request_key ] = $_GET[ $request_key ];
+			}
+
+			unset( $_GET[ $request_key ] );
+		}
+		// phpcs:enable WordPress.Security
+
+		try {
+			$this->process( $minify_filename, true );
+		} finally {
+			foreach ( $request_keys as $request_key ) {
+				if ( array_key_exists( $request_key, $request_values ) ) {
+					$_GET[ $request_key ] = $request_values[ $request_key ];
+				} else {
+					unset( $_GET[ $request_key ] );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Pre-caches a file from a URL for minification.
 	 *
 	 * @param string $w3tc_url  The URL of the file.
@@ -831,25 +952,184 @@ class Minify_MinifiedFileRequestHandler {
 	 * @return mixed The minified source or false if caching fails.
 	 */
 	public function _precache_file( $w3tc_url, $type ) {
-		$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
-		$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( ! in_array( $type, array( 'css', 'js' ), true ) || '' === $w3tc_url ) {
+			return false;
+		}
+
+		if ( 'js' === $type ) {
+			$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+			if ( '' === $cache_path ) {
+				return false;
+			}
+
+			$lifetime = $this->external_javascript_lifetime();
+		} else {
+			if ( ! Util_Url::is_allowed_outbound_url( $w3tc_url ) ) {
+				return false;
+			}
+
+			$lifetime   = $this->_config->get_integer( 'minify.lifetime' );
+			$cache_path = sprintf( '%s/minify_%s.%s', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ), $type );
+		}
 
 		if ( ! file_exists( $cache_path ) || @filemtime( $cache_path ) < ( time() - $lifetime ) ) {
 			if ( ! @is_dir( dirname( $cache_path ) ) ) {
 				Util_File::mkdir_from_safe( dirname( $cache_path ), W3TC_CACHE_DIR );
 			}
 
-			// google-fonts (most used for external inclusion) doesnt return full content (unicode-range) for simple useragents.
-			Util_Http::download(
-				$w3tc_url,
-				$cache_path,
-				array(
-					'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
-				)
+			$download_path = $cache_path;
+			$download_args = array(
+				'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92',
 			);
+			if ( 'js' === $type ) {
+				$download_path                           .= '.' . \uniqid( 'tmp-', true );
+				$download_args['timeout']                 = self::EXTERNAL_JS_TIMEOUT;
+				$download_args['w3tc_public_only']        = true;
+				$download_args['w3tc_https_only']         = true;
+				$download_args['w3tc_same_host']          = true;
+				$download_args['w3tc_max_response_size']  = self::EXTERNAL_JS_MAX_SIZE;
+				$download_args['w3tc_response_validator'] = array( __CLASS__, 'validate_external_javascript_response' );
+			}
+
+			// google-fonts (most used for external inclusion) doesnt return full content (unicode-range) for simple useragents.
+			$downloaded = Util_Http::download(
+				$w3tc_url,
+				$download_path,
+				$download_args
+			);
+
+			if ( 'js' === $type ) {
+				if ( $downloaded ) {
+					@rename( $download_path, $cache_path );
+				}
+				if ( file_exists( $download_path ) ) {
+					@unlink( $download_path );
+				}
+			}
 		}
 
 		return file_exists( $cache_path ) ? $this->_get_minify_source( $cache_path, $w3tc_url, $type ) : false;
+	}
+
+	/**
+	 * Retrieves an existing external JavaScript cache entry without refreshing it.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return mixed The minified source or false when no usable cache exists.
+	 */
+	public function get_cached_external_script( $w3tc_url ) {
+		$w3tc_url   = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+
+		if ( '' === $cache_path || ! file_exists( $cache_path ) ) {
+			return false;
+		}
+
+		return $this->_get_minify_source( $cache_path, $w3tc_url, 'js' );
+	}
+
+	/**
+	 * Queues retrieval of an external script that has no usable cache yet.
+	 *
+	 * Page output must never wait on the network, so the first copy is fetched
+	 * by cron. Once a copy exists the tag is rewritten to the minify URL and
+	 * the minify request handler keeps it refreshed.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Script URL.
+	 *
+	 * @return bool Whether retrieval is queued.
+	 */
+	public function schedule_external_script_precache( $w3tc_url ) {
+		$w3tc_url   = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		$cache_path = $this->external_javascript_cache_path( $w3tc_url );
+
+		if ( '' === $cache_path ) {
+			return false;
+		}
+
+		if ( file_exists( $cache_path ) && @filemtime( $cache_path ) >= ( time() - $this->external_javascript_lifetime() ) ) {
+			return false;
+		}
+
+		$args = array( $w3tc_url );
+		if ( \wp_next_scheduled( self::EXTERNAL_JS_PRECACHE_HOOK, $args ) ) {
+			return true;
+		}
+
+		return true === \wp_schedule_single_event( time(), self::EXTERNAL_JS_PRECACHE_HOOK, $args );
+	}
+
+	/**
+	 * Returns the cache path of an external script eligible for local caching.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $w3tc_url Normalized script URL.
+	 *
+	 * @return string Empty string when the URL may not be cached.
+	 */
+	private function external_javascript_cache_path( $w3tc_url ) {
+		if (
+			'' === $w3tc_url ||
+			'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ||
+			! Util_Url::is_public_host( $w3tc_url )
+		) {
+			return '';
+		}
+
+		return sprintf( '%s/minify_%s.js', Util_Environment::cache_blog_dir( 'minify' ), md5( $w3tc_url ) );
+	}
+
+	/**
+	 * Returns the bounded refresh interval for external scripts.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @return int
+	 */
+	private function external_javascript_lifetime() {
+		return max( HOUR_IN_SECONDS, min( WEEK_IN_SECONDS, $this->_config->get_integer( 'minify.lifetime' ) ) );
+	}
+
+	/**
+	 * Accepts only non-empty responses with a JavaScript content type.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param array $response HTTP response.
+	 *
+	 * @return bool
+	 */
+	public static function validate_external_javascript_response( $response ) {
+		$body = isset( $response['body'] ) && \is_string( $response['body'] ) ? $response['body'] : '';
+		if ( '' === $body ) {
+			return false;
+		}
+
+		$content_type       = \strtolower( \trim( \wp_remote_retrieve_header( $response, 'content-type' ) ) );
+		$content_type_parts = \explode( ';', $content_type );
+		$content_type       = \trim( $content_type_parts[0] );
+
+		return \in_array(
+			$content_type,
+			array(
+				'application/javascript',
+				'application/ecmascript',
+				'application/x-ecmascript',
+				'application/x-javascript',
+				'text/ecmascript',
+				'text/javascript',
+				'text/x-ecmascript',
+				'text/x-javascript',
+			),
+			true
+		);
 	}
 
 	/**
@@ -1091,7 +1371,7 @@ class Minify_MinifiedFileRequestHandler {
 			'Content-Type: text/html; charset=utf-8',
 		);
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) );
 
 		$w3tc_result = @wp_mail( $to_email, 'W3 Total Cache Error Notification', $body, implode( "\n", $headers ) );
 
@@ -1134,18 +1414,27 @@ class Minify_MinifiedFileRequestHandler {
 					return false;
 				}
 			} else {
-				$headers = @get_headers( $source->minifyOptions['prependRelativePath'] );
-				if ( strpos( $headers[0], '200' ) !== false ) {
-					$segments  = explode( '.', $source->minifyOptions['prependRelativePath'] );
-					$w3tc_ext  = strtolower( array_pop( $segments ) );
-					$pc_source = $this->_precache_file( $source->minifyOptions['prependRelativePath'], $w3tc_ext );
-					$w3tc_data = @file_get_contents( $pc_source->filepath );
+				$remote_url = isset( $source->minifyOptions['prependRelativePath'] )
+					? $source->minifyOptions['prependRelativePath']
+					: '';
+				$remote_url = Util_Url::normalize_protocol_relative_url( $remote_url );
+				if ( '' === $remote_url || ! Util_Url::is_allowed_outbound_url( $remote_url ) ) {
+					return false;
+				}
 
-					if ( false !== $w3tc_data ) {
-						$values[] = md5( $w3tc_data );
-					} else {
-						return false;
-					}
+				$w3tc_ext = self::remote_source_type( $remote_url, $type );
+				if ( '' === $w3tc_ext ) {
+					return false;
+				}
+
+				$pc_source = $this->_precache_file( $remote_url, $w3tc_ext );
+				if ( ! $pc_source || empty( $pc_source->filepath ) ) {
+					return false;
+				}
+
+				$w3tc_data = @file_get_contents( $pc_source->filepath );
+				if ( false !== $w3tc_data ) {
+					$values[] = md5( $w3tc_data );
 				} else {
 					return false;
 				}
@@ -1267,6 +1556,31 @@ class Minify_MinifiedFileRequestHandler {
 		$id = substr( md5( implode( '', $this->_flatten_array( $values ) ) ), 0, 6 );
 
 		return $id;
+	}
+
+	/**
+	 * Resolves the asset type of a remote minify source.
+	 *
+	 * The URL path is authoritative when it carries a css/js extension;
+	 * versioned or extensionless URLs (e.g. "app.js?ver=1") fall back to
+	 * the type of the group being hashed.
+	 *
+	 * @since 2.10.7
+	 *
+	 * @param string $remote_url Remote asset URL.
+	 * @param string $group_type Type of the group being hashed (css/js).
+	 *
+	 * @return string Asset type, or an empty string when neither is usable.
+	 */
+	private static function remote_source_type( $remote_url, $group_type ) {
+		$path      = \wp_parse_url( $remote_url, PHP_URL_PATH );
+		$extension = \is_string( $path ) ? \strtolower( \pathinfo( $path, PATHINFO_EXTENSION ) ) : '';
+
+		if ( \in_array( $extension, array( 'css', 'js' ), true ) ) {
+			return $extension;
+		}
+
+		return \in_array( $group_type, array( 'css', 'js' ), true ) ? $group_type : '';
 	}
 
 	/**

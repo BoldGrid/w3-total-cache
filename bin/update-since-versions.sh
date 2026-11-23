@@ -20,11 +20,11 @@ fi
 echo "Updating @since X.X.X placeholders to $W3TC_VERSION"
 
 mapfile -t FILES < <(
-	grep --exclude-dir={.cursor,node_modules,vendor} \
+	grep --include='*.php' \
+		--include='*.js' \
+		--exclude-dir={.cursor,node_modules,vendor} \
 		--exclude={AGENTS.md,CLAUDE.md,update-since-versions.sh} \
 		-ERil "@since[[:space:]]+[Xx]\\.[Xx]\\.[Xx]|'[Xx]\\.[Xx]\\.[Xx]'" \
-		--include='*.php' \
-		--include='*.js' \
 		. 2>/dev/null || true
 )
 

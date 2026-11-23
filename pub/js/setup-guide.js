@@ -32,22 +32,12 @@ var w3tcWizardSlidesWithTests = [
 /**
  * Resolve the per-action nonce for a SetupGuide AJAX action.
  *
- * Falls back to the wizard form's `_wpnonce` field for legacy compatibility
- * (the PHP-side verifier still accepts the shared `w3tc_wizard` nonce).
- *
  * @since 2.10.0
  *
  * @param string action The wp_ajax action name (e.g. `w3tc_config_pgcache`).
- * @return string Nonce value.
+ * @return string Nonce value, or empty string when unavailable.
  */
 function w3tcGetWizardNonce(action) {
-  /**
-   * `typeof` guard: if localization failed or the script was loaded on a
-   * page that didn't enqueue `W3TC_SetupGuide`, bare reference would throw
-   * a ReferenceError and break every subsequent SetupGuide handler. The
-   * fall-through to the form's `_wpnonce` field keeps the legacy nonce
-   * path working in that case.
-   */
   if (
     typeof W3TC_SetupGuide !== "undefined" &&
     W3TC_SetupGuide &&
@@ -57,7 +47,7 @@ function w3tcGetWizardNonce(action) {
     return W3TC_SetupGuide.nonces[action];
   }
 
-  return jQuery('#w3tc-wizard-container [name="_wpnonce"]').val();
+  return "";
 }
 
 jQuery(function () {

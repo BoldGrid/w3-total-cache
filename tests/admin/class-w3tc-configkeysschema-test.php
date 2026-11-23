@@ -39,6 +39,29 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * ConfigKeys.php must register each key once. PHP keeps the last
+	 * duplicate silently, so this asserts the source file, not the
+	 * loaded array.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_config_keys_source_has_no_duplicate_keys() {
+		$src = \file_get_contents( W3TC_DIR . '/ConfigKeys.php' );
+		$this->assertNotFalse( $src );
+
+		\preg_match_all( "/^\t'([^']+)'\\s+=> array\\(/m", $src, $matches );
+		$counts = \array_count_values( $matches[1] );
+		$dups   = \array_filter(
+			$counts,
+			static function ( $n ) {
+				return $n > 1;
+			}
+		);
+
+		$this->assertSame( array(), $dups, 'ConfigKeys.php must register each key once' );
+	}
+
+	/**
 	 * is_known() distinguishes documented keys from unknown ones, and
 	 * accepts compound keys unconditionally (extensions own their gate).
 	 *
@@ -52,10 +75,154 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 		$this->assertFalse( ConfigKeysSchema::is_known( null ) );
 
 		/**
-		 * Compound keys (extension sub-keys) pass through unconditionally —
-		 * the extension's own filter is the real gate.
+		 * Compound keys are admitted only when the parent is a registered
+		 * extension id (see `test_is_known_admits_registered_compound_keys`).
+		 * An arbitrary parent must not bypass the allowlist.
 		 */
-		$this->assertTrue( ConfigKeysSchema::is_known( array( 'my_extension', 'some_setting' ) ) );
+		$this->assertFalse( ConfigKeysSchema::is_known( array( 'my_extension', 'some_setting' ) ) );
+		$this->assertFalse( ConfigKeysSchema::is_known( array( 'cloudflare' ) ) );
+	}
+
+	/**
+	 * Compound `[extension_id, leaf]` keys are known when the extension
+	 * is registered through `w3tc_extensions`.
+	 *
+	 * @since 2.10.6
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_is_known_admits_registered_compound_keys() {
+		add_filter(
+			'w3tc_extensions',
+			function ( $exts ) {
+				$exts['cloudflare'] = array(
+					'name' => 'Cloudflare',
+					'path' => 'w3-total-cache/Extension_CloudFlare_Plugin.php',
+				);
+				return $exts;
+			},
+			20,
+			1
+		);
+
+		$this->assertTrue( ConfigKeysSchema::is_known( array( 'cloudflare', 'key' ) ) );
+		$this->assertFalse( ConfigKeysSchema::is_known( array( 'not_registered', 'key' ) ) );
+	}
+
+	/**
+	 * dedicated_page() resolves ConfigKeys metadata and compound leaves.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_dedicated_page_from_schema_and_compound_map() {
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdn.s3.secret' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdn.import.files' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.client_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.client_secret' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.transparentcdn.company_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.access_key' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.secret_key' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.distribution_id' ) );
+		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.bunnycdn.verify_tls_certificates' ) );
+		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'pgcache.engine' ) );
+		$this->assertSame( 'w3tc_browsercache', ConfigKeysSchema::dedicated_page( 'browsercache.no404wp.exceptions' ) );
+		$this->assertSame( 'w3tc_minify', ConfigKeysSchema::dedicated_page( 'minify.ccjs.path.java' ) );
+		$this->assertNull( ConfigKeysSchema::dedicated_page( 'pgcache.enabled' ) );
+		$this->assertNull( ConfigKeysSchema::dedicated_page( 'extensions.active' ) );
+		$this->assertNull( ConfigKeysSchema::dedicated_page( 'plugin.type' ) );
+
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'cloudflare', 'key' ) )
+		);
+		$this->assertSame(
+			'w3tc_general',
+			ConfigKeysSchema::dedicated_page( array( 'cloudflare', 'widget_interval' ) )
+		);
+		$this->assertSame(
+			'w3tc_monitoring',
+			ConfigKeysSchema::dedicated_page( array( 'newrelic', 'api_key' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'swarmify', 'api_key' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'amp', 'url_type' ) )
+		);
+		$this->assertSame(
+			'w3tc_extensions',
+			ConfigKeysSchema::dedicated_page( array( 'genesis.theme', 'reject_roles' ) )
+		);
+		$this->assertSame(
+			'w3tc_monitoring',
+			ConfigKeysSchema::dedicated_page( array( 'newrelic', 'apm.application_name' ) )
+		);
+		$this->assertSame(
+			'w3tc_monitoring',
+			ConfigKeysSchema::dedicated_page( 'extension.newrelic.cache_time' )
+		);
+		$this->assertSame(
+			'cloudflare.key',
+			ConfigKeysSchema::normalize_key_string( array( 'cloudflare', 'key' ) )
+		);
+
+		/**
+		 * Filter / caller-supplied descriptor wins over the static map.
+		 */
+		$this->assertSame(
+			'w3tc_custom',
+			ConfigKeysSchema::dedicated_page(
+				array( 'cloudflare', 'key' ),
+				array(
+					'type'  => 'string',
+					'flags' => array( 'dedicated_page' => 'w3tc_custom' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * FSD engine fields post from the CDN settings page, not a
+	 * `w3tc_cdnfsd` slug.
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_cdnfsd_engine_keys_use_cdn_dedicated_page() {
+		$legacy = array();
+
+		foreach ( ConfigKeysSchema::get_keys() as $key => $descriptor ) {
+			if ( empty( $descriptor['flags']['dedicated_page'] ) ) {
+				continue;
+			}
+
+			$this->assertNotSame(
+				'w3tc_cdnfsd',
+				$descriptor['flags']['dedicated_page'],
+				$key . ' must not use the unregistered w3tc_cdnfsd page slug'
+			);
+
+			if ( 0 === \strpos( (string) $key, 'cdnfsd.' ) ) {
+				$legacy[] = $key;
+				$this->assertSame( 'w3tc_cdn', $descriptor['flags']['dedicated_page'], $key );
+			}
+		}
+
+		$this->assertNotEmpty( $legacy );
+	}
+
+	/**
+	 * is_no_import() mirrors the schema flag used by read_request().
+	 *
+	 * @since 2.10.6
+	 */
+	public function test_is_no_import_flag() {
+		$this->assertTrue( ConfigKeysSchema::is_no_import( 'pgcache.engine' ) );
+		$this->assertTrue( ConfigKeysSchema::is_no_import( 'extensions.active' ) );
+		$this->assertTrue( ConfigKeysSchema::is_no_import( 'plugin.type' ) );
+		$this->assertFalse( ConfigKeysSchema::is_no_import( 'pgcache.enabled' ) );
 	}
 
 	/**
@@ -125,7 +292,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 
 		/**
 		 * Compound keys are not in the static schema; we get null even
-		 * though `is_known()` returns true for them.
+		 * when `is_known()` would return true for a registered extension.
 		 */
 		$this->assertNull( ConfigKeysSchema::descriptor( array( 'my_extension', 'some_setting' ) ) );
 	}
@@ -153,6 +320,7 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 			'cdn.engine',
 			'minify.css.engine',
 			'minify.js.engine',
+			'plugin.type',
 		);
 		foreach ( $no_import_keys as $key ) {
 			$this->assertTrue(

@@ -558,13 +558,13 @@ class Generic_AdminActions_Config {
 	/**
 	 * Saves the "Support Us" configuration settings.
 	 *
-	 * Updates settings based on user actions like tweeting or signing up.
+	 * Updates settings based on user actions like tweeting or accepting
+	 * the community terms.
 	 *
 	 * @return void
 	 */
 	public function w3tc_config_save_support_us() {
 		$tweeted      = Util_Request::get_boolean( 'tweeted' );
-		$signmeup     = Util_Request::get_boolean( 'signmeup' );
 		$accept_terms = Util_Request::get_boolean( 'accept_terms' );
 		$this->_config->set( 'common.tweeted', $tweeted );
 
@@ -575,44 +575,6 @@ class Generic_AdminActions_Config {
 		}
 		$state_master->save();
 
-		if ( $signmeup ) {
-			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
-				$w3tc_license = 'pro';
-			} else {
-				$w3tc_license = 'community';
-			}
-
-			/**
-			 * RT9-218: Bind the mailing-list signup to the currently
-			 * authenticated admin's verified WordPress account email,
-			 * rather than trusting whatever address was POSTed. The
-			 * original handler took `email` straight from the request
-			 * body, which let any admin (or anyone driving the shared
-			 * `w3tc` nonce) submit arbitrary third-party addresses to
-			 * `api.w3-edge.com/v1/signup-newsletter` as an outbound
-			 * abuse primitive. wp_get_current_user() is safe here
-			 * because the surrounding admin-page dispatcher already
-			 * gates this action behind an authenticated session.
-			 */
-			$current = \wp_get_current_user();
-			$email   = ( $current instanceof \WP_User && ! empty( $current->user_email ) )
-				? $current->user_email
-				: '';
-
-			if ( \is_string( $email ) && '' !== $email
-				&& false !== \filter_var( $email, FILTER_VALIDATE_EMAIL )
-			) {
-				wp_remote_post(
-					W3TC_MAILLINGLIST_SIGNUP_URL,
-					array(
-						'body' => array(
-							'email'   => $email,
-							'license' => $w3tc_license,
-						),
-					)
-				);
-			}
-		}
 		$this->_config->save();
 
 		Util_Admin::redirect(

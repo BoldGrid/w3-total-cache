@@ -117,8 +117,8 @@ Box slug pattern: `{http}-{php}{-port|-https?}-{wp-layout}[-{variant}]`
 Examples:
 
 - `apache-php74-wp69-single` — Apache, PHP 7.4, WP 6.9, single site, port 80
-- `nginx-php85-wp70-pathwp-subdir` — nginx, PHP 8.5, WP in `/wp/` subdir multisite
-- `apache-php85-https-wp70-subdomain` — HTTPS, subdomain multisite
+- `nginx-php85-wp71-pathwp-subdir` — nginx, PHP 8.5, WP in `/wp/` subdir multisite
+- `apache-php85-https-wp71-subdomain` — HTTPS, subdomain multisite
 
 Subenvironment suffix (after `@` in log name): `{blog}-{pagecache|cache}-{engine}`
 

@@ -259,24 +259,33 @@ class UserExperience_LazyLoad_Mutator {
 			return $content;
 		}
 
-		$quote_match = null;
-		if ( ! preg_match( '~\s+style\s*=\s*([\"\'])~is', $content, $quote_match ) ) {
+		$style = $this->get_top_level_quoted_attribute_value( $content, 'style' );
+		if ( null === $style || ! \preg_match( '~background(?:-image)?:\s*url\s*\(~is', $style ) ) {
 			return $content;
 		}
 
-		$quote = $quote_match[1];
-
-		$w3tc_count = 0;
-		$content    = preg_replace_callback(
-			'~(\s+)(style\s*=\s*[' . $quote . '])(.*?)([' . $quote . '])~is',
-			array( $this, 'style_offload_background' ),
+		$updated = $this->replace_top_level_quoted_attributes(
 			$content,
-			-1,
-			$w3tc_count
+			'style',
+			function ( $whitespace, $name, $quoted_value ) {
+				$quote = \substr( $quoted_value, 0, 1 );
+				$inner = \substr( $quoted_value, 1, -1 );
+
+				return $this->style_offload_background(
+					array(
+						$whitespace . $name . '=' . $quoted_value,
+						$whitespace,
+						$name . '=' . $quote,
+						$inner,
+						$quote,
+					)
+				);
+			},
+			1
 		);
 
-		if ( $w3tc_count > 0 ) {
-			$content        = $this->add_class_lazy( $content );
+		if ( $updated !== $content ) {
+			$content        = $this->add_class_lazy( $updated );
 			$this->modified = true;
 		}
 
@@ -295,18 +304,29 @@ class UserExperience_LazyLoad_Mutator {
 
 		$url_match = null;
 
-		preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
-
-		$v = preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
+		\preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
 
 		$raw_url = '';
 		if ( isset( $url_match[2] ) ) {
-			$charset = get_bloginfo( 'charset' );
-			$raw_url = trim( html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
-			$raw_url = trim( $raw_url, '\'"' );
+			$charset = \get_bloginfo( 'charset' );
+			$raw_url = \trim( \html_entity_decode( $url_match[2], ENT_QUOTES, $charset ) );
+			$raw_url = \trim( $raw_url, '\'"' );
 		}
 
-		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . esc_attr( $raw_url ) . $quote;
+		if ( \preg_match( '~^([a-z][a-z0-9+.-]*):~i', $raw_url, $proto ) ) {
+			$scheme = \strtolower( $proto[1] );
+			if ( 'http' !== $scheme && 'https' !== $scheme ) {
+				return $w3tc_match;
+			}
+		}
+
+		if ( '' === $raw_url ) {
+			return $w3tc_match;
+		}
+
+		$v = \preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
+
+		return $v1 . $v2 . $v . $quote . ' data-bg="' . \esc_attr( $raw_url ) . '"';
 	}
 
 	/**
@@ -318,16 +338,29 @@ class UserExperience_LazyLoad_Mutator {
 	 */
 	private function add_class_lazy( $content ) {
 		$w3tc_count = 0;
-		$content    = preg_replace_callback(
-			'~(\s+)(class=)([\"\'])(.*?)([\"\'])~is',
-			array( $this, 'class_process' ),
+		$content    = $this->replace_top_level_quoted_attributes(
 			$content,
+			'class',
+			function ( $whitespace, $name, $quoted_value ) {
+				$quote = \substr( $quoted_value, 0, 1 );
+				$inner = \substr( $quoted_value, 1, -1 );
+
+				return $this->class_process(
+					array(
+						$whitespace . $name . '=' . $quoted_value,
+						$whitespace,
+						$name . '=',
+						$quote,
+						$inner,
+					)
+				);
+			},
 			-1,
 			$w3tc_count
 		);
 
 		if ( $w3tc_count <= 0 ) {
-			$content = preg_replace(
+			$content = \preg_replace(
 				'~<(\S+)(\s+)~is',
 				'<$1$2class="lazy" ',
 				$content
@@ -345,10 +378,17 @@ class UserExperience_LazyLoad_Mutator {
 	 * @return string The modified content with native lazy loading removed.
 	 */
 	public function remove_native_lazy( $content ) {
-		return preg_replace(
-			'~(\s+)loading=[\'"]lazy[\'"]~is',
-			'',
-			$content
+		return $this->replace_top_level_quoted_attributes(
+			$content,
+			'loading',
+			static function ( $whitespace, $name, $quoted_value ) {
+				$inner = \substr( $quoted_value, 1, -1 );
+				if ( 0 === \strcasecmp( $inner, 'lazy' ) ) {
+					return '';
+				}
+
+				return $whitespace . $name . '=' . $quoted_value;
+			}
 		);
 	}
 

@@ -34,6 +34,7 @@ if ( ! isset( $w3tc_notes ) ) {
 		<link rel="stylesheet" type="text/css" href="<?php echo esc_url( plugins_url( 'pub/css/popup.css?ver=' . W3TC_VERSION, W3TC_FILE ) ); ?>" />
 		<script type="text/javascript" src="<?php echo esc_url( site_url( 'wp-includes/js/jquery/jquery.js?ver=' . W3TC_VERSION ) ); ?>"></script>
 		<script type="text/javascript" src="<?php echo esc_url( plugins_url( 'pub/js/metadata.js?ver=' . W3TC_VERSION, W3TC_FILE ) ); ?>"></script>
+		<script type="text/javascript" src="<?php echo esc_url( plugins_url( 'pub/js/cdn-admin-ui.js?ver=' . W3TC_VERSION, W3TC_FILE ) ); ?>"></script>
 		<script type="text/javascript" src="<?php echo esc_url( plugins_url( 'pub/js/popup.js?ver=' . W3TC_VERSION, W3TC_FILE ) ); ?>"></script>
 		<title><?php echo esc_html( $w3tc_title ); ?> - W3 Total Cache</title>
 		<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
