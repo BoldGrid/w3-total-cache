@@ -54,6 +54,10 @@ class PgCache_Environment {
 		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
 		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
+		if ( $pgcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) && ! wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
+			wp_schedule_event( time(), 'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
+		}
+
 		// WordPress defines WP_CACHE as false in wp_initial_constants() when the
 		// site did not. A true value was set by the site, so leave wp-config alone.
 		// A false value still has to be checked against the site's config files.
