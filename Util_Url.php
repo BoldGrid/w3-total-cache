@@ -565,8 +565,7 @@ class Util_Url {
 	 *
 	 * @param string $w3tc_url               Candidate URL.
 	 * @param array  $allowed_suffixes  Host suffixes such as
-	 *                                   `array( '.rackspacecloud.com',
-	 *                                   '.rackcdn.com' )`.
+	 *                                   {@see Cdn_RackSpace_Api_Tokens::service_url_suffixes()}.
 	 *
 	 * @return bool
 	 */

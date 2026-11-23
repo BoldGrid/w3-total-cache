@@ -34,15 +34,11 @@ class Minify_Page extends Base_Page_Settings {
 		$themes                  = Util_Theme::get_themes_by_key();
 		$w3tc_templates          = array();
 
-		$current_theme     = Util_Theme::get_current_theme_name();
-		$current_theme_key = '';
+		// Match by key: installed themes can share a display name.
+		$current_theme_key = Util_Theme::get_current_theme_key();
 
 		foreach ( $themes as $w3tc_theme_key => $w3tc_theme_name ) {
-			if ( $w3tc_theme_name === $current_theme ) {
-				$current_theme_key = $w3tc_theme_key;
-			}
-
-			$w3tc_templates[ $w3tc_theme_key ] = Util_Theme::get_theme_templates( $w3tc_theme_name );
+			$w3tc_templates[ $w3tc_theme_key ] = Util_Theme::get_theme_templates( $w3tc_theme_key );
 		}
 
 		$css_imports_values = array(
@@ -80,14 +76,15 @@ class Minify_Page extends Base_Page_Settings {
 	public function recommendations() {
 		$themes = Util_Theme::get_themes_by_key();
 
-		$current_theme     = Util_Theme::get_current_theme_name();
-		$current_theme_key = array_search( $current_theme, $themes, true );
+		$current_theme_key = Util_Theme::get_current_theme_key();
 
-		$w3tc_theme_key  = Util_Request::get_string( 'theme_key', $current_theme_key );
-		$w3tc_theme_name = ( isset( $themes[ $w3tc_theme_key ] ) ? $themes[ $w3tc_theme_key ] : $current_theme );
+		$w3tc_theme_key = Util_Request::get_string( 'theme_key', $current_theme_key );
+		if ( ! isset( $themes[ $w3tc_theme_key ] ) ) {
+			$w3tc_theme_key = $current_theme_key;
+		}
 
-		$w3tc_templates  = Util_Theme::get_theme_templates( $w3tc_theme_name );
-		$recommendations = $this->get_theme_recommendations( $w3tc_theme_name );
+		$w3tc_templates  = Util_Theme::get_theme_templates( $w3tc_theme_key );
+		$recommendations = $this->get_theme_recommendations( $w3tc_theme_key );
 
 		list ( $js_groups, $css_groups ) = $recommendations;
 
@@ -137,13 +134,13 @@ class Minify_Page extends Base_Page_Settings {
 	/**
 	 * Retrieves the theme URLs for a given theme name.
 	 *
-	 * @param string $w3tc_theme_name The name of the theme to retrieve URLs for.
+	 * @param string $theme_key The W3TC theme key of the theme to retrieve URLs for.
 	 *
 	 * @return array An associative array where the keys are template names and the values are their respective URLs.
 	 */
-	public function get_theme_urls( $w3tc_theme_name ) {
+	public function get_theme_urls( $theme_key ) {
 		$urls  = array();
-		$theme = Util_Theme::get( $w3tc_theme_name );
+		$theme = Util_Theme::get_by_key_or_name( $theme_key );
 
 		if ( $theme && isset( $theme['Template Files'] ) ) {
 			$front_page_template = false;
@@ -504,23 +501,23 @@ class Minify_Page extends Base_Page_Settings {
 	/**
 	 * Retrieves the theme recommendations (JS and CSS files) based on the specified theme.
 	 *
-	 * @param string $w3tc_theme_name The name of the theme for which to get recommendations.
+	 * @param string $theme_key The W3TC theme key of the theme for which to get recommendations.
 	 *
 	 * @return array An array containing the theme recommendations, categorized by JS and CSS files.
 	 *
 	 * @throws \Exception If an error occurs while processing the recommendations.
 	 */
-	public function get_theme_recommendations( $w3tc_theme_name ) {
-		$urls = $this->get_theme_urls( $w3tc_theme_name );
+	public function get_theme_recommendations( $theme_key ) {
+		$urls = $this->get_theme_urls( $theme_key );
 
 		$js_groups  = array();
 		$css_groups = array();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.minify_recommendations' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		Util_Environment::set_time_limit( $this->_config->get_integer( 'timelimit.minify_recommendations' ) );
 
 		foreach ( $urls as $template => $w3tc_url ) {
 			// Append theme identifier.
-			$w3tc_url .= ( strstr( $w3tc_url, '?' ) !== false ? '&' : '?' ) . 'w3tc_theme=' . rawurlencode( $w3tc_theme_name );
+			$w3tc_url .= ( strstr( $w3tc_url, '?' ) !== false ? '&' : '?' ) . 'w3tc_theme=' . rawurlencode( $theme_key );
 
 			// If preview mode enabled append w3tc_preview.
 			if ( $this->_config->is_preview() ) {

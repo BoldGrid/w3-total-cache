@@ -1,0 +1,115 @@
+name: CI
+
+# Replaces Travis CI (.travis.yml removed). Same steps as the former PHP 7.4 Travis job, plus PHP 8.5.
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.5']
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install SVN (WordPress test library bootstrap)
+        run: sudo apt-get install -y subversion
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, mysql, mysqli, curl, zip, gd, intl
+          coverage: ${{ matrix.php == '7.4' && 'xdebug' || 'none' }}
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            node_modules
+            ~/.composer/cache
+          key: ${{ runner.os }}-php-${{ matrix.php }}-deps-${{ hashFiles('composer.lock', 'yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-deps-
+
+      - name: Resolve latest WordPress version
+        id: wp
+        run: |
+          latest="$(php -r 'echo json_decode(file_get_contents("http://api.wordpress.org/core/version-check/1.7/"), true)["offers"][0]["version"] ?? "";')"
+          if [ -z "$latest" ]; then
+            echo 'Could not resolve latest WordPress version' >&2
+            exit 1
+          fi
+          echo "version=${latest}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            /tmp/wordpress
+            /tmp/wordpress-tests-lib
+          key: ${{ runner.os }}-wp-tests-lib-${{ steps.wp.outputs.version }}
+
+      - name: Install dependencies
+        run: yarn run install:deps
+
+      - name: Install WordPress test library
+        run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest true
+
+      - name: Generated hooks documentation
+        run: yarn run hooks:check
+
+      - name: PHPUnit (single site)
+        run: |
+          if [ "${{ matrix.php }}" = "7.4" ]; then
+            vendor/bin/phpunit --coverage-clover=coverage.xml
+          else
+            vendor/bin/phpunit --no-coverage
+          fi
+
+      - name: PHPUnit (multisite group)
+        run: WP_MULTISITE=1 vendor/bin/phpunit --group multisite --no-coverage
+
+      - name: Production Composer autoload
+        run: composer install --no-dev --no-interaction --prefer-dist -o --no-progress
+
+      - name: PHP syntax lint
+        run: find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+
+      - name: Upload coverage (PHP 7.4)
+        if: matrix.php == '7.4'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

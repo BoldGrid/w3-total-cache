@@ -127,9 +127,11 @@ class Extension_CloudFlare_Api {
 	 * @return bool
 	 */
 	public static function is_legacy_global_api_key_string( $w3tc_key ) {
-		$w3tc_key = trim( (string) $w3tc_key );
+    $w3tc_key = trim( (string) $w3tc_key );
 
-		return 37 === \strlen( $w3tc_key );
+    return 37 === \strlen( $w3tc_key )
+        || 0 === strpos( $w3tc_key, 'cfk_' );
+	}
 	}
 
 	/**
