@@ -951,7 +951,7 @@ class Generic_Plugin {
 
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
-		$theme = Util_Theme::get( $w3tc_theme_name );
+		$theme = Util_Theme::get_by_key_or_name( $w3tc_theme_name );
 
 		if ( $theme ) {
 			return $theme['Template'];
@@ -974,7 +974,7 @@ class Generic_Plugin {
 
 		$w3tc_theme_name = Util_Request::get_string( 'w3tc_theme' );
 
-		$theme = Util_Theme::get( $w3tc_theme_name );
+		$theme = Util_Theme::get_by_key_or_name( $w3tc_theme_name );
 
 		if ( $theme ) {
 			return $theme['Stylesheet'];
