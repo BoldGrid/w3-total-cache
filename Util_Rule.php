@@ -138,6 +138,41 @@ class Util_Rule {
 	}
 
 	/**
+	 * Normalises one cookie-group entry and checks that it compiles as a regex.
+	 *
+	 * Shared by the Apache and Nginx rule builders (PgCache_Environment) and the PHP
+	 * matcher (PgCache_ContentGrabber::_fill_key_extension_cookie()), so every consumer
+	 * keeps or drops the same entries. An entry without `=` matches any value. An entry
+	 * that does not compile is skipped, so one bad entry cannot disable its whole group.
+	 *
+	 * The matcher runs from advanced-cache.php, so this stays free of admin-only code.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $cookie Cookie entry with `+` already replaced by spaces.
+	 *
+	 * @return string|null Regex text for the entry, or null when it is empty or not a valid regex.
+	 */
+	public static function cookie_group_entry( $cookie ) {
+		$cookie = self::sanitize_directive_value( $cookie );
+		if ( '' === $cookie ) {
+			return null;
+		}
+
+		if ( false === \strpos( $cookie, '=' ) ) {
+			$cookie .= '=.*';
+		}
+
+		// An invalid entry makes preg_match() return false with a warning; the false result is the signal, so only the warning is silenced.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === @\preg_match( '~^(' . $cookie . ')$~i', '' ) ) {
+			return null;
+		}
+
+		return $cookie;
+	}
+
+	/**
 	 * Validates an admin-supplied custom server-rules file path
 	 * (`config.path`).
 	 *

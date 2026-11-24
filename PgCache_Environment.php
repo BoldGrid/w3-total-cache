@@ -307,8 +307,9 @@ class PgCache_Environment {
 	 *
 	 * PgCache_ContentGrabber matches each entry as a regex, so the rules use
 	 * the entry text as a regex too. Only spaces are escaped, so a space
-	 * cannot split a rule line. An entry that does not compile is dropped,
-	 * which matches how the PHP matcher ignores it.
+	 * cannot split a rule line. An entry that does not compile is dropped.
+	 * The PHP matcher drops the same entries because both use
+	 * Util_Rule::cookie_group_entry().
 	 *
 	 * @since X.X.X
 	 *
@@ -317,19 +318,9 @@ class PgCache_Environment {
 	 * @return string|null Regex text for the rule, or null when the entry is not a valid regex.
 	 */
 	private static function cookie_group_rule_entry( $cookie ) {
-		$cookie = Util_Rule::sanitize_directive_value( $cookie );
-		if ( '' === $cookie ) {
+		$cookie = Util_Rule::cookie_group_entry( $cookie );
+		if ( null === $cookie ) {
 			return null;
-		}
-
-		$has_value = ( false !== strpos( $cookie, '=' ) );
-		$check     = $has_value ? $cookie : $cookie . '=.*';
-		if ( false === @preg_match( '~^(' . $check . ')$~i', '' ) ) {
-			return null;
-		}
-
-		if ( ! $has_value ) {
-			$cookie .= '=.*';
 		}
 
 		return strtr( $cookie, array( ' ' => '\\ ' ) );
