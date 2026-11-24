@@ -607,6 +607,18 @@ class Minify_Environment {
 	/**
 	 * Generates cache rules and applies the `w3tc_environment_get_required_rules` filter to them.
 	 *
+	 * Scope: the filter receives a single descriptor for this writer's file (`$rules_path`) that carries
+	 * `'section' => 'minify_cache'`, plus the context `'minify_cache'` as a third argument. Callbacks may
+	 * edit that descriptor's content in place or append descriptors for `$rules_path`. Appended descriptors
+	 * are honored on Apache/LiteSpeed when their `filename` matches (the file is dedicated to Minify), and on
+	 * nginx only when they also carry `'section' => 'minify_cache'`, because `$rules_path` is then the shared
+	 * `nginx.conf` that other filter output may legitimately target. The merged result is always written
+	 * between the Minify cache markers so that regenerating the block replaces it instead of duplicating it.
+	 *
+	 * Fallbacks to the unfiltered rules: the filter returns a non-array, removes the Minify cache
+	 * descriptor (no BEGIN/END markers left), or leaves no rule content. Empty unfiltered rules
+	 * (removal mode) are never filtered.
+	 *
 	 * @since X.X.X
 	 *
 	 * @param Config       $w3tc_config W3TC Config containing relevant settings.
@@ -615,19 +627,41 @@ class Minify_Environment {
 	 * @return string Cache rules for the file at $rules_path.
 	 */
 	private function rules_cache_filtered( $w3tc_config, $rules_path ) {
+		$unfiltered = $this->rules_cache_generate( $w3tc_config );
+
+		if ( empty( $unfiltered ) ) {
+			return $unfiltered;
+		}
+
 		$required_rules = array(
 			array(
 				'filename' => $rules_path,
-				'content'  => $this->rules_cache_generate( $w3tc_config ),
+				'section'  => 'minify_cache',
+				'content'  => $unfiltered,
 			),
 		);
 
-		$descriptors = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $w3tc_config );
+		/** This filter is documented in Root_Environment.php */
+		$descriptors = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $w3tc_config, 'minify_cache' );
 
-		$content = array();
+		if ( ! is_array( $descriptors ) ) {
+			return $unfiltered;
+		}
 
-		foreach ( (array) $descriptors as $descriptor ) {
-			if ( ! isset( $descriptor['filename'] ) || $descriptor['filename'] !== $rules_path ) {
+		$is_nginx = Util_Environment::is_nginx();
+		$content  = array();
+
+		foreach ( $descriptors as $descriptor ) {
+			if (
+				! is_array( $descriptor ) ||
+				! isset( $descriptor['filename'], $descriptor['content'] ) ||
+				$descriptor['filename'] !== $rules_path ||
+				! is_string( $descriptor['content'] )
+			) {
+				continue;
+			}
+
+			if ( $is_nginx && ( ! isset( $descriptor['section'] ) || 'minify_cache' !== $descriptor['section'] ) ) {
 				continue;
 			}
 
@@ -640,7 +674,34 @@ class Minify_Environment {
 			}
 		}
 
-		return implode( '', $content );
+		$merged = implode( '', $content );
+
+		// The Minify cache descriptor was removed or replaced without its markers.
+		if ( false === strpos( $merged, W3TC_MARKER_BEGIN_MINIFY_CACHE ) || false === strpos( $merged, W3TC_MARKER_END_MINIFY_CACHE ) ) {
+			return $unfiltered;
+		}
+
+		// Keep everything inside a single marker block, so add_rules() replaces it as a whole.
+		$body = str_replace(
+			array(
+				W3TC_MARKER_BEGIN_MINIFY_CACHE . "\n",
+				W3TC_MARKER_END_MINIFY_CACHE . "\n",
+				W3TC_MARKER_BEGIN_MINIFY_CACHE,
+				W3TC_MARKER_END_MINIFY_CACHE,
+			),
+			'',
+			$merged
+		);
+
+		if ( '' === trim( $body ) ) {
+			return $unfiltered;
+		}
+
+		if ( "\n" !== substr( $body, -1 ) ) {
+			$body .= "\n";
+		}
+
+		return W3TC_MARKER_BEGIN_MINIFY_CACHE . "\n" . $body . W3TC_MARKER_END_MINIFY_CACHE . "\n";
 	}
 
 	/**
