@@ -18,12 +18,12 @@ $w3tc_cdn_azuremi_config = array_map(
 	 *
 	 * @since 2.7.7
 	 *
-	 * @param string|array $default Default configuration .
+	 * @param string|array $w3tc_default Default configuration.
 	 * @param string|array $w3tc_config  Stored configuration values.
 	 * @return string|array
 	 */
-	function ( $default, $w3tc_config ) {
-		return empty( $w3tc_config ) ? $default : $w3tc_config;
+	function ( $w3tc_default, $w3tc_config ) {
+		return empty( $w3tc_config ) ? $w3tc_default : $w3tc_config;
 	},
 	// Default configuration values.
 	array(

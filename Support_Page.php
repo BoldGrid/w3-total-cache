@@ -100,19 +100,19 @@ class Support_Page {
 		}
 
 		return array(
-			'home_url'     => $w3tc_url,
-			'form_hash'    => $form_hash,
-			'field_name'   => $field_name,
-			'field_value'  => $field_value,
-			'postprocess'  => rawurlencode(
+			'home_url'    => $w3tc_url,
+			'form_hash'   => $form_hash,
+			'field_name'  => $field_name,
+			'field_value' => $field_value,
+			'postprocess' => rawurlencode(
 				rawurlencode(
 					Util_Ui::admin_url(
 						Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_support_send_details' ) . '&page=w3tc_support&done=1'
 					)
 				)
 			),
-			'form_script'  => self::FORM_SCRIPT,
-			'page'         => 'w3tc_support',
+			'form_script' => self::FORM_SCRIPT,
+			'page'        => 'w3tc_support',
 		);
 	}
 

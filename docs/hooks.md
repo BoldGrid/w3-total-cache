@@ -33,8 +33,8 @@ add_filter(
 | `w3tc_cdn_purge_files` | `add_action()` | 1 | `$purgefiles` | [CacheFlush_Locally.php:226](../CacheFlush_Locally.php#L226) |
 | `w3tc_cdn_purge_files_after` | `add_action()` | 1 | `$purgefiles` | [CacheFlush_Locally.php:230](../CacheFlush_Locally.php#L230) |
 | `w3tc_config_save` | `add_action()` | 1 | `$this` | [Config.php:841](../Config.php#L841) |
-| `w3tc_config_ui_save` | `add_action()` | 2 | `$w3tc_config, $this->_config` | [Generic_AdminActions_Default.php:701](../Generic_AdminActions_Default.php#L701) |
-| `w3tc_config_ui_save-{page}` | `add_action()` | 2 | `$w3tc_config, $this->_config` | [Generic_AdminActions_Default.php:702](../Generic_AdminActions_Default.php#L702) |
+| `w3tc_config_ui_save` | `add_action()` | 2 | `$w3tc_config, $this->_config` | [Generic_AdminActions_Default.php:705](../Generic_AdminActions_Default.php#L705) |
+| `w3tc_config_ui_save-{page}` | `add_action()` | 2 | `$w3tc_config, $this->_config` | [Generic_AdminActions_Default.php:706](../Generic_AdminActions_Default.php#L706) |
 | `w3tc_dashboard_top_nav_bar` | `add_action()` | 0 | `None` | [inc/options/common/top_nav_bar.php:116](../inc/options/common/top_nav_bar.php#L116) |
 | `w3tc_db_delete` | `add_action()` | 3 | `$table, $where, $where_format` | [DbCache_WpdbNew.php:297](../DbCache_WpdbNew.php#L297) |
 | `w3tc_db_insert` | `add_action()` | 3 | `$table, $w3tc_data, $format` | [DbCache_WpdbNew.php:205](../DbCache_WpdbNew.php#L205) |
@@ -67,15 +67,15 @@ add_filter(
 | `w3tc_flush_post` | `add_action()` | 3 | `$post_id, $force, $extras` | [CacheFlush_Locally.php:261](../CacheFlush_Locally.php#L261) |
 | `w3tc_flush_posts` | `add_action()` | 1 | `$extras` | [CacheFlush_Locally.php:277](../CacheFlush_Locally.php#L277) |
 | `w3tc_flush_url` | `add_action()` | 2 | `$w3tc_url, $extras` | [CacheFlush_Locally.php:352](../CacheFlush_Locally.php#L352) |
-| `w3tc_hide_button-{note}` | `add_action()` | 0 | `None` | [Generic_AdminActions_Default.php:155](../Generic_AdminActions_Default.php#L155) |
-| `w3tc_hide_button_custom-{note}` | `add_action()` | 0 | `None` | [Generic_AdminActions_Default.php:296](../Generic_AdminActions_Default.php#L296) |
+| `w3tc_hide_button-{note}` | `add_action()` | 0 | `None` | [Generic_AdminActions_Default.php:157](../Generic_AdminActions_Default.php#L157) |
+| `w3tc_hide_button_custom-{note}` | `add_action()` | 0 | `None` | [Generic_AdminActions_Default.php:298](../Generic_AdminActions_Default.php#L298) |
 | `w3tc_messagebus_message_processed` | `add_action()` | 0 | `None` | [Enterprise_SnsServer.php:182](../Enterprise_SnsServer.php#L182) |
 | `w3tc_messagebus_message_received` | `add_action()` | 0 | `None` | [Enterprise_SnsServer.php:170](../Enterprise_SnsServer.php#L170) |
 | `w3tc_message_action_{action}` | `add_action()` | 0 | `None` | [Generic_Plugin_Admin.php:632](../Generic_Plugin_Admin.php#L632)<br>[Generic_Plugin_Admin.php:639](../Generic_Plugin_Admin.php#L639) |
 | `w3tc_network_dashboard_setup` | `add_action()` | 0 | `None` | [Util_Widget.php:46](../Util_Widget.php#L46) |
 | `w3tc_pagecache_before_set` | `add_action()` | 1 | `array( 'request_url_fragments' => $this->_request_url_fragments, 'page_key_extension' => $this->_page_key_extension, )` | [PgCache_ContentGrabber.php:3078](../PgCache_ContentGrabber.php#L3078) |
 | `w3tc_purge_urls_box` | `add_action()` | 0 | `None` | [inc/options/cdn.php:500](../inc/options/cdn.php#L500) |
-| `w3tc_redirect` | `add_action()` | 0 | `None` | [Util_Environment.php:1395](../Util_Environment.php#L1395)<br>[Util_Environment.php:1417](../Util_Environment.php#L1417) |
+| `w3tc_redirect` | `add_action()` | 0 | `None` | [Util_Environment.php:1397](../Util_Environment.php#L1397)<br>[Util_Environment.php:1421](../Util_Environment.php#L1421) |
 | `w3tc_register_fragment_groups` | `add_action()` | 0 | `None` | [Extension_FragmentCache_Plugin.php:191](../Extension_FragmentCache_Plugin.php#L191) |
 | `w3tc_saved_options` | `add_action()` | 1 | `$new_config` | [Util_Admin.php:656](../Util_Admin.php#L656) |
 | `w3tc_settings_box_cdnfsd` | `add_action()` | 0 | `None` | [inc/options/cdn.php:495](../inc/options/cdn.php#L495) |
@@ -124,7 +124,7 @@ add_filter(
 | `w3tc_capability_admin_bar` | `add_filter()` | 1 | `'manage_options'` | [Generic_Plugin.php:582](../Generic_Plugin.php#L582)<br>[Util_Capability.php:82](../Util_Capability.php#L82)<br>[Util_Capability.php:119](../Util_Capability.php#L119) |
 | `w3tc_capability_admin_bar_{item_id}` | `add_filter()` | 1 | `$default_cap` | [Generic_Plugin.php:762](../Generic_Plugin.php#L762) |
 | `w3tc_capability_admin_notices` | `add_filter()` | 1 | `'manage_options'` | [Licensing_Plugin_Admin.php:373](../Licensing_Plugin_Admin.php#L373) |
-| `w3tc_capability_config_save` | `add_filter()` | 1 | `'manage_options'` | [Generic_AdminActions_Default.php:455](../Generic_AdminActions_Default.php#L455) |
+| `w3tc_capability_config_save` | `add_filter()` | 1 | `'manage_options'` | [Generic_AdminActions_Default.php:459](../Generic_AdminActions_Default.php#L459) |
 | `w3tc_capability_extensions_activate_{extension}` | `add_filter()` | 1 | `'manage_options'` | [Extensions_AdminActions.php:32](../Extensions_AdminActions.php#L32) |
 | `w3tc_capability_favorite_action_flush_all` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:98](../Util_Capability.php#L98) |
 | `w3tc_capability_flush_all` | `add_filter()` | 1 | `$capability` | [Util_Capability.php:91](../Util_Capability.php#L91) |
@@ -141,11 +141,11 @@ add_filter(
 | `w3tc_cdn_update_attachment` | `add_filter()` | 1 | `$files` | [Cdn_Plugin.php:351](../Cdn_Plugin.php#L351) |
 | `w3tc_cdn_update_attachment_metadata` | `add_filter()` | 1 | `$files` | [Cdn_Plugin.php:399](../Cdn_Plugin.php#L399) |
 | `w3tc_cdn_url` | `add_filter()` | 3 | `$new_url, $w3tc_url, $is_engine_mirror` | [Cdn_Core.php:821](../Cdn_Core.php#L821) |
-| `w3tc_cloudflare_proxy_cidrs` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2341](../Util_Environment.php#L2341) |
+| `w3tc_cloudflare_proxy_cidrs` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2351](../Util_Environment.php#L2351) |
 | `w3tc_compatibility_test` | `add_filter()` | 1 | `__return_empty_array()` | [inc/lightbox/self_test.php:438](../inc/lightbox/self_test.php#L438) |
 | `w3tc_config_default_values` | `add_filter()` | 1 | `array()` | [Config.php:224](../Config.php#L224)<br>[Config.php:233](../Config.php#L233) |
 | `w3tc_config_item_{key}` | `add_filter()` | 1 | `$v` | [Config.php:400](../Config.php#L400) |
-| `w3tc_config_key_descriptor` | `add_filter()` | 2 | `$w3tc_descriptor, $w3tc_key` | [Generic_AdminActions_Default.php:950](../Generic_AdminActions_Default.php#L950) |
+| `w3tc_config_key_descriptor` | `add_filter()` | 2 | `$w3tc_descriptor, $w3tc_key` | [Generic_AdminActions_Default.php:954](../Generic_AdminActions_Default.php#L954) |
 | `w3tc_config_labels` | `add_filter()` | 1 | `array()` | [Util_Ui.php:210](../Util_Ui.php#L210) |
 | `w3tc_dashboard_actions` | `add_filter()` | 1 | `array()` | [Util_Ui.php:482](../Util_Ui.php#L482) |
 | `w3tc_dashboard_widgets` | `add_filter()` | 1 | `array()` | [Util_Widget.php:50](../Util_Widget.php#L50) |
@@ -167,8 +167,8 @@ add_filter(
 | `w3tc_extensions_hooks` | `add_filter()` | 1 | `$w3tc_hooks` | [Extensions_Plugin_Admin.php:166](../Extensions_Plugin_Admin.php#L166) |
 | `w3tc_extension_plugin_links_{extension}` | `add_filter()` | 1 | `$w3tc_extra_links` | [inc/options/extensions/list.php:127](../inc/options/extensions/list.php#L127) |
 | `w3tc_extension_requirements-{extension}` | `add_filter()` | 1 | `$w3tc_meta['requirements']` | [inc/options/extensions/list.php:194](../inc/options/extensions/list.php#L194) |
-| `w3tc_filename_to_url` | `add_filter()` | 1 | `$w3tc_url` | [Util_Environment.php:232](../Util_Environment.php#L232) |
-| `w3tc_flushable_post` | `add_filter()` | 3 | `$flushable, $post, $w3tc_module` | [Util_Environment.php:1688](../Util_Environment.php#L1688) |
+| `w3tc_filename_to_url` | `add_filter()` | 1 | `$w3tc_url` | [Util_Environment.php:234](../Util_Environment.php#L234) |
+| `w3tc_flushable_post` | `add_filter()` | 3 | `$flushable, $post, $w3tc_module` | [Util_Environment.php:1694](../Util_Environment.php#L1694) |
 | `w3tc_flushable_posts` | `add_filter()` | 2 | `false, $extras` | [CacheFlush.php:196](../CacheFlush.php#L196) |
 | `w3tc_flush_execute_delayed_operations` | `add_filter()` | 1 | `$actions_made` | [CacheFlush_Locally.php:396](../CacheFlush_Locally.php#L396) |
 | `w3tc_footer_comment` | `add_filter()` | 1 | `$strings` | [Generic_Plugin.php:1040](../Generic_Plugin.php#L1040) |
@@ -250,16 +250,16 @@ add_filter(
 | `w3tc_remove_cssjs_can_process` | `add_filter()` | 1 | `$can_process` | [UserExperience_Remove_CssJs_Extension.php:90](../UserExperience_Remove_CssJs_Extension.php#L90) |
 | `w3tc_remove_cssjs_mutator_before` | `add_filter()` | 1 | `array( 'buffer' => $buffer, )` | [UserExperience_Remove_CssJs_Mutator.php:71](../UserExperience_Remove_CssJs_Mutator.php#L71) |
 | `w3tc_repeating_headers` | `add_filter()` | 1 | `$repeating_headers` | [PgCache_ContentGrabber.php:1671](../PgCache_ContentGrabber.php#L1671) |
-| `w3tc_save_options` | `add_filter()` | 2 | `$w3tc_data, $this->_page` | [Generic_AdminActions_Default.php:698](../Generic_AdminActions_Default.php#L698) |
+| `w3tc_save_options` | `add_filter()` | 2 | `$w3tc_data, $this->_page` | [Generic_AdminActions_Default.php:702](../Generic_AdminActions_Default.php#L702) |
 | `w3tc_settings_general_anchors` | `add_filter()` | 1 | `array()` | [Generic_Page_General.php:92](../Generic_Page_General.php#L92)<br>[Util_Ui.php:553](../Util_Ui.php#L553) |
 | `w3tc_swarmify_active` | `add_filter()` | 1 | `null` | [Extension_Swarmify_Plugin.php:134](../Extension_Swarmify_Plugin.php#L134) |
-| `w3tc_trusted_proxies` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2301](../Util_Environment.php#L2301) |
+| `w3tc_trusted_proxies` | `add_filter()` | 1 | `$cidrs` | [Util_Environment.php:2311](../Util_Environment.php#L2311) |
 | `w3tc_ui_config_item_mobile.rgroups` | `add_filter()` | 1 | `$useragent_groups` | [CacheGroups_Plugin_Admin.php:55](../CacheGroups_Plugin_Admin.php#L55) |
 | `w3tc_ui_config_item_pgcache.cookiegroups.groups` | `add_filter()` | 1 | `$cookie_groups` | [CacheGroups_Plugin_Admin.php:69](../CacheGroups_Plugin_Admin.php#L69) |
 | `w3tc_ui_config_item_{action}` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1832](../Util_Ui.php#L1832) |
 | `w3tc_ui_settings_item` | `add_filter()` | 1 | `$w3tc_a` | [Util_Ui.php:1457](../Util_Ui.php#L1457) |
 | `w3tc_uri_cdn_uri` | `add_filter()` | 1 | `ltrim( $remote_uri, '/' )` | [Cdn_Core.php:796](../Cdn_Core.php#L796) |
-| `w3tc_url_to_docroot_filename` | `add_filter()` | 1 | `$w3tc_data` | [Util_Environment.php:1115](../Util_Environment.php#L1115) |
+| `w3tc_url_to_docroot_filename` | `add_filter()` | 1 | `$w3tc_data` | [Util_Environment.php:1117](../Util_Environment.php#L1117) |
 | `w3tc_usage_statistics_history_set` | `add_filter()` | 1 | `$history` | [UsageStatistics_StorageWriter.php:351](../UsageStatistics_StorageWriter.php#L351) |
 | `w3tc_usage_statistics_metrics` | `add_filter()` | 1 | `$metrics` | [UsageStatistics_StorageWriter.php:287](../UsageStatistics_StorageWriter.php#L287) |
 | `w3tc_usage_statistics_metric_values` | `add_filter()` | 1 | `$metric_values` | [UsageStatistics_StorageWriter.php:299](../UsageStatistics_StorageWriter.php#L299) |

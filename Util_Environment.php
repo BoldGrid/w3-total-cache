@@ -17,6 +17,8 @@ class Util_Environment {
 	/**
 	 * Is using ,aster config.
 	 *
+	 * @since 0.14.2
+	 *
 	 * @var bool
 	 *
 	 * @static
@@ -1402,6 +1404,8 @@ class Util_Environment {
 	/**
 	 * Redirects to URL.
 	 *
+	 * @since 0.10.0
+	 *
 	 * @static
 	 *
 	 * @param string $w3tc_url           URL.
@@ -1444,6 +1448,8 @@ class Util_Environment {
 
 	/**
 	 * Fallback for wp_sfe_redirect().
+	 *
+	 * @since 0.10.0
 	 *
 	 * @static
 	 *
@@ -1792,6 +1798,8 @@ class Util_Environment {
 
 	/**
 	 * Reset microcache.
+	 *
+	 * @since 0.14.2
 	 *
 	 * @static
 	 *
@@ -2259,6 +2267,8 @@ class Util_Environment {
 	}
 
 	/**
+	 * Returns the provided server array, falling back to $_SERVER.
+	 *
 	 * @since 2.10.6
 	 *
 	 * @param array|null $server Server array.
