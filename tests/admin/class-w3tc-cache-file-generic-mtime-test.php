@@ -133,6 +133,20 @@ class W3tc_Cache_File_Generic_Mtime_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Builds a page that ends with the footer comment Generic_Plugin::ob_callback() appends.
+	 *
+	 * @param string $body  Page body.
+	 * @param string $time  Time in the "Served from" line.
+	 * @param string $extra Extra footer lines, such as page cache debug info.
+	 *
+	 * @return string
+	 */
+	private function page( $body, $time = '2026-11-24 10:00:00', $extra = '' ) {
+		return '<html><body>' . $body . '</body></html>' .
+			"\r\n<!--\r\nPage Caching using Disk: Enhanced\r\n" . $extra . "\r\nServed from: example.org @ " . $time . " by W3 Total Cache\r\n-->";
+	}
+
+	/**
 	 * Writing the same HTML again does not replace the file.
 	 *
 	 * @return void
@@ -361,6 +375,188 @@ class W3tc_Cache_File_Generic_Mtime_Test extends WP_UnitTestCase {
 		$entry = $plugin->w3tc_pagecache_set( $this->entry( 'content' ) );
 
 		$this->assertSame( 1234567890, $entry['before_time'] );
+	}
+
+	/**
+	 * A different "Served from" time does not replace the file, and the stored footer stays.
+	 *
+	 * @return void
+	 */
+	public function test_footer_only_difference_keeps_file_and_mtime() {
+		$cache = $this->cache();
+		$first = $this->entry( $this->page( 'unchanged' ) );
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $first );
+		$before = $this->age( $path, 30 );
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'unchanged', '2026-11-24 10:00:01' ) ) );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $before, filemtime( $path ) );
+		$this->assertSame( $first['content'], file_get_contents( $path ) );
+		$this->assertStringContainsString( '@ 2026-11-24 10:00:00 by W3 Total Cache', file_get_contents( $path ) );
+	}
+
+	/**
+	 * Debug lines inside the footer comment do not matter either.
+	 *
+	 * @return void
+	 */
+	public function test_footer_debug_lines_do_not_replace_file() {
+		$cache = $this->cache();
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'unchanged', '2026-11-24 10:00:00', "\r\nPage cache debug info:\r\nCreation Time: 1.000s" ) ) );
+		$before = $this->age( $path, 30 );
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'unchanged', '2026-11-24 10:00:05', "\r\nPage cache debug info:\r\nCreation Time: 2.500s" ) ) );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $before, filemtime( $path ) );
+	}
+
+	/**
+	 * Control: a changed body replaces the file even when the footer is the same shape.
+	 *
+	 * @return void
+	 */
+	public function test_body_change_with_footer_replaces_file() {
+		$cache = $this->cache();
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'one' ) ) );
+		$before = $this->age( $path, 30 );
+
+		$changed = $this->entry( $this->page( 'two', '2026-11-24 10:00:01' ) );
+		$cache->set( 'index.html', $changed );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $changed['content'], file_get_contents( $path ) );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+	}
+
+	/**
+	 * A footer that is added or removed counts as a change.
+	 *
+	 * @return void
+	 */
+	public function test_footer_added_or_removed_replaces_file() {
+		$cache = $this->cache();
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $this->entry( '<html><body>same</body></html>' ) );
+		$before = $this->age( $path, 30 );
+
+		$with_footer = $this->entry( $this->page( 'same' ) );
+		$cache->set( 'index.html', $with_footer );
+		clearstatcache( true, $path );
+		$this->assertSame( $with_footer['content'], file_get_contents( $path ) );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+
+		$before = $this->age( $path, 30 );
+		$cache->set( 'index.html', $this->entry( '<html><body>same</body></html>' ) );
+		clearstatcache( true, $path );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+	}
+
+	/**
+	 * Only the last comment is the footer: a "Served from" comment followed by more markup is page content.
+	 *
+	 * @return void
+	 */
+	public function test_footer_comment_before_more_markup_is_page_content() {
+		$cache = $this->cache();
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'same', '2026-11-24 10:00:00' ) . '<p>tail</p>' ) );
+		$before = $this->age( $path, 30 );
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'same', '2026-11-24 10:00:01' ) . '<p>tail</p>' ) );
+		clearstatcache( true, $path );
+
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+	}
+
+	/**
+	 * After a purge a footer-only difference restores the _old file, and a body change replaces it.
+	 *
+	 * @return void
+	 */
+	public function test_footer_only_difference_after_purge_restores_old_file() {
+		$cache = $this->cache();
+		$first = $this->entry( $this->page( 'unchanged' ) );
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $first );
+		$before = $this->age( $path, 30 );
+		$cache->delete( 'index.html' );
+		$this->assertFileExists( $path . '_old' );
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'unchanged', '2026-11-24 10:00:01' ) ) );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $before, filemtime( $path ) );
+		$this->assertSame( $first['content'], file_get_contents( $path ) );
+		$this->assertFileDoesNotExist( $path . '_old' );
+
+		// Control: the body changed, so the purged file is not restored.
+		$cache->delete( 'index.html' );
+		$changed = $this->entry( $this->page( 'different', '2026-11-24 10:00:02' ) );
+		$cache->set( 'index.html', $changed );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $changed['content'], file_get_contents( $path ) );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+		$this->assertFileDoesNotExist( $path . '_old' );
+	}
+
+	/**
+	 * Compressed variants are compared on their decompressed page.
+	 *
+	 * @return void
+	 */
+	public function test_compressed_variant_footer_only_difference_keeps_file() {
+		$cache = $this->cache();
+		$path  = $this->dir . '/index.html_gzip';
+
+		$first = $this->entry( gzencode( $this->page( 'unchanged' ) ), array( 'c' => 'gzip' ) );
+		$cache->set( 'index.html_gzip', $first );
+		$before = $this->age( $path, 30 );
+
+		$cache->set( 'index.html_gzip', $this->entry( gzencode( $this->page( 'unchanged', '2026-11-24 10:00:01' ) ), array( 'c' => 'gzip' ) ) );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $before, filemtime( $path ) );
+		$this->assertSame( $first['content'], file_get_contents( $path ) );
+
+		// Control: a changed body replaces the compressed file.
+		$changed = $this->entry( gzencode( $this->page( 'different', '2026-11-24 10:00:02' ) ), array( 'c' => 'gzip' ) );
+		$cache->set( 'index.html_gzip', $changed );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $changed['content'], file_get_contents( $path ) );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
+	}
+
+	/**
+	 * The footer-only difference still follows the lifetime guard.
+	 *
+	 * @return void
+	 */
+	public function test_footer_only_difference_past_half_lifetime_is_rewritten() {
+		$cache = $this->cache( self::LIFETIME );
+		$path  = $this->dir . '/index.html';
+
+		$cache->set( 'index.html', $this->entry( $this->page( 'unchanged' ) ), self::LIFETIME );
+		$before = $this->age( $path, 80 );
+
+		$newer = $this->entry( $this->page( 'unchanged', '2026-11-24 10:01:20' ) );
+		$cache->set( 'index.html', $newer, self::LIFETIME );
+		clearstatcache( true, $path );
+
+		$this->assertSame( $newer['content'], file_get_contents( $path ) );
+		$this->assertGreaterThan( $before, filemtime( $path ) );
 	}
 
 	/**
