@@ -231,7 +231,7 @@ add_filter(
 | `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:899](../Util_PageUrls.php#L899) |
 | `w3tc_page_extract_group` | `add_filter()` | 3 | `$page_key_extension['group'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:424](../PgCache_ContentGrabber.php#L424) |
 | `w3tc_page_extract_key` | `add_filter()` | 8 | `$this->_page_key, $page_key_extension['useragent'], $page_key_extension['referrer'], $page_key_extension['encryption'], $page_key_extension['compression'], $page_key_extension['content_type'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:439](../PgCache_ContentGrabber.php#L439) |
-| `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1101](../Util_PageUrls.php#L1101) |
+| `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1106](../Util_PageUrls.php#L1106) |
 | `w3tc_pgcache_cookiegroups` | `add_filter()` | 1 | `$cookiegroups` | [CacheGroups_Plugin_Admin.php:269](../CacheGroups_Plugin_Admin.php#L269) |
 | `w3tc_pgcache_flush_post_queued_urls` | `add_filter()` | 1 | `$full_urls` | [PgCache_Flush.php:350](../PgCache_Flush.php#L350) |
 | `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:1944](../PgCache_Environment.php#L1944) |

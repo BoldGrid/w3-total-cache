@@ -901,16 +901,21 @@ class Util_PageUrls {
 	}
 
 	/**
-	 * Complement with mirron URLs
+	 * Complement with mirror URLs
 	 *
 	 * @param array $queued_urls Queued URLs.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public static function complement_with_mirror_urls( $queued_urls ) {
 		$w3tc_config = Dispatcher::config();
 
-		// Subdomain networks get mirror URLs too. Only the aliases setting controls this.
+		/*
+		 * Intended on networks: the alias list is not tied to a subsite. With a shared network
+		 * config (common.force_master, the default), every subsite's purge expands onto every
+		 * listed alias, so one subsite's flush can over-purge another subsite's alias cache. This
+		 * matches subdirectory networks and never leaves stale content.
+		 */
 		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) ) {
 			return $queued_urls;
 		}

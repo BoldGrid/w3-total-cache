@@ -8,10 +8,13 @@
 /**
  * Covers Util_PageUrls::complement_with_mirror_urls().
  *
- * Most cases run in the shared process (subdirectory mode). The subdomain case
- * runs in its own process, where SUBDOMAIN_INSTALL can be defined as true.
+ * All cases run on a single site: phpunit.xml excludes the multisite group and this
+ * class is not tagged with it. The subdomain case runs in its own process with
+ * SUBDOMAIN_INSTALL defined as true. That proves the guard is gone, not that a real
+ * subdomain subsite expands correctly. The multisite bootstrap defines SUBDOMAIN_INSTALL
+ * as false, so a true subdomain network case cannot run there.
  *
- * @since 2.11.0
+ * @since X.X.X
  */
 class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 
@@ -25,7 +28,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Sets up config for the test.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -43,7 +46,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Restores config after each test.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -60,7 +63,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * With aliases enabled, a URL under the home URL gets the same path on each alias.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -82,20 +85,21 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On a subdomain network, aliases still expand the subsite URL.
+	 * With SUBDOMAIN_INSTALL defined as true, aliases still expand home URLs.
 	 *
+	 * This is a single site with the constant defined, not a real subdomain network.
 	 * Runs in its own process because SUBDOMAIN_INSTALL is a global constant.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
 	public function test_subdomain_network_expands_home_urls() {
 		if ( defined( 'SUBDOMAIN_INSTALL' ) && ! SUBDOMAIN_INSTALL ) {
-			$this->markTestSkipped( 'Test suite runs in subdirectory mode.' );
+			$this->markTestSkipped( 'SUBDOMAIN_INSTALL is already defined as false.' );
 		}
 
 		if ( ! defined( 'SUBDOMAIN_INSTALL' ) ) {
@@ -120,7 +124,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Regex purge patterns are expanded the same way as plain URLs.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -139,7 +143,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * With the aliases feature off, the URL list is returned unchanged.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -159,7 +163,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * URLs outside the current home URL are not rewritten onto aliases.
 	 *
-	 * @since 2.11.0
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -173,5 +177,30 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 		$result = \W3TC\Util_PageUrls::complement_with_mirror_urls( array( $foreign ) );
 
 		$this->assertSame( array( $foreign ), $result );
+	}
+
+	/**
+	 * Alias entries with a trailing slash are normalized and empty entries are skipped.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_alias_trailing_slash_and_empty_entries() {
+		$config = \W3TC\Dispatcher::config();
+		$config->set( 'pgcache.mirrors.enabled', true );
+		$config->set( 'pgcache.mirrors.home_urls', array( 'https://site1.test/', '', 'https://site2.test' ) );
+
+		$home  = trailingslashit( get_home_url() );
+		$input = array( $home . 'sample-post/' );
+
+		$this->assertSame(
+			array(
+				$home . 'sample-post/',
+				'https://site1.test/sample-post/',
+				'https://site2.test/sample-post/',
+			),
+			\W3TC\Util_PageUrls::complement_with_mirror_urls( $input )
+		);
 	}
 }
