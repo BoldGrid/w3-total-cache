@@ -170,6 +170,74 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Keeps a stored page when the new content is byte-identical, instead of replacing it.
+	 *
+	 * Apache builds ETag and Last-Modified from the file mtime (`FileETag MTime Size`), so a
+	 * rewrite of unchanged HTML makes browsers download it again. The same mtime is the
+	 * freshness clock for Cache_File_Cleaner_Generic, and the one the Always Cached
+	 * ahead-generation clean compares with `before_time`. An old file is only kept while
+	 * enough of the lifetime is left, so a regenerated page is not expired right after it
+	 * was written; otherwise the file is rewritten with a new mtime.
+	 *
+	 * The current file is checked first, then `$path . '_old'`, which a purge, flush or garbage
+	 * collection pass leaves behind. A matching `_old` file is moved back with its mtime.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $path    Absolute cache file path.
+	 * @param string $content New content, not empty.
+	 * @param int    $expire  Lifetime in seconds, 0 for the configured one.
+	 * @param array  $data    Cache entry. An optional `before_time` is the oldest mtime the ahead-generation clean keeps.
+	 *
+	 * @return bool True when a file with this content is in place at $path.
+	 */
+	private function keep_identical_file( $path, $content, $expire, $data ) {
+		$lifetime = $expire > 0 ? min( $expire, W3TC_CACHE_FILE_EXPIRE_MAX ) : $this->_expire;
+		$min_time = time() - intdiv( $lifetime, 2 );
+
+		if ( ! empty( $data['before_time'] ) ) {
+			$min_time = max( $min_time, (int) $data['before_time'] );
+		}
+
+		if ( $this->file_matches( $path, $content, $min_time ) ) {
+			return true;
+		}
+
+		$path_old = $path . '_old';
+		if ( ! $this->file_matches( $path_old, $content, $min_time ) ) {
+			return false;
+		}
+
+		@unlink( $path );
+
+		return @rename( $path_old, $path );
+	}
+
+	/**
+	 * Checks whether a file holds exactly this content and was modified at or after a given time.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $file     File path.
+	 * @param string $content  Expected content.
+	 * @param int    $min_time Oldest accepted mtime.
+	 *
+	 * @return bool
+	 */
+	private function file_matches( $file, $content, $min_time ) {
+		if ( ! is_file( $file ) ) {
+			return false;
+		}
+
+		$mtime = @filemtime( $file );
+		if ( ! $mtime || $mtime < $min_time || @filesize( $file ) !== strlen( $content ) ) {
+			return false;
+		}
+
+		return @file_get_contents( $file ) === $content;
+	}
+
+	/**
 	 * Sets data
 	 *
 	 * @param string $w3tc_key    Key.
@@ -200,54 +268,50 @@ class Cache_File_Generic extends Cache_File {
 			}
 		}
 
-		$tmppath = $path . '.' . getmypid();
+		$content = (string) $w3tc_value['content'];
 
-		$fp = @fopen( $tmppath, 'wb' );
-		if ( ! $fp ) {
-			return false;
-		}
+		// Identical bytes keep the stored file, so its mtime (the ETag and Last-Modified Apache sends) stays the same.
+		if ( '' !== $content && $this->keep_identical_file( $path, $content, (int) $expire, $w3tc_value ) ) {
+			// some hostings create files with restrictive permissions not allowing apache to read it later.
+			@chmod( $path, 0644 );
+		} else {
+			$tmppath = $path . '.' . getmypid();
 
-		if ( $this->_locking ) {
-			@flock( $fp, LOCK_EX );
-		}
-
-		@fputs( $fp, $w3tc_value['content'] );
-
-		if ( $this->_locking ) {
-			@\fflush( $fp );
-			@flock( $fp, LOCK_UN );
-		}
-
-		@fclose( $fp );
-
-		$chmod = 0644;
-		if ( defined( 'FS_CHMOD_FILE' ) ) {
-			$chmod = FS_CHMOD_FILE;
-		}
-
-		@chmod( $tmppath, $chmod );
-
-		// some hostings create files with restrictive permissions not allowing apache to read it later.
-		@chmod( $path, 0644 );
-
-		if ( @filesize( $tmppath ) > 0 ) {
-			$unchanged = false;
-
-			if ( is_file( $path ) && @filesize( $path ) === @filesize( $tmppath ) ) {
-				$existing  = @file_get_contents( $path );
-				$incoming  = @file_get_contents( $tmppath );
-				$unchanged = is_string( $existing ) && is_string( $incoming ) && hash_equals( $existing, $incoming );
+			$fp = @fopen( $tmppath, 'wb' );
+			if ( ! $fp ) {
+				return false;
 			}
 
-			if ( $unchanged ) {
-				@unlink( $tmppath );
-			} else {
+			if ( $this->_locking ) {
+				@flock( $fp, LOCK_EX );
+			}
+
+			@fputs( $fp, $content );
+
+			if ( $this->_locking ) {
+				@\fflush( $fp );
+				@flock( $fp, LOCK_UN );
+			}
+
+			@fclose( $fp );
+
+			$chmod = 0644;
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
+				$chmod = FS_CHMOD_FILE;
+			}
+
+			@chmod( $tmppath, $chmod );
+
+			// some hostings create files with restrictive permissions not allowing apache to read it later.
+			@chmod( $path, 0644 );
+
+			if ( @filesize( $tmppath ) > 0 ) {
 				@unlink( $path );
 				@rename( $tmppath, $path );
 			}
-		}
 
-		@unlink( $tmppath );
+			@unlink( $tmppath );
+		}
 
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
