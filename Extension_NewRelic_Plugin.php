@@ -64,6 +64,15 @@ class Extension_NewRelic_Plugin {
 			}
 
 			Util_Bus::add_ob_callback( 'newrelic', array( $this, 'ob_callback_apm' ) );
+
+			/**
+			 * Admin screens are not output-buffered (see Generic_Plugin::can_ob()), so
+			 * ob_callback_apm() never runs there. Turn off the agent's automatic browser
+			 * script directly so wp-admin pages do not get it.
+			 */
+			if ( defined( 'WP_ADMIN' ) && WP_ADMIN ) {
+				add_action( 'admin_init', array( $this, 'disable_auto_rum' ), 0 );
+			}
 		}
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );

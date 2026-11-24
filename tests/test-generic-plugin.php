@@ -442,4 +442,20 @@ class Generic_Plugin_DynamicFragments_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( $plugin->can_ob() );
 	}
+
+	/**
+	 * A WP_ADMIN constant defined as false is not an admin screen, so it stays buffered.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_can_ob_is_true_when_wp_admin_is_false() {
+		if ( ! defined( 'WP_ADMIN' ) ) {
+			define( 'WP_ADMIN', false );
+		}
+
+		$plugin = new Generic_Plugin();
+
+		$this->assertTrue( $plugin->can_ob() );
+	}
 }

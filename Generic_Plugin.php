@@ -1132,7 +1132,7 @@ class Generic_Plugin {
 		 * so they no longer run on admin screens. Admin HTML is sent as it is
 		 * generated instead of being held until the request ends.
 		 */
-		if ( defined( 'WP_ADMIN' ) ) {
+		if ( defined( 'WP_ADMIN' ) && WP_ADMIN ) {
 			return false;
 		}
 

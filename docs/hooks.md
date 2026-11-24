@@ -212,7 +212,7 @@ add_filter(
 | `w3tc_mobile_groups` | `add_filter()` | 1 | `$mobile_groups` | [CacheGroups_Plugin_Admin.php:149](../CacheGroups_Plugin_Admin.php#L149) |
 | `w3tc_module_is_running-{module}` | `add_filter()` | 1 | `$this->is_enabled( $w3tc_module )` | [ModuleStatus.php:94](../ModuleStatus.php#L94) |
 | `w3tc_network_dashboard_widgets` | `add_filter()` | 1 | `array()` | [Util_Widget.php:47](../Util_Widget.php#L47) |
-| `w3tc_newrelic_should_disable_auto_rum` | `add_filter()` | 1 | `null` | [Extension_NewRelic_Plugin.php:171](../Extension_NewRelic_Plugin.php#L171) |
+| `w3tc_newrelic_should_disable_auto_rum` | `add_filter()` | 1 | `null` | [Extension_NewRelic_Plugin.php:180](../Extension_NewRelic_Plugin.php#L180) |
 | `w3tc_notes` | `add_filter()` | 1 | `$w3tc_notes` | [Generic_Plugin_Admin.php:1589](../Generic_Plugin_Admin.php#L1589) |
 | `w3tc_objectcache_addin_required` | `add_filter()` | 1 | `$objectcache_enabled` | [ObjectCache_Environment.php:35](../ObjectCache_Environment.php#L35) |
 | `w3tc_pagecache_flush_all_groups` | `add_filter()` | 1 | `$groups_to_flush` | [PgCache_Flush.php:402](../PgCache_Flush.php#L402) |
