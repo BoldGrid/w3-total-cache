@@ -1,0 +1,37 @@
+<?php
+/**
+ * File: redis-queue-worker.php.fixture
+ *
+ * Standalone worker for the concurrent queue test: waits for a shared start
+ * time, then queues one delete for its group while the server is bypassed.
+ *
+ * Usage: php redis-queue-worker.php.fixture <plugin dir> <bypass dir> <server> <group> <start time>
+ *
+ * @package W3TC
+ */
+
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+
+require $argv[1] . '/Cache_Base.php';
+require $argv[1] . '/Cache_Redis.php';
+
+\W3TC\Cache_Redis::$bypass_directory = $argv[2];
+
+$w3tc_engine = new \W3TC\Cache_Redis(
+	array(
+		'blog_id'        => 1,
+		'servers'        => array( $argv[3] ),
+		'persistent'     => false,
+		'password'       => '',
+		'dbid'           => 0,
+		'timeout'        => 0,
+		'retry_interval' => 0,
+		'read_timeout'   => 0,
+	)
+);
+
+while ( microtime( true ) < (float) $argv[5] ) {
+	usleep( 100 );
+}
+
+echo $w3tc_engine->delete( 'k', $argv[4] ) ? 'deleted' : 'queued';

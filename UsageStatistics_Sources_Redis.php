@@ -64,19 +64,7 @@ class UsageStatistics_Sources_Redis {
 		$get_hits  = 0;
 
 		foreach ( $this->servers as $host_port => $w3tc_i ) {
-			$cache = Cache::instance(
-				'redis',
-				array(
-					'servers'        => array( $host_port ),
-					'password'       => $w3tc_i['password'],
-					'dbid'           => $w3tc_i['dbid'],
-					'timeout'        => 0,
-					'retry_interval' => 0,
-					'read_timeout'   => 0,
-				)
-			);
-
-			$stats = $cache->get_statistics();
+			$stats = $this->server_statistics( $host_port, $w3tc_i );
 
 			$size_used += Util_UsageStatistics::v( $stats, 'used_memory' );
 			$get_calls +=
@@ -114,19 +102,7 @@ class UsageStatistics_Sources_Redis {
 		);
 
 		foreach ( $this->servers as $host_port => $w3tc_i ) {
-			$cache = Cache::instance(
-				'redis',
-				array(
-					'servers'        => array( $host_port ),
-					'password'       => $w3tc_i['password'],
-					'dbid'           => $w3tc_i['dbid'],
-					'timeout'        => 0,
-					'retry_interval' => 0,
-					'read_timeout'   => 0,
-				)
-			);
-
-			$stats = $cache->get_statistics();
+			$stats = $this->server_statistics( $host_port, $w3tc_i );
 
 			$sum['module_names'] = array_merge( $sum['module_names'], $w3tc_i['module_names'] );
 			$sum['size_used']   += Util_UsageStatistics::v3( $stats, 'used_memory' );
@@ -146,5 +122,38 @@ class UsageStatistics_Sources_Redis {
 		);
 
 		return $summary;
+	}
+
+	/**
+	 * INFO for one server, without leaving a new bypass for the live cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $host_port Server.
+	 * @param array  $w3tc_i    Server settings.
+	 * @return array
+	 */
+	private function server_statistics( $host_port, $w3tc_i ) {
+		$was_bypassed = Cache_Redis::is_server_bypassed( $host_port, $w3tc_i['dbid'] );
+
+		$cache = Cache::instance(
+			'redis',
+			array(
+				'servers'        => array( $host_port ),
+				'password'       => $w3tc_i['password'],
+				'dbid'           => $w3tc_i['dbid'],
+				'timeout'        => 0,
+				'retry_interval' => 0,
+				'read_timeout'   => 0,
+			)
+		);
+
+		$stats = $cache->get_statistics();
+
+		if ( ! $was_bypassed ) {
+			Cache_Redis::clear_server_bypass( $host_port, $w3tc_i['dbid'] );
+		}
+
+		return $stats;
 	}
 }

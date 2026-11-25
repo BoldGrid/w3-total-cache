@@ -592,7 +592,7 @@ class PgCache_ContentGrabber {
 								array( 'compression' => $_compression )
 							)
 						);
-						$cache->hard_delete( $_page_key );
+						$cache->hard_delete( $_page_key, $this->_page_group );
 					}
 				}
 			}
@@ -1472,11 +1472,12 @@ class PgCache_ContentGrabber {
 					$cookie = trim( $cookie );
 					if ( ! empty( $cookie ) ) {
 						$cookie = str_replace( '+', ' ', $cookie );
-						if ( strpos( $cookie, '=' ) === false ) {
-							$cookie .= '=.*';
-						}
 
-						$cookies[] = $cookie;
+						// Skip an entry that is not a valid regex, exactly as the Apache and Nginx rules do.
+						$cookie = Util_Rule::cookie_group_entry( $cookie );
+						if ( null !== $cookie ) {
+							$cookies[] = $cookie;
+						}
 					}
 				}
 
@@ -3062,7 +3063,7 @@ class PgCache_ContentGrabber {
 							)
 						)
 					);
-					$cache->hard_delete( $_page_key );
+					$cache->hard_delete( $_page_key, $this->_page_group );
 				}
 
 				return $buffer;
