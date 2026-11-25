@@ -49,7 +49,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 		);
 
 		$this->_s3 = new \S3Compatible( $w3tc_config['key'], $w3tc_config['secret'], false, $w3tc_config['api_host'] );
-		$this->_s3->setSignatureVersion( 'v2' );
+		$this->_s3->setSignatureVersion( 'v4' );
 
 		parent::__construct( $w3tc_config );
 	}

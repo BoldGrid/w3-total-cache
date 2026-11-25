@@ -668,6 +668,10 @@ class S3Compatible
 
 		// CanonicalHeaders
 		foreach ( $headers as $k => $v ) {
+			// Empty headers are not sent, so they must not be signed.
+			if ( '' === (string) $v ) {
+				continue;
+			}
 			$amzHeaders[ strtolower( $k ) ] = trim( $v );
 		}
 		foreach ( $aHeaders as $k => $v ) {
