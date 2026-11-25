@@ -56,6 +56,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function set( $w3tc_key, $w3tc_value, $expire = 0, $w3tc_group = '' ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		if ( ! isset( $w3tc_value['key_version'] ) ) {
 			$w3tc_value['key_version'] = $this->_get_key_version( $w3tc_group );
 		}
@@ -78,6 +82,10 @@ class Cache_Wincache extends Cache_Base {
 	 */
 	public function get_with_old( $w3tc_key, $w3tc_group = '' ) {
 		$has_old_data = false;
+
+		if ( ! $this->available() ) {
+			return array( null, $has_old_data );
+		}
 
 		$storage_key = $this->get_item_key( $w3tc_key );
 
@@ -156,6 +164,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function delete( $w3tc_key, $w3tc_group = '' ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		$storage_key = $this->get_item_key( $w3tc_key );
 
 		if ( $this->_use_expired_data ) {
@@ -187,6 +199,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function hard_delete( $w3tc_key, $w3tc_group = '' ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		$storage_key = $this->get_item_key( $w3tc_key );
 		return wincache_ucache_delete( $storage_key );
 	}
@@ -202,6 +218,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function flush( $w3tc_group = '' ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		$this->_get_key_version( $w3tc_group ); // initialize $this->_key_version.
 		++$this->_key_version[ $w3tc_group ];
 		$this->_set_key_version( $this->_key_version[ $w3tc_group ], $w3tc_group );
@@ -272,7 +292,10 @@ class Cache_Wincache extends Cache_Base {
 	 */
 	private function _get_key_version( $w3tc_group = '' ) {
 		if ( ! isset( $this->_key_version[ $w3tc_group ] ) || $this->_key_version[ $w3tc_group ] <= 0 ) {
-			$v                                 = wincache_ucache_get( $this->_get_key_version_key( $w3tc_group ) );
+			$v = 0;
+			if ( $this->available() ) {
+				$v = wincache_ucache_get( $this->_get_key_version_key( $w3tc_group ) );
+			}
 			$v                                 = intval( $v );
 			$this->_key_version[ $w3tc_group ] = ( $v > 0 ? $v : 1 );
 		}
@@ -292,6 +315,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return void
 	 */
 	private function _set_key_version( $v, $w3tc_group ) {
+		if ( ! $this->available() ) {
+			return;
+		}
+
 		wincache_ucache_set( $this->_get_key_version_key( $w3tc_group ), $v, 0 );
 	}
 
@@ -336,6 +363,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false if the counter could not be incremented or initialized.
 	 */
 	public function counter_add( $w3tc_key, $w3tc_value ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		if ( 0 === $w3tc_value ) {
 			return true;
 		}
@@ -360,6 +391,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function counter_set( $w3tc_key, $w3tc_value ) {
+		if ( ! $this->available() ) {
+			return false;
+		}
+
 		$storage_key = $this->get_item_key( $w3tc_key );
 		return wincache_ucache_set( $storage_key, $w3tc_value );
 	}
@@ -374,6 +409,10 @@ class Cache_Wincache extends Cache_Base {
 	 * @return int The current value of the counter.
 	 */
 	public function counter_get( $w3tc_key ) {
+		if ( ! $this->available() ) {
+			return 0;
+		}
+
 		$storage_key = $this->get_item_key( $w3tc_key );
 		$v           = (int) wincache_ucache_get( $storage_key );
 

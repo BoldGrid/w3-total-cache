@@ -183,7 +183,7 @@ add_filter(
 | `w3tc_lazyload_mutator_before` | `add_filter()` | 1 | `array( 'buffer' => $buffer, 'modified' => $this->modified, )` | [UserExperience_LazyLoad_Mutator.php:65](../UserExperience_LazyLoad_Mutator.php#L65) |
 | `w3tc_lazyload_on_initialized_javascript` | `add_filter()` | 1 | `''` | [UserExperience_LazyLoad_Plugin.php:207](../UserExperience_LazyLoad_Plugin.php#L207) |
 | `w3tc_minify_before` | `add_filter()` | 1 | `$buffer` | [Minify_Plugin.php:250](../Minify_Plugin.php#L250) |
-| `w3tc_minify_css_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:619](../lib/Minify/Minify.php#L619) |
+| `w3tc_minify_css_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:614](../lib/Minify/Minify.php#L614) |
 | `w3tc_minify_css_do_excluded_tag_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:267](../Minify_AutoCss.php#L267) |
 | `w3tc_minify_css_do_flush_collected` | `add_filter()` | 3 | `true, $last_style_tag, $this` | [Minify_AutoCss.php:316](../Minify_AutoCss.php#L316) |
 | `w3tc_minify_css_do_local_style_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoCss.php:204](../Minify_AutoCss.php#L204) |
@@ -197,7 +197,7 @@ add_filter(
 | `w3tc_minify_html_enable` | `add_filter()` | 1 | `$html_enable` | [Minify_Plugin.php:244](../Minify_Plugin.php#L244) |
 | `w3tc_minify_html_script_minifier` | `add_filter()` | 3 | `3: $minifier, $type, $openTag . $content . $closeTag`<br>`3: $minifier, $type, $script_tag` | [lib/Minify/Minify/HTML.php:337](../lib/Minify/Minify/HTML.php#L337)<br>[lib/Minify/Minify/Inline.php:52](../lib/Minify/Minify/Inline.php#L52) |
 | `w3tc_minify_http2_preload_url` | `add_filter()` | 1 | `array( 'result_link' => $uri, 'original_url' => $w3tc_url, )` | [Minify_Plugin.php:1522](../Minify_Plugin.php#L1522) |
-| `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:622](../lib/Minify/Minify.php#L622) |
+| `w3tc_minify_js_content` | `add_filter()` | 3 | `$content, null, null` | [lib/Minify/Minify.php:617](../lib/Minify/Minify.php#L617) |
 | `w3tc_minify_js_do_excluded_tag_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:284](../Minify_AutoJs.php#L284) |
 | `w3tc_minify_js_do_flush_collected` | `add_filter()` | 4 | `true, $last_script_tag, $this, $sync_type` | [Minify_AutoJs.php:367](../Minify_AutoJs.php#L367) |
 | `w3tc_minify_js_do_local_script_minification` | `add_filter()` | 1 | `$w3tc_data` | [Minify_AutoJs.php:220](../Minify_AutoJs.php#L220) |
@@ -228,10 +228,10 @@ add_filter(
 | `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1991](../PgCache_Environment.php#L1991) |
 | `w3tc_pagecache_set` | `add_filter()` | 3 | `$_data, $this->_page_key, $this->_page_group` | [PgCache_ContentGrabber.php:3121](../PgCache_ContentGrabber.php#L3121) |
 | `w3tc_pagecache_set_header` | `add_filter()` | 3 | `$h, $h, 'file_generic'` | [Cache_File_Generic.php:261](../Cache_File_Generic.php#L261) |
-| `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:899](../Util_PageUrls.php#L899) |
+| `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:901](../Util_PageUrls.php#L901) |
 | `w3tc_page_extract_group` | `add_filter()` | 3 | `$page_key_extension['group'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:424](../PgCache_ContentGrabber.php#L424) |
 | `w3tc_page_extract_key` | `add_filter()` | 8 | `$this->_page_key, $page_key_extension['useragent'], $page_key_extension['referrer'], $page_key_extension['encryption'], $page_key_extension['compression'], $page_key_extension['content_type'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:439](../PgCache_ContentGrabber.php#L439) |
-| `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1106](../Util_PageUrls.php#L1106) |
+| `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1102](../Util_PageUrls.php#L1102) |
 | `w3tc_pgcache_cookiegroups` | `add_filter()` | 1 | `$cookiegroups` | [CacheGroups_Plugin_Admin.php:269](../CacheGroups_Plugin_Admin.php#L269) |
 | `w3tc_pgcache_flush_post_queued_urls` | `add_filter()` | 1 | `$full_urls` | [PgCache_Flush.php:350](../PgCache_Flush.php#L350) |
 | `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:1944](../PgCache_Environment.php#L1944) |

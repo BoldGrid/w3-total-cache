@@ -143,9 +143,11 @@ class Util_PageUrls {
 	public static function get_post_urls( $post_id ) {
 		static $post_urls = array();
 
-		if ( ! isset( $post_urls[ $post_id ] ) ) {
+		$post_link = get_permalink( $post_id );
+		$post_key  = $post_id . '|' . $post_link;
+
+		if ( ! isset( $post_urls[ $post_key ] ) ) {
 			$full_urls = array();
-			$post_link = get_permalink( $post_id );
 			$post_uri  = str_replace( Util_Environment::home_domain_root_url(), '', $post_link );
 
 			$full_urls[]       = $post_link;
@@ -169,9 +171,9 @@ class Util_PageUrls {
 				}
 			}
 
-			$post_urls[ $post_id ] = $full_urls;
+			$post_urls[ $post_key ] = $full_urls;
 		}
-		return $post_urls[ $post_id ];
+		return $post_urls[ $post_key ];
 	}
 
 	/**
