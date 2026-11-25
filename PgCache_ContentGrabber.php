@@ -2038,7 +2038,11 @@ class PgCache_ContentGrabber {
 
 		$bc_lifetime = $this->_config->get_integer( 'browsercache.html.lifetime' );
 
-		$expires = ( is_null( $time ) ? $curr_time : $time ) + $bc_lifetime;
+		/**
+		 * The browser lifetime counts from this response. $time is still the cache creation time for Last-Modified and the 304 check.
+		 * Disk: Enhanced under Apache differs: its ExpiresByType M rule counts from file modification time (PgCache_Environment).
+		 */
+		$expires = $curr_time + $bc_lifetime;
 		$max_age = ( $expires > $curr_time ? $expires - $curr_time : 0 );
 
 		if ( $is_404 ) {
