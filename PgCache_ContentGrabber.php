@@ -592,7 +592,7 @@ class PgCache_ContentGrabber {
 								array( 'compression' => $_compression )
 							)
 						);
-						$cache->hard_delete( $_page_key );
+						$cache->hard_delete( $_page_key, $this->_page_group );
 					}
 				}
 			}
@@ -3055,7 +3055,7 @@ class PgCache_ContentGrabber {
 							)
 						)
 					);
-					$cache->hard_delete( $_page_key );
+					$cache->hard_delete( $_page_key, $this->_page_group );
 				}
 
 				return $buffer;
