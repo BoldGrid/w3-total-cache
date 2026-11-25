@@ -277,18 +277,19 @@ class Cdn_Util {
 	public static function replace_folder_placeholders( $w3tc_file ) {
 		static $content_dir, $plugin_dir, $upload_dir;
 		if ( empty( $content_dir ) ) {
-			$content_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR );
+			// document_root() is normalized (forward slashes), so the native paths must be too.
+			$content_dir = str_replace( Util_Environment::document_root(), '', Util_Environment::normalize_path( WP_CONTENT_DIR ) );
 			$content_dir = substr( $content_dir, strlen( Util_Environment::site_url_uri() ) );
 			$content_dir = trim( $content_dir, '/' );
 			if ( defined( 'WP_PLUGIN_DIR' ) ) {
-				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_PLUGIN_DIR );
+				$plugin_dir = str_replace( Util_Environment::document_root(), '', Util_Environment::normalize_path( WP_PLUGIN_DIR ) );
 				$plugin_dir = trim( $plugin_dir, '/' );
 			} else {
-				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR . '/plugins' );
+				$plugin_dir = str_replace( Util_Environment::document_root(), '', Util_Environment::normalize_path( WP_CONTENT_DIR . '/plugins' ) );
 				$plugin_dir = trim( $plugin_dir, '/' );
 			}
 			$upload_dir = Util_Environment::wp_upload_dir();
-			$upload_dir = str_replace( Util_Environment::document_root(), '', $upload_dir['basedir'] );
+			$upload_dir = str_replace( Util_Environment::document_root(), '', Util_Environment::normalize_path( $upload_dir['basedir'] ) );
 			$upload_dir = trim( $upload_dir, '/' );
 		}
 		$w3tc_file = str_replace( '{wp_content_dir}', $content_dir, $w3tc_file );
