@@ -195,6 +195,30 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A space that is already escaped is not escaped a second time.
+	 *
+	 * The settings page tells users to escape spaces with a backslash. `my\ cookie`
+	 * is a regex for a space; `my\\ cookie` would be a backslash followed by a space.
+	 * `+` becomes a space before the entry is escaped, so `my\+cookie` ends up the same.
+	 */
+	public function test_already_escaped_space_is_not_escaped_again() {
+		$config = $this->config_with_group( array( 'my\\ cookie=v', 'my\\+cookie=v' ) );
+
+		$this->assertStringContainsString( '(my\\ cookie=v|my\\ cookie=v)', $this->generate( 'rules_core_generate_apache', $config ) );
+		$this->assertStringContainsString( '(my\\\\ cookie=v|my\\\\ cookie=v)', $this->generate( 'rules_core_generate_nginx', $config ) );
+	}
+
+	/**
+	 * A literal backslash before an unescaped space keeps the backslash, and the space is escaped.
+	 */
+	public function test_space_after_escaped_backslash_is_escaped() {
+		$config = $this->config_with_group( array( 'a\\\\ b=1' ) );
+
+		$this->assertStringContainsString( '(a\\\\\\ b=1)', $this->generate( 'rules_core_generate_apache', $config ) );
+		$this->assertStringContainsString( '(a\\\\\\\\\\\\ b=1)', $this->generate( 'rules_core_generate_nginx', $config ) );
+	}
+
+	/**
 	 * An entry that does not compile as a regex is left out of the rules, not written as a broken rule.
 	 */
 	public function test_invalid_regex_entry_is_dropped() {
@@ -257,7 +281,56 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Split a RewriteCond argument string the way mod_rewrite's parseargline() does.
+	 *
+	 * This follows httpd 2.4 modules/mappers/mod_rewrite.c, read from the source. It was not run
+	 * against a real Apache. A word ends at the first whitespace, unless a backslash directly
+	 * precedes that whitespace. Backslashes are never removed, so the regex reaches PCRE as written.
+	 *
+	 * @param string $arguments Text after the `RewriteCond` directive name.
+	 *
+	 * @return string[] Up to three words: test string, pattern, flags.
+	 */
+	private function apache_rewritecond_words( string $arguments ): array {
+		$length = strlen( $arguments );
+		$pos    = 0;
+		$words  = array();
+
+		while ( count( $words ) < 3 ) {
+			while ( $pos < $length && ctype_space( $arguments[ $pos ] ) ) {
+				++$pos;
+			}
+
+			if ( $pos >= $length ) {
+				break;
+			}
+
+			$quote = ( '"' === $arguments[ $pos ] || "'" === $arguments[ $pos ] ) ? $arguments[ $pos++ ] : '';
+			$start = $pos;
+
+			for ( ; $pos < $length; ++$pos ) {
+				$char = $arguments[ $pos ];
+				if ( ( ctype_space( $char ) && '' === $quote ) || ( '' !== $quote && $char === $quote ) ) {
+					break;
+				}
+
+				if ( '\\' === $char && $pos + 1 < $length && ctype_space( $arguments[ $pos + 1 ] ) ) {
+					++$pos;
+				}
+			}
+
+			$words[] = substr( $arguments, $start, $pos - $start );
+			++$pos;
+		}
+
+		return $words;
+	}
+
+	/**
 	 * Evaluate the generated Apache cookie condition against a Cookie header.
+	 *
+	 * The condition line is tokenised like mod_rewrite does, then the pattern is run as a PCRE
+	 * pattern with the NC flag.
 	 *
 	 * @param string $rules   Generated Apache rules.
 	 * @param array  $cookies Request cookies, name => value.
@@ -267,10 +340,27 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	private function apache_matches( string $rules, array $cookies ): bool {
 		$pattern = null;
 		foreach ( explode( "\n", $rules ) as $line ) {
-			if ( preg_match( '~^\s*RewriteCond %\{HTTP_COOKIE\} (\^\(\.\*;\\\\s\*\)\?\(.*\)\(\\\\s\*;\.\*\)\?\$) \[NC\]$~', $line, $found ) ) {
-				$pattern = $found[1];
-				break;
+			$line = trim( $line );
+			if ( 0 !== strpos( $line, 'RewriteCond %{HTTP_COOKIE} ' ) ) {
+				continue;
 			}
+
+			$words = $this->apache_rewritecond_words( substr( $line, strlen( 'RewriteCond' ) ) );
+
+			// Other cookie conditions, such as the preview cookie, are not cookie groups.
+			if ( 0 !== strpos( $line, 'RewriteCond %{HTTP_COOKIE} ^(.*;' ) ) {
+				continue;
+			}
+
+			// The whole regex must stay in one word, and the flags in the next.
+			$this->assertCount( 3, $words, $line );
+			$this->assertSame( '%{HTTP_COOKIE}', $words[0], $line );
+			$this->assertSame( '[NC]', $words[2], $line );
+			$this->assertStringStartsWith( '^(.*;\s*)?(', $words[1], $line );
+			$this->assertStringEndsWith( ')(\s*;.*)?$', $words[1], $line );
+
+			$pattern = $words[1];
+			break;
 		}
 
 		// No condition is generated when every entry is invalid, so the group never matches.
@@ -354,6 +444,11 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 			array( 'my+cookie=v', 'good' ),
 			array( 'weird~cookie=1' ),
 			array( '[~]x=1' ),
+			array( 'my\\ cookie=v' ),
+			array( 'my\\+cookie=v' ),
+			array( 'a\\\\ b=1' ),
+			array( 'a\\\\\\ b=1' ),
+			array( 'my\\ cookie=v', 'good=1' ),
 		);
 	}
 
@@ -378,6 +473,12 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 			array( 'weird~cookie' => '1' ),
 			array( 'weirdXcookie' => '1' ),
 			array( '~x' => '1' ),
+			array( 'my\\ cookie' => 'v' ),
+			array( 'myXcookie' => 'v' ),
+			array( 'a b' => '1' ),
+			array( 'a\\ b' => '1' ),
+			array( 'a\\\\ b' => '1' ),
+			array( 'a\\\\\\ b' => '1' ),
 		);
 	}
 

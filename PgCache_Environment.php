@@ -311,7 +311,10 @@ class PgCache_Environment {
 	 *
 	 * PgCache_ContentGrabber matches each entry as a regex, so the rules use
 	 * the entry text as a regex too. Only spaces are escaped, so a space
-	 * cannot split a rule line. An entry that does not compile is dropped.
+	 * cannot split a rule line. A space that already follows an odd run of
+	 * backslashes (`my\ cookie`) is left as it is, because adding a second
+	 * backslash would turn it into a literal backslash plus a space. An entry
+	 * that does not compile is dropped.
 	 * The PHP matcher drops the same entries because both use
 	 * Util_Rule::cookie_group_entry().
 	 *
@@ -327,7 +330,8 @@ class PgCache_Environment {
 			return null;
 		}
 
-		return strtr( $cookie, array( ' ' => '\\ ' ) );
+		// A backslash pair is skipped, so only a space that no backslash escapes gets one.
+		return preg_replace( '/\\\\.(*SKIP)(*FAIL)| /s', '\\\\ ', $cookie );
 	}
 
 	/**
