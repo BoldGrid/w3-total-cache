@@ -307,6 +307,34 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Builds one cookie-group entry for the Apache and Nginx rules.
+	 *
+	 * PgCache_ContentGrabber matches each entry as a regex, so the rules use
+	 * the entry text as a regex too. Only spaces are escaped, so a space
+	 * cannot split a rule line. A space that already follows an odd run of
+	 * backslashes (`my\ cookie`) is left as it is, because adding a second
+	 * backslash would turn it into a literal backslash plus a space. An entry
+	 * that does not compile is dropped.
+	 * The PHP matcher drops the same entries because both use
+	 * Util_Rule::cookie_group_entry().
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $cookie Cookie entry with `+` already replaced by spaces.
+	 *
+	 * @return string|null Regex text for the rule, or null when the entry is not a valid regex.
+	 */
+	private static function cookie_group_rule_entry( $cookie ) {
+		$cookie = Util_Rule::cookie_group_entry( $cookie );
+		if ( null === $cookie ) {
+			return null;
+		}
+
+		// A backslash pair is skipped, so only a space that no backslash escapes gets one.
+		return preg_replace( '/\\\\.(*SKIP)(*FAIL)| /s', '\\\\ ', $cookie );
+	}
+
+	/**
 	 * Determines if rules are required for the configuration.
 	 *
 	 * @since 2.0.0
@@ -1451,12 +1479,10 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
-							$cookie = Util_Rule::sanitize_directive_value( $cookie );
-							$cookie = Util_Environment::preg_quote( $cookie );
-							if ( strpos( $cookie, '=' ) === false ) {
-								$cookie .= '=.*';
+							$cookie = self::cookie_group_rule_entry( $cookie );
+							if ( null !== $cookie ) {
+								$cookies[] = $cookie;
 							}
-							$cookies[] = $cookie;
 						}
 					}
 
@@ -1877,13 +1903,11 @@ class PgCache_Environment {
 						$cookie = trim( $cookie );
 						if ( ! empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
-							$cookie = Util_Rule::sanitize_directive_value( $cookie );
-							$cookie = Util_Environment::preg_quote( $cookie );
-							if ( false === strpos( $cookie, '=' ) ) {
-								$cookie .= '=.*';
+							$cookie = self::cookie_group_rule_entry( $cookie );
+							if ( null !== $cookie ) {
+								// nginx halves each backslash in a quoted string; double them so the regex reaches PCRE as PHP sees it.
+								$cookies[] = \str_replace( '\\', '\\\\', $cookie );
 							}
-
-							$cookies[] = $cookie;
 						}
 					}
 

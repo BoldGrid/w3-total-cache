@@ -1465,11 +1465,12 @@ class PgCache_ContentGrabber {
 					$cookie = trim( $cookie );
 					if ( ! empty( $cookie ) ) {
 						$cookie = str_replace( '+', ' ', $cookie );
-						if ( strpos( $cookie, '=' ) === false ) {
-							$cookie .= '=.*';
-						}
 
-						$cookies[] = $cookie;
+						// Skip an entry that is not a valid regex, exactly as the Apache and Nginx rules do.
+						$cookie = Util_Rule::cookie_group_entry( $cookie );
+						if ( null !== $cookie ) {
+							$cookies[] = $cookie;
+						}
 					}
 				}
 
