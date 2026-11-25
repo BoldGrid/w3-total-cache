@@ -11,6 +11,7 @@
 
 declare( strict_types = 1 );
 
+use W3TC\Config;
 use W3TC\UserExperience_LazyLoad_Mutator;
 use W3TC\UserExperience_LazyLoad_Mutator_Picture;
 
@@ -402,5 +403,31 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 
 				$this->assertStringContainsString( "title='note loading=\"lazy\"'", $result );
 				$this->assertStringNotContainsString( "' loading=\"lazy\"", $result );
+		}
+
+		/**
+		 * Images marked to load first (`fetchpriority="high"` or `loading="eager"`) stay on their original URL.
+		 *
+		 * The `loading="eager"` case is a control for the existing exclude; ordinary images are still lazy-loaded.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_fetchpriority_high_and_loading_eager_are_not_lazy_loaded() {
+			$config = new Config();
+			$config->set( 'lazyload.process_img', true );
+			$mutator = new UserExperience_LazyLoad_Mutator( $config, array() );
+
+			$high_tag = '<img src="https://example.com/hero.jpg" fetchpriority="high" width="100" height="50" alt="">';
+			$this->assertSame( $high_tag, $mutator->run( $high_tag ) );
+
+			$high_single_tag = "<img src=\"https://example.com/hero.jpg\" fetchpriority='high' width=\"100\" height=\"50\" alt=\"\">";
+			$this->assertSame( $high_single_tag, $mutator->run( $high_single_tag ) );
+
+			$eager = $mutator->run( '<img src="https://example.com/hero.jpg" loading="eager" width="100" height="50" alt="">' );
+			$this->assertStringContainsString( ' src="https://example.com/hero.jpg"', $eager );
+			$this->assertStringNotContainsString( 'data-src=', $eager );
+
+			$other = $mutator->run( '<img src="https://example.com/later.jpg" width="100" height="50" alt="">' );
+			$this->assertStringContainsString( 'data-src="https://example.com/later.jpg"', $other );
 		}
 }
