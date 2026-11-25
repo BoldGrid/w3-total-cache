@@ -227,7 +227,7 @@ add_filter(
 | `w3tc_pagecache_rules_nginx_rewrite_cond` | `add_filter()` | 1 | `''` | [PgCache_Environment.php:1804](../PgCache_Environment.php#L1804) |
 | `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:2007](../PgCache_Environment.php#L2007) |
 | `w3tc_pagecache_set` | `add_filter()` | 3 | `$_data, $this->_page_key, $this->_page_group` | [PgCache_ContentGrabber.php:3129](../PgCache_ContentGrabber.php#L3129) |
-| `w3tc_pagecache_set_header` | `add_filter()` | 3 | `$h, $h, 'file_generic'` | [Cache_File_Generic.php:261](../Cache_File_Generic.php#L261) |
+| `w3tc_pagecache_set_header` | `add_filter()` | 3 | `$h, $h, 'file_generic'` | [Cache_File_Generic.php:430](../Cache_File_Generic.php#L430) |
 | `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:901](../Util_PageUrls.php#L901) |
 | `w3tc_page_extract_group` | `add_filter()` | 3 | `$page_key_extension['group'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:424](../PgCache_ContentGrabber.php#L424) |
 | `w3tc_page_extract_key` | `add_filter()` | 8 | `$this->_page_key, $page_key_extension['useragent'], $page_key_extension['referrer'], $page_key_extension['encryption'], $page_key_extension['compression'], $page_key_extension['content_type'], $this->_request_url_fragments['host'] . $this->_request_uri, $page_key_extension` | [PgCache_ContentGrabber.php:439](../PgCache_ContentGrabber.php#L439) |
