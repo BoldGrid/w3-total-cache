@@ -834,7 +834,7 @@ class Cdn_Core {
 	 * @return string The corresponding relative path.
 	 */
 	public function abspath_to_relative_path( $path ) {
-		return str_replace( Util_Environment::document_root(), '', $path );
+		return str_replace( Util_Environment::document_root(), '', Util_Environment::normalize_path( $path ) );
 	}
 
 	/**
