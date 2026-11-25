@@ -54,6 +54,10 @@ class PgCache_Environment {
 		$pgcache_enabled = $w3tc_config->get_boolean( 'pgcache.enabled' );
 		$w3tc_engine     = $w3tc_config->get_string( 'pgcache.engine' );
 
+		if ( $pgcache_enabled && ( 'file' === $w3tc_engine || 'file_generic' === $w3tc_engine ) && ! wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
+			wp_schedule_event( time(), 'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
+		}
+
 		// WordPress defines WP_CACHE as false in wp_initial_constants() when the
 		// site did not. A true value was set by the site, so leave wp-config alone.
 		// A false value still has to be checked against the site's config files.
@@ -1479,8 +1483,11 @@ class PgCache_Environment {
 					}
 
 					if ( count( $cookies ) > 0 ) {
-						$cookies_regexp  = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
-						$group_name_s    = Util_Rule::sanitize_directive_value( (string) $group_name );
+						$cookies_regexp = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
+						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
+
+						// First matching group wins, matching PgCache_ContentGrabber.
+						$rules          .= "    RewriteCond %{ENV:W3TC_COOKIE} ^$\n";
 						$rules          .= "    RewriteCond %{HTTP_COOKIE} $cookies_regexp [NC]\n";
 						$rules          .= '    RewriteRule .* - [E=W3TC_COOKIE:_' . $group_name_s . "]\n";
 						$env_W3TC_COOKIE = '%{ENV:W3TC_COOKIE}';
@@ -1901,7 +1908,8 @@ class PgCache_Environment {
 					}
 
 					if ( count( $cookies ) > 0 ) {
-						$cookies_regexp = '"^(.*;)?(' . implode( '|', $cookies ) . ')(;.*)?$"';
+						// Optional whitespace around the semicolon, so both cookie forms match.
+						$cookies_regexp = '"^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$"';
 						$group_name_s   = Util_Rule::sanitize_directive_value( (string) $group_name );
 
 						if ( $set_cookie_var ) {
@@ -1909,7 +1917,15 @@ class PgCache_Environment {
 							$set_cookie_var = false;
 						}
 
+						// First matching group wins. nginx has no AND, so combine the two checks.
+						$rules .= "set \$w3tc_cookie_candidate \"\";\n";
+						$rules .= "if (\$w3tc_cookie = \"\") {\n";
+						$rules .= "    set \$w3tc_cookie_candidate 1;\n";
+						$rules .= "}\n";
 						$rules .= "if (\$http_cookie ~* $cookies_regexp) {\n";
+						$rules .= "    set \$w3tc_cookie_candidate \"\${w3tc_cookie_candidate}1\";\n";
+						$rules .= "}\n";
+						$rules .= "if (\$w3tc_cookie_candidate = \"11\") {\n";
 						$rules .= '    set $w3tc_cookie _' . $group_name_s . ";\n";
 						$rules .= "}\n";
 
