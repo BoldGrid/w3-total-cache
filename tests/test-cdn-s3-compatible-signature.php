@@ -53,6 +53,9 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Endpoints that reject SigV2.
 	 *
+	 * Only the AWS host carries its region in the name. The engine signs the other hosts with the default
+	 * us-east-1 scope, including the Backblaze B2 host, whose own region is us-west-002.
+	 *
 	 * @since X.X.X
 	 *
 	 * @return array
@@ -61,7 +64,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 		return array(
 			'cloudflare r2' => array( 'abc123.r2.cloudflarestorage.com' ),
 			'aws regional'  => array( 's3.eu-west-1.amazonaws.com' ),
-			'backblaze'     => array( 's3.us-west-002.backblazeb2.com' ),
+			'backblaze'     => array( 's3.us-west-002.backblazeb2.com' ), // Signed with us-east-1, not us-west-002.
 		);
 	}
 
@@ -188,11 +191,86 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 		$result = \S3Compatible::getSignatureV4( array(), $headers, 'HEAD', '/css/a.css', false );
 
 		$this->assertSame( 1, preg_match( '#SignedHeaders=([^,]+),#', $result['Authorization'], $match ) );
-		$this->assertSame( 'date;host;x-amz-date', $match[1] );
+		$this->assertSame( 'date;host;x-amz-content-sha256;x-amz-date', $match[1] );
 		$this->assertSame(
 			$this->reference_authorization( $result['X-AMZ-DATE'], 'us-east-1', array(), $headers, 'HEAD', '/css/a.css', false ),
 			$result['Authorization']
 		);
+	}
+
+	/**
+	 * Every x-amz-* header that is sent must be signed.
+	 *
+	 * GET, HEAD and DELETE have no body, but the client still sends x-amz-content-sha256 with the hash of
+	 * an empty payload, so SigV4 requires it in the signed headers.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider bodyless_method_provider
+	 *
+	 * @param string $method HTTP method.
+	 *
+	 * @return void
+	 */
+	public function test_v4_signs_payload_hash_header_it_sends( $method ) {
+		$this->make_engine( 'abc123.r2.cloudflarestorage.com' );
+
+		$headers = array(
+			'Host'         => 'example-bucket.abc123.r2.cloudflarestorage.com',
+			'Date'         => gmdate( 'D, d M Y H:i:s T' ),
+			'Content-MD5'  => '',
+			'Content-Type' => '',
+		);
+
+		$result = \S3Compatible::getSignatureV4( array(), $headers, $method, '/css/a.css', false );
+
+		// The sha256 of the empty string, per the AWS documentation.
+		$empty_hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+		$this->assertSame( $empty_hash, $result['x-amz-content-sha256'] );
+		$this->assertSame( 1, preg_match( '#SignedHeaders=([^,]+),#', $result['Authorization'], $match ) );
+		$this->assertContains( 'x-amz-content-sha256', explode( ';', $match[1] ) );
+		$this->assertSame(
+			$this->reference_authorization( $result['X-AMZ-DATE'], 'us-east-1', array(), $headers, $method, '/css/a.css', false ),
+			$result['Authorization']
+		);
+	}
+
+	/**
+	 * Methods without a request body.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public function bodyless_method_provider() {
+		return array(
+			'get'    => array( 'GET' ),
+			'head'   => array( 'HEAD' ),
+			'delete' => array( 'DELETE' ),
+		);
+	}
+
+	/**
+	 * Empty x-amz-* headers are not sent, so they must not be signed.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_v4_does_not_sign_empty_amz_headers() {
+		$this->make_engine( 'abc123.r2.cloudflarestorage.com' );
+
+		$headers = array(
+			'Host' => 'example-bucket.abc123.r2.cloudflarestorage.com',
+			'Date' => gmdate( 'D, d M Y H:i:s T' ),
+		);
+		$amz     = array( 'x-amz-meta-empty' => '' );
+
+		$result = \S3Compatible::getSignatureV4( $amz, $headers, 'GET', '/css/a.css', false );
+
+		$this->assertSame( 1, preg_match( '#SignedHeaders=([^,]+),#', $result['Authorization'], $match ) );
+		$this->assertSame( 'date;host;x-amz-content-sha256;x-amz-date', $match[1] );
 	}
 
 	/**
@@ -219,7 +297,11 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 		}
 		ksort( $all, SORT_STRING );
 
-		$payload_hash = isset( $all['x-amz-content-sha256'] ) ? $all['x-amz-content-sha256'] : hash( 'sha256', (string) $body );
+		// The payload hash is sent as x-amz-content-sha256, so it is a signed header as well.
+		$payload_hash                = isset( $all['x-amz-content-sha256'] ) ? $all['x-amz-content-sha256'] : hash( 'sha256', (string) $body );
+		$all['x-amz-content-sha256'] = $payload_hash;
+		ksort( $all, SORT_STRING );
+
 		$signed       = implode( ';', array_keys( $all ) );
 		$canonical    = $method . "\n" . $uri . "\n\n";
 		foreach ( $all as $name => $value ) {
