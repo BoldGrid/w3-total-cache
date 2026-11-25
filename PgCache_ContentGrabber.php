@@ -842,6 +842,13 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
+		// Don't cache 403 pages.
+		if ( function_exists( 'http_response_code' ) && 403 === http_response_code() ) {
+			$this->cache_reject_reason = 'Page is 403';
+			$this->process_status      = 'miss_third_party';
+			return false;
+		}
+
 		// Don't cache homepage.
 		if ( ! $this->_config->get_boolean( 'pgcache.cache.home' ) && function_exists( 'is_home' ) && is_home() ) {
 			$this->cache_reject_reason = is_front_page() && is_home() ? 'Page is front page' : 'Page is posts page';
