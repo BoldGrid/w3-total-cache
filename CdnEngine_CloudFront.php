@@ -251,15 +251,12 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 			return false;
 		}
 
-		/**
-		 * Search active CF distribution
-		 */
-		$dists = $this->api->listDistributions();
-
-		if ( ! isset( $dists['DistributionList']['Items'] ) ) {
-			$error = 'Unable to list distributions.';
-			return false;
-		}
+		// Search all CloudFront distributions, following pagination.
+		$dists = array(
+			'DistributionList' => array(
+				'Items' => CdnEngine_CloudFront_Distributions::list_all( $this->api ),
+			),
+		);
 
 		if ( ! count( $dists['DistributionList']['Items'] ) ) {
 			$error = 'No distributions found.';
@@ -444,7 +441,11 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 */
 	private function _get_distribution( $dists = null ) {
 		if ( is_null( $dists ) ) {
-			$dists = $this->api->listDistributions();
+			$dists = array(
+				'DistributionList' => array(
+					'Items' => CdnEngine_CloudFront_Distributions::list_all( $this->api ),
+				),
+			);
 		}
 
 		if ( ! isset( $dists['DistributionList']['Items'] ) || ! count( $dists['DistributionList']['Items'] ) ) {

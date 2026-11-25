@@ -177,7 +177,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		// Search all CloudFront distributions, following pagination.
 		$dists = array(
 			'DistributionList' => array(
-				'Items' => $this->list_all_distributions(),
+				'Items' => CdnEngine_CloudFront_Distributions::list_all( $this->api ),
 			),
 		);
 
@@ -378,7 +378,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		if ( is_null( $dists ) ) {
 			$dists = array(
 				'DistributionList' => array(
-					'Items' => $this->list_all_distributions(),
+					'Items' => CdnEngine_CloudFront_Distributions::list_all( $this->api ),
 				),
 			);
 		}
@@ -410,46 +410,5 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 				)
 			)
 		);
-	}
-
-	/**
-	 * Lists all CloudFront distributions, following pagination markers.
-	 *
-	 * CloudFront returns at most 100 distributions per request. Paging stops when the
-	 * response is not truncated, or when NextMarker is missing or unchanged.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return array List of distribution summaries.
-	 */
-	private function list_all_distributions() {
-		$all_dists = array();
-		$marker    = null;
-
-		do {
-			$params = array( 'MaxItems' => 100 );
-			if ( ! empty( $marker ) ) {
-				$params['Marker'] = $marker;
-			}
-
-			$result = $this->api->listDistributions( $params );
-
-			if ( ! empty( $result['DistributionList']['Items'] ) ) {
-				$all_dists = array_merge( $all_dists, $result['DistributionList']['Items'] );
-			}
-
-			$is_truncated = ! empty( $result['DistributionList']['IsTruncated'] );
-			$next_marker  = ( $is_truncated && ! empty( $result['DistributionList']['NextMarker'] ) ) ?
-				$result['DistributionList']['NextMarker'] : null;
-
-			// Stop if there is no next page, or the marker did not advance.
-			if ( empty( $next_marker ) || $next_marker === $marker ) {
-				break;
-			}
-
-			$marker = $next_marker;
-		} while ( true );
-
-		return $all_dists;
 	}
 }
