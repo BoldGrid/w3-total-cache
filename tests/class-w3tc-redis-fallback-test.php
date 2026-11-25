@@ -39,6 +39,8 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 		}
 
 		Cache_Redis::reset_runtime_state();
+		W3tc_Redis_Network_Client_Stub::$stores = array();
+		W3tc_Redis_Network_Client_Stub::$down   = array();
 		parent::tearDown();
 	}
 
@@ -576,6 +578,117 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 		$this->assertContains( array( 'set', $other_key, 8 ), $recovered->calls );
 		$this->assertNotContains( array( 'flushdb' ), $recovered->calls );
 		$this->assertFileDoesNotExist( $path );
+	}
+
+	/**
+	 * Workers that queue at the same time on an oversized queue lose no entry.
+	 */
+	public function test_concurrent_compaction_keeps_every_queued_group() {
+		if ( ! function_exists( 'proc_open' ) ) {
+			$this->markTestSkipped( 'proc_open is not available.' );
+		}
+
+		$this->use_temp_bypass();
+		$server  = '127.0.0.1:6409';
+		$engine  = $this->engine( array( $server ) );
+		$path    = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+		$version = new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' );
+		$version->setAccessible( true );
+		$filler  = $version->invoke( $engine, 'filler' );
+		$entries = '';
+
+		while ( strlen( $entries ) <= Cache_Redis::PENDING_MAX_BYTES ) {
+			$entries .= json_encode( array( 'op' => 'delete', 'key' => 'w3tc_a', 'vkey' => $filler ) ) . "\n";
+		}
+
+		file_put_contents( $path, $entries );
+		Cache_Redis::mark_server_bypassed( $server, 0 );
+
+		$workers = 8;
+		$start   = microtime( true ) + 1.5;
+		$procs   = array();
+		$script  = __DIR__ . '/fixtures/redis-queue-worker.php.fixture';
+
+		for ( $i = 0; $i < $workers; $i++ ) {
+			$command = implode(
+				' ',
+				array_map(
+					'escapeshellarg',
+					array( PHP_BINARY, $script, dirname( __DIR__ ), Cache_Redis::$bypass_directory, $server, 'group' . $i, (string) $start )
+				)
+			);
+			$procs[ $i ] = proc_open( $command, array( 1 => array( 'pipe', 'w' ), 2 => array( 'pipe', 'w' ) ), $pipes[ $i ] );
+		}
+
+		foreach ( $procs as $i => $proc ) {
+			$out = stream_get_contents( $pipes[ $i ][1] ) . stream_get_contents( $pipes[ $i ][2] );
+			fclose( $pipes[ $i ][1] );
+			fclose( $pipes[ $i ][2] );
+			$this->assertSame( 0, proc_close( $proc ), $out );
+			$this->assertSame( 'queued', $out );
+		}
+
+		$queued = array();
+
+		foreach ( file( $path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ) as $line ) {
+			$entry    = json_decode( $line, true );
+			$queued[] = isset( $entry['vkey'] ) ? $entry['vkey'] : $entry['key'];
+		}
+
+		$this->assertContains( $filler, $queued );
+
+		for ( $i = 0; $i < $workers; $i++ ) {
+			$this->assertContains( $version->invoke( $engine, 'group' . $i ), $queued, 'group' . $i . ' was lost' );
+		}
+	}
+
+	/**
+	 * With two servers, a compacted bump goes to the queue of the server that owns the group version key.
+	 */
+	public function test_compaction_routes_bumps_to_the_version_key_server() {
+		$this->use_temp_bypass();
+		$a       = '127.0.0.1:6410';
+		$b       = '127.0.0.1:6411';
+		$servers = array( $a, $b );
+		$engine  = $this->engine( $servers );
+		$version = new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' );
+		$version->setAccessible( true );
+
+		// The item maps to A and its group version key maps to B.
+		$i = 0;
+		while ( 0 !== crc32( $engine->get_item_key( 'k' . $i ) ) % 2 ) {
+			++$i;
+		}
+
+		$j = 0;
+		while ( 1 !== crc32( $version->invoke( $engine, 'g' . $j ) ) % 2 ) {
+			++$j;
+		}
+
+		$key   = 'k' . $i;
+		$group = 'g' . $j;
+
+		Cache_Redis::$client_factory = function () {
+			return new W3tc_Redis_Network_Client_Stub();
+		};
+		$this->assertTrue( $engine->set( $key, array( 'v' => 'v' ), 0, $group ) );
+		$this->assertSame( 'v', $this->engine( $servers )->get_with_old( $key, $group )[0]['v'] );
+
+		$entries = '';
+
+		while ( strlen( $entries ) <= Cache_Redis::PENDING_MAX_BYTES ) {
+			$entries .= json_encode( array( 'op' => 'delete', 'key' => 'w3tc_a', 'vkey' => 'w3tc_other_key_version' ) ) . "\n";
+		}
+
+		file_put_contents( Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $a . '|0' ), $entries );
+
+		W3tc_Redis_Network_Client_Stub::$down[ $a ] = true;
+		$this->assertFalse( $this->engine( $servers )->delete( $key, $group ) );
+
+		unset( W3tc_Redis_Network_Client_Stub::$down[ $a ] );
+		Cache_Redis::clear_server_bypass( $a, 0 );
+
+		$this->assertSame( array( null, false ), $this->engine( $servers )->get_with_old( $key, $group ) );
 	}
 
 	/**
@@ -1532,5 +1645,99 @@ class W3tc_Redis_Watch_Client_Stub {
 		$this->calls[] = 'unwatch';
 
 		return true;
+	}
+}
+
+/**
+ * Client double backed by one in-memory store per server, so several servers keep separate data.
+ */
+class W3tc_Redis_Network_Client_Stub {
+	/**
+	 * Stored values by server, then key.
+	 *
+	 * @var array
+	 */
+	public static $stores = array();
+
+	/**
+	 * Servers that refuse connections, as keys.
+	 *
+	 * @var array
+	 */
+	public static $down = array();
+
+	/**
+	 * Connected server.
+	 *
+	 * @var string
+	 */
+	private $server = '';
+
+	/**
+	 * @param string $host Host.
+	 * @param int    $port Port.
+	 * @return bool
+	 */
+	public function connect( $host, $port ) {
+		$this->server = $host . ':' . $port;
+
+		if ( isset( self::$down[ $this->server ] ) ) {
+			throw new Exception( 'redis down' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param string $password Password.
+	 * @return bool
+	 */
+	public function auth( $password ) {
+		return true;
+	}
+
+	/**
+	 * @param mixed $dbid Database.
+	 * @return bool
+	 */
+	public function select( $dbid ) {
+		return true;
+	}
+
+	/**
+	 * @param string $key Key.
+	 * @return mixed
+	 */
+	public function get( $key ) {
+		return isset( self::$stores[ $this->server ][ $key ] ) ? self::$stores[ $this->server ][ $key ] : false;
+	}
+
+	/**
+	 * @param string $key   Key.
+	 * @param mixed  $value Value.
+	 * @return bool
+	 */
+	public function set( $key, $value ) {
+		self::$stores[ $this->server ][ $key ] = $value;
+
+		return true;
+	}
+
+	/**
+	 * @param string $key   Key.
+	 * @param int    $ttl   TTL.
+	 * @param mixed  $value Value.
+	 * @return bool
+	 */
+	public function setex( $key, $ttl, $value ) {
+		return $this->set( $key, $value );
+	}
+
+	/**
+	 * @param string $key Key.
+	 * @return int
+	 */
+	public function ttl( $key ) {
+		return 60;
 	}
 }

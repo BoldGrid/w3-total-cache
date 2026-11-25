@@ -1398,21 +1398,11 @@ class Cache_Redis extends Cache_Base {
 		$version_key = 'flush' === $op ? (string) $storage_key : $this->_get_key_version_key( $group );
 
 		if ( is_file( $path ) && (int) @\filesize( $path ) > self::PENDING_MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			// Too many to replay one by one: recovery moves on the group version of each engine that queued.
-			$version_keys   = self::queued_version_keys( $path );
-			$version_keys[] = $version_key;
-			$lines          = '';
+			$compacted = $this->compact_pending_queue( $path, $server, $version_key );
 
-			foreach ( array_unique( $version_keys ) as $queued_key ) {
-				$lines .= \json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-					array(
-						'op'  => 'flush',
-						'key' => $queued_key,
-					)
-				) . "\n";
+			if ( null !== $compacted ) {
+				return $compacted;
 			}
-
-			return false !== @\file_put_contents( $path, $lines, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
 		if ( 'flush' === $op ) {
@@ -1436,18 +1426,109 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
+	 * Collapse an oversized queue to one group version bump per queued version key.
+	 *
+	 * The whole read and rewrite runs under one exclusive lock, which appenders
+	 * also take, so no concurrent entry is lost. Each bump goes to the queue of
+	 * the server that owns its version key, because replay runs on that
+	 * server's client.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path        Pending queue path.
+	 * @param string $server      Server URI that owns the queue.
+	 * @param string $version_key Version key of the invalidation being queued.
+	 * @return bool|null Null when the queue no longer needs compaction and the entry should be appended.
+	 */
+	private function compact_pending_queue( $path, $server, $version_key ) {
+		$handle = @\fopen( $path, 'c+' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		if ( false === $handle ) {
+			return false;
+		}
+
+		if ( ! \flock( $handle, LOCK_EX ) ) {
+			\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+			return false;
+		}
+
+		clearstatcache( true, $path );
+		$stat    = \fstat( $handle );
+		$current = @\stat( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+		// Another worker compacted it first, or a replay claimed this file and appends now start a new one.
+		if (
+			false === $stat ||
+			false === $current ||
+			$stat['ino'] !== $current['ino'] ||
+			$stat['size'] <= self::PENDING_MAX_BYTES
+		) {
+			\flock( $handle, LOCK_UN );
+			\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+			return null;
+		}
+
+		$contents       = (string) \stream_get_contents( $handle, -1, 0 );
+		$version_keys   = self::queued_version_keys( explode( "\n", $contents ) );
+		$version_keys[] = $version_key;
+		$by_server      = array();
+
+		foreach ( array_unique( $version_keys ) as $queued_key ) {
+			$owner = $this->server_for_key( $queued_key );
+			$owner = null === $owner ? $server : $owner;
+
+			if ( ! isset( $by_server[ $owner ] ) ) {
+				$by_server[ $owner ] = '';
+			}
+
+			$by_server[ $owner ] .= \json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+				array(
+					'op'  => 'flush',
+					'key' => $queued_key,
+				)
+			) . "\n";
+		}
+
+		$local = isset( $by_server[ $server ] ) ? $by_server[ $server ] : '';
+		unset( $by_server[ $server ] );
+
+		$ok = \ftruncate( $handle, 0 ) && \rewind( $handle );
+		$ok = $ok && ( '' === $local || \strlen( $local ) === \fwrite( $handle, $local ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+		$ok = \fflush( $handle ) && $ok;
+
+		\flock( $handle, LOCK_UN );
+		\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		// Appended after this lock is released, so two queues are never locked at once.
+		foreach ( $by_server as $owner => $lines ) {
+			$owner_path = self::pending_path( $owner, $this->_dbid );
+
+			if ( '' === $owner_path || false === @\file_put_contents( $owner_path, $lines, FILE_APPEND | LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+				$ok = false;
+			}
+		}
+
+		return $ok;
+	}
+
+	/**
 	 * Group version keys named by the entries of a pending queue.
 	 *
 	 * @since X.X.X
 	 *
-	 * @param string $path Pending queue path.
+	 * @param string[] $lines Queue lines.
 	 * @return string[]
 	 */
-	private static function queued_version_keys( $path ) {
-		$lines = @\file( $path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
-		$keys  = array();
+	private static function queued_version_keys( array $lines ) {
+		$keys = array();
 
-		foreach ( is_array( $lines ) ? $lines : array() as $line ) {
+		foreach ( $lines as $line ) {
+			if ( '' === trim( $line ) ) {
+				continue;
+			}
+
 			$entry = json_decode( $line, true );
 
 			if ( ! is_array( $entry ) ) {
@@ -1502,8 +1583,7 @@ class Cache_Redis extends Cache_Base {
 				return false;
 			}
 
-			$lines   = @\file( $claimed, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file, WordPress.PHP.NoSilencedErrors.Discouraged
-			$lines   = is_array( $lines ) ? $lines : array();
+			$lines   = self::read_claim_lines( $claimed );
 			$applied = 0;
 
 			try {
@@ -1543,6 +1623,36 @@ class Cache_Redis extends Cache_Base {
 			// In-process version cache may be behind Redis after replay.
 			$this->_key_version = array();
 		}
+	}
+
+	/**
+	 * Lines of a claimed queue, read after any compaction that held the file finishes.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $claimed Claim path.
+	 * @return string[]
+	 */
+	private static function read_claim_lines( $claimed ) {
+		$handle = @\fopen( $claimed, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		if ( false === $handle ) {
+			return array();
+		}
+
+		\flock( $handle, LOCK_SH );
+		$contents = (string) \stream_get_contents( $handle );
+		\flock( $handle, LOCK_UN );
+		\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		return array_values(
+			array_filter(
+				explode( "\n", $contents ),
+				function ( $line ) {
+					return '' !== trim( $line );
+				}
+			)
+		);
 	}
 
 	/**
