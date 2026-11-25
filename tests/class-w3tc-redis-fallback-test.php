@@ -721,6 +721,143 @@ class W3tc_Redis_Fallback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A long-running process checks a held server again after the hold interval and reconnects once.
+	 */
+	public function test_hold_is_rechecked_after_interval() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6412';
+		$engine = $this->engine( array( $server ) );
+		$claim  = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' ) . '.replay-999-live';
+		$built  = 0;
+
+		file_put_contents( $claim, json_encode( array( 'op' => 'delete', 'key' => 'w3tc_x' ) ) . "\n" );
+
+		Cache_Redis::$client_factory = function () use ( &$built ) {
+			++$built;
+
+			return new W3tc_Redis_Replay_Client_Stub( false );
+		};
+
+		$engine->get_with_old( 'a', 'g' );
+		unlink( $claim );
+		$engine->get_with_old( 'b', 'g' );
+		$this->assertSame( 0, $built );
+
+		$held_since = new ReflectionProperty( Cache_Redis::class, '_held_since' );
+		$held_since->setAccessible( true );
+		$held_since->setValue( $engine, array( 0 => time() - Cache_Redis::HOLD_RECHECK_SECONDS ) );
+
+		$engine->get_with_old( 'c', 'g' );
+		$this->assertTrue( $engine->set( 'd', array( 'v' => 'v' ), 0, 'g' ) );
+		$engine->get_with_old( 'e', 'g' );
+		$this->assertSame( 1, $built );
+	}
+
+	/**
+	 * A claim that cannot be deleted after a full replay is emptied: no entry applies twice and the server stays up.
+	 */
+	public function test_undeletable_applied_claim_is_emptied() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permissions do not apply to root.' );
+		}
+
+		$this->use_temp_bypass();
+		$dir    = Cache_Redis::$bypass_directory;
+		$server = '127.0.0.1:6413';
+		$key    = $this->engine( array( $server ) )->get_item_key( 'k' );
+
+		file_put_contents( $dir . '/w3tc-redis-pending-' . md5( $server . '|0' ), json_encode( array( 'op' => 'delete', 'key' => $key ) ) . "\n" );
+
+		// The directory turns read-only during the replay, after the queue was claimed.
+		$recovered                   = new W3tc_Redis_Replay_Client_Stub( false );
+		$recovered->on_write         = function () use ( $dir ) {
+			chmod( $dir, 0555 );
+		};
+		Cache_Redis::$client_factory = function () use ( $recovered ) {
+			return $recovered;
+		};
+
+		try {
+			$this->assertTrue( $this->engine( array( $server ) )->set( 'k', array( 'v' => 'v' ), 0, 'g' ) );
+		} finally {
+			chmod( $dir, 0755 );
+		}
+
+		$this->assertContains( array( 'setex', $key, 1, '' ), $recovered->calls );
+		$this->assertFalse( Cache_Redis::is_server_bypassed( $server, 0 ) );
+
+		$next                        = new W3tc_Redis_Replay_Client_Stub( false );
+		Cache_Redis::$client_factory = function () use ( $next ) {
+			return $next;
+		};
+		$this->engine( array( $server ) )->get_with_old( 'k', 'g' );
+
+		$this->assertNotContains( array( 'setex', $key, 1, '' ), $next->calls );
+	}
+
+	/**
+	 * A fresh claim of an old queue is live from the time in its name, so a second engine does not adopt it.
+	 */
+	public function test_claim_of_old_queue_is_live_by_name_time() {
+		$this->use_temp_bypass();
+		$server = '127.0.0.1:6414';
+		$engine = $this->engine( array( $server ) );
+		$key    = $engine->get_item_key( 'k' );
+		$path   = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+
+		file_put_contents( $path, json_encode( array( 'op' => 'delete', 'key' => $key ) ) . "\n" );
+		touch( $path, time() - ( Cache_Redis::REPLAY_CLAIM_MAX_AGE + 100 ) );
+
+		$claim = new ReflectionMethod( Cache_Redis::class, 'claim_pending_queue' );
+		$claim->setAccessible( true );
+		$claimed = $claim->invoke( $engine, $path );
+
+		$this->assertIsString( $claimed );
+		$this->assertLessThan( time() - Cache_Redis::REPLAY_CLAIM_MAX_AGE, filemtime( $claimed ) );
+
+		$exists = new ReflectionMethod( Cache_Redis::class, 'replay_claim_exists' );
+		$exists->setAccessible( true );
+		$this->assertTrue( $exists->invoke( null, $path ) );
+
+		$built                       = 0;
+		Cache_Redis::$client_factory = function () use ( &$built ) {
+			++$built;
+
+			return new W3tc_Redis_Replay_Client_Stub( false );
+		};
+		$this->assertSame( array( null, false ), $this->engine( array( $server ) )->get_with_old( 'k', 'g' ) );
+
+		$this->assertSame( 0, $built );
+		$this->assertFileExists( $claimed );
+	}
+
+	/**
+	 * A page-cache hard delete in a non-default group compacts into that group's version.
+	 */
+	public function test_oversized_queue_compacts_hard_delete_into_its_group() {
+		$this->use_temp_bypass();
+		$server  = '127.0.0.1:6415';
+		$engine  = $this->engine_for( $server, 1, 'pgcache' );
+		$path    = Cache_Redis::$bypass_directory . '/w3tc-redis-pending-' . md5( $server . '|0' );
+		$version = new ReflectionMethod( \W3TC\Cache_Base::class, '_get_key_version_key' );
+		$version->setAccessible( true );
+		$entries = '';
+
+		while ( strlen( $entries ) <= Cache_Redis::PENDING_MAX_BYTES ) {
+			$entries .= json_encode( array( 'op' => 'delete', 'key' => 'w3tc_a', 'vkey' => 'w3tc_other_key_version' ) ) . "\n";
+		}
+
+		file_put_contents( $path, $entries );
+		Cache_Redis::mark_server_bypassed( $server, 0 );
+
+		$this->assertFalse( $engine->hard_delete( 'page_key', 'sitemaps' ) );
+
+		$queued = file_get_contents( $path );
+		$this->assertStringContainsString( json_encode( $version->invoke( $engine, 'sitemaps' ) ), $queued );
+		$this->assertStringNotContainsString( json_encode( $version->invoke( $engine, '' ) ), $queued );
+	}
+
+	/**
 	 * A claim older than the claim age belongs to a crashed worker and is adopted.
 	 */
 	public function test_stale_replay_claim_is_adopted() {
@@ -1459,6 +1596,13 @@ class W3tc_Redis_Replay_Client_Stub {
 	public $fail_writes = false;
 
 	/**
+	 * Called before each write command.
+	 *
+	 * @var callable|null
+	 */
+	public $on_write = null;
+
+	/**
 	 * Throw on connect.
 	 *
 	 * @var bool
@@ -1571,6 +1715,10 @@ class W3tc_Redis_Replay_Client_Stub {
 	 * @return bool
 	 */
 	private function record( $name, ...$args ) {
+		if ( is_callable( $this->on_write ) && in_array( $name, array( 'setex', 'set' ), true ) ) {
+			call_user_func( $this->on_write );
+		}
+
 		if ( $this->fail_writes && in_array( $name, array( 'setex', 'set', 'flushdb' ), true ) ) {
 			throw new Exception( 'redis dropped' );
 		}

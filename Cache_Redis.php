@@ -93,6 +93,24 @@ class Cache_Redis extends Cache_Base {
 	const BYPASS_SECONDS = 30;
 
 	/**
+	 * Seconds a server stays held after a replay claim was seen, before the claim is checked again.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var int
+	 */
+	const HOLD_RECHECK_SECONDS = 2;
+
+	/**
+	 * When each held server was last found claimed, keyed by server index.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var array<int,int>
+	 */
+	private $_held_since = array();
+
+	/**
 	 * Process-local bypass expiry, keyed by server and database.
 	 *
 	 * @since X.X.X
@@ -834,8 +852,10 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Get accessor.
 	 *
-	 * A stored false means the server is held for this request only, because
-	 * another worker is replaying its queue. It is returned as null.
+	 * A stored false means the server is held because another worker is
+	 * replaying its queue. It is returned as null. The claim is checked again
+	 * after HOLD_RECHECK_SECONDS, so a long-running process such as WP-CLI or
+	 * cron does not stay off the server once the replay ends.
 	 *
 	 * @param string $w3tc_key Key.
 	 * @return object|null
@@ -851,11 +871,13 @@ class Cache_Redis extends Cache_Base {
 			$cached = $this->_accessors[ $w3tc_index ];
 
 			if ( false === $cached ) {
-				// Another worker is replaying the queue. Stay off this server for the rest of the request.
-				return null;
-			}
+				// Another worker is replaying the queue. Stay off this server until the next check.
+				$held_since = isset( $this->_held_since[ $w3tc_index ] ) ? $this->_held_since[ $w3tc_index ] : 0;
 
-			if (
+				if ( time() - $held_since < self::HOLD_RECHECK_SECONDS ) {
+					return null;
+				}
+			} elseif (
 				! \method_exists( $cached, 'is_failed' ) ||
 				! $cached->is_failed() ||
 				self::is_server_bypassed( $this->_servers[ $w3tc_index ], $this->_dbid )
@@ -912,6 +934,10 @@ class Cache_Redis extends Cache_Base {
 			}
 
 			$this->_accessors[ $w3tc_index ] = $accessor;
+
+			if ( false === $accessor ) {
+				$this->_held_since[ $w3tc_index ] = time();
+			}
 		}
 
 		return false === $this->_accessors[ $w3tc_index ] ? null : $this->_accessors[ $w3tc_index ];
@@ -947,6 +973,7 @@ class Cache_Redis extends Cache_Base {
 	 * @return string[] Module names that were reverted.
 	 */
 	public static function enforce_verified_servers( $new_config, $old_config, $probe = null ) {
+		// Out of scope: the fragment cache extension keeps its Redis settings in a nested extension config that connection_settings() does not read, so it is not probed.
 		$modules  = array( 'dbcache', 'objectcache', 'pgcache', 'minify' );
 		$reverted = array();
 
@@ -1613,11 +1640,17 @@ class Cache_Redis extends Cache_Base {
 				return false;
 			}
 
-			if ( ! @\unlink( $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-				// The replay applied, but the claim could not be removed. Empty it so it does not block reads.
+			// The replay applied. A claim that cannot be removed is emptied, so its entries never apply again.
+			if (
+				! @\unlink( $claimed ) && // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				is_file( $claimed ) &&
+				false === @\file_put_contents( $claimed, '', LOCK_EX ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			) {
+				// Neither worked. The next request adopts it; stop here so this one does not replay it again.
 				$this->abandon_claim( $path, $claimed );
+				$this->_key_version = array();
 
-				return false;
+				return true;
 			}
 
 			// In-process version cache may be behind Redis after replay.
@@ -1664,31 +1697,35 @@ class Cache_Redis extends Cache_Base {
 	 * @return string|false|null Claimed path, false when another request won the claim, null when nothing is queued.
 	 */
 	private function claim_pending_queue( $path ) {
-		$stale = self::replay_claims( $path, true );
+		$sources = self::replay_claims( $path, true );
 
-		if ( array() !== $stale ) {
-			// Oldest abandoned claim first, so earlier entries apply first.
-			usort(
-				$stale,
-				function ( $a, $b ) {
-					return self::replay_claim_last_seen( $a ) - self::replay_claim_last_seen( $b );
-				}
-			);
-			$source = $stale[0];
-		} elseif ( is_file( $path ) ) {
-			$source = $path;
-		} else {
-			return null;
+		// Oldest abandoned claim first, so earlier entries apply first.
+		usort(
+			$sources,
+			function ( $a, $b ) {
+				return self::replay_claim_last_seen( $a ) - self::replay_claim_last_seen( $b );
+			}
+		);
+
+		if ( is_file( $path ) ) {
+			$sources[] = $path;
 		}
 
-		// The claim name carries the current time, so the claim is live as soon as rename() succeeds.
-		$claimed = self::claim_path( $path );
+		foreach ( $sources as $source ) {
+			// The claim name carries the current time, so the claim is live as soon as rename() succeeds.
+			$claimed = self::claim_path( $path );
 
-		if ( ! @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-			return false;
+			if ( @\rename( $source, $claimed ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+				return $claimed;
+			}
+
+			// An emptied claim that cannot be moved holds nothing to replay. Anything else is held by another request.
+			if ( $source === $path || ! is_file( $source ) || 0 !== (int) @\filesize( $source ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				return false;
+			}
 		}
 
-		return $claimed;
+		return null;
 	}
 
 	/**
