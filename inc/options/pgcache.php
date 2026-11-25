@@ -271,7 +271,6 @@ $w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = 
 					'control'        => 'checkbox',
 					'label'          => Util_Ui::config_label( 'pgcache.mirrors.enabled' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'enabled'        => ! Util_Environment::is_wpmu_subdomain(),
 					'description'    => wp_kses(
 						sprintf(
 							// translators: 1 learn more link.
@@ -290,7 +289,6 @@ $w3tc_page_cache_learn_more_output   = static function ( $anchor, $config_key = 
 					'key'         => 'pgcache.mirrors.home_urls',
 					'control'     => 'textarea',
 					'label'       => Util_Ui::config_label( 'pgcache.mirrors.home_urls' ),
-					'enabled'     => ! Util_Environment::is_wpmu_subdomain(),
 					'description' => wp_kses(
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 HTML line break tag,
