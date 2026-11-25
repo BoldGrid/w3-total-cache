@@ -668,15 +668,27 @@ class S3Compatible
 
 		// CanonicalHeaders
 		foreach ( $headers as $k => $v ) {
+			// Empty headers are not sent, so they must not be signed.
+			if ( '' === (string) $v ) {
+				continue;
+			}
 			$amzHeaders[ strtolower( $k ) ] = trim( $v );
 		}
 		foreach ( $aHeaders as $k => $v ) {
+			// Empty headers are not sent, so they must not be signed.
+			if ( '' === (string) $v ) {
+				continue;
+			}
 			$amzHeaders[ strtolower( $k ) ] = trim( $v );
 		}
-		uksort( $amzHeaders, 'strcmp' );
 
 		// payload
-		$payloadHash = isset($amzHeaders['x-amz-content-sha256']) ? $amzHeaders['x-amz-content-sha256'] :  hash('sha256', $data);
+		$payloadHashSupplied = isset( $aHeaders['x-amz-content-sha256'] ) && '' !== (string) $aHeaders['x-amz-content-sha256'];
+		$payloadHash         = isset( $amzHeaders['x-amz-content-sha256'] ) ? $amzHeaders['x-amz-content-sha256'] : hash( 'sha256', $data );
+
+		// The header is sent on every request, so SigV4 requires it to be signed.
+		$amzHeaders['x-amz-content-sha256'] = $payloadHash;
+		uksort( $amzHeaders, 'strcmp' );
 
 		$uriQmPos = strpos($uri, '?');
 
@@ -734,7 +746,9 @@ class S3Compatible
 			'X-AMZ-DATE' => $amzDate,
 			'Authorization' => $authorizationStr
 		);
-		if (!isset($aHeaders['x-amz-content-sha256'])) $resultHeaders['x-amz-content-sha256'] = $payloadHash;
+		if ( ! $payloadHashSupplied ) {
+			$resultHeaders['x-amz-content-sha256'] = $payloadHash;
+		}
 
 		return $resultHeaders;
 	}
