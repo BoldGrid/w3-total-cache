@@ -607,8 +607,29 @@ class PgCache_Environment {
 		}
 
 		$new_config_data = $this->wp_config_remove_from_content( $config_data );
-		$updated         = preg_replace(
-			'~<\?(php)?~',
+
+		/*
+		 * strict_types must be the first statement in the file, so the directive goes after
+		 * that declaration when there is one, and otherwise straight after the opening tag.
+		 *
+		 * The groups are atomic and the loop possessive so that a comment is only ever
+		 * matched whole: backtracking into one would treat a commented-out declare as code,
+		 * and exhausts the backtrack limit on comment divider lines.
+		 */
+		$updated = preg_replace(
+			'~
+				<\?(?:php)?                                             # Opening PHP tag.
+				(?>                                                     # Optionally, through strict_types:
+					(?>
+						\s+                                             # whitespace,
+						| /\*.*?\*/                                     # block comments,
+						| //[^\r\n]*                                    # line comments,
+						| \#[^\r\n]*                                    # hash comments, and
+						| declare\s*\((?![^)]*strict_types)[^)]*\)\s*;  # other declares,
+					)*+
+					declare\s*\([^)]*strict_types[^)]*\)\s*;            # then the declaration itself.
+				)?
+			~six',
 			"\\0\r\n" . $this->wp_config_addon(),
 			$new_config_data,
 			1

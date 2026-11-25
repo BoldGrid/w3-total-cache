@@ -218,14 +218,14 @@ add_filter(
 | `w3tc_pagecache_flush_all_groups` | `add_filter()` | 1 | `$groups_to_flush` | [PgCache_Flush.php:402](../PgCache_Flush.php#L402) |
 | `w3tc_pagecache_flush_url` | `add_filter()` | 1 | `$w3tc_data` | [PgCache_Flush.php:485](../PgCache_Flush.php#L485) |
 | `w3tc_pagecache_flush_url_keys` | `add_filter()` | 1 | `$page_keys` | [PgCache_Flush.php:508](../PgCache_Flush.php#L508) |
-| `w3tc_pagecache_rules_apache_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1358](../PgCache_Environment.php#L1358) |
-| `w3tc_pagecache_rules_apache_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1385](../PgCache_Environment.php#L1385) |
-| `w3tc_pagecache_rules_apache_rewrite_cond` | `add_filter()` | 1 | `$use_cache_rules` | [PgCache_Environment.php:1589](../PgCache_Environment.php#L1589) |
-| `w3tc_pagecache_rules_apache_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1597](../PgCache_Environment.php#L1597) |
-| `w3tc_pagecache_rules_nginx_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1700](../PgCache_Environment.php#L1700) |
-| `w3tc_pagecache_rules_nginx_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1726](../PgCache_Environment.php#L1726) |
-| `w3tc_pagecache_rules_nginx_rewrite_cond` | `add_filter()` | 1 | `''` | [PgCache_Environment.php:1851](../PgCache_Environment.php#L1851) |
-| `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:2052](../PgCache_Environment.php#L2052) |
+| `w3tc_pagecache_rules_apache_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1379](../PgCache_Environment.php#L1379) |
+| `w3tc_pagecache_rules_apache_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1406](../PgCache_Environment.php#L1406) |
+| `w3tc_pagecache_rules_apache_rewrite_cond` | `add_filter()` | 1 | `$use_cache_rules` | [PgCache_Environment.php:1610](../PgCache_Environment.php#L1610) |
+| `w3tc_pagecache_rules_apache_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:1618](../PgCache_Environment.php#L1618) |
+| `w3tc_pagecache_rules_nginx_accept_qs` | `add_filter()` | 1 | `$w3tc_config->get_array( 'pgcache.accept.qs' )` | [PgCache_Environment.php:1721](../PgCache_Environment.php#L1721) |
+| `w3tc_pagecache_rules_nginx_accept_qs_rules` | `add_filter()` | 2 | `$query_rules, $query` | [PgCache_Environment.php:1747](../PgCache_Environment.php#L1747) |
+| `w3tc_pagecache_rules_nginx_rewrite_cond` | `add_filter()` | 1 | `''` | [PgCache_Environment.php:1872](../PgCache_Environment.php#L1872) |
+| `w3tc_pagecache_rules_nginx_uri_prefix` | `add_filter()` | 1 | `$uri_prefix` | [PgCache_Environment.php:2073](../PgCache_Environment.php#L2073) |
 | `w3tc_pagecache_set` | `add_filter()` | 3 | `$_data, $this->_page_key, $this->_page_group` | [PgCache_ContentGrabber.php:3501](../PgCache_ContentGrabber.php#L3501) |
 | `w3tc_pagecache_set_header` | `add_filter()` | 3 | `$h, $h, 'file_generic'` | [Cache_File_Generic.php:430](../Cache_File_Generic.php#L430) |
 | `w3tc_pageurls_wp_json_base` | `add_filter()` | 1 | `$wp_json_base` | [Util_PageUrls.php:909](../Util_PageUrls.php#L909) |
@@ -234,8 +234,8 @@ add_filter(
 | `w3tc_page_mapping` | `add_filter()` | 1 | `$map` | [Util_PageUrls.php:1116](../Util_PageUrls.php#L1116) |
 | `w3tc_pgcache_cookiegroups` | `add_filter()` | 1 | `$cookiegroups` | [CacheGroups_Plugin_Admin.php:269](../CacheGroups_Plugin_Admin.php#L269) |
 | `w3tc_pgcache_flush_post_queued_urls` | `add_filter()` | 1 | `$full_urls` | [PgCache_Flush.php:350](../PgCache_Flush.php#L350) |
-| `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:2005](../PgCache_Environment.php#L2005) |
-| `w3tc_pgcache_rules_apache_last` | `add_filter()` | 5 | `$rules, $use_cache_rules, $document_root, $uri_prefix, $env_W3TC_ENC` | [PgCache_Environment.php:1621](../PgCache_Environment.php#L1621) |
+| `w3tc_pgcache_postfix_nginx` | `add_filter()` | 1 | `$key_postfix` | [PgCache_Environment.php:2026](../PgCache_Environment.php#L2026) |
+| `w3tc_pgcache_rules_apache_last` | `add_filter()` | 5 | `$rules, $use_cache_rules, $document_root, $uri_prefix, $env_W3TC_ENC` | [PgCache_Environment.php:1642](../PgCache_Environment.php#L1642) |
 | `w3tc_pgcache_rules_required` | `add_filter()` | 2 | `2: $required, $w3tc_c`<br>`2: true, $w3tc_config` | [Extension_MaxCache_Core.php:870](../Extension_MaxCache_Core.php#L870)<br>[PgCache_Environment.php:368](../PgCache_Environment.php#L368) |
 | `w3tc_preflush_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:316](../CacheFlush_Locally.php#L316) |
 | `w3tc_preflush_cdn_all` | `add_filter()` | 2 | `true, $extras` | [CacheFlush_Locally.php:200](../CacheFlush_Locally.php#L200) |
