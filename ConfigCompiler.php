@@ -375,6 +375,23 @@ class ConfigCompiler {
 			}
 		}
 
+		// changes in 2.11.1: keep fetchpriority="high" images out of lazy load.
+		// The compiled config stores every key, so the new default never reaches saved configs on its own.
+		// The stored version moves forward on the next save, so an entry removed afterwards stays removed.
+		if ( version_compare( $file_data['version'], '2.11.1', '<' ) && isset( $file_data['lazyload.exclude'] ) ) {
+			if ( is_string( $file_data['lazyload.exclude'] ) ) {
+				$file_data['lazyload.exclude'] = preg_split( '/\r\n|\r|\n/', $file_data['lazyload.exclude'], -1, PREG_SPLIT_NO_EMPTY );
+			} elseif ( ! is_array( $file_data['lazyload.exclude'] ) ) {
+				$file_data['lazyload.exclude'] = array();
+			}
+
+			foreach ( array( 'fetchpriority="high"', "fetchpriority='high'" ) as $w3tc_exclude ) {
+				if ( ! in_array( $w3tc_exclude, $file_data['lazyload.exclude'], true ) ) {
+					$file_data['lazyload.exclude'][] = $w3tc_exclude;
+				}
+			}
+		}
+
 		// changes in 0.9.7.
 		if (
 			isset( $file_data['cdnfsd.enabled'] ) &&

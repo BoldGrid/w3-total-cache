@@ -16,6 +16,15 @@ namespace W3TC;
  */
 class ObjectCache_WpObjectCache_Regular {
 	/**
+	 * Groups WordPress registers as non-persistent at startup; matches the default setting.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string[]
+	 */
+	const DEFAULT_NONPERSISTENT_GROUPS = array( 'counts', 'plugins' );
+
+	/**
 	 * Internal cache array
 	 *
 	 * @var array
@@ -35,6 +44,15 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @var array
 	 */
 	private $nonpersistent_groups = array();
+
+	/**
+	 * Default non-persistent groups that the admin removed from the saved list.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var array
+	 */
+	private $removed_nonpersistent_groups = array();
 
 	/**
 	 * Total count of calls
@@ -167,6 +185,11 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->global_groups        = $this->_config->get_array( 'objectcache.groups.global' );
 		$this->nonpersistent_groups = $this->_config->get_array( 'objectcache.groups.nonpersistent' );
 		$this->stats_enabled        = $this->_config->get_boolean( 'stats.enabled' );
+
+		$this->removed_nonpersistent_groups = \array_diff(
+			self::DEFAULT_NONPERSISTENT_GROUPS,
+			$this->nonpersistent_groups
+		);
 
 		$this->_blog_id = Util_Environment::blog_id();
 	}
@@ -913,6 +936,9 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( ! is_array( $groups ) ) {
 			$groups = (array) $groups;
 		}
+
+		// Keep default groups persistent when the admin removed them from the saved list.
+		$groups = \array_diff( $groups, $this->removed_nonpersistent_groups );
 
 		$this->nonpersistent_groups = array_merge( $this->nonpersistent_groups, $groups );
 		$this->nonpersistent_groups = array_unique( $this->nonpersistent_groups );
