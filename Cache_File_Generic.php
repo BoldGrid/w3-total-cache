@@ -170,6 +170,167 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Keeps a stored page when the new content is identical, instead of replacing it.
+	 *
+	 * Apache builds ETag and Last-Modified from the file mtime (`FileETag MTime Size`), so a
+	 * rewrite of unchanged HTML makes browsers download it again. The same mtime is the
+	 * freshness clock for Cache_File_Cleaner_Generic, and the one the Always Cached
+	 * ahead-generation clean compares with `before_time`. An old file is only kept while
+	 * enough of the lifetime is left, so a regenerated page is not expired right after it
+	 * was written; otherwise the file is rewritten with a new mtime.
+	 *
+	 * Pages are compared without the trailing W3TC footer comment, see {@see self::strip_footer()},
+	 * since its "Served from" time differs on every render. When only the footer differs the stored
+	 * file, with its old footer, stays.
+	 *
+	 * The current file is checked first, then `$path . '_old'`, which a purge, flush or garbage
+	 * collection pass leaves behind. A matching `_old` file is moved back with its mtime.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path    Absolute cache file path.
+	 * @param string $content New content, not empty.
+	 * @param int    $expire  Lifetime in seconds, 0 for the configured one.
+	 * @param array  $data    Cache entry. An optional `before_time` is the oldest mtime the ahead-generation clean keeps. An optional `c` is the compression of `content`.
+	 *
+	 * @return bool True when a file with this content is in place at $path.
+	 */
+	private function keep_identical_file( $path, $content, $expire, $data ) {
+		$lifetime = $expire > 0 ? min( $expire, W3TC_CACHE_FILE_EXPIRE_MAX ) : $this->_expire;
+		$min_time = time() - intdiv( $lifetime, 2 );
+
+		if ( ! empty( $data['before_time'] ) ) {
+			$min_time = max( $min_time, (int) $data['before_time'] );
+		}
+
+		$compression = isset( $data['c'] ) ? (string) $data['c'] : '';
+		$decoded     = $this->decode_content( $content, $compression );
+		$body        = false === $decoded ? null : $this->strip_footer( $decoded );
+
+		if ( $this->file_matches( $path, $content, $min_time, $compression, $body ) ) {
+			return true;
+		}
+
+		$path_old = $path . '_old';
+		if ( ! $this->file_matches( $path_old, $content, $min_time, $compression, $body ) ) {
+			return false;
+		}
+
+		@unlink( $path );
+
+		return @rename( $path_old, $path );
+	}
+
+	/**
+	 * Checks whether a file holds this content, ignoring the footer comment, and is recent enough.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string      $file        File path.
+	 * @param string      $content     New content, as stored.
+	 * @param int         $min_time    Oldest accepted mtime.
+	 * @param string      $compression Compression of the content: gzip, deflate, br or empty.
+	 * @param string|null $body        New content without its footer, null when it has no footer.
+	 *
+	 * @return bool
+	 */
+	private function file_matches( $file, $content, $min_time, $compression, $body ) {
+		if ( ! is_file( $file ) ) {
+			return false;
+		}
+
+		$mtime = @filemtime( $file );
+		if ( ! $mtime || $mtime < $min_time ) {
+			return false;
+		}
+
+		// Without a footer on the new page only identical bytes count.
+		if ( null === $body ) {
+			return @filesize( $file ) === strlen( $content ) && @file_get_contents( $file ) === $content;
+		}
+
+		$stored = @file_get_contents( $file );
+		if ( ! is_string( $stored ) ) {
+			return false;
+		}
+
+		if ( $stored === $content ) {
+			return true;
+		}
+
+		$stored = $this->decode_content( $stored, $compression );
+		if ( false === $stored ) {
+			return false;
+		}
+
+		return $this->strip_footer( $stored ) === $body;
+	}
+
+	/**
+	 * Returns the uncompressed form of stored page content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $content     Content as stored.
+	 * @param string $compression Compression: gzip, deflate, br or empty.
+	 *
+	 * @return string|false The HTML, or false when the content cannot be decoded here.
+	 */
+	private function decode_content( $content, $compression ) {
+		switch ( $compression ) {
+			case '':
+				return $content;
+
+			case 'gzip':
+				return function_exists( 'gzdecode' ) ? @gzdecode( $content ) : false;
+
+			case 'deflate':
+				return function_exists( 'gzinflate' ) ? @gzinflate( $content ) : false;
+
+			case 'br':
+				return function_exists( 'brotli_uncompress' ) ? @brotli_uncompress( $content ) : false;
+
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Removes the W3TC footer comment that ends a page.
+	 *
+	 * Generic_Plugin::ob_callback() appends one comment, `\r\n<!--\r\n...\r\n\r\nServed from: host @ date by W3 Total Cache\r\n-->`,
+	 * before the page cache stores the page. Other `w3tc_footer_comment` lines (page cache engine, debug info,
+	 * minify, CDN, object cache) are inside the same comment, so the whole block goes. Only a last comment that
+	 * holds the "Served from" line is removed, and only when nothing but whitespace follows it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $html Uncompressed page.
+	 *
+	 * @return string|null The page without the footer, null when it does not end with the footer.
+	 */
+	private function strip_footer( $html ) {
+		$trimmed = rtrim( $html );
+		if ( '-->' !== substr( $trimmed, -3 ) ) {
+			return null;
+		}
+
+		$start = strrpos( $trimmed, '<!--' );
+		if ( false === $start ) {
+			return null;
+		}
+
+		$comment = substr( $trimmed, $start );
+		if ( strpos( $comment, '-->' ) !== strlen( $comment ) - 3
+			|| ! preg_match( '/Served from: [^\r\n]* @ [^\r\n]* by W3 Total Cache\s*-->$/', $comment )
+		) {
+			return null;
+		}
+
+		return substr( $trimmed, 0, $start );
+	}
+
+	/**
 	 * Sets data
 	 *
 	 * @param string $w3tc_key    Key.
@@ -200,42 +361,50 @@ class Cache_File_Generic extends Cache_File {
 			}
 		}
 
-		$tmppath = $path . '.' . getmypid();
+		$content = (string) $w3tc_value['content'];
 
-		$fp = @fopen( $tmppath, 'wb' );
-		if ( ! $fp ) {
-			return false;
+		// Identical bytes keep the stored file, so its mtime (the ETag and Last-Modified Apache sends) stays the same.
+		if ( '' !== $content && $this->keep_identical_file( $path, $content, (int) $expire, $w3tc_value ) ) {
+			// some hostings create files with restrictive permissions not allowing apache to read it later.
+			@chmod( $path, 0644 );
+		} else {
+			$tmppath = $path . '.' . getmypid();
+
+			$fp = @fopen( $tmppath, 'wb' );
+			if ( ! $fp ) {
+				return false;
+			}
+
+			if ( $this->_locking ) {
+				@flock( $fp, LOCK_EX );
+			}
+
+			@fputs( $fp, $content );
+
+			if ( $this->_locking ) {
+				@\fflush( $fp );
+				@flock( $fp, LOCK_UN );
+			}
+
+			@fclose( $fp );
+
+			$chmod = 0644;
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
+				$chmod = FS_CHMOD_FILE;
+			}
+
+			@chmod( $tmppath, $chmod );
+
+			// some hostings create files with restrictive permissions not allowing apache to read it later.
+			@chmod( $path, 0644 );
+
+			if ( @filesize( $tmppath ) > 0 ) {
+				@unlink( $path );
+				@rename( $tmppath, $path );
+			}
+
+			@unlink( $tmppath );
 		}
-
-		if ( $this->_locking ) {
-			@flock( $fp, LOCK_EX );
-		}
-
-		@fputs( $fp, $w3tc_value['content'] );
-
-		if ( $this->_locking ) {
-			@\fflush( $fp );
-			@flock( $fp, LOCK_UN );
-		}
-
-		@fclose( $fp );
-
-		$chmod = 0644;
-		if ( defined( 'FS_CHMOD_FILE' ) ) {
-			$chmod = FS_CHMOD_FILE;
-		}
-
-		@chmod( $tmppath, $chmod );
-
-		// some hostings create files with restrictive permissions not allowing apache to read it later.
-		@chmod( $path, 0644 );
-
-		if ( @filesize( $tmppath ) > 0 ) {
-			@unlink( $path );
-			@rename( $tmppath, $path );
-		}
-
-		@unlink( $tmppath );
 
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
