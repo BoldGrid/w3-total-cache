@@ -142,8 +142,9 @@ class Util_Rule {
 	 *
 	 * Shared by the Apache and Nginx rule builders (PgCache_Environment) and the PHP
 	 * matcher (PgCache_ContentGrabber::_fill_key_extension_cookie()), so every consumer
-	 * keeps or drops the same entries. An entry without `=` matches any value. An entry
-	 * that does not compile is skipped, so one bad entry cannot disable its whole group.
+	 * keeps or drops the same entries. An entry without `=` matches any value. An unescaped
+	 * `~`, the delimiter of the PHP matcher, is escaped so it matches a literal `~` everywhere.
+	 * An entry that does not compile is skipped, so one bad entry cannot disable its whole group.
 	 *
 	 * The matcher runs from advanced-cache.php, so this stays free of admin-only code.
 	 *
@@ -162,6 +163,9 @@ class Util_Rule {
 		if ( false === \strpos( $cookie, '=' ) ) {
 			$cookie .= '=.*';
 		}
+
+		// A backslash pair is skipped so an already escaped `~` stays as it is.
+		$cookie = \preg_replace( '/\\\\.(*SKIP)(*FAIL)|~/s', '\\\\~', $cookie );
 
 		// An invalid entry makes preg_match() return false with a warning; the false result is the signal, so only the warning is silenced.
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

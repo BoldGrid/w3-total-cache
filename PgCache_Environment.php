@@ -1901,8 +1901,8 @@ class PgCache_Environment {
 							$cookie = str_replace( '+', ' ', $cookie );
 							$cookie = self::cookie_group_rule_entry( $cookie );
 							if ( null !== $cookie ) {
-								// nginx expands `$name` inside double quotes; keep a regex `$` as text.
-								$cookies[] = preg_replace( '/\$(?=[A-Za-z_{])/', '\\\\$', $cookie );
+								// nginx halves each backslash in a quoted string; double them so the regex reaches PCRE as PHP sees it.
+								$cookies[] = \str_replace( '\\', '\\\\', $cookie );
 							}
 						}
 					}

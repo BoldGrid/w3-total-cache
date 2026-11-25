@@ -128,13 +128,24 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A regex `$` followed by a name is not expanded as an nginx variable.
+	 * A regex `$` is left as regex text in the Nginx rule; nginx does not expand variables in an `if` regex.
 	 */
-	public function test_nginx_dollar_before_name_is_not_expanded() {
+	public function test_nginx_dollar_before_name_is_left_unchanged() {
 		$config = $this->config_with_group( array( 'x$name=1' ) );
 		$rules  = $this->generate( 'rules_core_generate_nginx', $config );
 
-		$this->assertStringContainsString( 'x\$name=1', $rules );
+		$this->assertStringContainsString( '(x$name=1)', $rules );
+		$this->assertStringNotContainsString( 'x\$name', $rules );
+	}
+
+	/**
+	 * Nginx halves each backslash in a quoted string, so the rule text carries them doubled.
+	 */
+	public function test_nginx_backslashes_are_doubled() {
+		$config = $this->config_with_group( array( 'a\\\\b=1', 'x=a\\\\' ) );
+		$rules  = $this->generate( 'rules_core_generate_nginx', $config );
+
+		$this->assertStringContainsString( '(a\\\\\\\\b=1|x=a\\\\\\\\)', $rules );
 	}
 
 	/**
@@ -188,10 +199,13 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	 */
 	public function test_invalid_regex_entry_is_dropped() {
 		$config = $this->config_with_group( array( 'bad[', 'good=1' ) );
-		$rules  = $this->generate( 'rules_core_generate_apache', $config );
 
-		$this->assertStringNotContainsString( 'bad[', $rules );
-		$this->assertStringContainsString( '(good=1)', $rules );
+		foreach ( array( 'rules_core_generate_apache', 'rules_core_generate_nginx' ) as $method ) {
+			$rules = $this->generate( $method, $config );
+
+			$this->assertStringNotContainsString( 'bad[', $rules, $method );
+			$this->assertStringContainsString( '(good=1)', $rules, $method );
+		}
 	}
 
 	/**
@@ -316,6 +330,10 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	public function test_cookie_group_entry_helper() {
 		$this->assertSame( 'good=1', Util_Rule::cookie_group_entry( 'good=1' ) );
 		$this->assertSame( 'wordpress_logged_in_.*=.*', Util_Rule::cookie_group_entry( 'wordpress_logged_in_.*' ) );
+		$this->assertSame( 'weird\\~cookie=1', Util_Rule::cookie_group_entry( 'weird~cookie=1' ) );
+		$this->assertSame( 'weird\\~cookie=1', Util_Rule::cookie_group_entry( 'weird\\~cookie=1' ) );
+		$this->assertSame( 'a\\\\\\~b=1', Util_Rule::cookie_group_entry( 'a\\\\~b=1' ) );
+		$this->assertSame( '[\\~]=1', Util_Rule::cookie_group_entry( '[~]=1' ) );
 		$this->assertNull( Util_Rule::cookie_group_entry( 'bad[' ) );
 		$this->assertNull( Util_Rule::cookie_group_entry( 'bad[=1' ) );
 		$this->assertNull( Util_Rule::cookie_group_entry( '"' ) );
@@ -323,17 +341,29 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Apache rule and the PHP matcher pick the group for the same cookie sets.
+	 * Entry sets both rule formats must handle exactly as the PHP matcher does.
+	 *
+	 * @return array
 	 */
-	public function test_apache_rules_and_php_matcher_agree() {
-		$entry_sets = array(
+	private function agreement_entry_sets() {
+		return array(
 			array( 'bad[', 'good=1' ),
 			array( 'bad[' ),
 			array( 'cookie_.*_prefs=a.*', 'role=member' ),
 			array( 'wordpress_logged_in_.*', 'x(=1' ),
 			array( 'my+cookie=v', 'good' ),
+			array( 'weird~cookie=1' ),
+			array( '[~]x=1' ),
 		);
-		$cookie_sets = array(
+	}
+
+	/**
+	 * Request cookie sets for the agreement tests.
+	 *
+	 * @return array
+	 */
+	private function agreement_cookie_sets() {
+		return array(
 			array( 'good' => '1' ),
 			array( 'good' => '2' ),
 			array( 'bad[' => '1' ),
@@ -345,18 +375,78 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 			array( 'my cookie' => 'v' ),
 			array( 'good' => '', 'unrelated' => '1' ),
 			array( 'unrelated' => '1' ),
+			array( 'weird~cookie' => '1' ),
+			array( 'weirdXcookie' => '1' ),
+			array( '~x' => '1' ),
 		);
+	}
 
-		foreach ( $entry_sets as $entries ) {
+	/**
+	 * The Apache rule and the PHP matcher pick the group for the same cookie sets.
+	 */
+	public function test_apache_rules_and_php_matcher_agree() {
+		foreach ( $this->agreement_entry_sets() as $entries ) {
 			$config = $this->config_with_group( $entries );
 			$rules  = $this->generate( 'rules_core_generate_apache', $config );
 
-			foreach ( $cookie_sets as $cookies ) {
+			foreach ( $this->agreement_cookie_sets() as $cookies ) {
 				$php = isset( $this->php_match( $config, $cookies )['cookie'] );
 
 				$this->assertSame(
 					$php,
 					$this->apache_matches( $rules, $cookies ),
+					'Entries ' . wp_json_encode( $entries ) . ' with cookies ' . wp_json_encode( $cookies )
+				);
+			}
+		}
+	}
+
+	/**
+	 * The Nginx rule, read the way nginx reads it, and the PHP matcher pick the group for the same cookie sets.
+	 */
+	public function test_nginx_rules_and_php_matcher_agree() {
+		$entry_sets = array_merge(
+			$this->agreement_entry_sets(),
+			array(
+				array( 'a\\\\b=1' ),
+				array( 'x=a\\\\' ),
+				array( 'x$name=1' ),
+				array( 'x=a\\\\', 'good=1' ),
+			)
+		);
+
+		$cookie_sets = array_merge(
+			$this->agreement_cookie_sets(),
+			array(
+				array( 'a\\b' => '1' ),
+				array( 'ab' => '1' ),
+				array( 'x' => 'a\\' ),
+				array( 'x' => 'a' ),
+				array( 'x$name' => '1' ),
+				array( 'x' => '1' ),
+			)
+		);
+
+		foreach ( $entry_sets as $entries ) {
+			$config = $this->config_with_group( $entries );
+			$rules  = $this->generate( 'rules_core_generate_nginx', $config );
+
+			foreach ( $cookie_sets as $cookies ) {
+				$php    = isset( $this->php_match( $config, $cookies )['cookie'] );
+				$header = implode(
+					'; ',
+					array_map(
+						function ( $name, $value ) {
+							return $name . '=' . $value;
+						},
+						array_keys( $cookies ),
+						$cookies
+					)
+				);
+
+				$this->assertSame(
+					$php,
+					'' !== $this->nginx_group( $rules, $header ),
 					'Entries ' . wp_json_encode( $entries ) . ' with cookies ' . wp_json_encode( $cookies )
 				);
 			}
@@ -456,6 +546,29 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Read the inside of a double-quoted nginx argument the way nginx does.
+	 *
+	 * @param string $text Text between the double quotes.
+	 *
+	 * @return string Argument value.
+	 */
+	private function nginx_unquote( $text ) {
+		$map = array(
+			't' => "\t",
+			'r' => "\r",
+			'n' => "\n",
+		);
+
+		return preg_replace_callback(
+			'/\\\\([\\\\"\'trn])/',
+			function ( $found ) use ( $map ) {
+				return $map[ $found[1] ] ?? $found[1];
+			},
+			$text
+		);
+	}
+
+	/**
 	 * Apply the generated nginx cookie-group conditions in order.
 	 *
 	 * @param string $rules  Generated nginx core rules.
@@ -476,7 +589,7 @@ class W3tc_Cookie_Group_Rules_Test extends WP_UnitTestCase {
 
 		$selected = '';
 		foreach ( $matches as $match ) {
-			$pattern = trim( $match[1], '"' );
+			$pattern = $this->nginx_unquote( trim( $match[1], '"' ) );
 			if ( '' === $selected && preg_match( '~' . $pattern . '~i', $header ) ) {
 				$selected = $match[2];
 			}
