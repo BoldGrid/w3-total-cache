@@ -248,10 +248,7 @@ class Minify {
 			// client's cache is valid
 			if (! self::$_options['quiet']) {
 				self::$lastServed = array(
-					'fullCacheId' =>self::_getCacheId() .
-					(self::$_options['encodeMethod']
-						? '.' . self::$_options['encodeMethod']
-						: '')
+					'fullCacheId' => self::_encodedCacheId(self::_getCacheId())
 				);
 				$cg->sendHeaders();
 				return;
@@ -292,9 +289,7 @@ class Minify {
 			// output the content, as they do not require ever loading the file into
 			// memory.
 			$cacheId = self::_getCacheId();
-			$fullCacheId = (self::$_options['encodeMethod'])
-				? $cacheId . '.' . self::$_options['encodeMethod']
-				: $cacheId;
+			$fullCacheId = self::_encodedCacheId($cacheId);
 			// check cache for valid entry
 			$cacheIsReady = self::$_cache->isValid($fullCacheId, self::$_options['lastModifiedTime']);
 			if ($cacheIsReady) {
@@ -315,7 +310,7 @@ class Minify {
 					$compressed = $content;
 					$compressed['content'] = brotli_compress($content['content']);
 
-					self::$_cache->store($cacheId . '_' . self::$_options['encodeMethod'],
+					self::$_cache->store(self::_encodedCacheId($cacheId),
 						$compressed);
 				}
 				if (function_exists('gzencode') && self::$_options['encodeMethod'] && self::$_options['encodeMethod'] !== 'br' && self::$_options['encodeOutput']) {
@@ -323,7 +318,7 @@ class Minify {
 					$compressed['content'] = gzencode($content['content'],
 						self::$_options['encodeLevel']);
 
-					self::$_cache->store($cacheId . '_' . self::$_options['encodeMethod'],
+					self::$_cache->store(self::_encodedCacheId($cacheId),
 						$compressed);
 				}
 			}
@@ -642,6 +637,22 @@ class Minify {
 	public static function setCacheId($cacheId = null)
 	{
 		self::$_cacheId = $cacheId;
+	}
+
+	/**
+	 * Cache id for the entry that will actually be stored.
+	 *
+	 * Encoded output is stored as "{id}_{encoding}". Lookups have to use that
+	 * same id or every gzip and brotli request is rebuilt.
+	 *
+	 * @param string $cacheId Base cache id.
+	 * @return string
+	 */
+	private static function _encodedCacheId($cacheId)
+	{
+		return self::$_options['encodeMethod']
+			? $cacheId . '_' . self::$_options['encodeMethod']
+			: $cacheId;
 	}
 
 	/**
