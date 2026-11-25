@@ -146,6 +146,33 @@ class Root_Environment {
 			}
 		}
 
+		/**
+		 * Filters the rewrite rule descriptors W3TC requires.
+		 *
+		 * This filter runs in two contexts, told apart by the optional third argument:
+		 *
+		 * - No third argument (this method, Install page and aggregate checks): `$required_rules` holds the
+		 *   descriptors from all environment handlers. Every descriptor is an array with `filename`, `content`
+		 *   and an optional integer `position` (descriptors for the same file and position are concatenated).
+		 * - `'minify_cache'` (Minify_Environment, when the Minify cache rules are written to disk):
+		 *   `$required_rules` holds only one descriptor, for the Minify cache rules file, with
+		 *   `'section' => 'minify_cache'`. Callbacks that inspect or count the list, or look for page cache or
+		 *   browser cache entries, should check `$context` first. Descriptors for other files are ignored.
+		 *   Appended descriptors for that file are merged inside the `# BEGIN/END W3TC Minify cache` markers;
+		 *   on nginx, where that file is the shared `nginx.conf`, they must also carry
+		 *   `'section' => 'minify_cache'`. A non-array result, or one that drops the Minify cache descriptor,
+		 *   falls back to the unfiltered rules.
+		 *
+		 * Multisite: the rules file is shared across the network, but the filter runs in the site whose admin
+		 * request triggered the check. Conditional filters (per site, per user) can make the shared file
+		 * change between saves.
+		 *
+		 * @since X.X.X Added the `$context` argument and the `minify_cache` context.
+		 *
+		 * @param array  $required_rules Descriptors, each `array( 'filename' => string, 'content' => string, 'position' => int|null )`.
+		 * @param Config $w3tc_config    W3TC Config containing relevant settings.
+		 * @param string $context        Optional. `'minify_cache'` when writing the Minify cache rules; not passed otherwise.
+		 */
 		$required_rules = apply_filters( 'w3tc_environment_get_required_rules', $required_rules, $w3tc_config );
 
 		$rewrite_rules_descriptors = array();

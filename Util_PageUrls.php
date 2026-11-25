@@ -143,9 +143,11 @@ class Util_PageUrls {
 	public static function get_post_urls( $post_id ) {
 		static $post_urls = array();
 
-		if ( ! isset( $post_urls[ $post_id ] ) ) {
+		$post_link = get_permalink( $post_id );
+		$post_key  = $post_id . '|' . $post_link;
+
+		if ( ! isset( $post_urls[ $post_key ] ) ) {
 			$full_urls = array();
-			$post_link = get_permalink( $post_id );
 			$post_uri  = str_replace( Util_Environment::home_domain_root_url(), '', $post_link );
 
 			$full_urls[]       = $post_link;
@@ -169,9 +171,9 @@ class Util_PageUrls {
 				}
 			}
 
-			$post_urls[ $post_id ] = $full_urls;
+			$post_urls[ $post_key ] = $full_urls;
 		}
-		return $post_urls[ $post_id ];
+		return $post_urls[ $post_key ];
 	}
 
 	/**
@@ -901,16 +903,22 @@ class Util_PageUrls {
 	}
 
 	/**
-	 * Complement with mirron URLs
+	 * Complement with mirror URLs
 	 *
 	 * @param array $queued_urls Queued URLs.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public static function complement_with_mirror_urls( $queued_urls ) {
 		$w3tc_config = Dispatcher::config();
 
-		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) || Util_Environment::is_wpmu_subdomain() ) {
+		/*
+		 * Intended on networks: the alias list is not tied to a subsite. With a shared network
+		 * config (common.force_master, the default), every subsite's purge expands onto every
+		 * listed alias, so one subsite's flush can over-purge another subsite's alias cache. This
+		 * matches subdirectory networks and never leaves stale content.
+		 */
+		if ( ! $w3tc_config->get_boolean( 'pgcache.mirrors.enabled' ) ) {
 			return $queued_urls;
 		}
 

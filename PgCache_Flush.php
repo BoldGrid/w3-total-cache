@@ -169,7 +169,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		}
 
 		// prevent multiple calculation of post urls.
-		$queued_post_id_key = Util_Environment::blog_id() . '.' . $post_id;
+		$queued_post_id_key = Util_Environment::blog_id() . '.' . $post_id . '.' . get_permalink( $post_id );
 		if ( isset( $this->queued_post_ids[ $queued_post_id_key ] ) ) {
 			return true;
 		}
