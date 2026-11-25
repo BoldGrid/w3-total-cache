@@ -161,7 +161,7 @@ add_filter(
 | `w3tc_deferscripts_mutator_before` | `add_filter()` | 1 | `array( 'buffer' => $buffer, 'modified' => $this->modified, )` | [UserExperience_DeferScripts_Mutator.php:64](../UserExperience_DeferScripts_Mutator.php#L64) |
 | `w3tc_dynamic_callbacks` | `add_filter()` | 1 | `array()` | [PgCache_ContentGrabber.php:2411](../PgCache_ContentGrabber.php#L2411) |
 | `w3tc_environment_get_other_instructions` | `add_filter()` | 1 | `$other_areas` | [Generic_Page_Install.php:34](../Generic_Page_Install.php#L34) |
-| `w3tc_environment_get_required_rules` | `add_filter()` | 2 | `$required_rules, $w3tc_config` | [Root_Environment.php:149](../Root_Environment.php#L149) |
+| `w3tc_environment_get_required_rules` | `add_filter()` | 2, 3 | `2: $required_rules, $w3tc_config`<br>`3: $required_rules, $w3tc_config, 'minify_cache'` | [Minify_Environment.php:645](../Minify_Environment.php#L645)<br>[Root_Environment.php:176](../Root_Environment.php#L176) |
 | `w3tc_errors` | `add_filter()` | 1 | `$errors` | [Generic_Plugin_Admin.php:1588](../Generic_Plugin_Admin.php#L1588) |
 | `w3tc_extensions` | `add_filter()` | 2 | `array(), $w3tc_config` | [Extensions_Util.php:23](../Extensions_Util.php#L23) |
 | `w3tc_extensions_hooks` | `add_filter()` | 1 | `$w3tc_hooks` | [Extensions_Plugin_Admin.php:166](../Extensions_Plugin_Admin.php#L166) |
