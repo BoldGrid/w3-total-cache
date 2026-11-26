@@ -527,15 +527,21 @@ class Extension_ImageService_Api {
 	 * @return array|\WP_Error
 	 */
 	private function remote_request( $url, array $args ) {
+		$is_pro   = Util_Environment::is_w3tc_pro( Dispatcher::config() );
+		$prior    = $is_pro ? Licensing_Core::current_jwt() : '';
 		$response = wp_remote_request( $url, $this->with_bearer( $args ) );
 		if ( is_wp_error( $response ) || 401 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return $response;
 		}
-		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+		if ( ! $is_pro ) {
 			return $response;
 		}
 
 		Licensing_Core::reissue_for_unauthorized();
+		if ( Licensing_Core::current_jwt() === $prior ) {
+			return $response;
+		}
+
 		return wp_remote_request( $url, $this->with_bearer( $args ) );
 	}
 

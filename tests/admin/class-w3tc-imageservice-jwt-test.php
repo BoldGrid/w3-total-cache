@@ -408,6 +408,29 @@ class W3tc_Imageservice_Jwt_Test extends W3tc_License_Jwt_Harness {
 	}
 
 	/**
+	 * 401 with an unchanged token after reissue does not retry.
+	 *
+	 * @since X.X.X
+	 *
+	 * @dataProvider provider_image_calls
+	 *
+	 * @param string $call Image call.
+	 *
+	 * @return void
+	 */
+	public function test_401_without_new_token_does_not_retry( string $call ) {
+		$token = $this->fresh_token();
+		$this->seed_master_state( array( 'license.jwt' => $token ) );
+		$this->image_codes[ $call ] = array( 401, 200 );
+		$this->refresh_code         = 500;
+		$this->check_token          = $token;
+
+		$this->run_image_call( $call );
+
+		$this->assertCount( 1, $this->requests_of( $call ), 'No new token, no retry.' );
+	}
+
+	/**
 	 * 403 does not refresh or retry.
 	 *
 	 * @dataProvider provider_image_calls
