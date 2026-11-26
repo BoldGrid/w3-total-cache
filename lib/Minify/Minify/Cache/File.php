@@ -221,7 +221,7 @@ class Minify_Cache_File {
 
 		$data = @file_get_contents($path . '_meta');
 		if ( ! empty( $data ) ) {
-			$data = @unserialize($data);
+			$data = @unserialize($data, array( 'allowed_classes' => false ));
 			if (!is_array($data))
 				$data = array();
 		} else {
@@ -368,7 +368,7 @@ class Minify_Cache_File {
 			if (!$data)
 				continue;
 
-			$data = @unserialize($data);
+			$data = @unserialize($data, array( 'allowed_classes' => false ));
 			if (!is_array($data) || !isset($data['originalLength']))
 				continue;
 

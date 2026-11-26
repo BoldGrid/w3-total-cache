@@ -7,7 +7,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - Follow the coding standards defined in the ./phpcs.xml file.
 - This is a WordPress plugin, so the coding standards must adhere to the WordPress coding standards.
 - This plugin must be compatible with PHP 7.4 through 8.5, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
-- This plugin must be compatible with WordPress 6.0 and up, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
+- This plugin must be compatible with WordPress 6.2 and up, as defined in the main plugin file "w3-total-cache.php" and "readme.txt".
 - Do not use spaces for indentation; use 4-space tabs instead.
 - Use single quotes for strings unless double quotes are necessary (e.g., when using variables inside the string).
 - Do not make coding standards changes in changed files unless it is directly related to the functionality being modified.

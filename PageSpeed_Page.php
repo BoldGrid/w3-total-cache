@@ -124,37 +124,11 @@ class PageSpeed_Page {
 			}
 
 			$api_response = $w3tc_w3_pagespeed->analyze( $w3tc_url );
+			$w3tc_error   = self::get_api_error_html( $w3tc_url, $api_response );
 
-			if ( ! $api_response ) {
+			if ( '' !== $w3tc_error ) {
 				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>',
-				);
-				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
-			} elseif ( ! empty( $api_response['error'] ) ) {
-				$error_code    = ! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A';
-				$error_message = ! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A';
-
-				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
-						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
-						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
-				);
-				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
-			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
-				$mobile_error_code     = ! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A';
-				$mobile_error_message  = ! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A';
-				$desktop_error_code    = ! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A';
-				$desktop_error_message = ! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A';
-
-				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $w3tc_url . '</p>
-						<p>' . esc_html__( 'Mobile response Code : ', 'w3-total-cache' ) . $mobile_error_code . '</p>
-						<p>' . esc_html__( 'Mobile response Message : ', 'w3-total-cache' ) . $mobile_error_message . '</p>
-						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
-						<p>' . esc_html__( 'Desktop response Message : ', 'w3-total-cache' ) . $desktop_error_message . '</p>',
+					'error' => $w3tc_error,
 				);
 				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} else {
@@ -209,5 +183,68 @@ class PageSpeed_Page {
 		$w3tcps_response['w3tcps_timestamp'] = ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '';
 
 		echo wp_json_encode( $w3tcps_response );
+	}
+
+	/**
+	 * Builds the error markup for a failed PageSpeed analysis.
+	 *
+	 * The analyzed URL and the API error code/message are rendered as text.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_url     Analyzed URL.
+	 * @param mixed  $api_response PageSpeed API response.
+	 *
+	 * @return string Error markup, or an empty string when the response has no error.
+	 */
+	public static function get_api_error_html( $w3tc_url, $api_response ) {
+		if ( ! $api_response ) {
+			$w3tc_title = \__( 'API request failed!', 'w3-total-cache' );
+			$w3tc_rows  = array(
+				array( \__( 'Analyze URL : ', 'w3-total-cache' ), $w3tc_url ),
+			);
+		} elseif ( ! empty( $api_response['error'] ) ) {
+			$w3tc_title = \__( 'API request error!', 'w3-total-cache' );
+			$w3tc_rows  = array(
+				array( \__( 'Analyze URL : ', 'w3-total-cache' ), $w3tc_url ),
+				array( \__( 'Response Code : ', 'w3-total-cache' ), self::get_error_field( $api_response, 'code' ) ),
+				array( \__( 'Response Message : ', 'w3-total-cache' ), self::get_error_field( $api_response, 'message' ) ),
+			);
+		} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
+			$w3tc_title = \__( 'API request error!', 'w3-total-cache' );
+			$w3tc_rows  = array(
+				array( \__( 'Analyze URL : ', 'w3-total-cache' ), $w3tc_url ),
+				array( \__( 'Mobile response Code : ', 'w3-total-cache' ), self::get_error_field( $api_response['mobile'], 'code' ) ),
+				array( \__( 'Mobile response Message : ', 'w3-total-cache' ), self::get_error_field( $api_response['mobile'], 'message' ) ),
+				array( \__( 'Desktop response Code : ', 'w3-total-cache' ), self::get_error_field( $api_response['desktop'], 'code' ) ),
+				array( \__( 'Desktop response Message : ', 'w3-total-cache' ), self::get_error_field( $api_response['desktop'], 'message' ) ),
+			);
+		} else {
+			return '';
+		}
+
+		$w3tc_html = '<p><strong>' . \esc_html( $w3tc_title ) . '</strong></p>';
+
+		foreach ( $w3tc_rows as $w3tc_row ) {
+			$w3tc_html .= '<p>' . \esc_html( $w3tc_row[0] ) . \esc_html( (string) $w3tc_row[1] ) . '</p>';
+		}
+
+		return $w3tc_html;
+	}
+
+	/**
+	 * Reads a scalar field from a PageSpeed API error entry.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array  $w3tc_result PageSpeed result containing an 'error' entry.
+	 * @param string $w3tc_field  Error field name.
+	 *
+	 * @return string Field value, or 'N/A' when missing or not scalar.
+	 */
+	private static function get_error_field( $w3tc_result, $w3tc_field ) {
+		$w3tc_value = isset( $w3tc_result['error'][ $w3tc_field ] ) ? $w3tc_result['error'][ $w3tc_field ] : null;
+
+		return ( ! empty( $w3tc_value ) && \is_scalar( $w3tc_value ) ) ? (string) $w3tc_value : 'N/A';
 	}
 }

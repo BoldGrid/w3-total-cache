@@ -153,7 +153,7 @@ class Util_Admin {
 	 * Mirrors the capability checks that register the W3TC Dashboard. Users who
 	 * cannot open it get an empty slug and are sent to the WordPress Dashboard.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return string
 	 */
@@ -850,11 +850,40 @@ class Util_Admin {
 	public static function get_current_page() {
 		$page = Util_Request::get_string( 'page' );
 
-		if ( substr( $page, 0, 5 ) === 'w3tc_' ) {
+		if ( self::is_registered_w3tc_page( $page ) ) {
 			return $page;
 		}
 
 		return 'w3tc_dashboard';
+	}
+
+	/**
+	 * Returns whether a page slug is registered in the W3TC admin menu.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $page Page slug.
+	 *
+	 * @return bool
+	 */
+	private static function is_registered_w3tc_page( $page ) {
+		if ( '' === $page ) {
+			return false;
+		}
+
+		// The Image Converter settings page is registered under Media, outside Root_AdminMenu.
+		if ( 'w3tc_extension_page_imageservice' === $page ) {
+			return true;
+		}
+
+		$menus = Dispatcher::component( 'Root_AdminMenu' );
+		if ( ! $menus instanceof Root_AdminMenu ) {
+			return false;
+		}
+
+		$pages = $menus->generate_menu_array();
+
+		return isset( $pages[ $page ] );
 	}
 
 	/**

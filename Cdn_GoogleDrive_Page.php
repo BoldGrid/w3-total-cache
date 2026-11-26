@@ -15,82 +15,148 @@ class Cdn_GoogleDrive_Page {
 	 * Enqueues scripts for the Google Drive CDN integration in the WordPress admin.
 	 *
 	 * This method enqueues the JavaScript file necessary for the Google Drive CDN integration and localizes script
-	 * data with authorization URLs and a return URL. It also handles the Google OAuth callback by passing relevant
-	 * data through to the script.
+	 * data with the authorization URL. After an OAuth return has been stored, the folder-picker popup URL carries
+	 * the opaque handle rather than the oa_* parameters.
 	 *
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
-		wp_enqueue_script(
+		\wp_enqueue_script(
 			'w3tc_cdn_google_drive',
-			plugins_url( 'Cdn_GoogleDrive_Page_View.js', W3TC_FILE ),
+			\plugins_url( 'Cdn_GoogleDrive_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ),
 			'1.0',
 			false
 		);
 
 		/**
-		 * RT9-233: Mint a session-bound state token and embed it in
-		 * the OAuth return URL. The external w3-edge proxy preserves
-		 * the return_url's query string when redirecting the browser
-		 * back, so the token round-trips through to the callback. See
-		 * Cdn_GoogleDrive_OAuthState for the threat model.
+		 * A continuation already has a state token. Issuing another one
+		 * would replace it before the auth-set POST can verify it.
 		 */
-		$state = Cdn_GoogleDrive_OAuthState::issue();
-		$path  = 'admin.php?page=w3tc_cdn';
+		$popup_url = self::auth_return_popup_url();
+		if ( '' !== $popup_url ) {
+			$state = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+		} else {
+			$state = Cdn_GoogleDrive_OAuthState::issue();
+		}
+
+		$path = 'admin.php?page=w3tc_cdn';
 		if ( '' !== $state ) {
 			$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM
-				. '=' . rawurlencode( $state );
+				. '=' . \rawurlencode( $state );
 		}
-		$w3tc_return_url = self_admin_url( $path );
+		$w3tc_return_url = Util_Ui::admin_url( $path );
 
-		wp_localize_script(
+		\wp_localize_script(
 			'w3tc_cdn_google_drive',
 			'w3tc_cdn_google_drive_url',
-			array( W3TC_GOOGLE_DRIVE_AUTHORIZE_URL . '?return_url=' . rawurlencode( $w3tc_return_url ) )
+			array( W3TC_GOOGLE_DRIVE_AUTHORIZE_URL . '?return_url=' . \rawurlencode( $w3tc_return_url ) )
 		);
 
-		// it's return from google oauth.
-		if ( ! empty( Util_Request::get_string( 'oa_client_id' ) ) ) {
-			/**
-			 * RT9-233: Refuse to enqueue the auto-opening popup
-			 * unless the submitted state token matches the one this
-			 * session issued. Without this gate, an attacker who
-			 * holds valid OAuth tokens for an attacker-owned Google
-			 * Drive account can craft a URL with `oa_*` params and
-			 * trick an authenticated admin into writing attacker
-			 * credentials to `cdn.google_drive.*` config.
-			 */
-			$submitted_state = Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
-			if ( ! Cdn_GoogleDrive_OAuthState::verify( $submitted_state ) ) {
-				return;
-			}
-
-			$path = Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_cdn_google_drive_auth_return' ) .
-				'&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return';
-			foreach ( $_GET as $w3tc_key => $w3tc_value ) { // phpcs:ignore
-				if ( substr( $w3tc_key, 0, 3 ) === 'oa_' ) {
-					$path .= '&' . rawurlencode( $w3tc_key ) . '=' . rawurlencode( Util_Request::get_string( $w3tc_key ) );
-				}
-			}
-			/**
-			 * RT9-233: Forward the validated state into the popup URL
-			 * so the AuthReturn handler can re-validate independently
-			 * (defense in depth — popup URL is reachable by URL alone
-			 * and shouldn't trust the upstream Page-level check).
-			 */
-			$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM
-				. '=' . rawurlencode( $submitted_state );
-
-			$popup_url = self_admin_url( $path );
-
-			wp_localize_script(
-				'w3tc_cdn_google_drive',
-				'w3tc_cdn_google_drive_popup_url',
-				array( $popup_url )
-			);
-
+		if ( '' === $popup_url ) {
+			return;
 		}
+
+		\wp_localize_script(
+			'w3tc_cdn_google_drive',
+			'w3tc_cdn_google_drive_popup_url',
+			array( $popup_url )
+		);
+	}
+
+	/**
+	 * Store OAuth return parameters and redirect to a token-free admin URL.
+	 *
+	 * Runs on admin_init, before the CDN screen is rendered.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_oauth_return() {
+		if ( \wp_doing_ajax() || ( \function_exists( 'wp_doing_cron' ) && \wp_doing_cron() ) ) {
+			return;
+		}
+
+		$url = self::oauth_return_redirect_url();
+		if ( '' === $url || \headers_sent() ) {
+			return;
+		}
+
+		Util_Response::header( 'Referrer-Policy', 'no-referrer' );
+		\wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
+	 * Build the token-free URL for an OAuth return, storing values when the state token matches.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string Admin URL, or '' when this request is not an OAuth return.
+	 */
+	public static function oauth_return_redirect_url() {
+		if ( 'w3tc_cdn' !== Cdn_GoogleDrive_OAuthTokens::request_string( 'page' ) ) {
+			return '';
+		}
+		if ( ! Cdn_GoogleDrive_OAuthTokens::request_has_oauth_parameters() ) {
+			return '';
+		}
+
+		$clean = Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' );
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return $clean;
+		}
+
+		$state = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+		if ( ! Cdn_GoogleDrive_OAuthState::verify( $state ) ) {
+			return $clean;
+		}
+
+		$handle = Cdn_GoogleDrive_OAuthTokens::store( Cdn_GoogleDrive_OAuthTokens::from_request() );
+		if ( '' === $handle ) {
+			return $clean;
+		}
+
+		return \add_query_arg(
+			array(
+				Cdn_GoogleDrive_OAuthState::STATE_PARAM   => $state,
+				Cdn_GoogleDrive_OAuthTokens::HANDLE_PARAM => $handle,
+			),
+			$clean
+		);
+	}
+
+	/**
+	 * Popup URL for the folder picker.
+	 *
+	 * The URL contains the state token and the opaque handle. It does not contain oa_* parameters.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string Absolute admin URL, or '' when the handle is absent or does not resolve.
+	 */
+	public static function auth_return_popup_url() {
+		$handle = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthTokens::HANDLE_PARAM );
+		$state  = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+		if ( '' === $handle || '' === $state ) {
+			return '';
+		}
+		if ( ! Cdn_GoogleDrive_OAuthState::verify( $state ) ) {
+			return '';
+		}
+
+		$tokens = Cdn_GoogleDrive_OAuthTokens::read( $handle );
+		if ( ! Cdn_GoogleDrive_OAuthTokens::are_complete( $tokens ) ) {
+			return '';
+		}
+
+		$path  = Util_Nonce::admin_nonce_url( 'admin.php', 'w3tc_cdn_google_drive_auth_return' );
+		$path .= '&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return';
+		$path .= '&' . Cdn_GoogleDrive_OAuthState::STATE_PARAM . '=' . \rawurlencode( $state );
+		$path .= '&' . Cdn_GoogleDrive_OAuthTokens::HANDLE_PARAM . '=' . \rawurlencode( $handle );
+
+		return Util_Ui::admin_url( $path );
 	}
 
 	/**

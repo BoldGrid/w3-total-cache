@@ -27,15 +27,15 @@ namespace W3TC;
  * Redis at `127.0.0.1:6379`, an RFC1918 neighbour, the WordPress
  * front-end (`http://0.0.0.0/`), etc.
  *
- * **Residual risk: DNS rebinding.** `gethostbynamel()` resolves once
- * at check time; a hostile resolver can return a public IP for the
- * check and a private IP for the subsequent fetch. Closing that gap
- * requires `CURLOPT_RESOLVE` (pinning the IP at the cURL layer) or a
- * single end-to-end resolve. WordPress's `wp_remote_*` doesn't expose
- * `CURLOPT_RESOLVE`, so the documented operator-level posture is an
- * egress firewall / outbound policy that blocks RFC1918 destinations
- * from the application tier. This class documents the gap rather
- * than hiding it.
+ * **DNS rebinding.** `gethostbynamel()` resolves once at check time;
+ * a hostile resolver can return a public IP for the check and a
+ * private IP for the subsequent fetch. {@see Util_Http::get_pinned()}
+ * and {@see Util_Http::download()} close that gap on the cURL
+ * transport by pinning the addresses returned by
+ * {@see self::public_host_ips()} with `CURLOPT_RESOLVE`. Plain
+ * `wp_remote_*` calls and non-cURL transports still re-resolve at
+ * connect time; an egress firewall that blocks internal destinations
+ * from the application tier remains the operator-level control.
  *
  * @since 2.10.0
  */
@@ -65,17 +65,34 @@ class Util_Url {
 	 * @return bool
 	 */
 	public static function is_public_host( $w3tc_url ) {
+		return array() !== self::public_host_ips( $w3tc_url );
+	}
+
+	/**
+	 * Returns the validated addresses for a URL that passes
+	 * {@see self::is_public_host()}, or an empty array when it does not.
+	 *
+	 * {@see Util_Http} pins the request to these addresses so the
+	 * connection uses the same resolution that was validated.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_url Candidate URL.
+	 *
+	 * @return string[] Public IP literals (IPv6 without brackets).
+	 */
+	public static function public_host_ips( $w3tc_url ) {
 		if ( ! \is_string( $w3tc_url ) || '' === $w3tc_url ) {
-			return false;
+			return array();
 		}
 
 		if ( ! self::is_valid_http_scheme( $w3tc_url ) ) {
-			return false;
+			return array();
 		}
 
 		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
 		if ( ! \is_string( $host ) || '' === $host ) {
-			return false;
+			return array();
 		}
 
 		/**
@@ -92,7 +109,7 @@ class Util_Url {
 		 * used the literal anyway.
 		 */
 		if ( false !== \filter_var( $host, FILTER_VALIDATE_IP ) ) {
-			return self::is_public_ip( $host );
+			return self::is_public_ip( $host ) ? array( $host ) : array();
 		}
 
 		/**
@@ -110,7 +127,7 @@ class Util_Url {
 
 		foreach ( $ipv4_set as $ip ) {
 			if ( ! \is_string( $ip ) || ! self::is_public_ip( $ip ) ) {
-				return false;
+				return array();
 			}
 		}
 
@@ -133,7 +150,7 @@ class Util_Url {
 
 		foreach ( $ipv6_set as $ip ) {
 			if ( ! self::is_public_ip( $ip ) ) {
-				return false;
+				return array();
 			}
 		}
 
@@ -143,11 +160,7 @@ class Util_Url {
 		 * genuinely-unresolvable case and the "dns_get_record disabled
 		 * and gethostbynamel returned nothing" edge.
 		 */
-		if ( empty( $ipv4_set ) && empty( $ipv6_set ) ) {
-			return false;
-		}
-
-		return true;
+		return \array_values( \array_merge( $ipv4_set, $ipv6_set ) );
 	}
 
 	/**

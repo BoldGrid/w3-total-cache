@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -18,7 +18,7 @@ use W3TC\CdnEngine_RackSpaceCloudFiles;
  * The second Rackspace access callback is invoked with call_user_func()
  * from the API classes. It must stay callable on PHP 8.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Rackspace_Access_Callback_Test extends WP_UnitTestCase {
 

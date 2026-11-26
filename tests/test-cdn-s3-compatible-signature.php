@@ -3,7 +3,7 @@
  * The S3 Compatible CDN engine signs requests with SigV4.
  *
  * @package W3TC\Tests
- * @since   X.X.X
+ * @since   2.11.1
  */
 
 use W3TC\CdnEngine_S3_Compatible;
@@ -15,13 +15,13 @@ if ( ! class_exists( 'S3Compatible' ) ) {
 /**
  * Tests for the signature version used by CdnEngine_S3_Compatible.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Restore the client default.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -33,7 +33,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Build the engine the way Cdn_Core does for an S3 Compatible setup.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $api_host Endpoint host.
 	 *
@@ -56,7 +56,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	 * Only the AWS host carries its region in the name. The engine signs the other hosts with the default
 	 * us-east-1 scope, including the Backblaze B2 host, whose own region is us-west-002.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return array
 	 */
@@ -71,7 +71,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Constructing the engine selects v4, even after v2 was selected.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider endpoint_provider
 	 *
@@ -90,7 +90,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * The client still accepts either version.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -105,7 +105,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * The v4 Authorization header has the SigV4 shape and a valid signature.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider endpoint_provider
 	 *
@@ -146,7 +146,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Without a configured region, the signing scope is us-east-1.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -159,7 +159,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * A region in an AWS endpoint host is used for the signing scope.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -174,7 +174,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	 *
 	 * HEAD and DELETE requests carry empty Content-MD5 and Content-Type.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -204,7 +204,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	 * GET, HEAD and DELETE have no body, but the client still sends x-amz-content-sha256 with the hash of
 	 * an empty payload, so SigV4 requires it in the signed headers.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider bodyless_method_provider
 	 *
@@ -239,7 +239,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Methods without a request body.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return array
 	 */
@@ -254,7 +254,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Empty x-amz-* headers are not sent, so they must not be signed.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -276,7 +276,7 @@ class Cdn_S3_Compatible_Signature_Test extends WP_UnitTestCase {
 	/**
 	 * Independent SigV4 computation for the request the client signs.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string       $amz_date Value of the X-AMZ-DATE the client used.
 	 * @param string       $region   Region.

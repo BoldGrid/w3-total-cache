@@ -322,15 +322,14 @@ class Extension_AlwaysCached_Plugin {
 		if ( in_array( '', $groups, true ) && $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
 			$w3tc_o         = Dispatcher::component( 'PgCache_Flush' );
 			$w3tc_extension = $w3tc_o->get_ahead_generation_extension( '' );
-			$no_cache_vals  = array( 'no-cache', 'no-store', 'must-revalidate', 'private' );
 
 			if ( $w3tc_c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
 				$home_url         = rtrim( home_url(), '/' ) . '/';
 				$response_headers = wp_remote_head( $home_url );
 
 				if ( ! is_wp_error( $response_headers ) ) {
-					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
-					if ( ! self::is_excluded( $home_url ) && ! array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+					$cache_control = wp_remote_retrieve_header( $response_headers, 'Cache-Control' );
+					if ( ! self::is_excluded( $home_url ) && ! Util_CacheControl::disallows_shared_store( $cache_control ) ) {
 						Extension_AlwaysCached_Queue::add( $home_url, $w3tc_extension );
 					} else {
 						$w3tc_o->flush_url( $home_url );
@@ -357,8 +356,8 @@ class Extension_AlwaysCached_Plugin {
 						continue;
 					}
 
-					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
-					if ( array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+					$cache_control = wp_remote_retrieve_header( $response_headers, 'Cache-Control' );
+					if ( Util_CacheControl::disallows_shared_store( $cache_control ) ) {
 						continue;
 					}
 
@@ -389,8 +388,8 @@ class Extension_AlwaysCached_Plugin {
 						continue;
 					}
 
-					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
-					if ( array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+					$cache_control = wp_remote_retrieve_header( $response_headers, 'Cache-Control' );
+					if ( Util_CacheControl::disallows_shared_store( $cache_control ) ) {
 						continue;
 					}
 

@@ -33,6 +33,23 @@ class Cdn_AdminActions {
 	}
 
 	/**
+	 * Require the administrative capability for CDN actions.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return void
+	 */
+	private function require_admin_cap() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_die(
+				\esc_html__( 'You do not have permission to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+	}
+
+	/**
 	 * Handles various CDN queue actions such as delete, empty, and process.
 	 *
 	 * Depending on the specified queue action, this method performs operations
@@ -42,6 +59,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_queue() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn    = Dispatcher::component( 'Cdn_Core_Admin' );
 		$cdn_queue_action = Util_Request::get_string( 'cdn_queue_action' );
 		$cdn_queue_tab    = Util_Request::get_string( 'cdn_queue_tab' );
@@ -105,6 +124,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_export_library() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$total      = $w3_plugin_cdn->get_attachments_count();
@@ -122,6 +143,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_flush() {
+		$this->require_admin_cap();
+
 		$flush = Dispatcher::component( 'CacheFlush' );
 		$flush->flush_all( array( 'only' => 'cdn' ) );
 
@@ -149,6 +172,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_export_library_process() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$w3tc_limit  = Util_Request::get_integer( 'limit' );
@@ -180,6 +205,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_import_library() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 		$common        = Dispatcher::component( 'Cdn_Core' );
 
@@ -202,6 +229,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_import_library_process() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$w3tc_limit        = Util_Request::get_integer( 'limit' );
@@ -237,6 +266,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_rename_domain() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$total = $w3_plugin_cdn->get_rename_posts_count();
@@ -255,6 +286,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_rename_domain_process() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Core_Admin' );
 
 		$w3tc_limit  = Util_Request::get_integer( 'limit' );
@@ -287,6 +320,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_export() {
+		$this->require_admin_cap();
+
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Plugin' );
 
 		$cdn_export_type = Util_Request::get_string( 'cdn_export_type', 'custom' );
@@ -330,6 +365,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_export_process() {
+		$this->require_admin_cap();
+
 		$common = Dispatcher::component( 'Cdn_Core' );
 		$files  = Util_Request::get_array( 'files' );
 
@@ -375,6 +412,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_purge() {
+		$this->require_admin_cap();
+
 		$w3tc_title = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
 		$results    = array();
 
@@ -391,6 +430,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_purge_files() {
+		$this->require_admin_cap();
+
 		$w3tc_title = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
 		$results    = array();
 
@@ -426,6 +467,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_purge_attachment() {
+		$this->require_admin_cap();
+
 		$results       = array();
 		$attachment_id = Util_Request::get_integer( 'attachment_id' );
 
@@ -448,6 +491,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_test() {
+		$this->require_admin_cap();
+
 		$posted_engine = Util_Request::get_string( 'engine' );
 		$resolved      = $this->cdn_test_resolved_config( $posted_engine );
 
@@ -736,6 +781,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_create_container() {
+		$this->require_admin_cap();
+
 		$w3tc_engine = Util_Request::get_string( 'engine' );
 		$w3tc_config = Util_Request::get_array( 'config' );
 
@@ -799,6 +846,8 @@ class Cdn_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_cdn_bunnycdn_signup() {
+		$this->require_admin_cap();
+
 		try {
 			$state = Dispatcher::config_state();
 			$state->set( 'track.bunnycdn_signup', time() );

@@ -786,7 +786,7 @@ class W3tc_Pagespeed_Refresh_Token_Test extends WP_UnitTestCase {
 	private function create_api( $expired = false ) {
 		$api      = new PageSpeed_Api();
 		$property = new ReflectionProperty( PageSpeed_Api::class, 'w3tc_config' );
-		$property->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $property );
 		$property->setValue( $api, $this->config );
 
 		if ( $expired ) {

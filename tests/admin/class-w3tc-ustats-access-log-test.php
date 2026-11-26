@@ -35,7 +35,7 @@ class W3tc_Ustats_Access_Log_Test extends WP_UnitTestCase {
 	 */
 	private function invoke_validator( $filepath ) {
 		$ref = new \ReflectionMethod( UsageStatistics_Plugin_Admin::class, 'validate_access_log_path' );
-		$ref->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $ref );
 
 		return $ref->invoke( null, $filepath );
 	}

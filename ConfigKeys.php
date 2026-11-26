@@ -590,6 +590,11 @@ $w3tc_keys = array(
 	'pgcache.accept.qs'                                    => array(
 		'type'    => 'array',
 		'default' => \W3TC\PgCache_QsExempts::get_qs_exempts(),
+		/**
+		 * Rule-generation input: each entry is concatenated into Apache
+		 * RewriteCond / Nginx if-block regexes.
+		 */
+		'flags'   => array( 'directive_string' => true ),
 	),
 	'pgcache.migrated.qsexempts'                           => array(
 		'type'    => 'integer',
@@ -861,6 +866,10 @@ $w3tc_keys = array(
 	'minify.engine'                                        => array(
 		'type'    => 'string',
 		'default' => 'file',
+		'flags'   => array(
+			'no_import'      => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.error.notification'                            => array(
 		'type'    => 'string',
@@ -967,6 +976,10 @@ $w3tc_keys = array(
 	'minify.html.engine'                                   => array(
 		'type'    => 'string',
 		'default' => 'html',
+		'flags'   => array(
+			'no_import'      => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'minify.html.reject.feed'                              => array(
 		'type'    => 'boolean',
@@ -1421,7 +1434,7 @@ $w3tc_keys = array(
 	),
 	'cdn.ftp.type'                                         => array(
 		'type'    => 'string',
-		'default' => '',
+		'default' => 'ftps',
 		'flags'   => array( 'dedicated_page' => 'w3tc_cdn' ),
 	),
 	'cdn.ftp.user'                                         => array(
@@ -1807,6 +1820,10 @@ $w3tc_keys = array(
 	'cdnfsd.engine'                                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array(
+			'no_import'      => true,
+			'dedicated_page' => 'w3tc_general',
+		),
 	),
 	'cdnfsd.debug'                                         => array(
 		'type'    => 'boolean',
@@ -2667,10 +2684,12 @@ $w3tc_keys = array(
 	'widget.pagespeed.access_token'                        => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'widget.pagespeed.w3tc_pagespeed_key'                  => array(
 		'type'    => 'string',
 		'default' => '',
+		'flags'   => array( 'secret' => true ),
 	),
 	'timelimit.email_send'                                 => array(
 		'type'    => 'integer',

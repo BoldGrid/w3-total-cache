@@ -619,7 +619,7 @@ class Minify_Environment {
 	 * descriptor (no BEGIN/END markers left), or leaves no rule content. Empty unfiltered rules
 	 * (removal mode) are never filtered.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param Config       $w3tc_config W3TC Config containing relevant settings.
 	 * @param string|false $rules_path  Path of the file the rules are written to.

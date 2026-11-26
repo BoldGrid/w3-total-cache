@@ -66,7 +66,7 @@ class W3tc_Plugin_Type_Updates_Test extends WP_UnitTestCase {
 		$config = new Config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data               = $prop->getValue( $config );
 		$data['plugin.type'] = $value;
 		$prop->setValue( $config, $data );

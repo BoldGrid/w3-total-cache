@@ -167,29 +167,36 @@ jQuery(function () {
         search: search,
       },
       success: function (response) {
-        var tbody = "";
+        var tbody = [];
         jQuery.each(response.rows, function (index, row) {
-          tbody +=
-            "<tr>" +
-            '<td><span class="w3tc-alwayscached-queue-item dashicons dashicons-update" title="' +
-            W3TCAlwaysCachedData.lang.queueItemRegenerate +
-            '" data-url="' +
-            row.url +
-            '"></span></td>' +
-            '<td style="white-space: nowrap">' +
-            (":" === row.key.charAt(0)
-              ? W3TCAlwaysCachedData.lang.queueItemCommand + " " + row.key
-              : row.url) +
-            "</td>" +
-            "<td>" +
-            row.requests_count +
-            "</td>" +
-            "</tr>";
+          var key = String(row.key || "");
+          var $item = jQuery("<span></span>")
+            .addClass(
+              "w3tc-alwayscached-queue-item dashicons dashicons-update",
+            )
+            .attr("title", W3TCAlwaysCachedData.lang.queueItemRegenerate)
+            .attr("data-url", row.url);
+
+          tbody.push(
+            jQuery("<tr></tr>").append(
+              jQuery("<td></td>").append($item),
+              jQuery("<td></td>")
+                .css("white-space", "nowrap")
+                .text(
+                  ":" === key.charAt(0)
+                    ? W3TCAlwaysCachedData.lang.queueItemCommand + " " + key
+                    : row.url,
+                ),
+              jQuery("<td></td>").text(row.requests_count),
+            ),
+          );
         });
 
         jQuery(
           '.w3tc-alwayscached-queue-view-table[data-mode="' + mode + '"] tbody',
-        ).html(tbody);
+        )
+          .empty()
+          .append(tbody);
 
         var pagination =
           "<span>" + W3TCAlwaysCachedData.lang.queuePageLabel + " </span>";

@@ -1375,7 +1375,7 @@ jQuery(function () {
         },
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
         },
         "json",
       )
@@ -1412,7 +1412,7 @@ jQuery(function () {
         },
         function (data) {
           status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-          status.html(data.error);
+          status.text(data.error);
         },
         "json",
       )
@@ -1472,7 +1472,7 @@ jQuery(function () {
       params,
       function (data) {
         status.addClass(data.result ? "w3tc-success" : "w3tc-error");
-        status.html(data.error);
+        status.text(data.error);
       },
       "json",
     );

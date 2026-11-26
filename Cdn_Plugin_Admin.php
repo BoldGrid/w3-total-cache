@@ -26,8 +26,10 @@ class Cdn_Plugin_Admin {
 		$w3tc_cdnfsd_engine = $w3tc_c->get_string( 'cdnfsd.engine' );
 		$is_cdn_page        = 'w3tc_cdn' === Util_Request::get_string( 'page' );
 
+		$admin_notes = new Cdn_AdminNotes();
+		\add_filter( 'w3tc_errors', array( $admin_notes, 'plain_ftp_notice' ) );
+
 		if ( $w3tc_c->get_boolean( 'cdn.enabled' ) ) {
-			$admin_notes = new Cdn_AdminNotes();
 			\add_filter( 'w3tc_notes', array( $admin_notes, 'w3tc_notes' ) );
 			\add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ) );
 
@@ -44,6 +46,8 @@ class Cdn_Plugin_Admin {
 		switch ( $w3tc_cdn_engine ) {
 			case 'google_drive':
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_GoogleDrive_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
+				// Move OAuth return parameters into the user-bound store before the screen renders.
+				\add_action( 'admin_init', array( '\W3TC\Cdn_GoogleDrive_Page', 'maybe_redirect_oauth_return' ), 1 );
 				break;
 
 			case 'rackspace_cdn':

@@ -106,7 +106,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	private function get_template_static() {
 		$ref  = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
 		$prop = $ref->getProperty( 'template' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		return $prop->getValue();
 	}
 
@@ -118,7 +118,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	private function clear_template_static() {
 		$ref  = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
 		$prop = $ref->getProperty( 'template' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$prop->setValue( null, null );
 	}
 
@@ -132,7 +132,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	private function get_nonce_actions_map() {
 		$ref  = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
 		$prop = $ref->getProperty( 'nonce_actions' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		return (array) $prop->getValue();
 	}
 
@@ -344,7 +344,7 @@ class W3tc_Setupguide_Ajax_Test extends WP_UnitTestCase {
 	public function test_get_nonce_action_rejects_unknown() {
 		$ref    = new \ReflectionClass( SetupGuide_Plugin_Admin::class );
 		$method = $ref->getMethod( 'get_nonce_action' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 
 		$this->assertSame(
 			'w3tc_wizard_skip',

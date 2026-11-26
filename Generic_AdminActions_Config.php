@@ -47,17 +47,24 @@ class Generic_AdminActions_Config {
 	 */
 	public function w3tc_config_import() {
 		$error = '';
+		$file  = array();
+		if ( isset( $_FILES['config_file'] ) && is_array( $_FILES['config_file'] ) ) {
+			$file = $_FILES['config_file']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		}
 
 		$w3tc_config = new Config();
 
-		if ( ! isset( $_FILES['config_file']['error'] ) || UPLOAD_ERR_NO_FILE === $_FILES['config_file']['error'] ) {
+		if ( ! isset( $file['error'] ) || UPLOAD_ERR_NO_FILE === $file['error'] ) {
 			$error = 'config_import_no_file';
-		} elseif ( UPLOAD_ERR_OK !== $_FILES['config_file']['error'] ) {
+		} elseif ( UPLOAD_ERR_OK !== $file['error'] ) {
 			$error = 'config_import_upload';
+		} elseif ( ! isset( $file['name'] ) || ! is_scalar( $file['name'] ) ||
+			! self::is_json_config_filename( sanitize_file_name( wp_unslash( $file['name'] ) ) ) ) {
+			$error = 'config_import_file_type';
 		} else {
 			$imported = $w3tc_config->import(
-				isset( $_FILES['config_file']['tmp_name'] ) ?
-				wp_normalize_path( sanitize_text_field( $_FILES['config_file']['tmp_name'] ) ) : ''
+				isset( $file['tmp_name'] ) && is_scalar( $file['tmp_name'] ) ?
+				wp_normalize_path( sanitize_text_field( wp_unslash( $file['tmp_name'] ) ) ) : ''
 			);
 
 			if ( ! $imported ) {
@@ -96,6 +103,19 @@ class Generic_AdminActions_Config {
 		}
 		Util_Debug::audit_log( 'config_imported', array() );
 		Util_Admin::redirect( array( 'w3tc_note' => 'config_import' ), true );
+	}
+
+	/**
+	 * Determines whether an uploaded configuration filename uses JSON.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $filename Uploaded filename.
+	 *
+	 * @return bool
+	 */
+	public static function is_json_config_filename( $filename ) {
+		return is_string( $filename ) && '.json' === strtolower( substr( $filename, -5 ) );
 	}
 
 	/**

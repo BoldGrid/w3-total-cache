@@ -1,6 +1,8 @@
 name: Release
 
 # Tag builds only (replaces Travis deploy providers). Run CI checks before release artifacts.
+# Publishing runs on BoldGrid/w3-total-cache only. It creates the WordPress.org SVN tag and the
+# GitHub Release. It never updates SVN trunk; copy the validated tag to trunk by hand afterward.
 on:
   push:
     tags:
@@ -46,12 +48,17 @@ jobs:
       - run: yarn run install:deps
       - run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest true
       - run: yarn run hooks:check
+      - run: php tests/test-pgcache-request-gates.php
+      - run: php tests/test-pgcache-rest-session-gates.php
+      - run: php tests/test-maxcache-core.php
+      - run: WP_CORE_DIR=/tmp/wordpress php tests/test-cdn-srcset-placeholders.php
       - run: vendor/bin/phpunit
       - run: WP_MULTISITE=1 vendor/bin/phpunit --group multisite --no-coverage
 
   release:
     name: Build and publish
     needs: test
+    if: github.repository == 'BoldGrid/w3-total-cache'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,6 +66,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - run: sudo apt-get install -y subversion
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
@@ -72,6 +80,7 @@ jobs:
       - run: composer install --no-dev --no-interaction --prefer-dist -o --no-progress
       - run: chmod +x ./bin/release.sh && ./bin/release.sh
         env:
+          TERM: xterm
           WP_SVN_REPO: https://plugins.svn.wordpress.org/w3-total-cache
           WP_USERNAME: ${{ secrets.SVN_USERNAME }}
           WP_PASSWORD: ${{ secrets.SVN_PASSWORD }}

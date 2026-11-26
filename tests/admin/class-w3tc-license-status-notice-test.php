@@ -46,7 +46,7 @@ class W3tc_License_Status_Notice_Test extends WP_UnitTestCase {
 
 		$this->admin  = new Licensing_Plugin_Admin();
 		$this->notice = new ReflectionMethod( Licensing_Plugin_Admin::class, 'get_license_notice' );
-		$this->notice->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $this->notice );
 	}
 
 	/**

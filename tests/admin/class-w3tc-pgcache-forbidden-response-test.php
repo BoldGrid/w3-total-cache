@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -18,7 +18,7 @@ namespace W3TC {
 		 * The page-cache writer reads the status through an unqualified call, and the
 		 * test process cannot change the real response code once PHPUnit has sent output.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param int|null $code Status to set, or null to read.
 		 * @return int
@@ -38,13 +38,13 @@ namespace W3TC {
 		/**
 		 * Page-cache grabber that records stores instead of writing cache entries.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		class Forbidden_Response_Test_Grabber extends PgCache_ContentGrabber {
 			/**
 			 * Recording cache.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @var Forbidden_Response_Test_Cache
 			 */
@@ -53,7 +53,7 @@ namespace W3TC {
 			/**
 			 * Returns the recording cache for every group.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @param string $w3tc_group Cache group.
 			 * @return Forbidden_Response_Test_Cache
@@ -67,7 +67,7 @@ namespace W3TC {
 			/**
 			 * Replaces the configuration object.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @param Config $w3tc_config Configuration.
 			 * @return void
@@ -80,13 +80,13 @@ namespace W3TC {
 		/**
 		 * Records page-cache writes and removals.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		class Forbidden_Response_Test_Cache {
 			/**
 			 * Stored entries.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @var array
 			 */
@@ -95,7 +95,7 @@ namespace W3TC {
 			/**
 			 * Records a store.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @param string $key      Cache key.
 			 * @param array  $data     Cache data.
@@ -117,7 +117,7 @@ namespace W3TC {
 			/**
 			 * Ignores removals.
 			 *
-			 * @since X.X.X
+			 * @since 2.11.1
 			 *
 			 * @param string $key Cache key.
 			 * @return bool
@@ -143,7 +143,7 @@ namespace {
 	 *
 	 * GitHub issue 350.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	class W3tc_Pgcache_Forbidden_Response_Test extends WP_UnitTestCase {
 		/**
@@ -156,7 +156,7 @@ namespace {
 		/**
 		 * Resets the stubbed response status.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function tear_down() {
 			\W3TC\http_response_code( 200 );
@@ -167,7 +167,7 @@ namespace {
 		/**
 		 * A 403 response is not written, in the plain or the gzip variant.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_forbidden_response_is_not_cached() {
 			$grabber = $this->grabber( array() );
@@ -182,7 +182,7 @@ namespace {
 		/**
 		 * The cache-404 option does not make a 403 response cacheable.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_forbidden_response_is_not_cached_when_404_caching_is_enabled() {
 			$grabber = $this->grabber( array( 'pgcache.cache.404' => true ) );
@@ -195,7 +195,7 @@ namespace {
 		/**
 		 * A 200 response is still written, in the plain and the gzip variant.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_successful_response_is_cached() {
 			$grabber = $this->grabber( array() );
@@ -214,7 +214,7 @@ namespace {
 		/**
 		 * A 404 response is not written while the cache-404 option is off.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_not_found_response_is_not_cached_by_default() {
 			$grabber = $this->grabber( array() );
@@ -229,7 +229,7 @@ namespace {
 		/**
 		 * A 404 response is still written when the cache-404 option is on.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_not_found_response_is_cached_when_option_is_enabled() {
 			$grabber = $this->grabber( array( 'pgcache.cache.404' => true ) );
@@ -246,7 +246,7 @@ namespace {
 		/**
 		 * Builds a grabber that is ready to run its output-buffer callback.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param array $settings Configuration overrides.
 		 * @return Forbidden_Response_Test_Grabber
@@ -298,7 +298,7 @@ namespace {
 		/**
 		 * Runs the output-buffer callback for a response with the given status.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param Forbidden_Response_Test_Grabber $grabber Grabber.
 		 * @param int                             $status  HTTP status.
@@ -315,7 +315,7 @@ namespace {
 		/**
 		 * Reads a private grabber property.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param Forbidden_Response_Test_Grabber $grabber  Grabber.
 		 * @param string                          $property Property name.
@@ -331,7 +331,7 @@ namespace {
 		/**
 		 * Sets a private grabber property.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param Forbidden_Response_Test_Grabber $grabber  Grabber.
 		 * @param string                          $property Property name.

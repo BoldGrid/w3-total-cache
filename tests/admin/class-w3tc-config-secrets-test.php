@@ -125,7 +125,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 		 */
 		$ref  = new \ReflectionObject( $config );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data                       = $prop->getValue( $config );
 		$data['plugin.license_key'] = $envelope;
 		$prop->setValue( $config, $data );
@@ -175,7 +175,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 
 		$ref  = new \ReflectionObject( $config );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data                  = $prop->getValue( $config );
 		$data['cdn.s3.secret'] = $envelope_bad;
 		$prop->setValue( $config, $data );
@@ -201,7 +201,7 @@ class W3tc_Config_Secrets_Test extends WP_UnitTestCase {
 
 		$ref  = new \ReflectionObject( $config );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data                    = $prop->getValue( $config );
 		$data['plugin.type']     = 'pro';
 		$data['cdn.s3.key']      = '';

@@ -14,7 +14,7 @@ use W3TC\PgCache_Flush;
  * Page-cache flush must include the REST group when REST caching is active,
  * and must not fatal when the 2.11.0 helper is not loaded.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_PgCache_Rest_Flush_Test extends WP_UnitTestCase {
 
@@ -214,7 +214,7 @@ class W3tc_PgCache_Rest_Flush_Test extends WP_UnitTestCase {
 /**
  * Records groups passed to the cache flush.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_PgCache_Flush_Spy extends PgCache_Flush {
 
@@ -266,7 +266,7 @@ class W3tc_PgCache_Flush_Spy extends PgCache_Flush {
 /**
  * Pretend the 2.11.0 helper was not loaded.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_PgCache_Flush_Stale_Helper extends W3tc_PgCache_Flush_Spy {
 

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 W3 Total Cache (W3TC) is a WordPress performance plugin providing page caching, object caching, database caching, minification, CDN integration, and related optimizations.
 
 - **PHP compatibility**: 7.4–8.5 (enforced via `composer.json` platform config)
-- **WordPress compatibility**: 6.0+
+- **WordPress compatibility**: 6.2+
 - **Current version**: 2.9.1 (do not bump manually — done in the build process)
 
 ## Commands
@@ -60,9 +60,34 @@ Run the standalone cache-unserialize helper test (no WordPress bootstrap needed)
 php tests/test-cache-unserialize.php
 ```
 
+Run the standalone memcache item-key test (no WordPress bootstrap needed; adds a live round-trip when pecl memcache and a memcached server on `127.0.0.1:11211` are available):
+```bash
+php tests/test-memcache-item-key.php
+```
+
 Run the standalone page-cache rules-required filter test (no WordPress bootstrap needed):
 ```bash
 php tests/test-pgcache-rules-required-filter.php
+```
+
+Run the standalone page-cache request-gate test (no WordPress bootstrap needed):
+```bash
+php tests/test-pgcache-request-gates.php
+```
+
+Run the standalone page-cache REST session-gate test (no WordPress bootstrap needed):
+```bash
+php tests/test-pgcache-rest-session-gates.php
+```
+
+Run the standalone MAx Cache rules test (no WordPress bootstrap needed):
+```bash
+php tests/test-maxcache-core.php
+```
+
+Run the standalone CDN srcset placeholder test (loads WP_HTML_Tag_Processor from `WP_CORE_DIR`, default `~/wordpress`; no WordPress bootstrap needed):
+```bash
+php tests/test-cdn-srcset-placeholders.php
 ```
 
 Run the standalone config-state save skip test (no WordPress bootstrap needed):

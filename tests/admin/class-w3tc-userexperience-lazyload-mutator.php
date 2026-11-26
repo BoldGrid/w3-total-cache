@@ -410,7 +410,7 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		 *
 		 * The `loading="eager"` case is a control for the existing exclude; ordinary images are still lazy-loaded.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_fetchpriority_high_and_loading_eager_are_not_lazy_loaded() {
 			$config = new Config();

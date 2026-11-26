@@ -585,6 +585,8 @@ class Extension_ImageService_Plugin_Admin {
 				true
 			);
 
+			$imageservice_settings = $this->w3tc_config->get_array( 'imageservice' );
+
 			wp_localize_script(
 				'w3tc-imageservice',
 				'w3tcData',
@@ -631,7 +633,11 @@ class Extension_ImageService_Plugin_Admin {
 					'track_usage' => $this->w3tc_config->get_boolean( 'common.track_usage' ),
 					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 					'isPro'       => Util_Environment::is_w3tc_pro( $this->w3tc_config ),
-					'settings'    => $this->w3tc_config->get_array( 'imageservice' ),
+					'settings'    => array(
+						'webp'        => \array_key_exists( 'webp', $imageservice_settings ) ? $imageservice_settings['webp'] : true,
+						'avif'        => \array_key_exists( 'avif', $imageservice_settings ) ? $imageservice_settings['avif'] : true,
+						'compression' => \array_key_exists( 'compression', $imageservice_settings ) ? $imageservice_settings['compression'] : 'lossy',
+					),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
 			);
@@ -1243,9 +1249,9 @@ class Extension_ImageService_Plugin_Admin {
 
 				break;
 			case 'w3tc_imageservice_revert':
-				$this->revert_optimizations( $post_ids );
-
-				$location = add_query_arg( 'w3tc_imageservice_reverted', 1, $location );
+				if ( $this->revert_optimizations( $post_ids ) ) {
+					$location = add_query_arg( 'w3tc_imageservice_reverted', 1, $location );
+				}
 
 				break;
 			default:
@@ -1424,15 +1430,27 @@ class Extension_ImageService_Plugin_Admin {
 	 * @return void
 	 */
 	private function remove_optimization_format( $post_id, $format_key ) {
-		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
+		$postmeta   = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
+		$kept_child = false;
 
 		// New structure: remove a specific format child attachment.
 		if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) && isset( $postmeta['post_children'][ $format_key ] ) ) {
 			$child_id = $postmeta['post_children'][ $format_key ];
-			if ( $child_id ) {
-				wp_delete_attachment( $child_id, true );
+			$state    = $child_id ? $this->delete_optimization_child( $post_id, $child_id ) : 'missing';
+			if ( 'skipped' === $state || 'failed' === $state ) {
+				$kept_child = true;
+			} else {
+				unset( $postmeta['post_children'][ $format_key ] );
+				if (
+					isset( $postmeta['post_child'] ) &&
+					\is_scalar( $child_id ) &&
+					\is_scalar( $postmeta['post_child'] ) &&
+					(int) $child_id > 0 &&
+					(int) $postmeta['post_child'] === (int) $child_id
+				) {
+					unset( $postmeta['post_child'] );
+				}
 			}
-			unset( $postmeta['post_children'][ $format_key ] );
 		}
 
 		// Old structure: if post_child is the requested format, remove it.
@@ -1440,22 +1458,21 @@ class Extension_ImageService_Plugin_Admin {
 			$child_post = get_post( $postmeta['post_child'] );
 			if ( $child_post && isset( $child_post->post_mime_type ) ) {
 				$child_format_key = strtolower( str_replace( 'image/', '', $child_post->post_mime_type ) );
-				if ( $child_format_key === $format_key ) {
-					wp_delete_attachment( $postmeta['post_child'], true );
-					unset( $postmeta['post_child'] );
+				$format_matches = ( $child_format_key === $format_key );
+				if ( $format_matches ) {
+					$state = $this->delete_optimization_child( $post_id, $postmeta['post_child'] );
+					if ( 'skipped' === $state || 'failed' === $state ) {
+						$kept_child = true;
+					} else {
+						unset( $postmeta['post_child'] );
+					}
 				}
 			}
 		}
 
-		// Clean related per-format metadata.
-		if ( isset( $postmeta['downloads'] ) && is_array( $postmeta['downloads'] ) ) {
-			unset( $postmeta['downloads'][ $format_key ] );
-		}
-		if ( isset( $postmeta['jobs_status'] ) && is_array( $postmeta['jobs_status'] ) ) {
-			unset( $postmeta['jobs_status'][ $format_key ] );
-		}
-		if ( isset( $postmeta['processing_jobs'] ) && is_array( $postmeta['processing_jobs'] ) ) {
-			unset( $postmeta['processing_jobs'][ $format_key ] );
+		// Clean related per-format metadata only when that format's child is gone.
+		if ( ! $kept_child ) {
+			$this->drop_removed_format_metadata( $postmeta, array( $format_key ) );
 		}
 
 		update_post_meta( $post_id, 'w3tc_imageservice', $postmeta );
@@ -1650,19 +1667,63 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Revert optimizations of images.
 	 *
+	 * Attachments that do not store a child id are cleaned up and left out of
+	 * the count. The count is 0 unless every stored child id in the selection
+	 * was removed.
+	 *
 	 * @since 2.2.0
 	 *
 	 * @param array $post_ids Attachment post ids.
+	 * @return int Number of attachments whose optimizations were removed.
 	 */
 	public function revert_optimizations( array $post_ids ) {
+		$eligible = 0;
+		$removed  = 0;
+
 		foreach ( $post_ids as $post_id ) {
 			// Skip if not an allowed MIME type.
 			if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
 				continue;
 			}
 
-			$this->remove_optimizations( $post_id );
+			$has_child  = self::has_stored_conversion_child( $post_id );
+			$did_remove = $this->remove_optimizations( $post_id );
+			if ( $has_child ) {
+				++$eligible;
+				if ( $did_remove ) {
+					++$removed;
+				}
+			}
 		}
+
+		return ( $eligible > 0 && $removed === $eligible ) ? $removed : 0;
+	}
+
+	/**
+	 * Whether the attachment stores a converted child id.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param int $post_id Attachment id.
+	 * @return bool
+	 */
+	private static function has_stored_conversion_child( $post_id ) {
+		$postmeta = \get_post_meta( $post_id, 'w3tc_imageservice', true );
+		if ( ! \is_array( $postmeta ) ) {
+			return false;
+		}
+
+		if ( isset( $postmeta['post_children'] ) && \is_array( $postmeta['post_children'] ) ) {
+			foreach ( $postmeta['post_children'] as $child_id ) {
+				if ( \is_scalar( $child_id ) && (int) $child_id > 0 ) {
+					return true;
+				}
+			}
+		}
+
+		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+
+		return \is_scalar( $child_id ) && (int) $child_id > 0;
 	}
 
 	/**
@@ -1710,6 +1771,226 @@ class Extension_ImageService_Plugin_Admin {
 	}
 
 	/**
+	 * User id to store on a converted child of this attachment.
+	 *
+	 * Pickup runs from WP-Cron, which has no logged-in user. Copy the parent
+	 * attachment's author so the child stays with that user.
+	 *
+	 * @since 2.11.1
+	 * @static
+	 *
+	 * @param int $post_id Parent attachment id.
+	 * @return int User id, or 0 when the parent has none.
+	 */
+	public static function converted_child_author( $post_id ) {
+		$parent = \get_post( (int) $post_id );
+		if ( ! $parent instanceof \WP_Post ) {
+			return 0;
+		}
+
+		return (int) $parent->post_author;
+	}
+
+	/**
+	 * Stored attachment id when it is an attachment of the parent post.
+	 *
+	 * @since 2.11.1
+	 * @static
+	 *
+	 * @param int $post_id  Parent post id.
+	 * @param int $child_id Stored attachment id.
+	 * @return WP_Post|null
+	 */
+	public static function converted_child_attachment( $post_id, $child_id ) {
+		$post_id = (int) $post_id;
+		if ( ! \is_scalar( $child_id ) ) {
+			return null;
+		}
+
+		$child_id = (int) $child_id;
+		if ( $child_id <= 0 || $post_id <= 0 ) {
+			return null;
+		}
+
+		$child = \get_post( $child_id );
+		if ( ! $child instanceof \WP_Post || 'attachment' !== $child->post_type ) {
+			return null;
+		}
+
+		if ( (int) $child->post_parent !== $post_id ) {
+			return null;
+		}
+
+		return $child;
+	}
+
+	/**
+	 * Delete a stored child, or report why it was not deleted.
+	 *
+	 * Missing and non-attachment ids are pruned. An attachment that is not a
+	 * child of the parent, or that the current user cannot delete, is kept.
+	 * A converted child with no author is assigned to the parent author first.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param int $post_id  Parent post id.
+	 * @param int $child_id Stored attachment id.
+	 * @return string deleted|missing|skipped|failed.
+	 */
+	private function delete_optimization_child( $post_id, $child_id ) {
+		$post_id = (int) $post_id;
+		if ( ! \is_scalar( $child_id ) || $post_id <= 0 ) {
+			return 'missing';
+		}
+
+		$child_id = (int) $child_id;
+		if ( $child_id <= 0 ) {
+			return 'missing';
+		}
+
+		$child = \get_post( $child_id );
+		if ( ! $child instanceof \WP_Post || 'attachment' !== $child->post_type ) {
+			return 'missing';
+		}
+
+		if ( (int) $child->post_parent !== $post_id ) {
+			return 'skipped';
+		}
+
+		$this->assign_unassigned_converted_child( $post_id, $child );
+
+		if ( ! \current_user_can( 'delete_post', $child->ID ) ) {
+			return 'skipped';
+		}
+
+		$deleted = \wp_delete_attachment( $child->ID, true );
+		return ( $deleted instanceof \WP_Post ) ? 'deleted' : 'failed';
+	}
+
+	/**
+	 * Assign a converted child that has no author to the parent author.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param int     $post_id Parent post id.
+	 * @param WP_Post $child   Child attachment.
+	 * @return void
+	 */
+	private function assign_unassigned_converted_child( $post_id, $child ) {
+		if ( (int) $child->post_author > 0 ) {
+			return;
+		}
+
+		$author_id = self::converted_child_author( $post_id );
+		if ( $author_id <= 0 ) {
+			return;
+		}
+
+		$meta = \get_post_meta( $child->ID, 'w3tc_imageservice', true );
+		if ( ! \is_array( $meta ) || empty( $meta['is_converted_file'] ) ) {
+			return;
+		}
+
+		\wp_update_post(
+			array(
+				'ID'          => $child->ID,
+				'post_author' => $author_id,
+			)
+		);
+	}
+
+	/**
+	 * Apply one child delete result to the stored id map.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $state             deleted, missing, skipped, or failed.
+	 * @param int    $child_id          Child id.
+	 * @param array  $bucket            Map being updated.
+	 * @param string $key               Key in that map.
+	 * @param array  $deleted_ids       Ids deleted in this call.
+	 * @param bool   $has_optimizations Whether a child was deleted.
+	 * @param bool   $skipped           Whether a child was kept.
+	 * @param bool   $pruned            Whether a stored id was dropped.
+	 * @param mixed  $w3tc_result       Backward-compatible result.
+	 * @return void
+	 */
+	private function apply_child_delete_state( $state, $child_id, array &$bucket, $key, array &$deleted_ids, &$has_optimizations, &$skipped, &$pruned, &$w3tc_result ) {
+		if ( 'deleted' === $state ) {
+			$deleted_ids[ $child_id ] = true;
+			$has_optimizations        = true;
+			$w3tc_result              = true;
+			unset( $bucket[ $key ] );
+			return;
+		}
+
+		if ( isset( $deleted_ids[ $child_id ] ) || 'missing' === $state ) {
+			unset( $bucket[ $key ] );
+			$pruned = true;
+			return;
+		}
+
+		$skipped = true;
+	}
+
+	/**
+	 * Drop per-format records for a format that no longer has a stored child.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array    $postmeta         Service record being updated.
+	 * @param string[] $removed_formats  Format keys whose child was removed.
+	 * @return void
+	 */
+	private function drop_removed_format_metadata( array &$postmeta, array $removed_formats ) {
+		$buckets = array( 'downloads', 'jobs_status', 'processing_jobs' );
+
+		foreach ( \array_unique( $removed_formats ) as $format_key ) {
+			if ( $this->format_still_stored( $postmeta, $format_key ) ) {
+				continue;
+			}
+
+			foreach ( $buckets as $bucket ) {
+				if ( isset( $postmeta[ $bucket ] ) && \is_array( $postmeta[ $bucket ] ) ) {
+					unset( $postmeta[ $bucket ][ $format_key ] );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Whether a format key still points at a stored child.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array  $postmeta   Service record.
+	 * @param string $format_key Format key.
+	 * @return bool
+	 */
+	private function format_still_stored( array $postmeta, $format_key ) {
+		if ( isset( $postmeta['post_children'] ) && \is_array( $postmeta['post_children'] ) ) {
+			$child_id = isset( $postmeta['post_children'][ $format_key ] ) ? $postmeta['post_children'][ $format_key ] : null;
+			if ( \is_scalar( $child_id ) && (int) $child_id > 0 ) {
+				return true;
+			}
+		}
+
+		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+		if ( ! \is_scalar( $child_id ) || (int) $child_id <= 0 ) {
+			return false;
+		}
+
+		$child = \get_post( (int) $child_id );
+		if ( ! $child instanceof \WP_Post || empty( $child->post_mime_type ) ) {
+			return 'webp' === $format_key;
+		}
+
+		$legacy_format = \strtolower( \str_replace( 'image/', '', $child->post_mime_type ) );
+
+		return $legacy_format === $format_key;
+	}
+
+	/**
 	 * Remove optimizations.
 	 *
 	 * @since 2.2.0
@@ -1722,6 +2003,10 @@ class Extension_ImageService_Plugin_Admin {
 	public function remove_optimizations( $post_id ) {
 		$w3tc_result       = null;
 		$has_optimizations = false;
+		$skipped           = false;
+		$pruned            = false;
+		$deleted_ids       = array();
+		$removed_formats   = array();
 
 		// Get child post ids.
 		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
@@ -1729,25 +2014,80 @@ class Extension_ImageService_Plugin_Admin {
 		// Handle multiple formats (new structure).
 		if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) ) {
 			foreach ( $postmeta['post_children'] as $format_key => $child_id ) {
-				if ( $child_id ) {
-					// Delete optimization.
-					wp_delete_attachment( $child_id, true );
-					$has_optimizations = true;
+				if ( ! \is_scalar( $child_id ) || (int) $child_id <= 0 ) {
+					unset( $postmeta['post_children'][ $format_key ] );
+					$pruned            = true;
+					$removed_formats[] = (string) $format_key;
+					continue;
+				}
+
+				$this->apply_child_delete_state(
+					$this->delete_optimization_child( $post_id, $child_id ),
+					(int) $child_id,
+					$postmeta['post_children'],
+					$format_key,
+					$deleted_ids,
+					$has_optimizations,
+					$skipped,
+					$pruned,
+					$w3tc_result
+				);
+
+				if ( ! isset( $postmeta['post_children'][ $format_key ] ) ) {
+					$removed_formats[] = (string) $format_key;
 				}
 			}
 		}
 
 		// Handle single format (backward compatibility).
 		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
-		if ( $child_id ) {
-			// Delete optimization.
-			$w3tc_result       = wp_delete_attachment( $child_id, true );
-			$has_optimizations = true;
+		if ( \is_scalar( $child_id ) && (int) $child_id > 0 ) {
+			$legacy_format = 'webp';
+			$legacy_child  = \get_post( (int) $child_id );
+			if ( $legacy_child instanceof \WP_Post && ! empty( $legacy_child->post_mime_type ) ) {
+				$legacy_format = \strtolower( \str_replace( 'image/', '', $legacy_child->post_mime_type ) );
+			}
+			$legacy = array(
+				'post_child' => $postmeta['post_child'],
+			);
+			$this->apply_child_delete_state(
+				$this->delete_optimization_child( $post_id, $child_id ),
+				(int) $child_id,
+				$legacy,
+				'post_child',
+				$deleted_ids,
+				$has_optimizations,
+				$skipped,
+				$pruned,
+				$w3tc_result
+			);
+			if ( isset( $legacy['post_child'] ) ) {
+				$postmeta['post_child'] = $legacy['post_child'];
+			} else {
+				unset( $postmeta['post_child'] );
+				$removed_formats[] = $legacy_format;
+			}
+		} elseif ( null !== $child_id && '' !== $child_id ) {
+			unset( $postmeta['post_child'] );
+			$pruned            = true;
+			$removed_formats[] = 'webp';
 		}
 
-		// Delete postmeta if there were any optimizations.
-		if ( $has_optimizations || ! empty( $postmeta ) ) {
+		$this->drop_removed_format_metadata( $postmeta, $removed_formats );
+
+		if ( $skipped && ( $has_optimizations || $pruned ) ) {
+			update_post_meta( $post_id, 'w3tc_imageservice', $postmeta );
+		} elseif ( ! $skipped && ( $has_optimizations || $pruned || ! empty( $postmeta ) ) ) {
 			delete_post_meta( $post_id, 'w3tc_imageservice' );
+		}
+
+		// A mix of removed and skipped children is not a full revert.
+		if ( $has_optimizations && $skipped ) {
+			return false;
+		}
+
+		if ( ! $skipped && ( $has_optimizations || $pruned ) ) {
+			return true;
 		}
 
 		// Return true if optimizations were removed, or the result for backward compatibility.
@@ -2104,6 +2444,59 @@ class Extension_ImageService_Plugin_Admin {
 	}
 
 	/**
+	 * Format keys that still have a stored child.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param int $post_id Parent post id.
+	 * @return string[]
+	 */
+	private function remaining_conversion_formats( $post_id ) {
+		$postmeta = \get_post_meta( $post_id, 'w3tc_imageservice', true );
+		$formats  = array();
+
+		if ( ! \is_array( $postmeta ) ) {
+			return $formats;
+		}
+
+		if ( isset( $postmeta['post_children'] ) && \is_array( $postmeta['post_children'] ) ) {
+			foreach ( $postmeta['post_children'] as $format_key => $child_id ) {
+				if ( \is_scalar( $child_id ) && (int) $child_id > 0 ) {
+					$formats[] = \strtolower( (string) $format_key );
+				}
+			}
+		}
+
+		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+		if ( \is_scalar( $child_id ) && (int) $child_id > 0 ) {
+			$format = 'webp';
+			$child  = \get_post( (int) $child_id );
+			if ( $child instanceof \WP_Post && ! empty( $child->post_mime_type ) ) {
+				$format = \strtolower( \str_replace( 'image/', '', $child->post_mime_type ) );
+			}
+			$formats[] = $format;
+		}
+
+		$formats   = \array_values( \array_unique( $formats ) );
+		$sorted    = array();
+		$preferred = array( 'webp', 'avif' );
+
+		foreach ( $preferred as $format_key ) {
+			if ( \in_array( $format_key, $formats, true ) ) {
+				$sorted[] = $format_key;
+			}
+		}
+
+		foreach ( $formats as $format_key ) {
+			if ( ! \in_array( $format_key, $sorted, true ) ) {
+				$sorted[] = $format_key;
+			}
+		}
+
+		return $sorted;
+	}
+
+	/**
 	 * AJAX: Revert an optimization.
 	 *
 	 * @since 2.2.0
@@ -2127,17 +2520,7 @@ class Extension_ImageService_Plugin_Admin {
 				return;
 			}
 
-			// Check if there are any optimizations to revert.
-			$postmeta          = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
-			$has_optimizations = false;
-
-			if ( isset( $postmeta['post_children'] ) && is_array( $postmeta['post_children'] ) && ! empty( $postmeta['post_children'] ) ) {
-				$has_optimizations = true;
-			} elseif ( isset( $postmeta['post_child'] ) && $postmeta['post_child'] ) {
-				$has_optimizations = true;
-			}
-
-			if ( ! $has_optimizations ) {
+			if ( ! self::has_stored_conversion_child( $post_id ) ) {
 				wp_send_json_error(
 					array(
 						'error' => __( 'No converted images found to revert.', 'w3-total-cache' ),
@@ -2147,9 +2530,28 @@ class Extension_ImageService_Plugin_Admin {
 				return;
 			}
 
-			$this->remove_optimizations( $post_id );
+			$removed = $this->remove_optimizations( $post_id );
+			if ( false === $removed ) {
+				wp_send_json_error(
+					array(
+						'error'             => __( 'Some converted images could not be reverted.', 'w3-total-cache' ),
+						'remaining_formats' => $this->remaining_conversion_formats( $post_id ),
+					),
+					409
+				);
+				return;
+			}
 
-			// Always return success if we had optimizations to remove.
+			if ( ! $removed ) {
+				wp_send_json_error(
+					array(
+						'error' => __( 'No converted images could be reverted.', 'w3-total-cache' ),
+					),
+					404
+				);
+				return;
+			}
+
 			wp_send_json_success( array( 'removed' => true ) );
 		} else {
 			wp_send_json_error(
@@ -2201,6 +2603,9 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Revert all converted images.
 	 *
+	 * Records with no stored child id are cleaned up and left out of the
+	 * result. A stored child that is not removed is reported as incomplete.
+	 *
 	 * @since 2.2.0
 	 *
 	 * @see self::get_imageservice_attachments()
@@ -2221,18 +2626,37 @@ class Extension_ImageService_Plugin_Admin {
 		$results = $this->get_imageservice_attachments();
 
 		$revert_count = 0;
+		$incomplete   = 0;
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
 		Util_Environment::set_time_limit( 0 );
 
 		foreach ( $results->posts as $post_id ) {
-			if ( $this->remove_optimizations( $post_id ) ) {
+			$has_child = self::has_stored_conversion_child( $post_id );
+			$removed   = $this->remove_optimizations( $post_id );
+			if ( ! $has_child ) {
+				continue;
+			}
+
+			if ( $removed ) {
 				++$revert_count;
+			} else {
+				++$incomplete;
 			}
 		}
 
-		wp_send_json_success( array( 'revert_count' => $revert_count ) );
+		if ( $incomplete > 0 ) {
+			\wp_send_json_error(
+				array(
+					'error'        => \__( 'Some converted images could not be reverted.', 'w3-total-cache' ),
+					'revert_count' => $revert_count,
+				),
+				409
+			);
+		}
+
+		\wp_send_json_success( array( 'revert_count' => $revert_count ) );
 	}
 
 	/**

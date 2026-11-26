@@ -594,7 +594,7 @@ class Licensing_Core {
 		$ref   = new \ReflectionObject( $state );
 		foreach ( array( '_data' => $data, '_saved_encoded' => $encoded, '_loaded' => true ) as $prop_name => $prop_value ) {
 			$prop = $ref->getProperty( $prop_name );
-			$prop->setAccessible( true );
+			Util_Reflection::set_accessible( $prop );
 			$prop->setValue( $state, $prop_value );
 		}
 	}

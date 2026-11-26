@@ -921,7 +921,7 @@ jQuery(document).ready(function ($) {
       if (typeof v !== "string" && typeof v !== "number") {
         setValues(v, css_class_prefix + p + "_");
       } else {
-        jQuery("." + css_class_prefix + p + " span").html(v);
+        jQuery("." + css_class_prefix + p + " span").text(v);
         if (jQuery("." + css_class_prefix + p).hasClass("w3tcus_inline")) {
           jQuery("." + css_class_prefix + p).css("display", "inline");
         } else {

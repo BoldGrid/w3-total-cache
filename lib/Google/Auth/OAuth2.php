@@ -391,8 +391,8 @@ class W3TCG_Google_Auth_OAuth2 extends W3TCG_Google_Auth_Abstract
     }
 
     // If the token is set to expire in the next 30 seconds.
-    $expired = ($this->token['created']
-        + ($this->token['expires_in'] - 30)) < time();
+    $expired = ((int) $this->token['created']
+        + ((int) $this->token['expires_in'] - 30)) < time();
 
     return $expired;
   }

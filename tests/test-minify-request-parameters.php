@@ -16,6 +16,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	\define( 'ABSPATH', \dirname( __DIR__ ) . '/' );
 }
 
+require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
 require_once __DIR__ . '/minify-request-parameters-stubs.php';
 require_once \dirname( __DIR__ ) . '/Minify_MinifiedFileRequestHandler.php';
 
@@ -140,7 +141,7 @@ function mrp_handler() {
 	$handler  = new \ReflectionClass( W3TC_Mrp_Handler::class );
 	$instance = $handler->newInstanceWithoutConstructor();
 	$config   = new \ReflectionProperty( \W3TC\Minify_MinifiedFileRequestHandler::class, '_config' );
-	$config->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $config );
 	$config->setValue( $instance, new W3TC_Mrp_Config() );
 
 	return $instance;

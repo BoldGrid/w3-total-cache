@@ -57,7 +57,7 @@ class W3tc_Root_Adminactions_Test extends WP_UnitTestCase {
 	private function resolve_handler( Root_AdminActions $instance, $action ) {
 		$ref    = new \ReflectionClass( $instance );
 		$method = $ref->getMethod( '_get_handler' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 		return (string) $method->invoke( $instance, $action );
 	}
 

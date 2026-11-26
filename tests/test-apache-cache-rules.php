@@ -12,6 +12,8 @@ if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) 
 	return;
 }
 
+require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
+
 if ( ! \defined( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE' ) ) {
 	\define( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE', '# BEGIN W3TC Page Cache cache' );
 }
@@ -81,7 +83,7 @@ function acr_rules_from_private_generator( $class_name, $method_name, array $val
 	$object = $class->newInstanceWithoutConstructor();
 	$method = new \ReflectionMethod( $class_name, $method_name );
 
-	$method->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $method );
 
 	return $method->invoke( $object, new W3TC_Test_Apache_Cache_Rules_Config( $values ) );
 }

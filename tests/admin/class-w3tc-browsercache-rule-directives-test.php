@@ -133,7 +133,7 @@ class W3tc_BrowserCache_Rule_Directives_Test extends WP_UnitTestCase {
 		$mime = $this->mime_fixture();
 
 		$apache = ( new BrowserCache_Environment_Apache( $config ) )->rules_no404wp( $mime );
-		$this->assertStringContainsString( 'RewriteCond %{REQUEST_URI} !(', $apache );
+		$this->assertStringContainsString( 'RewriteCond %{REQUEST_URI} "!(', $apache );
 		$this->assertStringContainsString( 'robots\.txt', $apache );
 		$this->assertStringContainsString( 'sitemap', $apache );
 
@@ -163,9 +163,9 @@ class W3tc_BrowserCache_Rule_Directives_Test extends WP_UnitTestCase {
 		$nginx  = $this->nginx_cache_fragment( $config );
 
 		$this->assertDoesNotMatchRegularExpression( '/^[\t ]*Header set /m', $apache );
-		$this->assertSame( 1, substr_count( $apache, 'RewriteCond %{REQUEST_URI} !(' ) );
+		$this->assertSame( 1, substr_count( $apache, 'RewriteCond %{REQUEST_URI} "!(' ) );
 		$this->assertDoesNotMatchRegularExpression(
-			'/RewriteCond %{REQUEST_URI} !\([^\n\)]*\n/',
+			'/RewriteCond %{REQUEST_URI} "!\([^\n\)]*\n/',
 			$apache,
 			'Newline must not appear inside the RewriteCond exception group.'
 		);
@@ -260,7 +260,7 @@ class W3tc_BrowserCache_Rule_Directives_Test extends WP_UnitTestCase {
 	private function nginx_security_rules( Config $config ): array {
 		$env = new BrowserCache_Environment_Nginx( $config );
 		$ref = new ReflectionMethod( BrowserCache_Environment_Nginx::class, 'security_rules' );
-		$ref->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $ref );
 
 		return $ref->invoke( $env );
 	}
@@ -278,7 +278,7 @@ class W3tc_BrowserCache_Rule_Directives_Test extends WP_UnitTestCase {
 	 */
 	private function force_config_value( Config $config, string $key, $value ): void {
 		$ref = new ReflectionProperty( Config::class, '_data' );
-		$ref->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $ref );
 		$data         = $ref->getValue( $config );
 		$data[ $key ] = $value;
 		$ref->setValue( $config, $data );

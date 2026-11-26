@@ -207,7 +207,7 @@ class Extension_NewRelic_Widget {
 					$s = '<table class="w3tcnr_slowest">';
 
 					foreach ( $metric_slow_pages as $transaction => $time ) {
-						$s .= '<tr><td><span>' . $transaction . '</span></td><td>' . Util_Ui::secs_to_time( $time ) . '</td></tr>';
+						$s .= '<tr><td><span>' . \esc_html( $transaction ) . '</span></td><td>' . \esc_html( Util_Ui::secs_to_time( $time ) ) . '</td></tr>';
 					}
 
 					$s .= '</table>';
@@ -241,7 +241,7 @@ class Extension_NewRelic_Widget {
 					$s = '<table class="w3tcnr_slowest">';
 
 					foreach ( $metric_slow as $transaction => $time ) {
-						$s .= '<tr><td><span>' . $transaction . '</span></td><td>' . Util_Ui::secs_to_time( $time ) . '</td></tr>';
+						$s .= '<tr><td><span>' . \esc_html( $transaction ) . '</span></td><td>' . \esc_html( Util_Ui::secs_to_time( $time ) ) . '</td></tr>';
 					}
 
 					$s .= '</table>';
@@ -275,7 +275,7 @@ class Extension_NewRelic_Widget {
 					$s = '<table class="w3tcnr_slowest">';
 
 					foreach ( $metric_slow as $transaction => $time ) {
-						$s .= '<tr><td><span>' . $transaction . '</span></td><td>' . Util_Ui::secs_to_time( $time ) . '</td></tr>';
+						$s .= '<tr><td><span>' . \esc_html( $transaction ) . '</span></td><td>' . \esc_html( Util_Ui::secs_to_time( $time ) ) . '</td></tr>';
 					}
 
 					$s .= '</table>';

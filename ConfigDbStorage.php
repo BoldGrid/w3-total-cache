@@ -392,22 +392,18 @@ class _WpdbEssentials {
 			return;
 		}
 
-		$port           = null;
-		$socket         = null;
-		$host           = $this->dbhost;
-		$port_or_socket = strstr( $host, ':' );
-		if ( ! empty( $port_or_socket ) ) {
-			$host           = substr( $host, 0, strpos( $host, ':' ) );
-			$port_or_socket = substr( $port_or_socket, 1 );
-			if ( 0 !== strpos( $port_or_socket, '/' ) ) {
-				$port         = intval( $port_or_socket );
-				$maybe_socket = strstr( $port_or_socket, ':' );
-				if ( ! empty( $maybe_socket ) ) {
-					$socket = substr( $maybe_socket, 1 );
-				}
-			} else {
-				$socket = $port_or_socket;
-			}
+		$host_data = self::parse_db_host( (string) $this->dbhost );
+		if ( false === $host_data ) {
+			$this->dbh        = null;
+			$this->last_error = 'Unable to parse database host';
+			$this->ready      = false;
+			return;
+		}
+
+		list( $host, $port, $socket, $is_ipv6 ) = $host_data;
+
+		if ( $is_ipv6 && \extension_loaded( 'mysqlnd' ) ) {
+			$host = "[$host]";
 		}
 
 		if ( WP_DEBUG ) {
@@ -432,6 +428,44 @@ class _WpdbEssentials {
 		} elseif ( WP_DEBUG ) {
 			esc_html_e( 'Failed to connect to mysql server', 'w3-total-cache' );
 		}
+	}
+
+	/**
+	 * Splits DB_HOST into host, port, socket, and IPv6 flag.
+	 *
+	 * Mirrors wpdb::parse_db_host(), which is not loaded yet when this class runs.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $host DB_HOST value.
+	 *
+	 * @return array|false Array of host, port, socket, and IPv6 flag, or false when unparsable.
+	 */
+	public static function parse_db_host( $host ) {
+		$socket  = null;
+		$is_ipv6 = false;
+
+		$socket_pos = \strpos( $host, ':/' );
+		if ( false !== $socket_pos ) {
+			$socket = \substr( $host, $socket_pos + 1 );
+			$host   = \substr( $host, 0, $socket_pos );
+		}
+
+		if ( \substr_count( $host, ':' ) > 1 ) {
+			$pattern = '#^(?:\[)?(?P<host>[0-9a-fA-F:]+)(?:\]:(?P<port>[\d]+))?#';
+			$is_ipv6 = true;
+		} else {
+			$pattern = '#^(?P<host>[^:/]*)(?::(?P<port>[\d]+))?#';
+		}
+
+		if ( 1 !== \preg_match( $pattern, $host, $matches ) ) {
+			return false;
+		}
+
+		$host = ! empty( $matches['host'] ) ? $matches['host'] : '';
+		$port = ! empty( $matches['port'] ) ? (int) $matches['port'] : null;
+
+		return array( $host, $port, $socket, $is_ipv6 );
 	}
 
 	/**

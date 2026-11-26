@@ -22,4 +22,6 @@ rm -f package.* yarn.lock
 
 # Create a tag in the WordPress.org SVN repo after the GitHub Actions release job succeeds.
 # @link https://github.com/BoldGrid/wordpress-tag-sync
+# This writes tags/<version> only and never touches SVN trunk. After the ZIP is validated, copy
+# that tag to trunk manually; the release job must not do it.
 chmod +x ./node_modules/@boldgrid/wordpress-tag-sync/release.sh && ./node_modules/@boldgrid/wordpress-tag-sync/release.sh

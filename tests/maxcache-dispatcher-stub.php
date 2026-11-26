@@ -344,7 +344,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_pin_installed_flags' ) ) {
 	function test_pin_installed_flags( $nginx, $apache ) {
 		foreach ( array( 'nginx_installed' => $nginx, 'apache_installed' => $apache ) as $name => $value ) {
 			$property = new \ReflectionProperty( '\W3TC\Extension_MaxCache_Core', $name );
-			$property->setAccessible( true );
+			\W3TC\Util_Reflection::set_accessible( $property );
 			$property->setValue( null, $value );
 		}
 	}
@@ -362,7 +362,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_pin_mode' ) ) {
 	 */
 	function test_pin_mode( $mode ) {
 		$property = new \ReflectionProperty( '\W3TC\Extension_MaxCache_Core', 'mode' );
-		$property->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $property );
 		$property->setValue( null, $mode );
 	}
 }
@@ -385,7 +385,7 @@ if ( ! \function_exists( __NAMESPACE__ . '\\test_reset_host' ) ) {
 			) as $name => $empty
 		) {
 			$property = new \ReflectionProperty( '\W3TC\Extension_MaxCache_Core', $name );
-			$property->setAccessible( true );
+			\W3TC\Util_Reflection::set_accessible( $property );
 			$property->setValue( null, $empty );
 		}
 	}

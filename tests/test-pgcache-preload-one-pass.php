@@ -186,6 +186,7 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		$this->make_property_accessible( $instances );
 		$this->dispatcher_instances = $instances->getValue();
 		$this->http_requests        = array();
+		$this->set_prime_public_hosts( array() );
 
 		wp_clear_scheduled_hook( 'w3_pgcache_prime' );
 		$this->delete_prime_options();
@@ -212,8 +213,57 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 
 		wp_clear_scheduled_hook( 'w3_pgcache_prime' );
 		$this->delete_prime_options();
+		$this->set_prime_public_hosts( array() );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Replaces the per-request record of public sitemap hosts.
+	 *
+	 * @param bool[] $hosts Hosts keyed by lowercase name.
+	 *
+	 * @return void
+	 */
+	private function set_prime_public_hosts( $hosts ) {
+		$property = new ReflectionProperty( PgCache_Plugin_Admin::class, 'prime_public_hosts' );
+		$this->make_property_accessible( $property );
+		$property->setValue( null, $hosts );
+	}
+
+	/**
+	 * Pages on the validated root sitemap host are kept without a
+	 * second lookup, so a failed lookup cannot drop them.
+	 */
+	public function test_validated_sitemap_host_pages_are_kept() {
+		$this->assertFalse( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://sitemaps.invalid/page', 'sitemaps.invalid' ) );
+
+		$this->set_prime_public_hosts( array( 'sitemaps.invalid' => true ) );
+
+		$this->assertTrue( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://SITEMAPS.invalid./page', 'sitemaps.invalid' ) );
+		$this->assertFalse( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://other.invalid/page', 'sitemaps.invalid' ) );
+		$this->assertFalse( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://other.invalid/page', 'other.invalid' ) );
+	}
+
+	/**
+	 * Parsing a sitemap records its host once it passes the public-host
+	 * check.
+	 */
+	public function test_parse_sitemap_records_validated_host() {
+		$this->mock_http(
+			array(
+				'https://example.org/sitemap.xml' => $this->urlset_response( 'https://example.org/page' ),
+			)
+		);
+
+		$outcome = null;
+		$urls    = $this->real_admin()->parse_sitemap( 'https://example.org/sitemap.xml', null, 0, $outcome );
+
+		$property = new ReflectionProperty( PgCache_Plugin_Admin::class, 'prime_public_hosts' );
+		$this->make_property_accessible( $property );
+
+		$this->assertSame( array( 'https://example.org/page' ), $urls );
+		$this->assertArrayHasKey( 'example.org', $property->getValue() );
 	}
 
 	/**
@@ -380,6 +430,155 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 		);
 
 		$this->assert_sitemap_has_valid_sibling( $responses );
+	}
+
+	/**
+	 * Verifies urlset and rss page URLs are filtered before they are returned.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_parse_sitemap_drops_disallowed_leaf_urls() {
+		$disallowed = array(
+			'http://169.254.169.254/latest/meta-data/',
+			'http://127.0.0.1:6379/',
+			'http://[::1]/',
+			'http://10.0.0.5/admin',
+			'http://[fe80::1]/',
+			'gopher://example.org/1',
+			'file:///etc/passwd',
+			'https://example.com/other-site',
+			'/relative-path',
+		);
+
+		$urlset = '<urlset><url><loc>https://example.org/page</loc></url>';
+		$rss    = '<rss><channel><item><link>https://example.org/post</link></item>';
+		foreach ( $disallowed as $url ) {
+			$urlset .= '<url><loc>' . esc_html( $url ) . '</loc></url>';
+			$rss    .= '<item><link>' . esc_html( $url ) . '</link></item>';
+		}
+
+		$this->mock_http(
+			array(
+				'https://example.org/urlset.xml' => $this->http_response( 200, $urlset . '</urlset>' ),
+				'https://example.org/feed.xml'   => $this->http_response( 200, $rss . '</channel></rss>' ),
+			)
+		);
+
+		$admin = $this->real_admin();
+
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
+		$urls    = $admin->parse_sitemap( 'https://example.org/urlset.xml', null, 0, $outcome );
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );
+		$this->assertSame( array( 'https://example.org/page' ), $urls );
+
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
+		$urls    = $admin->parse_sitemap( 'https://example.org/feed.xml', null, 0, $outcome );
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );
+		$this->assertSame( array( 'https://example.org/post' ), $urls );
+	}
+
+	/**
+	 * Verifies a nested child sitemap cannot add internal page URLs.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_nested_urlset_drops_internal_leaf_urls() {
+		$this->mock_http(
+			array(
+				'https://example.org/root.xml'  => $this->sitemap_index_response(
+					array( 'https://example.org/child.xml' )
+				),
+				'https://example.org/child.xml' => $this->http_response(
+					200,
+					'<urlset><url><loc>http://169.254.169.254/latest/meta-data/</loc></url>' .
+					'<url><loc>https://example.org/page</loc></url></urlset>'
+				),
+			)
+		);
+
+		$outcome = PgCache_Plugin_Admin::SITEMAP_OUTCOME_FAILURE;
+		$urls    = $this->real_admin()->parse_sitemap( 'https://example.org/root.xml', null, 0, $outcome );
+
+		$this->assertSame( PgCache_Plugin_Admin::SITEMAP_OUTCOME_SUCCESS, $outcome );
+		$this->assertSame( array( 'https://example.org/page' ), $urls );
+	}
+
+	/**
+	 * Verifies prime() re-checks each queued URL before fetching it.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_prime_skips_disallowed_queue_urls() {
+		$admin       = $this->stub_admin();
+		$admin->urls = array(
+			'http://169.254.169.254/latest/meta-data/',
+			'https://example.org/one',
+			'http://127.0.0.1:6379/',
+			'https://example.com/other-site',
+			'ftp://example.org/file',
+		);
+		$generation  = PgCache_Plugin_Admin::prime_generation();
+
+		$this->mock_http( array() );
+
+		$result = $admin->prime( 0, 5, null, false, $generation );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( array( 'https://example.org/one' ), $this->http_requests );
+	}
+
+	/**
+	 * Verifies prime() does not follow a redirect to an internal address.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_prime_does_not_follow_redirect_to_internal_address() {
+		$admin       = $this->stub_admin();
+		$admin->urls = array( 'https://example.org/redirect' );
+
+		$redirect            = $this->http_response( 301, '' );
+		$redirect['headers'] = array( 'location' => 'http://169.254.169.254/latest/meta-data/' );
+
+		$this->mock_http( array( 'https://example.org/redirect' => $redirect ) );
+
+		$result = $admin->prime( 0, 1, null, false );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( array( 'https://example.org/redirect' ), $this->http_requests );
+	}
+
+	/**
+	 * Verifies the page URL policy.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_is_prime_url_allowed_policy() {
+		$this->assertTrue( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://example.org/page', 'example.org' ) );
+		$this->assertTrue( PgCache_Plugin_Admin::is_prime_url_allowed( 'https://EXAMPLE.org/page', 'example.org' ) );
+		$this->assertTrue( PgCache_Plugin_Admin::is_prime_url_allowed( home_url( '/page' ), 'sitemaps.example.net' ) );
+		$this->assertTrue( PgCache_Plugin_Admin::is_prime_url_allowed( '//example.org/page', 'example.org.' ) );
+		$this->assertFalse( PgCache_Plugin_Admin::is_prime_url_allowed( 'http://10.0.0.1/page', '10.0.0.1' ) );
+		$this->assertFalse( PgCache_Plugin_Admin::is_prime_url_allowed( 'http://169.254.169.254/', '169.254.169.254' ) );
+
+		$denied = array(
+			'http://169.254.169.254/',
+			'http://127.0.0.1/',
+			'http://[::1]/',
+			'http://[::ffff:127.0.0.1]/',
+			'http://10.0.0.1/',
+			'gopher://example.org/',
+			'https://example.com/',
+			'',
+			null,
+			array(),
+		);
+
+		foreach ( $denied as $url ) {
+			$this->assertFalse(
+				PgCache_Plugin_Admin::is_prime_url_allowed( $url, 'example.org' ),
+				'Expected refusal for ' . wp_json_encode( $url )
+			);
+		}
 	}
 
 	/**
@@ -1063,7 +1262,7 @@ class W3TC_PgCache_Preload_One_Pass_Test extends WP_UnitTestCase {
 	 */
 	private function make_property_accessible( $property ) {
 		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
+			\W3TC\Util_Reflection::set_accessible( $property );
 		}
 	}
 }

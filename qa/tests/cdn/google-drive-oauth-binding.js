@@ -112,7 +112,15 @@ describe("rt9-233 Google Drive OAuth state-binding regression", function () {
       "&oa_refresh_token=" +
       encodeURIComponent(ATTACKER_REFRESH);
 
-    await adminPage.goto(craftedUrl, { waitUntil: "domcontentloaded" });
+    let response = await adminPage.goto(craftedUrl, {
+      waitUntil: "domcontentloaded",
+    });
+    let finalUrl = response.url();
+    expect(finalUrl).not.contains("oa_access_token");
+    expect(finalUrl).not.contains("oa_client_id");
+    expect(finalUrl).not.contains("oa_refresh_token");
+    expect(finalUrl).not.contains(ATTACKER_ACCESS_TOKEN);
+
     let html = await adminPage.content();
     let scripts = await inlineScriptText(adminPage);
 
@@ -138,25 +146,51 @@ describe("rt9-233 Google Drive OAuth state-binding regression", function () {
   /**
    * Direct GET to the auth-return action without state must return 403
    * (Cdn_GoogleDrive_AdminActions defense-in-depth).
+   *
+   * The action nonce is only localized in the popup URL, so complete a
+   * state-bound return first, then drop the state from that URL. A request
+   * carrying oa_* would be redirected on admin_init before the handler runs.
    */
   it("direct GET to auth-return handler without state returns 403", async () => {
     await adminPage.goto(env.networkAdminUrl + "admin.php?page=w3tc_cdn", {
       waitUntil: "domcontentloaded",
     });
-    let nonce = await adminPage.$eval("input[name=_wpnonce]", (e) => e.value);
-    expect(nonce).not.empty;
+    let stateMatch = (await adminPage.content()).match(
+      /w3tc_gdrive_state(?:=|%3D)([a-zA-Z0-9]{32})/,
+    );
+    expect(stateMatch).is.not.null;
 
-    let directUrl =
+    let returnUrl =
       env.networkAdminUrl +
-      "admin.php?_wpnonce=" +
-      nonce +
-      "&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return" +
+      "admin.php?page=w3tc_cdn" +
+      "&w3tc_gdrive_state=" +
+      stateMatch[1] +
       "&oa_client_id=" +
       encodeURIComponent(ATTACKER_CLIENT_ID) +
       "&oa_access_token=" +
       encodeURIComponent(ATTACKER_ACCESS_TOKEN) +
       "&oa_refresh_token=" +
       encodeURIComponent(ATTACKER_REFRESH);
+
+    let returnResponse = await adminPage.goto(returnUrl, {
+      waitUntil: "domcontentloaded",
+    });
+    expect(returnResponse.url()).contains("w3tc_gdrive_oauth=");
+    expect(returnResponse.url()).not.contains("oa_access_token");
+    expect(returnResponse.url()).not.contains(ATTACKER_ACCESS_TOKEN);
+
+    let popupMatch = (await inlineScriptText(adminPage)).match(
+      /w3tc_cdn_google_drive_popup_url\s*=\s*\["([^"]+)"\]/,
+    );
+    expect(popupMatch).is.not.null;
+    let popupUrl = popupMatch[1].replace(/\\\//g, "/").replace(/&amp;/g, "&");
+    expect(popupUrl).contains("w3tc_cdn_google_drive_auth_return");
+    expect(popupUrl).contains("_wpnonce=");
+    expect(popupUrl).not.contains("oa_access_token");
+    expect(popupUrl).not.contains(ATTACKER_ACCESS_TOKEN);
+
+    let directUrl = popupUrl.replace(/&w3tc_gdrive_state=[^&]*/, "");
+    expect(directUrl).not.contains("w3tc_gdrive_state");
 
     let response = await adminPage.goto(directUrl, {
       waitUntil: "domcontentloaded",

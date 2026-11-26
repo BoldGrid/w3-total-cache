@@ -14,46 +14,46 @@ class Cdn_GoogleDrive_Popup_AuthReturn {
 	/**
 	 * Renders the Google Drive authorization return view.
 	 *
-	 * This method retrieves the client ID, refresh token, and access token from the request,
-	 * sets the access token for a new Google client, and queries Google Drive for folders.
-	 * It then filters the folders to include only those that are direct children of the root.
-	 * Finally, it includes the view to display the results.
+	 * Loads OAuth return values from the user-bound store, sets the access token
+	 * for a new Google client, and queries Google Drive for folders.
+	 * The view receives the opaque handle and the state token.
 	 *
 	 * @return void
 	 */
 	public function render() {
-		$client_id          = Util_Request::get_string( 'oa_client_id' );
-		$w3tc_refresh_token = Util_Request::get_string( 'oa_refresh_token' );
+		$oauth_handle = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthTokens::HANDLE_PARAM );
+		$tokens       = Cdn_GoogleDrive_OAuthTokens::read( $oauth_handle );
+		if ( ! Cdn_GoogleDrive_OAuthTokens::are_complete( $tokens ) ) {
+			\wp_die(
+				\esc_html__( 'Google Drive authorization expired. Restart the authorization flow.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
 
-		$token_array       = array(
-			'access_token' => Util_Request::get_string( 'oa_access_token' ),
-			'token_type'   => Util_Request::get_string( 'oa_token_type' ),
-			'expires_in'   => Util_Request::get_string( 'oa_expires_in' ),
-			'created'      => Util_Request::get_string( 'oa_created' ),
-		);
-		$w3tc_access_token = wp_json_encode( $token_array );
+		$client_id         = $tokens['oa_client_id'];
+		$w3tc_access_token = Cdn_GoogleDrive_OAuthTokens::access_token_json( $tokens );
+		$oauth_state       = Cdn_GoogleDrive_OAuthTokens::request_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
 
-		/**
-		 * RT9-233: The AdminActions handler that invokes us
-		 * (`w3tc_cdn_google_drive_auth_return`) has already validated
-		 * the state token. Read the same value here so the view can
-		 * emit it as a hidden form input — the subsequent
-		 * `auth_set` POST then carries it back and gets re-validated
-		 * at the config-write boundary.
-		 */
-		$oauth_state = Util_Request::get_string( Cdn_GoogleDrive_OAuthState::STATE_PARAM );
+		try {
+			$client = new \W3TCG_Google_Client();
+			$client->setClientId( $client_id );
+			$client->setAccessToken( $w3tc_access_token );
 
-		$client = new \W3TCG_Google_Client();
-		$client->setClientId( $client_id );
-		$client->setAccessToken( $w3tc_access_token );
+			$w3tc_service = new \W3TCG_Google_Service_Drive( $client );
 
-		$w3tc_service = new \W3TCG_Google_Service_Drive( $client );
-
-		$items = $w3tc_service->files->listFiles(
-			array(
-				'q' => "mimeType = 'application/vnd.google-apps.folder'",
-			)
-		);
+			$items = $w3tc_service->files->listFiles(
+				array(
+					'q' => "mimeType = 'application/vnd.google-apps.folder'",
+				)
+			);
+		} catch ( \W3TCG_Google_Exception $ex ) {
+			\wp_die(
+				\esc_html__( 'Google Drive could not be reached with this authorization. Restart the authorization flow.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
 
 		$folders = array();
 		foreach ( $items as $w3tc_item ) {
@@ -61,6 +61,8 @@ class Cdn_GoogleDrive_Popup_AuthReturn {
 				$folders[] = $w3tc_item;
 			}
 		}
+
+		unset( $client_id, $w3tc_access_token, $tokens );
 
 		include W3TC_DIR . '/Cdn_GoogleDrive_Popup_AuthReturn_View.php';
 	}

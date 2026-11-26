@@ -58,9 +58,10 @@ class PageSpeed_Api {
 	 * @since 2.0.0
 	 *
 	 * @param string $w3tc_access_token_json API access token JSON.
+	 * @param object $config                 Optional plugin config. Defaults to Dispatcher::config().
 	 */
-	public function __construct( $w3tc_access_token_json = null ) {
-		$this->w3tc_config = Dispatcher::config();
+	public function __construct( $w3tc_access_token_json = null, $config = null ) {
+		$this->w3tc_config = null !== $config ? $config : Dispatcher::config();
 		$this->client      = new \W3TCG_Google_Client();
 		$this->client->setApplicationName( 'W3TC PageSpeed Analyzer' );
 		$this->client->addScope( 'openid' );
@@ -651,6 +652,124 @@ class PageSpeed_Api {
 		delete_option( 'w3tcps_refresh_retry_after' );
 		delete_option( 'w3tcps_revoke_fail' );
 		delete_option( 'w3tcps_revoke_fail_message' );
+	}
+
+	/**
+	 * Processes the PageSpeed authorize return and the Deauthorize link on
+	 * the General Settings page.
+	 *
+	 * Credentials returned by the W3 API are stored only when the request
+	 * carries the single-use state issued for the current user. Deauthorize
+	 * requires a nonce.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param Config $config Plugin config.
+	 *
+	 * @return string One of 'none', 'error', 'rejected', 'invalid-token',
+	 *                'stored', 'deauthorized', or 'deauthorize-rejected'.
+	 *                Anything other than 'none' should be followed by a
+	 *                redirect back to the settings page.
+	 */
+	public static function handle_authorize_request( $config ) {
+		$w3tc_access_token    = self::get_request_scalar( 'w3tc_access_token' );
+		$w3tc_pagespeed_key   = self::get_request_scalar( 'w3tc_pagespeed_key' );
+		$w3tc_authorize_error = self::get_request_scalar( 'w3tc_authorize_error' );
+		$w3tc_deauthorize     = self::get_request_scalar( 'w3tc_deauthorize' );
+
+		if ( ! empty( $w3tc_authorize_error ) ) {
+			\update_option(
+				'w3tcps_authorize_fail',
+				\__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+			);
+			\update_option(
+				'w3tcps_authorize_fail_message',
+				self::get_authorize_failure_message( $w3tc_authorize_error )
+			);
+
+			return 'error';
+		}
+
+		if ( ! empty( $w3tc_access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
+			if ( ! PageSpeed_OAuthState::verify( self::get_request_scalar( PageSpeed_OAuthState::STATE_PARAM ) ) ) {
+				\update_option(
+					'w3tcps_authorize_fail',
+					\__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				\update_option(
+					'w3tcps_authorize_fail_message',
+					\__( 'The authorization response did not match an authorization started from this site. Please click Authorize again.', 'w3-total-cache' )
+				);
+
+				return 'rejected';
+			}
+
+			PageSpeed_OAuthState::consume();
+
+			$w3tc_access_token_prepared = self::prepare_access_token_json( $w3tc_access_token );
+
+			if ( false === $w3tc_access_token_prepared ) {
+				\update_option(
+					'w3tcps_authorize_fail',
+					\__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				\update_option(
+					'w3tcps_authorize_fail_message',
+					\__( 'Google PageSpeed authorization returned an unusable access token.', 'w3-total-cache' )
+				);
+
+				return 'invalid-token';
+			}
+
+			$config->set( 'widget.pagespeed.access_token', $w3tc_access_token_prepared );
+			$config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
+			$config->save();
+			self::clear_failure_notices();
+
+			return 'stored';
+		}
+
+		if ( ! empty( $w3tc_deauthorize ) ) {
+			if ( ! Util_Nonce::verify_admin( PageSpeed_OAuthState::DEAUTHORIZE_NONCE_ACTION ) ) {
+				\update_option(
+					'w3tcps_revoke_fail',
+					\__( 'Google PageSpeed Insights API authorization was not reset.', 'w3-total-cache' )
+				);
+				\update_option(
+					'w3tcps_revoke_fail_message',
+					\__( 'The Deauthorize link has expired. Please click Deauthorize again.', 'w3-total-cache' )
+				);
+
+				return 'deauthorize-rejected';
+			}
+
+			$w3tc_w3_pagespeed = new PageSpeed_Api( $config->get_string( 'widget.pagespeed.access_token' ), $config );
+			if ( $w3tc_w3_pagespeed->reset() ) {
+				\update_option(
+					'w3tcps_authorize_success',
+					\__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+				);
+			}
+
+			return 'deauthorized';
+		}
+
+		return 'none';
+	}
+
+	/**
+	 * Reads a request parameter as a trimmed string, ignoring array values.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $key Request key.
+	 *
+	 * @return string
+	 */
+	private static function get_request_scalar( $key ) {
+		$value = Util_Request::get( $key, '' );
+
+		return \is_scalar( $value ) ? \trim( (string) $value ) : '';
 	}
 
 	/**

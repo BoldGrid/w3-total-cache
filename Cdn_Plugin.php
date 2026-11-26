@@ -1102,6 +1102,13 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	private $_placeholders = array();
 
 	/**
+	 * Per-request token for srcset placeholders.
+	 *
+	 * @var string
+	 */
+	private $_srcset_placeholder_hash = '';
+
+	/**
 	 * Config.
 	 *
 	 * @var Config
@@ -1140,20 +1147,19 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 */
 	public function replace_all_links( $buffer ) {
 		$this->fill_regexps();
+		$this->_ensure_srcset_placeholder_hash( $buffer );
 
-		$srcset_pattern = '~srcset\s*=\s*[\"\'](.*?)[\"\']~s';
-		$buffer         = preg_replace_callback(
-			$srcset_pattern,
-			array( $this, '_srcset_replace_callback' ),
-			$buffer
-		);
+		$buffer = $this->replace_srcset_attributes( $buffer );
 
 		foreach ( $this->_regexps as $regexp ) {
-			$buffer = preg_replace_callback(
+			$replaced = preg_replace_callback(
 				$regexp,
 				array( $this, '_link_replace_callback' ),
 				$buffer
 			);
+			if ( \is_string( $replaced ) ) {
+				$buffer = $replaced;
+			}
 		}
 
 		if ( $this->_config->get_boolean( 'cdn.minify.enable' ) ) {
@@ -1171,14 +1177,65 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			}
 
 			if ( ! empty( $minify_url_regexp ) ) {
-				$regexp = '~(["\'(=])\s*' . $minify_url_regexp . '~U';
-				$buffer = preg_replace_callback( $regexp, $processor, $buffer );
+				$regexp   = '~(["\'(=])\s*' . $minify_url_regexp . '~U';
+				$replaced = preg_replace_callback( $regexp, $processor, $buffer );
+				if ( \is_string( $replaced ) ) {
+					$buffer = $replaced;
+				}
 			}
 		}
 
 		$buffer = $this->replace_placeholders( $buffer );
 
 		return $buffer;
+	}
+
+	/**
+	 * Rewrites srcset attributes through the placeholder callback.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $buffer HTML buffer.
+	 *
+	 * @return string
+	 */
+	private function replace_srcset_attributes( $buffer ) {
+		$this->_placeholders = array();
+
+		if ( empty( $this->_regexps ) || false === \stripos( $buffer, 'srcset' ) ) {
+			return $buffer;
+		}
+
+		try {
+			$processor = new \WP_HTML_Tag_Processor( $buffer );
+
+			while ( $processor->next_tag() ) {
+				foreach ( (array) $processor->get_attribute_names_with_prefix( '' ) as $name ) {
+					if ( 'srcset' !== \substr( $name, -6 ) ) {
+						continue;
+					}
+
+					$value = $processor->get_attribute( $name );
+
+					if ( ! \is_string( $value ) ) {
+						continue;
+					}
+
+					$this->_srcset_replace_callback( array( $value, '"', $value ) );
+					$processor->set_attribute( $name, \array_key_last( $this->_placeholders ) );
+				}
+			}
+
+			return $processor->get_updated_html();
+		} catch ( \Throwable $e ) {
+			/**
+			 * On WordPress 6.2 with PHP 8, next_tag() passes strpos() an out-of-range offset and PHP throws a ValueError
+			 * when an attribute is left unterminated at the end of the buffer.
+			 */
+			$this->_placeholders = array();
+
+			return $buffer;
+		}
 	}
 
 	/**
@@ -1208,13 +1265,13 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * @return string|null The modified URL or null if no replacement is necessary.
 	 */
 	public function _srcset_replace_callback( $matches ) {
-		list( $matched_url, $srcset ) = $matches;
+		list( $matched_url, $quote, $srcset ) = $matches;
 
 		if ( empty( $this->_regexps ) ) {
 			return $matched_url;
 		}
 
-		$w3tc_index = '%srcset-' . count( $this->_placeholders ) . '%';
+		$w3tc_index = $this->_get_srcset_placeholder_token();
 
 		$srcset_urls     = explode( ',', $srcset );
 		$new_srcset_urls = array();
@@ -1245,7 +1302,39 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 
 		$this->_placeholders[ $w3tc_index ] = implode( ',', $new_srcset_urls );
 
-		return 'srcset="' . $w3tc_index . '"';
+		return 'srcset=' . $quote . $w3tc_index . $quote;
+	}
+
+	/**
+	 * Ensures a per-request srcset placeholder hash that does not appear in the buffer.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $buffer HTML buffer being rewritten.
+	 *
+	 * @return string
+	 */
+	private function _ensure_srcset_placeholder_hash( $buffer ) {
+		if ( ! \is_string( $this->_srcset_placeholder_hash ) || '' === $this->_srcset_placeholder_hash ) {
+			$this->_srcset_placeholder_hash = 'CdnSrcset_' . \bin2hex( \random_bytes( 16 ) );
+		}
+
+		while ( \is_string( $buffer ) && false !== \strpos( $buffer, $this->_srcset_placeholder_hash ) ) {
+			$this->_srcset_placeholder_hash .= \bin2hex( \random_bytes( 8 ) );
+		}
+
+		return $this->_srcset_placeholder_hash;
+	}
+
+	/**
+	 * Builds an unguessable srcset placeholder token.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return string
+	 */
+	private function _get_srcset_placeholder_token() {
+		return '%%' . $this->_ensure_srcset_placeholder_hash( '' ) . '_' . \count( $this->_placeholders ) . '%%';
 	}
 
 	/**
@@ -1256,10 +1345,48 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * @return string The modified content with replaced placeholders.
 	 */
 	private function replace_placeholders( $buffer ) {
-		foreach ( $this->_placeholders as $srcset_id => $srcset_content ) {
-			$buffer = str_replace( $srcset_id, $srcset_content, $buffer );
+		if ( empty( $this->_placeholders ) ) {
+			return $buffer;
 		}
-		return $buffer;
+
+		$replaced = preg_replace_callback(
+			'~srcset=([\'"])(%%' . \preg_quote( $this->_srcset_placeholder_hash, '~' ) . '_\d+%%)\1~',
+			array( $this, 'restore_srcset_placeholder' ),
+			$buffer
+		);
+
+		return \is_string( $replaced ) ? $replaced : $buffer;
+	}
+
+	/**
+	 * Restores one emitted srcset placeholder, at most once, as an encoded attribute value.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $matches Placeholder match: quote, token.
+	 *
+	 * @return string
+	 */
+	private function restore_srcset_placeholder( $matches ) {
+		$token = $matches[2];
+
+		if ( ! isset( $this->_placeholders[ $token ] ) ) {
+			return $matches[0];
+		}
+
+		$srcset = \strtr(
+			$this->_placeholders[ $token ],
+			array(
+				'&' => '&amp;',
+				'<' => '&lt;',
+				'>' => '&gt;',
+				'"' => '&quot;',
+				"'" => '&#039;',
+			)
+		);
+		unset( $this->_placeholders[ $token ] );
+
+		return 'srcset=' . $matches[1] . $srcset . $matches[1];
 	}
 
 	/**

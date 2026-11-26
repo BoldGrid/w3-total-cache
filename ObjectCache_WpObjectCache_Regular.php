@@ -18,7 +18,7 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Groups WordPress registers as non-persistent at startup; matches the default setting.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var string[]
 	 */
@@ -48,7 +48,7 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Default non-persistent groups that the admin removed from the saved list.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var array
 	 */

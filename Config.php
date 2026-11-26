@@ -1118,13 +1118,24 @@ class Config {
 			return;
 		}
 
+		/**
+		 * Same-version loads skip ConfigCompiler, so cdn.ftp.type would
+		 * otherwise miss the migration and the FTPS schema default.
+		 */
+		$w3tc_data = ConfigCompiler::normalize_saved_ftp_type( $w3tc_data );
+
 		if ( ! $this->is_master() ) {
 			$child_data = self::util_array_from_storage( $this->_blog_id, $this->_preview );
 
 			if ( ! is_null( $child_data ) ) {
-				if ( ! isset( $w3tc_data['version'] ) || W3TC_VERSION !== $w3tc_data['version'] ) {
+				if ( ! isset( $child_data['version'] ) || W3TC_VERSION !== $child_data['version'] ) {
 					$this->load_full();
 					return;
+				}
+
+				// Child files omit sealed keys, so only resolve when the child overloads CDN settings.
+				if ( ! ConfigCompiler::child_key_sealed( 'cdn.ftp.type', $w3tc_data, $child_data ) ) {
+					$child_data = ConfigCompiler::normalize_saved_ftp_type( $child_data, $w3tc_data );
 				}
 
 				foreach ( $child_data as $w3tc_key => $w3tc_value ) {

@@ -11,6 +11,7 @@ declare( strict_types = 1 );
 
 use W3TC\Config;
 use W3TC\Generic_AdminActions_Default;
+use W3TC\Util_Admin;
 
 /**
  * Class: W3tc_Config_Write_Boundaries_Test
@@ -35,6 +36,7 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		\wp_set_current_user( 1 );
 		$tmp = WP_CONTENT_DIR . '/cache/tmp';
 		if ( ! is_dir( $tmp ) ) {
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -67,7 +69,7 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 		$config = new Config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data         = $prop->getValue( $config );
 		$data[ $key ] = $value;
 		$prop->setValue( $config, $data );
@@ -89,6 +91,32 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 	private function admin_for_page( string $page ): Generic_AdminActions_Default {
 		$_GET['page'] = $page;
 		return new Generic_AdminActions_Default();
+	}
+
+	/**
+	 * Unregistered page values fall back to the dashboard page.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_current_page_rejects_unregistered_page_slug() {
+		$_GET['page'] = 'w3tc_unregistered_page';
+
+		$this->assertSame( 'w3tc_dashboard', Util_Admin::get_current_page() );
+
+		$_GET['page'] = 'w3tc_cdn';
+
+		$this->assertSame( 'w3tc_cdn', Util_Admin::get_current_page() );
+	}
+
+	/**
+	 * The Image Converter page under Media keeps its own slug for breadcrumbs.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_current_page_keeps_image_converter_slug() {
+		$_GET['page'] = 'w3tc_extension_page_imageservice';
+
+		$this->assertSame( 'w3tc_extension_page_imageservice', Util_Admin::get_current_page() );
 	}
 
 	/**
@@ -225,6 +253,14 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 			1
 		);
 
+		\add_filter(
+			'w3tc_admin_menu',
+			function ( $menu ) {
+				$menu['w3tc_extensions'] = array();
+				return $menu;
+			}
+		);
+
 		$_POST = array(
 			'cloudflare___key' => 'legit-extension-page-key',
 		);
@@ -295,6 +331,60 @@ class W3tc_Config_Write_Boundaries_Test extends WP_UnitTestCase {
 		$this->admin_for_page( 'w3tc_pgcache' )->read_request( $config );
 
 		$this->assertSame( 'file_generic', $config->get_string( 'pgcache.engine' ) );
+	}
+
+	/**
+	 * Engine selectors remain writable from the pages that own them.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_allows_newly_page_bound_engines_on_owning_pages() {
+		$_POST = array(
+			'minify__engine'       => 'memcached',
+			'minify__html__engine' => 'htmltidy',
+		);
+
+		$config = $this->seeded_config( 'minify.engine', 'file' );
+		$config->set( 'minify.html.engine', 'html' );
+		$this->admin_for_page( 'w3tc_general' )->read_request( $config );
+
+		$this->assertSame( 'memcached', $config->get_string( 'minify.engine' ) );
+		$this->assertSame( 'htmltidy', $config->get_string( 'minify.html.engine' ) );
+
+		$_POST = array(
+			'cdnfsd__engine' => 'cloudfront',
+		);
+		$config = $this->seeded_config( 'cdnfsd.engine', '' );
+		$this->admin_for_page( 'w3tc_general' )->read_request( $config );
+
+		$this->assertSame( 'cloudfront', $config->get_string( 'cdnfsd.engine' ) );
+	}
+
+	/**
+	 * Page-bound engine selectors are refused from non-owning admin pages.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_rejects_page_bound_engines_off_owning_page() {
+		$_POST = array(
+			'minify__engine'       => 'memcached',
+			'minify__html__engine' => 'htmltidy',
+		);
+
+		$config = $this->seeded_config( 'minify.engine', 'file' );
+		$config->set( 'minify.html.engine', 'html' );
+		$this->admin_for_page( 'w3tc_minify' )->read_request( $config );
+
+		$this->assertSame( 'file', $config->get_string( 'minify.engine' ) );
+		$this->assertSame( 'html', $config->get_string( 'minify.html.engine' ) );
+
+		$_POST = array(
+			'cdnfsd__engine' => 'cloudfront',
+		);
+		$config = $this->seeded_config( 'cdnfsd.engine', '' );
+		$this->admin_for_page( 'w3tc_cdn' )->read_request( $config );
+
+		$this->assertSame( '', $config->get_string( 'cdnfsd.engine' ) );
 	}
 
 	/**

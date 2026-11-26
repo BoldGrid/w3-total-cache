@@ -14,13 +14,12 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form action="admin.php?page=w3tc_cdn" method="post" style="padding: 20px">
 	<?php
-	Util_Ui::hidden( 'w3tc-googledrive-clientid', 'client_id', $client_id );
-	Util_Ui::hidden( 'w3tc-googledrive-access-token', 'access_token', $w3tc_access_token );
-	Util_Ui::hidden( 'w3tc-googledrive-refresh-token', 'refresh_token', $w3tc_refresh_token );
-	/**
-	 * RT9-233: Carry the session-bound OAuth state token through the
-	 * auth-set POST so the config-write handler can re-validate.
-	 */
+	// The folder choice is posted with the opaque handle. Credentials stay in the server-side store.
+	Util_Ui::hidden(
+		'w3tc-googledrive-oauth-handle',
+		Cdn_GoogleDrive_OAuthTokens::HANDLE_PARAM,
+		$oauth_handle
+	);
 	Util_Ui::hidden(
 		'w3tc-googledrive-oauth-state',
 		Cdn_GoogleDrive_OAuthState::STATE_PARAM,

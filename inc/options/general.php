@@ -918,7 +918,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<th><?php Util_Ui::e_config_label( 'config.path' ); ?></th>
 				<td>
 					<input type="text" name="config__path" value="<?php echo esc_attr( $this->_config->get_string( 'config.path' ) ); ?>" size="80" <?php Util_Ui::sealing_disabled( 'common.' ); ?>/>
-					<p class="description"><?php esc_html_e( 'If empty the default path will be used..', 'w3-total-cache' ); ?></p>
+					<p class="description"><?php esc_html_e( 'If empty the default path will be used. Custom paths must end in .conf and be inside the WordPress directory or the W3 Total Cache cache directory; otherwise the default path is used.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<?php endif; ?>
@@ -1252,63 +1252,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		);
 		?>
 		<?php
-		$w3tc_access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
-		$w3tc_w3_pagespeed      = new PageSpeed_Api( $w3tc_access_token_json );
+		$w3tc_site_id    = Util_Http::generate_site_id();
+		$w3tc_return_url = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
 
-		$w3tc_site_id       = Util_Http::generate_site_id();
-		$w3tc_return_url    = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
-		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
-
-		$w3tc_access_token    = Util_Request::get( 'w3tc_access_token' );
-		$w3tc_pagespeed_key   = Util_Request::get( 'w3tc_pagespeed_key' );
-		$w3tc_authorize_error = Util_Request::get( 'w3tc_authorize_error' );
-		$w3tc_deauthorize     = Util_Request::get( 'w3tc_deauthorize' );
-
-		if ( ! empty( $w3tc_authorize_error ) ) {
-			$w3tc_message = PageSpeed_Api::get_authorize_failure_message( $w3tc_authorize_error );
-
-			update_option(
-				'w3tcps_authorize_fail',
-				__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
-			);
-			update_option(
-				'w3tcps_authorize_fail_message',
-				$w3tc_message
-			);
-
-			wp_safe_redirect( $w3tc_return_url );
-			exit;
-		} elseif ( ! empty( $w3tc_access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
-			$w3tc_access_token_prepared = PageSpeed_Api::prepare_access_token_json( $w3tc_access_token );
-
-			if ( false === $w3tc_access_token_prepared ) {
-				update_option(
-					'w3tcps_authorize_fail',
-					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
-				);
-				update_option(
-					'w3tcps_authorize_fail_message',
-					__( 'Google PageSpeed authorization returned an unusable access token.', 'w3-total-cache' )
-				);
-			} else {
-				$this->_config->set( 'widget.pagespeed.access_token', $w3tc_access_token_prepared );
-				$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
-				$this->_config->save();
-				PageSpeed_Api::clear_failure_notices();
-			}
-
-			wp_safe_redirect( $w3tc_return_url );
-			exit;
-		} elseif ( $w3tc_deauthorize ) {
-			if ( $w3tc_w3_pagespeed->reset() ) {
-				update_option(
-					'w3tcps_authorize_success',
-					__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
-				);
-			}
+		if ( 'none' !== PageSpeed_Api::handle_authorize_request( $this->_config ) ) {
 			wp_safe_redirect( $w3tc_return_url );
 			exit;
 		}
+
+		$w3tc_access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
+		$w3tc_w3_pagespeed      = new PageSpeed_Api( $w3tc_access_token_json );
 		?>
 		<table class="form-table">
 			<?php
@@ -1322,7 +1275,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 				<tr>
 					<th>
-						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3tc_return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize', 'w3-total-cache' ); ?></a>
+						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo \esc_url( \wp_nonce_url( $w3tc_return_url . '&w3tc_deauthorize=1', PageSpeed_OAuthState::DEAUTHORIZE_NONCE_ACTION ) ); ?>"><?php \esc_html_e( 'Deauthorize', 'w3-total-cache' ); ?></a>
 					</th>
 				</tr>
 				<?php
@@ -1333,7 +1286,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
 					</th>
 					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( Util_Environment::get_api_base_url() . '/google/authorize-in/' . rawurlencode( $w3tc_site_id ) . '/' . rawurlencode( $w3tc_return_url ) ); ?>"><?php esc_html_e( 'Authorize', 'w3-total-cache' ); ?></a>
+						<?php
+						$w3tc_authorize_return_url = \add_query_arg(
+							PageSpeed_OAuthState::STATE_PARAM,
+							PageSpeed_OAuthState::issue(),
+							$w3tc_return_url
+						);
+						?>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo \esc_url( Util_Environment::get_api_base_url() . '/google/authorize-in/' . \rawurlencode( $w3tc_site_id ) . '/' . \rawurlencode( $w3tc_authorize_return_url ) ); ?>"><?php \esc_html_e( 'Authorize', 'w3-total-cache' ); ?></a>
 						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>

@@ -699,7 +699,8 @@ class Cdn_Core {
 	 *
 	 * Relative paths are resolved against {@see Util_Environment::document_root()}.
 	 * Absolute paths are accepted only when they resolve inside the document root.
-	 * Traversal (`..`) and paths outside the document root return an empty string.
+	 * Traversal (`..` path segments), null bytes, and paths outside the document
+	 * root return an empty string.
 	 *
 	 * @since 2.10.0
 	 *
@@ -712,7 +713,7 @@ class Cdn_Core {
 			return '';
 		}
 
-		if ( false !== \strpos( $w3tc_file, '..' ) ) {
+		if ( false !== \strpos( $w3tc_file, "\0" ) || \preg_match( '~(^|[/\\\\])\.\.([/\\\\]|$)~', $w3tc_file ) ) {
 			return '';
 		}
 

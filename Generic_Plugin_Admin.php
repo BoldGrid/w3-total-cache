@@ -81,6 +81,7 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 		add_action( 'wp_ajax_w3tc_forums_api', array( $this, 'wp_ajax_w3tc_forums_api' ), 10, 1 );
 
+		add_action( 'current_screen', array( $this, 'queue_setup_guide_redirect' ) );
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
 
@@ -122,8 +123,8 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		// Run post-update tasks.
-		$this->post_update_tasks();
+		// Run post-update tasks once translations are available (cron schedule labels are translated).
+		add_action( 'init', array( $this, 'post_update_tasks' ), 0 );
 	}
 
 	/**
@@ -656,6 +657,52 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
+	 * Queue the Setup Guide redirect on the current screen's load action.
+	 *
+	 * The "load-{$hook_suffix}" action fires after page actions are handled and before
+	 * the admin header starts sending output, so the redirect headers can still be sent.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return void
+	 */
+	public function queue_setup_guide_redirect() {
+		global $hook_suffix;
+
+		if ( ! empty( $hook_suffix ) ) {
+			add_action( 'load-' . $hook_suffix, array( $this, 'maybe_redirect_to_setup_guide' ), PHP_INT_MAX );
+		}
+	}
+
+	/**
+	 * Redirect administrators to the Setup Guide on W3TC pages until it is completed or skipped.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_to_setup_guide() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		$page = Util_Request::get_string( 'page', null );
+
+		if ( empty( $page ) ) {
+			$page = \get_current_screen()->id ?? null;
+		}
+
+		if ( ( ! \is_multisite() || \is_super_admin() ) && false !== \strpos( (string) $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! \get_site_option( 'w3tc_setupguide_completed' ) ) {
+			$state_master = Dispatcher::config_state_master();
+
+			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > \strtotime( 'NOW - 1 WEEK' ) ) {
+				\wp_safe_redirect( \esc_url( \network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				exit;
+			}
+		}
+	}
+
+	/**
 	 * Define icon styles for the custom post type (administrators only).
 	 *
 	 * @throws \Exception Exception.
@@ -674,15 +721,6 @@ class Generic_Plugin_Admin {
 		// If 'page' is null or an empty string, fallback to current screen ID.
 		if ( empty( $page ) ) {
 			$page = get_current_screen()->id ?? null;
-		}
-
-		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
-			$state_master = Dispatcher::config_state_master();
-
-			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
-				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
-				exit;
-			}
 		}
 
 		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
@@ -744,7 +782,7 @@ class Generic_Plugin_Admin {
 						'page': '<?php echo esc_attr( $page ); ?>',
 						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
 						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
-						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
+						'w3tc_has_key': '<?php echo $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
 						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO' ) && W3TC_PRO ? 1 : 0; ?>',
 						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
 						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
@@ -1389,6 +1427,7 @@ class Generic_Plugin_Admin {
 				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
 				'</a>'
 			),
+			'config_import_file_type'                => __( 'Please select a JSON configuration file.', 'w3-total-cache' ),
 			'config_import_import'                   => sprintf(
 				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 				__( 'Configuration file could not be imported. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),

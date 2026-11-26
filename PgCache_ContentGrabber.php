@@ -12,6 +12,9 @@ if ( class_exists( 'PgCache_ContentGrabber' ) ) {
 	return;
 }
 
+require_once __DIR__ . '/PgCache_UriAnchor.php';
+require_once __DIR__ . '/Util_CacheControl.php';
+
 /**
  * Class PgCache_ContentGrabber
  *
@@ -77,6 +80,16 @@ class PgCache_ContentGrabber {
 	 * @var boolean
 	 */
 	private $_debug = false;
+
+	/**
+	 * Worker authentication already accepted for this request.
+	 *
+	 * The one-time proof row is deleted on first use. Later checks in the
+	 * same request must reuse that result.
+	 *
+	 * @var bool
+	 */
+	private $_alwayscached_worker_request = false;
 
 	/**
 	 * Request URI
@@ -280,7 +293,7 @@ class PgCache_ContentGrabber {
 			$this->cache_reject_reason = $this->_page_key_extension['cache_reject_reason'];
 		}
 
-		if ( ! empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) {
+		if ( $this->_is_alwayscached_worker_request() ) {
 			$this->_page_key_extension['alwayscached'] = true;
 		}
 
@@ -638,7 +651,7 @@ class PgCache_ContentGrabber {
 	 * Calls the 2.11.0 helper when it is loaded. A stale Util_Environment
 	 * from 2.10.7 does not define that method, and an unguarded call fatals.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object|null $config Config.
 	 * @return bool
@@ -654,7 +667,7 @@ class PgCache_ContentGrabber {
 	/**
 	 * REST flush/cache decision when the 2.11.0 helper is not loaded.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object|null $config Config.
 	 * @return bool
@@ -677,12 +690,29 @@ class PgCache_ContentGrabber {
 	 * @return bool True if cache can be read, false otherwise.
 	 */
 	private function _can_read_cache() {
+		if ( $this->_has_request_credentials() ) {
+			$this->cache_reject_reason = 'Request has credentials';
+			$this->process_status      = 'miss_logged_in';
+			return false;
+		}
+
 		if (
 			! self::rest_cache_is_active( $this->_config ) &&
 			Util_Environment::is_rest_request( $this->_request_uri )
 		) {
 			$this->cache_reject_reason = 'REST request';
 			$this->process_status      = 'miss_api_call';
+			return false;
+		}
+
+		/**
+		 * Same logged-in REST check as writes. Runs even when
+		 * pgcache.reject.logged is off, so a stored anonymous REST
+		 * response is not read for a logged-in caller.
+		 */
+		if ( $this->_is_authenticated_rest_cache_request() ) {
+			$this->cache_reject_reason = 'User is logged in';
+			$this->process_status      = 'miss_logged_in';
 			return false;
 		}
 
@@ -811,6 +841,12 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
+		if ( $this->_has_request_credentials() ) {
+			$this->cache_reject_reason = 'Request has credentials';
+			$this->process_status      = 'miss_logged_in';
+			return false;
+		}
+
 		if ( $this->_config->get_boolean( 'pgcache.reject.logged_roles' ) ) {
 			$roles = $this->_config->get_array( 'pgcache.reject.roles' );
 			if ( Util_Cookie::current_user_has_rejected_role( $roles ) ) {
@@ -933,10 +969,120 @@ class PgCache_ContentGrabber {
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' === $_SERVER['REQUEST_METHOD'] ) {
 			$this->cache_reject_reason = 'HEAD request';
 			$this->process_status      = 'miss_request_method';
-			return;
+			return false;
+		}
+
+		if ( $this->_is_authenticated_rest_cache_request() ) {
+			$this->cache_reject_reason = 'User is logged in';
+			$this->process_status      = 'miss_logged_in';
+			return false;
+		}
+
+		if ( ! $this->_passed_accept_files() && ! $this->_passed_reject_uri() ) {
+			$this->cache_reject_reason = 'Requested URI is rejected';
+			$this->process_status      = 'miss_configuration';
+			return false;
+		}
+
+		if ( ! $this->_check_cookies() ) {
+			$this->cache_reject_reason = 'Cookie is rejected';
+			$this->process_status      = 'miss_configuration';
+			return false;
+		}
+
+		if ( $this->_response_cache_control_disallows_store( $response_headers ) ) {
+			$this->cache_reject_reason = 'Response Cache-Control disallows storing';
+			$this->process_status      = 'miss_configuration';
+			return false;
+		}
+
+		if ( $this->_response_sets_session( $response_headers ) ) {
+			$this->cache_reject_reason = 'Response sets a cookie or cart token';
+			$this->process_status      = 'miss_configuration';
+			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the response sends a Set-Cookie or WooCommerce Cart-Token header.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $response_headers Response headers from the current request.
+	 *
+	 * @return bool
+	 */
+	private function _response_sets_session( $response_headers ) {
+		$names = array( 'set-cookie', 'cart-token' );
+
+		if ( ! empty( $response_headers['plain'] ) && \is_array( $response_headers['plain'] ) ) {
+			foreach ( $response_headers['plain'] as $header ) {
+				if (
+					\is_array( $header ) &&
+					isset( $header['name'], $header['value'] ) &&
+					\is_string( $header['name'] ) &&
+					\is_string( $header['value'] ) &&
+					'' !== \trim( $header['value'] ) &&
+					\in_array( \strtolower( $header['name'] ), $names, true )
+				) {
+					return true;
+				}
+			}
+		}
+
+		foreach ( $names as $name ) {
+			if (
+				isset( $response_headers['kv'][ $name ] ) &&
+				\is_string( $response_headers['kv'][ $name ] ) &&
+				'' !== \trim( $response_headers['kv'][ $name ] )
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether Cache-Control tells a shared cache not to store the response.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $response_headers Response headers from the current request.
+	 *
+	 * @return bool
+	 */
+	private function _response_cache_control_disallows_store( $response_headers ) {
+		$values = array();
+
+		if ( ! empty( $response_headers['plain'] ) && \is_array( $response_headers['plain'] ) ) {
+			foreach ( $response_headers['plain'] as $header ) {
+				if (
+					! \is_array( $header ) ||
+					! isset( $header['name'], $header['value'] ) ||
+					! \is_string( $header['name'] ) ||
+					! \is_string( $header['value'] ) ||
+					'' === $header['value'] ||
+					0 !== \strcasecmp( $header['name'], 'Cache-Control' )
+				) {
+					continue;
+				}
+
+				$values[] = $header['value'];
+			}
+		}
+
+		if ( empty( $values ) ) {
+			if ( empty( $response_headers['kv']['cache-control'] ) || ! \is_string( $response_headers['kv']['cache-control'] ) ) {
+				return false;
+			}
+
+			$values[] = $response_headers['kv']['cache-control'];
+		}
+
+		return Util_CacheControl::disallows_shared_store( \implode( ', ', $values ) );
 	}
 
 	/**
@@ -1120,23 +1266,60 @@ class PgCache_ContentGrabber {
 			'wp-register',
 		);
 
+		$path = $this->_request_uri_path();
+
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( $this->_request_uri, $uri ) !== false ) {
+			if ( false !== \strstr( $path, $uri ) ) {
 				return false;
 			}
 		}
 
+		if ( $this->_is_rest_cache_request() ) {
+			foreach ( array( \rawurldecode( $path ), $this->_request_rest_route() ) as $route ) {
+				if ( \preg_match( '~(?:^|/)wc/store(?:/|$)~i', $route ) ) {
+					return false;
+				}
+			}
+		}
+
 		$reject_uri = $this->_config->get_array( 'pgcache.reject.uri' );
-		$reject_uri = array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $reject_uri );
+		$reject_uri = \array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $reject_uri );
 
 		foreach ( $reject_uri as $expr ) {
-			$expr = trim( $expr );
-			if ( '' !== $expr && preg_match( '~' . $expr . '~i', $this->_request_uri ) ) {
+			$expr = $this->_anchor_uri_expr( $expr );
+			if ( '' !== $expr && @\preg_match( '~' . $expr . '~i', $path ) ) {
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Request path used by page-cache URI rules.
+	 *
+	 * The query string is excluded so a rule cannot match a query value.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string
+	 */
+	private function _request_uri_path() {
+		$parts = \explode( '?', (string) $this->_request_uri, 2 );
+		return $parts[0];
+	}
+
+	/**
+	 * Anchors one URI expression to a path segment.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $expr URI expression.
+	 *
+	 * @return string
+	 */
+	private function _anchor_uri_expr( $expr ) {
+		return PgCache_UriAnchor::apply( $expr );
 	}
 
 	/**
@@ -1146,20 +1329,17 @@ class PgCache_ContentGrabber {
 	 */
 	public function _passed_accept_files() {
 		$accept_uri = $this->_config->get_array( 'pgcache.accept.files' );
-		$accept_uri = array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $accept_uri );
+		$accept_uri = \array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $accept_uri );
 
-		foreach ( $accept_uri as &$val ) {
-			$val = trim( str_replace( '~', '\~', $val ) );
+		$parts = array();
+		foreach ( $accept_uri as $expr ) {
+			$anchored = $this->_anchor_uri_expr( $expr );
+			if ( '' !== $anchored ) {
+				$parts[] = $anchored;
+			}
 		}
 
-		$accept_uri = array_filter(
-			$accept_uri,
-			function ( $val ) {
-				return '' !== $val;
-			}
-		);
-
-		if ( ! empty( $accept_uri ) && @preg_match( '~' . implode( '|', $accept_uri ) . '~i', $this->_request_uri ) ) {
+		if ( ! empty( $parts ) && @\preg_match( '~' . \implode( '|', $parts ) . '~i', $this->_request_uri_path() ) ) {
 			return true;
 		}
 
@@ -1292,8 +1472,16 @@ class PgCache_ContentGrabber {
 				continue;
 			}
 
-			if ( preg_match( '/^(wp-postpass|comment_author)/', $cookie_name ) ) {
+			if ( \preg_match( '/^(wp-postpass|comment_author|wp-resetpass|wp-activate)/', $cookie_name ) ) {
 				return false;
+			}
+		}
+
+		if ( $this->_is_rest_cache_request() ) {
+			foreach ( \array_keys( $_COOKIE ) as $cookie_name ) {
+				if ( \preg_match( '/^(?:wp_woocommerce_session_|woocommerce_items_in_cart$|woocommerce_cart_hash$)/', (string) $cookie_name ) ) {
+					return false;
+				}
 			}
 		}
 
@@ -1311,18 +1499,171 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Whether this REST request should skip the shared REST cache.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return bool
+	 */
+	private function _is_authenticated_rest_cache_request() {
+		return $this->_is_rest_cache_request() && ! $this->_check_logged_in();
+	}
+
+	/**
+	 * Whether REST caching is active and this is a REST request.
+	 *
+	 * A plain-permalink request routes through ?rest_route= and is not
+	 * flagged as REST until WordPress defines REST_REQUEST.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool
+	 */
+	private function _is_rest_cache_request() {
+		if ( ! self::rest_cache_is_active( $this->_config ) ) {
+			return false;
+		}
+
+		return Util_Environment::is_rest_request( $this->_request_uri ) || '' !== $this->_request_rest_route();
+	}
+
+	/**
+	 * The rest_route query value of the request, or an empty string.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string
+	 */
+	private function _request_rest_route() {
+		$parts = \explode( '?', (string) $this->_request_uri, 2 );
+		if ( ! isset( $parts[1] ) ) {
+			return '';
+		}
+
+		\parse_str( $parts[1], $query );
+
+		return isset( $query['rest_route'] ) && \is_string( $query['rest_route'] ) ? $query['rest_route'] : '';
+	}
+
+	/**
 	 * Checks if the user is logged in and rejects the request if true.
 	 *
 	 * @return bool True if the user is not logged in, false otherwise.
 	 */
 	public function _check_logged_in() {
+		if ( $this->_has_request_credentials() ) {
+			return false;
+		}
+
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( strpos( $cookie_name, 'wordpress_logged_in' ) === 0 ) {
 				return false;
 			}
 		}
 
+		if ( \function_exists( 'is_user_logged_in' ) && \is_user_logged_in() ) {
+			return false;
+		}
+
+		if (
+			$this->_is_rest_cache_request() &&
+			! $this->_is_alwayscached_worker_request()
+		) {
+			if ( ! empty( $_SERVER['HTTP_AUTHORIZATION'] ) || ! empty( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
+				return false;
+			}
+		}
+
 		return true;
+	}
+
+	/**
+	 * Whether the request carries credentials that must not share page cache.
+	 *
+	 * The Always Cached worker authenticates with the worker secret and is
+	 * excluded so it can still regenerate a public entry. Cookie sessions are
+	 * handled separately by the logged-in cache setting.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool
+	 */
+	private function _has_request_credentials() {
+		if ( $this->_is_alwayscached_worker_request() ) {
+			return false;
+		}
+
+		if (
+			( isset( $_SERVER['HTTP_AUTHORIZATION'] ) && \is_string( $_SERVER['HTTP_AUTHORIZATION'] ) && '' !== \trim( $_SERVER['HTTP_AUTHORIZATION'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Non-empty only.
+			|| ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) && \is_string( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) && '' !== \trim( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Non-empty only.
+			|| ( isset( $_SERVER['HTTP_CART_TOKEN'] ) && \is_string( $_SERVER['HTTP_CART_TOKEN'] ) && '' !== \trim( $_SERVER['HTTP_CART_TOKEN'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Non-empty only.
+		) {
+			return true;
+		}
+
+		foreach ( \array_keys( $_SERVER ) as $server_key ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Key names only.
+			if ( 0 === \strpos( $server_key, 'PHP_AUTH_' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks whether the request was made by the Always Cached worker.
+	 *
+	 * When `W3TC_WORKER_SECRET` is set, the worker must present it as a Bearer
+	 * token. Otherwise the worker presents a one-time proof minted for this
+	 * callback. The proof is consumed once; later checks in the same request
+	 * reuse that result. The callback uses the public site URL, so the peer
+	 * address is not loopback and is not treated as authentication.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool True if the request is an authenticated worker request.
+	 */
+	private function _is_alwayscached_worker_request() {
+		if ( $this->_alwayscached_worker_request ) {
+			return true;
+		}
+
+		$matched = $this->_match_alwayscached_worker_request();
+		if ( $matched ) {
+			$this->_alwayscached_worker_request = true;
+		}
+
+		return $matched;
+	}
+
+	/**
+	 * Matches the current request against the worker secret or a one-time proof.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool
+	 */
+	private function _match_alwayscached_worker_request() {
+		if ( empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Presence only.
+			return false;
+		}
+
+		$authorization = '';
+		if ( isset( $_SERVER['HTTP_AUTHORIZATION'] ) && \is_string( $_SERVER['HTTP_AUTHORIZATION'] ) && '' !== \trim( $_SERVER['HTTP_AUTHORIZATION'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared with hash_equals.
+			$authorization = $_SERVER['HTTP_AUTHORIZATION'];
+		} elseif ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) && \is_string( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) && '' !== \trim( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared with hash_equals.
+			$authorization = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+		}
+
+		if ( ! \preg_match( '/^\s*Bearer\s+(\S+)\s*$/i', $authorization, $matches ) ) {
+			return false;
+		}
+
+		if ( \defined( 'W3TC_WORKER_SECRET' ) && '' !== W3TC_WORKER_SECRET ) {
+			return \hash_equals( (string) W3TC_WORKER_SECRET, $matches[1] );
+		}
+
+		return Util_Environment::alwayscached_consume_proof( $matches[1] );
 	}
 
 
@@ -1348,11 +1689,19 @@ class PgCache_ContentGrabber {
 	/**
 	 * Ensures that the required cache rules are present.
 	 *
+	 * Server rules are only restored from a frontend request made by a user
+	 * who can manage options. Anonymous cache misses never write rules
+	 * files; admin settings saves and plugin activation regenerate them.
+	 *
 	 * @return void
 	 */
 	public function _check_rules_present() {
 		if ( Util_Environment::is_nginx() ) {
 			return; // nginx store it in a single file.
+		}
+
+		if ( ! $this->can_restore_rules() ) {
+			return;
 		}
 
 		$filename = Util_Rule::get_pgcache_rules_cache_path();
@@ -1374,6 +1723,21 @@ class PgCache_ContentGrabber {
 		} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Exception.
 		}
+	}
+
+	/**
+	 * Determines whether the current request may restore server rules.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return bool True when the current user can manage options.
+	 */
+	private function can_restore_rules() {
+		if ( ! function_exists( 'current_user_can' ) || ! function_exists( 'is_user_logged_in' ) ) {
+			return false;
+		}
+
+		return is_user_logged_in() && current_user_can( 'manage_options' );
 	}
 
 	/**

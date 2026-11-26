@@ -121,6 +121,78 @@
   }
 
   /**
+   * Update a Media Library row when one converted format remains.
+   *
+   * Size lines for removed formats are dropped, the status label lists what
+   * remains, and an enabled missing format gets its convert action back.
+   *
+   * @since 2.11.1
+   *
+   * @param jQuery $itemTd Row cell.
+   * @param array  formats Remaining format keys.
+   */
+  function syncRowAfterPartialRevert($itemTd, formats) {
+    var $primaryLink = $itemTd
+        .find("a.w3tc-convert")
+        .not("[data-format]")
+        .first(),
+      postId = $primaryLink.data("post-id"),
+      labels = [];
+
+    $itemTd
+      .find(
+        ".w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-converted-error",
+      )
+      .each(function () {
+        var $line = $(this),
+          match = ($line.text() || "").match(/^\s*([A-Za-z0-9]+)\s*:/),
+          formatKey;
+
+        if (!match) {
+          return;
+        }
+
+        formatKey = match[1].toLowerCase();
+        if (formats.indexOf(formatKey) !== -1) {
+          return;
+        }
+
+        $line.remove();
+      });
+
+    formats.forEach(function (formatKey) {
+      labels.push(String(formatKey).toUpperCase());
+    });
+
+    if ($primaryLink.length && labels.length) {
+      $primaryLink
+        .text(labels.join("/") + " " + w3tcData.lang.converted)
+        .data("status", "converted")
+        .prop("aria-disabled", "true")
+        .closest("span")
+        .addClass("w3tc-disabled");
+    }
+
+    $itemTd.find(".w3tc-convert-webp, .w3tc-convert-avif").remove();
+
+    if (
+      formats.indexOf("webp") !== -1 &&
+      formats.indexOf("avif") === -1 &&
+      isFormatEnabled("avif")
+    ) {
+      ensureConvertLink($itemTd, "avif", postId);
+    }
+
+    if (
+      formats.indexOf("avif") !== -1 &&
+      formats.indexOf("webp") === -1 &&
+      isFormatEnabled("webp")
+    ) {
+      ensureConvertLink($itemTd, "webp", postId);
+    }
+  }
+
+  /**
    * Toggle buttons based on eligibility.
    *
    * @since 2.2.0
@@ -890,18 +962,14 @@
             .closest("span")
             .removeClass("w3tc-disabled");
         } else if (response.data && response.data.hasOwnProperty("error")) {
-          $this.text(w3tcData.lang.error).data("status", "error");
-
-          $itemTd
-            .parent()
-            .append(
-              '<div class="notice notice-error inline">' +
-                response.data.error +
-                "</div>",
-            );
+          restoreRevertLink();
+          $itemTd.append(
+            '<div class="notice notice-error inline w3tc-imageservice-error">' +
+              response.data.error +
+              "</div>",
+          );
         } else {
-          $this.text(w3tcData.lang.error).data("status", "error");
-
+          restoreRevertLink();
           $itemTd.append(
             '<div class="notice notice-error inline w3tc-imageservice-error">' +
               w3tcData.lang.apiError +
@@ -910,28 +978,29 @@
         }
       })
       .fail(function (response) {
-        var message;
+        var data =
+          response && response.responseJSON && response.responseJSON.data;
 
-        $this.text(w3tcData.lang.error).data("status", "error");
-
-        if (
-          response &&
-          response.hasOwnProperty("responseJSON") &&
-          response.responseJSON &&
-          response.responseJSON.hasOwnProperty("data") &&
-          response.responseJSON.data.hasOwnProperty("error")
-        ) {
-          message = response.responseJSON.data.error;
-        } else {
-          message = w3tcData.lang.ajaxFail;
+        restoreRevertLink();
+        if (data && $.isArray(data.remaining_formats)) {
+          syncRowAfterPartialRevert($itemTd, data.remaining_formats);
         }
-
         $itemTd.append(
           '<div class="notice notice-error inline w3tc-imageservice-error">' +
-            message +
+            (data && data.hasOwnProperty("error")
+              ? data.error
+              : w3tcData.lang.ajaxFail) +
             "</div>",
         );
       });
+
+    function restoreRevertLink() {
+      $this
+        .text(w3tcData.lang.revert)
+        .prop("aria-disabled", "false")
+        .closest("span")
+        .removeClass("w3tc-disabled");
+    }
   }
 
   /**
@@ -1006,7 +1075,11 @@
    * @see refreshStats()
    */
   function revertItems() {
-    var $this = $(this);
+    var $this = $(this),
+      $parent = $this.parent(),
+      revertLabel = $this.text();
+
+    $parent.find(".w3tc-imageservice-error").remove();
 
     $this
       .text(w3tcData.lang.reverting)
@@ -1028,35 +1101,42 @@
             .prop("disabled", false)
             .prop("aria-disabled", "false");
           refreshStats();
-        } else if (response.data && response.data.hasOwnProperty("error")) {
-          $this
-            .text(w3tcData.lang.error)
-            .parent()
-            .append(
-              '<div class="notice notice-error inline">' +
-                response.data.error +
-                "</div>",
-            );
         } else {
-          $this
-            .text(w3tcData.lang.error)
-            .parent()
-            .append(
-              '<div class="notice notice-error inline w3tc-imageservice-error">' +
-                w3tcData.lang.apiError +
-                "</div>",
-            );
+          showRevertAllError(response && response.data, w3tcData.lang.apiError);
         }
       })
-      .fail(function () {
-        $this
-          .text(w3tcData.lang.error)
-          .parent()
-          .append(
-            '<div class="notice notice-error inline w3tc-imageservice-error">' +
-              w3tcData.lang.ajaxFail +
-              "</div>",
-          );
+      .fail(function (response) {
+        showRevertAllError(
+          response && response.responseJSON && response.responseJSON.data,
+          w3tcData.lang.ajaxFail,
+        );
       });
+
+    function restoreRevertAllButton() {
+      $this
+        .text(revertLabel)
+        .prop("disabled", false)
+        .prop("aria-disabled", "false");
+    }
+
+    function showRevertAllError(data, fallbackMessage) {
+      restoreRevertAllButton();
+
+      $parent.append(
+        '<div class="notice notice-error inline w3tc-imageservice-error">' +
+          (data && data.hasOwnProperty("error")
+            ? data.error
+            : fallbackMessage) +
+          "</div>",
+      );
+
+      // Non-2xx responses still include revert_count when some images were removed.
+      if (data && data.revert_count > 0) {
+        $convertAllButton
+          .prop("disabled", false)
+          .prop("aria-disabled", "false");
+        refreshStats();
+      }
+    }
   }
 })(jQuery);

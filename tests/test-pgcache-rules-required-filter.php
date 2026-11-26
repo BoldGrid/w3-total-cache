@@ -12,6 +12,8 @@ if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) 
 	return;
 }
 
+require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
+
 $prr_cases = array();
 $prr_pass  = 0;
 $prr_fail  = 0;
@@ -131,7 +133,7 @@ class PRR_Config_Stub {
 function prr_required( bool $enabled, string $engine ): bool {
 	$environment = new \W3TC\PgCache_Environment();
 	$method      = new \ReflectionMethod( '\W3TC\PgCache_Environment', 'is_rules_required' );
-	$method->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $method );
 
 	return $method->invoke(
 		$environment,

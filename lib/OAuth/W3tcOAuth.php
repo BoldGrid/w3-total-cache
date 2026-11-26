@@ -475,13 +475,14 @@ class W3tcOAuthRequest {
   }
 
   /**
-   * util function: current nonce
+   * Unique value for the OAuth nonce parameter.
+   *
+   * @since 2.11.1
+   *
+   * @return string 64 lowercase hexadecimal characters.
    */
   private static function generate_nonce() {
-    $mt = microtime();
-    $rand = mt_rand();
-
-    return md5($mt . $rand); // md5s look nicer than numbers
+    return \bin2hex( \random_bytes( 32 ) );
   }
 }
 

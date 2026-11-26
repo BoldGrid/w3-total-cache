@@ -171,7 +171,7 @@ class W3tc_Constant_Url_Allowlist_Test extends WP_UnitTestCase {
 	public function test_license_api_base_url_uses_shared_allowlist() {
 		$ref    = new \ReflectionClass( Licensing_Core::class );
 		$method = $ref->getMethod( '_license_api_base_url' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 
 		$result = $method->invoke( null );
 		$this->assertNotFalse( $result );

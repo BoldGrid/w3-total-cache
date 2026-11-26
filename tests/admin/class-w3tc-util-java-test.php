@@ -31,10 +31,9 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 	private static $valid_binary = '';
 
 	/**
-	 * Resolve a known-good executable path that validate() accepts.
-	 * A candidate whose realpath leaves the allowlist is skipped. Current
-	 * GitHub runners symlink /usr/bin/env to cargo coreutils, which is
-	 * executable but outside the allowlist, so realpath() alone is not enough.
+	 * Resolve a known-good executable under the configured allowlist
+	 * using filesystem checks only. Validator results are asserted in
+	 * the tests, not used to choose the fixture.
 	 *
 	 * @return void
 	 */
@@ -42,12 +41,42 @@ class W3tc_Util_Java_Test extends WP_UnitTestCase {
 		parent::setUpBeforeClass();
 
 		foreach ( array( '/usr/bin/env', '/usr/bin/true', '/usr/bin/test' ) as $candidate ) {
-			$validated = Util_Java::validate( $candidate );
-			if ( is_string( $validated ) && '' !== $validated ) {
-				self::$valid_binary = $validated;
+			$real = realpath( $candidate );
+			if (
+				false !== $real
+				&& is_file( $real )
+				&& is_executable( $real )
+				&& self::path_is_under_allowed_dirs( $real )
+			) {
+				self::$valid_binary = $real;
 				break;
 			}
 		}
+	}
+
+	/**
+	 * True when a canonical path is under allowed_dirs().
+	 *
+	 * Prefix check only. Does not call Util_Java::validate().
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $real Canonical path.
+	 *
+	 * @return bool
+	 */
+	private static function path_is_under_allowed_dirs( $real ) {
+		foreach ( Util_Java::allowed_dirs() as $dir ) {
+			if ( ! is_string( $dir ) || '' === $dir ) {
+				continue;
+			}
+			$prefix = rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
+			if ( 0 === strpos( $real, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

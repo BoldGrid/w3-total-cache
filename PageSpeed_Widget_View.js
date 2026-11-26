@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
           .find(".spinner")
           .removeClass("is-active");
         if (data.error) {
-          $(".w3tcps_error").html(
+          $(".w3tcps_error").text(
             w3tcData.lang.pagespeed_widget_data_error + data.error,
           );
           $(".w3tcps_error").removeClass("w3tc_none");
@@ -51,14 +51,14 @@ jQuery(document).ready(function ($) {
           $(".w3tcps_missing_token").removeClass("w3tc_none");
           return;
         }
-        $(".w3tcps_timestamp").html(data.w3tcps_timestamp);
+        $(".w3tcps_timestamp").text(data.w3tcps_timestamp);
         $(".w3tcps_timestamp_container").removeClass("w3tc_none");
         $(".w3tcps_buttons").removeClass("w3tc_none");
         $(".w3tc-gps-widget").html(data.w3tcps_widget);
         $(".w3tc-gps-widget").removeClass("w3tc_none").fadeIn("slow");
       },
     ).fail(function (jqXHR, textStatus, errorThrown) {
-      $(".w3tcps_error").html(
+      $(".w3tcps_error").text(
         w3tcData.lang.pagespeed_widget_data_error + jqXHR.responseText,
       );
       $(".w3tcps_error").removeClass("w3tc_none");

@@ -13,6 +13,7 @@ namespace W3TC;
  * PECL Memcached class
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound
  */
@@ -409,19 +410,29 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	}
 
 	/**
+	 * Constructs the key version key for a cache group.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_group Cache group. Default is an empty string.
+	 *
+	 * @return string
+	 */
+	protected function _get_key_version_key( $w3tc_group = '' ) {
+		return $this->get_fixed_length_key_version_key( $w3tc_group );
+	}
+
+	/**
 	 * Generates a unique storage key for a given name.
 	 *
-	 * This method generates a unique key for an item in Memcached by including the instance ID, host, blog ID, module, and a
-	 * hashed version of the provided name. Memcached keys cannot contain spaces, so this method ensures the key format is valid
-	 * for Memcached.
+	 * The key is a fixed-length hash of the instance ID, host, blog ID, module, and item name. See
+	 * Cache_Base::get_fixed_length_item_key().
 	 *
 	 * @param string $w3tc_name The name for which to generate a unique key.
 	 *
 	 * @return string The generated storage key.
 	 */
 	public function get_item_key( $w3tc_name ) {
-		// memcached doesn't survive spaces in a key.
-		$w3tc_key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $w3tc_name ) );
-		return $w3tc_key;
+		return $this->get_fixed_length_item_key( $w3tc_name );
 	}
 }

@@ -637,6 +637,7 @@ class Util_PageUrls {
 	 *
 	 * phpcs:disable WordPress.DB.DirectDatabaseQuery
 	 * phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+	 * phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 	 *
 	 * @global $wpdb
 	 *
@@ -650,25 +651,32 @@ class Util_PageUrls {
 		global $wpdb;
 
 		$filters = array(
-			'post_type = "' . $post_type . '"',
+			'post_type = %s',
 			'post_status = "publish"',
 		);
+		$values  = array( $post_type );
 
 		if ( $year ) {
-			$filters[] = sprintf( 'YEAR(post_date) = %d', $year );
+			$filters[] = 'YEAR(post_date) = %d';
+			$values[]  = $year;
 		}
 
 		if ( $month ) {
-			$filters[] = sprintf( 'MONTH(post_date) = %d', $month );
+			$filters[] = 'MONTH(post_date) = %d';
+			$values[]  = $month;
 		}
 
 		if ( $day ) {
-			$filters[] = sprintf( 'DAY(post_date) = %d', $day );
+			$filters[] = 'DAY(post_date) = %d';
+			$values[]  = $day;
 		}
 
 		$where = implode( ' AND ', $filters );
 
-		$sql = sprintf( 'SELECT COUNT(*) FROM %s WHERE %s', $wpdb->posts, $where );
+		$sql = $wpdb->prepare(
+			'SELECT COUNT(*) FROM ' . $wpdb->posts . ' WHERE ' . $where,
+			$values
+		);
 
 		$w3tc_count = (int) $wpdb->get_var( $sql );
 

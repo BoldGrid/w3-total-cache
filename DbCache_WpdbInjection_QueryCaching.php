@@ -401,18 +401,21 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private function _flush_cache_for_sql_group( $w3tc_group, $extras = array() ) {
 		$this->wpdb_mixin->timer_start();
 
+		$debug_purge = $this->_config->get_boolean( 'dbcache.debug_purge' );
+		$log_extras  = ( $this->debug || $debug_purge ) ? Util_Debug::scrub_dbcache_flush_extras_for_log( $extras ) : array();
+
 		if ( $this->debug ) {
 			$filename = Util_Debug::log(
 				'dbcache',
 				'flushing based on sqlquery group ' . $w3tc_group .
-				' with extras ' . wp_json_encode( $extras )
+				' with extras ' . wp_json_encode( $log_extras )
 			);
 		}
-		if ( $this->_config->get_boolean( 'dbcache.debug_purge' ) ) {
+		if ( $debug_purge ) {
 			Util_Debug::log_purge(
 				'dbcache',
 				'_flush_cache_for_sql_group',
-				array( $w3tc_group, $extras )
+				array( $w3tc_group, $log_extras )
 			);
 		}
 
@@ -964,6 +967,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private function log_query( $fields ) {
 		foreach ( $fields as $i => $field ) {
 			if ( \is_string( $field ) ) {
+				if ( 2 === $i ) {
+					$field = Util_Debug::scrub_sql_literals( $field );
+				}
 				$fields[ $i ] = Util_Debug::redact( $field );
 			}
 		}

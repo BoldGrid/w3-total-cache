@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -16,7 +16,7 @@ use W3TC\Root_Environment;
 /**
  * A missing page cache cleanup event is scheduled again on an admin request.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
@@ -36,7 +36,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * Clears the event and registers a schedule for it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -63,7 +63,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * Clears the event and restores wp-config.php.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function tear_down() {
 		wp_clear_scheduled_hook( 'w3_pgcache_cleanup' );
@@ -78,7 +78,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * Builds an in-memory configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param bool   $enabled Whether page cache is enabled.
 	 * @param string $engine  Page cache engine.
@@ -97,7 +97,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * An admin request schedules the missing event when Disk page cache is enabled.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_537_admin_request_restores_missing_cleanup_cron() {
 		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_cleanup' ) );
@@ -115,7 +115,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * An admin request leaves the event unscheduled when page cache is disabled.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_537_admin_request_does_not_schedule_when_disabled() {
 		$root = new Root_Environment();
@@ -131,7 +131,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * An admin request keeps an existing event as it is.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_537_admin_request_keeps_existing_cleanup_cron() {
 		$timestamp = time() + 600;
@@ -150,7 +150,7 @@ class W3tc_Pgcache_Cleanup_Cron_Test extends WP_UnitTestCase {
 	/**
 	 * Control: the event handler still schedules the missing event.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_537_control_event_handler_schedules_missing_cleanup() {
 		$this->assertFalse( wp_next_scheduled( 'w3_pgcache_cleanup' ) );

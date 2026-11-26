@@ -18,6 +18,8 @@ if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
 	return;
 }
 
+require_once dirname( __DIR__ ) . '/Util_Reflection.php';
+
 if ( ! function_exists( 'apply_filters' ) ) {
 	/**
 	 * Stub for Minify_HTML script handling.
@@ -172,7 +174,7 @@ function mph_css_instance() {
 	$obj = $ref->newInstanceWithoutConstructor();
 
 	$options = $ref->getProperty( '_options' );
-	$options->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $options );
 	$options->setValue( $obj, array() );
 
 	return array( $ref, $obj );
@@ -189,7 +191,7 @@ function mph_css_instance() {
  */
 function mph_css_hash( $ref, $obj ) {
 	$method = $ref->getMethod( '_ensurePlaceholderHash' );
-	$method->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $method );
 	return $method->invoke( $obj );
 }
 
@@ -205,7 +207,7 @@ function mph_css_hash( $ref, $obj ) {
  */
 function mph_css_process( $ref, $obj, $css ) {
 	$method = $ref->getMethod( '_process' );
-	$method->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $method );
 	return $method->invoke( $obj, $css );
 }
 

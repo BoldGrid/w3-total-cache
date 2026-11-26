@@ -45,7 +45,14 @@ if ( 'postponed' === $w3tc_queue_mode ) {
 					<span class="w3tc-alwayscached-queue-item dashicons dashicons-update" title="<?php esc_attr_e( 'Regenerate', 'w3-total-cache' ); ?>" data-url="<?php echo esc_url( $w3tc_r['url'] ); ?>"></span>
 				</td>
 				<td style="white-space: nowrap">
-					<?php echo esc_html( $w3tc_r['url'] ); ?>
+					<?php
+					$w3tc_queue_key = isset( $w3tc_r['key'] ) ? (string) $w3tc_r['key'] : '';
+					if ( '' !== $w3tc_queue_key && ':' === $w3tc_queue_key[0] ) {
+						echo esc_html( __( 'command', 'w3-total-cache' ) . ' ' . $w3tc_queue_key );
+					} else {
+						echo esc_html( $w3tc_r['url'] );
+					}
+					?>
 				</td>
 				<td>
 					<?php echo esc_html( $w3tc_r['requests_count'] ); ?>

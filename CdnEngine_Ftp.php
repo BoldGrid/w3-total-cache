@@ -101,6 +101,14 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 		}
 
 		if ( 'ftps' === $this->_config['type'] ) {
+			if ( ! \function_exists( 'ftp_ssl_connect' ) ) {
+				$error = 'FTPS is not available. PHP must be built with OpenSSL support.';
+
+				$this->_restore_error_handler();
+
+				return false;
+			}
+
 			$this->_ftp = @ftp_ssl_connect( $this->_config['host'], (int) $this->_config['port'], W3TC_CDN_FTP_CONNECT_TIMEOUT );
 		} else {
 			$this->_ftp = @ftp_connect( $this->_config['host'], (int) $this->_config['port'], W3TC_CDN_FTP_CONNECT_TIMEOUT );

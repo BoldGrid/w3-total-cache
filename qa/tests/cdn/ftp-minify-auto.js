@@ -47,6 +47,7 @@ describe("", function () {
     });
 
     await w3tc.setOptions(adminPage, "w3tc_cdn", {
+      cdn_ftp_type: "",
       cdn_ftp_host: "wp.sandbox",
       cdn_ftp_user: "www-data",
       cdn_ftp_pass: "sEqo5dBaOL4lSIa3NxZW4ToNM7TznzuU",

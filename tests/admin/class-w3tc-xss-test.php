@@ -11,6 +11,7 @@ declare( strict_types = 1 );
 
 use W3TC\CacheGroups_Plugin_Admin;
 use W3TC\Config;
+use W3TC\PageSpeed_Page;
 
 /**
  * Class: W3tc_Xss_Test
@@ -125,5 +126,93 @@ class W3tc_Xss_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $decoded['cdn.s3.secret'] );
 		$this->assertTrue( $decoded['pgcache.enabled'] );
 		$this->assertStringNotContainsString( 'super-secret-value', $json );
+	}
+
+	/**
+	 * PageSpeed error markup renders the analyzed URL and the API
+	 * error code/message as text in every error branch.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_pagespeed_error_html_formats_url_and_api_error() {
+		$sentinel = '<img src=x onerror=w3tcSentinel()>';
+		$url      = 'https://example.com/?q=' . $sentinel;
+		$error    = array(
+			'error' => array(
+				'code'    => $sentinel,
+				'message' => $sentinel,
+			),
+		);
+
+		$cases = array(
+			'request failed'  => null,
+			'request error'   => $error,
+			'strategy errors' => array(
+				'mobile'  => $error,
+				'desktop' => $error,
+			),
+		);
+
+		foreach ( $cases as $label => $api_response ) {
+			$html = PageSpeed_Page::get_api_error_html( $url, $api_response );
+
+			$this->assertStringNotContainsString( '<img', $html, $label );
+			$this->assertStringContainsString( '&lt;img src=x onerror=w3tcSentinel()&gt;', $html, $label );
+			$this->assertStringNotContainsString( '&amp;lt;', $html, $label );
+			$this->assertStringContainsString( '<p><strong>', $html, $label );
+		}
+
+		$this->assertSame(
+			'',
+			PageSpeed_Page::get_api_error_html( $url, array( 'mobile' => array( 'score' => 90 ) ) )
+		);
+		$this->assertSame(
+			'',
+			PageSpeed_Page::get_api_error_html(
+				$url,
+				array(
+					'mobile'  => $error,
+					'desktop' => array( 'score' => 90 ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * The PageSpeed widget renders the error notice from its template, with
+	 * the analyzed URL and API message shown once-encoded.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_pagespeed_widget_template_renders_error_notice() {
+		$sentinel           = '<img src=x onerror=w3tcSentinel()>';
+		$api_response       = null;
+		$api_response_error = array(
+			'error' => PageSpeed_Page::get_api_error_html( 'https://example.com/?a=1&b=' . $sentinel, $api_response ),
+		);
+
+		ob_start();
+		include W3TC_DIR . '/PageSpeed_Widget_View_FromApi.php';
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error inline w3tcps_error', $html );
+		$this->assertStringContainsString( '?a=1&amp;b=&lt;img src=x onerror=w3tcSentinel()&gt;', $html );
+		$this->assertStringNotContainsString( '<img', $html );
+		$this->assertStringNotContainsString( '&amp;amp;', $html );
+	}
+
+	/**
+	 * Both PageSpeed endpoints leave API errors to the rendered template; a
+	 * top-level `error` key makes the page and widget scripts skip it.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_pagespeed_ajax_responses_have_no_top_level_error() {
+		foreach ( array( 'PageSpeed_Page.php', 'PageSpeed_Widget.php' ) as $file ) {
+			$source = (string) file_get_contents( W3TC_DIR . '/' . $file );
+
+			$this->assertDoesNotMatchRegularExpression( '/\$w3tcps_response\[\s*\'error\'\s*\]/', $source, $file );
+			$this->assertStringNotContainsString( 'get_api_error_text', $source, $file );
+		}
 	}
 }

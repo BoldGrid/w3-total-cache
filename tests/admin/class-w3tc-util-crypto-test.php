@@ -167,7 +167,7 @@ class W3tc_Util_Crypto_Test extends WP_UnitTestCase {
 	 */
 	public function test_derive_key_uses_distinct_purposes() {
 		$method = new \ReflectionMethod( Util_Crypto::class, 'derive_key' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 
 		$enc_a = $method->invoke( null, 'enc' );
 		$enc_b = $method->invoke( null, 'enc' );

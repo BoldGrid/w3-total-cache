@@ -31,13 +31,15 @@ class Extension_AlwaysCached_AdminActions {
 
 		if ( empty( $w3tc_url ) ) {
 			$w3tc_note = __( 'Failed to detect current page.', 'w3-total-cache' );
+		} elseif ( ! Util_Url::is_self_host_url( $w3tc_url ) ) {
+			$w3tc_note = __( 'Failed to detect current page.', 'w3-total-cache' );
 		} else {
-			$w3tc_result = wp_remote_request(
+			$w3tc_headers = Util_Environment::alwayscached_request_headers( '-10' );
+			$w3tc_result  = empty( $w3tc_headers ) ? new \WP_Error( 'w3tc_alwayscached_proof' ) : wp_remote_request(
 				$w3tc_url,
 				array(
-					'headers' => array(
-						'w3tcalwayscached' => '-10',
-					),
+					'headers'     => $w3tc_headers,
+					'redirection' => 0,
 				)
 			);
 

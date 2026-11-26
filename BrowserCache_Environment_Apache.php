@@ -114,7 +114,7 @@ class BrowserCache_Environment_Apache {
 		$imploded = implode( '|', $exceptions );
 
 		if ( ! empty( $imploded ) ) {
-			$rules .= "    RewriteCond %{REQUEST_URI} !(" . $imploded . ")\n";
+			$rules .= '    RewriteCond %{REQUEST_URI} "!(' . $imploded . ')"' . "\n";
 		}
 
 		$rules .= "    RewriteCond %{REQUEST_URI} \\.(" . implode( '|', $extensions ) . ")$ [NC]\n";

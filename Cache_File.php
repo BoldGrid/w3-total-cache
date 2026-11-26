@@ -234,7 +234,8 @@ class Cache_File extends Cache_Base {
 		$w3tc_data  = null;
 
 		if ( false !== $expires_at ) {
-			list( , $expires_at ) = @unpack( 'L', $expires_at );
+			$unpacked   = @unpack( 'L', $expires_at );
+			$expires_at = \is_array( $unpacked ) ? $unpacked[1] : 0;
 
 			if ( time() > $expires_at ) {
 				if ( $this->_use_expired_data ) {

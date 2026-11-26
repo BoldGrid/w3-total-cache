@@ -10,9 +10,9 @@
  *    since the call is buried in the request/response flow).
  *  - rt9-209: Util_Rule::is_valid_custom_rules_path() constrains the admin
  *    `config.path` value so the nginx / LiteSpeed rules file cannot be
- *    written to an arbitrary location (e.g. a .php payload in the docroot or
- *    an extensionless /etc/cron.d target), while still allowing legitimate
- *    .conf include paths inside or outside the docroot.
+ *    written to an arbitrary location (e.g. a .php payload in the docroot,
+ *    an extensionless /etc/cron.d target, or a server-wide .conf include),
+ *    while still allowing .conf paths inside ABSPATH or the cache directory.
  *
  * Run with: php tests/test-server-rules-hardening.php
  *
@@ -26,6 +26,8 @@
 if ( realpath( __FILE__ ) !== realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
 	return;
 }
+
+require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
 
 $srh_pass  = 0;
 $srh_fail  = 0;
@@ -117,25 +119,37 @@ srh_assert(
  * ---------------------------------------------------------------------------
  */
 
+$srh_root = sys_get_temp_dir() . '/w3tc_srh_' . getmypid() . '_' . bin2hex( random_bytes( 4 ) );
+mkdir( $srh_root . '/site/wp-content/cache', 0700, true );
+define( 'ABSPATH', $srh_root . '/site/' );
+define( 'W3TC_CACHE_DIR', $srh_root . '/site/wp-content/cache' );
+
 $ref = new \ReflectionMethod( '\W3TC\Util_Rule', 'is_valid_custom_rules_path' );
-$ref->setAccessible( true );
+\W3TC\Util_Reflection::set_accessible( $ref );
 $valid_path = function ( $p ) use ( $ref ) {
 	return (bool) $ref->invoke( null, $p );
 };
 
-// Accept: legitimate .conf rules files (the field's documented purpose).
-srh_assert( '[7] accepts default-style nginx.conf', true === $valid_path( '/var/www/html/nginx.conf' ) );
-srh_assert( '[8] accepts external include path /etc/nginx/conf.d/w3tc.conf', true === $valid_path( '/etc/nginx/conf.d/w3tc.conf' ) );
-srh_assert( '[9] accepts uppercase .CONF extension', true === $valid_path( '/etc/nginx/W3TC.CONF' ) );
+// Accept: legitimate .conf rules files inside the site or cache directory.
+srh_assert( '[7] accepts default-style nginx.conf', true === $valid_path( ABSPATH . 'nginx.conf' ) );
+srh_assert( '[8] accepts .conf inside the cache directory', true === $valid_path( W3TC_CACHE_DIR . '/nginx.conf' ) );
+srh_assert( '[9] accepts uppercase .CONF extension', true === $valid_path( ABSPATH . 'W3TC.CONF' ) );
 
 // Reject: the documented write-to-RCE targets.
-srh_assert( '[10] rejects .php payload in docroot', false === $valid_path( '/var/www/html/wp-content/uploads/shell.php' ) );
+srh_assert( '[10] rejects .php payload in docroot', false === $valid_path( ABSPATH . 'wp-content/shell.php' ) );
 srh_assert( '[11] rejects extensionless /etc/cron.d target', false === $valid_path( '/etc/cron.d/pwn' ) );
 srh_assert( '[12] rejects /etc/sudoers', false === $valid_path( '/etc/sudoers' ) );
-srh_assert( '[13] rejects path traversal sequence', false === $valid_path( '/var/www/html/../../etc/cron.d/x.conf' ) );
-srh_assert( '[14] rejects null-byte truncation (shell.php\\0.conf)', false === $valid_path( "/var/www/html/shell.php\0.conf" ) );
+srh_assert( '[13] rejects path traversal sequence', false === $valid_path( ABSPATH . '../../etc/cron.d/x.conf' ) );
+srh_assert( '[14] rejects null-byte truncation (shell.php\\0.conf)', false === $valid_path( ABSPATH . "shell.php\0.conf" ) );
 srh_assert( '[15] rejects empty value (falls back to default)', false === $valid_path( '' ) );
 srh_assert( '[16] rejects non-string value', false === $valid_path( array( 'x' ) ) );
+srh_assert( '[16a] rejects external include path /etc/nginx/conf.d/w3tc.conf', false === $valid_path( '/etc/nginx/conf.d/w3tc.conf' ) );
+srh_assert( '[16b] rejects .conf outside the site tree', false === $valid_path( $srh_root . '/outside.conf' ) );
+
+rmdir( W3TC_CACHE_DIR );
+rmdir( $srh_root . '/site/wp-content' );
+rmdir( $srh_root . '/site' );
+rmdir( $srh_root );
 
 /**
  * ---------------------------------------------------------------------------

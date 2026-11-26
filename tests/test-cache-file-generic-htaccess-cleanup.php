@@ -173,6 +173,33 @@ class Cache_File_Generic_Htaccess_Cleanup_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Re-caching a page without headers keeps a .htaccess that holds the page cache rules.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_recache_without_headers_keeps_page_cache_rules_file() {
+		$rules = W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\nAddEncoding gzip .html_gzip\n" . W3TC_MARKER_END_PGCACHE_CACHE . "\n";
+
+		wp_mkdir_p( dirname( $this->htaccess_path() ) );
+		file_put_contents( $this->htaccess_path(), $rules );
+
+		$this->cache()->set(
+			'example.com/search/_index_slash.html',
+			array(
+				'content' => '<html></html>',
+				'headers' => array(),
+			),
+			0,
+			''
+		);
+
+		$this->assertFileExists( $this->htaccess_path() );
+		$this->assertSame( $rules, file_get_contents( $this->htaccess_path() ) );
+	}
+
+	/**
 	 * XML pages keep their AddType rules when re-cached.
 	 *
 	 * @return void

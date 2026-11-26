@@ -145,6 +145,10 @@ class Util_Capability {
 	 * @return bool
 	 */
 	public static function can_flush_all() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
 		return \current_user_can( self::flush_all_capability() );
 	}
 
@@ -156,6 +160,10 @@ class Util_Capability {
 	 * @return bool
 	 */
 	public static function can_flush_post() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
 		return \current_user_can( self::flush_post_capability() );
 	}
 

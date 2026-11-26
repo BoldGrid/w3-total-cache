@@ -126,6 +126,9 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.cloudfront.distribution_id' ) );
 		$this->assertSame( 'w3tc_cdn', ConfigKeysSchema::dedicated_page( 'cdnfsd.bunnycdn.verify_tls_certificates' ) );
 		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'pgcache.engine' ) );
+		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'minify.engine' ) );
+		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'minify.html.engine' ) );
+		$this->assertSame( 'w3tc_general', ConfigKeysSchema::dedicated_page( 'cdnfsd.engine' ) );
 		$this->assertSame( 'w3tc_browsercache', ConfigKeysSchema::dedicated_page( 'browsercache.no404wp.exceptions' ) );
 		$this->assertSame( 'w3tc_minify', ConfigKeysSchema::dedicated_page( 'minify.ccjs.path.java' ) );
 		$this->assertNull( ConfigKeysSchema::dedicated_page( 'pgcache.enabled' ) );
@@ -206,7 +209,11 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 
 			if ( 0 === \strpos( (string) $key, 'cdnfsd.' ) ) {
 				$legacy[] = $key;
-				$this->assertSame( 'w3tc_cdn', $descriptor['flags']['dedicated_page'], $key );
+				if ( 'cdnfsd.engine' === $key ) {
+					$this->assertSame( 'w3tc_general', $descriptor['flags']['dedicated_page'], $key );
+				} else {
+					$this->assertSame( 'w3tc_cdn', $descriptor['flags']['dedicated_page'], $key );
+				}
 			}
 		}
 
@@ -318,6 +325,9 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 			'dbcache.engine',
 			'objectcache.engine',
 			'cdn.engine',
+			'cdnfsd.engine',
+			'minify.engine',
+			'minify.html.engine',
 			'minify.css.engine',
 			'minify.js.engine',
 			'plugin.type',
@@ -332,6 +342,67 @@ class W3tc_ConfigKeysSchema_Test extends WP_UnitTestCase {
 				"$key must be marked no_import."
 			);
 		}
+	}
+
+	/**
+	 * Engine and high-risk config paths require a protective flag.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_risky_config_paths_have_protective_flags() {
+		$sensitive_key_pattern = '/(?:^|\.)(?:engine|(?:access|api|client|private)?_?(?:key|secret|token)|[\w]+_(?:key|secret|token)|pass(?:word)?|license)(?:$|\.)/i';
+
+		foreach ( ConfigKeysSchema::get_keys() as $key => $descriptor ) {
+			if ( 1 !== \preg_match( $sensitive_key_pattern, $key ) ) {
+				continue;
+			}
+
+			$this->assertTrue(
+				$this->has_protective_flag( $descriptor ),
+				$key . ' must have a protective configuration flag.'
+			);
+		}
+	}
+
+	/**
+	 * Inactive flag values and misplaced enum lists do not count as protection.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_protective_flag_check_requires_active_values() {
+		$this->assertFalse( $this->has_protective_flag( array( 'type' => 'string' ) ) );
+		$this->assertFalse( $this->has_protective_flag( array( 'flags' => array( 'no_import' => false ) ) ) );
+		$this->assertFalse( $this->has_protective_flag( array( 'flags' => array( 'secret' => false ) ) ) );
+		$this->assertFalse( $this->has_protective_flag( array( 'flags' => array( 'dedicated_page' => '' ) ) ) );
+		$this->assertFalse( $this->has_protective_flag( array( 'flags' => array( 'enum' => array( 'a' ) ) ) ) );
+		$this->assertFalse( $this->has_protective_flag( array( 'enum' => array() ) ) );
+
+		$this->assertTrue( $this->has_protective_flag( array( 'flags' => array( 'no_import' => true ) ) ) );
+		$this->assertTrue( $this->has_protective_flag( array( 'flags' => array( 'secret' => true ) ) ) );
+		$this->assertTrue( $this->has_protective_flag( array( 'flags' => array( 'dedicated_page' => 'w3tc_general' ) ) ) );
+		$this->assertTrue( $this->has_protective_flag( array( 'enum' => array( 'a' ) ) ) );
+	}
+
+	/**
+	 * Whether a descriptor carries a protection that runtime code enforces.
+	 *
+	 * `enum` is read from the descriptor itself, matching `Config::enforce_enum()`.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $descriptor ConfigKeys descriptor.
+	 *
+	 * @return bool
+	 */
+	private function has_protective_flag( array $descriptor ): bool {
+		$flags = isset( $descriptor['flags'] ) && \is_array( $descriptor['flags'] )
+			? $descriptor['flags']
+			: array();
+
+		return ! empty( $flags['no_import'] )
+			|| ! empty( $flags['secret'] )
+			|| ( isset( $flags['dedicated_page'] ) && \is_string( $flags['dedicated_page'] ) && '' !== $flags['dedicated_page'] )
+			|| ( isset( $descriptor['enum'] ) && \is_array( $descriptor['enum'] ) && ! empty( $descriptor['enum'] ) );
 	}
 
 	/**

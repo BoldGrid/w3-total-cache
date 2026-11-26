@@ -56,7 +56,8 @@ class Extension_CloudFlare_Api {
 	 * Constructs the Cloudflare API client with the provided configuration.
 	 *
 	 * @param array $w3tc_config Configuration array containing 'key', 'zone_id', and 'timelimit_api_request'.
-	 *                     'email' is required only for the legacy Global API key (37 characters); API tokens omit it.
+	 *                     'email' is required for a legacy Global API key
+	 *                     (37 characters or a cfk_ prefix). API tokens omit it.
 	 *
 	 * @return void
 	 */
@@ -115,10 +116,10 @@ class Extension_CloudFlare_Api {
 	}
 
 	/**
-	 * Whether the key string is a legacy Global API Key (37 characters, legacy dashboard format).
+	 * Whether the key string is a legacy Global API Key.
 	 *
-	 * Any other length uses Bearer authentication for API tokens (including historical 40-character
-	 * tokens and newer Cloudflare token formats).
+	 * Legacy dashboard keys are 37 characters. A cfk_ prefix uses the same
+	 * email-and-key authentication. Any other value is an API token.
 	 *
 	 * @since 2.10.0
 	 *
@@ -127,11 +128,10 @@ class Extension_CloudFlare_Api {
 	 * @return bool
 	 */
 	public static function is_legacy_global_api_key_string( $w3tc_key ) {
-    $w3tc_key = trim( (string) $w3tc_key );
+		$w3tc_key = trim( (string) $w3tc_key );
 
-    return 37 === \strlen( $w3tc_key )
-        || 0 === strpos( $w3tc_key, 'cfk_' );
-	}
+		return 37 === \strlen( $w3tc_key )
+			|| 0 === \strpos( $w3tc_key, 'cfk_' );
 	}
 
 	/**
@@ -601,8 +601,8 @@ class Extension_CloudFlare_Api {
 	/**
 	 * Whether the stored key matches the legacy Global API Key format (X-Auth-Key + X-Auth-Email).
 	 *
-	 * Cloudflare Global API keys are 37 characters. API tokens use Bearer auth and are opaque strings
-	 * of varying lengths (including historical 40-character tokens and newer formats).
+	 * Legacy dashboard keys are 37 characters. A cfk_ prefix uses the same
+	 * email-and-key authentication. Any other value is an API token.
 	 *
 	 * @since 2.10.0
 	 *

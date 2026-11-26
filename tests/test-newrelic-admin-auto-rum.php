@@ -8,7 +8,7 @@
  *
  * @package W3TC\Tests
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 
 use W3TC\Dispatcher;
@@ -17,7 +17,7 @@ use W3TC\Extension_NewRelic_Plugin;
 /**
  * Class Newrelic_Admin_Auto_Rum_Test.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class Newrelic_Admin_Auto_Rum_Test extends WP_UnitTestCase {
 	/**
@@ -28,7 +28,7 @@ class Newrelic_Admin_Auto_Rum_Test extends WP_UnitTestCase {
 	 * The wrapper-facing disable_auto_rum() method is mocked; core admin_init callbacks
 	 * are cleared so only the plugin's own hook is exercised.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $expectation Expected calls to disable_auto_rum().
 	 *
@@ -55,7 +55,7 @@ class Newrelic_Admin_Auto_Rum_Test extends WP_UnitTestCase {
 	/**
 	 * APM mode on an admin screen disables auto-RUM on admin_init.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -74,7 +74,7 @@ class Newrelic_Admin_Auto_Rum_Test extends WP_UnitTestCase {
 	/**
 	 * APM mode on the front end does not disable auto-RUM up front.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -90,7 +90,7 @@ class Newrelic_Admin_Auto_Rum_Test extends WP_UnitTestCase {
 	/**
 	 * A WP_ADMIN constant defined as false is not an admin screen.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

@@ -103,7 +103,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * shutdown. The fallback still honors a retained `pgcache.rest=cache`
 	 * value so the REST group is not skipped.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return bool
 	 */
@@ -121,7 +121,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * A stale opcode cache can serve Util_Environment from 2.10.7, which
 	 * does not define is_rest_cache_active().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return bool
 	 */

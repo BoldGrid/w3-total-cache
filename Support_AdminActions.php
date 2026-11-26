@@ -16,6 +16,23 @@ namespace W3TC;
  */
 class Support_AdminActions {
 	/**
+	 * Require the administrative capability for support actions.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return void
+	 */
+	private function require_admin_cap() {
+		if ( ! \current_user_can( 'manage_options' ) ) {
+			\wp_die(
+				\esc_html__( 'You do not have permission to perform this action.', 'w3-total-cache' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+	}
+
+	/**
 	 * Sends support details to a remote server.
 	 *
 	 * phpcs:disable WordPress.CodeAnalysis.AssignmentInCondition
@@ -24,6 +41,8 @@ class Support_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_support_send_details() {
+		$this->require_admin_cap();
+
 		$w3tc_c = Dispatcher::config();
 
 		Util_Debug::audit_log(

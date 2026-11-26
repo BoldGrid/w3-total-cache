@@ -19,18 +19,25 @@
  *     internet-reachable WordPress install an expensive entrypoint that
  *     anyone could submit to.
  *
- * The order below validates first, loads WordPress second:
+ * The order below runs the cheap structural checks first, then loads WordPress,
+ * then compares the topic and verifies the signature:
  *
  *   1. Reject any non-POST request and any request without the required AWS
  *      SNS message-type header. Both pre-checks happen before WordPress is
  *      loaded so scanners and DoS traffic are dropped cheaply.
- *   2. Load only the bundled AWS SNS message validator (Composer autoloader)
- *      — *not* WordPress — and verify the message's signature against AWS's
- *      published SNS signing certificates.
- *   3. Only after the signature is verified, load WordPress and dispatch the
- *      message to `Enterprise_SnsServer::process_message()` for further
- *      authorisation (TopicArn match) and execution.
- *   4. `$_SERVER['HTTP_HOST']` and `$w3tc_w3_current_blog_id` are NEVER written
+ *   2. Reject a message without a string TopicArn, a known SNS type,
+ *      signature version 1 or 2, or an AWS SNS signing-certificate URL
+ *      before WordPress loads. The configured topic is not read from a
+ *      config file here, because a leftover file may not be the active
+ *      config.
+ *   3. Load WordPress, so certificate retrieval can use transients and
+ *      wp_safe_remote_get.
+ *   4. Compare the TopicArn with the loaded config (hash_equals) before any
+ *      certificate request, then verify the message signature against
+ *      AWS's published signing certificate (cached via transients).
+ *   5. Dispatch the validated message to
+ *      `Enterprise_SnsServer::process_message()` for execution.
+ *   6. `$_SERVER['HTTP_HOST']` and `$w3tc_w3_current_blog_id` are NEVER written
  *      from request input here. Multisite/blog-context handling, if needed,
  *      now happens inside `Enterprise_SnsServer` after validation, using
  *      `switch_to_blog()` against an allowlist derived from configured site
@@ -84,6 +91,45 @@ if ( ! function_exists( 'w3tc_sns_reject' ) ) {
 	}
 }
 
+if ( ! function_exists( 'w3tc_sns_signing_cert_url_allowed' ) ) {
+	/**
+	 * Whether a signing-certificate URL is an AWS SNS PEM.
+	 *
+	 * This runs before WordPress loads, so it cannot compare the configured
+	 * topic. It matches the host pattern used by the AWS SNS message
+	 * validator and requires a SimpleNotificationService certificate name.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param mixed $url Candidate SigningCertURL.
+	 *
+	 * @return bool
+	 */
+	function w3tc_sns_signing_cert_url_allowed( $url ) {
+		if ( ! is_string( $url ) || '' === $url ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Runs before WordPress loads.
+		$parts = parse_url( $url );
+		if ( ! is_array( $parts ) ) {
+			return false;
+		}
+
+		$scheme = isset( $parts['scheme'] ) ? $parts['scheme'] : '';
+		$host   = isset( $parts['host'] ) ? $parts['host'] : '';
+		$path   = isset( $parts['path'] ) ? $parts['path'] : '';
+		if ( 'https' !== $scheme || isset( $parts['user'] ) || isset( $parts['pass'] ) || isset( $parts['query'] ) || isset( $parts['fragment'] ) ) {
+			return false;
+		}
+		if ( 1 !== preg_match( '/^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/', $host ) ) {
+			return false;
+		}
+
+		return 1 === preg_match( '/^\/SimpleNotificationService-[A-Za-z0-9_-]+\.pem$/', $path );
+	}
+}
+
 // 1. Method gate: this endpoint exists solely to receive AWS SNS POSTs.
 if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) ) {
 	w3tc_sns_reject( 405, 'Method Not Allowed' );
@@ -131,9 +177,10 @@ if ( false === $w3tc_sns_body || strlen( $w3tc_sns_body ) > $w3tc_sns_max_body_b
 }
 
 /**
- * 4. Locate the plugin's vendored Composer autoloader so we can use the AWS
- * SNS message validator WITHOUT bootstrapping WordPress. This file lives in
- * `<plugin>/pub/sns.php`, so the autoloader is one level up.
+ * 4. Locate the plugin's vendored Composer autoloader so we can build the AWS
+ * SNS `Message` object before WordPress is bootstrapped. Only `Message` is
+ * built here; the message validator runs after bootstrap (see step 8). This
+ * file lives in `<plugin>/pub/sns.php`, so the autoloader is one level up.
  */
 $w3tc_sns_autoload = __DIR__ . '/../vendor/autoload.php';
 if ( ! file_exists( $w3tc_sns_autoload ) ) {
@@ -164,25 +211,29 @@ try {
 }
 
 /**
- * 6. Cryptographically validate the message signature against AWS's
- * published SNS signing certificates before we trust ANY field on it. The
- * validator throws on any failure (bad signature, untrusted cert host, etc).
+ * 6. The configured topic can live in a file or the database, and only the
+ * loaded config says which is active, so the topic itself is compared after
+ * bootstrap.
  */
-try {
-	$w3tc_sns_validator = new \Aws\Sns\MessageValidator();
-	$w3tc_sns_validator->validate( $w3tc_sns_message );
-} catch ( \Throwable $e ) {
+if ( ! isset( $w3tc_sns_decoded['TopicArn'] ) || ! \is_string( $w3tc_sns_decoded['TopicArn'] ) ) {
+	w3tc_sns_reject( 403, 'Forbidden' );
+}
+
+$w3tc_sns_type              = isset( $w3tc_sns_decoded['Type'] ) ? $w3tc_sns_decoded['Type'] : '';
+$w3tc_sns_signature_version = isset( $w3tc_sns_decoded['SignatureVersion'] ) ? $w3tc_sns_decoded['SignatureVersion'] : '';
+if (
+	! is_string( $w3tc_sns_type ) ||
+	! in_array( $w3tc_sns_type, array( 'Notification', 'SubscriptionConfirmation', 'UnsubscribeConfirmation' ), true ) ||
+	! is_string( $w3tc_sns_signature_version ) ||
+	! in_array( $w3tc_sns_signature_version, array( '1', '2' ), true ) ||
+	! w3tc_sns_signing_cert_url_allowed( isset( $w3tc_sns_decoded['SigningCertURL'] ) ? $w3tc_sns_decoded['SigningCertURL'] : '' )
+) {
 	w3tc_sns_reject( 403, 'Forbidden' );
 }
 
 /**
- * 7. Signature verified. NOW we can load WordPress and hand the message off
- * to the existing handler for TopicArn matching and action dispatch.
- *
- * Note: we deliberately do NOT mutate `$_SERVER['HTTP_HOST']` or
- * `$w3tc_w3_current_blog_id` here. Any multisite/blog-context switching the SNS
- * payload requests is performed inside `Enterprise_SnsServer` AFTER
- * validation, against an allowlist of configured site hostnames.
+ * 7. Load WordPress so SNS certificate validation can use transients and
+ * wp_safe_remote_get.
  */
 if ( ! defined( 'W3TC_WP_LOADING' ) ) {
 	define( 'W3TC_WP_LOADING', true );
@@ -219,11 +270,14 @@ if ( ! is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php'
 require_once W3TC_DIR . '/w3-total-cache-api.php';
 
 /**
- * Convert the validated SNS Message back to a plain array for the existing
- * handler signature (it constructs its own `\Aws\Sns\Message` internally and
- * re-validates as belt-and-braces).
+ * 8. The loaded config is authoritative for the topic. validate_message()
+ * rejects a mismatch before any certificate request.
  */
-$w3tc_sns_message_array = $w3tc_sns_message->toArray();
+$w3tc_sns_topic_arn = \W3TC\Dispatcher::config()->get_string( 'cluster.messagebus.sns.topic_arn' );
+$w3tc_sns_validator = new \W3TC\Sns_MessageValidator();
+if ( ! $w3tc_sns_validator->validate_message( $w3tc_sns_message->toArray(), $w3tc_sns_topic_arn ) ) {
+	w3tc_sns_reject( 403, 'Forbidden' );
+}
 
 $w3tc_sns_server = \W3TC\Dispatcher::component( 'Enterprise_SnsServer' );
-$w3tc_sns_server->process_message( $w3tc_sns_message_array );
+$w3tc_sns_server->process_message( $w3tc_sns_message->toArray(), true );

@@ -73,9 +73,7 @@ function w3tc_qa_pagecache_key_apply_postfix( $page_key, $postfix ) {
  * @return void
  */
 function w3tc_qa_pagecache_key_set_accessible( $reflector ) {
-	if ( \PHP_VERSION_ID < 80100 ) {
-		$reflector->setAccessible( true );
-	}
+	\W3TC\Util_Reflection::set_accessible( $reflector );
 }
 
 /**

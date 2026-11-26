@@ -127,7 +127,7 @@ class UsageStatistics_Sources_Redis {
 	/**
 	 * INFO for one server, without leaving a new bypass for the live cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $host_port Server.
 	 * @param array  $w3tc_i    Server settings.

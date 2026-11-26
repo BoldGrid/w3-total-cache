@@ -345,7 +345,7 @@ class W3tc_Cdn_Cors_Scope_Test extends WP_UnitTestCase {
 	private function apache_rules( Config $config, $cdnftp ) {
 		$env = new Cdn_Environment();
 		$ref = new \ReflectionMethod( Cdn_Environment::class, 'rules_generate_apache' );
-		$ref->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $ref );
 
 		return (string) $ref->invoke( $env, $config, $cdnftp );
 	}

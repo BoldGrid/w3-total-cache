@@ -88,6 +88,18 @@ jobs:
       - name: Generated hooks documentation
         run: yarn run hooks:check
 
+      - name: Page cache request gates
+        run: php tests/test-pgcache-request-gates.php
+
+      - name: Page cache REST session gates
+        run: php tests/test-pgcache-rest-session-gates.php
+
+      - name: MAx Cache rules
+        run: php tests/test-maxcache-core.php
+
+      - name: CDN srcset placeholders
+        run: WP_CORE_DIR=/tmp/wordpress php tests/test-cdn-srcset-placeholders.php
+
       - name: PHPUnit (single site)
         run: |
           if [ "${{ matrix.php }}" = "7.4" ]; then

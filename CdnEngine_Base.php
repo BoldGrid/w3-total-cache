@@ -426,7 +426,7 @@ class CdnEngine_Base {
 
 		$section = Util_Mime::mime_type_to_section( $mime_type );
 
-		if ( isset( $this->_config['headers'][ $section ] ) ) {
+		if ( null !== $section && isset( $this->_config['headers'][ $section ] ) ) {
 			$hc = $this->_config['headers'][ $section ];
 
 			if ( isset( $whitelist['ETag'] ) && $hc['etag'] ) {

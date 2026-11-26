@@ -163,37 +163,11 @@ class PageSpeed_Widget {
 			}
 
 			$api_response = $w3tc_w3_pagespeed->analyze( $home_url );
+			$w3tc_error   = PageSpeed_Page::get_api_error_html( $home_url, $api_response );
 
-			if ( ! $api_response ) {
+			if ( '' !== $w3tc_error ) {
 				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>',
-				);
-				delete_option( 'w3tc_pagespeed_data_' . $home_url );
-			} elseif ( ! empty( $api_response['error'] ) ) {
-				$error_code    = ! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A';
-				$error_message = ! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A';
-
-				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>
-						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
-						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
-				);
-				delete_option( 'w3tc_pagespeed_data_' . $home_url );
-			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
-				$mobile_error_code     = ! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A';
-				$mobile_error_message  = ! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A';
-				$desktop_error_code    = ! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A';
-				$desktop_error_message = ! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A';
-
-				$api_response_error = array(
-					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>
-						<p>' . esc_html__( 'Mobile response Code : ', 'w3-total-cache' ) . $mobile_error_code . '</p>
-						<p>' . esc_html__( 'Mobile response Message : ', 'w3-total-cache' ) . $mobile_error_message . '</p>
-						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
-						<p>' . esc_html__( 'Desktop response Message : ', 'w3-total-cache' ) . $desktop_error_message . '</p>',
+					'error' => $w3tc_error,
 				);
 				delete_option( 'w3tc_pagespeed_data_' . $home_url );
 			} else {

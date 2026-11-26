@@ -199,7 +199,7 @@ class BrowserCache_Plugin {
 			$domain_url_regexp = Util_Environment::home_domain_root_url_regexp();
 
 			$buffer = preg_replace_callback(
-				'~(href|src|action|extsrc|asyncsrc|w3tc_load_js\()=?([\'"])((' . $domain_url_regexp . ')?(/[^\'"/][^\'"]*\.([a-z-_]+)([\?#][^\'"]*)?))[\'"]~Ui',
+				'~(href|src|action|extsrc|asyncsrc|w3tc_load_js\()=?([\'"])((' . $domain_url_regexp . ')?(/[^\'"/][^\'"]*\.([a-z-_]+)([\?#][^\'"]*)?))\2~Ui',
 				array( $this, 'link_replace_callback' ),
 				$buffer
 			);

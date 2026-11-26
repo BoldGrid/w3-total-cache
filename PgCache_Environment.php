@@ -318,7 +318,7 @@ class PgCache_Environment {
 	 * The PHP matcher drops the same entries because both use
 	 * Util_Rule::cookie_group_entry().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $cookie Cookie entry with `+` already replaced by spaces.
 	 *
@@ -1197,6 +1197,8 @@ class PgCache_Environment {
 		$reject_cookies = array(
 			'comment_author',
 			'wp-postpass',
+			'wp-resetpass',
+			'wp-activate',
 		);
 
 		if ( $logged_out ) {
@@ -1358,11 +1360,12 @@ class PgCache_Environment {
 			$w3tc_config->get_array( 'pgcache.accept.qs' )
 		);
 		Util_Rule::array_trim( $w3tc_query_strings );
+		$w3tc_query_strings = self::sanitize_directive_values( $w3tc_query_strings );
 
 		$env_request_uri = '%{REQUEST_URI}';
 
 		if ( ! empty( $w3tc_query_strings ) ) {
-			$w3tc_query_strings = str_replace( ' ', '+', $w3tc_query_strings );
+			$w3tc_query_strings = str_replace( array( ' ', "\t" ), '+', $w3tc_query_strings );
 			$w3tc_query_strings = array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $w3tc_query_strings );
 
 			$rules .= "    RewriteRule ^ - [E=W3TC_QUERY_STRING:%{QUERY_STRING}]\n";
@@ -1549,6 +1552,9 @@ class PgCache_Environment {
 		// Don't accept POSTs.
 		$use_cache_rules .= "    RewriteCond %{REQUEST_METHOD} !=POST\n";
 
+		// Requests with credentials go to PHP.
+		$use_cache_rules .= "    RewriteCond %{HTTP:Authorization} =\"\"\n";
+
 		// Query string should be empty.
 		$use_cache_rules .= empty( $w3tc_query_strings ) ?
 			"    RewriteCond %{QUERY_STRING} =\"\"\n" :
@@ -1644,6 +1650,15 @@ class PgCache_Environment {
 
 		$rules .= "</IfModule>\n";
 
+		// Multisite cache-folder rules are per site and may be absent, while the rules above serve compressed files for every site.
+		if ( $has_enc_variant && Util_Environment::is_wpmu() ) {
+			$browsercache = $w3tc_config->get_boolean( 'browsercache.enabled' );
+			$rules       .= self::rules_encoded_variant_types_apache(
+				$browsercache && $w3tc_config->get_boolean( 'browsercache.html.brotli' ),
+				$browsercache && $w3tc_config->get_boolean( 'browsercache.html.compression' )
+			);
+		}
+
 		$rules .= W3TC_MARKER_END_PGCACHE_CORE . "\n";
 
 		return $rules;
@@ -1688,9 +1703,10 @@ class PgCache_Environment {
 		);
 
 		Util_Rule::array_trim( $w3tc_query_strings );
+		$w3tc_query_strings = self::sanitize_directive_values( $w3tc_query_strings );
 
 		if ( ! empty( $w3tc_query_strings ) ) {
-			$w3tc_query_strings = str_replace( ' ', '+', $w3tc_query_strings );
+			$w3tc_query_strings = str_replace( array( ' ', "\t" ), '+', $w3tc_query_strings );
 			$w3tc_query_strings = array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $w3tc_query_strings );
 
 			$rules .= "set \$w3tc_query_string \$query_string;\n";
@@ -1766,6 +1782,11 @@ class PgCache_Environment {
 		// Don't accept POSTs.
 		$rules .= "set \$w3tc_rewrite 1;\n";
 		$rules .= "if (\$request_method = POST) {\n";
+		$rules .= "    set \$w3tc_rewrite 0;\n";
+		$rules .= "}\n";
+
+		// Requests with credentials go to PHP.
+		$rules .= "if (\$http_authorization != \"\") {\n";
 		$rules .= "    set \$w3tc_rewrite 0;\n";
 		$rules .= "}\n";
 
@@ -2208,6 +2229,48 @@ class PgCache_Environment {
 	}
 
 	/**
+	 * Generates Apache type and encoding rules for compressed page cache files.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool $brotli      Whether brotli variants are stored.
+	 * @param bool $compression Whether gzip variants are stored.
+	 *
+	 * @return string
+	 */
+	private static function rules_encoded_variant_types_apache( $brotli, $compression ) {
+		$rules = '';
+
+		if ( $brotli ) {
+			$rules .= "<IfModule mod_mime.c>\n";
+			$rules .= "    AddType text/html .html_br\n";
+			$rules .= "    AddEncoding br .html_br\n";
+			$rules .= "    AddType text/xml .xml_br\n";
+			$rules .= "    AddEncoding br .xml_br\n";
+			$rules .= "</IfModule>\n";
+			$rules .= "<IfModule mod_setenvif.c>\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.html_br$ no-brotli\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_br$ no-brotli\n";
+			$rules .= "</IfModule>\n";
+		}
+
+		if ( $compression ) {
+			$rules .= "<IfModule mod_mime.c>\n";
+			$rules .= "    AddType text/html .html_gzip\n";
+			$rules .= "    AddEncoding gzip .html_gzip\n";
+			$rules .= "    AddType text/xml .xml_gzip\n";
+			$rules .= "    AddEncoding gzip .xml_gzip\n";
+			$rules .= "</IfModule>\n";
+			$rules .= "<IfModule mod_setenvif.c>\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.html_gzip$ no-gzip\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_gzip$ no-gzip\n";
+			$rules .= "</IfModule>\n";
+		}
+
+		return $rules;
+	}
+
+	/**
 	 * Generates cache rules for Apache-based environments.
 	 *
 	 * @param Config $w3tc_config W3TC Config containing relevant settings.
@@ -2262,31 +2325,7 @@ class PgCache_Environment {
 			$rules .= "FileETag MTime Size\n";
 		}
 
-		if ( $brotli ) {
-			$rules .= "<IfModule mod_mime.c>\n";
-			$rules .= "    AddType text/html .html_br\n";
-			$rules .= "    AddEncoding br .html_br\n";
-			$rules .= "    AddType text/xml .xml_br\n";
-			$rules .= "    AddEncoding br .xml_br\n";
-			$rules .= "</IfModule>\n";
-			$rules .= "<IfModule mod_setenvif.c>\n";
-			$rules .= "    SetEnvIfNoCase Request_URI \\.html_br$ no-brotli\n";
-			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_br$ no-brotli\n";
-			$rules .= "</IfModule>\n";
-		}
-
-		if ( $compression ) {
-			$rules .= "<IfModule mod_mime.c>\n";
-			$rules .= "    AddType text/html .html_gzip\n";
-			$rules .= "    AddEncoding gzip .html_gzip\n";
-			$rules .= "    AddType text/xml .xml_gzip\n";
-			$rules .= "    AddEncoding gzip .xml_gzip\n";
-			$rules .= "</IfModule>\n";
-			$rules .= "<IfModule mod_setenvif.c>\n";
-			$rules .= "    SetEnvIfNoCase Request_URI \\.html_gzip$ no-gzip\n";
-			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_gzip$ no-gzip\n";
-			$rules .= "</IfModule>\n";
-		}
+		$rules .= self::rules_encoded_variant_types_apache( $brotli, $compression );
 
 		if ( $expires ) {
 			$rules .= "<IfModule mod_expires.c>\n";

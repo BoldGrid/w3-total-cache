@@ -238,11 +238,11 @@ class W3tc_Tls_Defaults_Test extends WP_UnitTestCase {
 
 		$ref    = new \ReflectionClass( $cache );
 		$prop   = $ref->getProperty( '_verify_tls_certificates' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$this->assertTrue( $prop->getValue( $cache ) );
 
 		$method = $ref->getMethod( 'build_connect_args' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 		$args = $method->invoke( $cache, 'tls://redis.example:6379' );
 
 		if ( false !== \phpversion( 'redis' ) && \version_compare( \phpversion( 'redis' ), '5.3.2', '>=' ) ) {

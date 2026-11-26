@@ -10,7 +10,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -24,7 +24,7 @@ namespace W3TC {
 	 * Exit would abort the PHPUnit process. This stand-in records Location and
 	 * throws before exit. Non-Location headers still reach PHP's header().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $header        Header line.
 	 * @param bool   $replace       Replace a previous header of the same name.
@@ -49,21 +49,21 @@ namespace {
 	/**
 	 * Thrown when the Location stand-in records a redirect.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	class W3tc_Admin_Redirect_Location_Exception extends \RuntimeException {}
 
 	/**
 	 * Class: W3tc_Admin_Redirect_Fallback_Test
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	class W3tc_Admin_Redirect_Fallback_Test extends \WP_UnitTestCase {
 
 		/**
 		 * Whether the Location stand-in should capture instead of sending.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var bool
 		 */
@@ -72,7 +72,7 @@ namespace {
 		/**
 		 * Location URL recorded by the stand-in, without the header name.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var string|null
 		 */
@@ -81,7 +81,7 @@ namespace {
 		/**
 		 * Saved $_GET.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var array
 		 */
@@ -90,7 +90,7 @@ namespace {
 		/**
 		 * Saved $_POST.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var array
 		 */
@@ -99,7 +99,7 @@ namespace {
 		/**
 		 * Saved $_REQUEST.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var array
 		 */
@@ -108,7 +108,7 @@ namespace {
 		/**
 		 * Saved HTTP_REFERER, or null when it was absent.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var string|null
 		 */
@@ -117,7 +117,7 @@ namespace {
 		/**
 		 * Whether HTTP_REFERER was set before the test.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @var bool
 		 */
@@ -126,7 +126,7 @@ namespace {
 		/**
 		 * Snapshot request globals that redirect() reads.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function set_up() {
 			parent::set_up();
@@ -141,7 +141,7 @@ namespace {
 		/**
 		 * Restore request globals so later tests do not see this redirect state.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function tear_down() {
 			$_GET     = $this->saved_get;
@@ -166,7 +166,7 @@ namespace {
 		 * No Referer, no redirect argument, and no page argument must land on
 		 * the dashboard with the flush note, never an empty page value.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_missing_referer_falls_back_to_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -195,7 +195,7 @@ namespace {
 		/**
 		 * A same-site admin Referer stays the redirect target.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_same_site_admin_referer_is_preserved() {
 			$this->isolate_redirect_inputs();
@@ -221,7 +221,7 @@ namespace {
 		/**
 		 * An explicit non-empty page slug is kept when no Referer is present.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_explicit_page_slug_is_kept() {
 			$this->isolate_redirect_inputs();
@@ -243,7 +243,7 @@ namespace {
 		/**
 		 * A page argument sent with an empty value also falls back to the dashboard.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_empty_request_page_falls_back_to_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -265,7 +265,7 @@ namespace {
 		/**
 		 * The custom-message redirect lands on the dashboard when the request has no page.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_custom_messages2_missing_page_falls_back_to_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -288,7 +288,7 @@ namespace {
 		/**
 		 * The custom-message redirect keeps the request page slug.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_custom_messages2_request_page_is_kept() {
 			$this->isolate_redirect_inputs();
@@ -313,7 +313,7 @@ namespace {
 		/**
 		 * A user without manage_options has no W3TC Dashboard, so the fallback is the WordPress Dashboard.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_missing_referer_without_manage_options_uses_wp_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -336,7 +336,7 @@ namespace {
 		 * An administrator whose filtered menu capability hides the W3TC Dashboard
 		 * also falls back to the WordPress Dashboard.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @dataProvider data_menu_capability_filters
 		 *
@@ -368,7 +368,7 @@ namespace {
 		/**
 		 * Menu capability filters that gate the W3TC Dashboard.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @return array
 		 */
@@ -382,7 +382,7 @@ namespace {
 		/**
 		 * An empty page in the redirect parameters still gets the dashboard fallback.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_empty_page_param_falls_back_to_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -402,7 +402,7 @@ namespace {
 		/**
 		 * A page in the redirect parameters stays on admin.php for any user.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_page_param_is_kept_without_manage_options() {
 			$this->isolate_redirect_inputs();
@@ -423,7 +423,7 @@ namespace {
 		/**
 		 * The custom-message redirect treats an empty page slug like a missing one.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_custom_messages2_empty_page_falls_back_to_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -448,7 +448,7 @@ namespace {
 		/**
 		 * The custom-message redirect also uses the WordPress Dashboard without manage_options.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		public function test_custom_messages2_without_manage_options_uses_wp_dashboard() {
 			$this->isolate_redirect_inputs();
@@ -472,7 +472,7 @@ namespace {
 		/**
 		 * Log in an administrator and drop query inputs that Util_Admin::redirect() consults.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 */
 		private function isolate_redirect_inputs() {
 			\wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -491,7 +491,7 @@ namespace {
 		/**
 		 * Run Util_Admin::redirect() and return the Location URL.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param array       $params         Query parameters, including the note.
 		 * @param bool        $check_referrer Whether to honor HTTP_REFERER.
@@ -513,7 +513,7 @@ namespace {
 		/**
 		 * Run a redirect callback and return the Location URL.
 		 *
-		 * @since X.X.X
+		 * @since 2.11.1
 		 *
 		 * @param callable $redirect Callback that sends the redirect.
 		 * @return string

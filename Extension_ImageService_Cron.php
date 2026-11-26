@@ -147,10 +147,11 @@ class Extension_ImageService_Cron {
 					}
 
 					// Preserve legacy converted attachment reference.
-					if ( empty( $post_children[ $legacy_format ] ) ) {
-						$legacy_child_meta = get_post_meta( $legacy_child_id, 'w3tc_imageservice', true );
+					$legacy_child = Extension_ImageService_Plugin_Admin::converted_child_attachment( $post_id, $legacy_child_id );
+					if ( $legacy_child && empty( $post_children[ $legacy_format ] ) ) {
+						$legacy_child_meta = get_post_meta( $legacy_child->ID, 'w3tc_imageservice', true );
 						if ( ! empty( $legacy_child_meta['is_converted_file'] ) ) {
-							$post_children[ $legacy_format ] = $legacy_child_id;
+							$post_children[ $legacy_format ] = $legacy_child->ID;
 						}
 					}
 				}
@@ -232,9 +233,15 @@ class Extension_ImageService_Cron {
 							( isset( $headers_array['content-type'] ) ? $headers_array['content-type'] : $mime_type );
 						$format_key_out = strtolower( str_replace( 'image/', '', $mime_type_out ) );
 
-						// Delete existing converted file for the actual output format if it exists.
+						// Replace an existing converted file for this output format.
 						if ( isset( $post_children[ $format_key_out ] ) ) {
-							wp_delete_attachment( $post_children[ $format_key_out ], true );
+							$existing_child = Extension_ImageService_Plugin_Admin::converted_child_attachment(
+								$post_id,
+								$post_children[ $format_key_out ]
+							);
+							if ( $existing_child ) {
+								wp_delete_attachment( $existing_child->ID, true );
+							}
 							unset( $post_children[ $format_key_out ] );
 						}
 
@@ -343,6 +350,7 @@ class Extension_ImageService_Cron {
 								'post_content'   => '',
 								'post_status'    => 'inherit',
 								'post_parent'    => $post_id,
+								'post_author'    => Extension_ImageService_Plugin_Admin::converted_child_author( $post_id ),
 								'comment_status' => 'closed',
 							),
 							$new_filepath,

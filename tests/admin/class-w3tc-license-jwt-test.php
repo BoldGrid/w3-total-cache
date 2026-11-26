@@ -586,7 +586,7 @@ class W3tc_License_Jwt_Test extends W3tc_License_Jwt_Harness {
 
 		$admin  = Dispatcher::component( 'Licensing_Plugin_Admin' );
 		$method = new \ReflectionMethod( $admin, 'maybe_update_license_status' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 		$method->invoke( $admin );
 
 		$this->assertSame( array(), $this->requests_of( 'refresh' ), 'Status check must not call /v2/refresh.' );

@@ -171,7 +171,7 @@ class W3tc_Runtime_Safeguards_Test extends WP_UnitTestCase {
 		$ref    = new \ReflectionClass( Cache_File_Generic::class );
 		$cache  = $ref->newInstanceWithoutConstructor();
 		$method = $ref->getMethod( 'escape_header_value' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 
 		$this->assertSame(
 			'ok',

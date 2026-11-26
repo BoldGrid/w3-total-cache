@@ -560,8 +560,16 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
         } else if (data[0] === "v2_license") {
           // reset default timeout
           var iframe = document.getElementById("buy_frame");
-          if (iframe.contentWindow && iframe.contentWindow.postMessage)
-            iframe.contentWindow.postMessage("v2_license_accepted", "*");
+          if (
+            iframe &&
+            iframe.contentWindow &&
+            iframe.contentWindow.postMessage &&
+            event.source === iframe.contentWindow
+          )
+            iframe.contentWindow.postMessage(
+              "v2_license_accepted",
+              event.origin,
+            );
 
           lightbox.options.onClose = function () {
             window.location = window.location + "&refresh";

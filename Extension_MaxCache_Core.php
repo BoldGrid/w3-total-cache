@@ -9,6 +9,8 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die();
 
+require_once __DIR__ . '/PgCache_UriAnchor.php';
+
 /**
  * What the MAx Cache module can do on this host, and the directives it needs.
  *
@@ -1374,6 +1376,7 @@ class Extension_MaxCache_Core {
 	 * @return string
 	 */
 	private static function get_exclude_uri( $w3tc_config ) {
+		// Built-in entries stay unanchored: PHP rejects wp-login and wp-register by substring.
 		$patterns = self::ALWAYS_EXCLUDE_URI;
 
 		// Tracks the option: with XML storage off, W3TC writes `.html` for these too, served like any other page.
@@ -1509,8 +1512,8 @@ class Extension_MaxCache_Core {
 			return '';
 		}
 
-		// Nothing screened for being broad: both sides read it unanchored and case-insensitively already.
-		return $pattern;
+		// Same segment anchors PgCache_ContentGrabber applies before it matches.
+		return PgCache_UriAnchor::apply( $pattern );
 	}
 
 	/**

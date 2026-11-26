@@ -53,7 +53,7 @@ jQuery(document).ready(function ($) {
           $("#" + page_post_id)
             .prev()
             .find(".w3tcps_error")
-            .html(w3tcData.lang.pagespeed_data_error + data.error);
+            .text(w3tcData.lang.pagespeed_data_error + data.error);
           $("#" + page_post_id)
             .prev()
             .find(".w3tcps_error")
@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
             .removeClass("w3tc_none");
           return;
         }
-        $(".w3tcps_timestamp").html(data.w3tcps_timestamp);
+        $(".w3tcps_timestamp").text(data.w3tcps_timestamp);
         $(".w3tcps_buttons").removeClass("w3tc_none");
         $("#" + page_post_id)
           .html(data.w3tcps_content)
@@ -136,7 +136,7 @@ jQuery(document).ready(function ($) {
         $("#" + page_post_id)
           .prev()
           .find(".w3tcps_error")
-          .html(w3tcData.lang.pagespeed_data_error + errorThrown);
+          .text(w3tcData.lang.pagespeed_data_error + errorThrown);
         $("#" + page_post_id)
           .prev()
           .find(".w3tcps_error")

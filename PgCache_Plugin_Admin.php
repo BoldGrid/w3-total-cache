@@ -104,6 +104,16 @@ class PgCache_Plugin_Admin {
 	private $_config = null;
 
 	/**
+	 * Sitemap hosts that resolved only to public addresses in this
+	 * request, keyed by lowercase host without a trailing dot.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @var bool[]
+	 */
+	private static $prime_public_hosts = array();
+
+	/**
 	 * Initializes the plugin configuration.
 	 *
 	 * @return void
@@ -388,12 +398,24 @@ class PgCache_Plugin_Admin {
 			return $result;
 		}
 
+		$origin_host = \wp_parse_url( Util_Environment::is_url( $sitemap ) ? $sitemap : \home_url( $sitemap ), PHP_URL_HOST );
+		$validator   = static function ( $candidate ) use ( $origin_host ) {
+			return self::is_prime_url_allowed( $candidate, $origin_host );
+		};
+
 		/**
 		 * Make HTTP requests and prime cache.
 		 * Use 'WordPress' since by default we use W3TC-powered by which blocks caching.
 		 */
 		foreach ( $queue as $w3tc_url ) {
-			$response = Util_Http::get( $w3tc_url, array( 'user-agent' => 'WordPress' ) );
+			if ( ! self::is_prime_url_allowed( $w3tc_url, $origin_host ) ) {
+				if ( ! \is_null( $log_callback ) ) {
+					$log_callback( 'Skipping disallowed URL ' . ( \is_string( $w3tc_url ) ? $w3tc_url : '' ) );
+				}
+				continue;
+			}
+
+			$response = Util_Http::get_pinned( $w3tc_url, array( 'user-agent' => 'WordPress' ), $validator );
 
 			if (
 				is_wp_error( $response ) ||
@@ -447,6 +469,8 @@ class PgCache_Plugin_Admin {
 	 *  3. Recursion is depth-capped (default 3). A pathological
 	 *     sitemap that points at itself, or a deeply nested index, can
 	 *     no longer DOS the worker.
+	 *  4. Page URLs from `<urlset>` and `<rss>` entries are kept only
+	 *     when they pass {@see self::is_prime_url_allowed()}.
 	 *
 	 * @param string      $w3tc_url           The URL of the sitemap to parse.
 	 * @param string|null $origin_host   Internal: host of the root sitemap; nested
@@ -492,6 +516,9 @@ class PgCache_Plugin_Admin {
 
 		// First call sets the origin host for the rest of the recursion.
 		$current_host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( \is_string( $current_host ) && '' !== $current_host ) {
+			self::$prime_public_hosts[ \strtolower( \rtrim( $current_host, '.' ) ) ] = true;
+		}
 		if ( null === $origin_host ) {
 			$origin_host = $current_host;
 		} elseif ( strcasecmp( $origin_host, (string) $current_host ) !== 0 ) {
@@ -504,7 +531,7 @@ class PgCache_Plugin_Admin {
 		}
 
 		$urls     = array();
-		$response = Util_Http::get( $w3tc_url );
+		$response = Util_Http::get_pinned( $w3tc_url, array(), array( '\W3TC\Util_Url', 'is_public_host' ) );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return $urls;
@@ -546,9 +573,9 @@ class PgCache_Plugin_Admin {
 			$locs = array();
 
 			foreach ( $xml->url as $w3tc_url ) {
-				if ( $w3tc_url->loc ) {
-					$priority                        = isset( $w3tc_url->priority ) ? (float) $w3tc_url->priority : 0.5;
-					$locs[ (string) $w3tc_url->loc ] = $priority;
+				$loc = $w3tc_url->loc ? \trim( (string) $w3tc_url->loc ) : '';
+				if ( '' !== $loc && self::is_prime_url_allowed( $loc, $origin_host ) ) {
+					$locs[ $loc ] = isset( $w3tc_url->priority ) ? (float) $w3tc_url->priority : 0.5;
 				}
 			}
 
@@ -557,8 +584,9 @@ class PgCache_Plugin_Admin {
 			$urls = array_keys( $locs );
 		} elseif ( $xml->getName() === 'rss' ) {
 			foreach ( $xml->channel->item as $w3tc_item ) {
-				if ( $w3tc_item->link ) {
-					$urls[] = (string) $w3tc_item->link;
+				$link = $w3tc_item->link ? \trim( (string) $w3tc_item->link ) : '';
+				if ( '' !== $link && self::is_prime_url_allowed( $link, $origin_host ) ) {
+					$urls[] = $link;
 				}
 			}
 		} else {
@@ -567,6 +595,55 @@ class PgCache_Plugin_Admin {
 
 		$outcome = self::SITEMAP_OUTCOME_SUCCESS;
 		return $urls;
+	}
+
+	/**
+	 * Returns true when a sitemap page URL may be fetched for priming.
+	 *
+	 * The URL must pass {@see Util_Url::is_allowed_outbound_url()} and its
+	 * host must match the root sitemap host or this site's own host.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string      $w3tc_url    Candidate page URL.
+	 * @param string|null $origin_host Host of the root sitemap.
+	 *
+	 * @return bool
+	 */
+	public static function is_prime_url_allowed( $w3tc_url, $origin_host ) {
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url || ! Util_Url::is_valid_http_scheme( $w3tc_url ) ) {
+			return false;
+		}
+
+		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		if ( Util_Url::is_self_host_url( $w3tc_url ) ) {
+			return true;
+		}
+
+		$host = \strtolower( \rtrim( $host, '.' ) );
+		if (
+			! \is_string( $origin_host ) ||
+			'' === $origin_host ||
+			\strtolower( \rtrim( $origin_host, '.' ) ) !== $host
+		) {
+			return false;
+		}
+
+		/**
+		 * The root sitemap host is recorded by parse_sitemap() after it
+		 * passes the public-host check, so its pages are not resolved
+		 * again. Only successes are kept; a failed lookup is retried.
+		 */
+		if ( empty( self::$prime_public_hosts[ $host ] ) && Util_Url::is_public_host( $w3tc_url ) ) {
+			self::$prime_public_hosts[ $host ] = true;
+		}
+
+		return ! empty( self::$prime_public_hosts[ $host ] );
 	}
 
 	/**

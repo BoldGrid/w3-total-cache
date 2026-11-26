@@ -9,6 +9,7 @@
 
 declare( strict_types = 1 );
 
+use W3TC\Util_Http;
 use W3TC\Util_Url;
 
 /**
@@ -329,6 +330,430 @@ public function test_is_https_host_allowlisted_requires_leading_dot_on_suffixes(
 				'Expected refusal for ' . $url
 			);
 		}
+	}
+
+	/**
+	 * Outbound-fetch policy refuses link-local, metadata, and non-http
+	 * destinations in every address form.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_is_allowed_outbound_url_refuses_link_local_and_metadata() {
+		$denied = array(
+			'http://169.254.169.254/latest/meta-data/iam/',
+			'http://169.254.0.1/',
+			'http://[fe80::1]/',
+			'http://[::ffff:169.254.169.254]/',
+			'http://[::1]:6379/',
+			'http://0.0.0.0/',
+			'ftp://example.com/',
+			'php://filter/resource=index.php',
+			'data:text/plain,hello',
+			'http://localhost/',
+		);
+
+		foreach ( $denied as $url ) {
+			$this->assertFalse(
+				Util_Url::is_allowed_outbound_url( $url ),
+				'Expected refusal for ' . $url
+			);
+		}
+	}
+
+	/**
+	 * The public_host_ips() helper returns the validated literal for a public IP and
+	 * nothing for a refused host.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_public_host_ips_returns_validated_addresses() {
+		$this->assertSame( array( '8.8.8.8' ), Util_Url::public_host_ips( 'http://8.8.8.8/' ) );
+		$this->assertSame( array( '2001:4860:4860::8888' ), Util_Url::public_host_ips( 'http://[2001:4860:4860::8888]/' ) );
+
+		foreach ( array( 'http://127.0.0.1/', 'http://169.254.169.254/', 'http://localhost/', 'gopher://8.8.8.8/', '' ) as $url ) {
+			$this->assertSame( array(), Util_Url::public_host_ips( $url ), 'Expected no addresses for ' . $url );
+		}
+	}
+
+	/**
+	 * CURLOPT_RESOLVE entries carry host, port, and bracketed IPv6.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_curl_resolve_entry_format() {
+		if ( ! defined( 'CURLOPT_RESOLVE' ) ) {
+			$this->markTestSkipped( 'cURL is not available.' );
+		}
+
+		$this->assertSame(
+			'example.com:443:93.184.215.14',
+			Util_Http::curl_resolve_entry( 'https://Example.com/path', array( '93.184.215.14' ) )
+		);
+		$this->assertSame(
+			'example.com:8080:[2606:2800:21f:cb07:6820:80da:af6b:8b2c]',
+			Util_Http::curl_resolve_entry( 'http://example.com:8080/', array( '2606:2800:21f:cb07:6820:80da:af6b:8b2c' ) )
+		);
+		$this->assertSame( '', Util_Http::curl_resolve_entry( 'http://8.8.8.8/', array( '8.8.8.8' ) ) );
+		$this->assertSame( '', Util_Http::curl_resolve_entry( 'https://example.com/', array() ) );
+		$this->assertSame( '', Util_Http::curl_resolve_entry( 'https://example.com/', array( 'not-an-ip' ) ) );
+	}
+
+	/**
+	 * The get_pinned() helper registers the pinning hook only for the duration of
+	 * the request and disables transport-level redirects.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_get_pinned_pins_public_host_for_request() {
+		if ( ! defined( 'CURLOPT_RESOLVE' ) || array() === Util_Url::public_host_ips( 'https://example.com/' ) ) {
+			$this->markTestSkipped( 'Requires cURL and public DNS resolution.' );
+		}
+
+		$seen     = array();
+		$callback = static function ( $preempt, $args, $url ) use ( &$seen ) {
+			$seen[] = array(
+				'url'         => $url,
+				'pinned'      => false !== has_action( 'http_api_curl' ),
+				'redirection' => isset( $args['redirection'] ) ? $args['redirection'] : null,
+			);
+
+			return array(
+				'headers'  => array(),
+				'body'     => '',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$response = Util_Http::get_pinned( 'https://example.com/' );
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+
+		$this->assertIsArray( $response );
+		$this->assertCount( 1, $seen );
+		$this->assertTrue( $seen[0]['pinned'] );
+		$this->assertSame( 0, $seen[0]['redirection'] );
+		$this->assertFalse( has_action( 'http_api_curl' ) );
+	}
+
+	/**
+	 * The get_pinned() helper refuses internal first hops without a request and does
+	 * not follow a redirect to an internal address.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_get_pinned_refuses_internal_destinations() {
+		$requested = array();
+		$callback  = static function ( $preempt, $args, $url ) use ( &$requested ) {
+			$requested[] = $url;
+
+			return array(
+				'headers'  => array( 'location' => 'http://169.254.169.254/latest/meta-data/' ),
+				'body'     => '',
+				'response' => array(
+					'code'    => 302,
+					'message' => 'Found',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$refused  = Util_Http::get_pinned( 'http://127.0.0.1:6379/' );
+		$redirect = Util_Http::get_pinned( \home_url( '/redirect' ) );
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+
+		$this->assertWPError( $refused );
+		$this->assertIsArray( $redirect );
+		$this->assertSame( 302, wp_remote_retrieve_response_code( $redirect ) );
+		$this->assertSame( array( \home_url( '/redirect' ) ), $requested );
+	}
+
+	/**
+	 * Allowed redirect chains follow up to five hops; a longer chain
+	 * returns an error instead of the last redirect response.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_get_pinned_redirect_limit() {
+		$requested = array();
+		$callback  = static function ( $preempt, $args, $url ) use ( &$requested ) {
+			$requested[] = $url;
+			$hop         = (int) \substr( (string) \wp_parse_url( $url, PHP_URL_PATH ), \strlen( '/hop-' ) );
+			$final       = isset( $args['w3tc_test_final'] ) ? (int) $args['w3tc_test_final'] : 0;
+
+			return array(
+				'headers'  => $hop < $final ? array( 'location' => \home_url( '/hop-' . ( $hop + 1 ) ) ) : array(),
+				'body'     => '',
+				'response' => array(
+					'code'    => $hop < $final ? 302 : 200,
+					'message' => '',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$five = Util_Http::get_pinned( \home_url( '/hop-0' ), array( 'w3tc_test_final' => 5 ) );
+		$five_requests = $requested;
+		$requested     = array();
+
+		$six = Util_Http::get_pinned( \home_url( '/hop-0' ), array( 'w3tc_test_final' => 6 ) );
+		$six_requests = $requested;
+		$requested    = array();
+
+		$none = Util_Http::get_pinned( \home_url( '/hop-0' ), array( 'w3tc_test_final' => 1 ), null, 0 );
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+
+		$this->assertSame( 200, wp_remote_retrieve_response_code( $five ) );
+		$this->assertCount( 6, $five_requests );
+		$this->assertWPError( $six );
+		$this->assertSame( 'w3tc_too_many_redirects', $six->get_error_code() );
+		$this->assertCount( 6, $six_requests );
+		$this->assertSame( 302, wp_remote_retrieve_response_code( $none ) );
+		$this->assertSame( array( \home_url( '/hop-0' ) ), $requested );
+	}
+
+	/**
+	 * Cookies set by a redirect are sent on the next hop when their
+	 * domain and path apply, for both redirect-following helpers.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_redirect_hops_carry_applicable_cookies() {
+		$sent     = array();
+		$callback = static function ( $preempt, $args, $url ) use ( &$sent ) {
+			$names = array();
+			foreach ( isset( $args['cookies'] ) ? (array) $args['cookies'] : array() as $cookie ) {
+				$names[] = $cookie instanceof \WP_Http_Cookie ? $cookie->name : 'raw';
+			}
+			$sent[ \wp_parse_url( $url, PHP_URL_PATH ) ][] = $names;
+
+			if ( '/start' === \wp_parse_url( $url, PHP_URL_PATH ) ) {
+				return array(
+					'headers'  => array( 'location' => \home_url( '/app/final' ) ),
+					'body'     => '',
+					'response' => array(
+						'code'    => 302,
+						'message' => 'Found',
+					),
+					'cookies'  => array(
+						new \WP_Http_Cookie( array( 'name' => 'route', 'value' => 'a' ) ),
+						new \WP_Http_Cookie(
+							array(
+								'name'   => 'scoped',
+								'value'  => 'b',
+								'path'   => '/app',
+								'domain' => (string) \wp_parse_url( \home_url(), PHP_URL_HOST ),
+							)
+						),
+						new \WP_Http_Cookie(
+							array(
+								'name'   => 'elsewhere',
+								'value'  => 'c',
+								'domain' => 'other.example',
+							)
+						),
+						new \WP_Http_Cookie(
+							array(
+								'name'  => 'wrong_path',
+								'value' => 'd',
+								'path'  => '/admin',
+							)
+						),
+					),
+					'filename' => null,
+				);
+			}
+
+			return array(
+				'headers'  => array(),
+				'body'     => 'ok',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$response = Util_Http::get_pinned( \home_url( '/start' ) );
+		$file     = \wp_tempnam( 'w3tc-redirect-cookies' );
+		$saved    = Util_Http::download( \home_url( '/start' ), $file );
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+		@\unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		$this->assertSame( 200, wp_remote_retrieve_response_code( $response ) );
+		$this->assertTrue( $saved );
+		$this->assertSame( array( array(), array() ), $sent['/start'] );
+		$this->assertSame( array( array( 'route', 'scoped' ), array( 'route', 'scoped' ) ), $sent['/app/final'] );
+	}
+
+	/**
+	 * A cookie cleared by a redirect, by Expires or by Max-Age, is not
+	 * sent on the next hop, including one the caller supplied.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_redirect_hops_drop_cleared_cookies() {
+		if ( ! \class_exists( '\WpOrg\Requests\Response' ) ) {
+			$this->markTestSkipped( 'Requires Requests 2.' );
+		}
+
+		$sent     = array();
+		$callback = static function ( $preempt, $args, $url ) use ( &$sent ) {
+			$names = array();
+			foreach ( isset( $args['cookies'] ) ? (array) $args['cookies'] : array() as $key => $cookie ) {
+				$names[] = $cookie instanceof \WP_Http_Cookie ? $cookie->name . '=' . $cookie->value : $key . '=' . $cookie;
+			}
+			\sort( $names );
+			$sent[ \wp_parse_url( $url, PHP_URL_PATH ) ] = $names;
+
+			if ( '/start' !== \wp_parse_url( $url, PHP_URL_PATH ) ) {
+				return array(
+					'headers'  => array(),
+					'body'     => 'ok',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'cookies'  => array(),
+					'filename' => null,
+				);
+			}
+
+			$requests          = new \WpOrg\Requests\Response();
+			$requests->cookies = new \WpOrg\Requests\Cookie\Jar(
+				array(
+					'by_max_age' => new \WpOrg\Requests\Cookie( 'by_max_age', 'x', array( 'max-age' => 0 ) ),
+				)
+			);
+
+			return array(
+				'headers'       => array( 'location' => \home_url( '/final' ) ),
+				'body'          => '',
+				'response'      => array(
+					'code'    => 302,
+					'message' => 'Found',
+				),
+				'cookies'       => array(
+					new \WP_Http_Cookie(
+						array(
+							'name'    => 'by_expires',
+							'value'   => 'deleted',
+							'expires' => \time() - 3600,
+						)
+					),
+					new \WP_Http_Cookie( array( 'name' => 'by_max_age', 'value' => 'x' ) ),
+					new \WP_Http_Cookie( array( 'name' => 'route', 'value' => 'new' ) ),
+				),
+				'filename'      => null,
+				'http_response' => new \WP_HTTP_Requests_Response( $requests ),
+			);
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$response = Util_Http::get_pinned(
+			\home_url( '/start' ),
+			array(
+				'cookies' => array(
+					'by_expires' => 'old',
+					'by_max_age' => 'old',
+					'route'      => 'old',
+					'keep'       => '1',
+				),
+			)
+		);
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+
+		$this->assertSame( 200, wp_remote_retrieve_response_code( $response ) );
+		$this->assertSame( array( 'keep=1', 'route=new' ), $sent['/final'] );
+	}
+
+	/**
+	 * The pinning hook is removed even when a request callback throws.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_get_pinned_removes_hook_when_request_throws() {
+		if ( ! defined( 'CURLOPT_RESOLVE' ) || array() === Util_Url::public_host_ips( 'https://example.com/' ) ) {
+			$this->markTestSkipped( 'Requires cURL and public DNS resolution.' );
+		}
+
+		$callback = static function () {
+			throw new \RuntimeException( 'request failed' );
+		};
+		add_filter( 'pre_http_request', $callback, 10, 3 );
+
+		$thrown = false;
+		try {
+			Util_Http::get_pinned( 'https://example.com/' );
+		} catch ( \RuntimeException $e ) {
+			$thrown = true;
+		}
+
+		remove_filter( 'pre_http_request', $callback, 10 );
+
+		$this->assertTrue( $thrown );
+		$this->assertFalse( has_action( 'http_api_curl' ) );
+	}
+
+	/**
+	 * The pin callback applies CURLOPT_RESOLVE to the matching request
+	 * only: a host that does not resolve connects to the pinned address.
+	 *
+	 * @since 2.11.1
+	 */
+	public function test_curl_pin_callback_applies_resolve_entry() {
+		if ( ! defined( 'CURLOPT_RESOLVE' ) || ! \function_exists( 'curl_init' ) ) {
+			$this->markTestSkipped( 'Requires cURL.' );
+		}
+
+		$server = @\stream_socket_server( 'tcp://127.0.0.1:0', $errno, $errstr ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $server ) {
+			$this->markTestSkipped( 'Cannot open a local listener.' );
+		}
+
+		$port  = (int) \substr( (string) \strrchr( (string) \stream_socket_get_name( $server, false ), ':' ), 1 );
+		$url   = 'http://w3tc-pin-test.invalid:' . $port . '/';
+		$entry = 'w3tc-pin-test.invalid:' . $port . ':127.0.0.1';
+		$pin   = Util_Http::curl_pin_callback( $url, $entry );
+
+		$connect = static function ( $request_url ) use ( $pin, $url ) {
+			$handle = \curl_init();
+			$pin( $handle, array(), $request_url );
+			\curl_setopt( $handle, CURLOPT_URL, $url );
+			\curl_setopt( $handle, CURLOPT_CONNECT_ONLY, true );
+			\curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, 2 );
+			\curl_exec( $handle );
+
+			return array(
+				'errno' => \curl_errno( $handle ),
+				'ip'    => \curl_getinfo( $handle, CURLINFO_PRIMARY_IP ),
+			);
+		};
+
+		$pinned   = $connect( $url );
+		$unpinned = $connect( 'http://other.invalid/' );
+
+		\fclose( $server );
+
+		$this->assertSame( 0, $pinned['errno'] );
+		$this->assertSame( '127.0.0.1', $pinned['ip'] );
+		$this->assertNotSame( 0, $unpinned['errno'] );
 	}
 
 	/**

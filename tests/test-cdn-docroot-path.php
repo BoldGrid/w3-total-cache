@@ -28,7 +28,7 @@ function cdu_resolve_under_docroot( $w3tc_file, $docroot_real ) {
 		return '';
 	}
 
-	if ( false !== strpos( $w3tc_file, '..' ) ) {
+	if ( false !== strpos( $w3tc_file, "\0" ) || preg_match( '~(^|[/\\\\])\.\.([/\\\\]|$)~', $w3tc_file ) ) {
 		return '';
 	}
 
@@ -96,6 +96,8 @@ $root = sys_get_temp_dir() . '/w3tc-docroot-path-' . uniqid();
 mkdir( $root, 0777, true );
 $inside = $root . '/inside.txt';
 file_put_contents( $inside, 'ok' );
+$dotted = $root . '/photo..jpg';
+file_put_contents( $dotted, 'ok' );
 $outside = sys_get_temp_dir() . '/w3tc-docroot-outside-' . uniqid() . '.txt';
 file_put_contents( $outside, 'secret' );
 
@@ -105,8 +107,13 @@ cdu_case( true, 'relative file under docroot resolves', 'inside.txt', $root );
 cdu_case( false, 'absolute outside docroot is rejected', $outside, $root );
 cdu_case( false, 'traversal escapes docroot', '../' . basename( $outside ), $root );
 cdu_case( false, 'embedded traversal is rejected', 'foo/../../outside', $root );
+cdu_case( false, 'null byte is rejected', "inside.txt\0.jpg", $root );
+cdu_case( true, 'double dot inside a file name resolves', 'photo..jpg', $root );
+cdu_case( false, 'backslash traversal segment is rejected', '..\\' . basename( $outside ), $root );
+cdu_case( false, 'trailing traversal segment is rejected', 'foo/..', $root );
 
 @unlink( $inside );
+@unlink( $dotted );
 @unlink( $outside );
 @rmdir( $root );
 

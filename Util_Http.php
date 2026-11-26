@@ -127,6 +127,7 @@ class Util_Http {
 		 * against the requested policy before the next request.
 		 */
 		$max_redirects = 5;
+		$jar           = array();
 		for ( $hop = 0; $hop <= $max_redirects; $hop++ ) {
 			if ( $https_only && 'https' !== \wp_parse_url( $w3tc_url, PHP_URL_SCHEME ) ) {
 				return false;
@@ -149,11 +150,14 @@ class Util_Http {
 					'redirection' => 0,
 				)
 			);
+			if ( array() !== $jar ) {
+				$request_args['cookies'] = self::redirect_cookies( $args, $jar, $w3tc_url );
+			}
 			if ( $max_size > 0 ) {
 				$request_args['limit_response_size'] = $max_size + 1;
 			}
 
-			$response = self::get( $w3tc_url, $request_args );
+			$response = self::request_pinned( $w3tc_url, $request_args );
 			if ( \is_wp_error( $response ) ) {
 				return false;
 			}
@@ -164,6 +168,8 @@ class Util_Http {
 				if ( '' === $location ) {
 					return false;
 				}
+
+				self::collect_redirect_cookies( $jar, $response, $w3tc_url );
 
 				$w3tc_url = self::resolve_redirect_url( $w3tc_url, $location );
 				if ( '' === $w3tc_url ) {
@@ -186,6 +192,287 @@ class Util_Http {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Sends a GET request to an allowed destination, pinned to the
+	 * addresses that were validated for it.
+	 *
+	 * Redirects are followed manually. Every hop must pass `$validator`
+	 * before it is requested; a redirect whose target is refused is
+	 * returned to the caller unfollowed. An allowed redirect past
+	 * `$max_redirects` returns a WP_Error, unless `$max_redirects` is 0.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string        $w3tc_url      URL to request.
+	 * @param array         $args          Arguments for the GET request.
+	 * @param callable|null $validator     Receives each hop URL and returns bool.
+	 *                                     Defaults to Util_Url::is_allowed_outbound_url().
+	 * @param int           $max_redirects Maximum number of redirects to follow.
+	 *
+	 * @return array|\WP_Error Response data, or a WP_Error when the first hop is refused, a request fails, or the redirect limit is reached.
+	 */
+	public static function get_pinned( $w3tc_url, $args = array(), $validator = null, $max_redirects = 5 ) {
+		if ( ! \is_callable( $validator ) ) {
+			$validator = array( '\W3TC\Util_Url', 'is_allowed_outbound_url' );
+		}
+
+		$w3tc_url = Util_Url::normalize_protocol_relative_url( $w3tc_url );
+		if ( '' === $w3tc_url || ! \call_user_func( $validator, $w3tc_url ) ) {
+			return new \WP_Error( 'w3tc_url_refused', \__( 'The URL is not an allowed destination.', 'w3-total-cache' ) );
+		}
+
+		$max_redirects = \max( 0, (int) $max_redirects );
+		$jar           = array();
+		for ( $hop = 0; ; $hop++ ) {
+			$request_args = $args;
+			if ( array() !== $jar ) {
+				$request_args['cookies'] = self::redirect_cookies( $args, $jar, $w3tc_url );
+			}
+
+			$response = self::request_pinned( $w3tc_url, $request_args );
+			if ( \is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$code = (int) \wp_remote_retrieve_response_code( $response );
+			if ( $code < 300 || $code >= 400 || 0 === $max_redirects ) {
+				return $response;
+			}
+
+			$next = self::resolve_redirect_url( $w3tc_url, self::response_location_header( $response ) );
+			if ( '' === $next || ! \call_user_func( $validator, $next ) ) {
+				return $response;
+			}
+
+			if ( $hop >= $max_redirects ) {
+				return new \WP_Error( 'w3tc_too_many_redirects', \__( 'Too many redirects.', 'w3-total-cache' ) );
+			}
+
+			self::collect_redirect_cookies( $jar, $response, $w3tc_url );
+			$w3tc_url = $next;
+		}
+	}
+
+	/**
+	 * Sends a single GET request without following redirects. When the
+	 * host resolves only to public addresses, the cURL transport is
+	 * pinned to those addresses with `CURLOPT_RESOLVE`, so a second DNS
+	 * answer cannot change the destination. This site's own host is
+	 * requested unpinned when it does not resolve publicly.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_url URL to request.
+	 * @param array  $args     Arguments for the GET request.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private static function request_pinned( $w3tc_url, $args ) {
+		$args['redirection'] = 0;
+
+		$ips = Util_Url::public_host_ips( $w3tc_url );
+		if ( array() === $ips ) {
+			if ( ! Util_Url::is_self_host_url( $w3tc_url ) ) {
+				return new \WP_Error( 'w3tc_url_refused', \__( 'The URL is not an allowed destination.', 'w3-total-cache' ) );
+			}
+
+			return self::get( $w3tc_url, $args );
+		}
+
+		$entry = self::curl_resolve_entry( $w3tc_url, $ips );
+		if ( '' === $entry ) {
+			return self::get( $w3tc_url, $args );
+		}
+
+		$pin = self::curl_pin_callback( $w3tc_url, $entry );
+
+		\add_action( 'http_api_curl', $pin, 10, 3 );
+		try {
+			$response = self::get( $w3tc_url, $args );
+		} finally {
+			\remove_action( 'http_api_curl', $pin, 10 );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Returns an `http_api_curl` callback that applies `$entry` as
+	 * `CURLOPT_RESOLVE` on the handle for `$w3tc_url` only.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_url URL being requested.
+	 * @param string $entry    Entry from {@see self::curl_resolve_entry()}.
+	 *
+	 * @return \Closure
+	 */
+	public static function curl_pin_callback( $w3tc_url, $entry ) {
+		return static function ( $handle, $parsed_args, $url ) use ( $w3tc_url, $entry ) {
+			unset( $parsed_args );
+			if ( $url === $w3tc_url ) {
+				\curl_setopt( $handle, CURLOPT_RESOLVE, array( $entry ) );
+			}
+		};
+	}
+
+	/**
+	 * Builds a `CURLOPT_RESOLVE` entry (`host:port:address[,address]`)
+	 * for a URL. Returns an empty string for IP-literal hosts, which need
+	 * no pinning, or when the constant is unavailable.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string   $w3tc_url URL being requested.
+	 * @param string[] $ips      Validated addresses for the URL's host.
+	 *
+	 * @return string
+	 */
+	public static function curl_resolve_entry( $w3tc_url, $ips ) {
+		if ( ! \defined( 'CURLOPT_RESOLVE' ) || ! \is_array( $ips ) || array() === $ips ) {
+			return '';
+		}
+
+		$parts = \wp_parse_url( $w3tc_url );
+		if ( ! \is_array( $parts ) || empty( $parts['host'] ) || empty( $parts['scheme'] ) ) {
+			return '';
+		}
+
+		$host = \strtolower( $parts['host'] );
+		if ( false !== \filter_var( \trim( $host, '[]' ), FILTER_VALIDATE_IP ) ) {
+			return '';
+		}
+
+		$port = isset( $parts['port'] ) ? (int) $parts['port'] : ( 'https' === \strtolower( $parts['scheme'] ) ? 443 : 80 );
+
+		$addresses = array();
+		foreach ( $ips as $ip ) {
+			if ( \is_string( $ip ) && false !== \filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+				$addresses[] = false !== \filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ? '[' . $ip . ']' : $ip;
+			}
+		}
+
+		if ( array() === $addresses ) {
+			return '';
+		}
+
+		// Multiple addresses per entry require cURL 7.59.0.
+		$version = \function_exists( 'curl_version' ) ? \curl_version() : array();
+		if ( empty( $version['version_number'] ) || $version['version_number'] < 0x073b00 ) {
+			$addresses = \array_slice( $addresses, 0, 1 );
+		}
+
+		return $host . ':' . $port . ':' . \implode( ',', $addresses );
+	}
+
+	/**
+	 * Adds the cookies set by a redirect response to `$jar`, replacing
+	 * earlier cookies with the same name, domain, and path. A cookie
+	 * without a domain is scoped to the host that set it. A cookie the
+	 * response clears is kept as expired so it overrides earlier values.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param \WP_Http_Cookie[] $jar      Cookies collected so far.
+	 * @param array|\WP_Error   $response HTTP API response.
+	 * @param string            $w3tc_url URL that returned the response.
+	 *
+	 * @return void
+	 */
+	private static function collect_redirect_cookies( array &$jar, $response, $w3tc_url ) {
+		/**
+		 * WP_Http_Cookie does not carry Max-Age, so read expiry from the
+		 * underlying Requests cookies when they are available.
+		 */
+		$expired = array();
+		if (
+			\is_array( $response ) &&
+			isset( $response['http_response'] ) &&
+			\is_object( $response['http_response'] ) &&
+			\method_exists( $response['http_response'], 'get_response_object' )
+		) {
+			$raw = $response['http_response']->get_response_object();
+			if ( \is_object( $raw ) && isset( $raw->cookies ) && \is_iterable( $raw->cookies ) ) {
+				foreach ( $raw->cookies as $raw_cookie ) {
+					if ( \is_object( $raw_cookie ) && \method_exists( $raw_cookie, 'is_expired' ) && $raw_cookie->is_expired() ) {
+						$expired[ (string) $raw_cookie->name ] = true;
+					}
+				}
+			}
+		}
+
+		foreach ( (array) \wp_remote_retrieve_cookies( $response ) as $cookie ) {
+			if ( ! $cookie instanceof \WP_Http_Cookie || ! \is_string( $cookie->name ) ) {
+				continue;
+			}
+
+			$cookie = clone $cookie;
+			if ( empty( $cookie->domain ) ) {
+				$cookie->domain    = self::normalized_url_host( $w3tc_url );
+				$cookie->host_only = true;
+			}
+
+			if ( isset( $expired[ $cookie->name ] ) ) {
+				$cookie->expires = 0;
+			}
+
+			$jar[ $cookie->name . '|' . \strtolower( (string) $cookie->domain ) . '|' . (string) $cookie->path ] = $cookie;
+		}
+	}
+
+	/**
+	 * Returns the request cookies for the next redirect hop: collected
+	 * cookies that apply to `$w3tc_url`, plus the caller's cookies that
+	 * no applicable collected cookie replaces or clears. Host-only
+	 * cookies are sent to the exact host that set them.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array             $args     Caller's request arguments.
+	 * @param \WP_Http_Cookie[] $jar      Cookies collected from redirects.
+	 * @param string            $w3tc_url URL of the next hop.
+	 *
+	 * @return array
+	 */
+	private static function redirect_cookies( $args, $jar, $w3tc_url ) {
+		$host     = self::normalized_url_host( $w3tc_url );
+		$cookies  = array();
+		$replaced = array();
+
+		foreach ( $jar as $cookie ) {
+			$scope          = clone $cookie;
+			$scope->expires = null;
+			if ( ! $scope->test( $w3tc_url ) ) {
+				continue;
+			}
+
+			if ( ! empty( $cookie->host_only ) && \strtolower( \rtrim( (string) $cookie->domain, '.' ) ) !== $host ) {
+				continue;
+			}
+
+			$replaced[ $cookie->name ] = true;
+			if ( $cookie->test( $w3tc_url ) ) {
+				$cookies[] = $cookie;
+			}
+		}
+
+		$caller = isset( $args['cookies'] ) && \is_array( $args['cookies'] ) ? $args['cookies'] : array();
+		foreach ( $caller as $name => $cookie ) {
+			$cookie_name = $cookie instanceof \WP_Http_Cookie ? (string) $cookie->name : (string) $name;
+			if ( isset( $replaced[ $cookie_name ] ) ) {
+				continue;
+			}
+
+			if ( \is_int( $name ) ) {
+				$cookies[] = $cookie;
+			} else {
+				$cookies[ $name ] = $cookie;
+			}
+		}
+
+		return $cookies;
 	}
 
 	/**

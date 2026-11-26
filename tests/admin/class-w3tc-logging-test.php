@@ -4,9 +4,9 @@
  *
  * Regressions for the ENG7-3031 audit-logging hardening pass:
  *  - Util_Debug::log sanitizes CR / LF / TAB / NUL (no log forging).
- *  - Util_Debug::redact strips nonces, password/secret/token/key
- *    query params, Authorization headers, and the wp-config
- *    secret-bearing define() blocks. Remaining formats (JSON,
+ *  - Util_Debug::redact strips nonces, matching query-param names,
+ *    Authorization headers, and wp-config database/auth define()
+ *    blocks. Remaining formats (JSON,
  *    print_r, encoded, nested audit context) are in
  *    class-w3tc-redact-formats-test.php.
  *  - Util_Debug::audit_log fires the `w3tc_audit_log` action with
@@ -74,8 +74,8 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `redact` strips nonces, common secret-bearing query params,
-	 * `Authorization` header values, and wp-config secret defines.
+	 * `redact` masks nonces, matching query-param names, `Authorization`
+	 * header values, and wp-config database and auth-key define() blocks.
 	 *
 	 * @since 2.10.0
 	 */
@@ -85,7 +85,8 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 			. "define( 'DB_PASSWORD', 'super-secret-1' );\n"
 			. "define( 'AUTH_KEY', 'AAA-key' );\n"
 			. "define( 'NONCE_SALT', 'HHH-salt' );\n"
-			. "define( 'DB_NAME', 'wordpress' );\n";
+			. "define( 'DB_NAME', 'wordpress' );\n"
+			. "define( 'WPLANG', 'en_US' );\n";
 
 		$out = Util_Debug::redact( $blob );
 
@@ -96,7 +97,8 @@ class W3tc_Logging_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( "define( 'DB_PASSWORD', 'REDACTED' );", $out );
 		$this->assertStringContainsString( "define( 'AUTH_KEY', 'REDACTED' );", $out );
 		$this->assertStringContainsString( "define( 'NONCE_SALT', 'REDACTED' );", $out );
-		$this->assertStringContainsString( "define( 'DB_NAME', 'wordpress' );", $out );
+		$this->assertStringContainsString( "define( 'DB_NAME', 'REDACTED' );", $out );
+		$this->assertStringContainsString( "define( 'WPLANG', 'en_US' );", $out );
 
 		$this->assertStringNotContainsString( 'N0NCE', $out );
 		$this->assertStringNotContainsString( 'hunter2', $out );

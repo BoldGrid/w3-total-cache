@@ -59,6 +59,7 @@ class W3TCG_Google_Service_Drive extends W3TCG_Google_Service
   public $realtime;
   public $replies;
   public $revisions;
+  public $serviceName;
   
 
   /**

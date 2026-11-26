@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -19,12 +19,12 @@ use W3TC\ObjectCache_WpObjectCache_Regular;
  * A default group the admin removed from the saved list must stay persistent, while
  * groups left on the list, or registered at runtime, stay non-persistent.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 
 	/**
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -36,7 +36,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * Builds the engine with a saved non-persistent list, then applies the WordPress startup call.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param array|null $saved_groups Saved list, or null to keep the default.
 	 *
@@ -59,7 +59,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * A group removed from the saved list stays persistent after WordPress registers its groups.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -73,7 +73,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * Control: groups left on the saved list stay non-persistent.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -88,7 +88,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * With the default setting, WordPress groups are non-persistent.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -102,7 +102,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * Emptying the list makes both default groups persistent.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -116,7 +116,7 @@ class W3tc_ObjectCache_Nonpersistent_Groups_Test extends WP_UnitTestCase {
 	/**
 	 * Groups registered at runtime beyond the defaults are still honored.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */

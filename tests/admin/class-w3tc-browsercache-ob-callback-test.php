@@ -126,6 +126,46 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Quoted-arm URL character classes must not consume intervening markup.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_quoted_arm_does_not_consume_intervening_markup() {
+		$plugin = new BrowserCache_Plugin();
+		$this->set_browsercache_rewrite( $plugin, false );
+
+		$html = '<html><body><a href="/about">Need help?</a>'
+			. '<link rel="stylesheet" href="/style.css?ver=1"></body></html>';
+
+		$output = $plugin->ob_callback( $html );
+
+		$this->assertStringContainsString( '<a href="/about">Need help?</a>', $output );
+		$this->assertStringContainsString( 'href="/style.css"', $output );
+		$this->assertStringNotContainsString( '?ver=1', $output );
+	}
+
+	/**
+	 * Quoted-arm URL rewrite must close on the opening quote delimiter.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return void
+	 */
+	public function test_ob_callback_quoted_arm_respects_opening_quote_delimiter() {
+		$plugin = new BrowserCache_Plugin();
+		$this->set_browsercache_rewrite( $plugin, false );
+
+		$html = '<html><body><span class="z\' w3tv2mark=yes y=src=\'/a.css#">'
+			. 'text</span><script src=\'/a.css#\'></script></body></html>';
+
+		$output = $plugin->ob_callback( $html );
+
+		$this->assertSame( $html, $output );
+	}
+
+	/**
 	 * Set private browsercache_rewrite on BrowserCache_Plugin.
 	 *
 	 * @since 2.10.7
@@ -137,7 +177,7 @@ class W3tc_Browsercache_Ob_Callback_Test extends WP_UnitTestCase {
 	 */
 	private function set_browsercache_rewrite( BrowserCache_Plugin $plugin, bool $rewrite ): void {
 		$property = new ReflectionProperty( BrowserCache_Plugin::class, 'browsercache_rewrite' );
-		$property->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $property );
 		$property->setValue( $plugin, $rewrite );
 	}
 }

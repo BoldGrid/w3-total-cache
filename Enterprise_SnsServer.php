@@ -18,41 +18,44 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	/**
 	 * Processes incoming SNS messages and handles subscription confirmation or notification actions.
 	 *
+	 * @since 2.11.1 Added the $validated parameter.
+	 *
 	 * @param string $w3tc_message The raw SNS message to be processed.
+	 * @param bool   $validated    Whether the public endpoint validated the signature.
 	 *
 	 * @return void
 	 *
 	 * @throws \Exception If an error occurs while processing the message.
 	 */
-	public function process_message( $w3tc_message ) {
+	public function process_message( $w3tc_message, $validated = false ) {
 		$this->_log( 'Received message' );
 
 		try {
 			$w3tc_message = new \Aws\Sns\Message( $w3tc_message );
-			$validator    = new \Aws\Sns\MessageValidator();
-			$error        = '';
-			if ( $validator->isValid( $w3tc_message ) ) {
-				$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
+			$topic_arn    = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-				if ( empty( $topic_arn ) || $topic_arn !== $w3tc_message['TopicArn'] ) {
-					throw new \Exception(
-						\esc_html(
-							sprintf(
-								// Translators: 1 Error message.
-								\__( 'Not my Topic. Request came from %1$s.', 'w3-total-cache' ),
-								$w3tc_message['TopicArn']
-							)
-						)
-					);
-				}
+			if (
+				! \is_string( $topic_arn ) ||
+				'' === $topic_arn ||
+				! isset( $w3tc_message['TopicArn'] ) ||
+				! \is_string( $w3tc_message['TopicArn'] ) ||
+				! \hash_equals( $topic_arn, $w3tc_message['TopicArn'] )
+			) {
+				throw new \Exception( \esc_html__( 'Message topic does not match the configured topic.', 'w3-total-cache' ) );
+			}
 
-				if ( 'SubscriptionConfirmation' === $w3tc_message['Type'] ) {
-					$this->_subscription_confirmation( $w3tc_message );
-				} elseif ( 'Notification' === $w3tc_message['Type'] ) {
-					$this->_notification( $w3tc_message['Message'] );
+			if ( ! $validated ) {
+				$sns_validator = new Sns_MessageValidator();
+				if ( ! $sns_validator->validate_message( $w3tc_message->toArray(), $topic_arn ) ) {
+					$this->_log( 'Error processing message it was not valid.' );
+					return;
 				}
-			} else {
-				$this->_log( 'Error processing message it was not valid.' );
+			}
+
+			if ( 'SubscriptionConfirmation' === $w3tc_message['Type'] ) {
+				$this->_subscription_confirmation( $w3tc_message );
+			} elseif ( 'Notification' === $w3tc_message['Type'] ) {
+				$this->_notification( $w3tc_message['Message'] );
 			}
 		} catch ( \Exception $e ) {
 			$this->_log( 'Error processing message: ' . $e->getMessage() );

@@ -1,9 +1,9 @@
 === W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161, elanasparkle, abrender
 Tags: CDN, pagespeed, caching, performance, optimize
-Requires at least: 6.0
-Tested up to: 7.1
-Stable tag: 2.11.0
+Requires at least: 6.2
+Tested up to: 7.2
+Stable tag: 2.11.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -181,7 +181,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, WordPress 6.0 or higher with PHP 7.4 or higher is required.
+To use all features in the suite, WordPress 6.2 or higher with PHP 7.4 or higher is required.
 
 = Why doesn't minify work for me? =
 
@@ -365,6 +365,50 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.11.1 =
+* Feature: CDN: Sign S3 Compatible requests with Signature Version 4
+* Enhancement: CDN: Default new FTP CDN configurations to FTPS
+* Enhancement: Object Cache: Skip Redis when it is down or misconfigured and replay skipped invalidations after it recovers
+* Enhancement: Memcached: Keep cache item keys within driver length limits
+* Enhancement: Lazy Load: Leave fetchpriority="high" images out of lazy load by default
+* Enhancement: Developers: Apply the w3tc_environment_get_required_rules filter to Minify cache rules
+* Fix: Page Cache: Skip page cache writes for 403 responses
+* Fix: Page Cache: Match cookie group expressions the same way in PHP, Apache, and Nginx rules and keep the first matching group
+* Fix: Page Cache: Apply accept and reject URI rules to the request path
+* Fix: Page Cache: Skip shared caching for responses that set cookies and for requests that carry HTTP authorization headers
+* Fix: Page Cache: Count the HTML browser lifetime from cache hit time
+* Fix: Page Cache: Keep identical Disk: Enhanced HTML in place so browsers do not download an unchanged page again
+* Fix: Page Cache: Remove a stale per-page .htaccess when a page is re-cached without header rules
+* Fix: Page Cache: Expand mirror URLs for purges on subdomain networks and keep post purge URLs in step with permalink changes
+* Fix: Page Cache: Flush the page cache when Elementor clears its CSS
+* Fix: Page Cache: Schedule a missing cleanup event on admin requests and keep flush alive when the REST helper is not loaded
+* Fix: Page Cache: Avoid the deprecated SID constant on PHP 8.4 and later
+* Fix: REST API Cache: Skip shared caching for session-bound responses and WooCommerce Store API requests
+* Fix: Always Cached: Refresh queued REST URLs and read bracketed IPv6 database hosts
+* Fix: Minify: Look up encoded entries with the stored ID and keep same-named themes apart
+* Fix: Minify: Keep filtered cache rules inside the Minify cache markers
+* Fix: CDN: Rewrite every srcset-style attribute with the WordPress HTML tag processor and restore placeholders at their original position
+* Fix: CDN: Limit local media library imports to files inside the content directory
+* Fix: Bunny CDN: Send URL purges as the url query parameter and use the matching action for Deauthorize
+* Fix: Azure: Omit the container from static website URLs
+* Fix: Rackspace: Accept Cloud Files catalog endpoints and fix access renewal on PHP 8
+* Fix: Cloudflare: Support the new cfk_ Global API Key format
+* Fix: Object Cache: Keep removed default groups persistent, return handled results from WinCache when the extension is missing, and avoid a PHP 8.5 deprecation for null groups
+* Fix: Database Cache: Skip storage when a cache read fails and log query shapes instead of literal values in debug logs and statistics
+* Fix: Image Converter: Limit Revert to the converted attachments of an image and report an incomplete Revert All
+* Fix: New Relic: Stop output buffering on wp-admin screens so browser monitoring scripts do not run there
+* Fix: Settings: Resolve the "link has expired" message on subsite specific and common settings buttons
+* Fix: Admin: Send empty-page redirects to the Dashboard instead of a 403 page
+* Fix: Licensing: Read the Account widget from the stored license state and treat a rejected license check as no license
+* Fix: Google PageSpeed: Show a notice when the Deauthorize link is stale
+* Fix: Lazy Load: Correct the Easy Google Maps plugin name
+* Fix: General: Skip set_time_limit when the host disables it and check theme preview access after pluggable.php loads
+* Update: Requirements: Require WordPress 6.2 or later
+* Update: General: Refine validation of admin actions, settings saves, generated server rules, import paths, outbound request destinations, and SNS message handling
+* Update: General: Mask additional wp-config constants in debug and support output
+* Update: Dependencies: Update Guzzle and related Composer libraries, including guzzlehttp/promises for PHP 8.6
+* Update: Developers: Run CI and release checks in GitHub Actions
+
 = 2.11.0 =
 * Feature: Extensions: Add the CloudLinux Max Cache extension
 * Update: Licensing: Store the license JWT and call the v2 APIs
@@ -482,6 +526,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: WebP Converter renamed to Image Converter
 
 == Upgrade Notice ==
+
+= 2.11.1 =
+This update refines page cache behavior, adds Redis outage handling and Signature Version 4 signing for S3 Compatible CDNs, and improves validation across several admin, CDN, and licensing features. All users are encouraged to update.
 
 = 2.11.0 =
 This release adds the CloudLinux Max Cache extension and stores the license JWT for the v2 APIs. All users are encouraged to update. It also skips a second WP_CACHE define when the site already set one.

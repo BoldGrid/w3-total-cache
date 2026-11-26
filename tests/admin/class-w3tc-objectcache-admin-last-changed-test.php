@@ -171,7 +171,7 @@ class W3tc_Objectcache_Admin_Last_Changed_Test extends WP_UnitTestCase {
 	 */
 	private function simulate_admin_persistent_skip( ObjectCache_WpObjectCache_Regular $oc ) {
 		$prop = new \ReflectionProperty( ObjectCache_WpObjectCache_Regular::class, '_can_cache_dynamic' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$prop->setValue( $oc, false );
 	}
 }

@@ -167,7 +167,7 @@ class Root_Environment {
 		 * request triggered the check. Conditional filters (per site, per user) can make the shared file
 		 * change between saves.
 		 *
-		 * @since X.X.X Added the `$context` argument and the `minify_cache` context.
+		 * @since 2.11.1 Added the `$context` argument and the `minify_cache` context.
 		 *
 		 * @param array  $required_rules Descriptors, each `array( 'filename' => string, 'content' => string, 'position' => int|null )`.
 		 * @param Config $w3tc_config    W3TC Config containing relevant settings.

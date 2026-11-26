@@ -14,6 +14,8 @@ namespace {
 	if ( \realpath( __FILE__ ) !== \realpath( $_SERVER['SCRIPT_FILENAME'] ?? '' ) ) {
 		return;
 	}
+
+	require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
 }
 
 namespace W3TC {
@@ -114,19 +116,19 @@ namespace {
 
 	function pgcr_set_private_property( $object, $property, $value ) {
 		$reflection = new \ReflectionProperty( \W3TC\PgCache_ContentGrabber::class, $property );
-		$reflection->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $reflection );
 		$reflection->setValue( $object, $value );
 	}
 
 	function pgcr_get_private_property( $object, $property ) {
 		$reflection = new \ReflectionProperty( \W3TC\PgCache_ContentGrabber::class, $property );
-		$reflection->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $reflection );
 		return $reflection->getValue( $object );
 	}
 
 	function pgcr_can_write_cache( $object, $buffer, $headers ) {
 		$reflection = new \ReflectionMethod( \W3TC\PgCache_ContentGrabber::class, '_can_write_cache' );
-		$reflection->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $reflection );
 		return $reflection->invoke( $object, $buffer, $headers );
 	}
 

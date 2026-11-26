@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -17,14 +17,14 @@ use W3TC\Util_Nonce;
  * The Deauthorize button must mint the nonce for the action it requests.
  * Sending the authorize nonce makes the AJAX hub return 403.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 
 	/**
 	 * Nonce key / sub-action pairs: query-string URLs, then both key orders in `data: { ... }` objects.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var string[]
 	 */
@@ -37,7 +37,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * CDN and Full Site Delivery deauthorize openers.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return array
 	 */
@@ -57,7 +57,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * The opener nonce key matches the requested action.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider provider_deauthorize_openers
 	 *
@@ -75,7 +75,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * Every AJAX hub request in admin scripts sends the nonce minted for its own sub-action.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -108,7 +108,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * A data object that sends one action's nonce for another action is reported as a mismatch.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -124,7 +124,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * Read the nonce key and sub-action pairs from a script.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $file Script path.
 	 *
@@ -140,7 +140,7 @@ class W3tc_Bunnycdn_Deauthorize_Nonce_Test extends WP_UnitTestCase {
 	/**
 	 * Extract nonce key and sub-action pairs from script source.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $src Script source.
 	 *

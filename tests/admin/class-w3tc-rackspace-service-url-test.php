@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -20,7 +20,7 @@ use W3TC\Cdn_RackSpace_Api_Tokens;
  * Rackspace Cloud Files catalog endpoints use `.clouddrive.com`.
  * The region allowlist must keep those URLs and still drop others.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 
@@ -59,7 +59,7 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Catalog URLs on the other allowed suffixes are kept.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider provider_catalog_keys
 	 *
@@ -100,7 +100,7 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 	 * A public IP literal needs no DNS. The resolvable hosts are only
 	 * meaningful when DNS works, so they are skipped otherwise.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @dataProvider provider_catalog_keys
 	 *
@@ -189,7 +189,7 @@ class W3tc_Rackspace_Service_Url_Test extends WP_UnitTestCase {
 	/**
 	 * Skips the test when a host does not resolve.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $host Hostname.
 	 *

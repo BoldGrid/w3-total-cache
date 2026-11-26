@@ -69,7 +69,7 @@ class W3tc_Pgcache_Wp_Cache_Define_Test extends WP_UnitTestCase {
 		$method = new ReflectionMethod( PgCache_Environment::class, 'wp_config_content_for_cache_constant' );
 
 		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+			\W3TC\Util_Reflection::set_accessible( $method );
 		}
 
 		$result = $method->invoke( $environment, $config_path, $config_data );

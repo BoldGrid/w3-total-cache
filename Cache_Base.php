@@ -294,6 +294,58 @@ class Cache_Base {
 	}
 
 	/**
+	 * Constructs a fixed-length item key from all key components.
+	 *
+	 * Memcache-family stores cap key length at 250 bytes, so every component
+	 * is hashed and the key is always 70 bytes: `w3tc_` . md5( scope ) . `_` .
+	 * md5( name ), where scope covers the instance id, blog id, module and host.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_name Name.
+	 *
+	 * @return string
+	 */
+	protected function get_fixed_length_item_key( $w3tc_name ) {
+		$scope = \implode(
+			'|',
+			array(
+				(int) $this->_instance_id,
+				(int) $this->_blog_id,
+				(string) $this->_module,
+				(string) $this->_host,
+			)
+		);
+
+		return 'w3tc_' . \md5( $scope ) . '_' . \md5( (string) $w3tc_name );
+	}
+
+	/**
+	 * Constructs a fixed-length key version key from all key components.
+	 *
+	 * Fixed-length counterpart of _get_key_version_key() for memcache-family
+	 * stores; always 82 bytes.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_group Group.
+	 *
+	 * @return string
+	 */
+	protected function get_fixed_length_key_version_key( $w3tc_group = '' ) {
+		$scope = \implode(
+			'|',
+			array(
+				(int) $this->_instance_id,
+				(int) $this->_blog_id,
+				(string) $this->_module,
+			)
+		);
+
+		return 'w3tc_' . \md5( $scope ) . '_' . \md5( (string) $w3tc_group ) . '_key_version';
+	}
+
+	/**
 	 * Use key as a counter and add integer value to it
 	 *
 	 * @abstract

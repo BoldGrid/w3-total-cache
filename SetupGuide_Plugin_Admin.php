@@ -1334,7 +1334,7 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $w3tc_config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
 							'w3tc_pro'          => $w3tc_is_pro,
-							'w3tc_has_key'      => $w3tc_config->get_string( 'plugin.license_key' ),
+							'w3tc_has_key'      => ! empty( $w3tc_config->get_string( 'plugin.license_key' ) ),
 							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
 							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
 							'w3tc_plugin_type'  => esc_attr( $w3tc_config->get_string( 'plugin.type' ) ),

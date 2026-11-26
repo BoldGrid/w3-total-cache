@@ -186,7 +186,7 @@ class Cache_File_Generic extends Cache_File {
 	 * The current file is checked first, then `$path . '_old'`, which a purge, flush or garbage
 	 * collection pass leaves behind. A matching `_old` file is moved back with its mtime.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path    Absolute cache file path.
 	 * @param string $content New content, not empty.
@@ -224,7 +224,7 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Checks whether a file holds this content, ignoring the footer comment, and is recent enough.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string      $file        File path.
 	 * @param string      $content     New content, as stored.
@@ -269,7 +269,7 @@ class Cache_File_Generic extends Cache_File {
 	/**
 	 * Returns the uncompressed form of stored page content.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $content     Content as stored.
 	 * @param string $compression Compression: gzip, deflate, br or empty.
@@ -303,7 +303,7 @@ class Cache_File_Generic extends Cache_File {
 	 * minify, CDN, object cache) are inside the same comment, so the whole block goes. Only a last comment that
 	 * holds the "Served from" line is removed, and only when nothing but whitespace follows it.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $html Uncompressed page.
 	 *
@@ -478,7 +478,7 @@ class Cache_File_Generic extends Cache_File {
 				if ( $htaccess_ok ) {
 					if ( empty( $rules ) ) {
 						// No rules now: drop the file an earlier write left, so its stale headers stop applying.
-						if ( file_exists( $htaccess_path ) ) {
+						if ( file_exists( $htaccess_path ) && ! $this->is_pgcache_rules_file( $htaccess_path ) ) {
 							@unlink( $htaccess_path );
 						}
 					} else {
@@ -496,6 +496,27 @@ class Cache_File_Generic extends Cache_File {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks whether a .htaccess file holds the page cache rules block.
+	 *
+	 * On multisite each site's home page is cached in the folder that also holds that site's page cache rules.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $htaccess_path Path to the .htaccess file.
+	 *
+	 * @return bool
+	 */
+	private function is_pgcache_rules_file( $htaccess_path ) {
+		if ( ! \defined( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE' ) ) {
+			return false;
+		}
+
+		$contents = @\file_get_contents( $htaccess_path );
+
+		return \is_string( $contents ) && false !== \strpos( $contents, W3TC_MARKER_BEGIN_PGCACHE_CACHE );
 	}
 
 	/**

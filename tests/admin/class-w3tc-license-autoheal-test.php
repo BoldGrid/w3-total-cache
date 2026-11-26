@@ -108,7 +108,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 		$config = Dispatcher::config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $config );
 		foreach ( $pairs as $k => $v ) {
 			$data[ $k ] = $v;
@@ -130,7 +130,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 		$state = Dispatcher::config_state();
 		$ref   = new \ReflectionObject( $state );
 		$prop  = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $state );
 		if ( ! is_array( $data ) ) {
 			$data = array();
@@ -368,7 +368,7 @@ class W3tc_License_Autoheal_Test extends WP_UnitTestCase {
 	private function invoke_maybe_update( Licensing_Plugin_Admin $admin ): void {
 		$ref    = new \ReflectionObject( $admin );
 		$method = $ref->getMethod( 'maybe_update_license_status' );
-		$method->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $method );
 		$method->invoke( $admin );
 	}
 }

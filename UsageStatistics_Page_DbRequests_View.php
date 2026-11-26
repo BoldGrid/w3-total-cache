@@ -37,7 +37,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</tr>
 	<?php foreach ( $w3tc_result['items'] as $w3tc_i ) : ?>
 		<tr>
-			<td title="<?php echo esc_attr__( 'Reject reasons: ', 'w3-total-cache' ) . esc_attr( implode( ',', $w3tc_i['reasons'] ) ); ?>"><?php echo esc_html( $w3tc_i['query'] ); ?></td>
+			<td title="<?php echo esc_attr__( 'Reject reasons: ', 'w3-total-cache' ) . esc_attr( implode( ',', $w3tc_i['reasons'] ) ); ?>">
+				<?php
+				$w3tc_query = \is_string( $w3tc_i['query'] ) ? $w3tc_i['query'] : '';
+				echo \esc_html( Util_Debug::scrub_sql_literals( $w3tc_query ) );
+				?>
+			</td>
 			<td><?php echo esc_html( $w3tc_i['count_total'] ); ?></td>
 			<td><?php echo esc_html( $w3tc_i['count_hit'] ); ?></td>
 			<td><?php echo esc_html( $w3tc_i['sum_time_ms'] ); ?></td>

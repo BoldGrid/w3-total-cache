@@ -98,6 +98,26 @@ class W3tc_Extension_Owned_Config_Test extends WP_UnitTestCase {
 			20,
 			1
 		);
+
+		/**
+		 * Extensions and Monitoring are not in the core menu. Production
+		 * adds them from Extensions_Plugin_Admin and the New Relic admin
+		 * when monitoring_type is apm.
+		 */
+		\add_filter(
+			'w3tc_admin_menu',
+			static function ( $menu ) {
+				$menu['w3tc_extensions'] = array(
+					'page_title' => 'Extensions',
+					'menu_text'  => 'Extensions',
+				);
+				$menu['w3tc_monitoring'] = array(
+					'page_title' => 'Monitoring',
+					'menu_text'  => 'Monitoring',
+				);
+				return $menu;
+			}
+		);
 	}
 
 	/**

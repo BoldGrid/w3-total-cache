@@ -119,21 +119,27 @@ class Extension_AlwaysCached_Worker {
 		 * pathway that doesn't already validate the URL, a future
 		 * schema change) could enqueue a URL pointing at AWS instance
 		 * metadata, a Redis bound to localhost, or an RFC1918
-		 * neighbour. Refuse anything that doesn't resolve to a public
-		 * IP before the wp_remote_request fires.
+		 * neighbour. Regeneration must target a host of this site or its
+		 * network before the wp_remote_request fires.
 		 */
-		if ( ! Util_Url::is_public_host( $w3tc_item['url'] ) ) {
+		if ( ! self::is_regeneration_url( $w3tc_item['url'] ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'AlwaysCached refused non-public URL' );
+			error_log( 'AlwaysCached refused URL' );
+			return 'failed';
+		}
+
+		$headers = Util_Environment::alwayscached_request_headers( $w3tc_item['key'] );
+		if ( empty( $headers['Authorization'] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'AlwaysCached worker proof unavailable' );
 			return 'failed';
 		}
 
 		$w3tc_result = wp_remote_request(
 			$w3tc_item['url'],
 			array(
-				'headers' => array(
-					'w3tcalwayscached' => $w3tc_item['key'],
-				),
+				'headers'     => $headers,
+				'redirection' => 0,
 			)
 		);
 
@@ -155,5 +161,43 @@ class Extension_AlwaysCached_Worker {
 		}
 
 		return 'ok';
+	}
+
+	/**
+	 * Whether a queued URL belongs to this site or a site in this network.
+	 *
+	 * The queue table is shared by the whole network, so a subsite URL may
+	 * use a host other than the one handling the worker run.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_url Queued URL.
+	 *
+	 * @return bool
+	 */
+	public static function is_regeneration_url( $w3tc_url ) {
+		if ( Util_Url::is_self_host_url( $w3tc_url ) ) {
+			return true;
+		}
+
+		if ( ! \is_multisite() || ! Util_Url::is_valid_http_scheme( $w3tc_url ) ) {
+			return false;
+		}
+
+		$host = \wp_parse_url( $w3tc_url, PHP_URL_HOST );
+		if ( ! \is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$sites = \get_sites(
+			array(
+				'domain'     => \strtolower( $host ),
+				'network_id' => \get_current_network_id(),
+				'number'     => 1,
+				'fields'     => 'ids',
+			)
+		);
+
+		return ! empty( $sites );
 	}
 }

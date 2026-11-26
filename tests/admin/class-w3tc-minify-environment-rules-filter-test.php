@@ -4,7 +4,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -21,7 +21,7 @@ use W3TC\Util_Rule;
  * Writes go through the public `fix_on_wpadmin_request()` entry point; nginx tests only generate rules in
  * memory so the shared nginx.conf is never written.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Minify_Environment_Rules_Filter_Test extends WP_UnitTestCase {
 	/**
@@ -55,7 +55,7 @@ class W3tc_Minify_Environment_Rules_Filter_Test extends WP_UnitTestCase {
 	/**
 	 * Remembers the rules file so it can be restored.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -82,7 +82,7 @@ class W3tc_Minify_Environment_Rules_Filter_Test extends WP_UnitTestCase {
 	/**
 	 * Restores the rules file.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */

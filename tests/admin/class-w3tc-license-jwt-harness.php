@@ -199,7 +199,7 @@ abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 		$state->get( 'common.install', 0 );
 		$ref  = new \ReflectionObject( $state );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $state );
 		if ( ! is_array( $data ) ) {
 			$data = array();
@@ -215,7 +215,7 @@ abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 		$encoded = wp_json_encode( $data );
 		update_site_option( 'w3tc_state', $encoded );
 		$saved = $ref->getProperty( '_saved_encoded' );
-		$saved->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $saved );
 		$saved->setValue( $state, $encoded );
 	}
 
@@ -231,7 +231,7 @@ abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 		$state->get( 'common.install', 0 );
 		$ref  = new \ReflectionObject( $state );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $state );
 		if ( ! is_array( $data ) ) {
 			$data = array();
@@ -279,7 +279,7 @@ abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 		$config = Dispatcher::config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $config );
 		foreach ( $pairs as $k => $v ) {
 			if ( ! array_key_exists( $k, $this->config_backup ) ) {
@@ -302,7 +302,7 @@ abstract class W3tc_License_Jwt_Harness extends WP_UnitTestCase {
 		$config = Dispatcher::config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data = $prop->getValue( $config );
 		foreach ( $this->config_backup as $k => $orig ) {
 			if ( null === $orig ) {

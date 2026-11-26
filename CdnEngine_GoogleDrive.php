@@ -534,7 +534,9 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		try {
 			foreach ( $files as $file_descriptor ) {
 				list( $parent_id, $title ) = $this->remote_path_to_title( $file_descriptor['remote_path'] );
-				$titles_filter[]           = '("' . $parent_id . '" in parents and title = "' . $title . '")';
+				$w3tc_parent_id            = self::escape_query_literal( $parent_id );
+				$w3tc_title                = self::escape_query_literal( $title );
+				$titles_filter[]           = "('$w3tc_parent_id' in parents and title = '$w3tc_title')";
 				if ( ! is_null( $timeout_time ) && time() > $timeout_time ) {
 					return array( 'timeout', array() );
 				}
@@ -553,7 +555,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		try {
 			try {
 				$listed_files = $this->_service->files->listFiles(
-					array( 'q' => '(' . join( ' or ', $titles_filter ) . ') and trashed = false' )
+					array( 'q' => '(' . \join( ' or ', $titles_filter ) . ') and trashed = false' )
 				);
 			} catch ( \W3TCG_Google_Auth_Exception $e ) {
 				if ( $allow_refresh_token ) {
@@ -636,8 +638,8 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 */
 	private function parent_id_resolve_step( $root_id, $w3tc_folder ) {
 		// decode top folder.
-		$ids_string = get_transient( 'w3tc_cdn_google_drive_folder_ids' );
-		$ids        = @unserialize( $ids_string, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$ids_string = \get_transient( 'w3tc_cdn_google_drive_folder_ids' );
+		$ids        = @\unserialize( $ids_string, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		// `allowed_classes => false` substitutes `__PHP_Incomplete_Class` for any
 		// serialized object payload; array-offset access on that would fatal.
@@ -651,9 +653,11 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		}
 
 		// find folder.
-		$items = $this->_service->files->listFiles(
+		$w3tc_root_id  = self::escape_query_literal( $root_id );
+		$w3tc_folder_q = self::escape_query_literal( $w3tc_folder );
+		$items         = $this->_service->files->listFiles(
 			array(
-				'q' => '"' . $root_id . '" in parents and title = "' . $w3tc_folder . '" and mimeType = "application/vnd.google-apps.folder" and trashed = false',
+				'q' => "'$w3tc_root_id' in parents and title = '$w3tc_folder_q' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
 			)
 		);
 
@@ -685,7 +689,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 
 		// `$ids` was normalized to an array immediately after unserialize() above.
 		$ids[ $root_id . '_' . $w3tc_folder ] = $id;
-		set_transient( 'w3tc_cdn_google_drive_folder_ids', serialize( $ids ) );
+		\set_transient( 'w3tc_cdn_google_drive_folder_ids', \serialize( $ids ) );
 
 		return $id;
 	}
@@ -786,6 +790,24 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	}
 
 	/**
+	 * Escape a value embedded in a single-quoted Drive files.list filter.
+	 *
+	 * Backslashes are doubled before quotes are escaped, so a quote
+	 * preceded by a backslash stays inside the literal.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param mixed $value Property value.
+	 *
+	 * @return string
+	 */
+	public static function escape_query_literal( $value ) {
+		$value = \str_replace( '\\', '\\\\', (string) $value );
+
+		return \str_replace( "'", "\\'", $value );
+	}
+
+	/**
 	 * Gets the remote ID associated with a file path.
 	 *
 	 * This method retrieves the remote ID for a file path, either from the database or by querying Google Drive.
@@ -811,7 +833,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		$q     = 'trashed = false';
 		foreach ( $props as $prop ) {
 				$w3tc_key   = $prop->key;
-				$w3tc_value = str_replace( "'", "\\'", $prop->value );
+				$w3tc_value = self::escape_query_literal( $prop->value );
 				$q         .= " and properties has { key='$w3tc_key' and value='$w3tc_value' and visibility='PRIVATE' }";
 		}
 

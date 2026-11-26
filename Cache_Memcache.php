@@ -482,18 +482,29 @@ class Cache_Memcache extends Cache_Base {
 	}
 
 	/**
+	 * Constructs the key version key for a cache group.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $w3tc_group Cache group. Default is an empty string.
+	 *
+	 * @return string
+	 */
+	protected function _get_key_version_key( $w3tc_group = '' ) {
+		return $this->get_fixed_length_key_version_key( $w3tc_group );
+	}
+
+	/**
 	 * Generates a unique storage key for a given cache item.
 	 *
-	 * The key includes the instance ID, host, blog ID, module, and an MD5 hash of the item name. Spaces in the name are sanitized
-	 * to ensure compatibility with Memcache.
+	 * The key is a fixed-length hash of the instance ID, host, blog ID, module, and item name. See
+	 * Cache_Base::get_fixed_length_item_key().
 	 *
 	 * @param string $w3tc_name The name of the cache item.
 	 *
 	 * @return string The unique storage key for the cache item.
 	 */
 	public function get_item_key( $w3tc_name ) {
-		// memcached doesn't survive spaces in a key.
-		$w3tc_key = sprintf( 'w3tc_%d_%s_%d_%s_%s', $this->_instance_id, $this->_host, $this->_blog_id, $this->_module, md5( $w3tc_name ) );
-		return $w3tc_key;
+		return $this->get_fixed_length_item_key( $w3tc_name );
 	}
 }

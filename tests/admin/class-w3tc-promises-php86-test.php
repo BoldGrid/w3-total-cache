@@ -8,7 +8,7 @@
  *
  * @package    W3TC
  * @subpackage W3TC/tests/admin
- * @since      X.X.X
+ * @since      2.11.1
  */
 
 declare( strict_types = 1 );
@@ -22,14 +22,14 @@ use GuzzleHttp\Promise\Utils;
 /**
  * Class: W3tc_Promises_Php86_Test
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class W3tc_Promises_Php86_Test extends WP_UnitTestCase {
 
 	/**
 	 * The locked promises package is 2.6.0 or newer.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_locked_promises_is_at_least_2_6_0() {
 		$lock = \json_decode( \file_get_contents( W3TC_DIR . '/composer.lock' ), true );
@@ -50,7 +50,7 @@ class W3tc_Promises_Php86_Test extends WP_UnitTestCase {
 	/**
 	 * Bundled sources other than Is.php do not reference the Is class.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_bundled_sources_do_not_reference_is() {
 		$src = W3TC_DIR . '/vendor/guzzlehttp/promises/src';
@@ -82,7 +82,7 @@ class W3tc_Promises_Php86_Test extends WP_UnitTestCase {
 	/**
 	 * Promises still settle without loading the Is class.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	public function test_promises_settle_without_loading_is() {
 		$pending = new Promise();

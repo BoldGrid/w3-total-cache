@@ -112,8 +112,9 @@ class BrowserCache_RuleDirectives {
 	/**
 	 * Normalizes no404wp exception patterns for rule rendering.
 	 *
-	 * Sanitizes each entry, drops empties/non-strings, de-duplicates, and
-	 * sorts so equivalent inputs produce identical Apache/Nginx output.
+	 * Sanitizes each entry, drops empties/non-strings and entries that are
+	 * not a self-contained regular expression, de-duplicates, and sorts so
+	 * equivalent inputs produce identical Apache/Nginx output.
 	 *
 	 * @since 2.10.6
 	 *
@@ -123,9 +124,34 @@ class BrowserCache_RuleDirectives {
 	 */
 	public static function normalize_exceptions( $exceptions ) {
 		$out = Util_Rule::sanitize_directive_values( $exceptions );
+		$out = \array_filter( $out, array( __CLASS__, 'is_valid_exception_pattern' ) );
 		$out = \array_values( \array_unique( $out ) );
 		\sort( $out, SORT_STRING );
 
 		return $out;
+	}
+
+	/**
+	 * Checks that a no404wp exception compiles as a standalone regex.
+	 *
+	 * Each entry is rendered as one alternative inside a `(...|...)` group.
+	 * An entry with unbalanced parentheses, a trailing backslash, or other
+	 * invalid syntax could close that group early or make the server reject
+	 * the whole rules file, so such entries are dropped.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $pattern Sanitized exception pattern.
+	 *
+	 * @return bool True when the pattern is a valid regular expression.
+	 */
+	private static function is_valid_exception_pattern( $pattern ) {
+		if ( ! \is_string( $pattern ) || '' === $pattern ) {
+			return false;
+		}
+
+		$delimited = '~' . \str_replace( '~', '\~', $pattern ) . '~';
+
+		return false !== @\preg_match( $delimited, '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 }

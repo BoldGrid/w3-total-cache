@@ -19,9 +19,14 @@ jQuery(document).ready(function ($) {
         w3tcGetAjaxNonce("newrelic_widgetdata_basic") +
         "&w3tc_action=newrelic_widgetdata_basic",
       function (data) {
-        for (p in data) {
+        for (var p in data) {
           var v = data[p];
-          jQuery(".w3tcnr_" + p).html(v);
+          // php_agent is static status markup built by the plugin.
+          if ("php_agent" === p) {
+            jQuery(".w3tcnr_" + p).html(v);
+          } else {
+            jQuery(".w3tcnr_" + p).text(v);
+          }
         }
 
         $(".w3tcnr_content").removeClass("w3tc_hidden");

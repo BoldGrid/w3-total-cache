@@ -86,7 +86,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Seconds to skip a server after a failed connect or command.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var int
 	 */
@@ -95,7 +95,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Seconds a server stays held after a replay claim was seen, before the claim is checked again.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var int
 	 */
@@ -104,7 +104,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * When each held server was last found claimed, keyed by server index.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var array<int,int>
 	 */
@@ -113,7 +113,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Process-local bypass expiry, keyed by server and database.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var array<string,int>
 	 */
@@ -122,7 +122,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Directory for the cross-request bypass files. Tests set this.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var string|null
 	 */
@@ -131,7 +131,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Optional factory for the Redis client. Tests set this.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @var callable|null
 	 */
@@ -544,7 +544,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Whether the guarded client already failed a command.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $accessor Redis client.
 	 * @return bool
@@ -556,7 +556,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Skip the server when a write failed without the guard noticing.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $accessor    Redis client.
 	 * @param string $storage_key Storage key.
@@ -946,7 +946,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * A configured timeout of 0 waits forever. Use one second instead.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param mixed $timeout Configured seconds.
 	 * @return float
@@ -965,7 +965,7 @@ class Cache_Redis extends Cache_Base {
 	 * previous engine and every Redis connection setting for that module,
 	 * so old servers are never paired with new credentials or options.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object        $new_config New config.
 	 * @param object|null   $old_config Previous config.
@@ -1028,7 +1028,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Redis connection settings for one module, keyed by config key.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $config Config.
 	 * @param string $module Module prefix.
@@ -1056,7 +1056,7 @@ class Cache_Redis extends Cache_Base {
 	 * recovered server is actually tried and a rejected save does not skip
 	 * the settings still in use.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param array  $servers                 Server strings.
 	 * @param string $password                Password.
@@ -1116,7 +1116,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Forget process-local test overrides.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -1129,7 +1129,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Whether this server should be skipped until the probe window ends.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $server Server URI.
 	 * @param mixed  $dbid   Database id.
@@ -1163,7 +1163,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Skip this server for BYPASS_SECONDS.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $server Server URI.
 	 * @param mixed  $dbid   Database id.
@@ -1195,7 +1195,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Allow this server to be used again.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $server Server URI.
 	 * @param mixed  $dbid   Database id.
@@ -1250,7 +1250,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Queue file size above which the queue collapses to one group version bump per engine.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	const PENDING_MAX_BYTES = 1048576;
 
@@ -1260,14 +1260,14 @@ class Cache_Redis extends Cache_Base {
 	 * Longer than a live replay of a queue near PENDING_MAX_BYTES. BYPASS_SECONDS
 	 * is the post-failure skip window and is not used for claim ownership.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 */
 	const REPLAY_CLAIM_MAX_AGE = 300;
 
 	/**
 	 * Path of the cross-request queue of invalidations skipped during a bypass.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $server Server URI.
 	 * @param mixed  $dbid   Database id.
@@ -1286,7 +1286,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Replay claims for a pending queue, live or abandoned.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path  Pending queue path.
 	 * @param bool   $stale True for claims older than REPLAY_CLAIM_MAX_AGE, false for live claims.
@@ -1326,7 +1326,7 @@ class Cache_Redis extends Cache_Base {
 	 * The name carries the creation time, so a claim is live from the moment it is renamed. A claim
 	 * is refreshed by each applied entry. A stalled claim ages out after REPLAY_CLAIM_MAX_AGE.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $file Claim path.
 	 * @return int
@@ -1345,7 +1345,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Claim path for a pending queue, named with the time it counts from.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string   $path Pending queue path.
 	 * @param int|null $time Unix time to record in the name, or null for now.
@@ -1365,7 +1365,7 @@ class Cache_Redis extends Cache_Base {
 	 * A claim younger than REPLAY_CLAIM_MAX_AGE is never taken over, so a slow
 	 * replay keeps its queue. Readers get a null accessor while it runs.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path Pending queue path.
 	 * @return bool
@@ -1377,7 +1377,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Server that owns a storage key, mirroring _get_accessor().
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $storage_key Storage key.
 	 * @return string|null
@@ -1392,7 +1392,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Record an invalidation that could not reach Redis, for replay on recovery.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $storage_key Storage key, or version key for 'flush'.
 	 * @param string $op          One of delete, delete_expired, hard_delete, flush.
@@ -1460,7 +1460,7 @@ class Cache_Redis extends Cache_Base {
 	 * the server that owns its version key, because replay runs on that
 	 * server's client.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path        Pending queue path.
 	 * @param string $server      Server URI that owns the queue.
@@ -1543,7 +1543,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Group version keys named by the entries of a pending queue.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string[] $lines Queue lines.
 	 * @return string[]
@@ -1580,7 +1580,7 @@ class Cache_Redis extends Cache_Base {
 	 * entries apply first. Entries that fail to apply are written back for the
 	 * next try.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $redis  Connected client, before any guard.
 	 * @param string $server Server URI.
@@ -1661,7 +1661,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Lines of a claimed queue, read after any compaction that held the file finishes.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $claimed Claim path.
 	 * @return string[]
@@ -1691,7 +1691,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Claim the next file to replay: an abandoned claim first, then the pending queue.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path Pending queue path.
 	 * @return string|false|null Claimed path, false when another request won the claim, null when nothing is queued.
@@ -1735,7 +1735,7 @@ class Cache_Redis extends Cache_Base {
 	 * time, so no write goes to a path another worker may have moved. Without one,
 	 * the claim is renamed to an old time. If that fails, the claim is emptied.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param string $path    Pending queue path.
 	 * @param string $claimed Claim path.
@@ -1773,7 +1773,7 @@ class Cache_Redis extends Cache_Base {
 	/**
 	 * Apply one queued invalidation.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @param object $redis Connected client.
 	 * @param array  $entry Decoded queue line.

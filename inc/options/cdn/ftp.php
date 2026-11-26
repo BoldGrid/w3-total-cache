@@ -92,6 +92,10 @@ if ( ! defined( 'W3TC' ) ) {
 			<option value="ftps"<?php selected( $this->_config->get_string( 'cdn.ftp.type' ), 'ftps' ); ?>><?php esc_html_e( 'SSL-FTP connection (FTPS)', 'w3-total-cache' ); ?></option>
 			<option value="sftp"<?php selected( $this->_config->get_string( 'cdn.ftp.type' ), 'sftp' ); ?><?php echo function_exists( 'ssh2_connect' ) ? '' : ' disabled'; ?>><?php esc_html_e( 'FTP over SSH (SFTP)', 'w3-total-cache' ); ?></option>
 		</select>
+		<p class="description"><?php \esc_html_e( 'FTPS encrypts the username, password, and files. Plain FTP does not.', 'w3-total-cache' ); ?></p>
+		<?php if ( ! \in_array( $this->_config->get_string( 'cdn.ftp.type' ), array( 'ftps', 'sftp' ), true ) ) : ?>
+			<p class="description"><strong><?php \esc_html_e( 'Plain FTP is selected. The username, password, and files are sent without encryption.', 'w3-total-cache' ); ?></strong></p>
+		<?php endif; ?>
 	</td>
 </tr>
 <tr>

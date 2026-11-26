@@ -153,8 +153,8 @@ class W3tc_Redact_Formats_Test extends WP_UnitTestCase {
 				"define( 'AUTH_KEY', 'REDACTED' );",
 			),
 			'define non-secret preserved'      => array(
-				"define( 'DB_NAME', 'wordpress' );",
-				"define( 'DB_NAME', 'wordpress' );",
+				"define( 'WPLANG', 'en_US' );",
+				"define( 'WPLANG', 'en_US' );",
 			),
 		);
 	}

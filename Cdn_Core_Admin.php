@@ -316,6 +316,125 @@ class Cdn_Core_Admin {
 	}
 
 	/**
+	 * Resolves a local media-library import source under the content directory.
+	 *
+	 * The import source is a URL path, so a leading slash is relative to the
+	 * document root rather than an absolute filesystem path. The path is resolved
+	 * canonically, including symlinks. It must resolve to a file inside the
+	 * resolved content directory. That directory may lie outside the document
+	 * root when wp-content is a symlink. Sources outside the content directory,
+	 * and core trees such as wp-admin and wp-includes, are rejected.
+	 * The canonical file name is re-checked against the import policy because
+	 * decoding and symlink resolution can change it.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string      $src  Import source URL path.
+	 * @param string|bool $mask Import file mask.
+	 *
+	 * @return string Canonical local source path, or an empty string when rejected.
+	 */
+	protected function get_import_library_source_path( $src, $mask ) {
+		$common   = Dispatcher::component( 'Cdn_Core' );
+		$relative = ltrim( urldecode( Cdn_Util::import_url_path( $src ) ), '/\\' );
+		$resolved = $common->docroot_filename_to_absolute_path( $relative );
+
+		if ( '' === $resolved ) {
+			// The document-root check fails when wp-content resolves outside the document root.
+			// The content-directory check below still decides whether the source is allowed.
+			$resolved = $this->resolve_import_content_path( $relative );
+		}
+
+		if ( '' === $resolved || ! $this->is_content_dir_path( $resolved ) ) {
+			return '';
+		}
+
+		if ( ! Cdn_Util::url_matches_import_policy( \rawurlencode( \basename( $resolved ) ), $mask ) ) {
+			return '';
+		}
+
+		return $resolved;
+	}
+
+	/**
+	 * Whether a canonical path is a file inside the WordPress content directory.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $resolved Canonical filesystem path.
+	 *
+	 * @return bool
+	 */
+	protected function is_content_dir_path( $resolved ) {
+		$content_real = $this->import_content_dir_real();
+		if ( false === $content_real || ! \is_string( $resolved ) || '' === $resolved ) {
+			return false;
+		}
+
+		$content_norm  = Util_Environment::normalize_path( $content_real );
+		$resolved_norm = Util_Environment::normalize_path( $resolved );
+		$prefix        = $content_norm . '/';
+
+		return $resolved_norm === $content_norm || 0 === \strpos( $resolved_norm, $prefix );
+	}
+
+	/**
+	 * Canonical path of the WordPress content directory, or false when unavailable.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @return string|false
+	 */
+	protected function import_content_dir_real() {
+		if ( ! \defined( 'WP_CONTENT_DIR' ) ) {
+			return false;
+		}
+
+		return \realpath( WP_CONTENT_DIR );
+	}
+
+	/**
+	 * Resolves an import source relative to the document root without the docroot containment check.
+	 *
+	 * Used only when the document-root check fails, which happens when wp-content is a symlink to a
+	 * directory outside the document root. The caller still requires the result to be inside the
+	 * content directory. Traversal and null bytes are rejected here.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $relative Import source path, relative to the document root.
+	 *
+	 * @return string Canonical path, or an empty string when it does not resolve.
+	 */
+	protected function resolve_import_content_path( $relative ) {
+		if ( ! \is_string( $relative ) || '' === $relative ) {
+			return '';
+		}
+
+		if ( false !== \strpos( $relative, "\0" ) || \preg_match( '~(^|[/\\\\])\.\.([/\\\\]|$)~', $relative ) ) {
+			return '';
+		}
+
+		$document_root = Util_Environment::document_root();
+		if ( ! \is_string( $document_root ) || '' === $document_root ) {
+			return '';
+		}
+
+		$docroot_real = \realpath( $document_root );
+		if ( false === $docroot_real ) {
+			return '';
+		}
+
+		if ( '/' !== \DIRECTORY_SEPARATOR ) {
+			$relative = \str_replace( '/', \DIRECTORY_SEPARATOR, $relative );
+		}
+
+		$resolved = \realpath( $docroot_real . \DIRECTORY_SEPARATOR . $relative );
+
+		return false === $resolved ? '' : $resolved;
+	}
+
+	/**
 	 * Import external files into the media library.
 	 *
 	 * This method processes posts with links or images, checking if the external files exist in the media library.
@@ -477,14 +596,16 @@ class Cdn_Core_Admin {
 											/**
 											 * Otherwise copy file from local path
 											 */
-											$src_path = $document_root . '/' . urldecode( $src );
+											$src_path = $this->get_import_library_source_path( $src, $import_mask );
 
-											if ( file_exists( $src_path ) ) {
+											if ( '' !== $src_path && file_exists( $src_path ) ) {
 												$download_result = @copy( $src_path, $dst );
 
 												if ( ! $download_result ) {
 													$error = 'Unable to copy file';
 												}
+											} elseif ( '' === $src_path ) {
+												$error = 'Source path is not an allowed import location';
 											} else {
 												$error = 'Source file doesn\'t exists';
 											}

@@ -471,6 +471,7 @@ foreach (
 	}
 }
 
+require_once \dirname( __DIR__ ) . '/Util_Reflection.php';
 require_once \dirname( __DIR__ ) . '/Util_Environment.php';
 require_once \dirname( __DIR__ ) . '/Util_Rule.php';
 require_once \dirname( __DIR__ ) . '/Util_Environment_Exception.php';
@@ -740,7 +741,7 @@ function mt_force_mode( string $mode ): void {
 	\W3TC\test_pin_single_build_mode( $mode );
 
 	$property = new \ReflectionProperty( '\W3TC\Extension_MaxCache_Core', 'levels' );
-	$property->setAccessible( true );
+	\W3TC\Util_Reflection::set_accessible( $property );
 	$property->setValue(
 		null,
 		array(
@@ -762,6 +763,30 @@ function mt_reason( array $overrides = array() ): string {
 	\W3TC\Extension_MaxCache_Core::refresh( $config );
 
 	return \W3TC\Extension_MaxCache_Core::get_unsupported_reason( $config );
+}
+
+/**
+ * Compiled MaxCacheExcludeURI pattern for one reject list.
+ *
+ * @param string[] $reject Reject URI entries.
+ * @return string
+ */
+function mt_exclude_uri( array $reject ): string {
+	$method = new \ReflectionMethod( '\W3TC\Extension_MaxCache_Core', 'get_exclude_uri' );
+	\W3TC\Util_Reflection::set_accessible( $method );
+
+	return (string) $method->invoke( null, new MT_Config_Stub( array( 'pgcache.reject.uri' => $reject ) ) );
+}
+
+/**
+ * Whether the compiled exclusion matches a path.
+ *
+ * @param string $pattern Compiled exclusion.
+ * @param string $path    Request path.
+ * @return bool
+ */
+function mt_uri_matches( string $pattern, string $path ): bool {
+	return 1 === \preg_match( '~' . $pattern . '~', $path );
 }
 
 $mt_rules_path = \W3TC\Util_Rule::get_apache_rules_path();
@@ -812,7 +837,7 @@ unset( $_SERVER['SERVER_SOFTWARE'] );
 // [4] Apache's own .htaccess parser fails the whole line past this length; one byte under is the
 // longest the generated directive may ever be.
 $mt_cookie_line = new \ReflectionMethod( '\W3TC\Extension_MaxCache_Core', 'get_exclude_cookie' );
-$mt_cookie_line->setAccessible( true );
+\W3TC\Util_Reflection::set_accessible( $mt_cookie_line );
 $mt_probe        = 10;
 $mt_probe_length = \strlen( '    MaxCacheExcludeCookie "' . $mt_cookie_line->invoke( null, new MT_Config_Stub( array( 'pgcache.reject.cookie' => array( \str_repeat( 'a', $mt_probe ) ) ) ) ) . '"' );
 $mt_max_ok       = \W3TC\Extension_MaxCache_Core::MAX_DIRECTIVE_LINE_LENGTH - 1;
@@ -884,10 +909,90 @@ mt_assert(
 	'' === mt_reason( array( 'pgcache.reject.uri' => array( '(?<=/shop)/cart' ) ) )
 );
 
+$mt_cart_uri    = mt_exclude_uri( array( 'cart' ) );
+$mt_catalog_uri = mt_exclude_uri( array( '/catalog/' ) );
+
+mt_assert(
+	'[6] a cart rule excludes the segment and not /shopping-cart',
+	! mt_uri_matches( $mt_cart_uri, '/shopping-cart' )
+		&& mt_uri_matches( $mt_cart_uri, '/cart' )
+		&& mt_uri_matches( $mt_cart_uri, '/shop/cart' )
+		&& mt_uri_matches( $mt_cart_uri, '/cart/item' )
+);
+
+mt_assert(
+	'[6] a /catalog/ rule still excludes /catalog/item',
+	mt_uri_matches( $mt_catalog_uri, '/catalog/' )
+		&& mt_uri_matches( $mt_catalog_uri, '/catalog/item' )
+		&& mt_uri_matches( $mt_catalog_uri, '/shop/catalog/item' )
+		&& ! mt_uri_matches( $mt_catalog_uri, '/other' )
+);
+
+mt_assert(
+	'[6] the directive contains the same anchor PHP matches with',
+	false !== \strpos( $mt_cart_uri, \W3TC\PgCache_UriAnchor::apply( 'cart' ) )
+		&& false !== \strpos( $mt_catalog_uri, \W3TC\PgCache_UriAnchor::apply( '/catalog/' ) )
+);
+
+$mt_repeat_uri = mt_exclude_uri( array( '^/catalog/+' ) );
+$mt_look_uri   = mt_exclude_uri( array( '^/catalog/(?=item)' ) );
+$mt_named_uri  = mt_exclude_uri( array( '(?<dir>/catalog/)' ) );
+$mt_option_uri = mt_exclude_uri( array( '(?i)/catalog/' ) );
+
+mt_assert(
+	'[6] a repeated separator still excludes a descendant',
+	mt_uri_matches( $mt_repeat_uri, '/catalog/item' )
+		&& mt_uri_matches( $mt_repeat_uri, '/catalog/' )
+		&& ! mt_uri_matches( $mt_repeat_uri, '/catalog-extra' )
+);
+
+mt_assert(
+	'[6] a trailing lookahead still excludes its descendant',
+	mt_uri_matches( $mt_look_uri, '/catalog/item' )
+		&& ! mt_uri_matches( $mt_look_uri, '/catalog/other' )
+);
+
+mt_assert(
+	'[6] a named directory group still excludes a nested descendant',
+	mt_uri_matches( $mt_named_uri, '/shop/catalog/item' )
+		&& ! mt_uri_matches( $mt_named_uri, '/catalog-extra' )
+);
+
+mt_assert(
+	'[6] a leading option group still excludes a nested descendant',
+	mt_uri_matches( $mt_option_uri, '/shop/catalog/item' )
+		&& ! mt_uri_matches( $mt_option_uri, '/catalog-extra' )
+);
+
+$mt_repeat_group = mt_exclude_uri( array( '(?:/catalog/|cart){2}' ) );
+$mt_wrapped_uri  = mt_exclude_uri( array( '((?:/catalog/|cart))' ) );
+$mt_extended_uri = mt_exclude_uri( array( '(?x)^/catalog/ # directory' ) );
+
+mt_assert(
+	'[6] a repeated group excludes both iterations without a boundary between them',
+	mt_uri_matches( $mt_repeat_group, '/cartcart' )
+		&& mt_uri_matches( $mt_repeat_group, '/cart/catalog/item' )
+		&& ! mt_uri_matches( $mt_repeat_group, '/cartcartoon' )
+);
+
+mt_assert(
+	'[6] a wrapped directory group still excludes a descendant',
+	mt_uri_matches( $mt_wrapped_uri, '/catalog/item' )
+		&& mt_uri_matches( $mt_wrapped_uri, '/shop/catalog/item' )
+		&& ! mt_uri_matches( $mt_wrapped_uri, '/cartoon' )
+);
+
+mt_assert(
+	'[6] an extended-mode comment still excludes a descendant',
+	false === \strpos( $mt_extended_uri, "\n" )
+		&& mt_uri_matches( $mt_extended_uri, '/catalog/item' )
+		&& ! mt_uri_matches( $mt_extended_uri, '/catalog-extra' )
+);
+
 // Header set is Apache's own directive, and its parser does undo one backslash level inside quotes.
 // A trailing one would escape the closing quote and take the whole config down with it.
 $mt_header_rules = new \ReflectionMethod( '\W3TC\Extension_MaxCache_Core', 'get_response_header_rules' );
-$mt_header_rules->setAccessible( true );
+\W3TC\Util_Reflection::set_accessible( $mt_header_rules );
 
 $GLOBALS['mt_options']['blog_charset'] = 'utf-8\\';
 $mt_header_line = $mt_header_rules->invoke( null, new MT_Config_Stub() );
@@ -1395,7 +1500,7 @@ $GLOBALS['mt_doing_ajax'] = true;
 \W3TC\Extension_MaxCache_Core::forget();
 
 $mt_refreshed = new \ReflectionProperty( '\W3TC\Extension_MaxCache_Core', 'refreshed_config' );
-$mt_refreshed->setAccessible( true );
+\W3TC\Util_Reflection::set_accessible( $mt_refreshed );
 
 $mt_ajax_config = new MT_Config_Stub();
 \apply_filters( 'w3tc_pgcache_rules_required', true, $mt_ajax_config );
@@ -1455,7 +1560,7 @@ mt_assert(
 // [13] The NGINX daemon only notices a changed file on its own schedule; Apache reads .htaccess per
 // request. Backwards, an NGINX host serves a stale configuration until the next rescan.
 $mt_reload = new \ReflectionMethod( '\W3TC\Extension_MaxCache_Configd', 'reload_request' );
-$mt_reload->setAccessible( true );
+\W3TC\Util_Reflection::set_accessible( $mt_reload );
 
 mt_force_mode( 'nginx' );
 mt_assert(

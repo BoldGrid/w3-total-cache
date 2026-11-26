@@ -1036,7 +1036,7 @@ class W3tc_Minify_Precache_Url_Test extends WP_UnitTestCase {
 		};
 		$property = new \ReflectionProperty( Minify_MinifiedFileRequestHandler::class, '_config' );
 		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
+			\W3TC\Util_Reflection::set_accessible( $property );
 		}
 		$property->setValue( $handler, $config );
 

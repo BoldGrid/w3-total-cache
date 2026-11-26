@@ -116,6 +116,7 @@ class Extension_Swarmify_Plugin {
 
 		// add bootstrap swarmify script if there are really any videos on page.
 		if ( $bootstrap_required ) {
+			// The Swarmify player requires this public, domain-scoped embed value.
 			$loader_script = '<script>var swarmoptions = {swarmcdnkey: "' . $api_key . '"};</script>' .
 				'<script src="//assets.swarmcdn.com/cross/swarmcdn.js"></script>';
 

@@ -9,6 +9,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
 {
   protected $collection_key = 'items';
 
+  #[\ReturnTypeWillChange]
   public function rewind()
   {
     if (isset($this->modelData[$this->collection_key])
@@ -17,6 +18,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     }
   }
 
+  #[\ReturnTypeWillChange]
   public function current()
   {
     $this->coerceType($this->key());
@@ -25,6 +27,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     }
   }
 
+  #[\ReturnTypeWillChange]
   public function key()
   {
     if (isset($this->modelData[$this->collection_key])
@@ -33,22 +36,26 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     }
   }
 
+  #[\ReturnTypeWillChange]
   public function next()
   {
     return next($this->modelData[$this->collection_key]);
   }
 
+  #[\ReturnTypeWillChange]
   public function valid()
   {
     $key = $this->key();
     return $key !== null && $key !== false;
   }
 
+  #[\ReturnTypeWillChange]
   public function count()
   {
     return count($this->modelData[$this->collection_key]);
   }
 
+  #[\ReturnTypeWillChange]
   public function offsetExists ($offset)
   {
     if (!is_numeric($offset)) {
@@ -57,6 +64,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     return isset($this->modelData[$this->collection_key][$offset]);
   }
 
+  #[\ReturnTypeWillChange]
   public function offsetGet($offset)
   {
     if (!is_numeric($offset)) {
@@ -66,6 +74,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     return $this->modelData[$this->collection_key][$offset];
   }
 
+  #[\ReturnTypeWillChange]
   public function offsetSet($offset, $value)
   {
     if (!is_numeric($offset)) {
@@ -74,6 +83,7 @@ class W3TCG_Google_Collection extends W3TCG_Google_Model implements Iterator, Co
     $this->modelData[$this->collection_key][$offset] = $value;
   }
 
+  #[\ReturnTypeWillChange]
   public function offsetUnset($offset)
   {
     if (!is_numeric($offset)) {

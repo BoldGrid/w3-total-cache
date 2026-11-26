@@ -189,6 +189,38 @@ class Cdn_AdminNotes {
 	}
 
 	/**
+	 * Warn while the saved CDN transport is plain FTP.
+	 *
+	 * The notice stays until the connection type is changed. It has no
+	 * dismiss control. While CDN is disabled it only shows on the CDN page.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $errors Admin error messages.
+	 * @return array Admin error messages, including the plain-FTP warning when it applies.
+	 */
+	public function plain_ftp_notice( array $errors ): array {
+		$config = Dispatcher::config();
+
+		if (
+			'ftp' !== $config->get_string( 'cdn.engine' ) ||
+			\in_array( $config->get_string( 'cdn.ftp.type' ), array( 'ftps', 'sftp' ), true ) ||
+			( ! $config->get_boolean( 'cdn.enabled' ) && 'w3tc_cdn' !== Util_Request::get_string( 'page' ) )
+		) {
+			return $errors;
+		}
+
+		$errors['cdn_ftp_plain'] = \sprintf(
+			// translators: 1 opening HTML anchor tag, 2 closing HTML anchor tag.
+			\__( 'CDN file transfers are using plain FTP. The username, password, and files are sent without encryption. Switch the connection to FTPS or SFTP on the %1$sCDN%2$s page.', 'w3-total-cache' ),
+			'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn#configuration' ) ) . '">',
+			'</a>'
+		);
+
+		return $errors;
+	}
+
+	/**
 	 * Adds CDN-related errors to the provided array of admin errors.
 	 *
 	 * This method checks for issues such as upload queue errors, configuration

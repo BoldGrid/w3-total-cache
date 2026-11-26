@@ -86,7 +86,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 
 		$ref  = new \ReflectionObject( $config );
 		$prop = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data         = $prop->getValue( $config );
 		$data[ $key ] = $value;
 		$prop->setValue( $config, $data );
@@ -253,7 +253,7 @@ class W3tc_Secret_Clear_Test extends WP_UnitTestCase {
 		$config = new Config();
 		$ref    = new \ReflectionObject( $config );
 		$prop   = $ref->getProperty( '_data' );
-		$prop->setAccessible( true );
+		\W3TC\Util_Reflection::set_accessible( $prop );
 		$data                    = $prop->getValue( $config );
 		$data['newrelic']        = array(
 			'api_key' => 'NRAK-EXAMPLE-KEY',

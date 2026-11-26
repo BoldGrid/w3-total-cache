@@ -10,8 +10,10 @@
  *   - Did not validate the AWS SNS signature before mutating globals.
  *
  * The fix flips the order: method gate, header gate, bounded-body
- * read, SNS signature validation — all before `wp-load.php`. Globals
- * are never set from request input.
+ * read, message construction, and the message type, signature version
+ * and signing-certificate URL checks all run before `wp-load.php`. The
+ * topic comparison and signature verification run after WordPress
+ * loads. Globals are never set from request input.
  *
  * Posture: regression-only. The spec asserts that requests which
  * would have triggered the WP bootstrap previously now return a
@@ -23,8 +25,10 @@
  *    body.
  *  - Anonymous POST without the AWS header: 400 with `Missing SNS
  *    headers` body.
- *  - Anonymous POST with the header but bogus body: 400 with
- *    `Invalid SNS message` body (the SDK validator throws).
+ *  - Anonymous POST with the header but an unparseable body: 400 with
+ *    `Invalid SNS message` body (`json_decode` fails or the
+ *    `\Aws\Sns\Message` constructor throws; the SDK validator is not
+ *    involved).
  *
  * The defense-in-depth `pub/` deny is exercised by attempting to
  * GET a non-existent `pub/anything.php`. Apache/LiteSpeed enforce
@@ -188,11 +192,10 @@ describe("sec-missing-auth-public-endpoints pub/sns.php regression", function ()
   });
 
   /**
-   * Anon POST WITH the SNS header but a bogus signed body —
-   * the SDK signature validator throws, the handler returns
-   * 403 Forbidden. This proves the signature gate also fires
-   * before any side effects (the test value would have set
-   * `$_SERVER['HTTP_HOST']` under the old code path).
+   * Anon POST WITH the SNS header but a certificate URL that is not an
+   * AWS SNS SimpleNotificationService PEM. That check runs before
+   * WordPress loads and returns 403. A structurally valid unsigned
+   * message still needs the loaded config before its topic can be compared.
    */
   it("anon POST with SNS header but bogus body returns 403/400", async () => {
     let bogusBody = JSON.stringify({
@@ -203,8 +206,7 @@ describe("sec-missing-auth-public-endpoints pub/sns.php regression", function ()
       Timestamp: "2026-01-01T00:00:00Z",
       Signature: "AAAA",
       SignatureVersion: "1",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      SigningCertURL: "https://example.com/not-a-cert.pem",
     });
     let r;
     try {
@@ -222,8 +224,9 @@ describe("sec-missing-auth-public-endpoints pub/sns.php regression", function ()
         JSON.stringify(r.body.substring(0, 120)),
     );
     /**
-     * Acceptable: 400 (invalid SNS message), 403 (forbidden /
-     * bad signature). Either proves the signature path fired.
+     * Acceptable: 400 (the body failed json_decode or Message
+     * construction) or 403 (a pre-bootstrap type, version or
+     * signing-certificate URL check rejected it).
      */
     expect([400, 403]).contains(r.statusCode);
     expect(r.body).not.contains("<html");

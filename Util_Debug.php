@@ -260,13 +260,21 @@ class Util_Debug {
 			$w3tc_line = isset( $w3tc_i['line'] ) ? $w3tc_i['line'] : '';
 
 			$method            = ( ! empty( $w3tc_i['class'] ) ? $w3tc_i['class'] . '--' : '' ) . $w3tc_i['function'];
-			$args              = ' ' . self::encode_params( $w3tc_i['args'] );
+			$args              = ' ' . self::encode_params( $w3tc_i['args'], 'dbcache' === $w3tc_module );
 			$backtrace_lines[] = "\t#" . ( $pos ) . ' ' . $filename . '(' . $w3tc_line . '): ' . $method . $args;
 			++$pos;
 		}
 
 		$w3tc_message = $w3tc_message;
 		if ( ! is_null( $parameters ) ) {
+			if ( 'dbcache' === $w3tc_module ) {
+				if ( \is_array( $parameters ) ) {
+					$parameters = self::scrub_dbcache_flush_extras_for_log( $parameters );
+				} elseif ( \is_string( $parameters ) ) {
+					$parameters = self::scrub_sql_literals( $parameters );
+				}
+			}
+
 			$w3tc_message .= self::encode_params( $parameters );
 		}
 
@@ -396,14 +404,20 @@ class Util_Debug {
 	/**
 	 * Encode parameters
 	 *
-	 * @param array $args Arguments.
+	 * @param array $args      Arguments.
+	 * @param bool  $scrub_sql Optional. Replace every quoted and numeric value in the
+	 *                         JSON-encoded arguments, so a string argument becomes `?`
+	 *                         whether or not it is SQL. Default false.
 	 *
 	 * @return string
 	 */
-	private static function encode_params( $args ) {
+	private static function encode_params( $args, $scrub_sql = false ) {
 		$args_strings = array();
 		if ( ! is_array( $args ) ) {
 			$s = (string) $args;
+			if ( $scrub_sql ) {
+				$s = self::scrub_sql_literals( \is_string( $args ) ? (string) wp_json_encode( $args, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : $s );
+			}
 
 			if ( strlen( $s ) > 100 ) {
 				$s = substr( $s, 0, 98 ) . '..';
@@ -412,7 +426,11 @@ class Util_Debug {
 			$args_strings[] = $s;
 		} else {
 			foreach ( $args as $arg ) {
-				$s = wp_json_encode( $arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				if ( $scrub_sql ) {
+					$s = self::scrub_sql_literals( (string) wp_json_encode( $arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+				} else {
+					$s = wp_json_encode( $arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				}
 				if ( strlen( $s ) > 100 ) {
 					$s = substr( $s, 0, 98 ) . '..';
 				}
@@ -483,9 +501,10 @@ class Util_Debug {
 		$secret = self::redact_secret_name_pattern();
 		// Dotted `.key` (cdn.s3.key) is secret; bare JSON `"key"` is not.
 		$key    = '(?:(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}[._-])?' . $secret . '|(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.)key)';
+		$define = '(?:(?:DB_(?:PASSWORD|USER|HOST|NAME)|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT|' . $key . ')(?:[_-][A-Za-z0-9]+)*)';
 
 		$blob = (string) \preg_replace(
-			"/define\\(\\s*(['\"])(DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT)(\\1)\\s*,\\s*(['\"])((?:\\\\.|(?!\\4).)*)(\\4)\\s*\\)\\s*;/i",
+			"/define\\s*\\(\\s*(['\"])(" . $define . ")(\\1)\\s*,\\s*(['\"])((?:\\\\.|(?!\\4).)*)(\\4)\\s*\\)\\s*;/i",
 			"define( '\$2', 'REDACTED' );",
 			$blob
 		);
@@ -670,5 +689,259 @@ class Util_Debug {
 	 */
 	public static function redact_secrets( $blob ) {
 		return self::redact( $blob );
+	}
+
+	/**
+	 * Replace quoted string literals and numeric literals in a SQL
+	 * statement with `?` placeholders.
+	 *
+	 * Keywords, identifiers (including digit-leading ones), operators, and
+	 * comment markers stay in place. Backtick-quoted identifiers are copied
+	 * through. Literals inside comment text are replaced too. A leading
+	 * `+` / `-` is kept as an operator. Parameter masking via
+	 * {@see self::redact()} is not applied here.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $sql SQL statement.
+	 * @return string Statement with literals replaced by `?`.
+	 */
+	public static function scrub_sql_literals( string $sql ): string {
+		return self::scrub_sql_scan( $sql, true );
+	}
+
+	/**
+	 * Replace literals in one pass over $sql.
+	 *
+	 * Comment bodies are scanned with $comments false, so comment openers
+	 * inside them are plain text. Each byte is scanned at most twice.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $sql      SQL statement or comment body.
+	 * @param bool   $comments Whether to recognize comment openers.
+	 * @return string Text with literals replaced by `?`.
+	 */
+	private static function scrub_sql_scan( string $sql, bool $comments ): string {
+		$length = \strlen( $sql );
+		$out    = '';
+		$i      = 0;
+
+		while ( $i < $length ) {
+			$ch   = $sql[ $i ];
+			$next = ( $i + 1 ) < $length ? $sql[ $i + 1 ] : '';
+
+			if ( '`' === $ch ) {
+				$end  = self::scrub_sql_span_end( $sql, $i, '`' );
+				$out .= \substr( $sql, $i, $end - $i );
+				$i    = $end;
+				continue;
+			}
+
+			if ( '\'' === $ch || '"' === $ch ) {
+				$i    = self::scrub_sql_span_end( $sql, $i, $ch );
+				$out .= '?';
+				continue;
+			}
+
+			if ( $comments && '/' === $ch && '*' === $next ) {
+				$start = $i + 2;
+				if ( $start < $length && '!' === $sql[ $start ] ) {
+					$start += 1 + \strspn( $sql, '0123456789', $start + 1 );
+				}
+
+				$close = \strpos( $sql, '*/', $start );
+				$end   = ( false === $close ) ? $length : $close;
+				$out  .= \substr( $sql, $i, $start - $i ) . self::scrub_sql_scan( \substr( $sql, $start, $end - $start ), false );
+				if ( false === $close ) {
+					$i = $length;
+				} else {
+					$out .= '*/';
+					$i    = $close + 2;
+				}
+				continue;
+			}
+
+			if ( $comments && ( '#' === $ch || ( '-' === $ch && '-' === $next && ( ( $i + 2 ) >= $length || \ord( $sql[ $i + 2 ] ) <= 32 ) ) ) ) {
+				$start = $i + ( '#' === $ch ? 1 : 2 );
+				$end   = $start + \strcspn( $sql, "\r\n", $start );
+				$out  .= \substr( $sql, $i, $start - $i ) . self::scrub_sql_scan( \substr( $sql, $start, $end - $start ), false );
+				$i     = $end;
+				continue;
+			}
+
+			$token = self::scrub_sql_identifier_length( $sql, $i );
+			if ( $token > 0 ) {
+				if ( $ch >= '0' && $ch <= '9' ) {
+					$end = self::scrub_sql_numeric_end( $sql, $i );
+					if ( $end >= $i + $token ) {
+						$out .= '?';
+						$i    = $end;
+						continue;
+					}
+				}
+
+				$out .= \substr( $sql, $i, $token );
+				$i   += $token;
+				continue;
+			}
+
+			if ( '.' === $ch && '' !== $next && $next >= '0' && $next <= '9' ) {
+				$prev = ( $i > 0 ) ? $sql[ $i - 1 ] : '';
+				if ( '' === $prev || ( '`' !== $prev && ! self::scrub_sql_is_identifier_char( $prev ) ) ) {
+					$out .= '?';
+					$i    = self::scrub_sql_numeric_end( $sql, $i );
+					continue;
+				}
+			}
+
+			$out .= $ch;
+			++$i;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Copy dbcache flush extras with SQL literals scrubbed for logs.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param array $extras Optional extra parameters for cache flushing.
+	 * @return array Copy with every string value, at any depth, scrubbed for debug / purge logs.
+	 */
+	public static function scrub_dbcache_flush_extras_for_log( array $extras ): array {
+		\array_walk_recursive(
+			$extras,
+			function ( &$value ) {
+				if ( \is_string( $value ) ) {
+					$value = self::scrub_sql_literals( $value );
+				}
+			}
+		);
+
+		return $extras;
+	}
+
+	/**
+	 * Index just past a quoted span that opens at $start.
+	 *
+	 * Strings treat a backslash and a doubled quote as escapes. Backtick
+	 * identifiers treat a doubled backtick as an escape. An unclosed span
+	 * runs to the end of the statement.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $sql   SQL statement.
+	 * @param int    $start Index of the opening quote.
+	 * @param string $quote Quote character.
+	 * @return int
+	 */
+	private static function scrub_sql_span_end( $sql, $start, $quote ) {
+		$length            = \strlen( $sql );
+		$backslash_escapes = '`' !== $quote;
+		$i                 = $start + 1;
+
+		while ( $i < $length ) {
+			if ( $backslash_escapes && '\\' === $sql[ $i ] && ( $i + 1 ) < $length ) {
+				$i += 2;
+				continue;
+			}
+
+			if ( $quote === $sql[ $i ] ) {
+				if ( ( $i + 1 ) < $length && $quote === $sql[ $i + 1 ] ) {
+					$i += 2;
+					continue;
+				}
+
+				return $i + 1;
+			}
+
+			++$i;
+		}
+
+		return $length;
+	}
+
+	/**
+	 * Index just past the numeric literal that starts at $i.
+	 *
+	 * Consumes a hex (`0x`) or binary (`0b`) literal, or a decimal with an
+	 * optional integer part, fractional part, and exponent.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $sql SQL statement.
+	 * @param int    $i   Index of the first character of the literal.
+	 * @return int
+	 */
+	private static function scrub_sql_numeric_end( $sql, $i ) {
+		$length = \strlen( $sql );
+
+		if ( ( $i + 1 ) < $length && '0' === $sql[ $i ] ) {
+			$radix = $sql[ $i + 1 ];
+			if ( 'x' === $radix || 'X' === $radix ) {
+				return $i + 2 + \strspn( $sql, '0123456789abcdefABCDEF', $i + 2 );
+			}
+
+			if ( 'b' === $radix || 'B' === $radix ) {
+				return $i + 2 + \strspn( $sql, '01', $i + 2 );
+			}
+		}
+
+		$i += \strspn( $sql, '0123456789', $i );
+
+		if ( $i < $length && '.' === $sql[ $i ] ) {
+			++$i;
+			$i += \strspn( $sql, '0123456789', $i );
+		}
+
+		if ( $i < $length && ( 'e' === $sql[ $i ] || 'E' === $sql[ $i ] ) ) {
+			$j = $i + 1;
+			if ( $j < $length && ( '+' === $sql[ $j ] || '-' === $sql[ $j ] ) ) {
+				++$j;
+			}
+
+			$digits = \strspn( $sql, '0123456789', $j );
+			if ( $digits > 0 ) {
+				$i = $j + $digits;
+			}
+		}
+
+		return $i;
+	}
+
+	/**
+	 * Length of the run of unquoted identifier bytes that starts at $i.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $sql SQL statement.
+	 * @param int    $i   Start index.
+	 * @return int
+	 */
+	private static function scrub_sql_identifier_length( $sql, $i ) {
+		static $mask = null;
+
+		if ( null === $mask ) {
+			$mask = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$';
+			for ( $b = 128; $b < 256; $b++ ) {
+				$mask .= \chr( $b );
+			}
+		}
+
+		return \strspn( $sql, $mask, $i );
+	}
+
+	/**
+	 * Whether a byte can appear inside an unquoted SQL identifier.
+	 *
+	 * @since 2.11.1
+	 *
+	 * @param string $ch Single byte.
+	 * @return bool
+	 */
+	private static function scrub_sql_is_identifier_char( $ch ) {
+		return 1 === self::scrub_sql_identifier_length( $ch, 0 );
 	}
 }

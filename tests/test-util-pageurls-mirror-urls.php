@@ -14,7 +14,7 @@
  * subdomain subsite expands correctly. The multisite bootstrap defines SUBDOMAIN_INSTALL
  * as false, so a true subdomain network case cannot run there.
  *
- * @since X.X.X
+ * @since 2.11.1
  */
 class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 
@@ -28,7 +28,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Sets up config for the test.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -46,7 +46,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Restores config after each test.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -63,7 +63,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * With aliases enabled, a URL under the home URL gets the same path on each alias.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -93,7 +93,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -124,7 +124,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Regex purge patterns are expanded the same way as plain URLs.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -143,7 +143,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * With the aliases feature off, the URL list is returned unchanged.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -163,7 +163,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * URLs outside the current home URL are not rewritten onto aliases.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
@@ -182,7 +182,7 @@ class Util_PageUrls_Mirror_Urls_Test extends WP_UnitTestCase {
 	/**
 	 * Alias entries with a trailing slash are normalized and empty entries are skipped.
 	 *
-	 * @since X.X.X
+	 * @since 2.11.1
 	 *
 	 * @return void
 	 */
